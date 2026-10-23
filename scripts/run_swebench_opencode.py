@@ -242,6 +242,8 @@ def main():
     parser.add_argument("--instance-ids", nargs="*", choices=IDS)
     parser.add_argument("--max-steps", type=int, default=None)
     parser.add_argument("--timeout-s", type=int, default=3600)
+    parser.add_argument("--allow-agent-events-only", action="store_true",
+                        help="Explicitly run without a qualified filesystem recorder; not a filesystem trace collection run")
     args = parser.parse_args()
     args.output = args.output.resolve()
     rows = load_rows(args.source)
@@ -250,6 +252,8 @@ def main():
     freeze(rows, args.output, args.max_steps, args.timeout_s)
     if args.prepare_only:
         print(json.dumps({"selected": [r["instance_id"] for r in rows], "output": str(args.output)})); return
+    if not args.allow_agent_events_only:
+        raise RuntimeError("Full OpenCode filesystem recording is not qualified yet. Run run_fs_trace_pilot.py for the gated single-process tool pilot. To explicitly repeat legacy agent-events-only runs, pass --allow-agent-events-only; this does NOT collect filesystem traces.")
     provider = json.load(sys.stdin)
     for r in rows:
         if (args.output / r["instance_id"]).exists():

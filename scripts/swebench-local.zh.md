@@ -23,6 +23,8 @@ skopeo copy --retry-times 2 docker://docker.io/<selection.json 中的镜像名> 
 
 ## 执行
 
+**现在默认禁止直接启动新的模型解题。**此前的脚本只有 Agent 事件记录，不能保证文件系统 trace。已接通的单进程文件采集先用 `run_fs_trace_pilot.py`，见 [采集与回放说明](fs-trace.zh.md)。完整 OpenCode（多进程、SQLite、mmap 等）的采集尚未通过验收。仅在明确接受“不采集文件系统 trace”并复现旧运行时，才能添加 `--allow-agent-events-only`；该参数不会开启文件系统记录。
+
 在 Windows 仓库目录用 PowerShell 读取已有配置，再经 stdin 交给 WSL。下例的路径按本机实际情况修改；第一次执行输出目录内不应存在任务子目录。
 
 ```powershell

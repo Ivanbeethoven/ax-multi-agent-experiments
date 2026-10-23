@@ -1,0 +1,13 @@
+{"format": "mounted-fs-replay", "version": 1, "payload_provenance": "captured", "description": "Single-process strace capture; read/write normalized to positioned I/O; no physical/FUSE I/O claim", "initial_tree_sha256": "fd5090b98f93da0e53b682b4cdd8e6b1bf42a3db3eba6f3ce6b93ce434fc722d"}
+{"phase": 0, "stream": 0, "expected_errno": 0, "op": "open", "fd": 1, "path": "probe.bin", "access": "read_write", "create": true, "exclusive": true, "truncate": false, "mode": 420}
+{"phase": 0, "stream": 0, "expected_errno": 0, "op": "pwrite", "fd": 1, "offset": 0, "len": 4, "expected_bytes": 4, "data_hex": "61626364"}
+{"phase": 0, "stream": 0, "expected_errno": 0, "op": "pread", "fd": 1, "offset": 0, "len": 6, "expected_bytes": 4, "expected_sha256": "88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589"}
+{"phase": 0, "stream": 0, "expected_errno": 0, "op": "pread", "fd": 1, "offset": 1, "len": 2, "expected_bytes": 2, "expected_sha256": "1e0bbd6c686ba050b8eb03ffeedc64fdc9d80947fce821abbe5d6dc8d252c5ac"}
+{"phase": 0, "stream": 0, "expected_errno": 0, "op": "pread", "fd": 1, "offset": 9, "len": 2, "expected_bytes": 0, "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+{"phase": 0, "stream": 0, "expected_errno": 0, "op": "pwrite", "fd": 1, "offset": 1, "len": 1, "expected_bytes": 1, "data_hex": "5a"}
+{"phase": 0, "stream": 0, "expected_errno": 0, "op": "pread", "fd": 1, "offset": 1, "len": 2, "expected_bytes": 2, "expected_sha256": "f43fac6ea8acc440dae8ef88d284ac3b7fea8c7723da59f3766ded51b65fbefb"}
+{"phase": 0, "stream": 0, "expected_errno": 0, "op": "fsync", "fd": 1}
+{"phase": 0, "stream": 0, "expected_errno": 0, "op": "rename", "from": "probe.bin", "to": "renamed.bin"}
+{"phase": 0, "stream": 0, "expected_errno": 0, "op": "pread", "fd": 1, "offset": 1, "len": 2, "expected_bytes": 2, "expected_sha256": "f43fac6ea8acc440dae8ef88d284ac3b7fea8c7723da59f3766ded51b65fbefb"}
+{"phase": 0, "stream": 0, "expected_errno": 0, "op": "close", "fd": 1}
+{"phase": 0, "stream": 0, "expected_errno": 2, "op": "open", "fd": 2, "path": "absent", "access": "read", "create": false, "exclusive": false, "truncate": false}
