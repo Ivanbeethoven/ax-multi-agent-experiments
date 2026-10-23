@@ -1,0 +1,914 @@
+{
+  "schema_version": 2,
+  "status": "planned",
+  "execution_enabled": false,
+  "updated_on": "2026-10-23",
+  "scope": "固定输入和待执行计划。新增分散读取、低共享、未保存修改迁移和故障检查计划；多节点执行和真实工具采集仍待接通，不运行云服务或模型。",
+  "integration_status": "AX集成和多Agent运行已具备（用户确认）；本轮对照实验未执行。",
+  "references": {
+    "questions": "README.md",
+    "plan": "plan.zh.md",
+    "matrix": "matrix.csv",
+    "baselines": "baselines.md",
+    "metrics": "metrics.md",
+    "migration": "integration-and-migration.md",
+    "live_inputs": "inputs/live-tasks.json",
+    "grading": "inputs/grading/index.json",
+    "execution_plan": "execution-plan.zh.md",
+    "infrastructure": "infra/alicloud/README.md",
+    "replay_protocol": "replay-experiments.zh.md",
+    "agent_session": "agent-trace-and-resume.zh.md",
+    "execution_checks": "qualification.md",
+    "baseline_operation_modes": "baseline-operation-contracts.json"
+  },
+  "research_questions": [
+    {
+      "id": "RQ1",
+      "question": "固定资源下能管理多少工作区？持续创建是否排队？",
+      "experiments": [
+        "T1",
+        "T6"
+      ]
+    },
+    {
+      "id": "RQ2",
+      "question": "共享资料、独立修改、保留历史的代价是多少？",
+      "experiments": [
+        "T2",
+        "T3",
+        "T6"
+      ]
+    },
+    {
+      "id": "RQ3",
+      "question": "能否让真实Agent更早完成任务？",
+      "experiments": [
+        "T4"
+      ]
+    },
+    {
+      "id": "RQ4",
+      "question": "能否只迁选中的Agent，其他任务继续？",
+      "experiments": [
+        "T5"
+      ]
+    }
+  ],
+  "desired_environment": {
+    "status": "proposed_not_deployed_by_this_plan",
+    "client_nodes": 4,
+    "client_cpu_per_node": 8,
+    "client_memory_gib_per_node": 32,
+    "client_cpu_total": 32,
+    "client_memory_total_gib": 128,
+    "client_cache_total_gib": 32,
+    "control_and_storage_cpu_total": 32,
+    "control_and_storage_memory_total_gib": 128,
+    "storage_nodes": 4,
+    "resource_rule": "客户端和控制/存储分别按总预算配置；统一盘容量与网络，实际配置填运行清单。T4每Agent为2 CPU/4 GiB，C16最多占32 CPU/64 GiB。",
+    "cache_rule": "32 GiB为全部客户端总缓存，不是每节点或每Agent；页缓存与文件系统缓存均登记。主组冷客户端，后端状态固定记录，暖客户端另组。",
+    "cloud_rule": "阿里云按量服务；普通ESSD同AZ主组，Regional ESSD跨AZ另列；B2-M托管Redis和B5 NAS独立成本比较，不能声称后台CPU/内存与自建相同。",
+    "provider": "alicloud"
+  },
+  "determinism": {
+    "seed": 20261023,
+    "encoding": "UTF-8 without BOM",
+    "byte_generator": "SHAKE256",
+    "digest": "SHA-256",
+    "integer_format": "生成标签中数字为十进制无多余前导零；只有明示路径编号使用固定宽度补零。",
+    "path_format": "相对POSIX路径，使用/，无前导/，大小写按定义。",
+    "write_payload": "SHAKE256(UTF8('brewfs-ax-v2|20261023|workspace=' + decimal(workspace_id) + '|round=' + decimal(round_id) + '|write=' + decimal(write_id))).digest(4096)",
+    "session_payload": "SHAKE256(UTF8('brewfs-ax-v2|20261023|workspace=' + decimal(workspace_id) + '|round=' + decimal(round_id) + '|session')).digest(65536)",
+    "session_path": "agent-state/session.bin",
+    "manifest_rule": "物化后记录每路径类型、长度、权限、SHA-256及完整目录清单摘要。当前F1/F2未物化，摘要不得编造。"
+  },
+  "fixtures": [
+    {
+      "id": "F1",
+      "name": "1 GiB固定文件树",
+      "status": "specified_not_materialized",
+      "logical_data_bytes": 1073741824,
+      "small_files": {
+        "count": 32768,
+        "bytes_each": 16384,
+        "directories": 128,
+        "entries_per_directory": 256,
+        "path": "small/d{directory:03d}/s{entry:03d}.bin",
+        "directory_range": [
+          0,
+          127
+        ],
+        "entry_range": [
+          0,
+          255
+        ],
+        "global_index": "n=directory*256+entry"
+      },
+      "large_files": {
+        "count": 128,
+        "bytes_each": 4194304,
+        "path": "large/l{file:03d}.bin",
+        "file_range": [
+          0,
+          127
+        ],
+        "write_block_bytes": 4096,
+        "write_pool_blocks": 131072,
+        "block_mapping": "块b对应file=floor(b/1024)，offset=(b%1024)*4096"
+      },
+      "bytes_rule": "SHAKE256(UTF8('brewfs-ax-v2|20261023|' + decimal(content_version) + '|' + relative_path)).digest(file_length)",
+      "content_version_main": 1,
+      "low_sharing_versions": "负例使用content_version=1..64，workspace_id%64+1分配；相同路径、长度和权限，不同内容。",
+      "file_mode": "0644",
+      "directory_mode": "0755",
+      "mtime_ns": 0,
+      "data_manifest_sha256": null,
+      "experiments": [
+        "T1",
+        "T2",
+        "T5",
+        "T6"
+      ]
+    },
+    {
+      "id": "F2",
+      "name": "1 GiB按key读取的共享资料",
+      "status": "specified_not_materialized",
+      "logical_data_bytes_per_version": 1073741824,
+      "shard_count": 64,
+      "bytes_per_shard": 16777216,
+      "records_per_shard": 4096,
+      "record_bytes": 4096,
+      "record_count": 262144,
+      "key_range": [
+        0,
+        262143
+      ],
+      "path": "shards/p{shard:02d}.bin",
+      "record_mapping": "shard=floor(key/4096)，offset=(key%4096)*4096；每分片按key递增拼接，不含额外头部或填充。",
+      "record_bytes_rule": "SHAKE256(UTF8('brewfs-ax-v2|20261023|' + decimal(record_content_version) + '|key=' + decimal(key))).digest(4096)",
+      "index_rule": "发布清单记录上面的key→分片/offset算式、分片长度/摘要、dataset_version；索引与版本清单开销另计，不冒充1 GiB记录数据的一部分。",
+      "versions": [
+        {
+          "dataset_version": "V1",
+          "record_content_version": "所有key为1"
+        },
+        {
+          "dataset_version": "V2",
+          "record_content_version": "仅key%100==0为2，其余仍为1",
+          "changed_records": 2622,
+          "changed_logical_bytes": 10739712
+        }
+      ],
+      "version_rule": "V2未变记录与V1逐字节一致；旧消费者固定V1，新消费者明确绑定V2，不跟随latest。",
+      "data_manifest_sha256_by_version": {
+        "V1": null,
+        "V2": null
+      },
+      "experiments": [
+        "T3",
+        "T6"
+      ]
+    },
+    {
+      "id": "L16",
+      "name": "16个独立SWE-bench Verified任务",
+      "status": "inputs_frozen_runtime_unqualified",
+      "manifest": "inputs/live-tasks.json",
+      "manifest_sha256": "3d5dbb4dec95606d1ac907cf87859d3db2fb3711193252bae0afc80e1f1543cb",
+      "task_count": 16,
+      "repository_count": 4,
+      "distinct_base_commits": 16,
+      "selection": "Django/Pytest/Scikit-learn/SymPy各按instance_id字符串字典序取前4；不按性能/成功率选题。",
+      "agent_input": "只提供该题原始代码、prompt和固定执行环境；不挂完整清单、源Parquet、grading目录或标准答案。",
+      "qualification": "题目、base commit、提示词已冻结；image digest、环境启动和评分未验证。",
+      "experiments": [
+        "T4",
+        "T5"
+      ]
+    }
+  ],
+  "workloads": [
+    {
+      "id": "W1",
+      "name": "创建、读改保存、保留与持续请求",
+      "mode": "deterministic",
+      "fixtures": [
+        "F1"
+      ],
+      "experiments": [
+        "T1"
+      ],
+      "per_workspace": {
+        "small_files_read": 256,
+        "small_selection": "全局编号0..255，即small/d000/s000.bin至s255.bin，各完整读一次。",
+        "logical_read_bytes": 4194304,
+        "write_count": 256,
+        "bytes_per_write": 4096,
+        "logical_write_bytes": 1048576,
+        "write_selection": "只写大文件池块0..255，不重叠；round_id=1，write_id=块序号。不同workspace同偏移写不同内容。",
+        "session_bytes": 65536,
+        "completion": "文件、会话与工具清单达到baselines.md共同远端保存确认点。"
+      },
+      "batch_workspace_counts": [
+        16,
+        64,
+        256,
+        1024
+      ],
+      "boundary_workspace_counts": [
+        255,
+        256,
+        257
+      ],
+      "per_request_deadline_s": 120,
+      "arrival": "容量批次在t0统一提交全部请求；等待时间计入。N增大是规模曲线，不是固定工作量加速比。实际owner上限、控制域数和失败如实保留。",
+      "capacity_admission": {
+        "origin": "全部请求统一提交时刻t0",
+        "admission_cutoff_s": 120,
+        "criterion": "t0+120秒前完成规定的准备、首次正确读取、1MiB修改、64KiB会话保存与内容核对；未准入、拒绝和迟完成均保留，不以新请求补位。首次有效读时间另报，不能代替完整生命周期按时成功。",
+        "hold_owner_until_s": 180,
+        "hold_rule": "所有准入成功工作区即使已完成读改保存，也保持工作区打开、挂载和有效owner直到t0+180秒；不得提前释放后将槽位复用算作同时容量。",
+        "verification_times_s": [
+          120,
+          180
+        ],
+        "verification": "两时点均检查所有已准入工作区的可用性、有效owner和固定内容读回，另核对已完成保存的文件/会话摘要；缺失或错误保留。",
+        "release": "完成t0+180秒核验后才统一释放成功工作区；保存尚未完成单列未完成，不伪装成功。"
+      },
+      "sustained": {
+        "lifetime_rule": "本组与容量保留组分开；创建模式完成保存与核对后立即释放，不套用t0+180秒统一保留规则。",
+        "slots": 64,
+        "request_rates_per_s": [
+          1,
+          4,
+          16,
+          64
+        ],
+        "warmup_s": 300,
+        "measurement_s": 900,
+        "drain_limit_s": 600,
+        "modes": [
+          "create_then_save_verify_release",
+          "save_existing_64_workspaces"
+        ],
+        "schedule": "预生成固定时间表，慢系统不减少发送；满槽排队。同一工作区的保存串行，轮流向64个工作区发送。",
+        "timestamps": [
+          "scheduled",
+          "sent",
+          "started",
+          "finished"
+        ],
+        "generator_delay": "单列发生器自身迟发，不归因存储。"
+      },
+      "outputs": [
+        "请求成功/拒绝/超时/内容错误",
+        "提交、就绪、首次正确读、保存确认时间",
+        "文件/会话/工具清单摘要",
+        "元数据内存、总网络、物理空间和清理记录"
+      ],
+      "oracle": "F1读取正确；工作区写入匹配workspace_id；基线与兄弟不污染；已确认状态在另一节点可读回。",
+      "negative": "保留64不同内容版本、暖缓存和owner边界；失败入全部申请分母，仅全部成功时报全部完成时间。"
+    },
+    {
+      "id": "W2",
+      "name": "已保存父状态分叉、私有修改、历史与回收",
+      "mode": "deterministic",
+      "fixtures": [
+        "F1"
+      ],
+      "experiments": [
+        "T2"
+      ],
+      "parent": "P先按W1写1 MiB及64 KiB会话并远端保存；其生成身份workspace_id=-1、round_id=1。16个子工作区编号0..15从已保存P分叉，必须继承父修改，不能从原始F1冒充；父子身份不同，写入字节不能意外相同。",
+      "children": 16,
+      "content": {
+        "unique_modified_mib": [
+          1,
+          16,
+          128,
+          512
+        ],
+        "bytes_per_write": 4096,
+        "writes_per_mib": 256,
+        "pool": "只写F1的512 MiB大文件区。",
+        "contiguous": "j=0..modified_mib*256-1，块b=j。",
+        "scattered": "j=0..modified_mib*256-1，块b=(40503*j+17)%131072；乘数与池大小互质，因此同轮不重叠。",
+        "payload": "workspace_id为子编号、round_id=1、write_id=j，使用determinism.write_payload。",
+        "repeated": {
+          "unique_modified_bytes": 1048576,
+          "passes": 10,
+          "total_logical_write_bytes": 10485760,
+          "selection": "每遍重写大文件池块0..255，round_id=1..10；最终为第10遍内容。",
+          "save_boundary": "每遍均完成共同远端保存；累计写入和保存成本全部计入。"
+        }
+      },
+      "namespace": {
+        "delete_count": 32,
+        "delete_paths": "small/d000/s000.bin至s031.bin",
+        "rename_count": 32,
+        "rename_paths": "small/d000/s032.bin至s063.bin分别改为同目录r032.bin至r063.bin，内容不变。",
+        "nonoverlap": "内容写只涉及大文件；删除与改名只涉及互不重叠的小文件集合。"
+      },
+      "session_bytes": 65536,
+      "history": {
+        "retained_versions": [
+          1000,
+          10000,
+          100000
+        ],
+        "active_workspaces": 16,
+        "content_change_mib": 1,
+        "generation": "历史版本h=0..H-1依次由workspace_id=h%16写大文件池块0..255，round_id=floor(h/16)+1；每次远端保存为独立可恢复版本，写会话并保留完成记录。",
+        "version_rule": "H为已关闭但可恢复版本数，不是挂载数或墓碑数。",
+        "verification": "全部检查根引用/摘要；将h按SHA256(UTF8('brewfs-ax-v2|20261023|history=' + decimal(h)))的十六进制值升序排列，取前100个完整恢复；不能把抽样说成全量内容核验。",
+        "delete_fraction": 0.5,
+        "delete_selection": "删除h为偶数的版本，保留奇数；若某方案保护期限制删除，记录等待，不删除仍被活跃工作区引用的必要状态。",
+        "gc_observation_s": 3600,
+        "policy": "相同保护期与维护资源；记录释放空间及前台延迟。"
+      },
+      "outputs": [
+        "16份子清单与P/F1清单",
+        "分叉首读、保存、恢复、回收时间",
+        "唯一修改/累计写/实际上传字节",
+        "保留与回收后的物理空间、对象数及元数据"
+      ],
+      "oracle": "子继承P；父与兄弟不污染；恢复指定P/子版本符合精确操作，丢弃子后P仍正确；仍保留版本不能被GC损坏。",
+      "negative": "大改、分散改、重复覆盖和历史积累可能抵消收益；空间不足、恢复失败和未回收元数据均保留。"
+    },
+    {
+      "id": "W3",
+      "name": "生产者发布资料、消费者共享读取和版本切换",
+      "mode": "deterministic",
+      "fixtures": [
+        "F2"
+      ],
+      "experiments": [
+        "T3"
+      ],
+      "producer": "生成F2 V1及索引/清单，完整保存后发布；V2仅改变key%100==0。首次构建/上传/发布及后台成本全部计入。",
+      "consumer_counts": [
+        1,
+        16,
+        64
+      ],
+      "records_per_consumer": 1024,
+      "queries": {
+        "high_reuse": "所有消费者key=j，j=0..1023。",
+        "low_reuse": "消费者i读取key=i*1024+j，j=0..1023，i=0..N-1且N<=64；消费者之间不重叠。",
+        "sequential_negative": "各消费者按key递增读全部262144条记录，即完整1 GiB。"
+      },
+      "main_access": "B0/B2/B3直接只读共享同一已发布版本；B1每节点只保存/恢复一份并节点内共享；B4允许每节点一份只读副本。输出在各自私有目录，不强制逐消费者复制。",
+      "secondary": "构建一次后逐消费者复制是补充；每消费者重建仅为应用参考，不能用重复计算证明存储收益。",
+      "versions": "先启动绑定V1消费者；发布V2后新消费者明确绑定V2；旧消费者继续V1。读开始记录版本与清单摘要。",
+      "fault": "V2上传一半中止，不得发布部分版本；V1继续可读，保留未完成上传及回收成本。",
+      "outputs": "每消费者按key排序输出JSONL {key,dataset_version,record_content_version,sha256}；普通场景1024行，顺序负例262144行。另记发布/版本绑定、first-result与all-done时间及全部节点流量。",
+      "oracle": "逐key摘要匹配生成式；旧新消费者无混版；V2恰好2622条变更；未完成版本不可见。",
+      "negative": "单消费者、无重叠和全量扫描必须保留；远端只存一份不代表只下载一次。",
+      "ablation_scattered_read": {
+        "records": 1024,
+        "record_bytes": 4096,
+        "key_formula": "(40503*j+17)%262144 for j=0..1023",
+        "execution_order": "formula order",
+        "output_order": "ascending key",
+        "logical_bytes": 4194304,
+        "shards_touched": 64,
+        "scope": "A4 only; main T3 matrix unchanged"
+      }
+    },
+    {
+      "id": "W4",
+      "name": "固定16题工具回放与真实Agent验证",
+      "mode": "tool_replay_with_live_validation",
+      "fixtures": [
+        "L16"
+      ],
+      "experiments": [
+        "T4"
+      ],
+      "tasks_per_batch": 16,
+      "concurrencies": [
+        1,
+        4,
+        16
+      ],
+      "dispatch": "16题在批次起点一起进入FIFO，按冻结清单顺序，空出槽位即启动下一题；每题每批一次尝试。",
+      "model_requested": "deepseek-v4-flash",
+      "model_resolved": null,
+      "temperature_requested": 0,
+      "model_rule": "正式运行前登记实际返回ID、路由、执行器版本、并发配额、重试和seed支持；不支持的参数对所有系统统一修订后冻结。",
+      "agent_cpu_limit": 2,
+      "agent_memory_gib": 4,
+      "turn_limit": 100,
+      "output_token_limit": 100000,
+      "per_task_timeout_s": 1800,
+      "per_task_timeout_origin": "Agent进程实际启动",
+      "batch_observation_s": 28800,
+      "batch_observation_origin": "全部16题提交",
+      "budget_rule": "排队/准备计入批次时间。达到题目或批次上限即记录未完成/超时，不删除未启动任务；8h不保证C1必完成16题。",
+      "outputs": [
+        "每题补丁、base与workspace身份",
+        "模型/工具时间线、token/轮数、排队和终止原因",
+        "独立评分与成本",
+        "从统一提交起的正确完成数曲线"
+      ],
+      "grading": "独立资源评分；正确结果归到候选提交时刻，评分耗时单列。退出码0、补丁产出、测试执行和修复成功分别记录。",
+      "oracle": "固定官方测试判修复测试通过且应继续通过测试未退化；全部16题进入成功/失败/超时/未完成分母。",
+      "negative": "模型等待、随机性及API限流可能掩盖存储差异；不能扣掉模型等待就声称因果噪声消失。同题16候选不属于此16独立题预算。",
+      "replay_protocol": "replay-experiments.zh.md"
+    },
+    {
+      "id": "W64",
+      "name": "64工作区中迁走16个、48个继续",
+      "mode": "deterministic_with_live_supplement",
+      "fixtures": [
+        "F1",
+        "L16"
+      ],
+      "experiments": [
+        "T5"
+      ],
+      "workspace_count": 64,
+      "workspace_ids": [
+        0,
+        63
+      ],
+      "per_round": "按W1读256小文件、写大文件块0..255共1 MiB、保存64 KiB会话和步骤编号，再核对；round_id为轮号，每轮远端保存确认。",
+      "initial_rounds": 10,
+      "migration_after_round": 10,
+      "selected_workspace_count": 16,
+      "selection": "workspace_id=4*j，j=0..15，即0,4,...,60；不按性能选择。",
+      "selected_total_rounds": 20,
+      "checkpoint_barrier": "全部64个工作区均完成第10轮远端保存确认后才通过屏障并定义t0；任一未达到屏障则记录该批准备失败，不把其静默剔除。",
+      "selected_behavior": "t0向16个选中工作区同时发出pause；全部保持第10轮已确认状态，等待迁移槽位时也持续暂停，禁止执行第11轮或继续修改。目标恢复后才执行第11..20轮。16个都计入迁移批次，槽位排队计入从t0起的暂停时间。",
+      "placement": {
+        "source_node": "floor(workspace_id/16)，节点编号0..3，每源节点16工作区。",
+        "target_node": "(source_node+1)%4；固定为另一已就绪节点，不按某系统表现更换目标。",
+        "other_candidates": "其他候选节点的网络、权限、资源和后端可达性另做可选目标比例验证，不混入该固定目标计时。"
+      },
+      "deadlines": {
+        "origin": "全部64工作区通过第10轮确认屏障并发出统一pause的t0",
+        "first_useful_target_result_s": 600,
+        "first_useful_definition": "目标节点返回首个完成内容校验的有效工具结果；槽位排队、fencing、挂载和首次读取全部计入。",
+        "paired_batch_end_s": 900,
+        "policy": "C=1/4/16与不迁移配对组使用相同起点和900秒批次观察上限；迁移者600秒内无有效目标结果记迁移超时，900秒仍未完成的任务/请求保留最终状态，不延长某一系统时限。"
+      },
+      "migration_concurrencies": [
+        1,
+        4,
+        16
+      ],
+      "concurrency_meaning": "同时处理的迁移数，不改变16个迁移总量或64工作区总量。",
+      "unselected_workspace_count": 48,
+      "neighbor_schedule": {
+        "post_checkpoint_round_requests": 120,
+        "interval_s": 5,
+        "scheduled_window_s": 600,
+        "drain_limit_s": 300,
+        "per_round_request_deadline_s": 120,
+        "per_round_deadline_origin": "该轮预生成的计划请求时刻；迟发与排队不能重置期限。",
+        "first_request": "迁移触发时刻t0，后续t0+5*j秒，j=0..119。",
+        "round_ids": "11..130",
+        "queue_rule": "固定时间表请求，不因系统慢而少发；同一工作区内串行执行，积压入队，记录计划/实际发送/开始/完成。每轮超过120秒记超时；600秒到达窗口后最多收尾300秒，t0+900秒停止观察。迟完成、超时和未完成全部保留，不能减少原定120个请求。"
+      },
+      "control": "不迁移配对组也等待全部64个第10轮确认屏障，以相同t0继续：对应选中16个完成第11..20轮但不搬动；48个邻居使用相同120请求、5秒间隔、120秒每请求期限和最多300秒收尾。两组统一t0+900秒截止，不随某系统迁移完成时刻改变工作量或时限。",
+      "cloud_cases": [
+        "B4每Agent独立卷只换挂选中卷",
+        "B4节点共享盘分别测整盘移动受影响数与只转移选中目录，不能忽略邻居中断"
+      ],
+      "live_supplement": {
+        "task_ids": [
+          "pytest-dev__pytest-10051",
+          "sympy__sympy-11618"
+        ],
+        "pause": "第3个完整工具结果后、下一工具开始前暂停；不足3次即结束的题记录未触发，不换题或改触发点。",
+        "checkpoint": "文件、AX会话、工具结果、对话与剩余预算共同保存；恢复后预算不重置。",
+        "included_in_T4_budget": false,
+        "planned_runs": 8,
+        "run_count_ref": "replay_strategy.initial_live_budget.continuation_attempts",
+        "run_unit": "continuation_attempt; checkpoint preparation costs are separate if not reusable"
+      },
+      "outputs": [
+        "全部64个逐轮结果",
+        "16个迁移停顿和全部恢复时间、重做量、实际传输与最终摘要",
+        "保存/fencing/卸载/API/挂载/恢复/首次正确工具结果分项",
+        "48邻居相对不迁移组的吞吐、队列、工具p95变化",
+        "可用目标节点比例及约束"
+      ],
+      "oracle": "已确认第10轮文件/会话/步骤不丢；旧写者不能修改新一代状态；选中者在不同节点完成第20轮；邻居结果符合各自实际完成轮号，无交叉污染。",
+      "negative": "冷目标、保存、租约、API/挂盘和共享后端竞争可能使迁移慢或拖累邻居；重挂成功不等于任务恢复。"
+    },
+    {
+      "id": "W6",
+      "name": "设计特性的内部对照",
+      "mode": "deterministic",
+      "fixtures": [
+        "F1",
+        "F2"
+      ],
+      "experiments": [
+        "T6"
+      ],
+      "equivalence": "同API、内容、缓存、完整性和保存语义；缺等价实现标未实现，不用ordinary VFS代替Entity称单因素。",
+      "interventions": [
+        {
+          "id": "shared_packed_2x2",
+          "workspace_count": 64,
+          "fixture": "F1",
+          "axes": {
+            "baseline": [
+              "shared",
+              "physically_independent_same_content"
+            ],
+            "metadata": [
+              "Packed",
+              "equivalent_ordinary_index"
+            ]
+          },
+          "queries": "j=0..255，令n=(40503*j+17)%32768、d=floor(n/256)、e=n%256；逐j交替stat正路径small/d{d:03d}/s{e:03d}.bin与负路径small/d{d:03d}/m{e:03d}.bin，共256正+256负。先列目录组在相同查询序列前按路径排序列出涉及的d目录；直接查名组跳过这一步。每变体使用全新F1工作区，负路径必须不存在。",
+          "report": "四组合及交互分别报告，不能把两项收益相加；连接创建/搜索时间、lower请求/字节、元数据占用。"
+        },
+        {
+          "id": "private_vs_full_save",
+          "workload": "W2",
+          "modified_mib": [
+            1,
+            128
+          ],
+          "save_modes": [
+            "private_changes",
+            "full_materialization"
+          ],
+          "report": "同API下连接保存时间、PUT、实际上传和空间，保留大改负例。"
+        },
+        {
+          "id": "object_layout",
+          "workload": "W3",
+          "reads": [
+            "1024 contiguous keys (4 MiB)",
+            "1024 scattered keys (4 MiB, all 64 shards)",
+            "full sequential 1 GiB"
+          ],
+          "layouts": null,
+          "layout_rule": "运行前冻结部署支持且实际不同的合法B/q组合，新建对象并读回布局；不能假设q可任意独立调。",
+          "report": "相同请求/内容下连接S3读→物理读→工具时间；upper整对象校验、auto等于默认为负例。"
+        }
+      ],
+      "outputs": [
+        "相同任务内容检查",
+        "各组合创建/工具/保存时间",
+        "索引请求、内存、CPU与物理读取",
+        "实际生效布局与缓存记录"
+      ],
+      "oracle": "各变体任务结果一致且开关实际生效；没有生效的开关按无干预报告。",
+      "negative": "暖缓存、随机查名、整对象验证和全扫描可能无收益；只有物理层变好、工具没变时只报告物理层结果。"
+    }
+  ],
+  "experiments": [
+    {
+      "id": "T1",
+      "questions": [
+        "RQ1"
+      ],
+      "workloads": [
+        "W1"
+      ],
+      "fixtures": [
+        "F1"
+      ],
+      "matrix_ref": "matrix.csv:T1"
+    },
+    {
+      "id": "T2",
+      "questions": [
+        "RQ2"
+      ],
+      "workloads": [
+        "W2"
+      ],
+      "fixtures": [
+        "F1"
+      ],
+      "matrix_ref": "matrix.csv:T2"
+    },
+    {
+      "id": "T3",
+      "questions": [
+        "RQ2"
+      ],
+      "workloads": [
+        "W3"
+      ],
+      "fixtures": [
+        "F2"
+      ],
+      "matrix_ref": "matrix.csv:T3"
+    },
+    {
+      "id": "T4",
+      "questions": [
+        "RQ3"
+      ],
+      "workloads": [
+        "W4"
+      ],
+      "fixtures": [
+        "L16"
+      ],
+      "matrix_ref": "matrix.csv:T4"
+    },
+    {
+      "id": "T5",
+      "questions": [
+        "RQ4"
+      ],
+      "workloads": [
+        "W64"
+      ],
+      "fixtures": [
+        "F1",
+        "L16"
+      ],
+      "matrix_ref": "matrix.csv:T5"
+    },
+    {
+      "id": "T6",
+      "questions": [
+        "RQ1",
+        "RQ2"
+      ],
+      "workloads": [
+        "W6"
+      ],
+      "fixtures": [
+        "F1",
+        "F2"
+      ],
+      "matrix_ref": "matrix.csv:T6"
+    }
+  ],
+  "pilots": {
+    "deterministic": {
+      "experiment_id": "T1",
+      "workload_id": "W1",
+      "fixture_id": "F1",
+      "systems": [
+        "B1",
+        "B2"
+      ],
+      "concurrencies": [
+        1,
+        4
+      ],
+      "cache_states": [
+        "cold"
+      ],
+      "repetitions": 3,
+      "workspaces_per_batch": 16,
+      "planned_batches": 12,
+      "planned_workspace_lifecycles": 192,
+      "arithmetic": "2系统×2并发×1缓存×3批=12批；每批16工作区，共192生命周期。",
+      "status": "planned_not_executed"
+    },
+    "live_calibration": {
+      "experiment_id": "T4",
+      "workload_id": "W4",
+      "fixture_id": "L16",
+      "systems": [
+        "B0",
+        "B2"
+      ],
+      "concurrencies": [
+        4
+      ],
+      "batch_repetitions": 3,
+      "tasks_per_batch": 16,
+      "planned_batches": 6,
+      "planned_agent_executions": 96,
+      "arithmetic": "2系统×1并发×3批×16题=96执行。",
+      "role": "校准不进入正式结果，不按效果删题。",
+      "status": "optional_expansion_not_current_default"
+    }
+  },
+  "live_budget": {
+    "formal": {
+      "experiment_id": "T4",
+      "systems": [
+        "B0",
+        "B1",
+        "B2",
+        "B3"
+      ],
+      "concurrencies": [
+        1,
+        4,
+        16
+      ],
+      "batch_repetitions": 3,
+      "tasks_per_batch": 16,
+      "planned_batches": 36,
+      "planned_agent_executions": 576,
+      "arithmetic": "4系统×3并发×3批×16题=576执行。",
+      "max_output_tokens_if_every_task_hits_cap": 57600000,
+      "status": "optional_expansion_not_current_default"
+    },
+    "calibration_agent_executions": 96,
+    "formal_agent_executions": 576,
+    "calibration_plus_formal_agent_executions": 672,
+    "supplemental_T5_excluded": true,
+    "provider_rate_and_price": null,
+    "cost_rule": "token上限不是预估消费或实际费用；记录实际输入/输出token、价格和重试。",
+    "status": "legacy_optional_expansion",
+    "current_default_ref": "replay_strategy.initial_live_budget"
+  },
+  "result_policy": {
+    "measurement_state": "none_executed",
+    "fixture_materialization_not_started": [
+      "F1",
+      "F2"
+    ],
+    "all_assigned_units_in_denominator": true,
+    "system_order": "按任务/并发/缓存分块随机交错系统顺序，保存种子和顺序。",
+    "independent_unit": "独立批次或迁移尝试；I/O请求及同题候选不能冒充独立任务。",
+    "clock": "节点内单调时钟；跨节点登记时钟域与同步误差；重叠工具/模型时长不能直接相加后从批次时间扣除。",
+    "failures": "失败、超时、未启动、未评分、迁移失败和计量缺失分别保留；仪器无效重跑关联原记录，不静默删除。"
+  },
+  "current_execution_phase": "other_baselines_first_brewfs_adapter_deferred",
+  "replay_strategy": {
+    "status": "proposed_traces_not_captured",
+    "default_bulk_mode": "tool_replay",
+    "trace_count": 16,
+    "trace_manifest": null,
+    "model_calls_during_replay": 0,
+    "divergence_policy": "Stop the diverged task, preserve it in the denominator, and never fall back to a live model.",
+    "posix_replayer_scope": "Real operations on a mounted path; not a FUSE wire-protocol recorder, tool-command runner, or native Agent session restorer.",
+    "a6_mode": "tool_replay",
+    "a6_replay_executions": 192,
+    "initial_live_budget": {
+      "status": "proposed_not_executed",
+      "capture_full_runs": 16,
+      "validation_systems": [
+        "B0",
+        "B2"
+      ],
+      "validation_concurrency": 4,
+      "validation_batches_per_system": 1,
+      "validation_tasks_per_batch": 16,
+      "validation_full_runs": 32,
+      "total_full_runs": 48,
+      "resume_tasks": 2,
+      "resume_systems": [
+        "B0",
+        "B2"
+      ],
+      "resume_conditions": [
+        "migration",
+        "no_migration"
+      ],
+      "continuation_attempts": 8,
+      "additional_checkpoint_preparation_runs": null,
+      "rule": "Reuse recorded checkpoints if qualified. Additional model calls for checkpoint preparation or repository-only controls require a separately recorded budget."
+    },
+    "operational_state_location": "inside workspace, included in measured I/O",
+    "instrumentation_location": "outside workspace",
+    "synthetic_session_scope": "agent-state/session.bin proves file transfer only, not native Agent continuation",
+    "state_execution_default": "excluded",
+    "state_capture_required": [
+      "state_file_manifest_before",
+      "state_file_manifest_after",
+      "state_io_receipt with bytes/append/overwrite/rename/fsync/fdatasync/SQLite-WAL-lock behavior/tool boundary/remote confirmation"
+    ]
+  },
+  "follow_up_cases": {
+    "status": "planned_not_executed",
+    "rq1_sharing_boundary": {
+      "campaign": "rq1-sharing-boundary",
+      "workspaces": 256,
+      "client_nodes": 4,
+      "base_version_counts": [
+        1,
+        64
+      ],
+      "systems": [
+        "B0",
+        "B1",
+        "B2",
+        "B3"
+      ],
+      "initial_repetitions": 3,
+      "planned_cells": 24,
+      "rule": "Separate paired control; do not borrow another campaign result."
+    },
+    "rq4_dirty_migration": {
+      "campaign": "rq4-dirty-migration",
+      "workspaces": 16,
+      "selected": [
+        0,
+        4,
+        8,
+        12
+      ],
+      "neighbors": 12,
+      "concurrency": 4,
+      "dirty_modified_bytes": [
+        0,
+        1048576,
+        134217728
+      ],
+      "systems": [
+        "B0",
+        "B2",
+        "B4"
+      ],
+      "conditions": [
+        "migration",
+        "no_migration"
+      ],
+      "qualification_repetitions": 1,
+      "qualification_cells": 18,
+      "later_three_repetition_cells": 54,
+      "time_origin": "pause_requested; include subsequent save",
+      "rule": "0 MiB keeps confirmed round10 unchanged; nonzero uses round11 and matching synthetic session. Record actual post-pause upload/sync, not nominal dirty size."
+    },
+    "rq4_fault_qualification": {
+      "campaign": "rq4-fault-qualification",
+      "initial_repetitions": 1,
+      "planned_cells": 19,
+      "client_faults": [
+        "before_ack",
+        "after_ack",
+        "stale_writer"
+      ],
+      "client_fault_systems": [
+        "B0",
+        "B1",
+        "B2",
+        "B3",
+        "B4"
+      ],
+      "half_publish_systems": [
+        "B0",
+        "B1",
+        "B2",
+        "B3"
+      ],
+      "rule": "Kill/isolate the complete client, including FUSE upload processes when applicable; unsupported guarantees are recorded, not approximated."
+    },
+    "a4_scattered": {
+      "additional_cells_at_three_repetitions": 12,
+      "ablation_campaign_total": 102,
+      "new_model_calls": 0
+    },
+    "still_not_generated": [
+      "ten consecutive overwrite/save rounds",
+      "GC concurrent with foreground work",
+      "qualified implementation-specific capacity boundaries",
+      "regional disk migration",
+      "multi-node strong/weak scaling beyond fixed four clients"
+    ]
+  },
+  "run_rules": {
+    "cache_protocols": {
+      "client-cold-backend-observed-v1": {
+        "client_state": "cold",
+        "order": [
+          "validate input",
+          "reset page/dentry/process/filesystem caches",
+          "record completion",
+          "start timing"
+        ],
+        "backend_state": "observe; unknown or managed caches must be disclosed"
+      },
+      "client-warm-backend-observed-v1": {
+        "client_state": "warm",
+        "order": [
+          "validate input",
+          "run the fixed warmup sequence",
+          "start timing"
+        ],
+        "backend_state": "observe; do not assume cold"
+      }
+    },
+    "arrivals": {
+      "cohorts": [
+        "warmup",
+        "measurement"
+      ],
+      "warmup_s": 300,
+      "measurement_s": 900,
+      "drain_s": 600,
+      "measurement_interval_s": [
+        300,
+        1200
+      ],
+      "arrival_request_ids": "cohort plus ordinal; keep scheduled and actual timestamps",
+      "window_throughput": "all correct completions in [300,1200) / 900; report warmup-origin completions separately",
+      "measurement_success_rate": "measurement-origin requests completed correctly within their scheduled deadline / all measurement-origin requests",
+      "drain_rule": "late completion remains attributed to its arrival cohort; never add drain completions to the window throughput"
+    },
+    "capacity_language": "storage workspaces, active tool slots, mounts/client identities, and native Agent processes are separate counts",
+    "resource_accounting": "record client, replayer, kernel page cache, filesystem cache, coordinator, metadata and data services separately; record actual limits and all service machines",
+    "cost_accounting": "actual total bill includes setup, warmup, run, drain and retained state; time-apportioned shared service cost is a separately labelled calculation",
+    "analysis": "bind campaign index cell hashes, exact result identity/population, raw artifacts and independent review file; missing results stay not_run"
+  }
+}

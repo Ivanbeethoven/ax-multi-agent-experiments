@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-23",
+  "scope": "Local plan and harness checks only; no cloud deployment, model call, native session recovery, or storage performance measurement.",
+  "environment": "Ubuntu-24.04 under WSL; Python 3.12.3",
+  "checks": [
+    {
+      "exit_code": 0,
+      "command": "python3 -m unittest discover -s tests -q",
+      "tests": 101,
+      "elapsed_s": 4.243
+    },
+    {
+      "exit_code": 0,
+      "command": "python3 scripts/check_plan.py",
+      "passed": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "exit_code": 0,
+      "command": "python3 scripts/smoke_check.py --report /tmp/ax-gap-smoke-20261023.json",
+      "passed": true,
+      "checks": 4
+    }
+  ],
+  "planned_only": {
+    "ablation_cells": 102,
+    "fault_qualification_cells": 19,
+    "sharing_boundary_cells": 24,
+    "dirty_migration_qualification_cells": 18
+  },
+  "remaining_work": [
+    "Capture actual tool and native session operations",
+    "Connect multi-node execution and stronger baseline paths",
+    "Implement dirty checkpoint and fault injection hooks",
+    "Run native session continuation and stale writer qualification",
+    "Implement repeated overwrite and foreground GC boundary tests"
+  ],
+  "source_sha256": {
+    "README.md": "1192e128c944f5211a279ee5f8c056eb90ea1a1dac1574cce698374c28b5e965",
+    "execution-plan.zh.md": "9a2012282887ae2a8b0866007b3c858e160b75ecf2e4e060f8e63ec389a1f198",
+    "qualification.md": "ca2d922728c4d9200633c4bbeab46979cdffe0ba65ae1a6b0a453fbbb9be2a43",
+    "baselines.md": "a14d3a9bd72ab2c86f32e5b91056962c4283c9e1cf2453aadd373a31781a3ff6",
+    "baseline-operation-contracts.json": "79d397cc4535fea822865b7aae73b7ea1638b8e266b4284263e44425b39a29d2",
+    "integration-and-migration.md": "b962d2550a214e69f6f68e6885e5f77d50f6edef6a3c6b4e5bfdc18eadf183ce",
+    "workloads.json": "8424fd19f4eb5d0a51e9250a3fd970f80633aa107124e49078b4358ae8ee207c",
+    "matrix.csv": "4db00a5ab6c67af2122a80804f7a1202df525f307b809e4634c903b68ff821b9",
+    "metrics.md": "e5d832722d7b2cb40f2b218aa2cec8a2c6b05d7c1928fbd822c0553136678c52",
+    "run-manifest.example.json": "730d9c9f1dd3f1e4df6043c26e829aea5fcf21c0505cd5e0c60ba204ea602f10",
+    "replay-experiments.zh.md": "886bd9b3152fe1a9888adbf23eabdb86aafe0de546e2d437f766e32fc3202f18",
+    "harness/generate_campaign.py": "33c869084e02ef7f3115747bed847355a7bafab13d4c240bdd0da3407e785daf",
+    "harness/worker.py": "862b387450a4ce0807936436c90a42029c3c4b7d6dc79128b4420ec27e87f33b",
+    "harness/qualification.py": "ec1a986f7b0f11b7c2c2505022375a32519a9caded256056025ad86640f3d103",
+    "harness/evidence_audit.py": "fd27d2c4ed1dd94f907e0b3bd6a66779b3881bfa1859c350dee070b688d39f95",
+    "harness/analyze.py": "b39a27d2756243c652fb23b8813749b99fe077d8bc8568f2a437ba385513e7e3",
+    "harness/adapter.py": "e18a79859d8416f1f9fbe2843da3f66db95bff0ec4767c392753a784c9a1881a",
+    "harness/run_cell.py": "9350c641c249f79d1d04fed70e53539b37e52ab56ce38db3e943f8d7d9eef7e9",
+    "harness/scenarios.py": "bd0c1e82d0392789acb27d2c5fd9d8ae9b1749e27a59615ccdaf7691c14a0035",
+    "scripts/check_plan.py": "042882996446e0cec253432722da373f267d3ad130ab4dc9e353ad93224116ca",
+    "tests/test_gap_campaigns.py": "0f46ff1e8248db40f9b083cbcaaef9ec3328ff950a88daf31e423cdbe8aa65fd",
+    "tests/test_qualification.py": "60b2bf379c031a4dff14c57ac2f019ca45973f80ad4ed543c2dec556cc68eaff",
+    "tests/test_campaign_analysis.py": "d37c08bf96a000c431cf321a5aba6613f17713af8bf4a8da0038a9490a529e43",
+    "tests/test_fixtures_worker.py": "2b07eb574dcb09498c6de2d7a112687f9ebbd157e5ddb8e976f6933bd33410d2"
+  }
+}

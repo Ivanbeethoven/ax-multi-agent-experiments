@@ -1,0 +1,25 @@
+# Deliberately placeholders: select available image, types, key and AZ before planning.
+region            = "cn-hangzhou"
+experiment_id     = "ax-storage-smoke"
+image_id          = "REPLACE_WITH_PINNED_IMAGE_ID"
+ssh_key_pair_name = "REPLACE_WITH_EXISTING_KEY_NAME"
+subnets = {
+  a = { zone_id = "REPLACE_WITH_AVAILABLE_ZONE", cidr = "10.72.1.0/24" }
+}
+nodes = {
+  client-0  = { role = "client", instance_type = "REPLACE_WITH_AVAILABLE_TYPE", subnet = "a" }
+  client-1  = { role = "client", instance_type = "REPLACE_WITH_AVAILABLE_TYPE", subnet = "a" }
+  control-0 = { role = "control", instance_type = "REPLACE_WITH_AVAILABLE_TYPE", subnet = "a" }
+  s3-0      = { role = "s3", instance_type = "REPLACE_WITH_AVAILABLE_TYPE", subnet = "a" }
+}
+data_disks = {
+  s3-data-0 = { subnet = "a", size_gib = 100, instance_key = "s3-0", purpose = "rustfs-smoke-only" }
+  local-0   = { subnet = "a", size_gib = 40, instance_key = "client-0", purpose = "xfs-reflink" }
+  agent-0   = { subnet = "a", size_gib = 20, instance_key = "client-0", purpose = "disk-migration", agent_id = "agent-0" }
+}
+create_managed_redis = false
+# existing_redis_endpoint = "private-host:6379"
+# For a new managed Redis also specify redis_subnet and a region-supported class.
+# Supply its password only via TF_VAR_redis_password, never this file.
+enable_nas = false
+# nas_subnet = "a"

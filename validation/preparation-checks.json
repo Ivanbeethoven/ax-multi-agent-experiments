@@ -1,0 +1,104 @@
+{
+  "checked_at": "2026-10-23T09:59:36.223697+00:00",
+  "status": "local_validation_passed_no_cloud_execution",
+  "scope": "Other baseline preparation on Alibaba Cloud; BrewFS adapter deferred by user.",
+  "checks": [
+    {
+      "name": "Linux unit suite",
+      "passed": true,
+      "tests": 66,
+      "log": "tests-linux.txt"
+    },
+    {
+      "name": "Final analysis changes and additional scale-isolation case",
+      "passed": true,
+      "tests": 12,
+      "log": "tests-analysis-linux.txt"
+    },
+    {
+      "name": "Final Linux copy-only end-to-end smoke",
+      "passed": true,
+      "scenarios": 4,
+      "record": "harness-smoke-linux.json"
+    },
+    {
+      "name": "Plan and frozen grading material integrity",
+      "passed": true,
+      "record": "local-checks.json"
+    },
+    {
+      "name": "Terraform 1.13.5 / aliyun/alicloud 1.274.0",
+      "passed": true,
+      "validate_errors": 0,
+      "validate_warnings": 0,
+      "account_plan": false,
+      "apply": false
+    }
+  ],
+  "distinct_unit_test_methods_validated": 67,
+  "campaign_cells_at_three_repetitions": {
+    "smoke": 12,
+    "baseline-pilot": 12,
+    "rq1-capacity": 48,
+    "rq1-arrivals": 96,
+    "rq2-lifecycle": 132,
+    "rq2-sharing": 108,
+    "rq3-live": 36,
+    "rq4-migration": 90,
+    "ablations": 90
+  },
+  "ablation_groups": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6"
+  ],
+  "not_executed": [
+    "Aliyun account plan/apply",
+    "real XFS/restic/JuiceFS qualification",
+    "RustFS/CephFS service deployment",
+    "real ESSD handoff",
+    "distributed/AX experiments",
+    "BrewFS ablations",
+    "model calls"
+  ],
+  "remaining_interfaces": [
+    "distributed run_scenario",
+    "AX/host handoff hooks",
+    "CephFS/NAS runtime adapter",
+    "raw performance evidence audit",
+    "BrewFS feature controls"
+  ],
+  "current_source_sha256": {
+    "harness/__init__.py": "79203ec1349037dca9f7ffd39622d5addb2a578e00f4b47891a623f04939c304",
+    "harness/adapter.py": "50306d75a43f56a31e38e033439cf2d66eb444e916170a22cdac47443ee04032",
+    "harness/analyze.py": "da5a1502812ce221d814e348b9944bd71eedc9472cef5a3ff09b165c57bacb0f",
+    "harness/baseline_cli.py": "af7ecb55cf42de234b74db74c8820ef508f96d97be9997ccb3fef3af8a4f5948",
+    "harness/fixtures.py": "fc2d0c0daf22993447fe334ac8ceccf59156ace4ce75ebe2be19a675287efb28",
+    "harness/generate_campaign.py": "2878f9e6cbd8e93c323f8c838a05fb469f91be54a52874923db21445a748cb68",
+    "harness/local_reference_adapter.py": "66fa2d1c6bccf2764b088325f2b7304b1c353f6e0ac4715ebd3a215ab823f456",
+    "harness/run_cell.py": "64686862d31cc1c3c59301591691eb1f126369d1e35934f8a94cae666a509a46",
+    "harness/scenarios.py": "5ebed6c298099963596c23d15d206a7fe5b54fc21dde8aa2430c699f80f9e8f1",
+    "harness/worker.py": "cf7d20ef68a067dfcba2847e38c1ba20adce2f756b6dd90eae91f2f3c9ccbb40",
+    "tests/test_alicloud_handoff.py": "db531f0a6f266f4c6f027bac56f18f1b52c6b53b4095a9040f4e6ff1a1f96ac9",
+    "tests/test_campaign_analysis.py": "fae6bfc3644731ef36ca115a2738f875421263a96601ec228101c9613146e3ea",
+    "tests/test_cloud_deploy.py": "50bccd9da610b5dff4267dfb523172ef8fe8164dcbfe8c8410ec8e353af2415f",
+    "tests/test_fixtures_worker.py": "bc5e5d7975c476769c340df407ee757b4901fbb25480e901253e6f3391396903",
+    "tests/test_runner_adapters.py": "7338ef77f4b42b45e855f9a75f7a7d6b6ca82ef6406feb73ddd5bd49506c6220",
+    "scripts/alicloud_disk_handoff.py": "1c67638b9f122e79e7cc5e8cae9d11c63ffcf34e780b51ea5d5f735aca4c6a73",
+    "scripts/capture_sources.py": "421b65b0fb70249497e8e8b4632e430d5e3d41dee555e36903c640bdcbb14424",
+    "scripts/check_plan.py": "2bd161342edfb4b495036e8768fb04a65aa778ec0d392b9a56c22a74d2393799",
+    "scripts/smoke_check.py": "1919078b0dae04b97f97c4999f58c3d3fb232dd46dda5e54924cc56a39c404d9",
+    "infra/alicloud/main.tf": "1cbe5fd815a699f4416e342e1cb31452b6d6c92f58451e3c026d5f53d8e317da",
+    "infra/alicloud/outputs.tf": "2862b8715b838ddd46933d4738a0a0f0985e2374ead4a3b8cb356f02c9ce8252",
+    "infra/alicloud/services.tf": "80555e9b84c019afbde676804ee83a2b4de6b7a1b4f2810625c90c8baa489c6f",
+    "infra/alicloud/variables.tf": "d3bd302e375e4b37d1d24a0a68c938c4cc8b403ab17ef19f31d3c1956be29665",
+    "infra/alicloud/versions.tf": "9443df838503590d441f790744f4072108b439f24bf6c1893c1a74304e451386",
+    "infra/alicloud/deploy/generate_ceph.py": "11f0a2d1c3ee86800c452b7ed88625dafc94770797148b06301108f46b53caed",
+    "infra/alicloud/deploy/generate_rustfs.py": "e39b582b3683d2ad3ab058438d3821b5e053aa306668289c00c92cea949265ed",
+    "infra/alicloud/deploy/rustfs_node.py": "aaac76d91decf3aa56de196d17bc5d67f43e023665bfeeca1b214cfe57e2ba4b",
+    "infra/alicloud/deploy/s3_probe.py": "b4ed0ee68beec77743c753e91940f4dd42a4a20e8b8e045a76fa2dcb8e0a68ab"
+  }
+}

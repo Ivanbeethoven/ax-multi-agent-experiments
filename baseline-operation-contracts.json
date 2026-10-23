@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "status": "not_run",
+  "execution_enabled": false,
+  "scope": "Preparation checklist. No deployment, remote save, restore, or native Agent continuation has been qualified by this file.",
+  "current_user_confirmed_capabilities": [
+    "AX integration",
+    "multi-agent execution"
+  ],
+  "brewfs_adapter_status": "deferred_by_user",
+  "common_required_observations": [
+    "deployed_versions",
+    "resource_profile_sha256",
+    "source_workspace_id",
+    "source_quiescent",
+    "saved_session_digest",
+    "state_id",
+    "coordinator_completion_record",
+    "actual_operation_path",
+    "content_check"
+  ],
+  "operations": [
+    {
+      "id": "save_current",
+      "qualification_status": "not_run",
+      "meaning": "Make the quiesced current workspace, session and progress recoverable from another node. History retention is not additionally required.",
+      "required_observations": [
+        "remote_data_and_metadata_completion",
+        "coordinator_completion_record_persisted",
+        "current_state_id",
+        "save_elapsed_s"
+      ],
+      "planned_paths": {
+        "B0": "deployment interface deferred",
+        "B1": "restic backup with exact snapshot ID; do not add a second artificial full copy",
+        "B2": "synchronize current remote workspace without mandatory checkpoint clone",
+        "B3": "synchronize current remote subvolume without mandatory snapshot",
+        "B4": "synchronize the existing ESSD volume; no mandatory snapshot"
+      },
+      "baseline_cli_status": "B1 storage backup exists for qualification; common coordinator confirmation is missing. B2 currently adds a history clone, so it does not implement this no-extra-history path."
+    },
+    {
+      "id": "save_history",
+      "qualification_status": "not_run",
+      "meaning": "Preserve a version that later workspace changes cannot alter and that can be restored by exact ID.",
+      "required_observations": [
+        "immutable_version_id",
+        "native_snapshot_or_clone_complete",
+        "coordinator_completion_record_persisted",
+        "retained_version_unchanged_after_source_write"
+      ],
+      "planned_paths": {
+        "B0": "deployment interface deferred",
+        "B1": "exact restic snapshot",
+        "B2": "quiescent source and completed checkpoint clone",
+        "B3": "quiescent source and completed subvolume snapshot",
+        "B4": "separate optional ESSD snapshot experiment"
+      },
+      "baseline_cli_status": "B1 backup and B2 sync/clone/sync exist only as operation qualification; source quiescence and immutability are not a substitute for deployment verification."
+    },
+    {
+      "id": "reopen_current",
+      "qualification_status": "not_run",
+      "meaning": "Move access to the existing confirmed current state without silently creating a historical clone or restoring a full tree.",
+      "required_observations": [
+        "unchanged_remote_workspace_subvolume_or_disk_id",
+        "old_access_revocation_scope",
+        "target_client_identity",
+        "target_cache_state",
+        "first_correct_tool_result"
+      ],
+      "planned_paths": {
+        "B0": "deployment interface deferred",
+        "B1": "not this path for the local-XFS-plus-backup baseline; use history or warm restore",
+        "B2": "mount or reopen the existing remote workspace",
+        "B3": "mount or reopen the existing subvolume",
+        "B4": "clean unmount, detach and attach the same disk"
+      },
+      "baseline_cli_status": "Not implemented. Its open operation restores B1 into a new directory and clones B2 into a new directory."
+    },
+    {
+      "id": "restore_history",
+      "qualification_status": "not_run",
+      "meaning": "Restore an exact retained version as an independently writable workspace; count native copy or clone work when required.",
+      "required_observations": [
+        "exact_version_id",
+        "restore_or_clone_complete",
+        "restored_content_and_session_match",
+        "retained_version_unchanged_after_restored_write",
+        "restore_elapsed_s"
+      ],
+      "planned_paths": {
+        "B0": "deployment interface deferred",
+        "B1": "restore exact restic snapshot into a new target",
+        "B2": "clone the frozen checkpoint",
+        "B3": "clone the snapshot and wait for completion",
+        "B4": "separate optional snapshot-to-volume restore"
+      },
+      "baseline_cli_status": "B1 and B2 new-target open paths exist for qualification; ready_for_agent remains false until content and native session continuation are verified."
+    },
+    {
+      "id": "restore_warm",
+      "qualification_status": "not_run",
+      "meaning": "For B1, reuse a qualified target base while restoring the exact saved version, including removals. Compare separately from empty-target restore.",
+      "required_observations": [
+        "target_base_manifest_before_restore",
+        "reflink_reuse_observed",
+        "exact_snapshot_id",
+        "restricted_delete_dry_run",
+        "actual_restored_and_removed_paths",
+        "scanned_and_downloaded_bytes",
+        "restored_content_and_session_match"
+      ],
+      "planned_paths": {
+        "B1": "create a writable reflink target from the available base, then perform qualified in-place restic restore with required deletion handling"
+      },
+      "baseline_cli_status": "Not implemented. Existing target directories are rejected. Warm client caches for shared filesystems are recorded under reopen_current, not relabeled as this B1 path."
+    }
+  ],
+  "migration_identity_observations": {
+    "qualification_status": "not_run",
+    "required_fields": [
+      "agent_id",
+      "workspace_id",
+      "node_id",
+      "process_id",
+      "mount_id",
+      "storage_volume_or_subvolume_id",
+      "actual_storage_client_id",
+      "actual_storage_session_id",
+      "credential_reference_or_principal",
+      "revoke_target",
+      "revoke_scope_agent_ids",
+      "observed_affected_neighbor_ids"
+    ],
+    "unknown_identity_policy": "Record unknown; do not infer client identity from mount count and do not claim independent revocation.",
+    "credential_policy": "Record references or principal identifiers only; never include keys or tokens."
+  },
+  "stale_writer_trial": {
+    "qualification_status": "not_run",
+    "partition": "Disconnect source from coordinator; retain source access to data services and keep the old process alive.",
+    "required_observations": [
+      "partition_rules_and_link_probes",
+      "old_and_new_writer_identity",
+      "takeover_and_revocation_timestamps",
+      "new_writer_confirmed_marker",
+      "old_file_write_result",
+      "old_sync_result",
+      "old_publish_result_before_reconnect",
+      "old_publish_result_after_reconnect",
+      "target_and_independent_reader_marker",
+      "neighbor_outcomes"
+    ],
+    "failure": "Old state becomes visible in the target current workspace or its published current version.",
+    "incomplete": "No actual old write, publish attempt, or independent readback; a fenced boolean alone is insufficient.",
+    "local_write_note": "A successful write to private old local storage or cache is recorded separately from contamination of current state."
+  }
+}

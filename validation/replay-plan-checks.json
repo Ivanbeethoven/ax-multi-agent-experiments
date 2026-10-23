@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-23",
+  "scope": "Local plan validation and Python regression only; no cloud, model, or mounted-storage performance run",
+  "environment": "Ubuntu-24.04 under WSL; Python 3.12.3",
+  "commands": [
+    {
+      "command": "python3 scripts/check_plan.py",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "command": "python3 -m unittest discover -s tests -q",
+      "exit_code": 0,
+      "tests": 68,
+      "elapsed_s": 3.898
+    },
+    {
+      "command": "python -m harness.generate_campaign --campaign rq3-replay --output <temporary directory>",
+      "exit_code": 0,
+      "planned_cells": 36,
+      "executed_cells": 0
+    }
+  ],
+  "planned_default": {
+    "full_live_runs": 48,
+    "continuation_attempts": 8,
+    "a6_tool_replays": 192,
+    "new_model_calls_per_replay": 0
+  },
+  "trace_capture_status": "not_run",
+  "native_resume_status": "not_qualified",
+  "source_sha256": {
+    "README.md": "5f054b639b89db305f879c15c028bde360340ad1ad2d87d62e6e512aa32c5a85",
+    "execution-plan.zh.md": "908117c9ab5f7fa53780f0ccd9c71fa024389e4f6f373ebf32d614598689303b",
+    "replay-experiments.zh.md": "137cc09859e4e4c4d1b49f70321db42f87d4d7f7c5e6a668a83adb8a3d7da981",
+    "agent-trace-and-resume.zh.md": "5bcd08c4c578c1881e046e80243a30fab0a9c8af79885d16e4d98db3a2f13828",
+    "replay-trace-audit.md": "e52feafdd5515c38afcda9458eff594801d3f0f38219fb0f509a5bf0be681ec3",
+    "workloads.json": "4a17d824effc4e2fcaca69bf4d7436b57f28107637819ede19613ecaa678f07b",
+    "matrix.csv": "d3d764b26edf1e223edb141e041c098695dc86c83074d6b48bc37f02750eda2c",
+    "metrics.md": "26f1bd53c0b2d7d5f3a58816debdb578d20182b429498dd4b7b503865314685b",
+    "integration-and-migration.md": "618faa3ae2051a2511c72e838b115773e70d1f370526584274c403105ba2ba58",
+    "harness/generate_campaign.py": "64c57576e8f45437b5dba6e49cc916235902b488b925c41493cbc7b71da5dbf7",
+    "scripts/check_plan.py": "802ba2e09825bed5b721d62c1ed25ce6100c8baa67ee0466caab86789befba84",
+    "tests/test_campaign_analysis.py": "6be0cb7876a001463de860df4f768bc74b5900138f39e40aa30a0ab169e981cb"
+  }
+}
