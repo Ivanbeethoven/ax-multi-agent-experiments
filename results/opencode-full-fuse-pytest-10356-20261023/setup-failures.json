@@ -1,0 +1,17 @@
+{
+  "before_any_model_call": true,
+  "attempts": [
+    {
+      "path": "/home/hxy/ax-full-trace/probe-01",
+      "failure": "create callback used write-only backend FD; mmap read failed; fixed to read-write backend FD"
+    },
+    {
+      "path": "/home/hxy/ax-full-trace/probe-02",
+      "failure": "TCGETS probe was not yet implemented by Rust; added actual ioctl with expected errno verification"
+    },
+    {
+      "path": "/home/hxy/ax-full-trace/pytest-full-01",
+      "failure": "fixture had no origin remote; preparation stopped before agent start; made removal conditional"
+    }
+  ]
+}

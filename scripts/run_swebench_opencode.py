@@ -253,7 +253,7 @@ def main():
     if args.prepare_only:
         print(json.dumps({"selected": [r["instance_id"] for r in rows], "output": str(args.output)})); return
     if not args.allow_agent_events_only:
-        raise RuntimeError("Full OpenCode filesystem recording is not qualified yet. Run run_fs_trace_pilot.py for the gated single-process tool pilot. To explicitly repeat legacy agent-events-only runs, pass --allow-agent-events-only; this does NOT collect filesystem traces.")
+        raise RuntimeError("This legacy entry does not record filesystem operations. Use run_opencode_full_trace.py for gated full-task FUSE capture, or run_fs_trace_pilot.py for the single-process pilot. To explicitly repeat legacy agent-events-only runs, pass --allow-agent-events-only; this does NOT collect filesystem traces.")
     provider = json.load(sys.stdin)
     for r in rows:
         if (args.output / r["instance_id"]).exists():

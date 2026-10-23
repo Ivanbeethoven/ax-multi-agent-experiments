@@ -1,0 +1,95 @@
+{
+  "callbacks": 1747109,
+  "operations_by_type": {
+    "init": 1,
+    "getattr": 1588057,
+    "statfs": 7,
+    "mkdir": 606,
+    "opendir": 7789,
+    "readdir": 7757,
+    "releasedir": 7789,
+    "create": 4004,
+    "getxattr": 22881,
+    "chown": 3,
+    "write": 67670,
+    "fsync": 15,
+    "fsyncdir": 2,
+    "flush": 12675,
+    "release": 10595,
+    "unlink": 70,
+    "truncate": 118,
+    "read": 9200,
+    "open": 6591,
+    "utimens": 4,
+    "rename": 184,
+    "rmdir": 2,
+    "chmod": 22,
+    "symlink": 8,
+    "link": 10,
+    "ioctl": 1048,
+    "destroy": 1
+  },
+  "errors_by_errno": {
+    "2": 21596,
+    "61": 22881,
+    "25": 1048
+  },
+  "actual_read_bytes": 281774624,
+  "actual_write_bytes": 194706661,
+  "requested_read_bytes": 301105152,
+  "requested_write_bytes": 194706661,
+  "repeated_read_bytes": 252872535,
+  "repeated_read_ratio": 0.8974283468478694,
+  "namespaces": {
+    "state": {
+      "actual_read_bytes": 32985713,
+      "actual_write_bytes": 193052035,
+      "repeated_read_bytes": 14213615,
+      "repeated_read_ratio": 0.4309021605808551
+    },
+    "repo": {
+      "actual_read_bytes": 248788911,
+      "actual_write_bytes": 1654626,
+      "repeated_read_bytes": 238658920,
+      "repeated_read_ratio": 0.9592827873264818
+    }
+  },
+  "subtrees": {
+    "state/data": {
+      "actual_read_bytes": 16886138,
+      "actual_write_bytes": 19840705,
+      "repeated_read_bytes": 14212391
+    },
+    "repo": {
+      "actual_read_bytes": 248788911,
+      "actual_write_bytes": 1654626,
+      "repeated_read_bytes": 238658920
+    },
+    "state/state": {
+      "actual_read_bytes": 267,
+      "actual_write_bytes": 267,
+      "repeated_read_bytes": 0
+    },
+    "state/config": {
+      "actual_read_bytes": 6272,
+      "actual_write_bytes": 55262206,
+      "repeated_read_bytes": 1224
+    },
+    "state/cache": {
+      "actual_read_bytes": 16090937,
+      "actual_write_bytes": 5879362,
+      "repeated_read_bytes": 0
+    },
+    "state/home": {
+      "actual_read_bytes": 2099,
+      "actual_write_bytes": 112069495,
+      "repeated_read_bytes": 0
+    }
+  },
+  "distinct_request_pids": 988,
+  "capture_elapsed_s": 173.518807711,
+  "scope": "FUSE callback bytes; excludes kernel cache hits, local lock handling, image runtime and /tmp",
+  "repeat_definition": "same file identity and offset already read since last overwrite; rename/link preserve identity",
+  "physical_device_bytes": null,
+  "application_syscall_bytes": null
+}

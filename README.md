@@ -30,7 +30,7 @@ A1–A6 分别改变共享方式、元数据、增量保存和读取布局，用
 
 四道较难 SWE-bench Verified 题的本机解题记录见 [结果与 trace](results/swebench-verified-20261023.md)，运行和导出方法见 [脚本说明](scripts/swebench-local.zh.md)。这组测试独立于 16 题计划，记录的是 Agent 会话和工具调用，尚不是 POSIX/FUSE 回放轨迹。
 
-另已打通 [Pytest 固定修复步骤的文件采集与 Rust 回放](results/fs-trace-pytest-10356-20261023/README.md)：先过采集预检，再执行任务，核对读写字节、操作数和最终文件树。当前仅支持单进程工具流程；完整 Agent 的文件采集仍未验收，旧模型运行入口默认阻止无文件记录器的开跑。
+先完成了 [Pytest 固定修复步骤的文件采集与 Rust 回放](results/fs-trace-pytest-10356-20261023/README.md)，随后已完成 [一次完整 OpenCode 任务的挂载层采集与 Rust 回放](results/opencode-full-fuse-pytest-10356-20261023/README.md)：覆盖任务整个运行期间的仓库和全部 HOME/XDG 状态，共 174.7 万个回调，最终文件树与会话数据库核对通过。旧模型入口仍默认阻止无文件记录器的开跑，新入口见 [完整任务说明](scripts/full-fuse-trace.zh.md)。
 
 ## 从哪里开始
 
