@@ -28,6 +28,8 @@ A1–A6 分别改变共享方式、元数据、增量保存和读取布局，用
 
 已完成一次 [Windows → WSL 的 OpenCode 小任务恢复测试](validation/opencode-resume-20261023/README.md)：空 HOME 下，原生导出/导入并告知新路径后续跑成功；直接复制数据库失败。它不是云端或 BrewFS 迁移结果。
 
+四道较难 SWE-bench Verified 题的本机解题记录见 [结果与 trace](results/swebench-verified-20261023.md)，运行和导出方法见 [脚本说明](scripts/swebench-local.zh.md)。这组测试独立于 16 题计划，记录的是 Agent 会话和工具调用，尚不是 POSIX/FUSE 回放轨迹。
+
 ## 从哪里开始
 
 先在阿里云部署 B1/B2，做 12 批保存与恢复检查；再用已选的两题验证记录和回放过程，最后采完 16 题。不要一开始就跑全部规模或花大量模型 token。

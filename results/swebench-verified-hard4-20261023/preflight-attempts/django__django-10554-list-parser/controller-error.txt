@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-multi-agent-experiments/scripts/run_swebench_opencode.py", line 146, in run_one
+    baseline = grade(client, row, image.id, "", folder / "baseline", "unmodified")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-multi-agent-experiments/scripts/run_swebench_opencode.py", line 121, in grade
+    FAIL_TO_PASS=json.loads(row["FAIL_TO_PASS"]), PASS_TO_PASS=json.loads(row["PASS_TO_PASS"]),
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/__init__.py", line 339, in loads
+    raise TypeError(f'the JSON object must be str, bytes or bytearray, '
+TypeError: the JSON object must be str, bytes or bytearray, not list

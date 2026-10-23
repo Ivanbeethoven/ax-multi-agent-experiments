@@ -1,0 +1,71 @@
+diff --git a/tests/queries/test_qs_combinators.py b/tests/queries/test_qs_combinators.py
+index 227972e8c4..f4129b2336 100644
+--- a/tests/queries/test_qs_combinators.py
++++ b/tests/queries/test_qs_combinators.py
+@@ -228,3 +228,66 @@ class QuerySetSetOperationTests(TestCase):
+         qs1 = Number.objects.all()
+         qs2 = Number.objects.intersection(Number.objects.filter(num__gt=1))
+         self.assertEqual(qs1.difference(qs2).count(), 2)
++
++    def test_union_with_ordering_and_derived_queryset(self):
++        qs1 = Number.objects.filter(num__lte=1)
++        qs2 = Number.objects.filter(num__gte=8)
++        qs = qs1.union(qs2).order_by('num')
++        self.assertCountEqual(qs.order_by().values_list('pk', flat=True), [1, 2, 9, 10])
++        self.assertNumbersEqual(qs, [0, 1, 8, 9])
++
++    def test_union_with_ordering_and_derived_queryset_reserved(self):
++        ReservedName.objects.create(name='a', order=1)
++        ReservedName.objects.create(name='b', order=2)
++        ReservedName.objects.create(name='c', order=3)
++        ReservedName.objects.create(name='d', order=4)
++        qs1 = ReservedName.objects.filter(pk__in=[1, 2])
++        qs2 = ReservedName.objects.filter(pk__in=[3, 4])
++        qs = qs1.union(qs2).order_by('order')
++        list(qs.order_by().values_list('pk', flat=True))
++        list(qs)
++
++    def test_union_with_subquery_ordering_and_derived_queryset(self):
++        ReservedName.objects.create(name='a', order=1)
++        ReservedName.objects.create(name='b', order=2)
++        ReservedName.objects.create(name='c', order=3)
++        ReservedName.objects.create(name='d', order=4)
++        qs1 = ReservedName.objects.filter(pk__in=[1, 2])
++        qs2 = ReservedName.objects.filter(pk__in=[3, 4]).order_by('order')
++        qs = qs1.union(qs2)
++        list(qs)
++        list(qs.order_by().values_list('pk', flat=True))
++        list(qs)
++
++    def test_union_with_ordering_derived_evaluated_first(self):
++        ReservedName.objects.create(name='a', order=1)
++        ReservedName.objects.create(name='b', order=2)
++        ReservedName.objects.create(name='c', order=3)
++        ReservedName.objects.create(name='d', order=4)
++        qs1 = ReservedName.objects.filter(pk__in=[1, 2])
++        qs2 = ReservedName.objects.filter(pk__in=[3, 4])
++        qs = qs1.union(qs2).order_by('order')
++        list(qs)
++        list(qs.order_by().values_list('pk', flat=True))
++        list(qs)
++
++    def test_union_with_ordering_values_list_no_clear(self):
++        ReservedName.objects.create(name='a', order=2)
++        ReservedName.objects.create(name='b', order=1)
++        ReservedName.objects.create(name='c', order=4)
++        ReservedName.objects.create(name='d', order=3)
++        qs1 = ReservedName.objects.filter(pk__in=[1, 2])
++        qs2 = ReservedName.objects.filter(pk__in=[3, 4])
++        qs = qs1.union(qs2).order_by('order')
++        list(qs.values_list('pk', flat=True))
++
++    def test_union_values_subqueries_changed(self):
++        ReservedName.objects.create(name='a', order=1)
++        ReservedName.objects.create(name='b', order=2)
++        ReservedName.objects.create(name='c', order=3)
++        ReservedName.objects.create(name='d', order=4)
++        qs1 = ReservedName.objects.filter(pk__in=[1, 2]).values_list('id', 'name', 'order')
++        qs2 = ReservedName.objects.filter(pk__in=[3, 4]).values_list('id', 'name', 'order')
++        qs = qs1.union(qs2).order_by('order')
++        self.assertCountEqual(qs.order_by().values_list('pk', flat=True), [1, 2, 3, 4])
++        self.assertCountEqual([r[0] for r in qs], [1, 2, 3, 4])

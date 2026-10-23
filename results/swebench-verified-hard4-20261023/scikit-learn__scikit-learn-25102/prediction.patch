@@ -1,0 +1,136 @@
+diff --git a/sklearn/utils/_set_output.py b/sklearn/utils/_set_output.py
+index 335773c6a..4f23b6829 100644
+--- a/sklearn/utils/_set_output.py
++++ b/sklearn/utils/_set_output.py
+@@ -1,5 +1,6 @@
+ from functools import wraps
+ 
++import numpy as np
+ from scipy.sparse import issparse
+ 
+ from . import check_pandas_support
+@@ -12,6 +13,7 @@ def _wrap_in_pandas_container(
+     *,
+     columns,
+     index=None,
++    dtypes=None,
+ ):
+     """Create a Pandas DataFrame.
+ 
+@@ -36,6 +38,11 @@ def _wrap_in_pandas_container(
+     index : array-like, default=None
+         Index for data.
+ 
++    dtypes : dict, ndarray, Series, or None, default=None
++        The dtypes of the output. If not None, the dtypes are enforced for the
++        columns that are present in `dtypes`. If a dict, it maps column names
++        to dtypes. Otherwise, `dtypes` is aligned with `columns`.
++
+     Returns
+     -------
+     dataframe : DataFrame
+@@ -52,14 +59,42 @@ def _wrap_in_pandas_container(
+ 
+     pd = check_pandas_support("Setting output container to 'pandas'")
+ 
++    if dtypes is not None:
++        if isinstance(dtypes, pd.Series):
++            dtypes = dtypes.to_dict()
++        elif not isinstance(dtypes, dict):
++            if columns is None:
++                if isinstance(data_to_wrap, pd.DataFrame):
++                    columns = data_to_wrap.columns
++                else:
++                    columns = range(data_to_wrap.shape[1])
++            dtypes = dict(zip(columns, dtypes))
++
+     if isinstance(data_to_wrap, pd.DataFrame):
+         if columns is not None:
+             data_to_wrap.columns = columns
+         if index is not None:
+             data_to_wrap.index = index
++        if dtypes is not None:
++            dtypes = {
++                column: dtype
++                for column, dtype in dtypes.items()
++                if column in data_to_wrap.columns
++            }
++            if dtypes:
++                data_to_wrap = data_to_wrap.astype(dtypes)
+         return data_to_wrap
+ 
+-    return pd.DataFrame(data_to_wrap, index=index, columns=columns)
++    dataframe = pd.DataFrame(data_to_wrap, index=index, columns=columns)
++    if dtypes is not None:
++        dtypes = {
++            column: dtype
++            for column, dtype in dtypes.items()
++            if column in dataframe.columns
++        }
++        if dtypes:
++            dataframe = dataframe.astype(dtypes)
++    return dataframe
+ 
+ 
+ def _get_output_config(method, estimator=None):
+@@ -96,6 +131,52 @@ def _get_output_config(method, estimator=None):
+     return {"dense": dense_config}
+ 
+ 
++def _get_preserved_dtypes(data_to_wrap, original_input, estimator):
++    """Get the dtypes to preserve for columns whose values are unchanged.
++
++    Dtypes are only preserved for columns that are present in both the input and
++    the output and for which the output values are equal to the input values.
++    This avoids casting transformed values back to their original dtype.
++    """
++    if not hasattr(original_input, "dtypes") or issparse(data_to_wrap):
++        return None
++
++    try:
++        output_columns = estimator.get_feature_names_out()
++    except Exception:
++        return None
++
++    if output_columns is None:
++        return None
++    if not hasattr(original_input, "columns"):
++        return None
++    if not hasattr(data_to_wrap, "shape") or len(data_to_wrap.shape) != 2:
++        return None
++    if data_to_wrap.shape[1] != len(output_columns):
++        return None
++
++    is_dataframe = hasattr(data_to_wrap, "iloc")
++    dtypes = {}
++    for i, column in enumerate(output_columns):
++        if column not in original_input.columns:
++            continue
++        original_values = original_input[column].to_numpy()
++        if is_dataframe:
++            output_values = data_to_wrap.iloc[:, i].to_numpy()
++        else:
++            output_values = data_to_wrap[:, i]
++        try:
++            unchanged = np.array_equal(
++                original_values, output_values, equal_nan=True
++            )
++        except TypeError:
++            unchanged = np.array_equal(original_values, output_values)
++        if unchanged:
++            dtypes[column] = original_input.dtypes[column]
++
++    return dtypes or None
++
++
+ def _wrap_data_with_container(method, data_to_wrap, original_input, estimator):
+     """Wrap output with container based on an estimator's or global config.
+ 
+@@ -131,6 +212,7 @@ def _wrap_data_with_container(method, data_to_wrap, original_input, estimator):
+         data_to_wrap=data_to_wrap,
+         index=getattr(original_input, "index", None),
+         columns=estimator.get_feature_names_out,
++        dtypes=_get_preserved_dtypes(data_to_wrap, original_input, estimator),
+     )
+ 
+ 

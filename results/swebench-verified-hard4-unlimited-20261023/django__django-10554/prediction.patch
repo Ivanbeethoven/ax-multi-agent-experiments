@@ -1,0 +1,13 @@
+diff --git a/django/db/models/sql/query.py b/django/db/models/sql/query.py
+index 08d7faf194..c4ffe68888 100644
+--- a/django/db/models/sql/query.py
++++ b/django/db/models/sql/query.py
+@@ -305,6 +305,8 @@ class Query(BaseExpression):
+         obj.table_map = self.table_map.copy()
+         obj.where = self.where.clone()
+         obj.annotations = self.annotations.copy()
++        if self.combined_queries:
++            obj.combined_queries = tuple(query.clone() for query in self.combined_queries)
+         if self.annotation_select_mask is None:
+             obj.annotation_select_mask = None
+         else:
