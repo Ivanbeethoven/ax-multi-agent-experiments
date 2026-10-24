@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "utc_ns": 1792833912352891115,
+  "kernel": "6.18.33.2-microsoft-standard-WSL2",
+  "architecture": "x86_64",
+  "uid": 1000,
+  "gid": 1000,
+  "container_label": null,
+  "pod_uid": null,
+  "node_id": null,
+  "placement_source": "operator-supplied env; not inferred from hostname",
+  "network_namespace_local_id": "net:[4026531833]",
+  "network_scope": "namespace; inode is not globally unique across hosts",
+  "security": {
+    "CapEff": "\t0000000000000000",
+    "NoNewPrivs": "\t0",
+    "Seccomp": "\t2"
+  },
+  "cgroup": {
+    "path": "/sys/fs/cgroup/init.scope",
+    "self_membership_verified": true,
+    "scope": "own_cgroup_container_boundary_unconfirmed",
+    "reason": null,
+    "membership": {
+      "value": "0::/init.scope",
+      "reason": null
+    }
+  },
+  "work_root": "/home/hxy/ax-k8s-validation-20261024/workspaces/pytest-observed-01",
+  "work_mount": {
+    "id": "82",
+    "device": "8:32",
+    "root": "/",
+    "mountpoint": "/",
+    "options": "rw,relatime",
+    "fs_type": "ext4"
+  },
+  "filesystem_available_bytes": 671732727808,
+  "fuse_device_exists": true,
+  "fuse_device_access_hint": true,
+  "fuse_mount_test": "not_attempted",
+  "capability_note": "Device access is only a hint, not proof of mount permission",
+  "run_id": "pytest-observed-01",
+  "worker_id": "wsl-local",
+  "phase": "replay",
+  "interval_s": 1.0,
+  "timeout_s": 1800.0,
+  "command_name": "full-fuse-replay",
+  "command_sha256": "6eb9622b581d3d9ab9a4ac9044b54ae140ba9212a40054655b0f0c4c50e8e4d2",
+  "argv_saved": false,
+  "collector_pid": 12422,
+  "cgroup_includes": "command + collector + any other process in this cgroup"
+}

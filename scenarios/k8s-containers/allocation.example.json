@@ -1,0 +1,51 @@
+{
+  "status": "template_not_an_allocation",
+  "capabilities": {
+    "create_pod": false,
+    "create_service": false,
+    "cluster_admin": false,
+    "fuse_mount_verified": null,
+    "worker_to_coordinator_reachable": null,
+    "worker_to_storage_reachable": null
+  },
+  "containers": [
+    {
+      "worker_id": "w0",
+      "platform_allocation_id": null,
+      "pod_uid": null,
+      "node_id": null,
+      "node_id_evidence": null,
+      "network_scope_id": null,
+      "network_counter_owner": null,
+      "cgroup_boundary_confirmed": false,
+      "requested_cpu": 2,
+      "requested_memory_gib": 4,
+      "actual_cpu_limit": null,
+      "actual_memory_limit_bytes": null,
+      "platform_image_digest": null,
+      "binary_sha256": null,
+      "expires_at": null,
+      "private_endpoint": null,
+      "mounts": [
+        {
+          "purpose": "tested_workspace",
+          "path": null,
+          "volume_id": null,
+          "filesystem": null,
+          "backend": null,
+          "persistent_across_container_replacement": null,
+          "access_mode": null,
+          "quota_bytes": null,
+          "failure_domain": null
+        }
+      ]
+    }
+  ],
+  "fixed_resources": {
+    "client_cpu_total": null,
+    "client_memory_bytes_total": null,
+    "backend_cpu_total_including_metadata": null,
+    "backend_memory_bytes_total_including_metadata": null
+  },
+  "credential_rule": "Reference externally injected credentials; never put values in this file."
+}

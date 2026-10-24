@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "profile": "smoke",
+  "execution_enabled": false,
+  "unique_traces": 4,
+  "tasks_per_batch": 4,
+  "seed": 20261024,
+  "worker_assignment": "slots fixed; map slots to actual allocations before execution",
+  "batches": [
+    {
+      "run_id": "smoke-juicefs-w2-c1-r2",
+      "order": 0,
+      "system": "juicefs",
+      "worker_count": 2,
+      "concurrency": 1,
+      "repeat": 2,
+      "timeout_s": 1800,
+      "batch_timeout_s": 7500,
+      "comparison": "fixed_work",
+      "mode": "as_fast_as_possible_strict_verification",
+      "cache": "prepared_and_verified_backend_unknown",
+      "tasks": [
+        {
+          "task_id": "smoke-juicefs-w2-c1-r2-t000",
+          "trace": "django",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c1-r2-t001",
+          "trace": "sklearn",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c1-r2-t002",
+          "trace": "sympy",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c1-r2-t003",
+          "trace": "pytest-full-02",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "run_id": "smoke-juicefs-w2-c4-r2",
+      "order": 1,
+      "system": "juicefs",
+      "worker_count": 2,
+      "concurrency": 4,
+      "repeat": 2,
+      "timeout_s": 1800,
+      "batch_timeout_s": 2100,
+      "comparison": "fixed_work",
+      "mode": "as_fast_as_possible_strict_verification",
+      "cache": "prepared_and_verified_backend_unknown",
+      "tasks": [
+        {
+          "task_id": "smoke-juicefs-w2-c4-r2-t000",
+          "trace": "django",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c4-r2-t001",
+          "trace": "sklearn",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c4-r2-t002",
+          "trace": "sympy",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c4-r2-t003",
+          "trace": "pytest-full-02",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "run_id": "smoke-juicefs-w2-c4-r3",
+      "order": 2,
+      "system": "juicefs",
+      "worker_count": 2,
+      "concurrency": 4,
+      "repeat": 3,
+      "timeout_s": 1800,
+      "batch_timeout_s": 2100,
+      "comparison": "fixed_work",
+      "mode": "as_fast_as_possible_strict_verification",
+      "cache": "prepared_and_verified_backend_unknown",
+      "tasks": [
+        {
+          "task_id": "smoke-juicefs-w2-c4-r3-t000",
+          "trace": "django",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c4-r3-t001",
+          "trace": "sklearn",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c4-r3-t002",
+          "trace": "sympy",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c4-r3-t003",
+          "trace": "pytest-full-02",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "run_id": "smoke-juicefs-w2-c1-r1",
+      "order": 3,
+      "system": "juicefs",
+      "worker_count": 2,
+      "concurrency": 1,
+      "repeat": 1,
+      "timeout_s": 1800,
+      "batch_timeout_s": 7500,
+      "comparison": "fixed_work",
+      "mode": "as_fast_as_possible_strict_verification",
+      "cache": "prepared_and_verified_backend_unknown",
+      "tasks": [
+        {
+          "task_id": "smoke-juicefs-w2-c1-r1-t000",
+          "trace": "django",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c1-r1-t001",
+          "trace": "sklearn",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c1-r1-t002",
+          "trace": "sympy",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c1-r1-t003",
+          "trace": "pytest-full-02",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "run_id": "smoke-juicefs-w2-c4-r1",
+      "order": 4,
+      "system": "juicefs",
+      "worker_count": 2,
+      "concurrency": 4,
+      "repeat": 1,
+      "timeout_s": 1800,
+      "batch_timeout_s": 2100,
+      "comparison": "fixed_work",
+      "mode": "as_fast_as_possible_strict_verification",
+      "cache": "prepared_and_verified_backend_unknown",
+      "tasks": [
+        {
+          "task_id": "smoke-juicefs-w2-c4-r1-t000",
+          "trace": "django",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c4-r1-t001",
+          "trace": "sklearn",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c4-r1-t002",
+          "trace": "sympy",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c4-r1-t003",
+          "trace": "pytest-full-02",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "run_id": "smoke-juicefs-w2-c1-r3",
+      "order": 5,
+      "system": "juicefs",
+      "worker_count": 2,
+      "concurrency": 1,
+      "repeat": 3,
+      "timeout_s": 1800,
+      "batch_timeout_s": 7500,
+      "comparison": "fixed_work",
+      "mode": "as_fast_as_possible_strict_verification",
+      "cache": "prepared_and_verified_backend_unknown",
+      "tasks": [
+        {
+          "task_id": "smoke-juicefs-w2-c1-r3-t000",
+          "trace": "django",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c1-r3-t001",
+          "trace": "sklearn",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c1-r3-t002",
+          "trace": "sympy",
+          "copy_index": 0,
+          "worker_slot": 0,
+          "status": "planned"
+        },
+        {
+          "task_id": "smoke-juicefs-w2-c1-r3-t003",
+          "trace": "pytest-full-02",
+          "copy_index": 0,
+          "worker_slot": 1,
+          "status": "planned"
+        }
+      ]
+    }
+  ]
+}

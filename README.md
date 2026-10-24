@@ -6,6 +6,8 @@
 
 **先看 [实验怎么做](execution-plan.zh.md)。**这是当前的执行计划，按“测什么、和谁比、怎么跑、记录什么、怎样判断”展开。
 
+2026-10-24 增加 [只有容器使用权的 Kubernetes 方案](scenarios/k8s-containers/README.md)：适用于只能进入已分配容器、不能创建 Pod/Service 的环境。本轮仅以 JuiceFS 为外部对照，包含[部署与下载](scenarios/k8s-containers/deployment.md)、[指标采集](scenarios/k8s-containers/observability.md)和[4—128客户端规模方案](scenarios/k8s-containers/scale.md)；原 ECS 方案保留。
+
 我们要回答四个问题：
 
 | 问题 | 对应测试 |

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "utc_ns": 1792833911920768009,
+  "kernel": "6.18.33.2-microsoft-standard-WSL2",
+  "architecture": "x86_64",
+  "uid": 1000,
+  "gid": 1000,
+  "container_label": null,
+  "pod_uid": null,
+  "node_id": null,
+  "placement_source": "operator-supplied env; not inferred from hostname",
+  "network_namespace_local_id": "net:[4026531833]",
+  "network_scope": "namespace; inode is not globally unique across hosts",
+  "security": {
+    "CapEff": "\t0000000000000000",
+    "NoNewPrivs": "\t0",
+    "Seccomp": "\t2"
+  },
+  "cgroup": {
+    "path": "/sys/fs/cgroup/init.scope",
+    "self_membership_verified": true,
+    "scope": "own_cgroup_container_boundary_unconfirmed",
+    "reason": null,
+    "membership": {
+      "value": "0::/init.scope",
+      "reason": null
+    }
+  },
+  "work_root": "/home/hxy/ax-k8s-validation-20261024/workspaces",
+  "work_mount": {
+    "id": "82",
+    "device": "8:32",
+    "root": "/",
+    "mountpoint": "/",
+    "options": "rw,relatime",
+    "fs_type": "ext4"
+  },
+  "filesystem_available_bytes": 671770435584,
+  "fuse_device_exists": true,
+  "fuse_device_access_hint": true,
+  "fuse_mount_test": "not_attempted",
+  "capability_note": "Device access is only a hint, not proof of mount permission",
+  "run_id": "pytest-observed-01",
+  "worker_id": "wsl-local",
+  "phase": "prepare",
+  "interval_s": 1.0,
+  "timeout_s": 1800.0,
+  "command_name": "python3",
+  "command_sha256": "93d3bb56924a7cae274a4eacfe288a18d8f07bb3db839bb74df9a5a4532e9a32",
+  "argv_saved": false,
+  "collector_pid": 12420,
+  "cgroup_includes": "command + collector + any other process in this cgroup"
+}

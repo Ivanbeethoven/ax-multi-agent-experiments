@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-24",
+  "versions": {
+    "prometheus": "3.15.1",
+    "otelcol-contrib": "0.163.2"
+  },
+  "scope": "native config validation only; no deployed Kubernetes services",
+  "results": [
+    {
+      "tool": "promtool",
+      "exit_code": 0,
+      "stdout": "Checking /home/hxy/ax-k8s-validation-20261024/monitor-binaries/configs/prometheus.yml\n SUCCESS: /home/hxy/ax-k8s-validation-20261024/monitor-binaries/configs/prometheus.yml is valid prometheus config file syntax\n\n",
+      "stderr": ""
+    },
+    {
+      "tool": "otelcol-contrib",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}
