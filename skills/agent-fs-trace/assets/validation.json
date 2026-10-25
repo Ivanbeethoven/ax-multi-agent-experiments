@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-25",
+  "model_calls": 0,
+  "rust_release_build": true,
+  "fuse_preflight": {
+    "actual_read_bytes": 61544,
+    "actual_write_bytes": 70268,
+    "execution_seconds": 0.010783472,
+    "expected_errors": 43,
+    "operations": 299,
+    "remaining_handles": 0,
+    "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+    "valid": true,
+    "final_tree_equal": true,
+    "final_tree_sha256": "a355b8aa2dd67474a3bbfd702387975be1571e4c9a1495f968861637c03aa270"
+  },
+  "synthetic_fixture_checks": {
+    "hardlinks": true,
+    "sqlite_quick_check": "ok",
+    "archive_links_and_modes": true,
+    "known_key_rejected": true,
+    "corrupt_tree_rejected": true
+  },
+  "note": "FUSE preflight is real. Wrapper checks use a synthetic task envelope and SQLite fixture. No Agent was run and these are not performance results."
+}
