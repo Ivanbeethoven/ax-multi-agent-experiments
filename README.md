@@ -1,58 +1,101 @@
-# 云上多 Agent 的存储实验
+# BrewFS 多 Agent 存储实验
 
-本仓库独立保存实验规划、测试脚本、固定输入和阿里云部署文件。以下命令都在仓库根目录运行；先用 `python -m pip install -r scripts/requirements.txt` 安装检查依赖。正式执行文件系统操作需要 Linux。
+研究云上多 Agent 的工作区如何共享数据、独立修改、保存版本，以及在容器之间交接状态。本仓库保存实验方案、文件系统负载、采集与回放工具、部署和指标收集脚本。
 
-旧核查记录保留了拆分前的路径和文件摘要。重新采集代码记录时，`scripts/capture_sources.py` 默认在本仓库的同级目录寻找 `brewfs-upstream` 与 `ax-integration-upstream`；也可用环境变量 `AX_EXPERIMENT_SOURCE_ROOT` 指定它们的父目录。它不是日常测试的前置步骤。
-
-**当前容器测试：**[执行指令](scenarios/k8s-containers/execute-agent.prompt.md) · [7份负载的OSS路径与下载](scenarios/k8s-containers/data-catalog.md)。
-
-**Agent文件Trace采集与回放：**[Skill与交接入口](skills/agent-fs-trace/SKILL.md)，附完整仓库、命令、采集器和Rust回放源码。
-
-**先看 [实验怎么做](execution-plan.zh.md)。**这是当前的执行计划，按“测什么、和谁比、怎么跑、记录什么、怎样判断”展开。
-
-2026-10-24 增加 [只有容器使用权的 Kubernetes 方案](scenarios/k8s-containers/README.md)：适用于只能进入已分配容器、不能创建 Pod/Service 的环境。本轮仅以 JuiceFS 为外部对照，包含[部署与下载](scenarios/k8s-containers/deployment.md)、[指标采集](scenarios/k8s-containers/observability.md)和[4—128客户端规模方案](scenarios/k8s-containers/scale.md)；原 ECS 方案保留。
-
-我们要回答四个问题：
-
-| 问题 | 对应测试 |
-|---|---|
-| 同样的机器，能同时维护多少工作区？ | T1 创建、读写、保存和持续请求 |
-| 分叉、保留版本、共享资料要花多少时间和空间？ | T2 版本；T3 生产与共享读取 |
-| 存储变快后，工具和真实 Agent 的任务是否也更快？ | T4 固定工具回放；少量真实运行 |
-| 只迁走选中的 Agent，要停多久，会影响多少邻居？ | T5 正常迁移、未保存修改、故障 |
-
-A1–A6 分别改变共享方式、元数据、增量保存和读取布局，用来解释差异来自哪项设计。对比方案固定为 BrewFS、XFS reflink＋restic、JuiceFS、CephFS，以及云盘＋XFS 换挂载；具体配置见 [对照方案](baselines.md)。
-
-## 现在做到哪里
-
-- AX 已能运行多 Agent，这是已有能力。
-- 已准备确定性文件操作、输入检查、结果汇总、阿里云 Terraform 和部分基线接口。
-- Rust 文件操作回放器在独立仓库 [fuse-workload-replay](https://github.com/Ivanbeethoven/fuse-workload-replay)，已完成本地暖缓存测试。
-- 16 个真实任务的题目、代码版本和评分材料已固定；还没有采集合格的工具轨迹。
-- 尚未部署这套云端对比环境，也没有正式性能结果。多节点执行、真实会话恢复和故障操作仍需接通。
-- BrewFS 接口按目前安排暂缓，先把其他方案跑通。
-
-已完成一次 [Windows → WSL 的 OpenCode 小任务恢复测试](validation/opencode-resume-20261023/README.md)：空 HOME 下，原生导出/导入并告知新路径后续跑成功；直接复制数据库失败。它不是云端或 BrewFS 迁移结果。
-
-四道较难 SWE-bench Verified 题的本机解题记录见 [结果与 trace](results/swebench-verified-20261023.md)，运行和导出方法见 [脚本说明](scripts/swebench-local.zh.md)。这组测试独立于 16 题计划，记录的是 Agent 会话和工具调用，尚不是 POSIX/FUSE 回放轨迹。
-
-先完成了 [Pytest 固定修复步骤的文件采集与 Rust 回放](results/fs-trace-pytest-10356-20261023/README.md)，随后已完成 [一次完整 OpenCode 任务的挂载层采集与 Rust 回放](results/opencode-full-fuse-pytest-10356-20261023/README.md)：覆盖任务整个运行期间的仓库和全部 HOME/XDG 状态，共 174.7 万个回调，最终文件树与会话数据库核对通过。旧模型入口仍默认阻止无文件记录器的开跑，新入口见 [完整任务说明](scripts/full-fuse-trace.zh.md)。
+当前对比 **BrewFS 与 JuiceFS**，共用 **4节点 RustFS**，自行部署 Redis。BrewFS 使用执行开始时 [官方仓库](https://github.com/brewfs/brewfs) 默认分支的最新提交，记录完整 commit，并固定到实验结束。
 
 ## 从哪里开始
 
-先在阿里云部署 B1/B2，做 12 批保存与恢复检查；再用已选的两题验证记录和回放过程，最后采完 16 题。不要一开始就跑全部规模或花大量模型 token。
+| 你要做什么 | 入口 |
+|---|---|
+| 让一个 Agent 接手多容器测试 | [执行指令](scenarios/k8s-containers/execute-agent.prompt.md) |
+| 找到7份负载、下载和校验 | [数据目录与命令](scenarios/k8s-containers/data-catalog.md) · [完整路径与SHA256](scenarios/k8s-containers/archives.json) |
+| 重新采集真实 Agent 的文件访问 | [Trace采集 Skill](skills/agent-fs-trace/SKILL.md) · [环境与完整命令](skills/agent-fs-trace/references/commands.md) |
+| 部署存储和监控 | [服务部署](scenarios/k8s-containers/deployment.md) · [指标采集](scenarios/k8s-containers/observability.md) |
+| 查看实验规模和每组测什么 | [测试清单](scenarios/k8s-containers/README.md) · [规模方案](scenarios/k8s-containers/scale.md) |
 
-生成、执行前检查和汇总命令见 [脚本使用说明](qualification.md)。下面两条只做本地检查：
+当前执行范围以[执行指令](scenarios/k8s-containers/execute-agent.prompt.md)为准。较早的部署文档保留了单节点 RustFS 的起步示例，正式测试使用4节点配置。
+
+## 已有负载
+
+已整理两批共 **7份文件系统记录**。Pytest是同一道题的两次独立运行；Rust构建和归档处理是新增任务类型。
+
+| case ID | 内容 | FUSE回调数 |
+|---|---|---:|
+| `django` | Django代码任务 | 57,787,980 |
+| `sklearn` | scikit-learn代码任务 | 9,233,326 |
+| `sympy` | SymPy代码任务 | 7,265,338 |
+| `pytest-full-02` | 首批Pytest任务 | 1,747,109 |
+| `pytest-20261026` | 新一轮Pytest任务 | 2,836,142 |
+| `ripgrep-20261026` | ripgrep构建与测试 | 3,122,195 |
+| `archive-io-20261026` | 小文件/大文件归档、解包、扫描与SQLite索引 | 3,673,814 |
+
+完整归档保存在杭州OSS，压缩包合计约 **9.69 GiB**。仓库可公开克隆；**OSS桶仍为私有**，下载需要只读身份或单独提供的临时签名链接。
 
 ```text
-python scripts/check_plan.py
-python -m unittest discover -s tests -v
+oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023/
+oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023/deepseek-opencode-20261026/
 ```
 
-需要细节时再看：
+每份数据包含冻结的初始目录、`capture/events.jsonl`、按SHA256保存的写入内容，以及最终状态和验收记录。详细URI、HTTPS地址、大小、SHA256和解压目录见[统一清单](scenarios/k8s-containers/archives.json)。
 
-- [输入和测试数量](workloads.json)、[实验清单](matrix.csv)、[计时和失败处理](metrics.md)。
-- [固定回放与真实 Agent 各测什么](replay-experiments.zh.md)、[会话怎样随工作区移动](agent-trace-and-resume.zh.md)、[迁移步骤](integration-and-migration.md)。
-- [阿里云部署文件](infra/alicloud/README.md)、[16 个任务与评分材料](inputs/README.md)。
+## 先验证一份回放
 
-旧版 [plan.zh.md](plan.zh.md) 和 [规划 PDF](report/main.pdf) 留作讨论记录，重复数、模型预算和开跑步骤以当前执行计划为准。`sources.json` 也只是旧代码的核查记录，不能用它否定用户已经完成的 AX 集成。
+在Linux上运行。需要Python 3.10+、Rust/Cargo（实测1.98.1）、已配置OSS读取权限的Aliyun CLI，以及trace中实际文件操作所需的权限。使用新的输出目录。
+
+```bash
+set -euo pipefail
+git clone https://github.com/Ivanbeethoven/ax-multi-agent-experiments.git
+cd ax-multi-agent-experiments
+export K="$PWD/scenarios/k8s-containers"
+export RUN_ROOT="$HOME/ax-replay-demo"
+
+cargo build --release --locked \
+  --manifest-path tools/full-fuse-replay/Cargo.toml \
+  --target-dir /tmp/ax-replay-build
+
+python3 "$K/scripts/download_archives.py" \
+  --out "$RUN_ROOT/archives" --cases pytest-20261026
+mkdir -p "$RUN_ROOT/cases" "$RUN_ROOT/workspaces"
+test ! -e "$RUN_ROOT/cases/pytest"
+tar --no-same-owner --same-permissions \
+  -xzf "$RUN_ROOT/archives/pytest.tar.gz" -C "$RUN_ROOT/cases"
+
+python3 "$K/scripts/run_case.py" \
+  --case "$RUN_ROOT/cases/pytest" \
+  --workspace-parent "$RUN_ROOT/workspaces" \
+  --out "$RUN_ROOT/results/pytest-r1" \
+  --binary /tmp/ax-replay-build/release/full-fuse-replay \
+  --run-id pytest-r1 --worker-id local
+```
+
+下载器先检查大小和SHA256。`run_case.py`依次准备初始副本、运行Rust回放、核验最终树；任一步失败即停止，成功时`case-result.json`的`valid`为`true`。
+
+这一步在本地普通目录检查回放。测BrewFS或JuiceFS时，把`--workspace-parent`改为对应挂载内的目录，输入和结果目录放在被测文件系统之外。回放不调用模型；新采集才需要OpenCode和模型配置。
+
+## 正式测试测什么
+
+| 问题 | 测试内容 | 主要指标 |
+|---|---|---|
+| 能管理多少工作区 | 固定资源下创建、保存和重新打开 | 成功数、创建/重开延迟、元数据内存、空间 |
+| 共享和独立修改的代价 | 分叉、版本保存、共享V1/V2资料 | 保存/发布时间、上传字节、请求数、正确性 |
+| 多容器运行时表现如何 | 同一批trace的并发与扩展测试 | 批次时间、吞吐、各题耗时、CPU、内存、存储请求 |
+| 部分迁移影响多大 | 选中工作区交接，其余持续读写 | 暂停时间、搬运字节、状态正确性、邻居延迟 |
+
+客户端按4、16、64、128个容器扩展，每容器并发4个工作区。保存状态总量另测1千、1万、10万个，按预先规定的时间和资源阈值停止。BrewFS消融必须使用真实实现开关，记录源码和配置。
+
+## 当前状态与结果范围
+
+- **已有：**7份负载及采集/验收记录，Rust回放器，下载校验工具，单任务执行、资源采集、监控配置和结果传输脚本。
+- **仍待接入：**完整多容器协调器、统一发令屏障，以及容量、分叉/共享、迁移等机制测试执行器。`campaign.py`生成任务计划，不会启动集群；当前计划仍固定使用旧4份trace，加入新3份需重新冻结任务表。
+- **结果：**[完整任务采集与回放样例](results/opencode-full-fuse-pytest-10356-20261023/README.md)、[容器工具验证](scenarios/k8s-containers/validation/README.md)。正式BrewFS/JuiceFS多容器性能对比尚未在本仓库完成。
+
+记录的是挂载点收到的高层FUSE回调，覆盖仓库及HOME/XDG状态；内核缓存命中、网络和镜像运行库不在此范围。回放按已记录顺序执行，耗时包含解析和校验。重复读取比例不是缓存命中率，文件回放成功也不等于原Agent进程恢复成功。
+
+## 其他资料
+
+- [Windows到WSL的OpenCode恢复验证](validation/opencode-resume-20261023/README.md)
+- [较早的整体实验计划](execution-plan.zh.md) · [固定输入定义](workloads.json) · [阿里云Terraform](infra/alicloud/README.md)
+- [独立早期v1回放工具](https://github.com/Ivanbeethoven/fuse-workload-replay)：与本仓库完整FUSE格式不同。
+
+历史方案中的其他对照系统、16题计划和云主机部署保留供参考；当前多容器测试范围、输入清单及状态以上述入口为准。

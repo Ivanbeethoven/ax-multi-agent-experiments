@@ -2,9 +2,9 @@
 
 ## 1. 工具位置
 
-实验仓库：`https://github.com/Ivanbeethoven/ax-multi-agent-experiments`，私有，需要已授权的GitHub身份。
+实验仓库：`https://github.com/Ivanbeethoven/ax-multi-agent-experiments`，公开克隆；OSS原始数据仍需单独的读取权限。
 
-**本批完整trace使用本仓库的 `tools/full-fuse-replay`**。独立仓库`fuse-workload-replay`的早期v1输入和27次操作样例不是本批格式。部署脚本位于本仓库的`scenarios/k8s-containers`；使用已授权Git身份克隆仓库后，记录`git rev-parse HEAD`。不能访问GitHub的容器使用下面的代码包。
+**本批完整trace使用本仓库的 `tools/full-fuse-replay`**。独立仓库`fuse-workload-replay`的早期v1输入和27次操作样例不是本批格式。部署脚本位于本仓库的`scenarios/k8s-containers`；克隆仓库后，记录`git rev-parse HEAD`。不能访问GitHub的容器使用下面的代码包。
 
 在当前仓库的Linux路径中打包：
 

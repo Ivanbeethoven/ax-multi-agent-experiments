@@ -4,7 +4,7 @@
 
 | 地址 | 用途/固定版本 |
 |---|---|
-| https://github.com/Ivanbeethoven/ax-multi-agent-experiments | 私有实验仓库；本包来源基准提交dc48db5b4978aeffac7b33eb0386b27e95fe8f4e。部分最新采集改动尚未进入此提交，以本包source-manifest.json的逐文件摘要为准 |
+| https://github.com/Ivanbeethoven/ax-multi-agent-experiments | 公开实验仓库；本包来源基准提交dc48db5b4978aeffac7b33eb0386b27e95fe8f4e。部分采集改动未进入该基准提交，以本包source-manifest.json的逐文件摘要为准 |
 | https://github.com/Ivanbeethoven/fuse-workload-replay | 私有早期Rust工具；v1输入与27操作样例，仅作历史来源 |
 | https://github.com/anomalyco/opencode | OpenCode上游；本次固定npm包opencode-ai@1.19.4 |
 | https://github.com/SWE-bench/SWE-bench | 评分代码；commit 02e7a74ffd0b707aab73d203fe87bdc7c76afc8e，本机包版本5.0.2 |

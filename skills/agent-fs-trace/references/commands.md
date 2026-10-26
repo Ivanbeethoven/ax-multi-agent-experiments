@@ -164,7 +164,7 @@ git -C "$LAB/experiments" checkout dc48db5b4978aeffac7b33eb0386b27e95fe8f4e
   --output "$LAB/runs/portable-replay-01" --binary "$AX_TRACE_BINARY"
 ```
 
-该步骤检查每卷/整体摘要、安全解压、初始树、Rust回放、最终树及字节/操作数。需要私有仓库权限；不需要Docker或模型。
+该步骤检查每卷/整体摘要、安全解压、初始树、Rust回放、最终树及字节/操作数。仓库已公开，无需GitHub身份；不需要Docker或模型。OSS完整归档另需读取权限。
 
 ### OSS四份完整归档
 
