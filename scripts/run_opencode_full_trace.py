@@ -43,21 +43,26 @@ def relay(provider):
 
 def main():
     import docker
-    p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--instance-id',default='pytest-dev__pytest-10356')
+    p.add_argument('--filesystem-only',action='store_true')
+    a=p.parse_args()
     folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=False)
     preflight(folder/'preflight')  # No credentials or model call until gate passes.
     print('Preflight passed: children, SQLite WAL, mmap, Rust replay and final tree',flush=True)
     provider=json.load(sys.stdin)
     rows=load_rows(Path('/home/hxy/research/agent-fuse-swebench/verified.parquet'))
-    row=next(r for r in rows if r['instance_id']=='pytest-dev__pytest-10356')
+    row=next(r for r in rows if r['instance_id']==a.instance_id)
     client=docker.from_env(timeout=120);image=client.images.get(row['image'])
     save(folder/'selection.json',{'instance_id':row['instance_id'],'base_commit':row['base_commit'],
         'image_id':image.id,'model':'deepseek-v4-flash','opencode':'1.19.4','max_steps':None,'timeout_s':3600,
         'scope':'entire OpenCode process lifetime: repository and all XDG/HOME state on FUSE; image runtime, /tmp and network excluded',
         'prompt':prompt_for(row,None,3600)})
-    baseline=grade(client,row,image.id,'',folder/'baseline','unmodified')
-    gold=grade(client,row,image.id,row['patch'],folder/'gold','reference')
-    if baseline['resolved'] or not gold['resolved']: raise RuntimeError('Grading environment invalid')
+    save(folder/'collection-policy.json',{'filesystem_only':a.filesystem_only,'solution_success_is_acceptance_gate':False})
+    if not a.filesystem_only:
+        baseline=grade(client,row,image.id,'',folder/'baseline','unmodified')
+        gold=grade(client,row,image.id,row['patch'],folder/'gold','reference')
+        if baseline['resolved'] or not gold['resolved']: raise RuntimeError('Grading environment invalid')
     backing=folder/'backing';backing.mkdir()
     source=client.containers.create(image.id,['sleep','infinity'],labels={'ax-full-trace':'fixture'})
     try: run(['docker','cp',source.id+':/testbed',backing/'repo'])
@@ -109,15 +114,21 @@ def main():
             if code is None: code=proc.returncode
         # Stop the whole container so all remaining FDs/mappings close before unmount.
     finally:
+        save(folder/'agent-exit.json',{'exit_code':code,'elapsed_s':time.monotonic()-started})
         c.remove(force=True);m.stop();server.shutdown()
     save(folder/'agent-exit.json',{'exit_code':code,'elapsed_s':time.monotonic()-started})
     print('Agent stopped; capture closed; starting Rust replay',flush=True)
     verification=replay_check(folder)
-    run(['git','add','-N','.'],cwd=backing/'repo')
-    patch=run(['git','diff','--binary',row['base_commit']],cwd=backing/'repo')
-    (folder/'prediction.patch').write_text(patch)
-    graded=grade(client,row,image.id,patch,folder/'grading','opencode-full-fuse')
-    save(folder/'result.json',{'resolved':graded['resolved'],'agent_exit_code':code,'trace_verified':verification,
+    graded=None
+    if not a.filesystem_only:
+        patch_root=folder/'patch-worktree'
+        shutil.copytree(backing/'repo',patch_root,symlinks=True)
+        run(['git','add','-N','.'],cwd=patch_root)
+        patch=run(['git','diff','--binary',row['base_commit']],cwd=patch_root)
+        (folder/'prediction.patch').write_text(patch)
+        graded=grade(client,row,image.id,patch,folder/'grading','opencode-full-fuse')
+    run([sys.executable,Path(__file__).with_name('analyze_full_fuse_trace.py'),folder/'capture/events.jsonl',folder/'metrics.json'])
+    save(folder/'result.json',{'resolved':graded['resolved'] if graded else None,'grading_performed':graded is not None,'agent_exit_code':code,'trace_verified':verification,
          'full_agent_run':True,'model_steps':sum(json.loads(x).get('type')=='step_finish' for x in (folder/'agent-events.jsonl').read_text().splitlines() if x.startswith('{'))})
     print(json.dumps(json.loads((folder/'result.json').read_text())),flush=True)
 

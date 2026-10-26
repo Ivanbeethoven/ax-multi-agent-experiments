@@ -1,0 +1,156 @@
+schema: brewfs-agent-workload-v2
+status: planned
+protocol: evaluation-protocol.md
+purpose: >-
+  Preregistration draft for comparable storage experiments. Candidate values
+  and initial budgets are plans, not observations or completed qualification.
+source_revision:
+  brewfs: 242af5f7e9bba7afc0c61778f1084fcb20e083a0
+  rustfs_research_fork: cc4926fac1107aee76540f28bf22dbd47fcbca24
+  historical_upstream_audit: f80e7148c82e9f1ef235ab19318b89cb41a093a2
+  historical_research_checkpoint: 518e7cc39b2ff0b421ecf0f656de6d468cacb9b8
+  role: >-
+    BrewFS matches the manuscript source audit; RustFS is a separate research
+    fork. Historical revisions document earlier evidence and are not the planned
+    executable treatment. Revalidate every gate and regenerate exact source,
+    patch, feature, configuration and image manifests before any experiment.
+  executed_run_manifest: null
+systems:
+  - id: brewfs_entity
+    path: workspace-entity-v1
+    required_gates: [E00, G01, G02, G03, G04, G05, G06]
+  - id: brewfs_materialized
+    path: matched entity API with pre-materialized lower
+    required_gates: [E00, G07]
+  - id: overlayfs
+    path: local lower plus writable upper
+    required_gates: [E00, G07]
+  - id: juicefs
+    path: pinned JuiceFS version on matched object and metadata resources
+    required_gates: [E00, G07, G13]
+  - id: mature_lower_upper
+    candidates: [nydus_with_compatible_upper, cvmfs_with_compatible_upper]
+    selection: strongest_compatible_on_separate_prespecified_tuning_workloads
+    frozen_candidate: null
+    required_gates: [E00, G13]
+  # Gate identifiers refer to the companion integration inventory; none is
+  # marked passed by this specification, and old checkpoint gates need re-audit.
+baseline_groups:
+  key_fields: [repository, base_commit, dependency_image_digest, subtree_manifest_digest]
+  identity: identical_immutable_content_and_namespace_contract
+  different_commits: separate_groups_unless_explicit_shared_subtree_is_identical
+  preserve_singletons: true
+  natural_sharing_manifest: freeze_after_capability_screening
+  synthetic_sibling_replays: separate_label_from_natural_live_sharing
+reuse_and_lifetime:
+  K_workspace: assigned_workspace_lifecycles_pinning_the_same_S
+  K_standalone: fixed_query_sessions_against_the_same_S
+  count_failed_assignments: true
+  internal_retries: same_use_unless_manifest_declares_a_new_workspace
+  T: actual_version_lifetime_from_construction_through_final_reclamation
+  retention_symbol: tau_ret
+  tau_ret: freeze_after_pilot_before_comparisons
+  retention_origin: last_workspace_or_reader_release
+  retention_is_part_of_T: true
+  resource_metrics: [cpu_seconds, transferred_bytes, object_requests, byte_seconds, peak_bytes]
+  shared_object_accounting: charge_once_over_union_of_residence_intervals
+  cutoff_rule: report_residual_debt_and_censoring_without_claiming_completed_lifecycle
+controls:
+  cache_states: [cold_client, index_warm, metadata_warm, data_warm]
+  replay_concurrency_candidates: [1, 4, 16, 64]
+  live_concurrency: freeze_after_pilot_before_comparisons
+  workspace_fanout_candidates: [1, 4, 16, 64, 128]
+  mutation_fraction_candidates: [0.0, 0.001, 0.01, 0.10, 0.50]
+  baseline_file_count_range: [10000, 1000000]
+  directory_fanout_entity_candidates: [100, 1000, 4096]
+  cache_budget:
+    memory_bytes: freeze_per_condition
+    ssd_bytes: freeze_per_condition
+    kernel_page_cache: evict_or_report
+    backend_page_cache: reset_or_report
+  completion_points:
+    - tool_return
+    - fsync_return
+    - remote_object_complete
+    - metadata_commit
+    - writeback_queue_drained
+phases:
+  - id: A
+    name: provision_and_discover
+    operations: [workspace_create, fork, mount, statfs, readdir, stat, readlink]
+    metrics: [provision_ready_us, first_tool_us, lower_kv_calls, metadata_get_bytes]
+  - id: B
+    name: repository_navigation
+    operations: [git_status, grep, find, path_walk, small_read, getattr]
+    metrics: [phase_wall_us, lower_object_gets, object_bytes, metadata_p99_us]
+  - id: C
+    name: edit_and_sync
+    operations: [patch, overwrite, truncate, sparse_write, fsync, close]
+    metrics: [upper_bytes, upload_bytes, commit_us, drain_us, write_amp]
+  - id: D
+    name: build_and_test
+    operations: [sequential_read, random_read, compile, link, generated_files, test]
+    metrics: [critical_path_us, read_bytes, cpu_us, task_makespan_us, output_hash]
+  - id: E
+    name: dependency_and_churn
+    operations: [create_storm, rename, unlink, link, install, cleanup, retry]
+    metrics: [metadata_ops, tombstones, conflict_rate, retained_objects, gc_lag_us]
+  - id: F
+    name: review_and_lifecycle
+    operations: [diff, discard, keep, reopen_if_supported, lease_expiry]
+    metrics: [discard_us, owner_count, recovery_result, failure_class, cleanup_bytes]
+replay:
+  required_fields: [paths, inode_ids, handles, payload_hashes, payload_locations, offsets, lengths, ordering, sync_events, initial_tree_hash]
+  modes: [closed_loop, arrival_driven]
+  correctness: [tree_hash, file_hashes, metadata_oracle, errno_sequence]
+live_agent:
+  core_tasks: 20
+  extension_tasks: 60
+  systems_per_condition: 3
+  system_identities: freeze_after_compatibility_and_baseline_tuning
+  initial_batch_repetitions_per_system: 3
+  formal_batch_repetitions: freeze_after_variance_pilot
+  core_task_execution_budget: 180
+  extension_task_execution_budget: 540
+  budget_scope: one_concurrency_cache_durability_and_retention_condition
+  batch:
+    composition: entire_frozen_panel_with_each_task_assigned_once
+    shared_baseline_groups: explicit_S_group_for_every_assignment
+    concurrency: one_frozen_m_for_all_systems
+    arrival_order: identical_manifest_within_each_paired_block
+    reset: independent_deployment_and_declared_initial_state_between_batches
+    within_batch_reuse: preserved_and_measured
+  pairing: same_batch_manifest_and_host_time_block_across_systems
+  system_execution_order: randomized_within_block
+  fixed_fields: [model_id, provider, prompt_hash, toolset, token_budget, wall_budget, retry_policy, task_manifest, arrival_manifest, baseline_manifest, cache_state, retention_policy]
+  primary_endpoints: [correct_completions_by_common_deadline, batch_makespan]
+  denominator: all_assigned_tasks_including_failures_and_timeouts
+  incomplete_batch_makespan: right_censored_at_common_deadline
+  secondary_endpoints: [completed_task_latency, successful_tasks_per_hour, resource_use, retained_state_cost]
+analysis:
+  batch_endpoint_unit: independent_paired_batch_block
+  batch_uncertainty: resample_paired_batches_preserving_all_within_batch_tasks
+  task_analysis: account_for_batch_and_repository_clustering
+  insufficient_batches: descriptive_paired_outcomes_and_exploratory_status
+  microbenchmark_initial_blocks: 10
+  formal_precision_and_sample_size: freeze_after_variance_pilot
+composition:
+  legal_cells_only: true
+  internal_comparison: combined_vs_best_supported_proper_subset_under_one_runtime
+  external_comparison: full_system_vs_strongest_baseline_at_matched_semantics_persistence_resources
+  combined_value: incremental_per_metric_gain_over_supported_subsets
+  system_advantage: separate_comparison_to_external_baseline
+  interaction: secondary_nonadditivity_question_on_prespecified_scale
+  zero_interaction: does_not_refute_additive_combined_value
+  unsupported_crossings: nested_within_runtime_or_reported_unavailable
+negative_outcomes:
+  - low_cross_task_overlap_or_singleton_baselines
+  - high_mutation_or_snapshot_churn
+  - packed_overfetch_or_index_cold_start
+  - net_savings_nonpositive_within_measured_K_and_T
+  - effective_B_equals_default
+  - upper_full_object_integrity_hides_q_benefit
+  - no_incremental_combined_gain_or_unacceptable_cost_tradeoff
+  - model_wait_dominates_storage_critical_path
+  - owner_or_directory_bound_reached
+  - failure_or_timeout_rate_increases

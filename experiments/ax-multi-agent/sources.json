@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-10-23",
+  "scope": "local source inspection; no cluster/model/performance runs",
+  "repositories": {
+    "brewfs": {
+      "reviewed_commit": "f80e7148c82e9f1ef235ab19318b89cb41a093a2",
+      "path_relative_to_plan": "../../../brewfs-upstream",
+      "dirty_at_capture": false
+    },
+    "ax": {
+      "reviewed_commit": "4ef115f88f3e0eedd2c2d9653fe04a25c1e158c6",
+      "path_relative_to_plan": "../../../ax-integration-upstream",
+      "dirty_at_capture": false
+    }
+  },
+  "sources": [
+    {
+      "source_id": "AX-CLI",
+      "repository": "ax",
+      "path": "cmd/ax/main.go",
+      "sha256": "bb0ae0325672756da8a70bffebd2971ae104ecdf8670635204f1b3a3dfabb7e3",
+      "locator_lines": [
+        244
+      ],
+      "locator_text": "usage: ax workspace fork",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Client syntax; not proof of end-to-end fork.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "AX-FORK",
+      "repository": "ax",
+      "path": "internal/server/fork.go",
+      "sha256": "25b4f71337201d2e3c4452a7ef54beaa49eb31bf39266db5ed8d4fe638b8c6da",
+      "locator_lines": [
+        107
+      ],
+      "locator_text": "\"kind\":       \"BrewFSWorkspaceFork\"",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Requires operator CRD and Ready workspaceId/storageClassName.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "AX-FORK-SERVER",
+      "repository": "ax",
+      "path": "internal/server/server.go",
+      "sha256": "0eb853194b78bb508419d4a1bbebb68af77e12e96ff7c1841364fb15fddedf96",
+      "locator_lines": [
+        443
+      ],
+      "locator_text": "func (s *Server) ForkWorkspace",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Copies parent spec and records returned child storage class.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "AX-VOLUME",
+      "repository": "ax",
+      "path": "internal/substrate/client.go",
+      "sha256": "1fc13f1bf1b8202b5e5bf46a2bc0c5f0dcb58ba110044388b563b31790242f85",
+      "locator_lines": [
+        352
+      ],
+      "locator_text": "workspaceVolume.ExternalVolumeTemplate",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "External volume selection and VOLUMES snapshot fidelity; no implied CSI checkpoint.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "AX-RUNNER",
+      "repository": "ax",
+      "path": "runner/runner.go",
+      "sha256": "97eff263bf3b1c21ae96030abf24e3b54ab6f2fb35a9388a3cbb02adaf9337ad",
+      "locator_lines": [
+        126
+      ],
+      "locator_text": "if premountedWorkspaceEnabled()",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Skips setup; retains runner after child exit; stop terminates process group.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "CSI-CONTRACT",
+      "repository": "brewfs",
+      "path": "operator/brewfs-csi/README.md",
+      "sha256": "09d9f6d3b68680f6b749b3581121ece02e2baa0e5faa6a0fef81f13a1b547cad",
+      "locator_lines": [
+        35
+      ],
+      "locator_text": "A writable workspace therefore",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Single writer; historical workspace-v1 canary and unverified independent remount.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "CSI-RPC",
+      "repository": "brewfs",
+      "path": "operator/brewfs-csi/src/main.rs",
+      "sha256": "867198ce485a65300650c3f50336a1fef31e2edc8cca9375d6d0b080f07f93f7",
+      "locator_lines": [
+        110
+      ],
+      "locator_text": "Request<proto::CreateVolumeRequest>",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Deterministic existing volume identity; not workspace clone; snapshot RPC unimplemented.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "ENTITY-ENTRY",
+      "repository": "brewfs",
+      "path": "src/cli/entity_mount.rs",
+      "sha256": "91f8b51272d3a1c172d0086c1da4300fbaeb0581f21394f12ca779eafe1e7e4b",
+      "locator_lines": [
+        1
+      ],
+      "locator_text": "fresh-only",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Fresh-only entry; S3 config and lease renewal handling.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "ENTITY-DIR",
+      "repository": "brewfs",
+      "path": "src/workspace_overlay/entity/resolver.rs",
+      "sha256": "d5c4b5a2707e7a01cab29d06e96e78367800bfcee21df5882e4aed063bd11582",
+      "locator_lines": [
+        19
+      ],
+      "locator_text": "MAX_DIRECTORY_ENTRIES: usize = 4096",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Entity directory enumeration bound.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "ENTITY-PACKED",
+      "repository": "brewfs",
+      "path": "src/workspace_overlay/entity/packed_lower.rs",
+      "sha256": "4c2abb25c5e5c95fe4bca7a8d07f796554767d9fd9883a627635d55ff3270f24",
+      "locator_lines": [
+        19,
+        584,
+        600
+      ],
+      "locator_text": "MAX_DIRECTORY_ENTRIES",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Packed lower path and bounded enumeration; not independent resume qualification.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "ENTITY-DATA",
+      "repository": "brewfs",
+      "path": "src/workspace_overlay/entity/data.rs",
+      "sha256": "bab0ac288ca35bd7ab1ae2cad50ee0818883b5194f6cc1ec3a1b23eae1840416",
+      "locator_lines": [
+        36,
+        92,
+        214,
+        309,
+        758,
+        1026
+      ],
+      "locator_text": "MAX_IO_BYTES",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Upper object path and bounded IO; whole-object integrity behavior requires measurement.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "ENTITY-FUSE",
+      "repository": "brewfs",
+      "path": "src/fuse/entity.rs",
+      "sha256": "180647c70a633c37bf476ea8e57ce9b28f3164ac7083631c2aad0c86554f2999",
+      "locator_lines": [
+        941
+      ],
+      "locator_text": "direct_io",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Entity IO policy differs from buffered ordinary VFS.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "S3-UPLOAD",
+      "repository": "brewfs",
+      "path": "src/cadapter/s3.rs",
+      "sha256": "aea30249395a9f668a1de4798d2c5ed230f8bf65eb667be38f2b886428f5f1d9",
+      "locator_lines": [
+        1191
+      ],
+      "locator_text": "put_object_create_only_durable",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Strict upload path; hint propagation must be qualified.",
+      "runtime_executed_this_turn": false
+    },
+    {
+      "source_id": "AGENT-WRAPPER",
+      "repository": "brewfs",
+      "path": "deploy/ax-k3s/agent-image/run-agent.sh",
+      "sha256": "2a53ec0d28954c074f8d306edac630c6216aa8108b01d07062ace720406bce84",
+      "locator_lines": [
+        64
+      ],
+      "locator_text": "echo done",
+      "evidence_state": "present_in_code_or_recorded_document",
+      "supported_reading": "Existing wrapper masks exit and writes telemetry to workspace; session home is elsewhere.",
+      "runtime_executed_this_turn": false
+    }
+  ],
+  "negative_findings": [
+    {
+      "repository": "brewfs",
+      "search": "BrewFSWorkspaceFork|brewfsworkspaceforks",
+      "tool": "rg -l",
+      "exit_code": 1,
+      "meaning": "No matching CRD/controller identifier found in reviewed checkout; does not exclude internal fork mechanisms or later commits."
+    }
+  ],
+  "prior_observation": {
+    "path_relative_to_plan": "../agent-fuse-observations/derived/summary.json",
+    "sha256": "880b4b21973d78cc2d28ba647b85ea4a8287caadee5d08099721d0e9734b2d27",
+    "total_events": 1138884,
+    "task_count": 8,
+    "evidence_state": "previously_derived_observation_not_recollected_here"
+  }
+}

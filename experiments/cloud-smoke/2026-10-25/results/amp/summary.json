@@ -1,0 +1,1252 @@
+{
+  "cases": [
+    {
+      "case": "A_each",
+      "client": "default",
+      "logical_write_bytes": 4096000,
+      "logical_read_bytes": 0,
+      "PUT_bytes": 46039040,
+      "PUT_count": 1010,
+      "GET_bytes": 41988096,
+      "GET_count": 11,
+      "DELETE_bytes": 0,
+      "DELETE_count": 990,
+      "juicefs_compact_size_histogram_bytes_sum": 41943040,
+      "juicefs_compact_size_histogram_bytes_count": 10,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 4096000,
+      "juicefs_fuse_written_size_bytes_count": 1000,
+      "juicefs_fuse_read_size_bytes_sum": 0,
+      "juicefs_fuse_read_size_bytes_count": 0,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 11.24,
+      "GET_per_logical_write": 10.251,
+      "compact_average_bytes": 4194304.0,
+      "PUT_minus_compact_bytes": 4096000,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 3080192
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "e1725109627aa7d21fe7a30ec4ee614e99f990d50c99751e8c746e6b39f452ce",
+      "after_sha256": "93558302237f183bd486606c17815907a8bd65ebb66aa03559e3a98ff62b65fa",
+      "utc_before": "2026-10-25T11:49:06Z",
+      "utc_after": "2026-10-25T11:49:21Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "0eb192bd56bb2a5c2d0cac47d7a9fb9ce9b9978c04151a667832f4d20ffbed1a"
+      }
+    },
+    {
+      "case": "A_final",
+      "client": "default",
+      "logical_write_bytes": 4096000,
+      "logical_read_bytes": 0,
+      "PUT_bytes": 12460032,
+      "PUT_count": 992,
+      "GET_bytes": 8392704,
+      "GET_count": 3,
+      "DELETE_bytes": 0,
+      "DELETE_count": 781,
+      "juicefs_compact_size_histogram_bytes_sum": 8388608,
+      "juicefs_compact_size_histogram_bytes_count": 2,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 4096000,
+      "juicefs_fuse_written_size_bytes_count": 1000,
+      "juicefs_fuse_read_size_bytes_sum": 0,
+      "juicefs_fuse_read_size_bytes_count": 0,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 3.042,
+      "GET_per_logical_write": 2.049,
+      "compact_average_bytes": 4194304.0,
+      "PUT_minus_compact_bytes": 4071424,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "64dabb90c167a35e23b1645a025dbd6cbae0e567d858bca3142b54ef592dfd31",
+      "after_sha256": "308315fd028461da34741b4e5f6ae5c6eb553534194dba70531054d4b585ab77",
+      "utc_before": "2026-10-25T11:48:30Z",
+      "utc_after": "2026-10-25T11:48:39Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "0eb192bd56bb2a5c2d0cac47d7a9fb9ce9b9978c04151a667832f4d20ffbed1a"
+      }
+    },
+    {
+      "case": "B_full",
+      "client": "default",
+      "logical_write_bytes": 4194304,
+      "logical_read_bytes": 0,
+      "PUT_bytes": 4194304,
+      "PUT_count": 1,
+      "GET_bytes": 0,
+      "GET_count": 0,
+      "DELETE_bytes": 0,
+      "DELETE_count": 0,
+      "juicefs_compact_size_histogram_bytes_sum": 0,
+      "juicefs_compact_size_histogram_bytes_count": 0,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 4194304,
+      "juicefs_fuse_written_size_bytes_count": 32,
+      "juicefs_fuse_read_size_bytes_sum": 0,
+      "juicefs_fuse_read_size_bytes_count": 0,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 1.0,
+      "GET_per_logical_write": 0.0,
+      "compact_average_bytes": null,
+      "PUT_minus_compact_bytes": 4194304,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "dc0166ad41ceda5849eb157ff5ed58665892228077f24d29d35d9784cb476c57",
+      "after_sha256": "6b6f149eaccdca017f922ff2bc6d233404ddcfc5ac05b103612d03cfb818ad33",
+      "utc_before": "2026-10-25T11:48:47Z",
+      "utc_after": "2026-10-25T11:48:50Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "d124b657c468c468d5d3e838f9119d5ba358180c88d85fe27a59ad9840449b81"
+      }
+    },
+    {
+      "case": "C_sparse_distinct",
+      "client": "default",
+      "logical_write_bytes": 409600,
+      "logical_read_bytes": 0,
+      "PUT_bytes": 409600,
+      "PUT_count": 1,
+      "GET_bytes": 0,
+      "GET_count": 0,
+      "DELETE_bytes": 0,
+      "DELETE_count": 0,
+      "juicefs_compact_size_histogram_bytes_sum": 0,
+      "juicefs_compact_size_histogram_bytes_count": 0,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 409600,
+      "juicefs_fuse_written_size_bytes_count": 100,
+      "juicefs_fuse_read_size_bytes_sum": 0,
+      "juicefs_fuse_read_size_bytes_count": 0,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 1.0,
+      "GET_per_logical_write": 0.0,
+      "compact_average_bytes": null,
+      "PUT_minus_compact_bytes": 409600,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 458752
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "604e5d7a775e97bca7f7ce6e38be2606c351fa6d489689e8090d5d6eb33a07ef",
+      "after_sha256": "6b3b45c5373d1115eefc5c1f237f424e48c919ac673dc1f9fa5c6053513e087f",
+      "utc_before": "2026-10-25T11:49:39Z",
+      "utc_after": "2026-10-25T11:49:42Z",
+      "validation": {
+        "ok": true,
+        "size": 3555328,
+        "sha256": "307d55df41089e52b0e5f4c96cd3a1f872bad769c4dbc8b50c4fd827a04b5007"
+      }
+    },
+    {
+      "case": "C_sparse_each",
+      "client": "default",
+      "logical_write_bytes": 409600,
+      "logical_read_bytes": 0,
+      "PUT_bytes": 413696,
+      "PUT_count": 101,
+      "GET_bytes": 0,
+      "GET_count": 0,
+      "DELETE_bytes": 0,
+      "DELETE_count": 99,
+      "juicefs_compact_size_histogram_bytes_sum": 4096,
+      "juicefs_compact_size_histogram_bytes_count": 1,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 409600,
+      "juicefs_fuse_written_size_bytes_count": 100,
+      "juicefs_fuse_read_size_bytes_sum": 0,
+      "juicefs_fuse_read_size_bytes_count": 0,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 1.01,
+      "GET_per_logical_write": 0.0,
+      "compact_average_bytes": 4096.0,
+      "PUT_minus_compact_bytes": 409600,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "ef8c8f5d4853ed7ce594cf15cb8f4720af2a0c041f6ffb6dad99f87ce2cab55f",
+      "after_sha256": "291de09984eeff2ea945bcb63b1dbd6f012be63409d364a0ffc597ffca244cef",
+      "utc_before": "2026-10-25T11:49:28Z",
+      "utc_after": "2026-10-25T11:49:33Z",
+      "validation": {
+        "ok": true,
+        "size": 3149824,
+        "sha256": "758d85109fbf3d0dcd63a8866d60359905f57073c98b89d2b263b32802dfce0a"
+      }
+    },
+    {
+      "case": "C_sparse_final",
+      "client": "default",
+      "logical_write_bytes": 409600,
+      "logical_read_bytes": 0,
+      "PUT_bytes": 4096,
+      "PUT_count": 1,
+      "GET_bytes": 0,
+      "GET_count": 0,
+      "DELETE_bytes": 0,
+      "DELETE_count": 0,
+      "juicefs_compact_size_histogram_bytes_sum": 0,
+      "juicefs_compact_size_histogram_bytes_count": 0,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 409600,
+      "juicefs_fuse_written_size_bytes_count": 100,
+      "juicefs_fuse_read_size_bytes_sum": 0,
+      "juicefs_fuse_read_size_bytes_count": 0,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 0.01,
+      "GET_per_logical_write": 0.0,
+      "compact_average_bytes": null,
+      "PUT_minus_compact_bytes": 4096,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4128768
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "d101683305ebc717098cc0943e0a8b3a788cf1395b793a433c322e5d2361cc32",
+      "after_sha256": "87d06a165c9ec9cfeacb06e7cf2868355beadaf2de5084e151fe9a8e90551b30",
+      "utc_before": "2026-10-25T11:48:56Z",
+      "utc_after": "2026-10-25T11:49:00Z",
+      "validation": {
+        "ok": true,
+        "size": 3149824,
+        "sha256": "758d85109fbf3d0dcd63a8866d60359905f57073c98b89d2b263b32802dfce0a"
+      }
+    },
+    {
+      "case": "D_each",
+      "client": "writeback",
+      "logical_write_bytes": 4096000,
+      "logical_read_bytes": 0,
+      "PUT_bytes": 46039040,
+      "PUT_count": 1010,
+      "GET_bytes": 37793792,
+      "GET_count": 10,
+      "DELETE_bytes": 0,
+      "DELETE_count": 990,
+      "juicefs_compact_size_histogram_bytes_sum": 41943040,
+      "juicefs_compact_size_histogram_bytes_count": 10,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 4096000,
+      "juicefs_fuse_written_size_bytes_count": 1000,
+      "juicefs_fuse_read_size_bytes_sum": 0,
+      "juicefs_fuse_read_size_bytes_count": 0,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 11.24,
+      "GET_per_logical_write": 9.227,
+      "compact_average_bytes": 4194304.0,
+      "PUT_minus_compact_bytes": 4096000,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 458752
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "7afebf884f6b372fcb64369be27ba597ae2194ec1bee2079415a88f9545b100b",
+      "after_sha256": "65653bc9579893c15e96f243d1c87465d23722d8faaca308eddc528fd3a965c6",
+      "utc_before": "2026-10-25T11:50:07Z",
+      "utc_after": "2026-10-25T11:50:19Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "0eb192bd56bb2a5c2d0cac47d7a9fb9ce9b9978c04151a667832f4d20ffbed1a"
+      }
+    },
+    {
+      "case": "D_final",
+      "client": "writeback",
+      "logical_write_bytes": 4096000,
+      "logical_read_bytes": 0,
+      "PUT_bytes": 20848640,
+      "PUT_count": 994,
+      "GET_bytes": 12644352,
+      "GET_count": 5,
+      "DELETE_bytes": 0,
+      "DELETE_count": 897,
+      "juicefs_compact_size_histogram_bytes_sum": 16777216,
+      "juicefs_compact_size_histogram_bytes_count": 4,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 4096000,
+      "juicefs_fuse_written_size_bytes_count": 1000,
+      "juicefs_fuse_read_size_bytes_sum": 0,
+      "juicefs_fuse_read_size_bytes_count": 0,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 5.09,
+      "GET_per_logical_write": 3.087,
+      "compact_average_bytes": 4194304.0,
+      "PUT_minus_compact_bytes": 4071424,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 458752
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "e974d9495372cb6a75ec8bfe0ade92e1fb2eaa31b35c25d191c64d9697b1bcf9",
+      "after_sha256": "75a7b84162a222a022564f11ac28bde0699c5ed687bbea4dbc2f82caa812f750",
+      "utc_before": "2026-10-25T11:49:49Z",
+      "utc_after": "2026-10-25T11:49:59Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "0eb192bd56bb2a5c2d0cac47d7a9fb9ce9b9978c04151a667832f4d20ffbed1a"
+      }
+    },
+    {
+      "case": "D_read_100",
+      "client": "writeback",
+      "logical_write_bytes": 1638400,
+      "logical_read_bytes": 409600,
+      "PUT_bytes": 421068800,
+      "PUT_count": 500,
+      "GET_bytes": 416022528,
+      "GET_count": 195,
+      "DELETE_bytes": 0,
+      "DELETE_count": 500,
+      "juicefs_compact_size_histogram_bytes_sum": 419430400,
+      "juicefs_compact_size_histogram_bytes_count": 100,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 1638400,
+      "juicefs_fuse_written_size_bytes_count": 400,
+      "juicefs_fuse_read_size_bytes_sum": 1638400,
+      "juicefs_fuse_read_size_bytes_count": 100,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 257.0,
+      "GET_per_logical_write": 253.92,
+      "compact_average_bytes": 4194304.0,
+      "PUT_minus_compact_bytes": 1638400,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "57d6fe7805d923391e1143d8587363f8fbe5580dfb8580b4b2440b8dc01c5e36",
+      "after_sha256": "8bdc9b1287f72c9cf62088fb7c8c1e21134b44a67e680852e7bce6246e83d589",
+      "utc_before": "2026-10-25T11:52:09Z",
+      "utc_after": "2026-10-25T11:52:29Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "d4007c02e82b60ca90ae417ceab6782fc536153a25379af363ae090a2c59f308"
+      },
+      "first_cycle": {
+        "write_phase": {
+          "PUT_bytes": 16384,
+          "PUT_count": 4,
+          "GET_bytes": 0,
+          "GET_count": 0,
+          "DELETE_bytes": 0,
+          "DELETE_count": 0,
+          "juicefs_compact_size_histogram_bytes_sum": 0,
+          "juicefs_compact_size_histogram_bytes_count": 0,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 16384,
+          "juicefs_fuse_written_size_bytes_count": 4,
+          "juicefs_fuse_read_size_bytes_sum": 0,
+          "juicefs_fuse_read_size_bytes_count": 0,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        },
+        "read_phase": {
+          "PUT_bytes": 4194304,
+          "PUT_count": 1,
+          "GET_bytes": 0,
+          "GET_count": 0,
+          "DELETE_bytes": 0,
+          "DELETE_count": 0,
+          "juicefs_compact_size_histogram_bytes_sum": 4194304,
+          "juicefs_compact_size_histogram_bytes_count": 1,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 0,
+          "juicefs_fuse_written_size_bytes_count": 0,
+          "juicefs_fuse_read_size_bytes_sum": 16384,
+          "juicefs_fuse_read_size_bytes_count": 1,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        }
+      }
+    },
+    {
+      "case": "E_each",
+      "client": "small",
+      "logical_write_bytes": 4096000,
+      "logical_read_bytes": 0,
+      "PUT_bytes": 46039040,
+      "PUT_count": 1640,
+      "GET_bytes": 42233856,
+      "GET_count": 663,
+      "DELETE_bytes": 0,
+      "DELETE_count": 1620,
+      "juicefs_compact_size_histogram_bytes_sum": 41943040,
+      "juicefs_compact_size_histogram_bytes_count": 10,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 4096000,
+      "juicefs_fuse_written_size_bytes_count": 1000,
+      "juicefs_fuse_read_size_bytes_sum": 0,
+      "juicefs_fuse_read_size_bytes_count": 0,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 11.24,
+      "GET_per_logical_write": 10.311,
+      "compact_average_bytes": 4194304.0,
+      "PUT_minus_compact_bytes": 4096000,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 458752
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "8f948166b90bcd6ec56dfda8eeb295eaf278ffb7615e07b135f78768481d3149",
+      "after_sha256": "38eb20a318a27249259eb7752ccd34e46bb919842fa4f1f9756b674f532d86cc",
+      "utc_before": "2026-10-25T11:50:46Z",
+      "utc_after": "2026-10-25T11:51:05Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "0eb192bd56bb2a5c2d0cac47d7a9fb9ce9b9978c04151a667832f4d20ffbed1a"
+      }
+    },
+    {
+      "case": "E_final",
+      "client": "small",
+      "logical_write_bytes": 4096000,
+      "logical_read_bytes": 0,
+      "PUT_bytes": 8265728,
+      "PUT_count": 1054,
+      "GET_bytes": 4194304,
+      "GET_count": 64,
+      "DELETE_bytes": 0,
+      "DELETE_count": 163,
+      "juicefs_compact_size_histogram_bytes_sum": 4194304,
+      "juicefs_compact_size_histogram_bytes_count": 1,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 4096000,
+      "juicefs_fuse_written_size_bytes_count": 1000,
+      "juicefs_fuse_read_size_bytes_sum": 0,
+      "juicefs_fuse_read_size_bytes_count": 0,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 2.018,
+      "GET_per_logical_write": 1.024,
+      "compact_average_bytes": 4194304.0,
+      "PUT_minus_compact_bytes": 4071424,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 458752
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "4039c734bd0de7a39835c6238309bd0b6701d94241b9719a8e706b660093f2c3",
+      "after_sha256": "37e8dc6bd6e766607d6e94ad562525cdfa122643fcef2e132dbfd385dfd0f871",
+      "utc_before": "2026-10-25T11:50:26Z",
+      "utc_after": "2026-10-25T11:50:33Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "0eb192bd56bb2a5c2d0cac47d7a9fb9ce9b9978c04151a667832f4d20ffbed1a"
+      }
+    },
+    {
+      "case": "E_read_100",
+      "client": "small",
+      "logical_write_bytes": 1638400,
+      "logical_read_bytes": 409600,
+      "PUT_bytes": 421068800,
+      "PUT_count": 6800,
+      "GET_bytes": 422764544,
+      "GET_count": 6534,
+      "DELETE_bytes": 0,
+      "DELETE_count": 6800,
+      "juicefs_compact_size_histogram_bytes_sum": 419430400,
+      "juicefs_compact_size_histogram_bytes_count": 100,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 1638400,
+      "juicefs_fuse_written_size_bytes_count": 400,
+      "juicefs_fuse_read_size_bytes_sum": 1638400,
+      "juicefs_fuse_read_size_bytes_count": 100,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 257.0,
+      "GET_per_logical_write": 258.035,
+      "compact_average_bytes": 4194304.0,
+      "PUT_minus_compact_bytes": 1638400,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "d63afd89cb08bc3f7a6bbe7b9e242f16fc80a6415af3159392abc8b755226614",
+      "after_sha256": "109e315c3924ad75dabed7b67fd7edeab940da8b5981c524c05407f019f81b8d",
+      "utc_before": "2026-10-25T11:52:36Z",
+      "utc_after": "2026-10-25T11:53:34Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "d4007c02e82b60ca90ae417ceab6782fc536153a25379af363ae090a2c59f308"
+      },
+      "first_cycle": {
+        "write_phase": {
+          "PUT_bytes": 16384,
+          "PUT_count": 4,
+          "GET_bytes": 0,
+          "GET_count": 0,
+          "DELETE_bytes": 0,
+          "DELETE_count": 0,
+          "juicefs_compact_size_histogram_bytes_sum": 0,
+          "juicefs_compact_size_histogram_bytes_count": 0,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 16384,
+          "juicefs_fuse_written_size_bytes_count": 4,
+          "juicefs_fuse_read_size_bytes_sum": 0,
+          "juicefs_fuse_read_size_bytes_count": 0,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        },
+        "read_phase": {
+          "PUT_bytes": 4194304,
+          "PUT_count": 64,
+          "GET_bytes": 4194304,
+          "GET_count": 64,
+          "DELETE_bytes": 0,
+          "DELETE_count": 4,
+          "juicefs_compact_size_histogram_bytes_sum": 4194304,
+          "juicefs_compact_size_histogram_bytes_count": 1,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 0,
+          "juicefs_fuse_written_size_bytes_count": 0,
+          "juicefs_fuse_read_size_bytes_sum": 16384,
+          "juicefs_fuse_read_size_bytes_count": 1,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        }
+      }
+    },
+    {
+      "case": "F_read_100",
+      "client": "default",
+      "logical_write_bytes": 1638400,
+      "logical_read_bytes": 409600,
+      "PUT_bytes": 421068800,
+      "PUT_count": 500,
+      "GET_bytes": 424374272,
+      "GET_count": 199,
+      "DELETE_bytes": 0,
+      "DELETE_count": 500,
+      "juicefs_compact_size_histogram_bytes_sum": 419430400,
+      "juicefs_compact_size_histogram_bytes_count": 100,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 1638400,
+      "juicefs_fuse_written_size_bytes_count": 400,
+      "juicefs_fuse_read_size_bytes_sum": 1638400,
+      "juicefs_fuse_read_size_bytes_count": 100,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 257.0,
+      "GET_per_logical_write": 259.0175,
+      "compact_average_bytes": 4194304.0,
+      "PUT_minus_compact_bytes": 1638400,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "833b9b21cab65959ced667d9ddea896a05ff8d3165059dd9dedb02d1a75fd688",
+      "after_sha256": "bd6508661f526a400c4cf4ad394e1bc1333123f2cd62162810ecc41765da5c18",
+      "utc_before": "2026-10-25T11:51:37Z",
+      "utc_after": "2026-10-25T11:52:02Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "d4007c02e82b60ca90ae417ceab6782fc536153a25379af363ae090a2c59f308"
+      },
+      "first_cycle": {
+        "write_phase": {
+          "PUT_bytes": 16384,
+          "PUT_count": 4,
+          "GET_bytes": 0,
+          "GET_count": 0,
+          "DELETE_bytes": 0,
+          "DELETE_count": 0,
+          "juicefs_compact_size_histogram_bytes_sum": 0,
+          "juicefs_compact_size_histogram_bytes_count": 0,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 16384,
+          "juicefs_fuse_written_size_bytes_count": 4,
+          "juicefs_fuse_read_size_bytes_sum": 0,
+          "juicefs_fuse_read_size_bytes_count": 0,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        },
+        "read_phase": {
+          "PUT_bytes": 4194304,
+          "PUT_count": 1,
+          "GET_bytes": 8368128,
+          "GET_count": 6,
+          "DELETE_bytes": 0,
+          "DELETE_count": 0,
+          "juicefs_compact_size_histogram_bytes_sum": 4194304,
+          "juicefs_compact_size_histogram_bytes_count": 1,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 0,
+          "juicefs_fuse_written_size_bytes_count": 0,
+          "juicefs_fuse_read_size_bytes_sum": 16384,
+          "juicefs_fuse_read_size_bytes_count": 1,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        }
+      }
+    },
+    {
+      "case": "F_read_trigger",
+      "client": "default",
+      "logical_write_bytes": 16384,
+      "logical_read_bytes": 4096,
+      "PUT_bytes": 4210688,
+      "PUT_count": 5,
+      "GET_bytes": 7323648,
+      "GET_count": 5,
+      "DELETE_bytes": 0,
+      "DELETE_count": 5,
+      "juicefs_compact_size_histogram_bytes_sum": 4194304,
+      "juicefs_compact_size_histogram_bytes_count": 1,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 16384,
+      "juicefs_fuse_written_size_bytes_count": 4,
+      "juicefs_fuse_read_size_bytes_sum": 16384,
+      "juicefs_fuse_read_size_bytes_count": 1,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 257.0,
+      "GET_per_logical_write": 447.0,
+      "compact_average_bytes": 4194304.0,
+      "PUT_minus_compact_bytes": 16384,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "93e362fb1c58984c06255da4a6af0e7d81ca0d4be7d21c3de590e6f3a5cc0a6d",
+      "after_sha256": "a2a7531975fd4eb8a6cfd43b598a143624fadf29ab86c1fae829d7d9e9ac87fd",
+      "utc_before": "2026-10-25T11:51:27Z",
+      "utc_after": "2026-10-25T11:51:31Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "eac8540ce2d81f5cb1cefbb90a5c3258093f65a1eaa2e62de474644684757901"
+      },
+      "first_cycle": {
+        "write_phase": {
+          "PUT_bytes": 16384,
+          "PUT_count": 4,
+          "GET_bytes": 0,
+          "GET_count": 0,
+          "DELETE_bytes": 0,
+          "DELETE_count": 0,
+          "juicefs_compact_size_histogram_bytes_sum": 0,
+          "juicefs_compact_size_histogram_bytes_count": 0,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 16384,
+          "juicefs_fuse_written_size_bytes_count": 4,
+          "juicefs_fuse_read_size_bytes_sum": 0,
+          "juicefs_fuse_read_size_bytes_count": 0,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        },
+        "read_phase": {
+          "PUT_bytes": 4194304,
+          "PUT_count": 1,
+          "GET_bytes": 7323648,
+          "GET_count": 5,
+          "DELETE_bytes": 0,
+          "DELETE_count": 0,
+          "juicefs_compact_size_histogram_bytes_sum": 4194304,
+          "juicefs_compact_size_histogram_bytes_count": 1,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 0,
+          "juicefs_fuse_written_size_bytes_count": 0,
+          "juicefs_fuse_read_size_bytes_sum": 16384,
+          "juicefs_fuse_read_size_bytes_count": 1,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        }
+      }
+    },
+    {
+      "case": "F_span_64K",
+      "client": "default",
+      "logical_write_bytes": 16384,
+      "logical_read_bytes": 4096,
+      "PUT_bytes": 81920,
+      "PUT_count": 5,
+      "GET_bytes": 0,
+      "GET_count": 0,
+      "DELETE_bytes": 0,
+      "DELETE_count": 5,
+      "juicefs_compact_size_histogram_bytes_sum": 65536,
+      "juicefs_compact_size_histogram_bytes_count": 1,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 16384,
+      "juicefs_fuse_written_size_bytes_count": 4,
+      "juicefs_fuse_read_size_bytes_sum": 16384,
+      "juicefs_fuse_read_size_bytes_count": 1,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 5.0,
+      "GET_per_logical_write": 0.0,
+      "compact_average_bytes": 65536.0,
+      "PUT_minus_compact_bytes": 16384,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 3801088
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "3e64fe33df0c55d16faea6c43fbb0346eb7c49342834e96ca10bb34eae2b0564",
+      "after_sha256": "eaeb3ba2e26585e1c49e374925b011d61135744ecc84bf6966513aaabe6b2bef",
+      "utc_before": "2026-10-25T11:53:40Z",
+      "utc_after": "2026-10-25T11:53:43Z",
+      "validation": {
+        "ok": true,
+        "size": 65536,
+        "sha256": "5bd88342e09ad08244cf2d55a034577375b9005182efb8f23dc02c9e2b77af89"
+      },
+      "first_cycle": {
+        "write_phase": {
+          "PUT_bytes": 16384,
+          "PUT_count": 4,
+          "GET_bytes": 0,
+          "GET_count": 0,
+          "DELETE_bytes": 0,
+          "DELETE_count": 0,
+          "juicefs_compact_size_histogram_bytes_sum": 0,
+          "juicefs_compact_size_histogram_bytes_count": 0,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 16384,
+          "juicefs_fuse_written_size_bytes_count": 4,
+          "juicefs_fuse_read_size_bytes_sum": 0,
+          "juicefs_fuse_read_size_bytes_count": 0,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        },
+        "read_phase": {
+          "PUT_bytes": 65536,
+          "PUT_count": 1,
+          "GET_bytes": 0,
+          "GET_count": 0,
+          "DELETE_bytes": 0,
+          "DELETE_count": 2,
+          "juicefs_compact_size_histogram_bytes_sum": 65536,
+          "juicefs_compact_size_histogram_bytes_count": 1,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 0,
+          "juicefs_fuse_written_size_bytes_count": 0,
+          "juicefs_fuse_read_size_bytes_sum": 16384,
+          "juicefs_fuse_read_size_bytes_count": 1,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        }
+      }
+    },
+    {
+      "case": "F_write_400",
+      "client": "default",
+      "logical_write_bytes": 1638400,
+      "logical_read_bytes": 0,
+      "PUT_bytes": 18415616,
+      "PUT_count": 404,
+      "GET_bytes": 16777216,
+      "GET_count": 4,
+      "DELETE_bytes": 0,
+      "DELETE_count": 396,
+      "juicefs_compact_size_histogram_bytes_sum": 16777216,
+      "juicefs_compact_size_histogram_bytes_count": 4,
+      "juicefs_object_request_errors": 0,
+      "juicefs_fuse_written_size_bytes_sum": 1638400,
+      "juicefs_fuse_written_size_bytes_count": 400,
+      "juicefs_fuse_read_size_bytes_sum": 0,
+      "juicefs_fuse_read_size_bytes_count": 0,
+      "juicefs_staging_blocks": 0,
+      "juicefs_staging_block_bytes": 0,
+      "juicefs_staging_writing_blocks": 0,
+      "juicefs_staging_block_errors": 0,
+      "PUT_amplification": 11.24,
+      "GET_per_logical_write": 10.24,
+      "compact_average_bytes": 4194304.0,
+      "PUT_minus_compact_bytes": 1638400,
+      "after_gauges": {
+        "original": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "default": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 3670016
+        },
+        "writeback": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 4194304
+        },
+        "small": {
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_used_buffer_size_bytes": 0
+        }
+      },
+      "other_client_activity": {},
+      "before_sha256": "d2900f0b300bbeae95d671995ce4f2029cb6e6a442a366901aa7374352377e2f",
+      "after_sha256": "7ae9ffa0264a44d60a3df1b01b386bf3147854be5513a4ffa09f3084e3f58fe2",
+      "utc_before": "2026-10-25T11:54:00Z",
+      "utc_after": "2026-10-25T11:54:16Z",
+      "validation": {
+        "ok": true,
+        "size": 4194304,
+        "sha256": "d4007c02e82b60ca90ae417ceab6782fc536153a25379af363ae090a2c59f308"
+      },
+      "first_cycle": {
+        "write_phase": {
+          "PUT_bytes": 16384,
+          "PUT_count": 4,
+          "GET_bytes": 0,
+          "GET_count": 0,
+          "DELETE_bytes": 0,
+          "DELETE_count": 0,
+          "juicefs_compact_size_histogram_bytes_sum": 0,
+          "juicefs_compact_size_histogram_bytes_count": 0,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 16384,
+          "juicefs_fuse_written_size_bytes_count": 4,
+          "juicefs_fuse_read_size_bytes_sum": 0,
+          "juicefs_fuse_read_size_bytes_count": 0,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        },
+        "read_phase": {
+          "PUT_bytes": 0,
+          "PUT_count": 0,
+          "GET_bytes": 0,
+          "GET_count": 0,
+          "DELETE_bytes": 0,
+          "DELETE_count": 0,
+          "juicefs_compact_size_histogram_bytes_sum": 0,
+          "juicefs_compact_size_histogram_bytes_count": 0,
+          "juicefs_object_request_errors": 0,
+          "juicefs_fuse_written_size_bytes_sum": 0,
+          "juicefs_fuse_written_size_bytes_count": 0,
+          "juicefs_fuse_read_size_bytes_sum": 0,
+          "juicefs_fuse_read_size_bytes_count": 0,
+          "juicefs_staging_blocks": 0,
+          "juicefs_staging_block_bytes": 0,
+          "juicefs_staging_writing_blocks": 0,
+          "juicefs_staging_block_errors": 0
+        }
+      }
+    }
+  ]
+}

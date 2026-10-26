@@ -47,7 +47,7 @@ class Mount:
         raise RuntimeError('Recorder mount timeout')
     def stop(self):
         run(['fusermount3','-u',self.mount])
-        self.proc.wait(timeout=20)
+        self.proc.wait(timeout=60)
         if self.proc.returncode: raise RuntimeError('Recorder exited with error')
 
 def replay_check(folder):

@@ -41,6 +41,10 @@ $taskConfig.provider.deepseek | ConvertTo-Json -Depth 12 -Compress |
 
 这条命令会运行一个真实模型任务。只验证现有数据、不调用模型时，用 [结果目录](../results/opencode-full-fuse-pytest-10356-20261023/README.md) 中的独立回放命令。
 
+增加 `--instance-id django__django-10554 --filesystem-only` 可以采集指定题目，只检查文件系统采集和回放，跳过额外的基线、参考答案和 Agent 补丁评分。Agent 仍会收到完整问题，并自行读代码、修改和运行测试。`resolved: null` 表示没有评分，不能解释为解题失败。每题不设模型步数上限，保留一小时运行超时；超时或解题失败的记录也保留。先通过无模型采集预检，再开始调用模型。
+
+本机扩充批次放在 `/home/hxy/ax-full-trace/more-tasks-20261023`，采集 Django、scikit-learn、SymPy，最多同时运行两题，各用独立目录和记录器；不将本批耗时用于性能对比。原始记录、写入内容、初始文件、最终文件、Rust 回放副本均留在 WSL，不上传 GitHub。运行结束后执行 `python scripts/summarize_local_full_traces.py <批次目录>`，汇总读写量、操作次数、重复读取和 SQLite 状态检查。缺少 `result.json` 的任务不算已验收，原始目录继续保留供排查。
+
 ## 数据和统计
 
 `capture/events.jsonl` 每行一个完整回调，序号连续；`capture/blobs/<sha256>` 保存实际写入内容，按摘要复用。正常记录从 init 到 destroy。读取保存返回长度和 SHA256，写入保存内容对象与返回长度。没有抽样，也没有填造写入数据。

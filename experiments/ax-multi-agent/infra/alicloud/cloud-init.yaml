@@ -1,0 +1,10 @@
+#cloud-config
+# A pinned prebuilt image supplies packages and containers. No secrets or disk formatting.
+write_files:
+  - path: /etc/agent-storage-experiment
+    permissions: '0644'
+    content: |
+      Dedicated Agent storage experiment host.
+      Data disks must be identified by cloud disk ID before provisioning.
+runcmd:
+  - [mkdir, -p, /opt/agent-experiment, /var/lib/agent-experiment, /var/log/agent-experiment]

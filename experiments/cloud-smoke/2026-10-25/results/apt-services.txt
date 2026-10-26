@@ -1,0 +1,31 @@
+○ apt-daily.service - Daily apt download activities
+     Loaded: loaded (/usr/lib/systemd/system/apt-daily.service; static)
+     Active: inactive (dead) since Sun 2026-10-25 18:59:33 CST; 35min ago
+TriggeredBy: ● apt-daily.timer
+       Docs: man:apt(8)
+   Main PID: 3762 (code=exited, status=0/SUCCESS)
+        CPU: 82ms
+
+Oct 25 18:59:32 iZbp1ihr5elol1y9jbq0feZ systemd[1]: Starting apt-daily.service - Daily apt download activities...
+Oct 25 18:59:33 iZbp1ihr5elol1y9jbq0feZ systemd[1]: apt-daily.service: Deactivated successfully.
+Oct 25 18:59:33 iZbp1ihr5elol1y9jbq0feZ systemd[1]: Finished apt-daily.service - Daily apt download activities.
+
+○ apt-daily-upgrade.service - Daily apt upgrade and clean activities
+     Loaded: loaded (/usr/lib/systemd/system/apt-daily-upgrade.service; static)
+     Active: inactive (dead) since Sun 2026-10-25 19:20:29 CST; 14min ago
+TriggeredBy: ● apt-daily-upgrade.timer
+       Docs: man:apt(8)
+    Process: 9497 ExecStart=/usr/lib/apt/apt.systemd.daily install (code=exited, status=0/SUCCESS)
+   Main PID: 9497 (code=exited, status=0/SUCCESS)
+        CPU: 4min 25.928s
+
+Oct 25 19:20:09 iZbp1ihr5elol1y9jbq0feZ apt.systemd.daily[9561]:   pid = os.fork()
+Oct 25 19:20:10 iZbp1ihr5elol1y9jbq0feZ adduser[32460]: The system user `syslog' already exists. Exiting.
+Oct 25 19:20:10 iZbp1ihr5elol1y9jbq0feZ adduser[32462]: The user `syslog' is already a member of `adm'.
+Oct 25 19:20:16 iZbp1ihr5elol1y9jbq0feZ apt.systemd.daily[9561]: /usr/bin/unattended-upgrade:567: DeprecationWarning: This process (pid=9561) is multi-threaded, use of fork() may lead to deadlocks in the child.
+Oct 25 19:20:16 iZbp1ihr5elol1y9jbq0feZ apt.systemd.daily[9561]:   pid = os.fork()
+Oct 25 19:20:22 iZbp1ihr5elol1y9jbq0feZ apt.systemd.daily[9561]: /usr/bin/unattended-upgrade:567: DeprecationWarning: This process (pid=9561) is multi-threaded, use of fork() may lead to deadlocks in the child.
+Oct 25 19:20:22 iZbp1ihr5elol1y9jbq0feZ apt.systemd.daily[9561]:   pid = os.fork()
+Oct 25 19:20:29 iZbp1ihr5elol1y9jbq0feZ systemd[1]: apt-daily-upgrade.service: Deactivated successfully.
+Oct 25 19:20:29 iZbp1ihr5elol1y9jbq0feZ systemd[1]: Finished apt-daily-upgrade.service - Daily apt upgrade and clean activities.
+Oct 25 19:20:29 iZbp1ihr5elol1y9jbq0feZ systemd[1]: apt-daily-upgrade.service: Consumed 4min 25.928s CPU time, 641.0M memory peak, 0B memory swap peak.

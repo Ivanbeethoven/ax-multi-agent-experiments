@@ -1,0 +1,41 @@
+{
+  "instance_id": "django__django-10554",
+  "base_commit": "14d026cccb144c6877294ba4cd4e03ebf0842498",
+  "eval_type": "pass_and_fail",
+  "log_parser": "parse_log_django",
+  "FAIL_TO_PASS": [
+    "test_union_with_values_list_and_order (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_union_with_values_list_on_annotated_and_unannotated (queries.test_qs_combinators.QuerySetSetOperationTests)"
+  ],
+  "PASS_TO_PASS": [
+    "test_combining_multiple_models (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_count_difference (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_count_intersection (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_count_union (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_count_union_empty_result (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_difference_with_empty_qs (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_difference_with_values (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_intersection_with_empty_qs (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_intersection_with_values (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_limits (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_order_raises_on_non_selected_column (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_ordering (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_ordering_by_f_expression (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_qs_with_subcompound_qs (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_simple_difference (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_simple_intersection (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_simple_union (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_union_distinct (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_union_with_empty_qs (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_union_with_extra_and_values_list (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_union_with_two_annotated_values_list (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_union_with_values (queries.test_qs_combinators.QuerySetSetOperationTests)",
+    "test_unsupported_ordering_slicing_raises_db_error (queries.test_qs_combinators.QuerySetSetOperationTests)"
+  ],
+  "test_patch_sha256": "bdea7d62eb6235551316d487dd221468aa85be398d436546e512c31cbc9521aa",
+  "eval_script_sha256": "17e643fe97cf0de9ae3a43386d90f0a1b1645e85589a142efc7f8e0a6dacd4c6",
+  "gold_patch_sha256": "98523eeb6147f2d4be05885f8e4f49a8505b3368c2e1ec4ecd39ea9fc880105d",
+  "harness_git_revision": "02e7a74ffd0b707aab73d203fe87bdc7c76afc8e",
+  "qualification": "not_run",
+  "execution_note": "The source eval script embeds the test patch. Do not apply the exported test.patch a second time. Grade only in an isolated copy; never expose grading material to an agent."
+}

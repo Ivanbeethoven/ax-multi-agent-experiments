@@ -1,0 +1,2837 @@
+{
+  "schema_version": 1,
+  "total_events": 1138884,
+  "metadata6_methods": [
+    "lookup",
+    "getattr",
+    "readdirplus",
+    "opendir",
+    "releasedir",
+    "getxattr"
+  ],
+  "tasks": {
+    "astropy__astropy-13398": {
+      "events": 634726,
+      "methods": {
+        "init": 1,
+        "getattr": 56946,
+        "lookup": 205538,
+        "create": 7221,
+        "getxattr": 14086,
+        "write": 18210,
+        "flush": 45595,
+        "release": 45562,
+        "open": 38341,
+        "read": 60335,
+        "opendir": 30745,
+        "readdirplus": 61219,
+        "releasedir": 30745,
+        "rename": 3069,
+        "forget": 7565,
+        "statfs": 37,
+        "lseek": 8,
+        "fsync": 234,
+        "link": 179,
+        "unlink": 7006,
+        "setattr": 487,
+        "batch_forget": 21,
+        "mkdir": 764,
+        "rmdir": 735,
+        "listxattr": 55,
+        "symlink": 13,
+        "readlink": 7,
+        "copy_file_range": 1,
+        "destroy": 1
+      },
+      "statuses": {
+        "ok": 463947,
+        "error": 163213,
+        "incomplete": 7566
+      },
+      "method_status": {
+        "init": {
+          "ok": 1
+        },
+        "getattr": {
+          "ok": 56946
+        },
+        "lookup": {
+          "error": 149117,
+          "ok": 56421
+        },
+        "create": {
+          "ok": 7221
+        },
+        "getxattr": {
+          "error": 14086
+        },
+        "write": {
+          "ok": 18210
+        },
+        "flush": {
+          "ok": 45595
+        },
+        "release": {
+          "ok": 45562
+        },
+        "open": {
+          "ok": 38341
+        },
+        "read": {
+          "ok": 60335
+        },
+        "opendir": {
+          "ok": 30745
+        },
+        "readdirplus": {
+          "ok": 61219
+        },
+        "releasedir": {
+          "ok": 30745
+        },
+        "rename": {
+          "ok": 3069
+        },
+        "forget": {
+          "incomplete": 7565
+        },
+        "statfs": {
+          "ok": 37
+        },
+        "lseek": {
+          "ok": 8
+        },
+        "fsync": {
+          "ok": 234
+        },
+        "link": {
+          "ok": 179
+        },
+        "unlink": {
+          "ok": 7006
+        },
+        "setattr": {
+          "ok": 487
+        },
+        "batch_forget": {
+          "ok": 21
+        },
+        "mkdir": {
+          "ok": 764
+        },
+        "rmdir": {
+          "error": 10,
+          "ok": 725
+        },
+        "listxattr": {
+          "ok": 55
+        },
+        "symlink": {
+          "ok": 13
+        },
+        "readlink": {
+          "ok": 7
+        },
+        "copy_file_range": {
+          "ok": 1
+        },
+        "destroy": {
+          "incomplete": 1
+        }
+      },
+      "request_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 13005,
+        "write": 278719956,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 2773057536,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "setattr": 0,
+        "batch_forget": 0,
+        "mkdir": 0,
+        "rmdir": 0,
+        "listxattr": 8776,
+        "symlink": 0,
+        "readlink": 0,
+        "copy_file_range": 0,
+        "destroy": 0
+      },
+      "response_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 278719956,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 2675036250,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "setattr": 0,
+        "batch_forget": 0,
+        "mkdir": 0,
+        "rmdir": 0,
+        "listxattr": 0,
+        "symlink": 0,
+        "readlink": 0,
+        "copy_file_range": 0,
+        "destroy": 0
+      },
+      "size": {
+        "read": {
+          "n": 60335,
+          "request_bytes": 2773057536,
+          "min_bytes": 4096,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 16384.0,
+            "0.75": 94208.0,
+            "0.9": 131072.0,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 21435,
+          "gt_4_le_64KiB": 19868,
+          "gt_64_le_128KiB": 19032,
+          "gt_128KiB": 0
+        },
+        "write": {
+          "n": 18210,
+          "request_bytes": 278719956,
+          "min_bytes": 1,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 4096.0,
+            "0.75": 9216.0,
+            "0.9": 34298.40000000001,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 9284,
+          "gt_4_le_64KiB": 7656,
+          "gt_64_le_128KiB": 1270,
+          "gt_128KiB": 0
+        }
+      },
+      "metadata6_count": 399279,
+      "metadata6_pct": 62.90572625038205,
+      "read_write_ratio": 3.3132894014277867,
+      "latency_missing": {
+        "forget": 7565,
+        "destroy": 1
+      },
+      "pre_agent_events": 8,
+      "pre_agent_methods": {
+        "init": 1,
+        "getattr": 1,
+        "lookup": 1,
+        "create": 1,
+        "getxattr": 1,
+        "write": 1,
+        "flush": 1,
+        "release": 1
+      },
+      "post_run_events": 4,
+      "post_run_methods": {
+        "lookup": 1,
+        "unlink": 1,
+        "forget": 1,
+        "destroy": 1
+      },
+      "group": "Exploratory",
+      "run_id": "01-astropy__astropy-13398-dsh-exploratory",
+      "repo": "astropy/astropy",
+      "base_commit": "6500928dc0e57be8f06d1162eacc3ba5e2eff692",
+      "agent": "dsh-exploratory",
+      "model": "deepseek-v4-flash (CCSwitch deepseek provider; current configured model)",
+      "status": "completed",
+      "agent_exit_code": 0,
+      "daemon_exit_code": 0,
+      "exploration_budget_minutes": 30,
+      "first_request_at": "2026-10-22T03:11:23.322884+00:00",
+      "last_request_at": "2026-10-22T03:20:39.471743+00:00",
+      "capture_span_s": 556.148859,
+      "agent_started_at": "2026-10-22T03:11:23.488459+00:00",
+      "run_finished_at": "2026-10-22T03:20:09.467557+00:00",
+      "elapsed_agent_start_to_run_finish_s": 525.979098,
+      "n_one_second_bins": 557,
+      "active_one_second_bins": 528,
+      "peak_one_second_calls": 12701,
+      "top_decile_bin_count": 56,
+      "top_decile_bin_call_pct": 59.57011371836036,
+      "zero_call_bin_pct": 5.206463195691203,
+      "mean_calls_per_capture_second": 1141.2879658537606,
+      "unique_operation_ids": 634726
+    },
+    "django__django-10097": {
+      "events": 129476,
+      "methods": {
+        "init": 1,
+        "getattr": 5151,
+        "lookup": 41595,
+        "create": 330,
+        "getxattr": 342,
+        "write": 342,
+        "flush": 11281,
+        "release": 11250,
+        "open": 10920,
+        "read": 10291,
+        "readlink": 4,
+        "opendir": 9348,
+        "readdirplus": 18858,
+        "releasedir": 9348,
+        "rename": 329,
+        "forget": 8,
+        "mkdir": 61,
+        "setattr": 9,
+        "fsync": 3,
+        "rmdir": 3,
+        "statfs": 1,
+        "destroy": 1
+      },
+      "statuses": {
+        "ok": 98688,
+        "error": 30779,
+        "incomplete": 9
+      },
+      "method_status": {
+        "init": {
+          "ok": 1
+        },
+        "getattr": {
+          "ok": 5151
+        },
+        "lookup": {
+          "error": 30437,
+          "ok": 11158
+        },
+        "create": {
+          "ok": 330
+        },
+        "getxattr": {
+          "error": 342
+        },
+        "write": {
+          "ok": 342
+        },
+        "flush": {
+          "ok": 11281
+        },
+        "release": {
+          "ok": 11250
+        },
+        "open": {
+          "ok": 10920
+        },
+        "read": {
+          "ok": 10291
+        },
+        "readlink": {
+          "ok": 4
+        },
+        "opendir": {
+          "ok": 9348
+        },
+        "readdirplus": {
+          "ok": 18858
+        },
+        "releasedir": {
+          "ok": 9348
+        },
+        "rename": {
+          "ok": 329
+        },
+        "forget": {
+          "incomplete": 8
+        },
+        "mkdir": {
+          "ok": 61
+        },
+        "setattr": {
+          "ok": 9
+        },
+        "fsync": {
+          "ok": 3
+        },
+        "rmdir": {
+          "ok": 3
+        },
+        "statfs": {
+          "ok": 1
+        },
+        "destroy": {
+          "incomplete": 1
+        }
+      },
+      "request_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 5392974,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 120463360,
+        "readlink": 0,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "fsync": 0,
+        "rmdir": 0,
+        "statfs": 0,
+        "destroy": 0
+      },
+      "response_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 5392974,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 95192547,
+        "readlink": 0,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "fsync": 0,
+        "rmdir": 0,
+        "statfs": 0,
+        "destroy": 0
+      },
+      "size": {
+        "read": {
+          "n": 10291,
+          "request_bytes": 120463360,
+          "min_bytes": 4096,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 4096.0,
+            "0.75": 12288.0,
+            "0.9": 24576.0,
+            "0.95": 36864.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 6038,
+          "gt_4_le_64KiB": 3977,
+          "gt_64_le_128KiB": 276,
+          "gt_128KiB": 0
+        },
+        "write": {
+          "n": 342,
+          "request_bytes": 5392974,
+          "min_bytes": 8,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 6160.0,
+            "0.75": 16245.25,
+            "0.9": 35412.10000000001,
+            "0.95": 74715.05,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 142,
+          "gt_4_le_64KiB": 179,
+          "gt_64_le_128KiB": 21,
+          "gt_128KiB": 0
+        }
+      },
+      "metadata6_count": 84642,
+      "metadata6_pct": 65.37273317062622,
+      "read_write_ratio": 30.0906432748538,
+      "latency_missing": {
+        "forget": 8,
+        "destroy": 1
+      },
+      "pre_agent_events": 8,
+      "pre_agent_methods": {
+        "init": 1,
+        "getattr": 1,
+        "lookup": 1,
+        "create": 1,
+        "getxattr": 1,
+        "write": 1,
+        "flush": 1,
+        "release": 1
+      },
+      "post_run_events": 1,
+      "post_run_methods": {
+        "destroy": 1
+      },
+      "group": "Core",
+      "run_id": "01-django__django-10097-dsh",
+      "repo": "django/django",
+      "base_commit": "b9cf764be62e77b4777b3a75ec256f6209a57671",
+      "agent": "dsh",
+      "model": "deepseek-v4-flash (CCSwitch deepseek provider; current configured model)",
+      "status": "completed",
+      "agent_exit_code": 0,
+      "daemon_exit_code": 0,
+      "exploration_budget_minutes": null,
+      "first_request_at": "2026-10-21T05:40:29.288098+00:00",
+      "last_request_at": "2026-10-21T05:41:40.593810+00:00",
+      "capture_span_s": 71.305712,
+      "agent_started_at": "2026-10-21T05:40:29.503497+00:00",
+      "run_finished_at": "2026-10-21T05:41:40.591251+00:00",
+      "elapsed_agent_start_to_run_finish_s": 71.087754,
+      "n_one_second_bins": 72,
+      "active_one_second_bins": 72,
+      "peak_one_second_calls": 43075,
+      "top_decile_bin_count": 8,
+      "top_decile_bin_call_pct": 81.62825542957768,
+      "zero_call_bin_pct": 0.0,
+      "mean_calls_per_capture_second": 1815.78721211002,
+      "unique_operation_ids": 129476
+    },
+    "matplotlib__matplotlib-13989": {
+      "events": 43235,
+      "methods": {
+        "init": 1,
+        "getattr": 609,
+        "lookup": 19456,
+        "create": 21,
+        "getxattr": 129,
+        "write": 152,
+        "flush": 4743,
+        "release": 4744,
+        "open": 4723,
+        "read": 6490,
+        "opendir": 516,
+        "readdirplus": 1041,
+        "releasedir": 516,
+        "rename": 6,
+        "forget": 12,
+        "lseek": 4,
+        "fsync": 7,
+        "link": 6,
+        "unlink": 13,
+        "mkdir": 3,
+        "setattr": 3,
+        "rmdir": 1,
+        "listxattr": 37,
+        "statfs": 1,
+        "destroy": 1
+      },
+      "statuses": {
+        "ok": 40537,
+        "error": 2685,
+        "incomplete": 13
+      },
+      "method_status": {
+        "init": {
+          "ok": 1
+        },
+        "getattr": {
+          "ok": 609
+        },
+        "lookup": {
+          "error": 2556,
+          "ok": 16900
+        },
+        "create": {
+          "ok": 21
+        },
+        "getxattr": {
+          "error": 129
+        },
+        "write": {
+          "ok": 152
+        },
+        "flush": {
+          "ok": 4743
+        },
+        "release": {
+          "ok": 4744
+        },
+        "open": {
+          "ok": 4723
+        },
+        "read": {
+          "ok": 6490
+        },
+        "opendir": {
+          "ok": 516
+        },
+        "readdirplus": {
+          "ok": 1041
+        },
+        "releasedir": {
+          "ok": 516
+        },
+        "rename": {
+          "ok": 6
+        },
+        "forget": {
+          "incomplete": 12
+        },
+        "lseek": {
+          "ok": 4
+        },
+        "fsync": {
+          "ok": 7
+        },
+        "link": {
+          "ok": 6
+        },
+        "unlink": {
+          "ok": 13
+        },
+        "mkdir": {
+          "ok": 3
+        },
+        "setattr": {
+          "ok": 3
+        },
+        "rmdir": {
+          "ok": 1
+        },
+        "listxattr": {
+          "ok": 37
+        },
+        "statfs": {
+          "ok": 1
+        },
+        "destroy": {
+          "incomplete": 1
+        }
+      },
+      "request_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 9435,
+        "write": 3029174,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 262434816,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "rmdir": 0,
+        "listxattr": 5624,
+        "statfs": 0,
+        "destroy": 0
+      },
+      "response_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 3029174,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 251586398,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "rmdir": 0,
+        "listxattr": 0,
+        "statfs": 0,
+        "destroy": 0
+      },
+      "size": {
+        "read": {
+          "n": 6490,
+          "request_bytes": 262434816,
+          "min_bytes": 4096,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 12288.0,
+            "0.75": 73728.0,
+            "0.9": 131072.0,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 2079,
+          "gt_4_le_64KiB": 2687,
+          "gt_64_le_128KiB": 1724,
+          "gt_128KiB": 0
+        },
+        "write": {
+          "n": 152,
+          "request_bytes": 3029174,
+          "min_bytes": 1,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 4084.0,
+            "0.75": 4095.0,
+            "0.9": 131072.0,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 126,
+          "gt_4_le_64KiB": 5,
+          "gt_64_le_128KiB": 21,
+          "gt_128KiB": 0
+        }
+      },
+      "metadata6_count": 22267,
+      "metadata6_pct": 51.50225511738175,
+      "read_write_ratio": 42.69736842105263,
+      "latency_missing": {
+        "forget": 12,
+        "destroy": 1
+      },
+      "pre_agent_events": 8,
+      "pre_agent_methods": {
+        "init": 1,
+        "getattr": 1,
+        "lookup": 1,
+        "create": 1,
+        "getxattr": 1,
+        "write": 1,
+        "flush": 1,
+        "release": 1
+      },
+      "post_run_events": 3,
+      "post_run_methods": {
+        "unlink": 1,
+        "forget": 1,
+        "destroy": 1
+      },
+      "group": "Core",
+      "run_id": "02-matplotlib__matplotlib-13989-dsh",
+      "repo": "matplotlib/matplotlib",
+      "base_commit": "a3e2897bfaf9eaac1d6649da535c4e721c89fa69",
+      "agent": "dsh",
+      "model": "deepseek-v4-flash (CCSwitch deepseek provider; current configured model)",
+      "status": "completed",
+      "agent_exit_code": 0,
+      "daemon_exit_code": 0,
+      "exploration_budget_minutes": null,
+      "first_request_at": "2026-10-21T05:43:56.127273+00:00",
+      "last_request_at": "2026-10-21T05:44:47.908031+00:00",
+      "capture_span_s": 51.780758,
+      "agent_started_at": "2026-10-21T05:43:56.349531+00:00",
+      "run_finished_at": "2026-10-21T05:44:47.906307+00:00",
+      "elapsed_agent_start_to_run_finish_s": 51.556776,
+      "n_one_second_bins": 52,
+      "active_one_second_bins": 52,
+      "peak_one_second_calls": 10653,
+      "top_decile_bin_count": 6,
+      "top_decile_bin_call_pct": 83.67063721521914,
+      "zero_call_bin_pct": 0.0,
+      "mean_calls_per_capture_second": 834.9626708824927,
+      "unique_operation_ids": 43235
+    },
+    "pytest-dev__pytest-5787": {
+      "events": 54893,
+      "methods": {
+        "init": 1,
+        "getattr": 6968,
+        "lookup": 14686,
+        "create": 1473,
+        "getxattr": 1599,
+        "write": 1568,
+        "flush": 5357,
+        "release": 5330,
+        "open": 3857,
+        "read": 4899,
+        "opendir": 1254,
+        "readdirplus": 2437,
+        "releasedir": 1254,
+        "rename": 715,
+        "forget": 1591,
+        "listxattr": 48,
+        "statfs": 7,
+        "fsync": 25,
+        "link": 9,
+        "unlink": 1401,
+        "mkdir": 190,
+        "setattr": 32,
+        "rmdir": 185,
+        "symlink": 4,
+        "readlink": 2,
+        "destroy": 1
+      },
+      "statuses": {
+        "ok": 41395,
+        "error": 11906,
+        "incomplete": 1592
+      },
+      "method_status": {
+        "init": {
+          "ok": 1
+        },
+        "getattr": {
+          "ok": 6968
+        },
+        "lookup": {
+          "error": 10304,
+          "ok": 4382
+        },
+        "create": {
+          "ok": 1473
+        },
+        "getxattr": {
+          "error": 1599
+        },
+        "write": {
+          "ok": 1568
+        },
+        "flush": {
+          "ok": 5357
+        },
+        "release": {
+          "ok": 5330
+        },
+        "open": {
+          "ok": 3857
+        },
+        "read": {
+          "ok": 4899
+        },
+        "opendir": {
+          "ok": 1254
+        },
+        "readdirplus": {
+          "ok": 2437
+        },
+        "releasedir": {
+          "ok": 1254
+        },
+        "rename": {
+          "ok": 715
+        },
+        "forget": {
+          "incomplete": 1591
+        },
+        "listxattr": {
+          "ok": 48
+        },
+        "statfs": {
+          "ok": 7
+        },
+        "fsync": {
+          "ok": 25
+        },
+        "link": {
+          "ok": 9
+        },
+        "unlink": {
+          "ok": 1401
+        },
+        "mkdir": {
+          "ok": 190
+        },
+        "setattr": {
+          "ok": 32
+        },
+        "rmdir": {
+          "error": 3,
+          "ok": 182
+        },
+        "symlink": {
+          "ok": 4
+        },
+        "readlink": {
+          "ok": 2
+        },
+        "destroy": {
+          "incomplete": 1
+        }
+      },
+      "request_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 12240,
+        "write": 23556980,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 157962240,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "listxattr": 7296,
+        "statfs": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "rmdir": 0,
+        "symlink": 0,
+        "readlink": 0,
+        "destroy": 0
+      },
+      "response_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 23556980,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 148493276,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "listxattr": 0,
+        "statfs": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "rmdir": 0,
+        "symlink": 0,
+        "readlink": 0,
+        "destroy": 0
+      },
+      "size": {
+        "read": {
+          "n": 4899,
+          "request_bytes": 157962240,
+          "min_bytes": 4096,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 8192.0,
+            "0.75": 40960.0,
+            "0.9": 126976.0,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 1903,
+          "gt_4_le_64KiB": 1995,
+          "gt_64_le_128KiB": 1001,
+          "gt_128KiB": 0
+        },
+        "write": {
+          "n": 1568,
+          "request_bytes": 23556980,
+          "min_bytes": 2,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 5638.0,
+            "0.75": 16627.5,
+            "0.9": 45532.799999999996,
+            "0.95": 65536.0,
+            "0.99": 119077.1099999997
+          },
+          "le_4KiB": 643,
+          "gt_4_le_64KiB": 884,
+          "gt_64_le_128KiB": 41,
+          "gt_128KiB": 0
+        }
+      },
+      "metadata6_count": 28198,
+      "metadata6_pct": 51.36902701619514,
+      "read_write_ratio": 3.1243622448979593,
+      "latency_missing": {
+        "forget": 1591,
+        "destroy": 1
+      },
+      "pre_agent_events": 8,
+      "pre_agent_methods": {
+        "init": 1,
+        "getattr": 1,
+        "lookup": 1,
+        "create": 1,
+        "getxattr": 1,
+        "write": 1,
+        "flush": 1,
+        "release": 1
+      },
+      "post_run_events": 3,
+      "post_run_methods": {
+        "unlink": 1,
+        "forget": 1,
+        "destroy": 1
+      },
+      "group": "Exploratory",
+      "run_id": "02-pytest-dev__pytest-5787-dsh-exploratory",
+      "repo": "pytest-dev/pytest",
+      "base_commit": "955e54221008aba577ecbaefa15679f6777d3bf8",
+      "agent": "dsh-exploratory",
+      "model": "deepseek-v4-flash (CCSwitch deepseek provider; current configured model)",
+      "status": "completed",
+      "agent_exit_code": 0,
+      "daemon_exit_code": 0,
+      "exploration_budget_minutes": 30,
+      "first_request_at": "2026-10-22T03:20:53.389605+00:00",
+      "last_request_at": "2026-10-22T03:22:53.263692+00:00",
+      "capture_span_s": 119.874087,
+      "agent_started_at": "2026-10-22T03:20:53.607490+00:00",
+      "run_finished_at": "2026-10-22T03:22:53.261891+00:00",
+      "elapsed_agent_start_to_run_finish_s": 119.654401,
+      "n_one_second_bins": 120,
+      "active_one_second_bins": 120,
+      "peak_one_second_calls": 6035,
+      "top_decile_bin_count": 12,
+      "top_decile_bin_call_pct": 69.06709416501194,
+      "zero_call_bin_pct": 0.0,
+      "mean_calls_per_capture_second": 457.92215293368616,
+      "unique_operation_ids": 54893
+    },
+    "pallets__flask-5014": {
+      "events": 8542,
+      "methods": {
+        "init": 1,
+        "getattr": 364,
+        "lookup": 3550,
+        "create": 33,
+        "getxattr": 73,
+        "write": 54,
+        "flush": 759,
+        "release": 755,
+        "open": 722,
+        "read": 878,
+        "opendir": 320,
+        "readdirplus": 641,
+        "releasedir": 320,
+        "rename": 26,
+        "forget": 6,
+        "fsync": 3,
+        "link": 3,
+        "unlink": 6,
+        "listxattr": 23,
+        "statfs": 1,
+        "mkdir": 3,
+        "destroy": 1
+      },
+      "statuses": {
+        "ok": 5870,
+        "error": 2665,
+        "incomplete": 7
+      },
+      "method_status": {
+        "init": {
+          "ok": 1
+        },
+        "getattr": {
+          "ok": 364
+        },
+        "lookup": {
+          "error": 2592,
+          "ok": 958
+        },
+        "create": {
+          "ok": 33
+        },
+        "getxattr": {
+          "error": 73
+        },
+        "write": {
+          "ok": 54
+        },
+        "flush": {
+          "ok": 759
+        },
+        "release": {
+          "ok": 755
+        },
+        "open": {
+          "ok": 722
+        },
+        "read": {
+          "ok": 878
+        },
+        "opendir": {
+          "ok": 320
+        },
+        "readdirplus": {
+          "ok": 641
+        },
+        "releasedir": {
+          "ok": 320
+        },
+        "rename": {
+          "ok": 26
+        },
+        "forget": {
+          "incomplete": 6
+        },
+        "fsync": {
+          "ok": 3
+        },
+        "link": {
+          "ok": 3
+        },
+        "unlink": {
+          "ok": 6
+        },
+        "listxattr": {
+          "ok": 23
+        },
+        "statfs": {
+          "ok": 1
+        },
+        "mkdir": {
+          "ok": 3
+        },
+        "destroy": {
+          "incomplete": 1
+        }
+      },
+      "request_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 5865,
+        "write": 660975,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 21536768,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "listxattr": 3496,
+        "statfs": 0,
+        "mkdir": 0,
+        "destroy": 0
+      },
+      "response_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 660975,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 19544708,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "listxattr": 0,
+        "statfs": 0,
+        "mkdir": 0,
+        "destroy": 0
+      },
+      "size": {
+        "read": {
+          "n": 878,
+          "request_bytes": 21536768,
+          "min_bytes": 4096,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 4096.0,
+            "0.75": 16384.0,
+            "0.9": 91340.80000000028,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 457,
+          "gt_4_le_64KiB": 283,
+          "gt_64_le_128KiB": 138,
+          "gt_128KiB": 0
+        },
+        "write": {
+          "n": 54,
+          "request_bytes": 660975,
+          "min_bytes": 1,
+          "max_bytes": 85765,
+          "quantiles_bytes": {
+            "0.5": 4084.0,
+            "0.75": 16916.25,
+            "0.9": 31044.700000000008,
+            "0.95": 47383.14999999987,
+            "0.99": 75280.53999999998
+          },
+          "le_4KiB": 31,
+          "gt_4_le_64KiB": 21,
+          "gt_64_le_128KiB": 2,
+          "gt_128KiB": 0
+        }
+      },
+      "metadata6_count": 5268,
+      "metadata6_pct": 61.67173963942871,
+      "read_write_ratio": 16.25925925925926,
+      "latency_missing": {
+        "forget": 6,
+        "destroy": 1
+      },
+      "pre_agent_events": 8,
+      "pre_agent_methods": {
+        "init": 1,
+        "getattr": 1,
+        "lookup": 1,
+        "create": 1,
+        "getxattr": 1,
+        "write": 1,
+        "flush": 1,
+        "release": 1
+      },
+      "post_run_events": 3,
+      "post_run_methods": {
+        "unlink": 1,
+        "forget": 1,
+        "destroy": 1
+      },
+      "group": "Core",
+      "run_id": "03-pallets__flask-5014-dsh",
+      "repo": "pallets/flask",
+      "base_commit": "7ee9ceb71e868944a46e1ff00b506772a53a4f1d",
+      "agent": "dsh",
+      "model": "deepseek-v4-flash (CCSwitch deepseek provider; current configured model)",
+      "status": "completed",
+      "agent_exit_code": 0,
+      "daemon_exit_code": 0,
+      "exploration_budget_minutes": null,
+      "first_request_at": "2026-10-21T05:44:55.122327+00:00",
+      "last_request_at": "2026-10-21T05:45:37.860920+00:00",
+      "capture_span_s": 42.738593,
+      "agent_started_at": "2026-10-21T05:44:55.329015+00:00",
+      "run_finished_at": "2026-10-21T05:45:37.859226+00:00",
+      "elapsed_agent_start_to_run_finish_s": 42.530211,
+      "n_one_second_bins": 43,
+      "active_one_second_bins": 43,
+      "peak_one_second_calls": 2773,
+      "top_decile_bin_count": 5,
+      "top_decile_bin_call_pct": 68.14563334113791,
+      "zero_call_bin_pct": 0.0,
+      "mean_calls_per_capture_second": 199.86619587593816,
+      "unique_operation_ids": 8542
+    },
+    "sympy__sympy-12489": {
+      "events": 232136,
+      "methods": {
+        "init": 1,
+        "getattr": 20031,
+        "lookup": 48932,
+        "create": 3308,
+        "getxattr": 3641,
+        "write": 3822,
+        "flush": 29878,
+        "release": 31903,
+        "open": 28595,
+        "read": 33058,
+        "opendir": 5050,
+        "readdirplus": 9230,
+        "releasedir": 5050,
+        "rename": 1656,
+        "forget": 3480,
+        "statfs": 225,
+        "lseek": 106,
+        "fsync": 119,
+        "link": 103,
+        "unlink": 3259,
+        "listxattr": 27,
+        "mkdir": 314,
+        "symlink": 4,
+        "readlink": 2,
+        "setattr": 29,
+        "rmdir": 311,
+        "rename2": 1,
+        "destroy": 1
+      },
+      "statuses": {
+        "ok": 193341,
+        "error": 35314,
+        "incomplete": 3481
+      },
+      "method_status": {
+        "init": {
+          "ok": 1
+        },
+        "getattr": {
+          "ok": 20031
+        },
+        "lookup": {
+          "error": 31672,
+          "ok": 17260
+        },
+        "create": {
+          "ok": 3308
+        },
+        "getxattr": {
+          "error": 3641
+        },
+        "write": {
+          "ok": 3822
+        },
+        "flush": {
+          "ok": 29878
+        },
+        "release": {
+          "ok": 31903
+        },
+        "open": {
+          "ok": 28595
+        },
+        "read": {
+          "ok": 33058
+        },
+        "opendir": {
+          "ok": 5050
+        },
+        "readdirplus": {
+          "ok": 9230
+        },
+        "releasedir": {
+          "ok": 5050
+        },
+        "rename": {
+          "ok": 1656
+        },
+        "forget": {
+          "incomplete": 3480
+        },
+        "statfs": {
+          "ok": 225
+        },
+        "lseek": {
+          "ok": 106
+        },
+        "fsync": {
+          "ok": 119
+        },
+        "link": {
+          "ok": 103
+        },
+        "unlink": {
+          "ok": 3259
+        },
+        "listxattr": {
+          "ok": 27
+        },
+        "mkdir": {
+          "ok": 314
+        },
+        "symlink": {
+          "ok": 4
+        },
+        "readlink": {
+          "ok": 2
+        },
+        "setattr": {
+          "ok": 29
+        },
+        "rmdir": {
+          "error": 1,
+          "ok": 310
+        },
+        "rename2": {
+          "ok": 1
+        },
+        "destroy": {
+          "incomplete": 1
+        }
+      },
+      "request_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 6885,
+        "write": 49736184,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 1372946432,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "listxattr": 4104,
+        "mkdir": 0,
+        "symlink": 0,
+        "readlink": 0,
+        "setattr": 0,
+        "rmdir": 0,
+        "rename2": 0,
+        "destroy": 0
+      },
+      "response_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 49736184,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 1315231479,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "listxattr": 0,
+        "mkdir": 0,
+        "symlink": 0,
+        "readlink": 0,
+        "setattr": 0,
+        "rmdir": 0,
+        "rename2": 0,
+        "destroy": 0
+      },
+      "size": {
+        "read": {
+          "n": 33058,
+          "request_bytes": 1372946432,
+          "min_bytes": 4096,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 16384.0,
+            "0.75": 69632.0,
+            "0.9": 131072.0,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 10613,
+          "gt_4_le_64KiB": 13892,
+          "gt_64_le_128KiB": 8553,
+          "gt_128KiB": 0
+        },
+        "write": {
+          "n": 3822,
+          "request_bytes": 49736184,
+          "min_bytes": 1,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 4309.0,
+            "0.75": 13892.25,
+            "0.9": 37437.000000000015,
+            "0.95": 61190.74999999998,
+            "0.99": 123703.68999999993
+          },
+          "le_4KiB": 1859,
+          "gt_4_le_64KiB": 1850,
+          "gt_64_le_128KiB": 113,
+          "gt_128KiB": 0
+        }
+      },
+      "metadata6_count": 91934,
+      "metadata6_pct": 39.603508288244825,
+      "read_write_ratio": 8.649398220826793,
+      "latency_missing": {
+        "forget": 3480,
+        "destroy": 1
+      },
+      "pre_agent_events": 8,
+      "pre_agent_methods": {
+        "init": 1,
+        "getattr": 1,
+        "lookup": 1,
+        "create": 1,
+        "getxattr": 1,
+        "write": 1,
+        "flush": 1,
+        "release": 1
+      },
+      "post_run_events": 4,
+      "post_run_methods": {
+        "lookup": 1,
+        "unlink": 1,
+        "forget": 1,
+        "destroy": 1
+      },
+      "group": "Exploratory",
+      "run_id": "03-sympy__sympy-12489-dsh-exploratory",
+      "repo": "sympy/sympy",
+      "base_commit": "aa9780761ad8c3c0f68beeef3a0ce5caac9e100b",
+      "agent": "dsh-exploratory",
+      "model": "deepseek-v4-flash (CCSwitch deepseek provider; current configured model)",
+      "status": "completed",
+      "agent_exit_code": 0,
+      "daemon_exit_code": 0,
+      "exploration_budget_minutes": 30,
+      "first_request_at": "2026-10-22T03:24:06.059764+00:00",
+      "last_request_at": "2026-10-22T03:28:17.959241+00:00",
+      "capture_span_s": 251.899477,
+      "agent_started_at": "2026-10-22T03:24:06.256007+00:00",
+      "run_finished_at": "2026-10-22T03:28:17.957282+00:00",
+      "elapsed_agent_start_to_run_finish_s": 251.701275,
+      "n_one_second_bins": 252,
+      "active_one_second_bins": 252,
+      "peak_one_second_calls": 9459,
+      "top_decile_bin_count": 26,
+      "top_decile_bin_call_pct": 55.93617534548713,
+      "zero_call_bin_pct": 0.0,
+      "mean_calls_per_capture_second": 921.5422070923951,
+      "unique_operation_ids": 232136
+    },
+    "psf__requests-1142": {
+      "events": 8892,
+      "methods": {
+        "init": 1,
+        "getattr": 555,
+        "lookup": 3327,
+        "create": 51,
+        "getxattr": 63,
+        "write": 67,
+        "flush": 921,
+        "release": 911,
+        "open": 860,
+        "read": 1189,
+        "opendir": 218,
+        "readdirplus": 417,
+        "releasedir": 218,
+        "rename": 34,
+        "forget": 11,
+        "statfs": 2,
+        "lseek": 1,
+        "fsync": 10,
+        "link": 9,
+        "unlink": 14,
+        "mkdir": 8,
+        "setattr": 3,
+        "rmdir": 1,
+        "destroy": 1
+      },
+      "statuses": {
+        "ok": 6079,
+        "error": 2801,
+        "incomplete": 12
+      },
+      "method_status": {
+        "init": {
+          "ok": 1
+        },
+        "getattr": {
+          "ok": 555
+        },
+        "lookup": {
+          "error": 2738,
+          "ok": 589
+        },
+        "create": {
+          "ok": 51
+        },
+        "getxattr": {
+          "error": 63
+        },
+        "write": {
+          "ok": 67
+        },
+        "flush": {
+          "ok": 921
+        },
+        "release": {
+          "ok": 911
+        },
+        "open": {
+          "ok": 860
+        },
+        "read": {
+          "ok": 1189
+        },
+        "opendir": {
+          "ok": 218
+        },
+        "readdirplus": {
+          "ok": 417
+        },
+        "releasedir": {
+          "ok": 218
+        },
+        "rename": {
+          "ok": 34
+        },
+        "forget": {
+          "incomplete": 11
+        },
+        "statfs": {
+          "ok": 2
+        },
+        "lseek": {
+          "ok": 1
+        },
+        "fsync": {
+          "ok": 10
+        },
+        "link": {
+          "ok": 9
+        },
+        "unlink": {
+          "ok": 14
+        },
+        "mkdir": {
+          "ok": 8
+        },
+        "setattr": {
+          "ok": 3
+        },
+        "rmdir": {
+          "ok": 1
+        },
+        "destroy": {
+          "incomplete": 1
+        }
+      },
+      "request_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 330812,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 38416384,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "rmdir": 0,
+        "destroy": 0
+      },
+      "response_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 330812,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 36142258,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "rmdir": 0,
+        "destroy": 0
+      },
+      "size": {
+        "read": {
+          "n": 1189,
+          "request_bytes": 38416384,
+          "min_bytes": 4096,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 8192.0,
+            "0.75": 36864.0,
+            "0.9": 131072.0,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 577,
+          "gt_4_le_64KiB": 345,
+          "gt_64_le_128KiB": 267,
+          "gt_128KiB": 0
+        },
+        "write": {
+          "n": 67,
+          "request_bytes": 330812,
+          "min_bytes": 8,
+          "max_bytes": 24015,
+          "quantiles_bytes": {
+            "0.5": 2325.0,
+            "0.75": 6750.0,
+            "0.9": 15616.399999999996,
+            "0.95": 20580.899999999998,
+            "0.99": 23960.88
+          },
+          "le_4KiB": 45,
+          "gt_4_le_64KiB": 22,
+          "gt_64_le_128KiB": 0,
+          "gt_128KiB": 0
+        }
+      },
+      "metadata6_count": 4798,
+      "metadata6_pct": 53.95861448493027,
+      "read_write_ratio": 17.746268656716417,
+      "latency_missing": {
+        "forget": 11,
+        "destroy": 1
+      },
+      "pre_agent_events": 8,
+      "pre_agent_methods": {
+        "init": 1,
+        "getattr": 1,
+        "lookup": 1,
+        "create": 1,
+        "getxattr": 1,
+        "write": 1,
+        "flush": 1,
+        "release": 1
+      },
+      "post_run_events": 3,
+      "post_run_methods": {
+        "unlink": 1,
+        "forget": 1,
+        "destroy": 1
+      },
+      "group": "Core",
+      "run_id": "04-psf__requests-1142-dsh",
+      "repo": "psf/requests",
+      "base_commit": "22623bd8c265b78b161542663ee980738441c307",
+      "agent": "dsh",
+      "model": "deepseek-v4-flash (CCSwitch deepseek provider; current configured model)",
+      "status": "completed",
+      "agent_exit_code": 0,
+      "daemon_exit_code": 0,
+      "exploration_budget_minutes": null,
+      "first_request_at": "2026-10-21T05:45:45.131306+00:00",
+      "last_request_at": "2026-10-21T05:46:32.989788+00:00",
+      "capture_span_s": 47.858482,
+      "agent_started_at": "2026-10-21T05:45:45.354546+00:00",
+      "run_finished_at": "2026-10-21T05:46:32.988252+00:00",
+      "elapsed_agent_start_to_run_finish_s": 47.633706,
+      "n_one_second_bins": 48,
+      "active_one_second_bins": 48,
+      "peak_one_second_calls": 1313,
+      "top_decile_bin_count": 5,
+      "top_decile_bin_call_pct": 47.41340530814215,
+      "zero_call_bin_pct": 0.0,
+      "mean_calls_per_capture_second": 185.7977860643386,
+      "unique_operation_ids": 8892
+    },
+    "sphinx-doc__sphinx-10323": {
+      "events": 26984,
+      "methods": {
+        "init": 1,
+        "getattr": 418,
+        "lookup": 10197,
+        "create": 28,
+        "getxattr": 270,
+        "write": 497,
+        "flush": 2158,
+        "release": 2153,
+        "open": 2125,
+        "read": 3294,
+        "opendir": 1445,
+        "readdirplus": 2871,
+        "releasedir": 1445,
+        "rename": 10,
+        "forget": 15,
+        "statfs": 2,
+        "fsync": 12,
+        "link": 9,
+        "unlink": 15,
+        "mkdir": 6,
+        "setattr": 9,
+        "rmdir": 3,
+        "destroy": 1
+      },
+      "statuses": {
+        "ok": 22662,
+        "error": 4306,
+        "incomplete": 16
+      },
+      "method_status": {
+        "init": {
+          "ok": 1
+        },
+        "getattr": {
+          "ok": 418
+        },
+        "lookup": {
+          "error": 4036,
+          "ok": 6161
+        },
+        "create": {
+          "ok": 28
+        },
+        "getxattr": {
+          "error": 270
+        },
+        "write": {
+          "ok": 497
+        },
+        "flush": {
+          "ok": 2158
+        },
+        "release": {
+          "ok": 2153
+        },
+        "open": {
+          "ok": 2125
+        },
+        "read": {
+          "ok": 3294
+        },
+        "opendir": {
+          "ok": 1445
+        },
+        "readdirplus": {
+          "ok": 2871
+        },
+        "releasedir": {
+          "ok": 1445
+        },
+        "rename": {
+          "ok": 10
+        },
+        "forget": {
+          "incomplete": 15
+        },
+        "statfs": {
+          "ok": 2
+        },
+        "fsync": {
+          "ok": 12
+        },
+        "link": {
+          "ok": 9
+        },
+        "unlink": {
+          "ok": 15
+        },
+        "mkdir": {
+          "ok": 6
+        },
+        "setattr": {
+          "ok": 9
+        },
+        "rmdir": {
+          "ok": 3
+        },
+        "destroy": {
+          "incomplete": 1
+        }
+      },
+      "request_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 1903410,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 150966272,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "rmdir": 0,
+        "destroy": 0
+      },
+      "response_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 1903410,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 144956674,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "rmdir": 0,
+        "destroy": 0
+      },
+      "size": {
+        "read": {
+          "n": 3294,
+          "request_bytes": 150966272,
+          "min_bytes": 4096,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 12288.0,
+            "0.75": 90112.0,
+            "0.9": 131072.0,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 1420,
+          "gt_4_le_64KiB": 718,
+          "gt_64_le_128KiB": 1156,
+          "gt_128KiB": 0
+        },
+        "write": {
+          "n": 497,
+          "request_bytes": 1903410,
+          "min_bytes": 1,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 1108.0,
+            "0.75": 4095.0,
+            "0.9": 4095.0,
+            "0.95": 4095.0,
+            "0.99": 54180.80000000164
+          },
+          "le_4KiB": 482,
+          "gt_4_le_64KiB": 10,
+          "gt_64_le_128KiB": 5,
+          "gt_128KiB": 0
+        }
+      },
+      "metadata6_count": 16646,
+      "metadata6_pct": 61.68840794544916,
+      "read_write_ratio": 6.627766599597585,
+      "latency_missing": {
+        "forget": 15,
+        "destroy": 1
+      },
+      "pre_agent_events": 8,
+      "pre_agent_methods": {
+        "init": 1,
+        "getattr": 1,
+        "lookup": 1,
+        "create": 1,
+        "getxattr": 1,
+        "write": 1,
+        "flush": 1,
+        "release": 1
+      },
+      "post_run_events": 3,
+      "post_run_methods": {
+        "unlink": 1,
+        "forget": 1,
+        "destroy": 1
+      },
+      "group": "Core",
+      "run_id": "05-sphinx-doc__sphinx-10323-dsh",
+      "repo": "sphinx-doc/sphinx",
+      "base_commit": "31eba1a76dd485dc633cae48227b46879eda5df4",
+      "agent": "dsh",
+      "model": "deepseek-v4-flash (CCSwitch deepseek provider; current configured model)",
+      "status": "completed",
+      "agent_exit_code": 0,
+      "daemon_exit_code": 0,
+      "exploration_budget_minutes": null,
+      "first_request_at": "2026-10-21T05:46:42.978586+00:00",
+      "last_request_at": "2026-10-21T05:47:43.116081+00:00",
+      "capture_span_s": 60.137495,
+      "agent_started_at": "2026-10-21T05:46:43.198187+00:00",
+      "run_finished_at": "2026-10-21T05:47:43.113035+00:00",
+      "elapsed_agent_start_to_run_finish_s": 59.914848,
+      "n_one_second_bins": 61,
+      "active_one_second_bins": 61,
+      "peak_one_second_calls": 9908,
+      "top_decile_bin_count": 7,
+      "top_decile_bin_call_pct": 83.03068485028165,
+      "zero_call_bin_pct": 0.0,
+      "mean_calls_per_capture_second": 448.70508823156,
+      "unique_operation_ids": 26984
+    }
+  },
+  "groups": {
+    "Core": {
+      "events": 217129,
+      "methods": {
+        "init": 5,
+        "getattr": 7097,
+        "lookup": 78125,
+        "create": 463,
+        "getxattr": 877,
+        "write": 1112,
+        "flush": 19862,
+        "release": 19813,
+        "open": 19350,
+        "read": 22142,
+        "readlink": 4,
+        "opendir": 11847,
+        "readdirplus": 23828,
+        "releasedir": 11847,
+        "rename": 405,
+        "forget": 52,
+        "mkdir": 81,
+        "setattr": 24,
+        "fsync": 35,
+        "rmdir": 8,
+        "statfs": 7,
+        "destroy": 5,
+        "lseek": 5,
+        "link": 27,
+        "unlink": 48,
+        "listxattr": 60
+      },
+      "statuses": {
+        "ok": 173836,
+        "error": 43236,
+        "incomplete": 57
+      },
+      "method_status": {
+        "init": {
+          "ok": 5
+        },
+        "getattr": {
+          "ok": 7097
+        },
+        "lookup": {
+          "error": 42359,
+          "ok": 35766
+        },
+        "create": {
+          "ok": 463
+        },
+        "getxattr": {
+          "error": 877
+        },
+        "write": {
+          "ok": 1112
+        },
+        "flush": {
+          "ok": 19862
+        },
+        "release": {
+          "ok": 19813
+        },
+        "open": {
+          "ok": 19350
+        },
+        "read": {
+          "ok": 22142
+        },
+        "readlink": {
+          "ok": 4
+        },
+        "opendir": {
+          "ok": 11847
+        },
+        "readdirplus": {
+          "ok": 23828
+        },
+        "releasedir": {
+          "ok": 11847
+        },
+        "rename": {
+          "ok": 405
+        },
+        "forget": {
+          "incomplete": 52
+        },
+        "mkdir": {
+          "ok": 81
+        },
+        "setattr": {
+          "ok": 24
+        },
+        "fsync": {
+          "ok": 35
+        },
+        "rmdir": {
+          "ok": 8
+        },
+        "statfs": {
+          "ok": 7
+        },
+        "destroy": {
+          "incomplete": 5
+        },
+        "lseek": {
+          "ok": 5
+        },
+        "link": {
+          "ok": 27
+        },
+        "unlink": {
+          "ok": 48
+        },
+        "listxattr": {
+          "ok": 60
+        }
+      },
+      "request_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 15300,
+        "write": 11317345,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 593817600,
+        "readlink": 0,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "fsync": 0,
+        "rmdir": 0,
+        "statfs": 0,
+        "destroy": 0,
+        "lseek": 0,
+        "link": 0,
+        "unlink": 0,
+        "listxattr": 9120
+      },
+      "response_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 11317345,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 547422585,
+        "readlink": 0,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "mkdir": 0,
+        "setattr": 0,
+        "fsync": 0,
+        "rmdir": 0,
+        "statfs": 0,
+        "destroy": 0,
+        "lseek": 0,
+        "link": 0,
+        "unlink": 0,
+        "listxattr": 0
+      },
+      "size": {
+        "read": {
+          "n": 22142,
+          "request_bytes": 593817600,
+          "min_bytes": 4096,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 8192.0,
+            "0.75": 20480.0,
+            "0.9": 114688.0,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 10571,
+          "gt_4_le_64KiB": 8010,
+          "gt_64_le_128KiB": 3561,
+          "gt_128KiB": 0
+        },
+        "write": {
+          "n": 1112,
+          "request_bytes": 11317345,
+          "min_bytes": 1,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 4084.0,
+            "0.75": 4572.75,
+            "0.9": 22210.199999999997,
+            "0.95": 54866.50000000001,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 826,
+          "gt_4_le_64KiB": 237,
+          "gt_64_le_128KiB": 49,
+          "gt_128KiB": 0
+        }
+      },
+      "metadata6_count": 133621,
+      "metadata6_pct": 61.539914060305165,
+      "read_write_ratio": 19.91187050359712,
+      "latency_missing": {
+        "forget": 52,
+        "destroy": 5
+      },
+      "pre_agent_events": 40,
+      "pre_agent_methods": {
+        "init": 5,
+        "getattr": 5,
+        "lookup": 5,
+        "create": 5,
+        "getxattr": 5,
+        "write": 5,
+        "flush": 5,
+        "release": 5
+      },
+      "post_run_events": 13,
+      "post_run_methods": {
+        "destroy": 5,
+        "unlink": 4,
+        "forget": 4
+      }
+    },
+    "Exploratory": {
+      "events": 921755,
+      "methods": {
+        "init": 3,
+        "getattr": 83945,
+        "lookup": 269156,
+        "create": 12002,
+        "getxattr": 19326,
+        "write": 23600,
+        "flush": 80830,
+        "release": 82795,
+        "open": 70793,
+        "read": 98292,
+        "opendir": 37049,
+        "readdirplus": 72886,
+        "releasedir": 37049,
+        "rename": 5440,
+        "forget": 12636,
+        "statfs": 269,
+        "lseek": 114,
+        "fsync": 378,
+        "link": 291,
+        "unlink": 11666,
+        "setattr": 548,
+        "batch_forget": 21,
+        "mkdir": 1268,
+        "rmdir": 1231,
+        "listxattr": 130,
+        "symlink": 21,
+        "readlink": 11,
+        "copy_file_range": 1,
+        "destroy": 3,
+        "rename2": 1
+      },
+      "statuses": {
+        "ok": 698683,
+        "error": 210433,
+        "incomplete": 12639
+      },
+      "method_status": {
+        "init": {
+          "ok": 3
+        },
+        "getattr": {
+          "ok": 83945
+        },
+        "lookup": {
+          "error": 191093,
+          "ok": 78063
+        },
+        "create": {
+          "ok": 12002
+        },
+        "getxattr": {
+          "error": 19326
+        },
+        "write": {
+          "ok": 23600
+        },
+        "flush": {
+          "ok": 80830
+        },
+        "release": {
+          "ok": 82795
+        },
+        "open": {
+          "ok": 70793
+        },
+        "read": {
+          "ok": 98292
+        },
+        "opendir": {
+          "ok": 37049
+        },
+        "readdirplus": {
+          "ok": 72886
+        },
+        "releasedir": {
+          "ok": 37049
+        },
+        "rename": {
+          "ok": 5440
+        },
+        "forget": {
+          "incomplete": 12636
+        },
+        "statfs": {
+          "ok": 269
+        },
+        "lseek": {
+          "ok": 114
+        },
+        "fsync": {
+          "ok": 378
+        },
+        "link": {
+          "ok": 291
+        },
+        "unlink": {
+          "ok": 11666
+        },
+        "setattr": {
+          "ok": 548
+        },
+        "batch_forget": {
+          "ok": 21
+        },
+        "mkdir": {
+          "ok": 1268
+        },
+        "rmdir": {
+          "error": 14,
+          "ok": 1217
+        },
+        "listxattr": {
+          "ok": 130
+        },
+        "symlink": {
+          "ok": 21
+        },
+        "readlink": {
+          "ok": 11
+        },
+        "copy_file_range": {
+          "ok": 1
+        },
+        "destroy": {
+          "incomplete": 3
+        },
+        "rename2": {
+          "ok": 1
+        }
+      },
+      "request_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 32130,
+        "write": 352013120,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 4303966208,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "setattr": 0,
+        "batch_forget": 0,
+        "mkdir": 0,
+        "rmdir": 0,
+        "listxattr": 20176,
+        "symlink": 0,
+        "readlink": 0,
+        "copy_file_range": 0,
+        "destroy": 0,
+        "rename2": 0
+      },
+      "response_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 352013120,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 4138761005,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "setattr": 0,
+        "batch_forget": 0,
+        "mkdir": 0,
+        "rmdir": 0,
+        "listxattr": 0,
+        "symlink": 0,
+        "readlink": 0,
+        "copy_file_range": 0,
+        "destroy": 0,
+        "rename2": 0
+      },
+      "size": {
+        "read": {
+          "n": 98292,
+          "request_bytes": 4303966208,
+          "min_bytes": 4096,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 16384.0,
+            "0.75": 81920.0,
+            "0.9": 131072.0,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 33951,
+          "gt_4_le_64KiB": 35755,
+          "gt_64_le_128KiB": 28586,
+          "gt_128KiB": 0
+        },
+        "write": {
+          "n": 23600,
+          "request_bytes": 352013120,
+          "min_bytes": 1,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 4117.0,
+            "0.75": 10370.0,
+            "0.9": 36190.200000000244,
+            "0.95": 93975.84999999977,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 11786,
+          "gt_4_le_64KiB": 10390,
+          "gt_64_le_128KiB": 1424,
+          "gt_128KiB": 0
+        }
+      },
+      "metadata6_count": 519411,
+      "metadata6_pct": 56.35022321549653,
+      "read_write_ratio": 4.164915254237288,
+      "latency_missing": {
+        "forget": 12636,
+        "destroy": 3
+      },
+      "pre_agent_events": 24,
+      "pre_agent_methods": {
+        "init": 3,
+        "getattr": 3,
+        "lookup": 3,
+        "create": 3,
+        "getxattr": 3,
+        "write": 3,
+        "flush": 3,
+        "release": 3
+      },
+      "post_run_events": 11,
+      "post_run_methods": {
+        "lookup": 2,
+        "unlink": 3,
+        "forget": 3,
+        "destroy": 3
+      }
+    },
+    "All": {
+      "events": 1138884,
+      "methods": {
+        "init": 8,
+        "getattr": 91042,
+        "lookup": 347281,
+        "create": 12465,
+        "getxattr": 20203,
+        "write": 24712,
+        "flush": 100692,
+        "release": 102608,
+        "open": 90143,
+        "read": 120434,
+        "opendir": 48896,
+        "readdirplus": 96714,
+        "releasedir": 48896,
+        "rename": 5845,
+        "forget": 12688,
+        "statfs": 276,
+        "lseek": 119,
+        "fsync": 413,
+        "link": 318,
+        "unlink": 11714,
+        "setattr": 572,
+        "batch_forget": 21,
+        "mkdir": 1349,
+        "rmdir": 1239,
+        "listxattr": 190,
+        "symlink": 21,
+        "readlink": 15,
+        "copy_file_range": 1,
+        "destroy": 8,
+        "rename2": 1
+      },
+      "statuses": {
+        "ok": 872519,
+        "error": 253669,
+        "incomplete": 12696
+      },
+      "method_status": {
+        "init": {
+          "ok": 8
+        },
+        "getattr": {
+          "ok": 91042
+        },
+        "lookup": {
+          "error": 233452,
+          "ok": 113829
+        },
+        "create": {
+          "ok": 12465
+        },
+        "getxattr": {
+          "error": 20203
+        },
+        "write": {
+          "ok": 24712
+        },
+        "flush": {
+          "ok": 100692
+        },
+        "release": {
+          "ok": 102608
+        },
+        "open": {
+          "ok": 90143
+        },
+        "read": {
+          "ok": 120434
+        },
+        "opendir": {
+          "ok": 48896
+        },
+        "readdirplus": {
+          "ok": 96714
+        },
+        "releasedir": {
+          "ok": 48896
+        },
+        "rename": {
+          "ok": 5845
+        },
+        "forget": {
+          "incomplete": 12688
+        },
+        "statfs": {
+          "ok": 276
+        },
+        "lseek": {
+          "ok": 119
+        },
+        "fsync": {
+          "ok": 413
+        },
+        "link": {
+          "ok": 318
+        },
+        "unlink": {
+          "ok": 11714
+        },
+        "setattr": {
+          "ok": 572
+        },
+        "batch_forget": {
+          "ok": 21
+        },
+        "mkdir": {
+          "ok": 1349
+        },
+        "rmdir": {
+          "error": 14,
+          "ok": 1225
+        },
+        "listxattr": {
+          "ok": 190
+        },
+        "symlink": {
+          "ok": 21
+        },
+        "readlink": {
+          "ok": 15
+        },
+        "copy_file_range": {
+          "ok": 1
+        },
+        "destroy": {
+          "incomplete": 8
+        },
+        "rename2": {
+          "ok": 1
+        }
+      },
+      "request_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 47430,
+        "write": 363330465,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 4897783808,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "setattr": 0,
+        "batch_forget": 0,
+        "mkdir": 0,
+        "rmdir": 0,
+        "listxattr": 29296,
+        "symlink": 0,
+        "readlink": 0,
+        "copy_file_range": 0,
+        "destroy": 0,
+        "rename2": 0
+      },
+      "response_bytes": {
+        "init": 0,
+        "getattr": 0,
+        "lookup": 0,
+        "create": 0,
+        "getxattr": 0,
+        "write": 363330465,
+        "flush": 0,
+        "release": 0,
+        "open": 0,
+        "read": 4686183590,
+        "opendir": 0,
+        "readdirplus": 0,
+        "releasedir": 0,
+        "rename": 0,
+        "forget": 0,
+        "statfs": 0,
+        "lseek": 0,
+        "fsync": 0,
+        "link": 0,
+        "unlink": 0,
+        "setattr": 0,
+        "batch_forget": 0,
+        "mkdir": 0,
+        "rmdir": 0,
+        "listxattr": 0,
+        "symlink": 0,
+        "readlink": 0,
+        "copy_file_range": 0,
+        "destroy": 0,
+        "rename2": 0
+      },
+      "size": {
+        "read": {
+          "n": 120434,
+          "request_bytes": 4897783808,
+          "min_bytes": 4096,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 12288.0,
+            "0.75": 73728.0,
+            "0.9": 131072.0,
+            "0.95": 131072.0,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 44522,
+          "gt_4_le_64KiB": 43765,
+          "gt_64_le_128KiB": 32147,
+          "gt_128KiB": 0
+        },
+        "write": {
+          "n": 24712,
+          "request_bytes": 363330465,
+          "min_bytes": 1,
+          "max_bytes": 131072,
+          "quantiles_bytes": {
+            "0.5": 4096.0,
+            "0.75": 10169.25,
+            "0.9": 35502.30000000007,
+            "0.95": 89880.09999999989,
+            "0.99": 131072.0
+          },
+          "le_4KiB": 12612,
+          "gt_4_le_64KiB": 10627,
+          "gt_64_le_128KiB": 1473,
+          "gt_128KiB": 0
+        }
+      },
+      "metadata6_count": 653032,
+      "metadata6_pct": 57.3396412628503,
+      "read_write_ratio": 4.873502751699579,
+      "latency_missing": {
+        "forget": 12688,
+        "destroy": 8
+      },
+      "pre_agent_events": 64,
+      "pre_agent_methods": {
+        "init": 8,
+        "getattr": 8,
+        "lookup": 8,
+        "create": 8,
+        "getxattr": 8,
+        "write": 8,
+        "flush": 8,
+        "release": 8
+      },
+      "post_run_events": 24,
+      "post_run_methods": {
+        "lookup": 2,
+        "unlink": 7,
+        "forget": 7,
+        "destroy": 8
+      }
+    }
+  },
+  "event_key_counts": {
+    "task": 1138884,
+    "agent": 1138884,
+    "model": 1138884,
+    "workload": 1138884,
+    "operation_id": 1138884,
+    "method": 1138884,
+    "started_at": 1138884,
+    "finished_at": 1138884,
+    "latency_ms": 1138884,
+    "args": 1138884,
+    "request_bytes": 1138884,
+    "response_bytes": 1138884,
+    "status": 1138884,
+    "relative_ms": 1138884
+  },
+  "validation": {
+    "all_run_summary_counts_and_bytes_match": true,
+    "duplicate_operation_ids": 0,
+    "operation_ids_contiguous_per_task": true,
+    "malformed_events": 0,
+    "relative_time_verified": true,
+    "tasks_json_core_ids_match": true,
+    "availability_measured_runs": 5,
+    "availability_count_scope": "Core only; exploratory confirmed by runs.json"
+  },
+  "definitions": {
+    "group_aggregation": "event-weighted, no task averaging",
+    "quantile": "linear interpolation at (n-1)*p over integer-byte histogram",
+    "time_bins": "[i,i+1) seconds since first request; retain zero bins and final partial bin",
+    "capture_span": "last request start minus first request start, per task",
+    "top_decile": "ceil(0.1 * number of 1-s bins) busiest bins / all calls",
+    "request_size": "request_bytes for read/write, all statuses; not response length",
+    "scope": "all captured events including setup/canary and teardown"
+  },
+  "sources": {
+    "events.jsonl": {
+      "bytes": 557135223,
+      "sha256": "4a9e1275439c36540202a980240e70751b23e95330628aed47dcbc1f26461544"
+    },
+    "runs.json": {
+      "bytes": 301728,
+      "sha256": "fb941c2c1e43a3598109adea5db8d8d2b00976703f653e045fa899b64a61eac2"
+    },
+    "tasks.json": {
+      "bytes": 199831,
+      "sha256": "7ae2a74d5127e0c65647f89fa930f5f52f2483694f6bd5f7c23120c439f16afc"
+    },
+    "agent-availability.json": {
+      "bytes": 588,
+      "sha256": "63b40bf30af30cdc998e8df0baeb9d10b40c838c54e6291ad6f257f90cfbb524"
+    },
+    "README.md": {
+      "bytes": 4102,
+      "sha256": "fc108c1386ff7b765e0fef5029ae46910c2b23c5acdd1247185bf1bad7e83cf8"
+    },
+    "dynamic-3d-report.md": {
+      "bytes": 7133,
+      "sha256": "75632e311e68fefed115e49e40938a7fe841dcb064151993434451688a2dbb4f"
+    },
+    "collect_logfs.py": {
+      "bytes": 6207,
+      "sha256": "3e106d8e1a3de0eb5e5e1a7e9ece14868e0de805000318688218a4a638000837"
+    }
+  }
+}

@@ -1,0 +1,356 @@
+{
+  "checks": {
+    "four_completed_cells": true,
+    "same_trace": true,
+    "same_initial_tree": true,
+    "same_final_tree": true,
+    "all_valid": true,
+    "initial_hashes_verified": true,
+    "same_operation_counts": true,
+    "same_read_bytes": true,
+    "same_write_bytes": true,
+    "required_workers_and_pace": true,
+    "primary_timing_off": true,
+    "daemon_pids_alive_at_end": true,
+    "juicefs_client_start_time_stable": true,
+    "trace_below_50MB": true
+  },
+  "trace_bytes": 8002409,
+  "trace_sha256": "7a1b00f394734d7eacb92660ef263083baf630bbcc56c293cae3aa65f9f85825",
+  "rows": [
+    {
+      "cell": "brewfs-off",
+      "raw_results_directory": "results/stable",
+      "timing": "off",
+      "workers": 4,
+      "pace": "asap",
+      "valid": true,
+      "initial_tree_hash_verified": true,
+      "initial_tree_sha256": "79132702660373e9f2a47f36850237cbc27c22553e0a88779def169b9ef9db54",
+      "trace_sha256": "7a1b00f394734d7eacb92660ef263083baf630bbcc56c293cae3aa65f9f85825",
+      "attempted": 115718,
+      "successful": 115718,
+      "expected_errors": 0,
+      "failures": 0,
+      "io_errors": 0,
+      "execution_seconds": 19.569438818,
+      "logical_operations_per_second": 5913.199712889182,
+      "read_bytes": 598482944,
+      "write_bytes": 61899097,
+      "replay_process": {
+        "returncode": 0,
+        "process_wall_seconds": 21.815073301999973,
+        "user_seconds": 2.425134,
+        "system_seconds": 3.878386,
+        "cpu_percent_one_core": 28.89525014533003,
+        "max_rss_kib": 47040,
+        "voluntary_context_switches": 108682,
+        "involuntary_context_switches": 811,
+        "scope": "timeout wrapper plus replay child, including parse, preparation and result writing"
+      },
+      "daemon_cpu_and_rss": {
+        "brewfs": {
+          "cpu_seconds": 33.27,
+          "cpu_percent_one_core": 152.509228547721,
+          "sampled_peak_rss_kib": 1232112
+        },
+        "brewfs-rustfs": {
+          "cpu_seconds": 32.49,
+          "cpu_percent_one_core": 148.9337191318141,
+          "sampled_peak_rss_kib": 1000100
+        },
+        "brewfs-redis": {
+          "cpu_seconds": 4.0,
+          "cpu_percent_one_core": 18.335945722599455,
+          "sampled_peak_rss_kib": 24660
+        }
+      },
+      "juicefs_process_metrics": {
+        "juicefs_process_cpu_seconds_total": {
+          "before": 180.43,
+          "after": 180.5,
+          "delta": 0.06999999999999318
+        },
+        "juicefs_process_resident_memory_bytes": {
+          "before": 1120002048.0,
+          "after": 1120002048.0,
+          "delta": 0.0
+        },
+        "juicefs_process_start_time_seconds": {
+          "before": 1792926956.93,
+          "after": 1792926956.93,
+          "delta": 0.0
+        }
+      },
+      "diagnostic_latency": null,
+      "backend_put_counter": {
+        "metric": "juicefs_process_start_time_seconds",
+        "label": null,
+        "before": 611566074.0,
+        "after": 673481007.0,
+        "delta_bytes": 61914933.0,
+        "scope": "client metric snapshot before replay to five seconds after process exit; fixture excluded; includes backend representation/metadata PUT payloads, not wire bytes"
+      },
+      "brewfs_after_pending_byte_gauges": {
+        "brewfs_writeback_dirty_bytes": 0.0,
+        "brewfs_writeback_live_dirty_bytes": 0.0,
+        "brewfs_writeback_recent_pending_upload_bytes": 0.0,
+        "brewfs_writeback_remote_upload_inflight_bytes": 0.0
+      },
+      "post_tree": "e830540dc17645743f19dc72cfc3fc9ae795e72845682ccd39e2e91d13bdc8c0"
+    },
+    {
+      "cell": "jfs-off",
+      "raw_results_directory": "results/stable",
+      "timing": "off",
+      "workers": 4,
+      "pace": "asap",
+      "valid": true,
+      "initial_tree_hash_verified": true,
+      "initial_tree_sha256": "79132702660373e9f2a47f36850237cbc27c22553e0a88779def169b9ef9db54",
+      "trace_sha256": "7a1b00f394734d7eacb92660ef263083baf630bbcc56c293cae3aa65f9f85825",
+      "attempted": 115718,
+      "successful": 115718,
+      "expected_errors": 0,
+      "failures": 0,
+      "io_errors": 0,
+      "execution_seconds": 55.080663268,
+      "logical_operations_per_second": 2100.88247189333,
+      "read_bytes": 598482944,
+      "write_bytes": 61899097,
+      "replay_process": {
+        "returncode": 0,
+        "process_wall_seconds": 56.9949632150001,
+        "user_seconds": 2.37608,
+        "system_seconds": 5.110219,
+        "cpu_percent_one_core": 13.13501856604363,
+        "max_rss_kib": 48192,
+        "voluntary_context_switches": 94757,
+        "involuntary_context_switches": 10224,
+        "scope": "timeout wrapper plus replay child, including parse, preparation and result writing"
+      },
+      "daemon_cpu_and_rss": {
+        "brewfs": {
+          "cpu_seconds": 0.11,
+          "cpu_percent_one_core": 0.19299951047437447,
+          "sampled_peak_rss_kib": 1232100
+        },
+        "brewfs-rustfs": {
+          "cpu_seconds": 183.43,
+          "cpu_percent_one_core": 321.835456421041,
+          "sampled_peak_rss_kib": 1150800
+        },
+        "brewfs-redis": {
+          "cpu_seconds": 10.22,
+          "cpu_percent_one_core": 17.9314090640737,
+          "sampled_peak_rss_kib": 24768
+        }
+      },
+      "juicefs_process_metrics": {
+        "juicefs_process_cpu_seconds_total": {
+          "before": 182.53,
+          "after": 261.9,
+          "delta": 79.36999999999998
+        },
+        "juicefs_process_resident_memory_bytes": {
+          "before": 1120002048.0,
+          "after": 1165877248.0,
+          "delta": 45875200.0
+        },
+        "juicefs_process_start_time_seconds": {
+          "before": 1792926956.93,
+          "after": 1792926956.93,
+          "delta": 0.0
+        }
+      },
+      "diagnostic_latency": null,
+      "backend_put_counter": {
+        "metric": "juicefs_process_start_time_seconds",
+        "label": "method=\"PUT\"",
+        "before": 10536788016.0,
+        "after": 14750250229.0,
+        "delta_bytes": 4213462213.0,
+        "scope": "client metric snapshot before replay to five seconds after process exit; fixture excluded; includes backend representation/metadata PUT payloads, not wire bytes"
+      },
+      "brewfs_after_pending_byte_gauges": {
+        "brewfs_writeback_dirty_bytes": 0.0,
+        "brewfs_writeback_live_dirty_bytes": 0.0,
+        "brewfs_writeback_recent_pending_upload_bytes": 0.0,
+        "brewfs_writeback_remote_upload_inflight_bytes": 0.0
+      },
+      "post_tree": "e830540dc17645743f19dc72cfc3fc9ae795e72845682ccd39e2e91d13bdc8c0"
+    },
+    {
+      "cell": "brewfs-op",
+      "raw_results_directory": "results/cleandiag",
+      "timing": "op",
+      "workers": 4,
+      "pace": "asap",
+      "valid": true,
+      "initial_tree_hash_verified": true,
+      "initial_tree_sha256": "79132702660373e9f2a47f36850237cbc27c22553e0a88779def169b9ef9db54",
+      "trace_sha256": "7a1b00f394734d7eacb92660ef263083baf630bbcc56c293cae3aa65f9f85825",
+      "attempted": 115718,
+      "successful": 115718,
+      "expected_errors": 0,
+      "failures": 0,
+      "io_errors": 0,
+      "execution_seconds": 15.652633867,
+      "logical_operations_per_second": 7392.877197745291,
+      "read_bytes": 598482944,
+      "write_bytes": 61899097,
+      "replay_process": {
+        "returncode": 0,
+        "process_wall_seconds": 19.215294516000085,
+        "user_seconds": 2.7424049999999998,
+        "system_seconds": 4.45964,
+        "cpu_percent_one_core": 37.48079423920899,
+        "max_rss_kib": 40012,
+        "voluntary_context_switches": 108646,
+        "involuntary_context_switches": 681,
+        "scope": "timeout wrapper plus replay child, including parse, preparation and result writing"
+      },
+      "daemon_cpu_and_rss": {
+        "brewfs": {
+          "cpu_seconds": 29.72,
+          "cpu_percent_one_core": 154.66845941524815,
+          "sampled_peak_rss_kib": 2074620
+        },
+        "brewfs-rustfs": {
+          "cpu_seconds": 23.31,
+          "cpu_percent_one_core": 121.30961604876967,
+          "sampled_peak_rss_kib": 1031036
+        },
+        "brewfs-redis": {
+          "cpu_seconds": 3.46,
+          "cpu_percent_one_core": 18.006489555072633,
+          "sampled_peak_rss_kib": 30228
+        }
+      },
+      "juicefs_process_metrics": {
+        "juicefs_process_cpu_seconds_total": {
+          "before": 346.81,
+          "after": 346.89,
+          "delta": 0.07999999999998408
+        },
+        "juicefs_process_resident_memory_bytes": {
+          "before": 958459904.0,
+          "after": 958459904.0,
+          "delta": 0.0
+        },
+        "juicefs_process_start_time_seconds": {
+          "before": 1792926956.93,
+          "after": 1792926956.93,
+          "delta": 0.0
+        }
+      },
+      "diagnostic_latency": {
+        "sample_count": 115718,
+        "p50_ms": 0.099359,
+        "p99_ms": 4.032742,
+        "definition": "nearest rank across all logical operations, including scaffold; separate timing=op diagnostic; safe path resolution included, post-call content hashing excluded"
+      },
+      "backend_put_counter": {
+        "metric": "juicefs_process_start_time_seconds",
+        "label": null,
+        "before": 1272267444.0,
+        "after": 1334182377.0,
+        "delta_bytes": 61914933.0,
+        "scope": "client metric snapshot before replay to five seconds after process exit; fixture excluded; includes backend representation/metadata PUT payloads, not wire bytes"
+      },
+      "brewfs_after_pending_byte_gauges": {
+        "brewfs_writeback_dirty_bytes": 0.0,
+        "brewfs_writeback_live_dirty_bytes": 0.0,
+        "brewfs_writeback_recent_pending_upload_bytes": 0.0,
+        "brewfs_writeback_remote_upload_inflight_bytes": 0.0
+      },
+      "post_tree": "e830540dc17645743f19dc72cfc3fc9ae795e72845682ccd39e2e91d13bdc8c0"
+    },
+    {
+      "cell": "jfs-op",
+      "raw_results_directory": "results/cleandiag",
+      "timing": "op",
+      "workers": 4,
+      "pace": "asap",
+      "valid": true,
+      "initial_tree_hash_verified": true,
+      "initial_tree_sha256": "79132702660373e9f2a47f36850237cbc27c22553e0a88779def169b9ef9db54",
+      "trace_sha256": "7a1b00f394734d7eacb92660ef263083baf630bbcc56c293cae3aa65f9f85825",
+      "attempted": 115718,
+      "successful": 115718,
+      "expected_errors": 0,
+      "failures": 0,
+      "io_errors": 0,
+      "execution_seconds": 67.137454198,
+      "logical_operations_per_second": 1723.5982713721546,
+      "read_bytes": 598482944,
+      "write_bytes": 61899097,
+      "replay_process": {
+        "returncode": 0,
+        "process_wall_seconds": 71.93364776699991,
+        "user_seconds": 2.954765,
+        "system_seconds": 6.466155,
+        "cpu_percent_one_core": 13.096680472141879,
+        "max_rss_kib": 49680,
+        "voluntary_context_switches": 94899,
+        "involuntary_context_switches": 10224,
+        "scope": "timeout wrapper plus replay child, including parse, preparation and result writing"
+      },
+      "daemon_cpu_and_rss": {
+        "brewfs": {
+          "cpu_seconds": 7.95,
+          "cpu_percent_one_core": 11.051851597670709,
+          "sampled_peak_rss_kib": 2677060
+        },
+        "brewfs-rustfs": {
+          "cpu_seconds": 202.24,
+          "cpu_percent_one_core": 281.14798328464457,
+          "sampled_peak_rss_kib": 1068472
+        },
+        "brewfs-redis": {
+          "cpu_seconds": 11.05,
+          "cpu_percent_one_core": 15.361378635756143,
+          "sampled_peak_rss_kib": 31932
+        }
+      },
+      "juicefs_process_metrics": {
+        "juicefs_process_cpu_seconds_total": {
+          "before": 348.84,
+          "after": 430.07,
+          "delta": 81.23000000000002
+        },
+        "juicefs_process_resident_memory_bytes": {
+          "before": 932970496.0,
+          "after": 1009385472.0,
+          "delta": 76414976.0
+        },
+        "juicefs_process_start_time_seconds": {
+          "before": 1792926956.93,
+          "after": 1792926956.93,
+          "delta": 0.0
+        }
+      },
+      "diagnostic_latency": {
+        "sample_count": 115718,
+        "p50_ms": 0.054486,
+        "p99_ms": 42.352905,
+        "definition": "nearest rank across all logical operations, including scaffold; separate timing=op diagnostic; safe path resolution included, post-call content hashing excluded"
+      },
+      "backend_put_counter": {
+        "metric": "juicefs_process_start_time_seconds",
+        "label": "method=\"PUT\"",
+        "before": 19559287467.0,
+        "after": 23760178780.0,
+        "delta_bytes": 4200891313.0,
+        "scope": "client metric snapshot before replay to five seconds after process exit; fixture excluded; includes backend representation/metadata PUT payloads, not wire bytes"
+      },
+      "brewfs_after_pending_byte_gauges": {
+        "brewfs_writeback_dirty_bytes": 0.0,
+        "brewfs_writeback_live_dirty_bytes": 0.0,
+        "brewfs_writeback_recent_pending_upload_bytes": 0.0,
+        "brewfs_writeback_remote_upload_inflight_bytes": 0.0
+      },
+      "post_tree": "e830540dc17645743f19dc72cfc3fc9ae795e72845682ccd39e2e91d13bdc8c0"
+    }
+  ]
+}

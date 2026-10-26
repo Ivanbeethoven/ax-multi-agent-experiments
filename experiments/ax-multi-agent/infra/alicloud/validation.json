@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-23",
+  "terraform": "1.13.5",
+  "provider": "aliyun/alicloud 1.274.0",
+  "terraform_fmt": "pass",
+  "terraform_validate": "pass",
+  "python_compile": "pass",
+  "generator_checks": [
+    "smoke_generation_pass",
+    "distributed_generation_pass",
+    "unpinned_image_rejected",
+    "ceph_exact_path_preview_generation_pass"
+  ],
+  "not_executed": [
+    "cloud_plan",
+    "apply",
+    "docker_compose_on_linux",
+    "real_s3_probe",
+    "ceph_bootstrap",
+    "performance_experiments"
+  ]
+}

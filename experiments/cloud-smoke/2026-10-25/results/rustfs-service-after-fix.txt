@@ -1,0 +1,27 @@
+# /etc/systemd/system/brewfs-rustfs.service
+[Unit]
+Description=BrewFS RustFS Object Storage Server
+Documentation=https://rustfs.com/docs/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/data/brewfs-default/brewfs-rustfs
+ExecStart=/data/bin/rustfs ${RUSTFS_VOLUMES}
+WorkingDirectory=/data/brewfs-state/rustfs
+User=root
+Group=root
+Restart=always
+RestartSec=5s
+LimitNOFILE=1048576
+TasksMax=infinity
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ReadWritePaths=/data/brewfs-state/rustfs /data/brewfs-logs
+StandardOutput=append:/data/brewfs-logs/rustfs-stdout.log
+StandardError=append:/data/brewfs-logs/rustfs-err.log
+
+[Install]
+WantedBy=multi-user.target

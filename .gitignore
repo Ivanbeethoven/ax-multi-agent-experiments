@@ -6,3 +6,17 @@ __pycache__/
 # Generated data, runtime configs, credentials and large private results.
 runs/
 *.local.json
+
+# Imported local toolchains and raw bundles; keep them on disk, out of Git.
+.terraform/
+*.tfstate
+*.tfstate.*
+/experiments/cloud-smoke/**/brewfs-linux-amd64
+/experiments/cloud-smoke/**/*.tar.gz
+
+# Rebuildable intermediates from the archived experiment report.
+/experiments/ax-multi-agent/report/*.aux
+/experiments/ax-multi-agent/report/*.fdb_latexmk
+/experiments/ax-multi-agent/report/*.fls
+/experiments/ax-multi-agent/report/*.out
+/experiments/ax-multi-agent/report/*.xdv

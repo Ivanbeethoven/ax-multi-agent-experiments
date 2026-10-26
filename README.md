@@ -4,7 +4,17 @@
 
 当前对比 **BrewFS 与 JuiceFS**，共用 **4节点 RustFS**，自行部署 Redis。BrewFS 使用执行开始时 [官方仓库](https://github.com/brewfs/brewfs) 默认分支的最新提交，记录完整 commit，并固定到实验结束。
 
+论文通过 [paper/](paper/) Git submodule 引用独立的 [osdi2027](https://github.com/Ivanbeethoven/osdi2027) 仓库。实验都在本仓库维护，论文从 `paper/main.tex` 编译。
+
+```bash
+git clone --recurse-submodules https://github.com/Ivanbeethoven/ax-multi-agent-experiments.git
+# 已有克隆：
+git submodule update --init paper
+```
+
 ## 从哪里开始
+
+实验人员或 Agent 先读这一份 [实验执行手册](paper-design/README.md)：准备、对照、实验步骤和记录方式都在里面，按小规模到主组的顺序运行。
 
 | 你要做什么 | 入口 |
 |---|---|
@@ -12,9 +22,9 @@
 | 找到7份负载、下载和校验 | [数据目录与命令](scenarios/k8s-containers/data-catalog.md) · [完整路径与SHA256](scenarios/k8s-containers/archives.json) |
 | 重新采集真实 Agent 的文件访问 | [Trace采集 Skill](skills/agent-fs-trace/SKILL.md) · [环境与完整命令](skills/agent-fs-trace/references/commands.md) |
 | 部署存储和监控 | [服务部署](scenarios/k8s-containers/deployment.md) · [指标采集](scenarios/k8s-containers/observability.md) |
-| 查看实验规模和每组测什么 | [测试清单](scenarios/k8s-containers/README.md) · [规模方案](scenarios/k8s-containers/scale.md) |
+| 查看实验步骤、对照和规模 | [实验执行手册](paper-design/README.md) |
 
-当前执行范围以[执行指令](scenarios/k8s-containers/execute-agent.prompt.md)为准。较早的部署文档保留了单节点 RustFS 的起步示例，正式测试使用4节点配置。
+环境接入与工具操作参考[执行指令](scenarios/k8s-containers/execute-agent.prompt.md)，实验参数、计时和任务表以 [实验执行手册](paper-design/README.md) 为准。较早部署文档中的单节点 RustFS 只是起步示例，正式测试使用4节点配置。
 
 ## 已有负载
 
@@ -77,12 +87,13 @@ python3 "$K/scripts/run_case.py" \
 
 | 问题 | 测试内容 | 主要指标 |
 |---|---|---|
-| 能管理多少工作区 | 固定资源下创建、保存和重新打开 | 成功数、创建/重开延迟、元数据内存、空间 |
-| 共享和独立修改的代价 | 分叉、版本保存、共享V1/V2资料 | 保存/发布时间、上传字节、请求数、正确性 |
-| 多容器运行时表现如何 | 同一批trace的并发与扩展测试 | 批次时间、吞吐、各题耗时、CPU、内存、存储请求 |
-| 部分迁移影响多大 | 选中工作区交接，其余持续读写 | 暂停时间、搬运字节、状态正确性、邻居延迟 |
+| RQ1 Overlay | 不使用 Packed 的日常操作、fork、保存和历史保留 | 开销、首次可用时间、元数据与字节、隔离正确性 |
+| RQ2 Packed | 固定小文件元数据的数据库减压、首次构建与反复更新 | 数据库压力、可写工作区干扰、首次 fork、复用回本区间 |
+| RQ3 对象粒度 | 分离客户端对象大小、后端布局和获取策略 | 对象/请求数、实际传输与物理工作、写入与修复成本 |
+| RQ4 部分迁移 | native/packed，已保存/待保存，选中工作区迁移 | 暂停、发布与冷读成本、状态正确性、邻居影响 |
+| RQ5 多 Agent | 固定工作量和固定后端下的扩展 | 正确完成曲线、各题耗时、吞吐与资源成本 |
 
-客户端按4、16、64、128个容器扩展，每容器并发4个工作区。保存状态总量另测1千、1万、10万个，按预先规定的时间和资源阈值停止。BrewFS消融必须使用真实实现开关，记录源码和配置。
+客户端以4、16个为主组，64、128为扩展，每客户端并发4个工作区。保存状态1千、1万为主组、10万为扩展，按资源阈值停止。固定回放为七份 trace 各八次、共56任务。参数与计时以 [实验执行手册](paper-design/README.md) 为准；BrewFS消融必须映射到真实实现，记录源码和配置。
 
 ## 当前状态与结果范围
 
@@ -93,6 +104,8 @@ python3 "$K/scripts/run_case.py" \
 记录的是挂载点收到的高层FUSE回调，覆盖仓库及HOME/XDG状态；内核缓存命中、网络和镜像运行库不在此范围。回放按已记录顺序执行，耗时包含解析和校验。重复读取比例不是缓存命中率，文件回放成功也不等于原Agent进程恢复成功。
 
 ## 其他资料
+
+- [论文已有负载的分析与绘图](experiments/agent-fuse-observations/README.md) · [云上冒烟记录](experiments/cloud-smoke/2026-10-25/report.md)
 
 - [Windows到WSL的OpenCode恢复验证](validation/opencode-resume-20261023/README.md)
 - [较早的整体实验计划](execution-plan.zh.md) · [固定输入定义](workloads.json) · [阿里云Terraform](infra/alicloud/README.md)

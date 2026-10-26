@@ -1,0 +1,12 @@
+# Optional overlay after an edited smoke.tfvars.example, not a complete environment.
+# Replace the class with one available in the selected region/AZ.
+# terraform plan -var-file=terraform.tfvars -var-file=managed-services.tfvars
+create_managed_redis = true
+redis_subnet         = "a"
+redis_engine_version = "7.0"
+redis_instance_class = "REPLACE_WITH_AVAILABLE_REDIS_CLASS"
+existing_redis_endpoint = null
+# Supply TF_VAR_redis_password in the process environment.
+# NAS is an independent supplementary baseline, not a CephFS replacement.
+enable_nas = false
+nas_subnet = "a"
