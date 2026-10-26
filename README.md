@@ -4,6 +4,8 @@
 
 旧核查记录保留了拆分前的路径和文件摘要。重新采集代码记录时，`scripts/capture_sources.py` 默认在本仓库的同级目录寻找 `brewfs-upstream` 与 `ax-integration-upstream`；也可用环境变量 `AX_EXPERIMENT_SOURCE_ROOT` 指定它们的父目录。它不是日常测试的前置步骤。
 
+**当前容器测试：**[执行指令](scenarios/k8s-containers/execute-agent.prompt.md) · [7份负载的OSS路径与下载](scenarios/k8s-containers/data-catalog.md)。
+
 **Agent文件Trace采集与回放：**[Skill与交接入口](skills/agent-fs-trace/SKILL.md)，附完整仓库、命令、采集器和Rust回放源码。
 
 **先看 [实验怎么做](execution-plan.zh.md)。**这是当前的执行计划，按“测什么、和谁比、怎么跑、记录什么、怎样判断”展开。

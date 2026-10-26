@@ -32,6 +32,8 @@ sha256sum /opt/ax-bin/full-fuse-replay
 
 ## 2. 负载位置
 
+**最新清单为两批共7份**，见[数据位置、下载与回放](data-catalog.md)。下面保留原4份的执行示例；新增3份位于deepseek-opencode-20261026子目录，统一下载脚本见新清单。
+
 私有桶：`brewfs-agent-traces-20261023-4ccdae73`，杭州。
 
 前缀：`oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023/`。

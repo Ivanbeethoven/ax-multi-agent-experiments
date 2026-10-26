@@ -34,3 +34,5 @@ GitHub较小分卷：实验仓库的`results/opencode-full-fuse-pytest-10356-202
 OSS完整归档：私有桶`brewfs-agent-traces-20261023-4ccdae73`，cn-hangzhou，前缀`full-fuse/20261023/`。四个文件为django.tar.gz、sklearn.tar.gz、sympy.tar.gz、pytest-full-02.tar.gz；URI、大小和完整SHA256已带在`assets/runtime/scenarios/k8s-containers/archives.json`。
 
 OSS下载需要该桶的已授权身份。本包不含GitHub凭据、模型密钥、OSS凭据或原始大负载。
+
+2026-10-26新增3份：deepseek-opencode-20261026/pytest.tar.gz、rust.tar.gz、io-compatible.tar.gz，以及该批metadata.tar.gz。[最新7份清单与下载命令](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/blob/main/scenarios/k8s-containers/data-catalog.md)。本skill内assets/runtime保留原工具快照，新增数据使用仓库根scenarios/k8s-containers的最新清单与下载器。

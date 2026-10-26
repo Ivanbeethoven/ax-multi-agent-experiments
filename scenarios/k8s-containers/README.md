@@ -2,6 +2,8 @@
 
 2026-10-24。**当前唯一外部对照是 JuiceFS CE＋Redis＋RustFS。**先跑通 JuiceFS，再加入 BrewFS 和自身消融。本轮不部署 AX 控制器，使用已有文件系统 trace；不新增模型调用。
 
+2026-10-26：[当前执行指令](execute-agent.prompt.md)采用4节点RustFS、GitHub最新BrewFS与JuiceFS对比。[负载目录已补齐为7份](data-catalog.md)，包含OSS路径、公网访问条件、大小/SHA256、下载与回放命令。此前按4份生成的任务计划仍保留原输入。
+
 按此顺序执行：**[部署服务](deployment.md) → [下载数据并回放](workload.md) → [核对指标与导出](observability.md)**。下面的配置适用于只能进入已分配容器、不能创建 Pod/Service 的环境。
 
 ## 容器清单
