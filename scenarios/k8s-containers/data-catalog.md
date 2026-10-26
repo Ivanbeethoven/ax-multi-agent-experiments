@@ -20,17 +20,17 @@ oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023/deepseek-opencode
 
 | case ID | 前缀下的文件 | 解压顶层目录 | 回调数 | 压缩字节 |
 |---|---|---|---:|---:|
-| django | 旧/django.tar.gz | django | 57,787,980 | 2,302,532,371 |
-| sklearn | 旧/sklearn.tar.gz | sklearn | 9,233,326 | 842,598,913 |
-| sympy | 旧/sympy.tar.gz | sympy | 7,265,338 | 590,808,335 |
-| pytest-full-02 | 旧/pytest-full-02.tar.gz | pytest-full-02 | 1,747,109 | 407,606,955 |
-| pytest-20261026 | 新/pytest.tar.gz | pytest | 2,836,142 | 185,203,598 |
-| ripgrep-20261026 | 新/rust.tar.gz | rust | 3,122,195 | 1,325,864,032 |
-| archive-io-20261026 | 新/io-compatible.tar.gz | io-compatible | 3,673,814 | 4,752,420,807 |
+| django | [django.tar.gz](https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/full-fuse/20261023/django.tar.gz) | django | 57,787,980 | 2,302,532,371 |
+| sklearn | [sklearn.tar.gz](https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/full-fuse/20261023/sklearn.tar.gz) | sklearn | 9,233,326 | 842,598,913 |
+| sympy | [sympy.tar.gz](https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/full-fuse/20261023/sympy.tar.gz) | sympy | 7,265,338 | 590,808,335 |
+| pytest-full-02 | [pytest-full-02.tar.gz](https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/full-fuse/20261023/pytest-full-02.tar.gz) | pytest-full-02 | 1,747,109 | 407,606,955 |
+| pytest-20261026 | [pytest.tar.gz](https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/full-fuse/20261023/deepseek-opencode-20261026/pytest.tar.gz) | pytest | 2,836,142 | 185,203,598 |
+| ripgrep-20261026 | [rust.tar.gz](https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/full-fuse/20261023/deepseek-opencode-20261026/rust.tar.gz) | rust | 3,122,195 | 1,325,864,032 |
+| archive-io-20261026 | [io-compatible.tar.gz](https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/full-fuse/20261023/deepseek-opencode-20261026/io-compatible.tar.gz) | io-compatible | 3,673,814 | 4,752,420,807 |
 
-“旧/新”只是本表的前缀简称，不属于对象key。所有7份压缩包合计约9.69 GiB，解压、输入副本和输出工作区另计。
+点击表中归档名称即可匿名下载。所有7份压缩包合计约9.69 GiB，解压、输入副本和输出工作区另计。
 
-新增批次另有`metadata.tar.gz`，889,165字节，内含：
+新增批次另有[metadata.tar.gz](https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/full-fuse/20261023/deepseek-opencode-20261026/metadata.tar.gz)，889,165字节，内含：
 
 - `metadata/RUN-REPORT.md`：采集、回放和上传记录。
 - `metadata/summary.json`：操作数、实际读写、重复读取等统计。
@@ -45,11 +45,11 @@ metadata中的io-unreplayable是较早一次失败记录，不属于已发布的
 
 公网endpoint：`https://oss-cn-hangzhou.aliyuncs.com`。
 
-2026-10-26已验证：通过公网endpoint使用已授权Aliyun CLI能下载元数据、读取归档属性；不带身份直接请求对象返回HTTP 403 AccessDenied。桶维持私有，公网可达不等于匿名公开。
+2026-10-26已将此专用实验桶的全部对象开放匿名只读，并验证28个对象均可匿名Range GET，目录列表返回HTTP 200。此前的403是公开前的状态。
 
-执行Agent需要已配置的OSS只读身份，或由用户单独提供临时签名下载链接。凭据和签名链接不写入仓库。OSS凭据与自建RustFS凭据分别配置。
+下载无需阿里云账号、密钥或签名链接。授权通过Bucket Policy提供，桶ACL保留private；实际匿名读取权限以Policy为准。公开动作仅含GetObject和ListObjects，上传、覆盖和删除仍需身份。自建RustFS的凭据另行配置。
 
-匿名URL示例（当前会返回403）：
+直接下载URL示例：
 
 ```text
 https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/full-fuse/20261023/deepseek-opencode-20261026/pytest.tar.gz
@@ -57,7 +57,7 @@ https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/full-
 
 ## 下载和校验
 
-在实验仓库根目录执行。下面先下载新增Pytest和该批元数据，使用本机Aliyun CLI已有身份：
+在实验仓库根目录执行。下面先下载新增Pytest和该批元数据，默认通过匿名HTTPS下载并检查SHA256：
 
 ```bash
 export K="$PWD/scenarios/k8s-containers"
@@ -73,6 +73,12 @@ python3 "$K/scripts/download_archives.py" --out /input/archives --include-metada
 python3 "$K/scripts/check_archives.py" /input/archives
 ```
 
+仅下载889 KB的报告与元数据：
+
+```bash
+python3 "$K/scripts/download_archives.py" --out /input/archives --metadata-only
+```
+
 只看清单，不访问OSS：
 
 ```bash
@@ -81,8 +87,7 @@ python3 "$K/scripts/download_archives.py" --list
 
 下载器逐文件核对大小和SHA256后才将.partial改为正式文件名；已有正确文件跳过，已有错误文件或未完成.partial会报错，保留现场供检查。
 
-仅在杭州OSS内网确实可达时增加：
-`--endpoint https://oss-cn-hangzhou-internal.aliyuncs.com`。
+需要使用已配置身份的Aliyun CLI时增加`--via-oss-cli`。仅在杭州OSS内网确实可达时，再增加`--endpoint https://oss-cn-hangzhou-internal.aliyuncs.com`；默认HTTPS下载不使用该endpoint参数。
 
 ## 解压和单任务回放
 
@@ -115,4 +120,4 @@ oss://brewfs-agent-traces-20261023-4ccdae73/k8s-results/<唯一campaign>/
 
 保留manifest、SHA256、全部任务状态、原始样本、日志、指标和TSDB；不要覆盖原始输入前缀。
 
-本次对7份归档核对了OSS远端大小及SHA256元信息，下载读取了新批metadata；未重新下载或回放这些大归档。核查结果见[oss-catalog-check.json](validation/oss-catalog-check.json)。
+已对7份归档核对OSS远端大小及SHA256元信息，下载读取新批metadata；未重新下载或回放这些大归档。原核查见[oss-catalog-check.json](validation/oss-catalog-check.json)，公开后的匿名访问验证见[oss-public-access-check.json](validation/oss-public-access-check.json)，当前策略见[oss-public-read-policy.json](deploy/oss-public-read-policy.json)。

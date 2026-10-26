@@ -1,0 +1,29 @@
+{
+  "Version": "1",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": [
+        "*"
+      ],
+      "Action": [
+        "oss:GetObject"
+      ],
+      "Resource": [
+        "acs:oss:*:*:brewfs-agent-traces-20261023-4ccdae73/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Principal": [
+        "*"
+      ],
+      "Action": [
+        "oss:ListObjects"
+      ],
+      "Resource": [
+        "acs:oss:*:*:brewfs-agent-traces-20261023-4ccdae73"
+      ]
+    }
+  ]
+}

@@ -15,7 +15,7 @@
 | OTel Collector | [otelcol-contrib 0.163.2](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.163.2)，必须是contrib版，包含Prometheus exporter | monitor |
 | redis_exporter | [1.96.0发布包](https://github.com/oliver006/redis_exporter/releases/tag/v1.96.0) | redis |
 | Python/Rust工具 | Python≥3.10；回放器构建见[负载使用](workload.md) | 全部/Python；worker/Rust回放 |
-| 传输工具 | 已配置身份的aliyun CLI；S3建桶使用AWS CLI或Python boto3 | 下载入口；worker |
+| 传输工具 | 输入使用Python标准库匿名HTTPS下载；上传需已授权Aliyun CLI；S3建桶使用AWS CLI或Python boto3 | 下载入口；worker |
 
 不能联网的容器提前拷贝二进制。每个角色保存`--version`与`sha256sum`，跨批次不换版本。RustFS、Redis、JuiceFS和监控均只绑定分配的私网IP；以下明文HTTP用于隔离的实验私网。
 
@@ -36,7 +36,7 @@ export WORKER_ID=w0  # 各容器分别为w0、w1、redis、s0、monitor
 mkdir -p /measure/$CAMPAIGN
 ```
 
-需要平台注入的文件：`/secrets/redis.password`（密码本身）、`redis-auth.conf`（`requirepass "同一密码"`）、`rustfs.env`（RUSTFS_ACCESS_KEY/RUSTFS_SECRET_KEY）、`s3-client.env`（同一实验S3账号的ACCESS_KEY/SECRET_KEY）、`obs.token`（至少32字符随机令牌）。权限0600，不放入输入、结果或Git。OSS下载凭据与实验RustFS凭据分别配置。
+需要平台注入的文件：`/secrets/redis.password`（密码本身）、`redis-auth.conf`（`requirepass "同一密码"`）、`rustfs.env`（RUSTFS_ACCESS_KEY/RUSTFS_SECRET_KEY）、`s3-client.env`（同一实验S3账号的ACCESS_KEY/SECRET_KEY）、`obs.token`（至少32字符随机令牌）。权限0600，不放入输入、结果或Git。OSS输入无需凭据；结果上传身份与实验RustFS凭据分别配置。
 
 | 来源 → 目标 | 端口 | 用途 |
 |---|---:|---|

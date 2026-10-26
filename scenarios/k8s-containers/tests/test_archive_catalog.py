@@ -1,5 +1,6 @@
 import hashlib
 import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -17,20 +18,28 @@ spec.loader.exec_module(checker)
 
 
 class ArchiveTests(unittest.TestCase):
-    def download_fixture(self, data, corrupt=False):
+    def download_fixture(self, data, corrupt=False, via_oss=False):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / 'scripts').mkdir()
             manifest = {'endpoint': 'https://oss-cn-hangzhou.aliyuncs.com', 'archives': [
-                {'case': 'fixture', 'file': 'fixture.tar.gz', 'uri': 'oss://private/fixture.tar.gz',
+                {'case': 'fixture', 'file': 'fixture.tar.gz', 'uri': 'oss://fixture/fixture.tar.gz',
+                 'https_url': 'https://fixture.invalid/fixture.tar.gz',
                  'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}]}
             (root / 'archives.json').write_text(json.dumps(manifest))
             def transfer(command, **kwargs):
                 Path(command[4]).write_bytes(b'x' * len(data) if corrupt else data)
+            def https(request, **kwargs):
+                self.assertEqual(request.full_url, 'https://fixture.invalid/fixture.tar.gz')
+                self.assertNotIn('Authorization', request.headers)
+                response = io.BytesIO(b'x' * len(data) if corrupt else data)
+                response.status = 200
+                return response
             with patch.object(download_archives, '__file__', str(root / 'scripts/download_archives.py')), \
-                    patch.object(sys, 'argv', ['download', '--out', str(root / 'out')]), \
-                    patch.object(download_archives.shutil, 'which', return_value='/fake/aliyun'), \
-                    patch.object(download_archives.subprocess, 'run', side_effect=transfer) as transport:
+                    patch.object(sys, 'argv', ['download', '--out', str(root / 'out')] + (['--via-oss-cli'] if via_oss else [])), \
+                    patch.object(download_archives.shutil, 'which', return_value='/fake/aliyun' if via_oss else None), \
+                    patch.object(download_archives.urllib.request, 'urlopen', side_effect=https) as http_transport, \
+                    patch.object(download_archives.subprocess, 'run', side_effect=transfer) as cli_transport:
                 if corrupt:
                     with self.assertRaisesRegex(ValueError, 'SHA256'):
                         download_archives.main()
@@ -41,13 +50,17 @@ class ArchiveTests(unittest.TestCase):
                     self.assertEqual((root / 'out/fixture.tar.gz').read_bytes(), data)
                     self.assertFalse((root / 'out/fixture.tar.gz.partial').exists())
                     download_archives.main()
-                    self.assertEqual(transport.call_count, 1)
+                    self.assertEqual(cli_transport.call_count if via_oss else http_transport.call_count, 1)
+                    self.assertEqual(http_transport.call_count if via_oss else cli_transport.call_count, 0)
 
     def test_download_verifies_before_rename_and_skips_existing(self):
         self.download_fixture(b'valid archive content')
 
     def test_download_rejects_corruption_and_keeps_partial(self):
         self.download_fixture(b'valid archive content', corrupt=True)
+
+    def test_optional_authenticated_cli_still_works(self):
+        self.download_fixture(b'valid archive content', via_oss=True)
 
     def test_checks_actual_bytes_and_rejects_corruption(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -80,6 +93,11 @@ class ArchiveTests(unittest.TestCase):
             check=True, capture_output=True, text=True)
         rows = json.loads(result.stdout)
         self.assertEqual([row['file'] for row in rows], ['pytest.tar.gz', 'metadata.tar.gz'])
+
+    def test_metadata_only_does_not_select_large_archives(self):
+        result = subprocess.run([sys.executable, str(ROOT / 'scripts/download_archives.py'),
+            '--list', '--metadata-only'], check=True, capture_output=True, text=True)
+        self.assertEqual([r['file'] for r in json.loads(result.stdout)], ['metadata.tar.gz'])
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@
 
 ## 1. 工具位置
 
-实验仓库：`https://github.com/Ivanbeethoven/ax-multi-agent-experiments`，公开克隆；OSS原始数据仍需单独的读取权限。
+实验仓库：`https://github.com/Ivanbeethoven/ax-multi-agent-experiments`，公开克隆；OSS原始数据已公开只读，支持匿名HTTPS下载。
 
 **本批完整trace使用本仓库的 `tools/full-fuse-replay`**。独立仓库`fuse-workload-replay`的早期v1输入和27次操作样例不是本批格式。部署脚本位于本仓库的`scenarios/k8s-containers`；克隆仓库后，记录`git rev-parse HEAD`。不能访问GitHub的容器使用下面的代码包。
 
@@ -34,7 +34,7 @@ sha256sum /opt/ax-bin/full-fuse-replay
 
 **最新清单为两批共7份**，见[数据位置、下载与回放](data-catalog.md)。下面保留原4份的执行示例；新增3份位于deepseek-opencode-20261026子目录，统一下载脚本见新清单。
 
-私有桶：`brewfs-agent-traces-20261023-4ccdae73`，杭州。
+公开只读的实验桶：`brewfs-agent-traces-20261023-4ccdae73`，杭州。
 
 前缀：`oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023/`。
 
@@ -45,7 +45,7 @@ sha256sum /opt/ax-bin/full-fuse-replay
 | sympy.tar.gz | 590,808,335 | 7,265,338 | 1,124,648,770 / 232,052,204 |
 | pytest-full-02.tar.gz | 407,606,955 | 1,747,109 | 281,774,624 / 194,706,661 |
 
-文件大小、完整URI和SHA256已固定在 [archives.json](archives.json)，无需访问本机被Git忽略的runs目录。使用当前阿里云身份或平台注入的OSS只读凭据；不使用RustFS账号下载OSS。
+文件大小、完整URI、HTTPS地址和SHA256已固定在 [archives.json](archives.json)，无需访问本机被Git忽略的runs目录。推荐使用[匿名HTTPS下载器](data-catalog.md)；下面保留ossutil 2示例，使用Anonymous模式，不使用RustFS账号下载OSS。
 
 先下pytest：
 
@@ -54,8 +54,8 @@ export K=/opt/ax/scenarios/k8s-containers
 export BASE=oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023
 export OSS_ENDPOINT=https://oss-cn-hangzhou.aliyuncs.com
 mkdir -p /input/archives /input/cases
-aliyun oss cp "$BASE/pytest-full-02.tar.gz" /input/archives/pytest-full-02.tar.gz \
-  --endpoint "$OSS_ENDPOINT" || exit 1
+aliyun ossutil cp "$BASE/pytest-full-02.tar.gz" /input/archives/pytest-full-02.tar.gz \
+  --endpoint "$OSS_ENDPOINT" --region cn-hangzhou --mode Anonymous || exit 1
 python3 "$K/scripts/check_archives.py" /input/archives --cases pytest-full-02 || exit 1
 test ! -e /input/cases/pytest-full-02 || exit 1
 tar --no-same-owner --same-permissions -xzf /input/archives/pytest-full-02.tar.gz -C /input/cases
@@ -65,7 +65,7 @@ tar --no-same-owner --same-permissions -xzf /input/archives/pytest-full-02.tar.g
 
 ```bash
 for name in django sklearn sympy; do
-  aliyun oss cp "$BASE/$name.tar.gz" "/input/archives/$name.tar.gz" --endpoint "$OSS_ENDPOINT" || exit 1
+  aliyun ossutil cp "$BASE/$name.tar.gz" "/input/archives/$name.tar.gz" --endpoint "$OSS_ENDPOINT" --region cn-hangzhou --mode Anonymous || exit 1
   python3 "$K/scripts/check_archives.py" /input/archives --cases "$name" || exit 1
   test ! -e "/input/cases/$name" || exit 1
   tar --no-same-owner --same-permissions -xzf "/input/archives/$name.tar.gz" -C /input/cases || exit 1

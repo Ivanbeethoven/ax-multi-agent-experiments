@@ -164,18 +164,18 @@ git -C "$LAB/experiments" checkout dc48db5b4978aeffac7b33eb0386b27e95fe8f4e
   --output "$LAB/runs/portable-replay-01" --binary "$AX_TRACE_BINARY"
 ```
 
-该步骤检查每卷/整体摘要、安全解压、初始树、Rust回放、最终树及字节/操作数。仓库已公开，无需GitHub身份；不需要Docker或模型。OSS完整归档另需读取权限。
+该步骤检查每卷/整体摘要、安全解压、初始树、Rust回放、最终树及字节/操作数。仓库已公开，无需GitHub身份；不需要Docker或模型。OSS完整归档也支持匿名下载。
 
 ### OSS四份完整归档
 
-使用已配置身份的aliyun CLI；这不是实验RustFS账号。
+推荐使用实验仓库的匿名HTTPS下载器，详见最新data-catalog.md。下面保留ossutil 2示例，使用Anonymous模式，不使用实验RustFS账号。
 
 ```bash
 export K="$RUNTIME/scenarios/k8s-containers"
 export BASE=oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023
 mkdir -p "$LAB/archives" "$LAB/cases" "$LAB/workspaces"
-aliyun oss cp "$BASE/pytest-full-02.tar.gz" "$LAB/archives/pytest-full-02.tar.gz" \
-  --endpoint https://oss-cn-hangzhou.aliyuncs.com
+aliyun ossutil cp "$BASE/pytest-full-02.tar.gz" "$LAB/archives/pytest-full-02.tar.gz" \
+  --endpoint https://oss-cn-hangzhou.aliyuncs.com --region cn-hangzhou --mode Anonymous
 python3 "$K/scripts/check_archives.py" "$LAB/archives" --cases pytest-full-02
 test ! -e "$LAB/cases/pytest-full-02" || exit 1
 tar --no-same-owner --same-permissions -xzf "$LAB/archives/pytest-full-02.tar.gz" -C "$LAB/cases"
@@ -212,7 +212,7 @@ sha256sum "$LAB/exports/pytest-01/"*.tar.gz
 
 check_trace写skill-check.json，并核对操作/读写字节、硬链接拓扑和SQLite副本。package_trace保留整个已停止目录，用pigz压缩，生成逐文件清单与SHA256。credential-config是完整OpenCode配置，不是单独provider对象；Windows配置可使用/mnt/c/Users/HXY/.config/opencode/opencode.json路径。已知key扫描失败即停止，不替换真实字节。
 
-上传应在用户指定目标后执行，例如使用私有OSS前缀。先核对本地manifest与SHA256，再上传，再通过远端大小/摘要或下载回读核验；采集器不自动发布数据。本包没有运行任何新模型任务或新OSS上传。
+上传应在用户指定目标后执行。本实验数据桶已全部公开只读，上传到其中的数据会允许匿名下载；上传、覆盖和删除本身仍需授权身份。先核对manifest与SHA256，再上传并回读核验；采集器不自动上传。本包没有运行任何新模型任务或新OSS上传。
 
 ## 8. 换成其他Agent或自己的任务
 

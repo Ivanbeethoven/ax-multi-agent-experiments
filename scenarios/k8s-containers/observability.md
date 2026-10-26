@@ -29,7 +29,7 @@ flowchart LR
   X --> P
   F -->|OTLP 推送| C
   S -->|SHA256 + offset + 确认| A
-  T --> OSS[批末导出到私有OSS]
+  T --> OSS[批末导出到公开只读实验OSS]
 ```
 
 Redis、RustFS、monitor也各运行一份resource_exporter和artifacts发送器。Prometheus按实际IP静态抓取，不访问Kubernetes API。[配置生成器](deploy/render.py)输出Prometheus和OTel配置；启动命令见[部署](deployment.md)。
@@ -117,10 +117,10 @@ tar -C /data/monitor -czf /data/exports/$CAMPAIGN.tar.gz \
 sha256sum /data/exports/$CAMPAIGN.tar.gz > /data/exports/$CAMPAIGN.tar.gz.sha256
 aliyun oss cp /data/exports/$CAMPAIGN.tar.gz \
   oss://brewfs-agent-traces-20261023-4ccdae73/k8s-results/$CAMPAIGN/results.tar.gz \
-  --endpoint https://oss-cn-hangzhou.aliyuncs.com --acl private
+  --endpoint https://oss-cn-hangzhou.aliyuncs.com --acl public-read
 aliyun oss cp /data/exports/$CAMPAIGN.tar.gz.sha256 \
   oss://brewfs-agent-traces-20261023-4ccdae73/k8s-results/$CAMPAIGN/results.tar.gz.sha256 \
-  --endpoint https://oss-cn-hangzhou.aliyuncs.com --acl private
+  --endpoint https://oss-cn-hangzhou.aliyuncs.com --acl public-read
 ```
 
 下载核验远端包后才释放本批容器。源代码版本、归档SHA256、实际容器映射、配置和所有失败任务必须一起保留。这个导出步骤是执行说明，本轮尚未向OSS上传新结果。

@@ -30,7 +30,7 @@
 | `ripgrep-20261026` | ripgrep构建与测试 | 3,122,195 |
 | `archive-io-20261026` | 小文件/大文件归档、解包、扫描与SQLite索引 | 3,673,814 |
 
-完整归档保存在杭州OSS，压缩包合计约 **9.69 GiB**。仓库可公开克隆；**OSS桶仍为私有**，下载需要只读身份或单独提供的临时签名链接。
+完整归档保存在杭州OSS，压缩包合计约 **9.69 GiB**。**全部实验数据支持匿名HTTPS下载，无需阿里云账号、密钥或签名链接。**上传和删除仍需授权。
 
 ```text
 oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023/
@@ -41,7 +41,7 @@ oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023/deepseek-opencode
 
 ## 先验证一份回放
 
-在Linux上运行。需要Python 3.10+、Rust/Cargo（实测1.98.1）、已配置OSS读取权限的Aliyun CLI，以及trace中实际文件操作所需的权限。使用新的输出目录。
+在Linux上运行。需要Python 3.10+、Rust/Cargo（实测1.98.1），以及trace中实际文件操作所需的权限。下载使用Python标准库，不需要Aliyun CLI。使用新的输出目录。
 
 ```bash
 set -euo pipefail

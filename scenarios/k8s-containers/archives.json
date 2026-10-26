@@ -108,9 +108,17 @@
   ],
   "access": {
     "public_endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
-    "anonymous_get": "403 AccessDenied; checked 2026-10-26",
-    "authenticated_public_access": "verified with Aliyun CLI",
-    "input_acl": "private; not changed",
+    "public_base_url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/",
+    "anonymous_get": "206 Range GET verified for all 28 objects, 2026-10-26",
+    "anonymous_listing": "200 verified 2026-10-26",
+    "input_access": "public-read through Bucket Policy",
+    "bucket_acl": "private",
+    "public_policy_actions": [
+      "oss:GetObject",
+      "oss:ListObjects"
+    ],
+    "bucket_block_public_access": false,
+    "upload_delete": "authenticated only",
     "results_uri": "oss://brewfs-agent-traces-20261023-4ccdae73/k8s-results/<unique-campaign>/"
   }
 }
