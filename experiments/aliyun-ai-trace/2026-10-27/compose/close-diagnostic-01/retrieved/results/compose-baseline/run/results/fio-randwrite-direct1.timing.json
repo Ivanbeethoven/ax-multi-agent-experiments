@@ -1,0 +1,67 @@
+{
+  "command": [
+    "fio",
+    "--name=brewfs-randwrite",
+    "--directory=/mnt/brewfs/.perf-fio-randwrite-direct1",
+    "--rw=randwrite",
+    "--bs=4m",
+    "--size=512m",
+    "--numjobs=1",
+    "--ioengine=io_uring",
+    "--iodepth=1",
+    "--direct=1",
+    "--runtime=20",
+    "--time_based",
+    "--group_reporting",
+    "--eta=never",
+    "--output-format=json",
+    "--output=/artifacts/run/results/fio-randwrite-direct1.json",
+    "--write_lat_log=/artifacts/run/results/fio-randwrite-direct1_lat",
+    "--log_avg_msec=1000"
+  ],
+  "strace_command": [
+    "strace",
+    "--seccomp-bpf",
+    "-ff",
+    "-ttt",
+    "-T",
+    "-yy",
+    "-e",
+    "trace=open,openat,close,fsync,fdatasync,fallocate,ftruncate",
+    "-o",
+    "/artifacts/run/results/fio-randwrite-direct1.strace",
+    "fio",
+    "--name=brewfs-randwrite",
+    "--directory=/mnt/brewfs/.perf-fio-randwrite-direct1",
+    "--rw=randwrite",
+    "--bs=4m",
+    "--size=512m",
+    "--numjobs=1",
+    "--ioengine=io_uring",
+    "--iodepth=1",
+    "--direct=1",
+    "--runtime=20",
+    "--time_based",
+    "--group_reporting",
+    "--eta=never",
+    "--output-format=json",
+    "--output=/artifacts/run/results/fio-randwrite-direct1.json",
+    "--write_lat_log=/artifacts/run/results/fio-randwrite-direct1_lat",
+    "--log_avg_msec=1000"
+  ],
+  "before_spawn": {
+    "monotonic_ns": 210500409101,
+    "realtime_ns": 1793082778019520728
+  },
+  "after_spawn": {
+    "monotonic_ns": 210501571167,
+    "realtime_ns": 1793082778020682280
+  },
+  "pid": 171,
+  "exit_code": 0,
+  "after_wait": {
+    "monotonic_ns": 232435792405,
+    "realtime_ns": 1793082799499854424
+  },
+  "wall_seconds": 21.935383304
+}

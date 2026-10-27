@@ -1,0 +1,31 @@
+{
+  "original_sha256": "2ecffea40c6271b2daa36d09f0e5f7e090f407a1dbf9f8ffffe0392faa0b553c",
+  "adapted_sha256": "61743d2fe85244ca667101719136099cdeee14b46f49833fb6f3ed9fac9ac1f7",
+  "adapter_sha256": "83b41901789dbb231c236af25c32746c4e451209a7c1554027a21902cfa05271",
+  "supervisor_sha256": "1a0de5a447760740fb29893c97990b60a158a93e0534628f39d6711d21380e59",
+  "embedded_supervisor_sha256": "1a0de5a447760740fb29893c97990b60a158a93e0534628f39d6711d21380e59",
+  "changed_regions": [
+    "mount helper launch statement",
+    "cleanup",
+    "on_exit"
+  ],
+  "all_other_bytes_identical": true,
+  "natural_exit_timeout_s": null,
+  "diagnostic": {
+    "timing_helper_sha256": "6d496f20f3bfd0e3bbecedbe199414ee1c0a3fdf287ccbc286dcc491a4e793c9",
+    "diagnostic_runner_sha256": "521bc45be6b2ddadb2e832f69f5507f9a9972d468ad225672a1513d559aa3471",
+    "scope": "Only measured fio command wrapping and five shell clock markers; original parameters and drain logic unchanged.",
+    "limits": "Markers have process-start overhead; syscall-filtered strace is diagnostic, not acceptance performance.",
+    "syscalls": [
+      "open",
+      "openat",
+      "close",
+      "fsync",
+      "fdatasync",
+      "fallocate",
+      "ftruncate"
+    ],
+    "seccomp_bpf": true,
+    "overall_timeout": null
+  }
+}

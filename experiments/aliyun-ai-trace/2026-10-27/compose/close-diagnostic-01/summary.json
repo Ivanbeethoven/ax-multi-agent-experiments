@@ -1,0 +1,257 @@
+{
+  "scope": "One paired, instrumented direct randwrite diagnostic; not performance acceptance",
+  "candidate": "C4",
+  "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+  "methods": {
+    "baseline": {
+      "binary_sha256": "765bce82ad5b971c4d24fc989f5a6ca201c8c7c3638c5a7c91501a0a1e4e994a",
+      "fio_command": [
+        "fio",
+        "--name=brewfs-randwrite",
+        "--directory=/mnt/brewfs/.perf-fio-randwrite-direct1",
+        "--rw=randwrite",
+        "--bs=4m",
+        "--size=512m",
+        "--numjobs=1",
+        "--ioengine=io_uring",
+        "--iodepth=1",
+        "--direct=1",
+        "--runtime=20",
+        "--time_based",
+        "--group_reporting",
+        "--eta=never",
+        "--output-format=json",
+        "--output=/artifacts/run/results/fio-randwrite-direct1.json",
+        "--write_lat_log=/artifacts/run/results/fio-randwrite-direct1_lat",
+        "--log_avg_msec=1000"
+      ],
+      "fio_active_write_seconds": 20.001,
+      "fio_job_runtime_seconds": 20.0,
+      "fio_write_bytes": 5930745856,
+      "fio_active_write_mib_s": 282.7858600616455,
+      "command_wall_monotonic_seconds": 21.935383304,
+      "command_wall_realtime_seconds": 21.480333696,
+      "realtime_minus_monotonic_elapsed_seconds": -0.4550496079999995,
+      "clock_offset_before_ns": 1793082567519111627,
+      "clock_offset_after_ns": 1793082567064062019,
+      "shell_integer_seconds": 22,
+      "shell_total_monotonic_seconds": 22.047009926,
+      "shell_total_realtime_seconds": 21.59195879,
+      "outside_wrapped_command_monotonic_seconds": 0.11162662200000284,
+      "before_command_shell_marker_seconds": 0.039623472,
+      "stop_sampler_and_marker_seconds": 0.017639098,
+      "end_marker_seconds": 0.019910039,
+      "data_file_syscalls": [
+        {
+          "name": "openat",
+          "epoch_timestamp": "1793082778.205289",
+          "duration_seconds": 0.011225,
+          "arguments": "AT_FDCWD</>, \"/mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0\", O_WRONLY|O_CREAT, 0644",
+          "outcome": "7</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+          "evidence": "retrieved/results/compose-baseline/run/results/fio-randwrite-direct1.strace.183:165"
+        },
+        {
+          "name": "fallocate",
+          "epoch_timestamp": "1793082778.220183",
+          "duration_seconds": 0.001664,
+          "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>, 0, 0, 536870912",
+          "outcome": "-1 EOPNOTSUPP (Operation not supported)",
+          "evidence": "retrieved/results/compose-baseline/run/results/fio-randwrite-direct1.strace.183:166"
+        },
+        {
+          "name": "close",
+          "epoch_timestamp": "1793082778.225819",
+          "duration_seconds": 0.00014,
+          "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+          "outcome": "0",
+          "evidence": "retrieved/results/compose-baseline/run/results/fio-randwrite-direct1.strace.183:167"
+        },
+        {
+          "name": "openat",
+          "epoch_timestamp": "1793082778.426860",
+          "duration_seconds": 0.003321,
+          "arguments": "AT_FDCWD</>, \"/mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0\", O_RDWR|O_CREAT|O_DIRECT, 0600",
+          "outcome": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+          "evidence": "retrieved/results/compose-baseline/run/results/fio-randwrite-direct1.strace.244:3"
+        },
+        {
+          "name": "close",
+          "epoch_timestamp": "1793082798.356175",
+          "duration_seconds": 1.114247,
+          "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+          "outcome": "0",
+          "evidence": "retrieved/results/compose-baseline/run/results/fio-randwrite-direct1.strace.244:10"
+        }
+      ],
+      "prepare_close_seconds": 0.00014,
+      "final_close_seconds": 1.114247,
+      "explicit_fsync_fdatasync_calls": 0,
+      "post_write_drain": [
+        {
+          "tool": "fio-randwrite-direct1",
+          "post_write_drain_s": "0",
+          "pending_bytes": "0",
+          "dirty_bytes": "0",
+          "buffer_dirty_bytes": "0"
+        }
+      ],
+      "mount_lifecycle": [
+        {
+          "generation": "4f57e249bd4e4dc0856c69923fcb126f",
+          "target": "/mnt/brewfs",
+          "supervisor_pid": 53,
+          "child_pid": 58,
+          "phase": "exited",
+          "started_epoch": 1793082776.6649654,
+          "exit_code": 0,
+          "finished_epoch": 1793082799.73557
+        }
+      ],
+      "compose_command": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 24.142841524999994
+      },
+      "compose_cleanup": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.21437155600000324
+      },
+      "remaining_project_containers": []
+    },
+    "candidate": {
+      "binary_sha256": "c1f6de4e5fa06873cbd2e281c697a65470ad602b9c5fc4b20b43b9fe74e3c3d2",
+      "fio_command": [
+        "fio",
+        "--name=brewfs-randwrite",
+        "--directory=/mnt/brewfs/.perf-fio-randwrite-direct1",
+        "--rw=randwrite",
+        "--bs=4m",
+        "--size=512m",
+        "--numjobs=1",
+        "--ioengine=io_uring",
+        "--iodepth=1",
+        "--direct=1",
+        "--runtime=20",
+        "--time_based",
+        "--group_reporting",
+        "--eta=never",
+        "--output-format=json",
+        "--output=/artifacts/run/results/fio-randwrite-direct1.json",
+        "--write_lat_log=/artifacts/run/results/fio-randwrite-direct1_lat",
+        "--log_avg_msec=1000"
+      ],
+      "fio_active_write_seconds": 20.009,
+      "fio_job_runtime_seconds": 20.008,
+      "fio_write_bytes": 6127878144,
+      "fio_active_write_mib_s": 292.0685682296753,
+      "command_wall_monotonic_seconds": 21.472541979,
+      "command_wall_realtime_seconds": 20.894432192,
+      "realtime_minus_monotonic_elapsed_seconds": -0.5781097869999989,
+      "clock_offset_before_ns": 1793082567064060293,
+      "clock_offset_after_ns": 1793082566485950506,
+      "shell_integer_seconds": 21,
+      "shell_total_monotonic_seconds": 21.588385802,
+      "shell_total_realtime_seconds": 21.01027417,
+      "outside_wrapped_command_monotonic_seconds": 0.11584382300000229,
+      "before_command_shell_marker_seconds": 0.033785094,
+      "stop_sampler_and_marker_seconds": 0.018976118,
+      "end_marker_seconds": 0.019699224,
+      "data_file_syscalls": [
+        {
+          "name": "openat",
+          "epoch_timestamp": "1793082802.951390",
+          "duration_seconds": 0.007743,
+          "arguments": "AT_FDCWD</>, \"/mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0\", O_WRONLY|O_CREAT, 0644",
+          "outcome": "7</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+          "evidence": "retrieved/results/compose-candidate/run/results/fio-randwrite-direct1.strace.194:165"
+        },
+        {
+          "name": "fallocate",
+          "epoch_timestamp": "1793082802.960638",
+          "duration_seconds": 0.000452,
+          "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>, 0, 0, 536870912",
+          "outcome": "-1 EOPNOTSUPP (Operation not supported)",
+          "evidence": "retrieved/results/compose-candidate/run/results/fio-randwrite-direct1.strace.194:166"
+        },
+        {
+          "name": "close",
+          "epoch_timestamp": "1793082802.961598",
+          "duration_seconds": 0.000104,
+          "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+          "outcome": "0",
+          "evidence": "retrieved/results/compose-candidate/run/results/fio-randwrite-direct1.strace.194:167"
+        },
+        {
+          "name": "openat",
+          "epoch_timestamp": "1793082803.133303",
+          "duration_seconds": 0.000609,
+          "arguments": "AT_FDCWD</>, \"/mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0\", O_RDWR|O_CREAT|O_DIRECT, 0600",
+          "outcome": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+          "evidence": "retrieved/results/compose-candidate/run/results/fio-randwrite-direct1.strace.241:3"
+        },
+        {
+          "name": "close",
+          "epoch_timestamp": "1793082822.624678",
+          "duration_seconds": 0.76787,
+          "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+          "outcome": "0",
+          "evidence": "retrieved/results/compose-candidate/run/results/fio-randwrite-direct1.strace.241:10"
+        }
+      ],
+      "prepare_close_seconds": 0.000104,
+      "final_close_seconds": 0.76787,
+      "explicit_fsync_fdatasync_calls": 0,
+      "post_write_drain": [
+        {
+          "tool": "fio-randwrite-direct1",
+          "post_write_drain_s": "0",
+          "pending_bytes": "0",
+          "dirty_bytes": "0",
+          "buffer_dirty_bytes": "0"
+        }
+      ],
+      "mount_lifecycle": [
+        {
+          "generation": "55643222ed024b7689e97d93bc84c858",
+          "target": "/mnt/brewfs",
+          "supervisor_pid": 53,
+          "child_pid": 58,
+          "phase": "exited",
+          "started_epoch": 1793082801.5543408,
+          "exit_code": 0,
+          "finished_epoch": 1793082823.953804
+        }
+      ],
+      "compose_command": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 23.595283371000022
+      },
+      "compose_cleanup": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.2167049450000036
+      },
+      "remaining_project_containers": []
+    }
+  },
+  "cleanup_errors": [],
+  "clock_source_reference": "https://github.com/strace/strace/blob/v6.13/src/syscall.c#L634-L672",
+  "clock_source_scope": "Matching upstream strace 6.13 uses CLOCK_MONOTONIC for -T entry/exit durations; not a hardware precision guarantee or a distribution patch audit.",
+  "conclusions": [
+    "Both final data-file closes block for a measurable interval (baseline 1.114247 s, C4 0.767870 s); no explicit fsync/fdatasync syscall is observed.",
+    "This clean direct-only pair does not reproduce the prior C4 wall-time regression; do not accept the candidate from this single diagnostic.",
+    "Shell work outside the wrapped command is about 0.11 s for each side, including added clock-marker process overhead.",
+    "Realtime and monotonic elapsed values diverge within each command. The cause is not identified; epoch strace/fio timestamps must not be directly aligned with monotonic timestamps.",
+    "Writes/io_uring were not traced. Exact last-write time and which internal FUSE operation dominates close are not established.",
+    "Fixed runtime yielded different write-byte totals, and this direct-only pair lacks the original preceding seqwrite workload. Any further test should control those factors explicitly."
+  ],
+  "publication": {
+    "diagnostic_only": true,
+    "performance_accepted": false,
+    "source_summary_sha256": "72995dcd8833dbb32c7260dbf5d4547e6d0709dbba5bb8b3b0f77cc893f8d3f0",
+    "transformation": "Only evidence path separators normalized for portable links; measurements unchanged.",
+    "manifest": "retrieved/manifest.json"
+  }
+}
