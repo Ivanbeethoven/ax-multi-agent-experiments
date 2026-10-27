@@ -13,6 +13,16 @@ CARGO_TARGET_DIR=/home/hxy/ax-full-trace-build cargo build --release --locked \
 full-fuse-replay EVENTS.jsonl BLOBS_DIR DEDICATED_ROOT NEW_OUTPUT.json
 ```
 
+性能回放增加 `--performance`，仍使用同一 Rust 入口并执行全部已记录操作：
+
+```text
+full-fuse-replay EVENTS.jsonl BLOBS_DIR DEDICATED_ROOT NEW_OUTPUT.json --performance
+```
+
+此模式仅适用于已预检、摘要匹配的可信 trace 和无其他写者的专用目录。它省去逐次路径 canonicalize、内容 SHA256、属性和目录结果比对；保留输入序号、操作类型、写入载荷长度、读写返回长度和通常的 errno 检查。getxattr/listxattr/ioctl 仅在预期和实际都失败时允许 errno 不同，差异数单独记录；不会跳过这些操作，也不会忽略 opendir/read/write 的意外失败。
+
+性能报告标为 `mode=performance`、`completed=true`、`valid=false`。`completed` 表示处理到正常 destroy；实验还须核对总操作数、读写字节和剩余句柄为零，不能将其表述为严格正确性通过。性能模式不做最终文件树验证，默认严格模式仍保留原检查。计时仍包含 JSON 解析、载荷读取及实际系统调用；该入口没有总回放时限。
+
 通常应使用 `scripts/replay_full_trace_bundle.py`，由它先核验结果包和初始文件树，再调用 Rust，最后核验整个文件树。
 
 每行记录包含连续 `seq`、`op`、参数、结果、errno、请求 PID、UID/GID 和单调起止时间。写入内容保存在以 SHA256 命名的 `blobs/` 中，参数引用摘要和长度；读取保存返回长度和内容 SHA256。没有用合成字节代替真实写入。
@@ -23,4 +33,4 @@ getattr 校验类型、权限以及非目录文件大小；设备号、inode 数
 
 这里是**串行的已记录挂载工作量回放**。捕获时内核已把子进程和 mmap 的 I/O 交给挂载点，Rust 不再启动这些进程或重建原内核调度、页缓存命中与本机文件锁。读写结果一致不能证明完整进程调度或锁语义被重演，也不能替代 Agent 的 resume 测试。
 
-本版为功能验收入口：运行时间包含流式 JSON 解析、内容校验和文件操作，未做正式吞吐对比。路径解析阻止访问指定 root 之外，但这不是用于执行恶意输入的完整沙箱；使用本仓库经摘要核验的输入和专用、没有其他写者的目录。
+默认严格模式用于功能验收：运行时间包含流式 JSON 解析、内容校验和文件操作。严格模式的路径解析阻止访问指定 root 之外，但这不是用于执行恶意输入的完整沙箱；性能模式省去了这部分动态路径核查，两种模式都只使用经摘要核验的可信输入和专用、没有其他写者的目录。

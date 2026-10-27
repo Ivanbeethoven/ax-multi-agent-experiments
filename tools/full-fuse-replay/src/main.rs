@@ -39,6 +39,7 @@ struct Replay {
     handles: HashMap<i64, File>,
     read: u64,
     write: u64,
+    performance: bool,
 }
 impl Replay {
     fn path(&self, v: &Value, follow: bool) -> io::Result<PathBuf> {
@@ -47,6 +48,11 @@ impl Replay {
             return Err(invalid("unsafe path"));
         }
         let p = self.root.join(s.trim_start_matches('/'));
+        // Performance mode accepts only a trusted, preflighted capture in a private root.
+        // Avoid extra exists/canonicalize syscalls that are absent from the trace.
+        if self.performance {
+            return Ok(p);
+        }
         let target = if follow && p.exists() {
             p.canonicalize()?
         } else if p == self.root {
@@ -73,7 +79,7 @@ impl Replay {
             return Err(invalid("bad payload key"));
         }
         let bytes = fs::read(self.blobs.join(key))?;
-        if format!("{:x}", Sha256::digest(&bytes)) != key
+        if (!self.performance && format!("{:x}", Sha256::digest(&bytes)) != key)
             || bytes.len() as u64 != v["len"].as_u64().unwrap()
         {
             return Err(invalid("payload corrupt"));
@@ -123,7 +129,8 @@ impl Replay {
                 } as i64)? as usize;
                 data.truncate(n);
                 self.read += n as u64;
-                Ok(json!({"len":n,"sha256":format!("{:x}",Sha256::digest(data))}))
+                if self.performance { Ok(json!({"len":n})) }
+                else { Ok(json!({"len":n,"sha256":format!("{:x}",Sha256::digest(data))})) }
             }
             "write" => {
                 let data = self.payload(&a[1])?;
@@ -169,7 +176,7 @@ impl Replay {
                 };
                 // Device/inode, clocks, ownership and directory allocation are host-dependent.
                 let expected = &e["result"];
-                if e["errno"] == 0
+                if !self.performance && e["errno"] == 0
                     && (m.mode() != num(&expected["st_mode"]) as u32
                         || (!m.is_dir() && m.size() != num(&expected["st_size"]) as u64))
                 {
@@ -329,9 +336,10 @@ impl Replay {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let a = std::env::args().skip(1).collect::<Vec<_>>();
-    if a.len() != 4 {
-        return Err("usage: full-fuse-replay EVENTS BLOBS DEDICATED_ROOT OUTPUT".into());
+    if a.len() < 4 || a.len() > 5 || (a.len() == 5 && a[4] != "--performance") {
+        return Err("usage: full-fuse-replay EVENTS BLOBS DEDICATED_ROOT OUTPUT [--performance]".into());
     }
+    let performance = a.len() == 5;
     let root = PathBuf::from(&a[2]).canonicalize()?;
     if root.components().count() < 4 || root == std::env::current_dir()? {
         return Err("root too broad".into());
@@ -346,11 +354,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         handles: HashMap::new(),
         read: 0,
         write: 0,
+        performance,
     };
     let mut count = 0;
     let mut expected_errors = 0;
     let started = std::time::Instant::now();
     let mut last_op = String::new();
+    let mut probe_errno_differences = 0u64;
     for line in BufReader::new(File::open(&a[0])?).lines() {
         let e: Value = serde_json::from_str(&line?)?;
         count += 1;
@@ -364,6 +374,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let actual = r.operation(&e);
         let expected = num(&e["errno"]);
         let good = match &actual {
+            Ok(v) if performance => expected == 0 && match last_op.as_str() {
+                "read" => v["len"] == e["result"]["len"],
+                "write" => v == &e["result"],
+                _ => true,
+            },
+            Err(err) if performance && expected != 0 && matches!(last_op.as_str(), "getxattr" | "listxattr" | "ioctl") && err.raw_os_error().is_some() => {
+                if err.raw_os_error() != Some(expected as i32) { probe_errno_differences += 1; }
+                true
+            },
             Ok(v) => expected == 0 && v == &e["result"],
             Err(err) => expected != 0 && err.raw_os_error() == Some(expected as i32),
         };
@@ -377,13 +396,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if expected != 0 {
             expected_errors += 1;
         }
+        if count % 65536 == 0 {
+            eprintln!("{}", json!({"operations":count,"seconds":started.elapsed().as_secs_f64(),"read_bytes":r.read,"write_bytes":r.write}));
+        }
     }
     if count == 0 || last_op != "destroy" {
         return Err("capture missing normal unmount/destroy".into());
     }
     serde_json::to_writer_pretty(
         output,
-        &json!({"valid":true,"operations":count,"expected_errors":expected_errors,"actual_read_bytes":r.read,"actual_write_bytes":r.write,"execution_seconds":started.elapsed().as_secs_f64(),"remaining_handles":r.handles.len(),"scope":"serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay"}),
+        &json!({"valid":!performance,"completed":true,"mode":if performance {"performance"} else {"strict"},"probe_errno_differences":probe_errno_differences,"operations":count,"expected_errors":expected_errors,"actual_read_bytes":r.read,"actual_write_bytes":r.write,"execution_seconds":started.elapsed().as_secs_f64(),"remaining_handles":r.handles.len(),"scope":"serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay"}),
     )?;
     println!(
         "validated {count} callbacks; read {} write {}",
