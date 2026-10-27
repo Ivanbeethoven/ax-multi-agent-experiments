@@ -1,0 +1,140 @@
+{
+  "run_id": "ax-disk-pl0-500-20261027-062711-ac09d1",
+  "verified_epoch": 1793085883.0471685,
+  "archives": {
+    "original": {
+      "sha256": "5169f3cec2d3f27639411205c573594b1ec5a8c79e5d4ae3d19265d8447db04b",
+      "bytes": 1069920
+    },
+    "retry-01": {
+      "sha256": "0b648f966da5bfbec354027f14a77f8de1a0d5a8623be646c80b39a5dc468a21",
+      "bytes": 3369754
+    }
+  },
+  "all_four_methods_complete": true,
+  "correctness_certified": false,
+  "methods": {
+    "native": {
+      "attempt": "original",
+      "report": {
+        "actual_read_bytes": 281774624,
+        "actual_write_bytes": 194706661,
+        "completed": true,
+        "execution_seconds": 55.970109311,
+        "expected_errors": 45525,
+        "mode": "performance",
+        "operations": 1747109,
+        "probe_errno_differences": 1048,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": false
+      },
+      "mount_exits": {
+        "native-prepare-unmount": [
+          {
+            "pid": 3350,
+            "exit_code": 0
+          }
+        ],
+        "native-final-unmount": [
+          {
+            "pid": 3376,
+            "exit_code": 0
+          }
+        ]
+      }
+    },
+    "native-overlay": {
+      "attempt": "original",
+      "report": {
+        "actual_read_bytes": 281774624,
+        "actual_write_bytes": 194706661,
+        "completed": true,
+        "execution_seconds": 620.678480524,
+        "expected_errors": 45525,
+        "mode": "performance",
+        "operations": 1747109,
+        "probe_errno_differences": 1048,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": false
+      },
+      "mount_exits": {
+        "candidate-overlay-prepare-unmount": [
+          {
+            "pid": 3767,
+            "exit_code": 0
+          }
+        ],
+        "candidate-overlay-final-unmount": [
+          {
+            "pid": 3784,
+            "exit_code": 0
+          }
+        ]
+      }
+    },
+    "native-overlay-pack": {
+      "attempt": "retry-01",
+      "report": {
+        "actual_read_bytes": 281774624,
+        "actual_write_bytes": 194706661,
+        "completed": true,
+        "execution_seconds": 721.600925635,
+        "expected_errors": 45525,
+        "mode": "performance",
+        "operations": 1747109,
+        "probe_errno_differences": 1048,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": false
+      },
+      "mount_exits": {
+        "candidate-packed-prepare-unmount": [
+          {
+            "pid": 4502,
+            "exit_code": 0
+          }
+        ],
+        "candidate-packed-final-unmount": [
+          {
+            "pid": 4515,
+            "exit_code": 0
+          }
+        ]
+      }
+    },
+    "juicefs": {
+      "attempt": "retry-01",
+      "report": {
+        "actual_read_bytes": 281774624,
+        "actual_write_bytes": 194706661,
+        "completed": true,
+        "execution_seconds": 595.308531797,
+        "expected_errors": 45525,
+        "mode": "performance",
+        "operations": 1747109,
+        "probe_errno_differences": 0,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": false
+      },
+      "mount_exits": {
+        "juicefs-prepare-unmount": [
+          {
+            "pid": 4951,
+            "exit_code": 0
+          }
+        ],
+        "juicefs-final-unmount": [
+          {
+            "pid": 4993,
+            "exit_code": 0
+          }
+        ]
+      }
+    }
+  },
+  "original_attempt_remains_failed": true,
+  "resource_cleanup_complete": false
+}

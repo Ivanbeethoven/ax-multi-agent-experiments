@@ -1,0 +1,49 @@
+{
+  "data_disk": {
+    "path": "/dev/nvme1n1",
+    "serial": "bp1i1xgrf9z6dnyns9cf",
+    "size": 107374182400,
+    "type": "disk",
+    "fstype": null,
+    "mountpoint": null
+  },
+  "system_disk": {
+    "path": "/dev/nvme0n1",
+    "serial": "bp1i1xgrf9z6dnyns9ce",
+    "size": 42949672960,
+    "type": "disk",
+    "fstype": null,
+    "mountpoint": null,
+    "children": [
+      {
+        "path": "/dev/nvme0n1p1",
+        "serial": null,
+        "size": 1048576,
+        "type": "part",
+        "fstype": null,
+        "mountpoint": null
+      },
+      {
+        "path": "/dev/nvme0n1p2",
+        "serial": null,
+        "size": 209715200,
+        "type": "part",
+        "fstype": "vfat",
+        "mountpoint": "/boot/efi"
+      },
+      {
+        "path": "/dev/nvme0n1p3",
+        "serial": null,
+        "size": 42737843712,
+        "type": "part",
+        "fstype": "ext4",
+        "mountpoint": "/"
+      }
+    ]
+  },
+  "root_source": "/dev/nvme0n1p3",
+  "root_ancestors": [
+    "/dev/nvme0n1",
+    "/dev/nvme0n1p3"
+  ]
+}
