@@ -12,7 +12,7 @@
 
 [修复 PR #365](https://github.com/brewfs/brewfs/pull/365) 已作为草稿提交；GitHub 检出与最新 main 的合并冲突，当前未合并。它保留已测源码，后续集成需保留两侧缓存与目录版本逻辑并重新验证。
 
-后续新批次优先采用对象存储后端 [Ivanbeethoven/rustfs 的 feat/dynamic-block-size-rebased 分支](https://github.com/Ivanbeethoven/rustfs/tree/feat/dynamic-block-size-rebased)，本次查得 HEAD 为 `a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed`，尚未用于本批测量。开跑前分别固定 BrewFS 客户端 SHA、RustFS 后端 SHA 和镜像摘要；本轮收尾仍使用原冻结镜像。比较 overlay/packed 时固定后端，dynamic block 的实际布局另设控制组。
+用户指定后续实验部署 RustFS 使用 [Ivanbeethoven/rustfs 的 feat/dynamic-block-size-rebased 分支](https://github.com/Ivanbeethoven/rustfs/tree/feat/dynamic-block-size-rebased)。每批开跑前解析该分支并固定完整 SHA，从该提交构建或验证对应镜像，记录镜像摘要；BrewFS 客户端 SHA 单独固定。分支或构建不可用时报告问题，不自动切换其他分支或官方 latest。本次观察到的 SHA 为 `a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed`，尚未用于本批测量；历史结果保留实际使用的原镜像。比较 overlay/packed 时固定后端，dynamic block 的实际布局另设控制组。
 
 后续沿用[既有五个 RQ 与实验设计](../../ax-multi-agent/paper-design/plan.zh.md)，先做单因素小组，再按结果扩展，不铺开全部组合：
 

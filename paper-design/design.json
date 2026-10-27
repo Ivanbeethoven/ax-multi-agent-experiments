@@ -13,11 +13,11 @@
     "historical_rustfs_research_commit": "cc4926fac1107aee76540f28bf22dbd47fcbca24",
     "future_rustfs_backend": {
       "repository": "https://github.com/Ivanbeethoven/rustfs",
-      "preferred_branch": "feat/dynamic-block-size-rebased",
+      "required_branch": "feat/dynamic-block-size-rebased",
       "observed_commit": "a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed",
       "observed_on": "2026-10-27",
-      "status": "preference_only_not_measured",
-      "selection_rule": "For each new batch, resolve this RustFS branch and freeze its full commit and image digest separately from the BrewFS client. Keep the backend fixed across overlay/packed pairs; dynamic-block comparisons require qualified effective layouts. Do not switch the backend in the ongoing C4 paired runs."
+      "status": "required_for_future_deployments_not_yet_measured",
+      "selection_rule": "Deploy RustFS from this required repository and branch for future experiments. At each batch start, resolve and freeze its full commit, build or verify the corresponding image, and record its digest separately from the BrewFS client. Do not silently fall back to another branch or the official latest image. Keep the backend fixed across overlay/packed pairs; dynamic-block comparisons require qualified effective layouts. Preserve historical versions and results."
     },
     "measured_results": null
   },
