@@ -2,7 +2,7 @@
   "schema_version": 1,
   "status": "planned",
   "execution_enabled": false,
-  "updated_on": "2026-10-26",
+  "updated_on": "2026-10-27",
   "provenance": {
     "thread_id": "01a167df-5d27-76a1-932e-698359b39715",
     "thread_title": "规划多 Agent 共享数据实验",
@@ -11,6 +11,14 @@
     "historical_brewfs_audit_commit": "242af5f7e9bba7afc0c61778f1084fcb20e083a0",
     "experiment_brewfs_revision": "resolve official default branch at execution start; freeze entire campaign",
     "historical_rustfs_research_commit": "cc4926fac1107aee76540f28bf22dbd47fcbca24",
+    "future_rustfs_backend": {
+      "repository": "https://github.com/Ivanbeethoven/rustfs",
+      "preferred_branch": "feat/dynamic-block-size-rebased",
+      "observed_commit": "a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed",
+      "observed_on": "2026-10-27",
+      "status": "preference_only_not_measured",
+      "selection_rule": "For each new batch, resolve this RustFS branch and freeze its full commit and image digest separately from the BrewFS client. Keep the backend fixed across overlay/packed pairs; dynamic-block comparisons require qualified effective layouts. Do not switch the backend in the ongoing C4 paired runs."
+    },
     "measured_results": null
   },
   "research_questions": [
