@@ -1,0 +1,177 @@
+{
+  "run": "local-repro-20261027-01",
+  "scope": "local WSL diagnostic; no host page-cache drop",
+  "accepted": false,
+  "correctness_certified": false,
+  "acceptance_limitations": [
+    "Inherited HTTP proxies with ineffective NO_PROXY=127.* for Rust IP matching",
+    "No method completed the full trace",
+    "Candidate overlay mount process did not exit within the 30-second teardown bound"
+  ],
+  "source": {
+    "trace_sha256": "9953d90517eaf520814150f80abccb11f9d74b7ac84ecc56fa394a5f8495aa3d",
+    "baseline_binaries": {
+      "brewfs": "765bce82ad5b971c4d24fc989f5a6ca201c8c7c3638c5a7c91501a0a1e4e994a",
+      "packed_v3_snapshot_fixture": "a48be898345836ef689d3fef65ab7fc743e0c301a756044c25eec7b3d15bbfc2",
+      "full-fuse-replay": "a352dfe4965efabff55fa53c05a82f7540765ca7dc2c395cd9c7394c5940aa25"
+    },
+    "candidate_sha256": "acd63e1f88a9ef8b6115a8887eed4e6571d7f186a2e1e4f5911ebb6ec4f1b61c",
+    "observer_sha256": "e3413299bbaefeb880eeee45c1d3cf5211124d3f0a8366161c1ba1391a78cb98",
+    "runtime_observer_sha256": "f42a30cd74cee8ab6a9430fa3ba803b99ebf3eab7afc8746ee73fc8ca9b848ba",
+    "repro_script_sha256": "f5ea41961b543e6f758d80b0159ff251ebb196b861acc3d273afd22a2f9699e7"
+  },
+  "backend_images": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:7bc4270ebbf1c17a76de8cdf59ec010bddac36d90f19be520b77d12eb256016c"
+  },
+  "methods": {
+    "baseline-packed": {
+      "completed_workload": false,
+      "command": {
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 522.641292972
+      },
+      "last_reported_progress_lower_bound": {
+        "operations": 196608,
+        "read_bytes": 49542782,
+        "seconds": 455.45272989,
+        "write_bytes": 96533119
+      },
+      "error": "Error: \"mismatch at 209695: \\\"readdir\\\" Err(Os { code: 16, kind: ResourceBusy, message: \\\"Device or resource busy\\\" })\"",
+      "stderr_sha256": "76ce68e91e915ccf024fd1f8cbb931d636ce1ae5c6ef13f1f4255d411af7cd6c",
+      "observer": {
+        "wall_seconds": 522.6594883469998,
+        "cpu_seconds": 0.46571399999999996,
+        "cpu_percent_one_core": 0.08910466764372735,
+        "max_rss_kib": 101756,
+        "output_bytes": 5063630,
+        "host_rows": 261,
+        "service_rows": 105,
+        "max_host_collection_ms": 3.593579,
+        "redis_info_requests": 105,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      }
+    },
+    "candidate-packed": {
+      "completed_workload": false,
+      "command": {
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 442.35027750599966
+      },
+      "last_reported_progress_lower_bound": {
+        "operations": 131072,
+        "read_bytes": 42513295,
+        "seconds": 367.826984,
+        "write_bytes": 60762195
+      },
+      "error": "Error: \"mismatch at 152118: \\\"readdir\\\" Err(Os { code: 5, kind: InputOutputError, message: \\\"Input/output error\\\" })\"",
+      "stderr_sha256": "55583aca64c88dd18cbb8a7a1ffb64515acc8f3e3311382e6b1bb140e8042497",
+      "observer": {
+        "wall_seconds": 442.4465073909996,
+        "cpu_seconds": 0.39675099999999996,
+        "cpu_percent_one_core": 0.08967208314956421,
+        "max_rss_kib": 101756,
+        "output_bytes": 4299729,
+        "host_rows": 221,
+        "service_rows": 89,
+        "max_host_collection_ms": 2.310689,
+        "redis_info_requests": 89,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      }
+    },
+    "baseline-overlay": {
+      "completed_workload": false,
+      "command": {
+        "exit_code": -15,
+        "timed_out": true,
+        "wall_seconds": 1500.0321144660002
+      },
+      "last_reported_progress_lower_bound": {
+        "operations": 196608,
+        "read_bytes": 49542782,
+        "seconds": 1260.836003598,
+        "write_bytes": 96533119
+      },
+      "error": null,
+      "stderr_sha256": "aded4062376e311bfedd294eafd2f1e63d7a39340a5bb0afec6a43ed0c649af5",
+      "observer": {
+        "wall_seconds": 1500.2033824299988,
+        "cpu_seconds": 1.232482,
+        "cpu_percent_one_core": 0.08215432750215847,
+        "max_rss_kib": 101756,
+        "output_bytes": 14619111,
+        "host_rows": 749,
+        "service_rows": 300,
+        "max_host_collection_ms": 2.83924,
+        "redis_info_requests": 300,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      }
+    },
+    "candidate-overlay": {
+      "completed_workload": false,
+      "command": {
+        "exit_code": -15,
+        "timed_out": true,
+        "wall_seconds": 1500.001596309001
+      },
+      "last_reported_progress_lower_bound": {
+        "operations": 1245184,
+        "read_bytes": 173472609,
+        "seconds": 1438.663162525,
+        "write_bytes": 187501686
+      },
+      "error": null,
+      "stderr_sha256": "fc498bfb29e64a3fedddd1384758d05c66bd3e40c4e51e45c7f4d8e80a409ace",
+      "observer": {
+        "wall_seconds": 1500.0459797579988,
+        "cpu_seconds": 1.2420419999999999,
+        "cpu_percent_one_core": 0.08280026190933011,
+        "max_rss_kib": 101756,
+        "output_bytes": 14677040,
+        "host_rows": 750,
+        "service_rows": 300,
+        "max_host_collection_ms": 2.299272,
+        "redis_info_requests": 300,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      }
+    }
+  },
+  "original_cleanup_errors": [
+    "mount process still running: 2592"
+  ],
+  "cleanup_recovery": {
+    "checked_epoch": 1793064845.7481136,
+    "boot_id": "2f0fae6a-1e59-4ddc-beaf-cbd95fcaeb32",
+    "prior_teardown_timeout_preserved": true,
+    "containers": [
+      {
+        "name": "ax-ai-fix-redis-6cc3a328ba98",
+        "prior_status": "exited",
+        "prior_exit_code": 0,
+        "finished_at": "2026-10-26T19:14:35.836422258Z",
+        "removed": true
+      },
+      {
+        "name": "ax-ai-fix-rustfs-6cc3a328ba98",
+        "prior_status": "exited",
+        "prior_exit_code": 0,
+        "finished_at": "2026-10-26T19:14:35.796522461Z",
+        "removed": true
+      }
+    ],
+    "complete": true,
+    "completed_epoch": 1793064846.3786278,
+    "bind_data_preserved": true
+  },
+  "compose_performance_accepted": false
+}

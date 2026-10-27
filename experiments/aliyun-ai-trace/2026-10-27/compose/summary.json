@@ -1,0 +1,38 @@
+{
+  "candidate": "C4",
+  "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+  "complete": true,
+  "passed": true,
+  "performance_accepted": false,
+  "performance_notice": "纯写对顺序敏感，直接随机写额外墙钟开销待归因，候选尚未通过性能验收。",
+  "performance_summary": "首轮 randrw 吞吐与 completion p99 改善，但 seqwrite 约回退 25%、randwrite direct=1 回退 64.3%；反向复测 seqwrite 方向翻转、buffered randwrite 差异幅度变化。直接随机写 active 吞吐接近，tool-wall 吞吐仍低 15.4%（115.520 对 136.571 MiB/s）。",
+  "source_identity": "source-identity.json",
+  "rounds": [
+    {
+      "name": "first-run",
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "checks_per_binary": 7,
+      "summary": "first-run/summary.json",
+      "summary_sha256": "54271aecd48e539ac72b1b63bd1bc0ee48d59c4ed371d6dba603904d2b4e2b72"
+    },
+    {
+      "name": "write-repeat-02",
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "checks_per_binary": 4,
+      "summary": "write-repeat-02/summary.json",
+      "summary_sha256": "6ed4f8a18915a2c83b475a349f422996ad51ccbde6f376107ac9c19e4ea2f6b3"
+    }
+  ],
+  "limitations": [
+    "Completion p99 is fio clat, not total latency.",
+    "Wall minus active includes launch and exit overhead, not a separately measured writeback tail.",
+    "Both rounds are single-run local WSL diagnostics without host page-cache drop; causality is unresolved.",
+    "All original worsening measurements remain published; command success is separate from performance acceptance."
+  ]
+}

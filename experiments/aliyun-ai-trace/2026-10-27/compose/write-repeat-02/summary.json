@@ -1,0 +1,239 @@
+{
+  "candidate": "C4",
+  "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+  "complete": true,
+  "passed": true,
+  "performance_accepted": false,
+  "execution_order": [
+    "candidate",
+    "baseline"
+  ],
+  "scope": "local WSL diagnostic; no host page-cache drop",
+  "n_per_case_per_binary": 1,
+  "source_status": "status.json",
+  "source_comparison": "comparison.tsv",
+  "source_file_hashes": "source-file-hashes.json",
+  "methods": {
+    "baseline": {
+      "command": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 105.635455893
+      },
+      "cleanup": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.36975796600000876
+      },
+      "checks": [
+        {
+          "tool": "fio-seqwrite-direct0",
+          "status": "pass",
+          "seconds": "29",
+          "log": "/artifacts/run/tools/fio-seqwrite-direct0.log"
+        },
+        {
+          "tool": "fio-seqwrite-direct1",
+          "status": "pass",
+          "seconds": "22",
+          "log": "/artifacts/run/tools/fio-seqwrite-direct1.log"
+        },
+        {
+          "tool": "fio-randwrite-direct0",
+          "status": "pass",
+          "seconds": "29",
+          "log": "/artifacts/run/tools/fio-randwrite-direct0.log"
+        },
+        {
+          "tool": "fio-randwrite-direct1",
+          "status": "pass",
+          "seconds": "21",
+          "log": "/artifacts/run/tools/fio-randwrite-direct1.log"
+        }
+      ],
+      "all_drain_fields_zero": true,
+      "natural_mount_exit_codes": [
+        0
+      ],
+      "unmount_exit_codes": [
+        0
+      ],
+      "profile": "workspace-v1, upload_before_commit, 512MiB memory, buffered/direct",
+      "image": "sha256:86902c83396b2915412d32bd4ba07c8d1b25c8b8488d13c694dfc45ef66ed52e",
+      "runner_sha256": "61743d2fe85244ca667101719136099cdeee14b46f49833fb6f3ed9fac9ac1f7"
+    },
+    "candidate": {
+      "command": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 92.061002186
+      },
+      "cleanup": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.7427750549999956
+      },
+      "checks": [
+        {
+          "tool": "fio-seqwrite-direct0",
+          "status": "pass",
+          "seconds": "21",
+          "log": "/artifacts/run/tools/fio-seqwrite-direct0.log"
+        },
+        {
+          "tool": "fio-seqwrite-direct1",
+          "status": "pass",
+          "seconds": "20",
+          "log": "/artifacts/run/tools/fio-seqwrite-direct1.log"
+        },
+        {
+          "tool": "fio-randwrite-direct0",
+          "status": "pass",
+          "seconds": "21",
+          "log": "/artifacts/run/tools/fio-randwrite-direct0.log"
+        },
+        {
+          "tool": "fio-randwrite-direct1",
+          "status": "pass",
+          "seconds": "25",
+          "log": "/artifacts/run/tools/fio-randwrite-direct1.log"
+        }
+      ],
+      "all_drain_fields_zero": true,
+      "natural_mount_exit_codes": [
+        0
+      ],
+      "unmount_exit_codes": [
+        0
+      ],
+      "profile": "workspace-v1, upload_before_commit, 512MiB memory, buffered/direct",
+      "image": "sha256:86902c83396b2915412d32bd4ba07c8d1b25c8b8488d13c694dfc45ef66ed52e",
+      "runner_sha256": "61743d2fe85244ca667101719136099cdeee14b46f49833fb6f3ed9fac9ac1f7"
+    }
+  },
+  "fio_comparison": [
+    {
+      "case": "fio-randwrite-direct0",
+      "direction": "write",
+      "baseline": {
+        "active_throughput_mib_s": 94.37061309814453,
+        "io_bytes": 1988100096,
+        "active_seconds": 20.091,
+        "tool_wall_seconds": 29.0,
+        "wall_minus_active_seconds": 8.908999999999999,
+        "effective_wall_mib_s": 65.37931034482759,
+        "clat_p99_ms": 616.562688,
+        "slat_mean_ms": 0.154359331224,
+        "total_lat_mean_ms": 42.216996934598995
+      },
+      "candidate": {
+        "active_throughput_mib_s": 241.2311372756958,
+        "io_bytes": 5062524928,
+        "active_seconds": 20.014,
+        "tool_wall_seconds": 21.0,
+        "wall_minus_active_seconds": 0.9860000000000007,
+        "effective_wall_mib_s": 229.9047619047619,
+        "clat_p99_ms": 70.77888,
+        "slat_mean_ms": 0.179491836785,
+        "total_lat_mean_ms": 16.348749650373
+      },
+      "active_throughput_mib_s_change_percent": 155.6210342989059,
+      "effective_wall_mib_s_change_percent": 251.64757886276874,
+      "clat_p99_ms_change_percent": -88.5204081632653
+    },
+    {
+      "case": "fio-randwrite-direct1",
+      "direction": "write",
+      "baseline": {
+        "active_throughput_mib_s": 143.34982681274414,
+        "io_bytes": 3007315968,
+        "active_seconds": 20.007,
+        "tool_wall_seconds": 21.0,
+        "wall_minus_active_seconds": 0.9929999999999986,
+        "effective_wall_mib_s": 136.57142857142858,
+        "clat_p99_ms": 0.053504,
+        "slat_mean_ms": 27.874849615063,
+        "total_lat_mean_ms": 27.883371315202
+      },
+      "candidate": {
+        "active_throughput_mib_s": 144.1621322631836,
+        "io_bytes": 3028287488,
+        "active_seconds": 20.033,
+        "tool_wall_seconds": 25.0,
+        "wall_minus_active_seconds": 4.966999999999999,
+        "effective_wall_mib_s": 115.52,
+        "clat_p99_ms": 0.031104,
+        "slat_mean_ms": 27.722133186981,
+        "total_lat_mean_ms": 27.731384549862
+      },
+      "active_throughput_mib_s_change_percent": 0.5666595269072427,
+      "effective_wall_mib_s_change_percent": -15.414225941422599,
+      "clat_p99_ms_change_percent": -41.866028708133975
+    },
+    {
+      "case": "fio-seqwrite-direct0",
+      "direction": "write",
+      "baseline": {
+        "active_throughput_mib_s": 118.18818092346191,
+        "io_bytes": 2478833664,
+        "active_seconds": 20.002,
+        "tool_wall_seconds": 29.0,
+        "wall_minus_active_seconds": 8.998000000000001,
+        "effective_wall_mib_s": 81.51724137931035,
+        "clat_p99_ms": 346.03008,
+        "slat_mean_ms": 0.184356580372,
+        "total_lat_mean_ms": 33.619005641286
+      },
+      "candidate": {
+        "active_throughput_mib_s": 253.39185905456543,
+        "io_bytes": 5326766080,
+        "active_seconds": 20.048,
+        "tool_wall_seconds": 21.0,
+        "wall_minus_active_seconds": 0.9520000000000017,
+        "effective_wall_mib_s": 241.9047619047619,
+        "clat_p99_ms": 73.924608,
+        "slat_mean_ms": 0.178777565354,
+        "total_lat_mean_ms": 15.59918242126
+      },
+      "active_throughput_mib_s_change_percent": 114.39695329489905,
+      "effective_wall_mib_s_change_percent": 196.75288050922566,
+      "clat_p99_ms_change_percent": -78.63636363636364
+    },
+    {
+      "case": "fio-seqwrite-direct1",
+      "direction": "write",
+      "baseline": {
+        "active_throughput_mib_s": 181.354660987854,
+        "io_bytes": 3804233728,
+        "active_seconds": 20.005,
+        "tool_wall_seconds": 22.0,
+        "wall_minus_active_seconds": 1.995000000000001,
+        "effective_wall_mib_s": 164.9090909090909,
+        "clat_p99_ms": 0.023424,
+        "slat_mean_ms": 22.033899858875,
+        "total_lat_mean_ms": 22.041527340684
+      },
+      "candidate": {
+        "active_throughput_mib_s": 302.0187883377075,
+        "io_bytes": 6337593344,
+        "active_seconds": 20.012,
+        "tool_wall_seconds": 20.0,
+        "wall_minus_active_seconds": -0.012000000000000455,
+        "effective_wall_mib_s": 302.2,
+        "clat_p99_ms": 0.028544,
+        "slat_mean_ms": 13.224535878888,
+        "total_lat_mean_ms": 13.232744955658
+      },
+      "active_throughput_mib_s_change_percent": 66.53489173787204,
+      "effective_wall_mib_s_change_percent": 83.25248070562293,
+      "clat_p99_ms_change_percent": 21.857923497267763
+    }
+  ],
+  "limitations": [
+    "Only seqwrite and randwrite were repeated, with candidate first.",
+    "Fio active throughput and integer-second tool-wall throughput measure different windows; wall minus active includes setup/exit overhead and is not a measured writeback-only tail.",
+    "No host page-cache drop; two single runs cannot isolate order causally.",
+    "Completion p99 is clat, not total latency."
+  ],
+  "cleanup_evidence": "cleanup-verification.json"
+}

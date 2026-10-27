@@ -1,0 +1,217 @@
+{
+  "acceptance_evidence": "acceptance-evidence.json",
+  "configuration_context": [
+    "本轮三种配置均为 100 GiB ESSD PL0 数据盘与 40 GiB 系统盘。设容量 C 的单位为 GiB，PL0 的理论 IOPS = min(1800 + 12C, 10000)，理论吞吐 = min(100 + 0.25C, 180) MB/s；100 GiB 对应 3,000 IOPS、125 MB/s。[阿里云 ESSD 规格](https://help.aliyun.com/zh/ecs/user-guide/essds)",
+    "ecs.e-c1m4.2xlarge 的全盘合计上限为 16,000 IOPS、0.8 Gbit/s（约 100 MB/s），数据盘与系统盘共享这一额度。因此磁盘标称值不能单独代表实例可达值；这些是理论限制，不能据此认定本次观测已触顶。[e 实例规格](https://help.aliyun.com/zh/ecs/user-guide/shared-instance-families) · [实例存储 I/O 限制](https://help.aliyun.com/zh/ecs/user-guide/storage-i-or-o-performance)",
+    "观测日志落盘位置也不一致：packed 写入数据盘 /data/results，native-overlay 写入系统盘 /var/log/ax-trace，JuiceFS 也写入系统盘。这会改变观测器与被测工作负载的磁盘竞争关系；结合实例、缓存与准备状态的差异，本轮只作单 trace、单次开发诊断，不能严谨归因软件差异。"
+  ],
+  "methods": [
+    {
+      "method": "native-overlay",
+      "label": "native-overlay / C4",
+      "result": "../native-overlay/candidate4.json",
+      "mapping_verified": true,
+      "configuration_note": "8 vCPU / 32 GiB；读/写内存各 256 MiB、读/写 SSD 各 512 MiB；元数据 open TTL/容量及 FUSE TTL 为 0；未清宿主页缓存，日志在系统盘",
+      "fields": {
+        "method_id": "/method",
+        "run_id": "/run_id",
+        "candidate": "/candidate",
+        "source_archive_sha256": "/source/source_archive_sha256",
+        "completed_workload": "/completed_workload",
+        "completed": "/replay/completed",
+        "execution_seconds": "/replay/execution_seconds",
+        "operations": "/replay/operations",
+        "read_bytes": "/replay/actual_read_bytes",
+        "write_bytes": "/replay/actual_write_bytes",
+        "remaining_handles": "/replay/remaining_handles",
+        "mode": "/replay/mode",
+        "exit_code": "/process_exit_code",
+        "timed_out": "/timed_out",
+        "expected_errors": "/replay/expected_errors",
+        "probe_errno_differences": "/replay/probe_errno_differences",
+        "valid": "/replay/valid",
+        "trace_sha256": "/source/trace_sha256",
+        "instance_type": "/run_configuration/instance_type",
+        "configuration": "/run_configuration",
+        "fatal_error": "/cleanup/fatal_error",
+        "cleanup_errors": "/cleanup/errors",
+        "unmount_exit_code": "/cleanup/fusermount_exit_code",
+        "mount_exit_code": "/cleanup/mount_process_exits/0/exit_code",
+        "mount_exited_naturally": "/cleanup/natural_mount_exit",
+        "gc_budget_warnings": "/observations/gc_budget_warning_count",
+        "uploader_cpu_seconds": "/observations/uploader/cpu_seconds",
+        "host_collection_wall_seconds": "/observations/host_collection_wall_seconds_total",
+        "host_interval_s": "/observations/host_interval_seconds",
+        "service_interval_s": "/observations/service_interval_seconds",
+        "cost_estimate_cny": "/estimated_hardware_cost/group_total_estimate",
+        "cost_scope": "/estimated_hardware_cost/lifecycle_scope",
+        "additional_notes": "/limitations"
+      },
+      "preparation_note": "另有建桶与准备卸载记录；后台启动、归档解包、挂载就绪未单独计时，无法给出完整准备总计；不是 fork/迁移。",
+      "preparation_stages": [
+        {
+          "label": "卷初始化",
+          "seconds_pointer": "/preparation/commands/init/wall_seconds"
+        },
+        {
+          "label": "初始数据复制",
+          "seconds_pointer": "/preparation/commands/copy/wall_seconds"
+        }
+      ],
+      "release": {
+        "fields": {
+          "instances_remaining": "/resource_cleanup_verification/remaining_counts/instances_remaining",
+          "created_disks_remaining": "/resource_cleanup_verification/remaining_counts/created_disks_remaining",
+          "own_security_group_remaining": "/resource_cleanup_verification/remaining_counts/security_groups_remaining",
+          "own_temporary_bucket_exists": "/resource_cleanup_verification/own_temporary_bucket_exists",
+          "verified_utc": "/resource_cleanup_verification/verified_at_utc"
+        }
+      }
+    },
+    {
+      "method": "native-overlay-pack",
+      "label": "native-overlay-pack / C4",
+      "result": "../native-overlay-pack/candidate4.json",
+      "mapping_verified": true,
+      "configuration_note": "8 vCPU / 32 GiB；读/写内存各 256 MiB、读/写 SSD 各 512 MiB；元数据 open TTL/容量及 FUSE TTL 为 0；日志在数据盘",
+      "fields": {
+        "method_id": "/method",
+        "run_id": "/run_id",
+        "candidate": "/candidate",
+        "source_archive_sha256": "/source/source_archive_sha256",
+        "completed_workload": "/completed_workload",
+        "completed": "/replay/completed",
+        "execution_seconds": "/replay/execution_seconds",
+        "operations": "/replay/operations",
+        "read_bytes": "/replay/actual_read_bytes",
+        "write_bytes": "/replay/actual_write_bytes",
+        "remaining_handles": "/replay/remaining_handles",
+        "mode": "/replay/mode",
+        "exit_code": "/process_exit_code",
+        "timed_out": "/timed_out",
+        "expected_errors": "/replay/expected_errors",
+        "probe_errno_differences": "/replay/probe_errno_differences",
+        "valid": "/replay/valid",
+        "trace_sha256": "/source/trace_sha256",
+        "instance_type": "/environment/instance_type",
+        "configuration": "/environment",
+        "fatal_error": "/fatal_error",
+        "cleanup_errors": "/cleanup/errors",
+        "unmount_exit_code": "/cleanup/fusermount_exit_code",
+        "mount_exit_code": "/cleanup/mount_process_exit_code",
+        "mount_exited_naturally": "/cleanup/mount_process_exited_naturally",
+        "observer_cpu_seconds": "/observations/observer/cpu_seconds",
+        "observer_cpu_percent_one_core": "/observations/observer/cpu_percent_one_core",
+        "observer_max_rss_kib": "/observations/observer/max_rss_kib",
+        "observer_output_bytes": "/observations/observer/output_bytes",
+        "host_interval_s": "/observations/observer/host_interval_s",
+        "service_interval_s": "/observations/observer/service_interval_s",
+        "uploader_cpu_seconds": "/observations/uploader_cpu_seconds",
+        "gc_budget_warnings": "/observations/gc_budget_warnings",
+        "host_collection_wall_seconds": "/observations/host_sample_collection_wall_seconds",
+        "cost_estimate_cny": "/hardware_cost_estimate/estimated_hardware_cny",
+        "cost_scope": "/hardware_cost_estimate/scope",
+        "additional_notes": "/limits"
+      },
+      "preparation_note": "总计含源码复制、建桶、初始化和挂载就绪；fixture 构建/上传未单独拆分，就绪采用 250 ms 轮询；不是在线 freeze/fork。",
+      "preparation_stages": [
+        {
+          "label": "准备总计",
+          "seconds_pointer": "/preparation/total_seconds"
+        },
+        {
+          "label": "snapshot fixture 构建+上传",
+          "seconds_pointer": "/preparation/offline_snapshot_fixture_build_and_upload_seconds"
+        }
+      ],
+      "release": {
+        "fields": {
+          "instances_remaining": "/resource_cleanup_verification/instances_remaining",
+          "created_disks_remaining": "/resource_cleanup_verification/created_disks_remaining",
+          "own_security_group_remaining": "/resource_cleanup_verification/own_security_group_remaining",
+          "own_temporary_bucket_exists": "/resource_cleanup_verification/own_temporary_bucket_exists",
+          "verified_utc": "/resource_cleanup_verification/verified_utc"
+        }
+      }
+    },
+    {
+      "method": "juicefs",
+      "label": "JuiceFS / attempt02",
+      "result": "../juicefs/result.json",
+      "mapping_verified": true,
+      "configuration_note": "8 vCPU / 32 GiB；客户端缓存 512 MiB，buffer 512 MiB，元数据 TTL 0；复用经历中断的实例，未清宿主页缓存",
+      "fields": {
+        "method_id": "/method",
+        "run_id": "/run_id",
+        "completed_workload": "/completed_workload",
+        "completed": "/report/completed",
+        "execution_seconds": "/report/execution_seconds",
+        "operations": "/report/operations",
+        "read_bytes": "/report/actual_read_bytes",
+        "write_bytes": "/report/actual_write_bytes",
+        "remaining_handles": "/report/remaining_handles",
+        "mode": "/report/mode",
+        "exit_code": "/replay_command/exit_code",
+        "timed_out": "/replay_command/timed_out",
+        "expected_errors": "/report/expected_errors",
+        "probe_errno_differences": "/report/probe_errno_differences",
+        "valid": "/report/valid",
+        "trace_sha256": "/source/trace_sha256",
+        "instance_type": "/configuration/instance_type",
+        "configuration": "/configuration",
+        "fatal_error": "/errors/fatal",
+        "cleanup_errors": "/errors/cleanup",
+        "observer_cpu_seconds": "/observer/cpu_seconds",
+        "observer_cpu_percent_one_core": "/observer/cpu_percent_one_core",
+        "observer_max_rss_kib": "/observer/max_rss_kib",
+        "observer_output_bytes": "/observer/output_bytes",
+        "host_interval_s": "/observer/host_interval_s",
+        "service_interval_s": "/observer/service_interval_s",
+        "uploader_cpu_seconds": "/uploader/cpu_seconds",
+        "cost_estimate_cny": "/cost_estimate/cny_at_quoted_rate",
+        "cost_scope": "/cost_estimate/scope",
+        "additional_notes": "/limitations"
+      },
+      "preparation_note": "原摘要说明准备时间不计入回放，但未给出阶段耗时，无法拆分。",
+      "preparation_stages": [],
+      "release": {
+        "fields": {
+          "instances_remaining": "/resource_cleanup_verification/instances_remaining",
+          "created_disks_remaining": "/resource_cleanup_verification/created_disks_remaining",
+          "own_security_group_remaining": "/resource_cleanup_verification/own_security_group_remaining",
+          "own_temporary_bucket_exists": "/resource_cleanup_verification/own_temporary_bucket_exists",
+          "verified_utc": "/resource_cleanup_verification/verified_utc"
+        }
+      }
+    }
+  ],
+  "history": [
+    {
+      "label": "历史失败／超时与候选排除",
+      "result": "history-exclusions.json",
+      "reason": "真实失败、超时、中断及旧候选仅用于诊断／回归，不列为完整最终延迟"
+    },
+    {
+      "label": "native-overlay / C1",
+      "result": "../native-overlay/candidate1.json",
+      "reason": "旧候选版本，含 1,048 项 probe errno 差异；保留完整回放证据，不代替 C4"
+    },
+    {
+      "label": "C1 中断写探针",
+      "result": "../native-overlay/candidate1-interrupted-write.json",
+      "reason": "故障注入诊断；新挂载进程复用持久化历史，不是完整性能测量或旧挂起根因证明"
+    },
+    {
+      "label": "JuiceFS / attempt01",
+      "result": "../juicefs/interruption.json",
+      "reason": "系统升级重启服务导致中断，未完成 trace；不能当作完整耗时"
+    }
+  ],
+  "candidate_identity": {
+    "candidate": "C4",
+    "base_commit": "e61ab89448c1482d11f5baca2a5ad448f5818213",
+    "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+    "source_identity_evidence": "acceptance-evidence.json#/source_identity"
+  },
+  "generation_status": "ready: root authorized the complete three-method development diagnostic; local performance remains unaccepted"
+}

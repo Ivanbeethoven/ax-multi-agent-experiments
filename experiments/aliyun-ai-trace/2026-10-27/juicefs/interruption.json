@@ -1,0 +1,43 @@
+{
+  "attempt": "01",
+  "completed_workload": false,
+  "correctness_certified": false,
+  "replay_timeout_s": null,
+  "classification": "infrastructure interruption; not a JuiceFS operation failure",
+  "cause": "Ubuntu unattended-upgrade updated zlib then restarted experiment systemd services",
+  "timeline_utc": {
+    "upgrade_started": "2026-10-27T03:22:30Z",
+    "zlib_upgrade_started": "2026-10-27T03:22:40Z",
+    "replay_and_uploader_restarted": "2026-10-27T03:22:42Z",
+    "restarted_harness_failed_existing_root": "2026-10-27T03:22:43Z"
+  },
+  "last_progress": {
+    "operations": 917504,
+    "read_bytes": 109457092,
+    "seconds": 1029.598211368,
+    "write_bytes": 181601523
+  },
+  "evidence": {
+    "systemd_result": "exit-code",
+    "exec_main_status": 1,
+    "systemd_automatic_restart": "no",
+    "nrestarts": 0,
+    "kernel_oom_entries": 0,
+    "systemd_reported_memory_peak": "3.5G"
+  },
+  "archive": {
+    "sha256": "890dc9037e5299a6a94ecac71612e448c4df518882bcb1a2eab2978b6faa7df5",
+    "bytes": 3973841,
+    "preempted": false,
+    "known_credential_scan": "passed",
+    "hits": [],
+    "retrieved_utc": "2026-10-27T03:31:01.499701+00:00"
+  },
+  "response": [
+    "Preserved full interrupted output before any new run.",
+    "Kept the same instance; no replacement purchase.",
+    "Masked apt timers/services for this disposable VM after upgrade finished; needrestart list-only.",
+    "Fresh run02 directory and attempt02 OSS prefix, original full trace, no replay deadline.",
+    "Uploader now detects failed/inactive units missing terminal harness status and exports incident evidence."
+  ]
+}

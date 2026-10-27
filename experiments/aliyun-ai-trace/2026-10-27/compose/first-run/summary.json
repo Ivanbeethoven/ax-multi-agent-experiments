@@ -1,0 +1,600 @@
+{
+  "candidate": "C4",
+  "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+  "complete": true,
+  "passed": true,
+  "performance_accepted": false,
+  "performance_status": "mixed_results_write_regressions_pending_order_reversal_review",
+  "scope": "local WSL diagnostic; no host page-cache drop",
+  "execution_order": [
+    "baseline",
+    "candidate"
+  ],
+  "n_per_case_per_binary": 1,
+  "source_status": "status.json",
+  "source_comparison": "comparison.tsv",
+  "source_file_hashes": "source-file-hashes.json",
+  "cleanup_evidence": "cleanup-verification.json",
+  "source_binaries": {
+    "trace_sha256": "9953d90517eaf520814150f80abccb11f9d74b7ac84ecc56fa394a5f8495aa3d",
+    "baseline_binaries": {
+      "brewfs": "765bce82ad5b971c4d24fc989f5a6ca201c8c7c3638c5a7c91501a0a1e4e994a",
+      "packed_v3_snapshot_fixture": "a48be898345836ef689d3fef65ab7fc743e0c301a756044c25eec7b3d15bbfc2",
+      "full-fuse-replay": "a352dfe4965efabff55fa53c05a82f7540765ca7dc2c395cd9c7394c5940aa25"
+    },
+    "candidate_sha256": "c1f6de4e5fa06873cbd2e281c697a65470ad602b9c5fc4b20b43b9fe74e3c3d2",
+    "observer_sha256": "e3413299bbaefeb880eeee45c1d3cf5211124d3f0a8366161c1ba1391a78cb98",
+    "runtime_observer_sha256": "f42a30cd74cee8ab6a9430fa3ba803b99ebf3eab7afc8746ee73fc8ca9b848ba",
+    "repro_script_sha256": "47991b6e375db8ceffbbf7ad7653e27ec8d080c9aebbbfed64874fefcdd876d7"
+  },
+  "methods": {
+    "baseline": {
+      "command": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 518.274234048
+      },
+      "cleanup": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.37934390400005213
+      },
+      "checks": [
+        {
+          "tool": "fio-seqwrite-direct0",
+          "status": "pass",
+          "seconds": "19",
+          "log": "/artifacts/run/tools/fio-seqwrite-direct0.log"
+        },
+        {
+          "tool": "fio-seqwrite-direct1",
+          "status": "pass",
+          "seconds": "20",
+          "log": "/artifacts/run/tools/fio-seqwrite-direct1.log"
+        },
+        {
+          "tool": "fio-randwrite-direct0",
+          "status": "pass",
+          "seconds": "22",
+          "log": "/artifacts/run/tools/fio-randwrite-direct0.log"
+        },
+        {
+          "tool": "fio-randwrite-direct1",
+          "status": "pass",
+          "seconds": "21",
+          "log": "/artifacts/run/tools/fio-randwrite-direct1.log"
+        },
+        {
+          "tool": "fio-randrw-direct0",
+          "status": "pass",
+          "seconds": "21",
+          "log": "/artifacts/run/tools/fio-randrw-direct0.log"
+        },
+        {
+          "tool": "fio-randrw-direct1",
+          "status": "pass",
+          "seconds": "21",
+          "log": "/artifacts/run/tools/fio-randrw-direct1.log"
+        },
+        {
+          "tool": "metaperf",
+          "status": "pass",
+          "seconds": "363",
+          "log": "/artifacts/run/tools/metaperf.log"
+        }
+      ],
+      "all_drain_fields_zero": true,
+      "natural_mount_exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "unmount_exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "profile": "workspace-v1, upload_before_commit, 512MiB memory, buffered/direct",
+      "image": "sha256:86902c83396b2915412d32bd4ba07c8d1b25c8b8488d13c694dfc45ef66ed52e",
+      "runner_sha256": "61743d2fe85244ca667101719136099cdeee14b46f49833fb6f3ed9fac9ac1f7"
+    },
+    "candidate": {
+      "command": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 446.04290552299994
+      },
+      "cleanup": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.31872957200005203
+      },
+      "checks": [
+        {
+          "tool": "fio-seqwrite-direct0",
+          "status": "pass",
+          "seconds": "23",
+          "log": "/artifacts/run/tools/fio-seqwrite-direct0.log"
+        },
+        {
+          "tool": "fio-seqwrite-direct1",
+          "status": "pass",
+          "seconds": "22",
+          "log": "/artifacts/run/tools/fio-seqwrite-direct1.log"
+        },
+        {
+          "tool": "fio-randwrite-direct0",
+          "status": "pass",
+          "seconds": "20",
+          "log": "/artifacts/run/tools/fio-randwrite-direct0.log"
+        },
+        {
+          "tool": "fio-randwrite-direct1",
+          "status": "pass",
+          "seconds": "26",
+          "log": "/artifacts/run/tools/fio-randwrite-direct1.log"
+        },
+        {
+          "tool": "fio-randrw-direct0",
+          "status": "pass",
+          "seconds": "21",
+          "log": "/artifacts/run/tools/fio-randrw-direct0.log"
+        },
+        {
+          "tool": "fio-randrw-direct1",
+          "status": "pass",
+          "seconds": "20",
+          "log": "/artifacts/run/tools/fio-randrw-direct1.log"
+        },
+        {
+          "tool": "metaperf",
+          "status": "pass",
+          "seconds": "298",
+          "log": "/artifacts/run/tools/metaperf.log"
+        }
+      ],
+      "all_drain_fields_zero": true,
+      "natural_mount_exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "unmount_exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "profile": "workspace-v1, upload_before_commit, 512MiB memory, buffered/direct",
+      "image": "sha256:86902c83396b2915412d32bd4ba07c8d1b25c8b8488d13c694dfc45ef66ed52e",
+      "runner_sha256": "61743d2fe85244ca667101719136099cdeee14b46f49833fb6f3ed9fac9ac1f7"
+    }
+  },
+  "fio_comparison": [
+    {
+      "case": "fio-randrw-direct0",
+      "direction": "read",
+      "baseline": {
+        "throughput_mib_s": 25.7369441986084,
+        "iops": 6.434236,
+        "io_bytes": 541065216,
+        "runtime_ms": 20049,
+        "clat_p99_ms": 566.23104,
+        "clat_mean_ms": 140.181999930233,
+        "slat_mean_ms": 10.734708209302001,
+        "total_lat_mean_ms": 150.91670813953502
+      },
+      "candidate": {
+        "throughput_mib_s": 54.229177474975586,
+        "iops": 13.557295,
+        "io_bytes": 1140850688,
+        "runtime_ms": 20063,
+        "clat_p99_ms": 123.20768,
+        "clat_mean_ms": 68.293420783088,
+        "slat_mean_ms": 3.892251816176,
+        "total_lat_mean_ms": 72.18567259926499
+      },
+      "throughput_change_percent": 110.70557971644423,
+      "clat_p99_change_percent": -78.24074074074075,
+      "source_baseline": "compose-baseline/run/results/fio-randrw-direct0.json",
+      "source_candidate": "compose-candidate/run/results/fio-randrw-direct0.json",
+      "job_options": {
+        "name": "brewfs-randrw",
+        "directory": "/mnt/brewfs/.perf-fio-randrw-direct0",
+        "rw": "randrw",
+        "bs": "4m",
+        "size": "512m",
+        "numjobs": "1",
+        "ioengine": "io_uring",
+        "iodepth": "1",
+        "direct": "0",
+        "runtime": "20",
+        "time_based": "",
+        "group_reporting": "",
+        "rwmixread": "70",
+        "write_lat_log": "/artifacts/run/results/fio-randrw-direct0_lat",
+        "log_avg_msec": "1000"
+      }
+    },
+    {
+      "case": "fio-randrw-direct0",
+      "direction": "write",
+      "baseline": {
+        "throughput_mib_s": 11.771160125732422,
+        "iops": 2.94279,
+        "io_bytes": 247463936,
+        "runtime_ms": 20049,
+        "clat_p99_ms": 93.847552,
+        "clat_mean_ms": 9.601022118644,
+        "slat_mean_ms": 0.11108661016900001,
+        "total_lat_mean_ms": 9.712108728814
+      },
+      "candidate": {
+        "throughput_mib_s": 24.72212505340576,
+        "iops": 6.180531,
+        "io_bytes": 520093696,
+        "runtime_ms": 20063,
+        "clat_p99_ms": 6.193152,
+        "clat_mean_ms": 3.282801379032,
+        "slat_mean_ms": 0.094753258065,
+        "total_lat_mean_ms": 3.377554637097
+      },
+      "throughput_change_percent": 110.02284217816221,
+      "clat_p99_change_percent": -93.40083798882681,
+      "source_baseline": "compose-baseline/run/results/fio-randrw-direct0.json",
+      "source_candidate": "compose-candidate/run/results/fio-randrw-direct0.json",
+      "job_options": {
+        "name": "brewfs-randrw",
+        "directory": "/mnt/brewfs/.perf-fio-randrw-direct0",
+        "rw": "randrw",
+        "bs": "4m",
+        "size": "512m",
+        "numjobs": "1",
+        "ioengine": "io_uring",
+        "iodepth": "1",
+        "direct": "0",
+        "runtime": "20",
+        "time_based": "",
+        "group_reporting": "",
+        "rwmixread": "70",
+        "write_lat_log": "/artifacts/run/results/fio-randrw-direct0_lat",
+        "log_avg_msec": "1000"
+      }
+    },
+    {
+      "case": "fio-randrw-direct1",
+      "direction": "read",
+      "baseline": {
+        "throughput_mib_s": 146.3487777709961,
+        "iops": 36.587194,
+        "io_bytes": 3070230528,
+        "runtime_ms": 20007,
+        "clat_p99_ms": 0.011328,
+        "clat_mean_ms": 0.004707422131,
+        "slat_mean_ms": 25.500503251366002,
+        "total_lat_mean_ms": 25.505210673497
+      },
+      "candidate": {
+        "throughput_mib_s": 194.59027004241943,
+        "iops": 48.647568,
+        "io_bytes": 4081057792,
+        "runtime_ms": 20001,
+        "clat_p99_ms": 0.00864,
+        "clat_mean_ms": 0.0036953155190000003,
+        "slat_mean_ms": 19.208933302158,
+        "total_lat_mean_ms": 19.212628617676998
+      },
+      "throughput_change_percent": 32.96337216215824,
+      "clat_p99_change_percent": -23.728813559322028,
+      "source_baseline": "compose-baseline/run/results/fio-randrw-direct1.json",
+      "source_candidate": "compose-candidate/run/results/fio-randrw-direct1.json",
+      "job_options": {
+        "name": "brewfs-randrw",
+        "directory": "/mnt/brewfs/.perf-fio-randrw-direct1",
+        "rw": "randrw",
+        "bs": "4m",
+        "size": "512m",
+        "numjobs": "1",
+        "ioengine": "io_uring",
+        "iodepth": "1",
+        "direct": "1",
+        "runtime": "20",
+        "time_based": "",
+        "group_reporting": "",
+        "rwmixread": "70",
+        "write_lat_log": "/artifacts/run/results/fio-randrw-direct1_lat",
+        "log_avg_msec": "1000"
+      }
+    },
+    {
+      "case": "fio-randrw-direct1",
+      "direction": "write",
+      "baseline": {
+        "throughput_mib_s": 65.7769775390625,
+        "iops": 16.444245,
+        "io_bytes": 1379926016,
+        "runtime_ms": 20007,
+        "clat_p99_ms": 0.014016,
+        "clat_mean_ms": 0.0039976930090000005,
+        "slat_mean_ms": 4.023875960486,
+        "total_lat_mean_ms": 4.027873653495
+      },
+      "candidate": {
+        "throughput_mib_s": 85.39573001861572,
+        "iops": 21.348933,
+        "io_bytes": 1790967808,
+        "runtime_ms": 20001,
+        "clat_p99_ms": 0.008096,
+        "clat_mean_ms": 0.002719669789,
+        "slat_mean_ms": 3.036166042155,
+        "total_lat_mean_ms": 3.038885711944
+      },
+      "throughput_change_percent": 29.826168993402558,
+      "clat_p99_change_percent": -42.23744292237443,
+      "source_baseline": "compose-baseline/run/results/fio-randrw-direct1.json",
+      "source_candidate": "compose-candidate/run/results/fio-randrw-direct1.json",
+      "job_options": {
+        "name": "brewfs-randrw",
+        "directory": "/mnt/brewfs/.perf-fio-randrw-direct1",
+        "rw": "randrw",
+        "bs": "4m",
+        "size": "512m",
+        "numjobs": "1",
+        "ioengine": "io_uring",
+        "iodepth": "1",
+        "direct": "1",
+        "runtime": "20",
+        "time_based": "",
+        "group_reporting": "",
+        "rwmixread": "70",
+        "write_lat_log": "/artifacts/run/results/fio-randrw-direct1_lat",
+        "log_avg_msec": "1000"
+      }
+    },
+    {
+      "case": "fio-randwrite-direct0",
+      "direction": "write",
+      "baseline": {
+        "throughput_mib_s": 203.15689849853516,
+        "iops": 50.789225,
+        "io_bytes": 4278190080,
+        "runtime_ms": 20083,
+        "clat_p99_ms": 81.26464,
+        "clat_mean_ms": 19.403550993137,
+        "slat_mean_ms": 0.129533428431,
+        "total_lat_mean_ms": 19.533084421569
+      },
+      "candidate": {
+        "throughput_mib_s": 207.96880435943604,
+        "iops": 51.992201,
+        "io_bytes": 4362076160,
+        "runtime_ms": 20003,
+        "clat_p99_ms": 67.633152,
+        "clat_mean_ms": 18.863207013462,
+        "slat_mean_ms": 0.148088871154,
+        "total_lat_mean_ms": 19.011295884615
+      },
+      "throughput_change_percent": 2.3685663132603674,
+      "clat_p99_change_percent": -16.774193548387107,
+      "source_baseline": "compose-baseline/run/results/fio-randwrite-direct0.json",
+      "source_candidate": "compose-candidate/run/results/fio-randwrite-direct0.json",
+      "job_options": {
+        "name": "brewfs-randwrite",
+        "directory": "/mnt/brewfs/.perf-fio-randwrite-direct0",
+        "rw": "randwrite",
+        "bs": "4m",
+        "size": "512m",
+        "numjobs": "1",
+        "ioengine": "io_uring",
+        "iodepth": "1",
+        "direct": "0",
+        "runtime": "20",
+        "time_based": "",
+        "group_reporting": "",
+        "write_lat_log": "/artifacts/run/results/fio-randwrite-direct0_lat",
+        "log_avg_msec": "1000"
+      }
+    },
+    {
+      "case": "fio-randwrite-direct1",
+      "direction": "write",
+      "baseline": {
+        "throughput_mib_s": 181.81818103790283,
+        "iops": 45.454545,
+        "io_bytes": 3821010944,
+        "runtime_ms": 20042,
+        "clat_p99_ms": 0.026752,
+        "clat_mean_ms": 0.006657406147,
+        "slat_mean_ms": 21.977840164654,
+        "total_lat_mean_ms": 21.984497570801
+      },
+      "candidate": {
+        "throughput_mib_s": 64.9281005859375,
+        "iops": 16.232025,
+        "io_bytes": 1396703232,
+        "runtime_ms": 20515,
+        "clat_p99_ms": 0.023168,
+        "clat_mean_ms": 0.005370393393,
+        "slat_mean_ms": 61.588651564565005,
+        "total_lat_mean_ms": 61.594021957958
+      },
+      "throughput_change_percent": -64.28954452448173,
+      "clat_p99_change_percent": -13.397129186602875,
+      "source_baseline": "compose-baseline/run/results/fio-randwrite-direct1.json",
+      "source_candidate": "compose-candidate/run/results/fio-randwrite-direct1.json",
+      "job_options": {
+        "name": "brewfs-randwrite",
+        "directory": "/mnt/brewfs/.perf-fio-randwrite-direct1",
+        "rw": "randwrite",
+        "bs": "4m",
+        "size": "512m",
+        "numjobs": "1",
+        "ioengine": "io_uring",
+        "iodepth": "1",
+        "direct": "1",
+        "runtime": "20",
+        "time_based": "",
+        "group_reporting": "",
+        "write_lat_log": "/artifacts/run/results/fio-randwrite-direct1_lat",
+        "log_avg_msec": "1000"
+      }
+    },
+    {
+      "case": "fio-seqwrite-direct0",
+      "direction": "write",
+      "baseline": {
+        "throughput_mib_s": 300.14458751678467,
+        "iops": 75.036147,
+        "io_bytes": 6312427520,
+        "runtime_ms": 20057,
+        "clat_p99_ms": 63.700992,
+        "clat_mean_ms": 13.077113065780999,
+        "slat_mean_ms": 0.109008150831,
+        "total_lat_mean_ms": 13.186121216611
+      },
+      "candidate": {
+        "throughput_mib_s": 223.58649349212646,
+        "iops": 55.896623,
+        "io_bytes": 4735369216,
+        "runtime_ms": 20198,
+        "clat_p99_ms": 193.98656,
+        "clat_mean_ms": 17.587229339238,
+        "slat_mean_ms": 0.13913549247100002,
+        "total_lat_mean_ms": 17.726364831709002
+      },
+      "throughput_change_percent": -25.507071327873575,
+      "clat_p99_change_percent": 204.5267489711934,
+      "source_baseline": "compose-baseline/run/results/fio-seqwrite-direct0.json",
+      "source_candidate": "compose-candidate/run/results/fio-seqwrite-direct0.json",
+      "job_options": {
+        "name": "brewfs-seqwrite",
+        "directory": "/mnt/brewfs/.perf-fio-seqwrite-direct0",
+        "rw": "write",
+        "bs": "4m",
+        "size": "512m",
+        "numjobs": "1",
+        "ioengine": "io_uring",
+        "iodepth": "1",
+        "direct": "0",
+        "runtime": "20",
+        "time_based": "",
+        "group_reporting": "",
+        "write_lat_log": "/artifacts/run/results/fio-seqwrite-direct0_lat",
+        "log_avg_msec": "1000"
+      }
+    },
+    {
+      "case": "fio-seqwrite-direct1",
+      "direction": "write",
+      "baseline": {
+        "throughput_mib_s": 320.4795198440552,
+        "iops": 80.11988,
+        "io_bytes": 6727663616,
+        "runtime_ms": 20020,
+        "clat_p99_ms": 0.019072,
+        "clat_mean_ms": 0.005349908354,
+        "slat_mean_ms": 12.466346534289,
+        "total_lat_mean_ms": 12.471696442643
+      },
+      "candidate": {
+        "throughput_mib_s": 240.37164688110352,
+        "iops": 60.092912,
+        "io_bytes": 5045747712,
+        "runtime_ms": 20019,
+        "clat_p99_ms": 0.027264,
+        "clat_mean_ms": 0.005880070657,
+        "slat_mean_ms": 16.627268895262,
+        "total_lat_mean_ms": 16.633148965919
+      },
+      "throughput_change_percent": -24.996253427342886,
+      "clat_p99_change_percent": 42.95302013422819,
+      "source_baseline": "compose-baseline/run/results/fio-seqwrite-direct1.json",
+      "source_candidate": "compose-candidate/run/results/fio-seqwrite-direct1.json",
+      "job_options": {
+        "name": "brewfs-seqwrite",
+        "directory": "/mnt/brewfs/.perf-fio-seqwrite-direct1",
+        "rw": "write",
+        "bs": "4m",
+        "size": "512m",
+        "numjobs": "1",
+        "ioengine": "io_uring",
+        "iodepth": "1",
+        "direct": "1",
+        "runtime": "20",
+        "time_based": "",
+        "group_reporting": "",
+        "write_lat_log": "/artifacts/run/results/fio-seqwrite-direct1_lat",
+        "log_avg_msec": "1000"
+      }
+    }
+  ],
+  "metaperf_comparison": [
+    {
+      "operation": "create",
+      "baseline": {
+        "ops_per_second": 54.919873,
+        "usec_per_op": 18208.345175
+      },
+      "candidate": {
+        "ops_per_second": 85.482594,
+        "usec_per_op": 11698.287964
+      },
+      "ops_per_second_change_percent": 55.64965709225147
+    },
+    {
+      "operation": "open",
+      "baseline": {
+        "ops_per_second": 368.644645,
+        "usec_per_op": 2712.63943
+      },
+      "candidate": {
+        "ops_per_second": 1824.321696,
+        "usec_per_op": 548.148938
+      },
+      "ops_per_second_change_percent": 394.8726967131178
+    },
+    {
+      "operation": "stat",
+      "baseline": {
+        "ops_per_second": 586.828635,
+        "usec_per_op": 1704.07499
+      },
+      "candidate": {
+        "ops_per_second": 3651.421228,
+        "usec_per_op": 273.865965
+      },
+      "ops_per_second_change_percent": 522.2295590602869
+    },
+    {
+      "operation": "readdir",
+      "baseline": {
+        "ops_per_second": 2399.25348,
+        "usec_per_op": 416.796311
+      },
+      "candidate": {
+        "ops_per_second": 7272.314827,
+        "usec_per_op": 137.507798
+      },
+      "ops_per_second_change_percent": 203.10739934823397
+    },
+    {
+      "operation": "rename",
+      "baseline": {
+        "ops_per_second": 98.265436,
+        "usec_per_op": 10176.518202
+      },
+      "candidate": {
+        "ops_per_second": 130.930282,
+        "usec_per_op": 7637.652556
+      },
+      "ops_per_second_change_percent": 33.24144005222753
+    }
+  ],
+  "limitations": [
+    "Local WSL development diagnostic; no host page-cache drop; baseline ran first.",
+    "Fio direct is a requested job option; actual FUSE backend behavior is not independently certified by this comparison.",
+    "p99 is fio clat (completion latency), not total latency; io_uring direct=1 can spend substantial time in submission latency.",
+    "Successful commands and clean drain do not establish absence of a performance regression.",
+    "First run is retained intact; the reversed-order write repeat is separate and pending."
+  ],
+  "performance_summary": "randrw buffered/direct throughput and completion p99 improved; seqwrite throughput regressed by 25.5%/25.0%, and randwrite direct=1 regressed by 64.3%. Pure-write regression awaits reversed-order review; performance is not accepted."
+}

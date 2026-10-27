@@ -1,0 +1,377 @@
+{
+  "scope": "single-host AI trace performance pilot",
+  "trace": "pytest-full-02",
+  "correctness_certified": false,
+  "filter": "none; all xattr and ioctl operations executed",
+  "methods": {
+    "xfs-strict": {
+      "error": "[Errno 17] File exists: '/data/xfs-strict'"
+    },
+    "xfs-performance": {
+      "phase": "finished",
+      "observer": {
+        "wall_seconds": 57.28525617899999,
+        "cpu_seconds": 0.6144369999999999,
+        "cpu_percent_one_core": 1.0725918691540117,
+        "max_rss_kib": 24448,
+        "output_bytes": 397209,
+        "host_rows": 29,
+        "service_rows": 12,
+        "max_host_collection_ms": 25.828864,
+        "redis_info_requests": 12,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      },
+      "command": {
+        "name": "xfs-performance-replay",
+        "argv": [
+          "/data/bin/full-fuse-replay",
+          "/data/input/cases/pytest-full-02/capture/events.jsonl",
+          "/data/input/cases/pytest-full-02/capture/blobs",
+          "/data/xfs-performance/workload",
+          "/data/results/pilot/xfs-performance-replay.json",
+          "--performance"
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "wall_seconds": 56.85468308999998,
+        "child_cpu_seconds": 15.249746
+      },
+      "redis_before": {
+        "total_commands_processed": "4",
+        "used_cpu_sys": "0.066043",
+        "used_cpu_user": "0.148108",
+        "used_memory": "941400",
+        "used_memory_rss": "7577600",
+        "total_net_input_bytes": "115",
+        "total_net_output_bytes": "20718"
+      },
+      "redis_after": {
+        "total_commands_processed": "17",
+        "used_cpu_sys": "0.093147",
+        "used_cpu_user": "0.198222",
+        "used_memory": "941400",
+        "used_memory_rss": "7577600",
+        "total_net_input_bytes": "414",
+        "total_net_output_bytes": "88651"
+      },
+      "replay": {
+        "actual_read_bytes": 281774624,
+        "actual_write_bytes": 194706661,
+        "completed": true,
+        "execution_seconds": 56.815429051,
+        "expected_errors": 45525,
+        "mode": "performance",
+        "operations": 1747109,
+        "probe_errno_differences": 0,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": false
+      },
+      "completed_workload": true
+    },
+    "native": {
+      "phase": "finished",
+      "observer": {
+        "wall_seconds": 161.28378074199998,
+        "cpu_seconds": 1.551866,
+        "cpu_percent_one_core": 0.9621959460898711,
+        "max_rss_kib": 24704,
+        "output_bytes": 1564929,
+        "host_rows": 81,
+        "service_rows": 33,
+        "max_host_collection_ms": 25.410291,
+        "redis_info_requests": 33,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      },
+      "command": {
+        "name": "native-replay",
+        "argv": [
+          "/data/bin/full-fuse-replay",
+          "/data/input/cases/pytest-full-02/capture/events.jsonl",
+          "/data/input/cases/pytest-full-02/capture/blobs",
+          "/mnt/native/workload",
+          "/data/results/pilot/native-replay.json",
+          "--performance"
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "wall_seconds": 160.919879874,
+        "child_cpu_seconds": 19.808063999999995
+      },
+      "redis_before": {
+        "total_commands_processed": "15838",
+        "used_cpu_sys": "0.430639",
+        "used_cpu_user": "0.437617",
+        "used_memory": "2122032",
+        "used_memory_rss": "8364032",
+        "total_net_input_bytes": "902076",
+        "total_net_output_bytes": "440585"
+      },
+      "redis_after": {
+        "total_commands_processed": "495803",
+        "used_cpu_sys": "4.197141",
+        "used_cpu_user": "3.388300",
+        "used_memory": "5636968",
+        "used_memory_rss": "12558336",
+        "total_net_input_bytes": "14228628",
+        "total_net_output_bytes": "35811705"
+      },
+      "replay": {
+        "actual_read_bytes": 281774624,
+        "actual_write_bytes": 194706661,
+        "completed": true,
+        "execution_seconds": 160.867972592,
+        "expected_errors": 45525,
+        "mode": "performance",
+        "operations": 1747109,
+        "probe_errno_differences": 1048,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": false
+      },
+      "completed_workload": true
+    },
+    "native-overlay": {
+      "phase": "finished",
+      "observer": {
+        "wall_seconds": 1500.3363873639998,
+        "cpu_seconds": 9.213807,
+        "cpu_percent_one_core": 0.6141160794072388,
+        "max_rss_kib": 24832,
+        "output_bytes": 17140489,
+        "host_rows": 751,
+        "service_rows": 301,
+        "max_host_collection_ms": 24.732839,
+        "redis_info_requests": 301,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      },
+      "command": {
+        "name": "native-overlay-replay",
+        "argv": [
+          "/data/bin/full-fuse-replay",
+          "/data/input/cases/pytest-full-02/capture/events.jsonl",
+          "/data/input/cases/pytest-full-02/capture/blobs",
+          "/mnt/native-overlay/workload",
+          "/data/results/pilot/native-overlay-replay.json",
+          "--performance"
+        ],
+        "exit_code": -15,
+        "timeout": true,
+        "wall_seconds": 1500.0027505970002,
+        "child_cpu_seconds": 58.74079599999999
+      },
+      "redis_before": {
+        "total_commands_processed": "696640",
+        "used_cpu_sys": "5.370946",
+        "used_cpu_user": "4.361892",
+        "used_memory": "7328392",
+        "used_memory_rss": "13737984",
+        "total_net_input_bytes": "48901596",
+        "total_net_output_bytes": "49439210"
+      },
+      "redis_after": {
+        "total_commands_processed": "12920800",
+        "used_cpu_sys": "181.828695",
+        "used_cpu_user": "86.248472",
+        "used_memory": "14296392",
+        "used_memory_rss": "21143552",
+        "total_net_input_bytes": "4833048884",
+        "total_net_output_bytes": "2464355347"
+      },
+      "completed_workload": false
+    },
+    "native-overlay-pack": {
+      "phase": "finished",
+      "observer": {
+        "wall_seconds": 144.7772388579997,
+        "cpu_seconds": 0.9014770000000001,
+        "cpu_percent_one_core": 0.6226648657695332,
+        "max_rss_kib": 26624,
+        "output_bytes": 1886243,
+        "host_rows": 73,
+        "service_rows": 29,
+        "max_host_collection_ms": 21.779093,
+        "redis_info_requests": 29,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      },
+      "command": {
+        "name": "native-overlay-pack-replay",
+        "argv": [
+          "/data/bin/full-fuse-replay",
+          "/data/input/cases/pytest-full-02/capture/events.jsonl",
+          "/data/input/cases/pytest-full-02/capture/blobs",
+          "/mnt/native-overlay-pack/workload",
+          "/data/results/pilot/native-overlay-pack-replay.json",
+          "--performance"
+        ],
+        "exit_code": 1,
+        "timeout": false,
+        "wall_seconds": 144.4469622229999,
+        "child_cpu_seconds": 11.295307000000008
+      },
+      "redis_before": {
+        "total_commands_processed": "12922474",
+        "used_cpu_sys": "181.838150",
+        "used_cpu_user": "86.265561",
+        "used_memory": "14312808",
+        "used_memory_rss": "21274624",
+        "total_net_input_bytes": "4833163833",
+        "total_net_output_bytes": "2464414864"
+      },
+      "redis_after": {
+        "total_commands_processed": "12980550",
+        "used_cpu_sys": "182.503153",
+        "used_cpu_user": "86.999966",
+        "used_memory": "14693592",
+        "used_memory_rss": "21536768",
+        "total_net_input_bytes": "4843716340",
+        "total_net_output_bytes": "2469822584"
+      },
+      "replay": {
+        "actual": "Err(Os { code: 16, kind: ResourceBusy, message: \"Device or resource busy\" })",
+        "event": {
+          "args": [
+            "/repo/doc/en/example/nonpython"
+          ],
+          "end_ns": 15387340023303,
+          "errno": 0,
+          "gid": 0,
+          "op": "opendir",
+          "pid": 298537,
+          "result": 2689,
+          "seq": 130117,
+          "start_ns": 15387339993657,
+          "uid": 0
+        },
+        "seq": 130117,
+        "valid": false
+      },
+      "completed_workload": false
+    },
+    "juicefs": {
+      "phase": "finished",
+      "observer": {
+        "wall_seconds": 1500.344315196,
+        "cpu_seconds": 9.761197,
+        "cpu_percent_one_core": 0.6505971263486161,
+        "max_rss_kib": 26948,
+        "output_bytes": 52275683,
+        "host_rows": 751,
+        "service_rows": 301,
+        "max_host_collection_ms": 24.334501,
+        "redis_info_requests": 301,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      },
+      "command": {
+        "name": "juicefs-replay",
+        "argv": [
+          "/data/bin/full-fuse-replay",
+          "/data/input/cases/pytest-full-02/capture/events.jsonl",
+          "/data/input/cases/pytest-full-02/capture/blobs",
+          "/mnt/juicefs/workload",
+          "/data/results/pilot/juicefs-replay.json",
+          "--performance"
+        ],
+        "exit_code": -15,
+        "timeout": true,
+        "wall_seconds": 1500.005083861,
+        "child_cpu_seconds": 115.37440900000001
+      },
+      "redis_before": {
+        "total_commands_processed": "13027538",
+        "used_cpu_sys": "183.142934",
+        "used_cpu_user": "87.399264",
+        "used_memory": "15181544",
+        "used_memory_rss": "21667840",
+        "total_net_input_bytes": "4845275193",
+        "total_net_output_bytes": "2471400073"
+      },
+      "redis_after": {
+        "total_commands_processed": "35620091",
+        "used_cpu_sys": "384.716818",
+        "used_cpu_user": "242.022422",
+        "used_memory": "17200272",
+        "used_memory_rss": "23658496",
+        "total_net_input_bytes": "5496453348",
+        "total_net_output_bytes": "3462442197"
+      },
+      "completed_workload": false
+    },
+    "xfs-strict-final": {
+      "phase": "finished",
+      "observer": {
+        "wall_seconds": 70.0014767040002,
+        "cpu_seconds": 0.36990799999999996,
+        "cpu_percent_one_core": 0.5284288523857122,
+        "max_rss_kib": 24576,
+        "output_bytes": 591953,
+        "host_rows": 35,
+        "service_rows": 14,
+        "max_host_collection_ms": 18.796085,
+        "redis_info_requests": 14,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      },
+      "command": {
+        "name": "xfs-strict-final-replay",
+        "argv": [
+          "/data/bin/full-fuse-replay",
+          "/data/input/cases/pytest-full-02/capture/events.jsonl",
+          "/data/input/cases/pytest-full-02/capture/blobs",
+          "/data/xfs-strict-final/workload",
+          "/data/results/pilot/xfs-strict-final-replay.json"
+        ],
+        "exit_code": 0,
+        "timeout": false,
+        "wall_seconds": 69.67771773599998,
+        "child_cpu_seconds": 28.253023
+      },
+      "redis_before": {
+        "total_commands_processed": "35620114",
+        "used_cpu_sys": "384.724775",
+        "used_cpu_user": "242.032711",
+        "used_memory": "17137472",
+        "used_memory_rss": "23658496",
+        "total_net_input_bytes": "5496454433",
+        "total_net_output_bytes": "3462455691"
+      },
+      "redis_after": {
+        "total_commands_processed": "35620129",
+        "used_cpu_sys": "384.755433",
+        "used_cpu_user": "242.103087",
+        "used_memory": "17137472",
+        "used_memory_rss": "23658496",
+        "total_net_input_bytes": "5496454778",
+        "total_net_output_bytes": "3462647141"
+      },
+      "replay": {
+        "actual_read_bytes": 281774624,
+        "actual_write_bytes": 194706661,
+        "completed": true,
+        "execution_seconds": 69.626718774,
+        "expected_errors": 45525,
+        "mode": "strict",
+        "operations": 1747109,
+        "probe_errno_differences": 0,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": true
+      },
+      "completed_workload": true
+    }
+  },
+  "started_utc": "2026-10-26T15:05:44Z",
+  "finished_utc": "2026-10-26T16:03:03Z",
+  "finalized_utc": "2026-10-26T16:04:24Z"
+}

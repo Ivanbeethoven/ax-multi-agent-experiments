@@ -1,0 +1,109 @@
+{
+  "base_commit": "e61ab89448c1482d11f5baca2a5ad448f5818213",
+  "branch": "codex/ai-trace-overlay-fix",
+  "candidate_patch_sha256": "04639ee89ec0a2ef9e0a575e37e0497f1e14ce28892c9a8b00f76d40890dead3",
+  "changed_files_sha256": {
+    "src/workspace_overlay/meta_layer/mod.rs": "dc4c6640d2453013ad0bf2429a3a67420708222fdfc10165918c468f67ae5efd",
+    "src/workspace_overlay/meta_layer/packed_enumeration.rs": "2b944e4d8fc6cbdda51d2dcb10de2fa9cb0544aefa16521187249862906aa000",
+    "src/workspace_overlay/stores/kv_store/packed_reader_pins/packed_enumeration_tests.rs": "db5da995c59dea053da06bd23efff020b9ffd94882a7f563cdfadcf04c6ebb61",
+    "src/workspace_overlay/stores/kv_store/packed_reader_pins/performance_tests.rs": "8e0bfa382eb186be5f693de67ab32057b84b63697d2591cf7cbbea8f41513433"
+  },
+  "gates": {
+    "packed-tests": 0,
+    "check-workspace": 0,
+    "build-workspace": 0,
+    "check-tokio": 0,
+    "check-uring": 0,
+    "test-workspace": 0,
+    "clippy-workspace": 0,
+    "clippy-packed": 0
+  },
+  "shell_gates": [
+    {
+      "check": "run_perf_in_container.sh",
+      "exit_code": 0
+    },
+    {
+      "check": "run_redis_perf.sh",
+      "exit_code": 0
+    },
+    {
+      "check": "run_juicefs_perf_in_container.sh",
+      "exit_code": 0
+    },
+    {
+      "check": "run_juicefs_perf.sh",
+      "exit_code": 0
+    },
+    {
+      "check": "test_perf_report_delta.sh",
+      "exit_code": 0
+    },
+    {
+      "check": "test_juicefs_direct_matrix.sh",
+      "exit_code": 0
+    },
+    {
+      "check": "test_juicefs_perf_report.sh",
+      "exit_code": 0
+    }
+  ],
+  "fmt_exit_code": 0,
+  "diff_check_exit_code": 0,
+  "tests": {
+    "packed-tests": [
+      {
+        "passed": 2484,
+        "failed": 0,
+        "ignored": 451,
+        "filtered": 0
+      },
+      {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "filtered": 0
+      },
+      {
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "filtered": 0
+      }
+    ],
+    "test-workspace": [
+      {
+        "passed": 1261,
+        "failed": 0,
+        "ignored": 262,
+        "filtered": 0
+      },
+      {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "filtered": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "filtered": 0
+      }
+    ]
+  },
+  "cargo_build_jobs": 1,
+  "incremental": false,
+  "debug_info": false,
+  "test_brewfs_codegen_units": 256,
+  "real_trace_candidate_verified": false,
+  "compose_performance_accepted": false,
+  "release_build_exit_code": 0,
+  "release_build_jobs": 2,
+  "release_opt_level": 3,
+  "release_debug_info": false,
+  "release_binaries_sha256": {
+    "brewfs": "acd63e1f88a9ef8b6115a8887eed4e6571d7f186a2e1e4f5911ebb6ec4f1b61c",
+    "packed_v3_snapshot_fixture": "887a944a5e4f2ce41d7ac7720b2e1290bcc1250242453ceee77e0a62a2013ea1"
+  }
+}

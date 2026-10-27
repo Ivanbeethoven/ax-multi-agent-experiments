@@ -1,0 +1,41 @@
+{
+  "candidate": "C1",
+  "kind": "diagnostic fault injection on the retained completed-trace workspace",
+  "candidate_sha256": "acd63e1f88a9ef8b6115a8887eed4e6571d7f186a2e1e4f5911ebb6ec4f1b61c",
+  "original_trace_operations": 1747109,
+  "same_redis_and_object_history": true,
+  "new_workspace_initialized": false,
+  "injection": {
+    "signal": "SIGTERM",
+    "target": "only the writer application",
+    "syscall": "write",
+    "fd": 3,
+    "write_bytes": 8388608,
+    "wchan": "request_wait_answer",
+    "verified_writer_executable_and_cmdline": true
+  },
+  "result": {
+    "writer_exit_code": -15,
+    "normal_unmount_exit_code": 0,
+    "normal_unmount_seconds": 0.2014347820004332,
+    "mount_exit_code": 0,
+    "natural_mount_exit": true,
+    "redis_exit_code": 0,
+    "rustfs_exit_code": 0,
+    "cleanup_errors": [],
+    "interrupted_fuse_reply_enoent_observed": true,
+    "read_destroy_inflight": 0,
+    "dispatch_returned_ok": true
+  },
+  "evidence": {
+    "archive_sha256": "53b0bf601e5fbb77c6ddd03bc8dbb99b0527d9acd6cf43de96d180acff058e80",
+    "archive_bytes": 2615,
+    "credential_scan": "passed",
+    "finalized": true
+  },
+  "limitations": [
+    "Not a performance measurement or a proof that the old WSL teardown defect is fixed.",
+    "The persisted long-history workspace was reused, but the mount process was fresh; this does not reproduce accumulated in-process FUSE state.",
+    "The original completed-trace report is unchanged. No forced or lazy unmount or mount-process kill was used."
+  ]
+}

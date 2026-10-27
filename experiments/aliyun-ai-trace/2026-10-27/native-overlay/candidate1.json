@@ -1,0 +1,79 @@
+{
+  "candidate": "C1",
+  "method": "native-overlay",
+  "purpose": "Single development diagnostic; not final acceptance or a fair cross-host comparison.",
+  "source": {
+    "base_commit": "e61ab89448c1482d11f5baca2a5ad448f5818213",
+    "candidate_patch_sha256": "04639ee89ec0a2ef9e0a575e37e0497f1e14ce28892c9a8b00f76d40890dead3",
+    "brewfs_sha256": "acd63e1f88a9ef8b6115a8887eed4e6571d7f186a2e1e4f5911ebb6ec4f1b61c",
+    "trace_sha256": "9953d90517eaf520814150f80abccb11f9d74b7ac84ecc56fa394a5f8495aa3d",
+    "rust_replayer_sha256": "a352dfe4965efabff55fa53c05a82f7540765ca7dc2c395cd9c7394c5940aa25",
+    "harness_sha256": "47991b6e375db8ceffbbf7ad7653e27ec8d080c9aebbbfed64874fefcdd876d7",
+    "cloud_adapter_sha256": "6a1928e0a3863540ccc1cf355e6e3d98e0225aa92c6438755b9c4ed654912f82",
+    "validation_manifest_sha256": "a2d7874610f22bf9c72d2e7f1dfa28f89a1e115277ab0b4df3635c004f36820f"
+  },
+  "environment": {
+    "instance_type": "ecs.e-c1m4.2xlarge",
+    "vcpus": 8,
+    "memory_gib": 32,
+    "data_disk": "100 GiB ESSD PL0, XFS",
+    "redis": "7.0.15; AOF appendfsync always",
+    "rustfs": "1.0.3",
+    "replay_timeout_seconds": null
+  },
+  "replay": {
+    "actual_read_bytes": 281774624,
+    "actual_write_bytes": 194706661,
+    "completed": true,
+    "execution_seconds": 2046.3451541,
+    "expected_errors": 45525,
+    "mode": "performance",
+    "operations": 1747109,
+    "probe_errno_differences": 1048,
+    "remaining_handles": 0,
+    "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+    "valid": false
+  },
+  "process_exit_code": 0,
+  "completed_workload": true,
+  "cleanup": {
+    "fusermount_exit_code": 0,
+    "fusermount_seconds": 0.03413208099982512,
+    "mount_process_exited_naturally": true,
+    "mount_process_exit_code": null,
+    "backend_processes_exited": true,
+    "errors": []
+  },
+  "observations": {
+    "host_interval_seconds": 2,
+    "service_interval_seconds": 5,
+    "host_samples": 1024,
+    "service_samples": 410,
+    "mount_cpu_seconds": 1676.69,
+    "mount_peak_rss_kib": 416428,
+    "host_busy_percent": 13.497032604412924,
+    "host_iowait_percent": 7.333961288416075,
+    "host_steal_percent": 0.0,
+    "redis_commands": 2507994,
+    "redis_input_bytes": 173232875,
+    "redis_output_bytes": 164837168,
+    "redis_evictions": 0,
+    "gc_budget_warnings": 46,
+    "host_sample_collection_ms_p50": 12.057445999999999,
+    "host_sample_collection_wall_seconds": 14.501467972,
+    "uploader_cpu_seconds": 1.724025
+  },
+  "evidence": {
+    "archive_sha256": "07b54764bf6e4cac96a725e19111ff9e4e35154aa4f5b915e0c840b0c376c473",
+    "archive_bytes": 3055196,
+    "credential_scan": "passed",
+    "local_directory": "runs/aliyun-native-fix-20261027/candidate1-retrieved/results"
+  },
+  "limits": [
+    "Performance mode completed the original 1,747,109 callbacks without removing xattrs. It does not establish strict correctness; valid=false and 1,048 probe errno differences are retained.",
+    "C1 predates final cancellation and directory-cookie fixes. No speedup claim against earlier truncated runs or different machines.",
+    "Natural mount exit was awaited and its PID disappeared, but this harness did not persist the exact mount child exit code.",
+    "CPU/RSS are sampled process observations. Collection wall time and uploader CPU do not replace an observer-on/off overhead experiment.",
+    "46 GC metadata-budget warnings occurred despite successful full replay and natural teardown; this does not establish the prior teardown-hang cause."
+  ]
+}

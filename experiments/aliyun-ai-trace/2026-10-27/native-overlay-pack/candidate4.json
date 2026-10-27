@@ -1,0 +1,388 @@
+{
+  "candidate": "C4",
+  "method": "native-overlay-pack",
+  "purpose": "One complete development performance replay if completed_workload=true; not a repeated or cross-host controlled benchmark.",
+  "source": {
+    "base_commit": "e61ab89448c1482d11f5baca2a5ad448f5818213",
+    "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+    "source_files_verified_after_build": 1586,
+    "brewfs_sha256": "c1f6de4e5fa06873cbd2e281c697a65470ad602b9c5fc4b20b43b9fe74e3c3d2",
+    "packed_fixture_sha256": "a74655783c809296fd5d7c25b1509795b3db37d4fa2bfd5129be3723aaa5f343",
+    "trace_sha256": "9953d90517eaf520814150f80abccb11f9d74b7ac84ecc56fa394a5f8495aa3d",
+    "rust_replayer_sha256": "a352dfe4965efabff55fa53c05a82f7540765ca7dc2c395cd9c7394c5940aa25",
+    "harness_sha256": "095f2c974e409a4d3012d38fb86d7ae2f2095550982743b8a84eb21bb6219ced",
+    "validation_manifest_sha256": "b8e1384e7bc9e6763264242b8384199879cb46c99926ccc1144be22a47482b17",
+    "archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783"
+  },
+  "build": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)\n",
+    "command": "cargo build --release --locked --no-default-features --features fuse-io-uring-runtime,native-packed-base --bin brewfs --bin packed_v3_snapshot_fixture",
+    "environment": {
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_PROFILE_RELEASE_DEBUG": "0",
+      "CARGO_BUILD_JOBS": "4",
+      "CARGO_NET_OFFLINE": "true"
+    },
+    "build_swap_removed_before_measurement": true
+  },
+  "environment": {
+    "instance_type": "ecs.e-c1m4.2xlarge",
+    "vcpus": 8,
+    "memory_gib": 32,
+    "data_disk": "100 GiB ESSD PL0, XFS",
+    "redis": "7.0.15; AOF appendfsync always",
+    "rustfs": "1.0.3",
+    "kernel": "6.8.0-147-generic",
+    "replay_timeout_seconds": null,
+    "xattrs_retained": true,
+    "cache_bytes": {
+      "read_memory": 268435456,
+      "write_memory": 268435456,
+      "read_ssd": 536870912,
+      "write_ssd": 536870912
+    },
+    "metadata_open_cache_ttl_ms": 0,
+    "metadata_open_cache_capacity": 0,
+    "fuse_workers": 2,
+    "fuse_cache_ttl_ms": 0,
+    "data_writeback_mode": "upload_before_commit",
+    "s3_max_concurrency": 8,
+    "compression": "none",
+    "auto_updates_masked": true,
+    "observer_storage": "Data disk /data/results; original 2s host and 5s service sampling retained. New disk-matrix runs will use their common driver separately.",
+    "disks": [
+      {
+        "DiskId": "d-bp185xczfgduelyuiz44",
+        "Type": "data",
+        "Category": "cloud_essd",
+        "PerformanceLevel": "PL0",
+        "Size": 100,
+        "Device": "/dev/xvdb",
+        "IOPS": 3000
+      },
+      {
+        "DiskId": "d-bp185xczfgduelyuiz43",
+        "Type": "system",
+        "Category": "cloud_essd",
+        "PerformanceLevel": "PL0",
+        "Size": 40,
+        "Device": "/dev/xvda",
+        "IOPS": 2280
+      }
+    ],
+    "storage_mapping": {
+      "captured_epoch": 1793079745.572192,
+      "purpose": "One read-only device mapping snapshot; no configuration changes or extra periodic sampling",
+      "lsblk": {
+        "blockdevices": [
+          {
+            "name": "vda",
+            "kname": "vda",
+            "type": "disk",
+            "size": 42949672960,
+            "fstype": null,
+            "mountpoints": [
+              null
+            ],
+            "children": [
+              {
+                "name": "vda1",
+                "kname": "vda1",
+                "type": "part",
+                "size": 1048576,
+                "fstype": null,
+                "mountpoints": [
+                  null
+                ]
+              },
+              {
+                "name": "vda2",
+                "kname": "vda2",
+                "type": "part",
+                "size": 209715200,
+                "fstype": "vfat",
+                "mountpoints": [
+                  "/boot/efi"
+                ]
+              },
+              {
+                "name": "vda3",
+                "kname": "vda3",
+                "type": "part",
+                "size": 42737843712,
+                "fstype": "ext4",
+                "mountpoints": [
+                  "/"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "vdb",
+            "kname": "vdb",
+            "type": "disk",
+            "size": 107374182400,
+            "fstype": "xfs",
+            "mountpoints": [
+              "/data"
+            ]
+          }
+        ]
+      },
+      "root_mount": {
+        "filesystems": [
+          {
+            "source": "/dev/vda3",
+            "fstype": "ext4",
+            "target": "/"
+          }
+        ]
+      },
+      "data_mount": {
+        "filesystems": [
+          {
+            "source": "/dev/vdb",
+            "fstype": "xfs",
+            "target": "/data"
+          }
+        ]
+      }
+    },
+    "instance_storage_api": {
+      "InstanceBandwidthRx": 1228800,
+      "InstanceBandwidthTx": 1228800,
+      "InstanceTypeId": "ecs.e-c1m4.2xlarge",
+      "MemorySize": 32.0,
+      "CpuCoreCount": 8,
+      "DiskQuantity": 17
+    },
+    "instance_ebs_limit": "Not returned by the queried instance-type API; InstanceBandwidthRx/Tx are preserved as raw API values and are not interpreted as EBS limits."
+  },
+  "preparation": {
+    "source_copy_seconds": 0.10148307300005399,
+    "bucket_create_seconds": 0.03175701100008155,
+    "offline_snapshot_fixture_build_and_upload_seconds": 7.808960632999515,
+    "snapshot_build_seconds": null,
+    "snapshot_upload_seconds": null,
+    "workspace_initialization_seconds": 0.042912980999972206,
+    "mount_readiness_wait_seconds": 0.2582282240000495,
+    "mount_readiness_poll_interval_seconds": 0.25,
+    "total_seconds": 8.384051801000169,
+    "online_freeze_seconds": null,
+    "fork_seconds": null,
+    "limitations": [
+      "Offline snapshot fixture builds and uploads in one command; those two components were not timed separately.",
+      "Source copy and workspace initialization are preparation, not an online freeze or fork measurement.",
+      "Readiness time includes the existing 250-ms polling granularity."
+    ]
+  },
+  "replay": {
+    "actual_read_bytes": 281774624,
+    "actual_write_bytes": 194706661,
+    "completed": true,
+    "execution_seconds": 1730.244159433,
+    "expected_errors": 45525,
+    "mode": "performance",
+    "operations": 1747109,
+    "probe_errno_differences": 1048,
+    "remaining_handles": 0,
+    "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+    "valid": false
+  },
+  "replay_driver_wall_seconds": 1730.4893116040002,
+  "process_exit_code": 0,
+  "completed_workload": true,
+  "strict_correctness_claim": false,
+  "cleanup": {
+    "fusermount_exit_code": 0,
+    "fusermount_seconds": 0.020563559999573044,
+    "mount_process_exited_naturally": true,
+    "mount_process_exit_code": 0,
+    "mount_process_exit_wait_seconds": 1.000938106999456,
+    "errors": []
+  },
+  "observations": {
+    "host_interval_seconds": 2,
+    "service_interval_seconds": 5,
+    "host_samples": 866,
+    "service_samples": 347,
+    "host_busy_percent": 14.394268345636126,
+    "host_iowait_percent": 9.148120193386507,
+    "host_steal_percent": 0.0,
+    "host_sample_collection_ms_p50": 9.9995195,
+    "host_sample_collection_ms_max": 35.294744,
+    "host_sample_collection_wall_seconds": 9.734050086,
+    "mount_cpu_seconds": 1454.56,
+    "mount_peak_rss_kib": 522716,
+    "mount_sampled_seconds": 1730.0922949680007,
+    "mount_io_counters_delta": {
+      "rchar": 1,
+      "wchar": 671608681,
+      "syscr": 1,
+      "syscw": 33076267,
+      "read_bytes": 0,
+      "write_bytes": 3624960,
+      "cancelled_write_bytes": 0
+    },
+    "redis_commands": 1566919,
+    "redis_input_bytes": 168320167,
+    "redis_output_bytes": 114171601,
+    "redis_evictions": 0,
+    "observer": {
+      "wall_seconds": 1730.3513445209992,
+      "cpu_seconds": 10.484855000000001,
+      "cpu_percent_one_core": 0.6059379231390981,
+      "max_rss_kib": 403700,
+      "output_bytes": 14956334,
+      "host_rows": 866,
+      "service_rows": 347,
+      "max_host_collection_ms": 35.294744,
+      "redis_info_requests": 347,
+      "complete": true,
+      "host_interval_s": 2,
+      "service_interval_s": 5
+    },
+    "uploader_cpu_seconds": 10.067163,
+    "gc_budget_warnings": 35,
+    "block_devices": {
+      "source": "existing /proc/diskstats host samples; no additional periodic collection",
+      "sector_bytes": 512,
+      "scope": "Whole block device during sampled replay window; includes Redis/RustFS and other host I/O. RW IOPS excludes flush/discard; reported separately where available.",
+      "limits": [
+        "Counters average activity between approximately 2-second samples; interval maxima are not instantaneous peaks.",
+        "Read/write await excludes separately accounted flushes. Device busy percentage alone does not establish saturation of a parallel cloud disk.",
+        "Raw io_ticks intervals exceeding elapsed wall time are flagged; their uncapped busy percentages must not be used as utilization estimates.",
+        "These counters do not directly prove a provider IOPS/bandwidth throttle."
+      ],
+      "devices": {
+        "vda": {
+          "sampled_seconds": 1730.0922949680007,
+          "read_ios": 1,
+          "write_ios": 1159,
+          "rw_iops": 0.6704844610740579,
+          "read_iops": 0.0005780038457534982,
+          "write_iops": 0.6699064572283044,
+          "read_bytes_per_second": 7.102511256618986,
+          "write_bytes_per_second": 5864.3067942150765,
+          "rw_await_ms": 0.5724137931034483,
+          "read_await_ms": 1.0,
+          "write_await_ms": 0.5720448662640207,
+          "weighted_queue_depth": 0.0003982446497241603,
+          "busy_percent": 0.013351888836905808,
+          "flush_ios": 395,
+          "flush_iops": 0.22831151907263178,
+          "flush_await_ms": 0.06582278481012659,
+          "sample_count": 866,
+          "io_ticks_intervals_exceeding_wall_time": 0,
+          "busy_percent_valid_as_utilization": true,
+          "interval_max": {
+            "rw_iops": 18.499169664759716,
+            "read_bytes_per_second": 6143.683114970005,
+            "write_bytes_per_second": 139255.31777897506,
+            "weighted_queue_depth": 0.011999251876635031,
+            "busy_percent": 0.2499884535333227
+          }
+        },
+        "vdb": {
+          "sampled_seconds": 1730.0922949680007,
+          "read_ios": 0,
+          "write_ios": 67184,
+          "rw_iops": 38.83261037310302,
+          "read_iops": 0.0,
+          "write_iops": 38.83261037310302,
+          "read_bytes_per_second": 0.0,
+          "write_bytes_per_second": 681746.9723612724,
+          "rw_await_ms": 1.468355560847821,
+          "read_await_ms": null,
+          "write_await_ms": 1.468355560847821,
+          "weighted_queue_depth": 0.05849687920948279,
+          "busy_percent": 1.7088105695856421,
+          "flush_ios": 49104,
+          "flush_iops": 28.382300841879776,
+          "flush_await_ms": 0.052032420984033885,
+          "sample_count": 866,
+          "io_ticks_intervals_exceeding_wall_time": 1,
+          "busy_percent_valid_as_utilization": false,
+          "interval_max": {
+            "rw_iops": 443.48276226869893,
+            "read_bytes_per_second": 0.0,
+            "write_bytes_per_second": 18149408.014277175,
+            "weighted_queue_depth": 1.9369241142191351,
+            "busy_percent": 224.94021993671055
+          }
+        }
+      }
+    }
+  },
+  "evidence": {
+    "archive_sha256": "9535e99d7194d8f2cd00d3db326f13a4962418b51aa44d27beb24621fb42c567",
+    "archive_bytes": 1741964,
+    "verified": true,
+    "collected_utc": "2026-10-27T05:58:47.084193+00:00",
+    "receipt_created_utc": "2026-10-27T05:58:59.627770+00:00",
+    "completed_workload": true,
+    "strict_correctness_claim": false,
+    "known_cloud_profile_key_scan": "passed",
+    "known_service_key_scan": "passed after diagnostic-output redaction",
+    "signed_oss_url_scan": "passed",
+    "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+    "brewfs_sha256": "c1f6de4e5fa06873cbd2e281c697a65470ad602b9c5fc4b20b43b9fe74e3c3d2",
+    "archive_name": "candidate4-full-results.tar.gz"
+  },
+  "resource_cleanup_verification": {
+    "complete": true,
+    "instance_id": "i-bp185xczfgduelyui0gv",
+    "instance_absence_verified": true,
+    "disks": [
+      {
+        "id": "d-bp185xczfgduelyuiz44",
+        "type": "data",
+        "size_gib": 100,
+        "absence_verified": true
+      },
+      {
+        "id": "d-bp185xczfgduelyuiz43",
+        "type": "system",
+        "size_gib": 40,
+        "absence_verified": true
+      }
+    ],
+    "security_group_id": "sg-bp1grcwr1kqz7f11jvio",
+    "security_group_absence_verified": true,
+    "temporary_bucket": "ax-packed-fix-20261027-025511-206f3c-tmp",
+    "bucket_absence_verified": true,
+    "preexisting_vswitch_preserved": true,
+    "completed_utc": "2026-10-27T06:00:10.290990+00:00",
+    "instances_remaining": 0,
+    "created_disks_remaining": 0,
+    "own_security_group_remaining": 0,
+    "own_temporary_bucket_exists": false,
+    "verified_utc": "2026-10-27T06:00:10.290990+00:00"
+  },
+  "hardware_cost_estimate": {
+    "quoted_hardware_cny_per_hour": 0.2955,
+    "compute_cny_per_hour": 0.1485,
+    "system_disk_cny_per_hour": 0.042,
+    "data_disk_cny_per_hour": 0.105,
+    "created_utc": "2026-10-27T02:55Z",
+    "released_utc": "2026-10-27T06:00:10.290990+00:00",
+    "elapsed_hours": 3.0861919416666663,
+    "estimated_hardware_cny": 0.9119697187624999,
+    "scope": "Entire owned environment including superseded builds, diagnostics, waiting and final replay; not replay-only cost.",
+    "excludes": [
+      "Public traffic",
+      "OSS"
+    ],
+    "basis": "Initial live quote; estimate rather than invoice, and later spot prices may vary."
+  },
+  "limits": [
+    "Performance mode preserves all original operations and xattrs but does not establish strict correctness; retain valid/probe_errno_differences as reported.",
+    "Single-run development diagnostic; no speedup claim against incomplete prefixes or uncontrolled hosts.",
+    "CPU/RSS are sampled, and observer/uploader CPU or collection duration is not an observer-on/off slowdown experiment.",
+    "Packed preparation is an offline fixture path; online freeze and fork costs were not measured."
+  ],
+  "fatal_error": null,
+  "run_id": "ax-packed-fix-20261027-025511-206f3c",
+  "timed_out": false
+}

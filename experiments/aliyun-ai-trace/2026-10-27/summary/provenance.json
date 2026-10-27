@@ -1,0 +1,66 @@
+{
+  "status": "automated_and_agent_visual_checks_passed_root_final_review_passed",
+  "n_per_method": 1,
+  "error_bars": "none: one observation per method",
+  "strict_correctness_certified": false,
+  "fair_cross_host_ranking": false,
+  "local_performance_accepted": false,
+  "local_performance_summary": "首轮 randrw 吞吐与 completion p99 改善，但 seqwrite 约回退 25%、randwrite direct=1 回退 64.3%；反向复测 seqwrite 方向翻转、buffered randwrite 差异幅度变化。直接随机写 active 吞吐接近，tool-wall 吞吐仍低 15.4%（115.520 对 136.571 MiB/s）。",
+  "exclusions": [
+    {
+      "label": "历史失败／超时与候选排除",
+      "result": "history-exclusions.json",
+      "reason": "真实失败、超时、中断及旧候选仅用于诊断／回归，不列为完整最终延迟"
+    },
+    {
+      "label": "native-overlay / C1",
+      "result": "../native-overlay/candidate1.json",
+      "reason": "旧候选版本，含 1,048 项 probe errno 差异；保留完整回放证据，不代替 C4"
+    },
+    {
+      "label": "C1 中断写探针",
+      "result": "../native-overlay/candidate1-interrupted-write.json",
+      "reason": "故障注入诊断；新挂载进程复用持久化历史，不是完整性能测量或旧挂起根因证明"
+    },
+    {
+      "label": "JuiceFS / attempt01",
+      "result": "../juicefs/interruption.json",
+      "reason": "系统升级重启服务导致中断，未完成 trace；不能当作完整耗时"
+    }
+  ],
+  "input_sha256": {
+    "../compose/summary.json": "9061327e5aefee146aaf6d9dad788cd4781c543099db1192f29cdf396994cc82",
+    "../juicefs/interruption.json": "edac15e05536fade99e8c0abf92a393cd0dab4ea59c8e629194332cc2093e6a0",
+    "../juicefs/result.json": "c53c215753c5c181ebe6efb8fbda407f2428ec7a239363e74138bb9ef77d8b7b",
+    "../native-overlay/candidate1-interrupted-write.json": "55a3c91722331a3bb3b46a886f85e51f218c64166349591ce02472afa687d774",
+    "../native-overlay/candidate1.json": "cb5cfd4fd6c04480d1ab6db87468f748ab028186742b4a5efe7d232d64179391",
+    "../native-overlay/candidate4.json": "aea6a00a696a9473cc56c00fdf77e846641670dea6403b981a21b39164183dee",
+    "../native-overlay-pack/candidate4.json": "9f05d2e631c4c8f832290ff04ee50707bfb79429d6f79f60a80745e05042f9c6",
+    "../reporting/acceptance-evidence.json": "0c15e21779900ba8adf08b78b488b003585f1904c9bf7f1901e19a94d2970fcc",
+    "../reporting/evidence/candidate4-local-ci.json": "0003cff603ff36a11ca7f3ee2061d27df3547f106a8fe01715bbe3b826ddc615",
+    "../reporting/generate_report.py": "3baff7098fe21fa600328bc6ef9e4a90fd94e1c3d37aca92d05dd571441c7078",
+    "../reporting/history-exclusions.json": "d0aca43425cba4aef112b2bdc22362a39f2bda7f795d14ddc39642bf775a3b32",
+    "../reporting/report-inputs.json": "ccdf86cce84dc2aff84ccb9e869951a6560dd7e98787537240e4627b6c6439b5"
+  },
+  "output_sha256": {
+    "replay-seconds.pdf": "7a297d0bb565209ce5fa3784180a7fecf33f4575582c5f34c21b9cc6a1273cba",
+    "replay-seconds.png": "01074fbd2e6c2daf38d0d6379141307f598a268951f6ea0e90d96faccf8d4dd9",
+    "replay-seconds.svg": "c175465e936f3be74901fc87fe8d554e30087774be6a180ec311e323edda162d",
+    "source-data.csv": "2c0c1be6737b9389801592efc09d028efea7ce90551131a1613f16e7c388331e",
+    "summary.zh.md": "84cc91ae671a3584c8a78f719442875d0fa508d5d26a56368f3774607f26d863"
+  },
+  "agent_visual_review": "qa/visual-review.json",
+  "final_publication_scan": "qa/final-publication-scan.json",
+  "qa_sha256": {
+    "qa/alignment.json": "b4d0d4279a47817874c72cdaf85e69d15c52a22841a778737b13b984da42040b",
+    "qa/alignment.svg": "ca9263c0899e55d73804bb2f32ed9c8a16be3b1907f14389ef08c01402e09087",
+    "qa/collision-audit.json": "c764ce95441b9a04151d6de68527ee708913d891d5e86cb9621d2e1cf519487f",
+    "qa/collision-audit.txt": "72c7d9cf5334dc763a60396c94f0a276c059e1a2d24ed16aca866554895e3381",
+    "qa/final-publication-scan.json": "88d5e5ad0791b73a3163c85a39d0baced8e5cde7c19077e6b0c96655e18bcd08",
+    "qa/pdf-preview.png": "56b9e1cada72ec4f1a0e8fd1508fb3b5a803d2c4df97bf4b95b37d83c7889f8d",
+    "qa/pdf-text.json": "bc4c2b2cc2c463c070d9143379c79b6aff56f4f165d12d58384ff2db401d4c53",
+    "qa/source-audit.txt": "f5aa125546fa0db2ff2fc3f31a7db3b3ebbab0540bc1d964dca169d097e48847",
+    "qa/visual-review.json": "b4780ede7b8cdd18d9eddc000f8bdd60f2fe3552bd917694fa8ba5585d01b325"
+  },
+  "root_final_review": "passed"
+}

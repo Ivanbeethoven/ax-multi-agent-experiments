@@ -1,0 +1,133 @@
+{
+  "scope": "Historical diagnostic evidence only; excluded from the final C4/JuiceFS complete-latency chart. Failed/interrupted elapsed times are not completed-workload latency.",
+  "records": [
+    {
+      "record": "2026-10-26 cloud native-overlay",
+      "classification": "timeout",
+      "completed_workload": false,
+      "exit_code": -15,
+      "timed_out": true,
+      "diagnostic_elapsed_seconds": 1500.0027505970002,
+      "source": "../../2026-10-26/results/ai-status.json",
+      "source_pointer": "/methods/native-overlay",
+      "source_sha256": "af2f58eca31c3aa4b57210e19524a7bc697f4e67fcaa2a4dd8f5029e80439f81",
+      "include_in_final_chart": false
+    },
+    {
+      "record": "2026-10-26 cloud native-overlay-pack",
+      "classification": "operation_error",
+      "completed_workload": false,
+      "exit_code": 1,
+      "timed_out": false,
+      "diagnostic_elapsed_seconds": 144.4469622229999,
+      "source": "../../2026-10-26/results/ai-status.json",
+      "source_pointer": "/methods/native-overlay-pack",
+      "source_sha256": "af2f58eca31c3aa4b57210e19524a7bc697f4e67fcaa2a4dd8f5029e80439f81",
+      "include_in_final_chart": false,
+      "error_operation": "opendir",
+      "error_sequence": 130117,
+      "error_errno": 16,
+      "error_source": "../../2026-10-26/results/native-overlay-pack-replay.json"
+    },
+    {
+      "record": "2026-10-26 cloud juicefs",
+      "classification": "timeout",
+      "completed_workload": false,
+      "exit_code": -15,
+      "timed_out": true,
+      "diagnostic_elapsed_seconds": 1500.005083861,
+      "source": "../../2026-10-26/results/ai-status.json",
+      "source_pointer": "/methods/juicefs",
+      "source_sha256": "af2f58eca31c3aa4b57210e19524a7bc697f4e67fcaa2a4dd8f5029e80439f81",
+      "include_in_final_chart": false
+    },
+    {
+      "record": "local-repro-02 baseline-packed",
+      "classification": "operation_error",
+      "completed_workload": false,
+      "exit_code": 1,
+      "timed_out": false,
+      "error": "Error: \"mismatch at 121694: \\\"opendir\\\" Err(Os { code: 16, kind: ResourceBusy, message: \\\"Device or resource busy\\\" })\"",
+      "source": "../../2026-10-26/results/local-repro-02.json",
+      "source_pointer": "/methods/baseline-packed",
+      "source_sha256": "aa807a7dc928555045f66e9c90139de303fe8f394833864683b06d3801708de4",
+      "include_in_final_chart": false
+    },
+    {
+      "record": "local-repro-02 candidate-packed",
+      "classification": "operation_error",
+      "completed_workload": false,
+      "exit_code": 1,
+      "timed_out": false,
+      "error": "Error: \"mismatch at 890314: \\\"readdir\\\" Err(Os { code: 16, kind: ResourceBusy, message: \\\"Device or resource busy\\\" })\"",
+      "source": "../../2026-10-26/results/local-repro-02.json",
+      "source_pointer": "/methods/candidate-packed",
+      "source_sha256": "aa807a7dc928555045f66e9c90139de303fe8f394833864683b06d3801708de4",
+      "include_in_final_chart": false
+    },
+    {
+      "record": "local-repro-02 baseline-overlay",
+      "classification": "timeout",
+      "completed_workload": false,
+      "exit_code": -15,
+      "timed_out": true,
+      "error": null,
+      "source": "../../2026-10-26/results/local-repro-02.json",
+      "source_pointer": "/methods/baseline-overlay",
+      "source_sha256": "aa807a7dc928555045f66e9c90139de303fe8f394833864683b06d3801708de4",
+      "include_in_final_chart": false
+    },
+    {
+      "record": "local-repro-02 candidate-overlay",
+      "classification": "timeout",
+      "completed_workload": false,
+      "exit_code": -15,
+      "timed_out": true,
+      "error": null,
+      "source": "../../2026-10-26/results/local-repro-02.json",
+      "source_pointer": "/methods/candidate-overlay",
+      "source_sha256": "aa807a7dc928555045f66e9c90139de303fe8f394833864683b06d3801708de4",
+      "include_in_final_chart": false
+    },
+    {
+      "record": "local-repro-01",
+      "classification": "unaccepted_local_diagnostic_and_teardown_timeout",
+      "source": "../../2026-10-26/results/local-repro-01.json",
+      "source_sha256": "bd0cc70b4d751ac6c9889cdc5f6c9e64b7347f74bfa9feb8d5a961ea0f70f5e0",
+      "reason": "早期本地诊断存在代理配置风险与挂载退出超时；保留故障证据，不用作最终性能验收。",
+      "include_in_final_chart": false
+    },
+    {
+      "record": "C2 / C3",
+      "classification": "superseded_candidates",
+      "source": "../../2026-10-26/diagnosis.md",
+      "source_sha256": "a4f85149e5f8e7bc764e0b54f4bde16f618b08d002ae837363223023791eff38",
+      "reason": "只保留候选迭代及回归定位记录；不将旧候选构建、检查或未完成测量当作最终 C4 验收。",
+      "include_in_final_chart": false
+    },
+    {
+      "record": "JuiceFS attempt01",
+      "classification": "infrastructure_interruption",
+      "source": "../juicefs/interruption.json",
+      "source_sha256": "edac15e05536fade99e8c0abf92a393cd0dab4ea59c8e629194332cc2093e6a0",
+      "completed_workload": false,
+      "include_in_final_chart": false
+    },
+    {
+      "record": "native-overlay C1",
+      "classification": "superseded_complete_candidate",
+      "source": "../native-overlay/candidate1.json",
+      "source_sha256": "cb5cfd4fd6c04480d1ab6db87468f748ab028186742b4a5efe7d232d64179391",
+      "completed_workload": true,
+      "include_in_final_chart": false
+    },
+    {
+      "record": "C1 interrupted-write probe",
+      "classification": "fault_injection_diagnostic",
+      "source": "../native-overlay/candidate1-interrupted-write.json",
+      "source_sha256": "55a3c91722331a3bb3b46a886f85e51f218c64166349591ce02472afa687d774",
+      "completed_workload": null,
+      "include_in_final_chart": false
+    }
+  ]
+}

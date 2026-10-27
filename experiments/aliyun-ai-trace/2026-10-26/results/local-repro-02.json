@@ -1,0 +1,158 @@
+{
+  "run": "local-repro-20261027-02",
+  "scope": "local WSL diagnostic; no host page-cache drop",
+  "accepted": false,
+  "correctness_certified": false,
+  "source": {
+    "trace_sha256": "9953d90517eaf520814150f80abccb11f9d74b7ac84ecc56fa394a5f8495aa3d",
+    "baseline_binaries": {
+      "brewfs": "765bce82ad5b971c4d24fc989f5a6ca201c8c7c3638c5a7c91501a0a1e4e994a",
+      "packed_v3_snapshot_fixture": "a48be898345836ef689d3fef65ab7fc743e0c301a756044c25eec7b3d15bbfc2",
+      "full-fuse-replay": "a352dfe4965efabff55fa53c05a82f7540765ca7dc2c395cd9c7394c5940aa25"
+    },
+    "candidate_sha256": "acd63e1f88a9ef8b6115a8887eed4e6571d7f186a2e1e4f5911ebb6ec4f1b61c",
+    "observer_sha256": "e3413299bbaefeb880eeee45c1d3cf5211124d3f0a8366161c1ba1391a78cb98",
+    "runtime_observer_sha256": "f42a30cd74cee8ab6a9430fa3ba803b99ebf3eab7afc8746ee73fc8ca9b848ba",
+    "repro_script_sha256": "f5b7ad8b3c5eff85f063cc2c2ffbbdbdb8f8dcacda8db0f0ab1bcc75c919e9d3"
+  },
+  "backend_images": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:7bc4270ebbf1c17a76de8cdf59ec010bddac36d90f19be520b77d12eb256016c"
+  },
+  "proxy_policy": "child proxies removed; literal loopback NO_PROXY; direct sockets verified",
+  "methods": {
+    "baseline-packed": {
+      "completed_workload": false,
+      "command": {
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 128.93511260799997
+      },
+      "last_reported_progress_lower_bound": {
+        "operations": 65536,
+        "read_bytes": 13065332,
+        "seconds": 67.980520922,
+        "write_bytes": 34303675
+      },
+      "error": "Error: \"mismatch at 121694: \\\"opendir\\\" Err(Os { code: 16, kind: ResourceBusy, message: \\\"Device or resource busy\\\" })\"",
+      "stderr_sha256": "3d0ebec2481d85dc61808fae67abcaeb1ec8ac60e8c38c660987e7ac35a36e49",
+      "report": {},
+      "observer": {
+        "wall_seconds": 129.077425924,
+        "cpu_seconds": 0.109985,
+        "cpu_percent_one_core": 0.08520854767026304,
+        "max_rss_kib": 101824,
+        "output_bytes": 1247570,
+        "host_rows": 65,
+        "service_rows": 26,
+        "max_host_collection_ms": 1.892282,
+        "redis_info_requests": 26,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      }
+    },
+    "candidate-packed": {
+      "completed_workload": false,
+      "command": {
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 1046.652880692
+      },
+      "last_reported_progress_lower_bound": {
+        "operations": 851968,
+        "read_bytes": 102559056,
+        "seconds": 1004.577676741,
+        "write_bytes": 180840108
+      },
+      "error": "Error: \"mismatch at 890314: \\\"readdir\\\" Err(Os { code: 16, kind: ResourceBusy, message: \\\"Device or resource busy\\\" })\"",
+      "stderr_sha256": "e65cd2080a0dbf4d01e5f88dc18675b90074a64e345d80668cf5d3f8e4f9801a",
+      "report": {},
+      "observer": {
+        "wall_seconds": 1046.769925882,
+        "cpu_seconds": 0.8022889999999999,
+        "cpu_percent_one_core": 0.07664425392466234,
+        "max_rss_kib": 101824,
+        "output_bytes": 10128470,
+        "host_rows": 523,
+        "service_rows": 210,
+        "max_host_collection_ms": 2.037841,
+        "redis_info_requests": 210,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      }
+    },
+    "baseline-overlay": {
+      "completed_workload": false,
+      "command": {
+        "exit_code": -15,
+        "timed_out": true,
+        "wall_seconds": 1500.0162030830002
+      },
+      "last_reported_progress_lower_bound": {
+        "operations": 196608,
+        "read_bytes": 49542782,
+        "seconds": 1148.461587687,
+        "write_bytes": 96533119
+      },
+      "error": null,
+      "stderr_sha256": "93af7e7e85e703b84f2fba24ae15ba15cf2b2c008f22986a434f98d120b06fe3",
+      "report": {},
+      "observer": {
+        "wall_seconds": 1500.2246904879999,
+        "cpu_seconds": 1.2118659999999999,
+        "cpu_percent_one_core": 0.08077896648973286,
+        "max_rss_kib": 101824,
+        "output_bytes": 14599723,
+        "host_rows": 750,
+        "service_rows": 300,
+        "max_host_collection_ms": 1.767548,
+        "redis_info_requests": 300,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      }
+    },
+    "candidate-overlay": {
+      "completed_workload": false,
+      "command": {
+        "exit_code": -15,
+        "timed_out": true,
+        "wall_seconds": 1500.0169227969996
+      },
+      "last_reported_progress_lower_bound": {
+        "operations": 1376256,
+        "read_bytes": 206514612,
+        "seconds": 1450.283750627,
+        "write_bytes": 189692763
+      },
+      "error": null,
+      "stderr_sha256": "cf7adfd9b3830572e2c1211d66f554d9973888c3bd5b27b18c9da94e9a0e5b66",
+      "report": {},
+      "observer": {
+        "wall_seconds": 1500.1712450369996,
+        "cpu_seconds": 1.198434,
+        "cpu_percent_one_core": 0.07988647989119685,
+        "max_rss_kib": 101824,
+        "output_bytes": 14639300,
+        "host_rows": 749,
+        "service_rows": 300,
+        "max_host_collection_ms": 2.80864,
+        "redis_info_requests": 300,
+        "complete": true,
+        "host_interval_s": 2,
+        "service_interval_s": 5
+      }
+    }
+  },
+  "cleanup_errors": [
+    "mount process still running: 2806"
+  ],
+  "fatal_error_type": "TimeoutExpired",
+  "compose_performance_accepted": false,
+  "acceptance_limitations": [
+    "Candidate packed did not complete the trace; directory-page EBUSY remains",
+    "Local WSL diagnostic, not a matched cloud benchmark"
+  ]
+}

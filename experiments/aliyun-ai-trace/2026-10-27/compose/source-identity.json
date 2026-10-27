@@ -1,0 +1,67 @@
+{
+  "verified_utc": "2026-10-27T06:05:41.572434+00:00",
+  "baseline_commit": "8c9db597e95eb92a7a1271a254a45871e270d9f0",
+  "candidate_base_commit": "e61ab89448c1482d11f5baca2a5ad448f5818213",
+  "baseline_source_manifest": "../../2026-10-26/source-manifest.json",
+  "baseline_source_manifest_sha256": "50c8fd71d00a0a43711b57585c0e251acdefde19d019d9f572732cec57c6e6ef",
+  "checks": [
+    {
+      "command": [
+        "git",
+        "log",
+        "--oneline",
+        "8c9db597e95eb92a7a1271a254a45871e270d9f0..e61ab89448c1482d11f5baca2a5ad448f5818213"
+      ],
+      "exit_code": 0,
+      "stdout": "e61ab89 docs(fuse): record cache TTL measurements and validation (#352)\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--stat",
+        "8c9db597e95eb92a7a1271a254a45871e270d9f0",
+        "e61ab89448c1482d11f5baca2a5ad448f5818213"
+      ],
+      "exit_code": 0,
+      "stdout": " CONFIG.md                     |   9 ++-\n doc/testing/fuse-cache-ttl.md | 141 ++++++++++++++++++++++++++++++++++++++----\n 2 files changed, 136 insertions(+), 14 deletions(-)\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "8c9db597e95eb92a7a1271a254a45871e270d9f0",
+        "e61ab89448c1482d11f5baca2a5ad448f5818213"
+      ],
+      "exit_code": 0,
+      "stdout": "CONFIG.md\ndoc/testing/fuse-cache-ttl.md\n"
+    }
+  ],
+  "baseline_elf_comment": {
+    "command": [
+      "readelf",
+      "-p",
+      ".comment",
+      "first-run/bin/brewfs"
+    ],
+    "exit_code": 0,
+    "stdout": "\nString dump of section '.comment':\n  [     1]  GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\n  [    2e]  rustc version 1.99.0 (b940084d7 2026-09-28)\n  [    5a]  Linker: LLD 23.1.1 (/checkout/src/llvm-project/llvm 1b9c0d5ff9bbe7634aead059efe6b11a7eeba145)\n\n"
+  },
+  "candidate_build_evidence": "../native-overlay-pack/candidate4.json#/build",
+  "candidate_build": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)\n",
+    "command": "cargo build --release --locked --no-default-features --features fuse-io-uring-runtime,native-packed-base --bin brewfs --bin packed_v3_snapshot_fixture",
+    "environment": {
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_PROFILE_RELEASE_DEBUG": "0",
+      "CARGO_BUILD_JOBS": "4",
+      "CARGO_NET_OFFLINE": "true"
+    },
+    "build_swap_removed_before_measurement": true
+  },
+  "candidate_brewfs_sha256": "c1f6de4e5fa06873cbd2e281c697a65470ad602b9c5fc4b20b43b9fe74e3c3d2",
+  "baseline_brewfs_sha256": "765bce82ad5b971c4d24fc989f5a6ca201c8c7c3638c5a7c91501a0a1e4e994a",
+  "conclusion": "Only two documentation files differ between baseline commit and candidate base; no executable source changes in that interval. Rustc/LLVM release metadata agrees; this does not assert every build setting is identical."
+}

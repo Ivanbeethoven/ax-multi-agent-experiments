@@ -1,0 +1,427 @@
+[
+  {
+    "name": "xfs-strict-prepare",
+    "argv": [
+      "cp",
+      "-a",
+      "--reflink=never",
+      "/data/input/cases/pytest-full-02/initial",
+      "/data/xfs-strict/workload"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.11441464000000678,
+    "child_cpu_seconds": 0.07514699999999999
+  },
+  {
+    "name": "xfs-performance-prepare",
+    "argv": [
+      "cp",
+      "-a",
+      "--reflink=never",
+      "/data/input/cases/pytest-full-02/initial",
+      "/data/xfs-performance/workload"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.5155618530000083,
+    "child_cpu_seconds": 0.12302899999999999
+  },
+  {
+    "name": "xfs-performance-replay",
+    "argv": [
+      "/data/bin/full-fuse-replay",
+      "/data/input/cases/pytest-full-02/capture/events.jsonl",
+      "/data/input/cases/pytest-full-02/capture/blobs",
+      "/data/xfs-performance/workload",
+      "/data/results/pilot/xfs-performance-replay.json",
+      "--performance"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 56.85468308999998,
+    "child_cpu_seconds": 15.249746
+  },
+  {
+    "name": "native-prepare",
+    "argv": [
+      "cp",
+      "-a",
+      "--reflink=never",
+      "/data/input/cases/pytest-full-02/initial",
+      "/mnt/native/workload"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 11.392274224000005,
+    "child_cpu_seconds": 0.23829800000000034
+  },
+  {
+    "name": "native-unmount",
+    "argv": [
+      "fusermount3",
+      "-u",
+      "/mnt/native"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.008006786000009924,
+    "child_cpu_seconds": 0.005701999999998542
+  },
+  {
+    "name": "native-replay",
+    "argv": [
+      "/data/bin/full-fuse-replay",
+      "/data/input/cases/pytest-full-02/capture/events.jsonl",
+      "/data/input/cases/pytest-full-02/capture/blobs",
+      "/mnt/native/workload",
+      "/data/results/pilot/native-replay.json",
+      "--performance"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 160.919879874,
+    "child_cpu_seconds": 19.808063999999995
+  },
+  {
+    "name": "native-final-unmount",
+    "argv": [
+      "fusermount3",
+      "-u",
+      "/mnt/native"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.01624463200005266,
+    "child_cpu_seconds": 0.011957000000002438
+  },
+  {
+    "name": "native-overlay-init",
+    "argv": [
+      "/data/bin/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:6380/2",
+      "--workspace-namespace",
+      "overlay",
+      "init-volume"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.016167939999945702,
+    "child_cpu_seconds": 0.00926399999999461
+  },
+  {
+    "name": "native-overlay-prepare",
+    "argv": [
+      "cp",
+      "-a",
+      "--reflink=never",
+      "/data/input/cases/pytest-full-02/initial",
+      "/mnt/native-overlay/workload"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 16.60168291599996,
+    "child_cpu_seconds": 0.3244929999999968
+  },
+  {
+    "name": "native-overlay-unmount",
+    "argv": [
+      "fusermount3",
+      "-u",
+      "/mnt/native-overlay"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.0045939660000158256,
+    "child_cpu_seconds": 0.0026279999999978543
+  },
+  {
+    "name": "native-overlay-replay",
+    "argv": [
+      "/data/bin/full-fuse-replay",
+      "/data/input/cases/pytest-full-02/capture/events.jsonl",
+      "/data/input/cases/pytest-full-02/capture/blobs",
+      "/mnt/native-overlay/workload",
+      "/data/results/pilot/native-overlay-replay.json",
+      "--performance"
+    ],
+    "exit_code": -15,
+    "timeout": true,
+    "wall_seconds": 1500.0027505970002,
+    "child_cpu_seconds": 58.74079599999999
+  },
+  {
+    "name": "native-overlay-final-unmount",
+    "argv": [
+      "fusermount3",
+      "-u",
+      "/mnt/native-overlay"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.016402392000145483,
+    "child_cpu_seconds": 0.014165000000005534
+  },
+  {
+    "name": "native-overlay-pack-local-prepare",
+    "argv": [
+      "cp",
+      "-a",
+      "--reflink=never",
+      "/data/input/cases/pytest-full-02/initial",
+      "/data/pack-source/workload"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.5662838270000066,
+    "child_cpu_seconds": 0.1443090000000069
+  },
+  {
+    "name": "packed-build-upload",
+    "argv": [
+      "/data/bin/packed_v3_snapshot_fixture",
+      "--source-directory",
+      "/data/pack-source",
+      "--source-consistency",
+      "best-effort-detected",
+      "--source-hardlink-policy",
+      "reject-external",
+      "--metadata-codec",
+      "raw",
+      "--data-codec",
+      "raw",
+      "--inline-data",
+      "off",
+      "--bucket",
+      "ax-packed",
+      "--endpoint",
+      "http://127.0.0.1:9000",
+      "--region",
+      "us-east-1",
+      "--force-path-style",
+      "true",
+      "--manifest-output",
+      "/data/packed-manifest-key.txt"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 7.7322622250003405,
+    "child_cpu_seconds": 3.393771000000015
+  },
+  {
+    "name": "packed-init",
+    "argv": [
+      "/data/bin/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:6380/3",
+      "--workspace-namespace",
+      "packed",
+      "init-packed-volume",
+      "--manifest-key",
+      "packed-wire005-fixture/objects/0/333c7fca5d138ff72b0f7def26cd61ed3af1f53d15fa8347a54a828911ac9bcc",
+      "--data-config",
+      "/data/native-overlay-pack.yaml"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.06419656700018095,
+    "child_cpu_seconds": 0.026874999999989768
+  },
+  {
+    "name": "native-overlay-pack-unmount",
+    "argv": [
+      "fusermount3",
+      "-u",
+      "/mnt/native-overlay-pack"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.0019277229998806433,
+    "child_cpu_seconds": 0.0012160000000136506
+  },
+  {
+    "name": "native-overlay-pack-replay",
+    "argv": [
+      "/data/bin/full-fuse-replay",
+      "/data/input/cases/pytest-full-02/capture/events.jsonl",
+      "/data/input/cases/pytest-full-02/capture/blobs",
+      "/mnt/native-overlay-pack/workload",
+      "/data/results/pilot/native-overlay-pack-replay.json",
+      "--performance"
+    ],
+    "exit_code": 1,
+    "timeout": false,
+    "wall_seconds": 144.4469622229999,
+    "child_cpu_seconds": 11.295307000000008
+  },
+  {
+    "name": "native-overlay-pack-final-unmount",
+    "argv": [
+      "fusermount3",
+      "-u",
+      "/mnt/native-overlay-pack"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.008147820999965916,
+    "child_cpu_seconds": 0.005682000000007292
+  },
+  {
+    "name": "juicefs-format",
+    "argv": [
+      "/data/bin/juicefs",
+      "format",
+      "--no-update",
+      "--storage",
+      "s3",
+      "--bucket",
+      "http://127.0.0.1:9000/ax-jfs",
+      "--trash-days",
+      "0",
+      "--compress",
+      "none",
+      "redis://127.0.0.1:6380/1",
+      "axjfs"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.3155760760000703,
+    "child_cpu_seconds": 0.13638699999998494
+  },
+  {
+    "name": "juicefs-mount",
+    "argv": [
+      "/data/bin/juicefs",
+      "mount",
+      "-d",
+      "--enable-xattr",
+      "--enable-cap",
+      "--metrics",
+      "127.0.0.1:9567",
+      "--cache-dir",
+      "/data/cache/juicefs",
+      "--cache-size",
+      "512",
+      "--buffer-size",
+      "512",
+      "--attr-cache",
+      "0",
+      "--entry-cache",
+      "0",
+      "--dir-entry-cache",
+      "0",
+      "redis://127.0.0.1:6380/1",
+      "/mnt/juicefs"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.6157892129999709,
+    "child_cpu_seconds": 0.08775500000000136
+  },
+  {
+    "name": "juicefs-prepare",
+    "argv": [
+      "cp",
+      "-a",
+      "--reflink=never",
+      "/data/input/cases/pytest-full-02/initial",
+      "/mnt/juicefs/workload"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 11.439766742000302,
+    "child_cpu_seconds": 0.3207079999999962
+  },
+  {
+    "name": "juicefs-unmount",
+    "argv": [
+      "fusermount3",
+      "-u",
+      "/mnt/juicefs"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.00804880800023966,
+    "child_cpu_seconds": 0.00632300000000896
+  },
+  {
+    "name": "juicefs-mount",
+    "argv": [
+      "/data/bin/juicefs",
+      "mount",
+      "-d",
+      "--enable-xattr",
+      "--enable-cap",
+      "--metrics",
+      "127.0.0.1:9567",
+      "--cache-dir",
+      "/data/cache/juicefs",
+      "--cache-size",
+      "512",
+      "--buffer-size",
+      "512",
+      "--attr-cache",
+      "0",
+      "--entry-cache",
+      "0",
+      "--dir-entry-cache",
+      "0",
+      "redis://127.0.0.1:6380/1",
+      "/mnt/juicefs"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.7803096650000043,
+    "child_cpu_seconds": 0.1481590000000068
+  },
+  {
+    "name": "juicefs-replay",
+    "argv": [
+      "/data/bin/full-fuse-replay",
+      "/data/input/cases/pytest-full-02/capture/events.jsonl",
+      "/data/input/cases/pytest-full-02/capture/blobs",
+      "/mnt/juicefs/workload",
+      "/data/results/pilot/juicefs-replay.json",
+      "--performance"
+    ],
+    "exit_code": -15,
+    "timeout": true,
+    "wall_seconds": 1500.005083861,
+    "child_cpu_seconds": 115.37440900000001
+  },
+  {
+    "name": "xfs-strict-final-prepare",
+    "argv": [
+      "cp",
+      "-a",
+      "--reflink=never",
+      "/data/input/cases/pytest-full-02/initial",
+      "/data/xfs-strict-final/workload"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 0.5655867069999658,
+    "child_cpu_seconds": 0.135585
+  },
+  {
+    "name": "xfs-strict-final-replay",
+    "argv": [
+      "/data/bin/full-fuse-replay",
+      "/data/input/cases/pytest-full-02/capture/events.jsonl",
+      "/data/input/cases/pytest-full-02/capture/blobs",
+      "/data/xfs-strict-final/workload",
+      "/data/results/pilot/xfs-strict-final-replay.json"
+    ],
+    "exit_code": 0,
+    "timeout": false,
+    "wall_seconds": 69.67771773599998,
+    "child_cpu_seconds": 28.253023
+  }
+]

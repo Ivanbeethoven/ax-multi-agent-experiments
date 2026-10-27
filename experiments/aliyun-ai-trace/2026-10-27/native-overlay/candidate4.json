@@ -1,0 +1,205 @@
+{
+  "candidate": "C4",
+  "method": "native-overlay",
+  "run_id": "ax-native-fix-20261027-025452",
+  "purpose": "Single full-trace diagnostic; not a fair cross-host comparison or final paper performance estimate.",
+  "source": {
+    "trace_sha256": "9953d90517eaf520814150f80abccb11f9d74b7ac84ecc56fa394a5f8495aa3d",
+    "baseline_binaries": {
+      "brewfs": "765bce82ad5b971c4d24fc989f5a6ca201c8c7c3638c5a7c91501a0a1e4e994a",
+      "packed_v3_snapshot_fixture": "a48be898345836ef689d3fef65ab7fc743e0c301a756044c25eec7b3d15bbfc2",
+      "full-fuse-replay": "a352dfe4965efabff55fa53c05a82f7540765ca7dc2c395cd9c7394c5940aa25"
+    },
+    "candidate_sha256": "c1f6de4e5fa06873cbd2e281c697a65470ad602b9c5fc4b20b43b9fe74e3c3d2",
+    "observer_sha256": "e3413299bbaefeb880eeee45c1d3cf5211124d3f0a8366161c1ba1391a78cb98",
+    "runtime_observer_sha256": "e3413299bbaefeb880eeee45c1d3cf5211124d3f0a8366161c1ba1391a78cb98",
+    "repro_script_sha256": "47991b6e375db8ceffbbf7ad7653e27ec8d080c9aebbbfed64874fefcdd876d7",
+    "cloud_runner_sha256": "b8daf8f65ee8ba6fea8635a221c5e9e46debf8f300bf00e524a70578691b4a98",
+    "candidate_validation_sha256": "52eb4b689262db08e8a49175cbad3ee176567b5e4c868ebc69025f9a3754e70a",
+    "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+    "base_commit": "e61ab89448c1482d11f5baca2a5ad448f5818213",
+    "release_bundle_sha256": "7b0a73d6be708e2dbe99e51a6dd3d304ad60483664327f34c6f8752292d293d4"
+  },
+  "run_configuration": {
+    "region": "cn-hangzhou",
+    "zone": "cn-hangzhou-h",
+    "instance_type": "ecs.e-c1m4.2xlarge",
+    "vcpus": 8,
+    "memory_gib": 32,
+    "spot_strategy": "SpotAsPriceGo",
+    "spot_protection_hours": 1,
+    "auto_release_time": null,
+    "system_disk_gib": 40,
+    "data_disk_gib": 100,
+    "disk_class": "ESSD PL0",
+    "data_filesystem": "XFS",
+    "backend_versions": {
+      "redis": "Redis server v=7.0.15 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d064f9f48c901a92",
+      "rustfs": "rustfs 1.0.3\nbuild time   : 2026-10-17 13:41:40 +00:00\nbuild profile: release\nbuild os     : linux-x86_64\nbuild target : x86_64-unknown-linux-musl\nrust version : rustc 1.99.1 (58cf8f9c3 2026-10-13)\nrust channel : stable-x86_64-unknown-linux-musl\ngit branch   : \ngit commit   : 331fb896285a7686f927baf8d9d4dc2d3d3a10a9\ngit tag      : 1.0.3\ngit status   :",
+      "rustfs_binary_sha256": "c14fd1216f99efba9cac4bb469a5fa31ea9e461b82b79a28b69280e057613c93"
+    },
+    "redis_persistence": "appendonly yes; appendfsync always",
+    "metadata_open_cache_ttl_ms": 0,
+    "metadata_open_cache_capacity": 0,
+    "fuse_cache_ttl_ms": 0,
+    "fuse_workers": 2,
+    "writeback_mode": "upload_before_commit",
+    "compression": "none",
+    "read_memory_bytes": 268435456,
+    "write_memory_bytes": 268435456,
+    "memory_budget_bytes": 536870912,
+    "read_ssd_bytes": 536870912,
+    "write_ssd_bytes": 536870912,
+    "replay_timeout_seconds": null,
+    "host_page_cache_drop": false,
+    "observer_storage": "system disk",
+    "original_trace_xattrs_retained": true
+  },
+  "replay": {
+    "actual_read_bytes": 281774624,
+    "actual_write_bytes": 194706661,
+    "completed": true,
+    "execution_seconds": 2187.174152736,
+    "expected_errors": 45525,
+    "mode": "performance",
+    "operations": 1747109,
+    "probe_errno_differences": 1048,
+    "remaining_handles": 0,
+    "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+    "valid": false
+  },
+  "timed_out": false,
+  "preparation": {
+    "commands": {
+      "bucket": {
+        "wall_seconds": 0.03822674099865253,
+        "exit_code": 0
+      },
+      "init": {
+        "wall_seconds": 0.03227684000012232,
+        "exit_code": 0
+      },
+      "copy": {
+        "wall_seconds": 22.417715896001027,
+        "exit_code": 0
+      },
+      "prepare-unmount": {
+        "wall_seconds": 0.003891968999596429,
+        "exit_code": 0
+      }
+    },
+    "limitations": [
+      "These are new-volume initialization and initial-data copy timings, not fork or migration latency.",
+      "Backend startup, archive extraction and mount readiness were not separately timed."
+    ]
+  },
+  "process_exit_code": 0,
+  "completed_workload": true,
+  "cleanup": {
+    "fusermount_exit_code": 0,
+    "fusermount_seconds": 0.016229423999902792,
+    "mount_process_exits": [
+      {
+        "pid": 4143,
+        "exit_code": 0
+      }
+    ],
+    "natural_mount_exit": true,
+    "errors": [],
+    "fatal_error": null
+  },
+  "observations": {
+    "host_samples": 1094,
+    "service_samples": 438,
+    "sampled_seconds": 2186.1237624780006,
+    "whole_host_busy_percent": 13.359594075160784,
+    "whole_host_iowait_percent": 7.455374547680862,
+    "whole_host_steal_percent": 0.0,
+    "host_collection_wall_ms_p50": 11.9582245,
+    "host_collection_wall_ms_max": 81.219338,
+    "host_collection_wall_seconds_total": 15.686615478,
+    "observed_process_names": [
+      "brewfs",
+      "full-fuse-repla",
+      "redis-server",
+      "rustfs"
+    ],
+    "mount_processes": [
+      {
+        "pid": 4143,
+        "samples": 1094,
+        "sampled_seconds": 2186.1237624780006,
+        "cpu_seconds": 1814.54,
+        "max_rss_kib": 409288,
+        "io_counters_delta": {
+          "rchar": 7980526,
+          "wchar": 745733722,
+          "syscr": 1325,
+          "syscw": 42266483,
+          "read_bytes": 0,
+          "write_bytes": 37359616,
+          "cancelled_write_bytes": 0
+        }
+      }
+    ],
+    "redis_commands_delta": 2565512,
+    "redis_input_bytes_delta": 174638846,
+    "redis_output_bytes_delta": 169746394,
+    "redis_evicted_keys_delta": 0,
+    "gc_budget_warning_count": 49,
+    "host_interval_seconds": 2,
+    "service_interval_seconds": 5,
+    "uploader": {
+      "wall_seconds": 2267.674309688,
+      "cpu_seconds": 1.975064,
+      "max_rss_kib": 50248
+    }
+  },
+  "resource_cleanup_verification": {
+    "status": "released",
+    "verified": true,
+    "verified_at_utc": "2026-10-27T06:07:27.932916+00:00",
+    "requested_counts": {
+      "instances": 1,
+      "disks": 2,
+      "security_groups": 1,
+      "temporary_buckets": 1
+    },
+    "remaining_counts": {
+      "instances_remaining": 0,
+      "created_disks_remaining": 0,
+      "security_groups_remaining": 0,
+      "buckets_remaining": 0
+    },
+    "own_temporary_bucket_exists": false,
+    "exact_created_inventory_sha256": "a0522820b3c1b1a21d60eab3d8003ef23a3174068ee68fd8016a1ecd27e47ab0"
+  },
+  "estimated_hardware_cost": {
+    "currency": "CNY",
+    "initial_quoted_hourly_price": 0.2955,
+    "allocation_start_utc": "2026-10-27T02:54:00+00:00",
+    "estimated_through_utc": "2026-10-27T06:07:27.932916+00:00",
+    "allocated_hours": 3.22442581,
+    "group_total_estimate": 0.9528178268549999,
+    "candidate4_replay_window_estimate": 0.17953054503708,
+    "lifecycle_scope": "This one shared instance: C1, history probe, preparation, waiting for the final build, and C4. Count the group total once.",
+    "basis": "Initial live hourly quote multiplied by allocated wall time; not a verified bill. Spot price changes are not reconstructed.",
+    "excluded": [
+      "OSS storage and requests",
+      "public network traffic"
+    ]
+  },
+  "evidence": {
+    "archive_sha256": "58038e145db871b3e2b62ff775bc3c865c9dd7c8844e002fcd1d036712ffcc6b",
+    "archive_bytes": 3278365,
+    "credential_scan": "passed",
+    "local_directory": "runs/aliyun-native-fix-20261027/candidate4-retrieved/results"
+  },
+  "limitations": [
+    "Serialized original Rust FUSE callback trace, performance mode; not strict correctness validation.",
+    "No fair ranking against previous runs on other hosts or incomplete prefixes.",
+    "Sampling durations are observation wall time, not a measured observer-on versus observer-off slowdown.",
+    "Resource release is confirmed only when all four scoped API checks report zero remaining resources.",
+    "Performance-mode valid/probe-errno fields are retained verbatim; completed_workload is not a strict correctness certificate."
+  ]
+}

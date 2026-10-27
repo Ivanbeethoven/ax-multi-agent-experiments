@@ -1,0 +1,67 @@
+{
+  "verified_utc": "2026-10-27T06:06:35.114441+00:00",
+  "checks": [
+    {
+      "scope": "exact_created_container",
+      "name": "ax-ai-fix-redis-e3014b749c78",
+      "command": [
+        "docker",
+        "ps",
+        "-a",
+        "--filter",
+        "name=^/ax-ai-fix-redis-e3014b749c78$",
+        "--format",
+        "{{.Names}}"
+      ],
+      "exit_code": 0,
+      "remaining": []
+    },
+    {
+      "scope": "exact_created_container",
+      "name": "ax-ai-fix-rustfs-e3014b749c78",
+      "command": [
+        "docker",
+        "ps",
+        "-a",
+        "--filter",
+        "name=^/ax-ai-fix-rustfs-e3014b749c78$",
+        "--format",
+        "{{.Names}}"
+      ],
+      "exit_code": 0,
+      "remaining": []
+    },
+    {
+      "scope": "exact_compose_project",
+      "method": "candidate",
+      "command": [
+        "docker",
+        "ps",
+        "-a",
+        "--filter",
+        "label=com.docker.compose.project=ax-ai-fix-candidate-7ef676d9302a",
+        "--format",
+        "{{.Names}}"
+      ],
+      "exit_code": 0,
+      "remaining": []
+    },
+    {
+      "scope": "exact_compose_project",
+      "method": "baseline",
+      "command": [
+        "docker",
+        "ps",
+        "-a",
+        "--filter",
+        "label=com.docker.compose.project=ax-ai-fix-baseline-5904d06a90b4",
+        "--format",
+        "{{.Names}}"
+      ],
+      "exit_code": 0,
+      "remaining": []
+    }
+  ],
+  "total_owned_remaining": 0,
+  "unrelated_containers_untouched": true
+}

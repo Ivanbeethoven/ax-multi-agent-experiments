@@ -1,0 +1,244 @@
+{
+  "candidate": "C4",
+  "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+  "summary_source_sha256": "281b78c6f079f1022b5d9805dafe6f245b2446b8e3c96611917be6d15bc6d875",
+  "gate_status_source_sha256": "485fab250ddb3e800e5ffde56a086e97bddc87077b9cd68f5d2486f286b2bdae",
+  "summary": {
+    "candidate": "C4",
+    "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+    "source_manifest_verified_files": 1586,
+    "verified_utc": "2026-10-27T04:52:38.517003+00:00",
+    "local_ci_completed": true,
+    "all_gates_passed": true,
+    "gate_count": 17,
+    "git_diff_check_exit_code": 0,
+    "test_result_counts_pass_failed_ignored": {
+      "packed-tests": [
+        [
+          "2497",
+          "0",
+          "451"
+        ],
+        [
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "9",
+          "0",
+          "0"
+        ]
+      ],
+      "test-workspace": [
+        [
+          "1261",
+          "0",
+          "262"
+        ],
+        [
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    "gate_evidence": "attempt01/gate-status.json",
+    "source_manifest": "candidate4-source-01.json",
+    "cloud_replay_acceptance": "pending",
+    "compose_performance_acceptance": "pending"
+  },
+  "gates": [
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "packed-tests",
+      "command": [
+        "cargo",
+        "--config",
+        "profile.test.package.brewfs.codegen-units=256",
+        "test",
+        "--offline",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime,native-packed-base",
+        "--lib",
+        "--bins"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "syntax-run_perf_in_container.sh",
+      "command": [
+        "bash",
+        "-n",
+        "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/brewfs-ai-trace-fix/docker/compose-xfstests/run_perf_in_container.sh"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "syntax-run_redis_perf.sh",
+      "command": [
+        "bash",
+        "-n",
+        "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/brewfs-ai-trace-fix/docker/compose-xfstests/run_redis_perf.sh"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "syntax-run_juicefs_perf_in_container.sh",
+      "command": [
+        "bash",
+        "-n",
+        "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/brewfs-ai-trace-fix/docker/compose-xfstests/run_juicefs_perf_in_container.sh"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "syntax-run_juicefs_perf.sh",
+      "command": [
+        "bash",
+        "-n",
+        "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/brewfs-ai-trace-fix/docker/compose-xfstests/run_juicefs_perf.sh"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "test_perf_report_delta.sh",
+      "command": [
+        "bash",
+        "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/brewfs-ai-trace-fix/docker/compose-xfstests/test_perf_report_delta.sh"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "test_juicefs_direct_matrix.sh",
+      "command": [
+        "bash",
+        "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/brewfs-ai-trace-fix/docker/compose-xfstests/test_juicefs_direct_matrix.sh"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "test_juicefs_perf_report.sh",
+      "command": [
+        "bash",
+        "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/brewfs-ai-trace-fix/docker/compose-xfstests/test_juicefs_perf_report.sh"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "check-workspace",
+      "command": [
+        "cargo",
+        "check",
+        "--offline",
+        "--workspace"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "build-workspace",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--workspace"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "check-tokio",
+      "command": [
+        "cargo",
+        "check",
+        "--offline",
+        "-p",
+        "brewfs",
+        "--no-default-features",
+        "--features",
+        "fuse-tokio-runtime"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "check-io-uring",
+      "command": [
+        "cargo",
+        "check",
+        "--offline",
+        "-p",
+        "brewfs",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "test-workspace",
+      "command": [
+        "cargo",
+        "--config",
+        "profile.test.package.brewfs.codegen-units=256",
+        "test",
+        "--offline",
+        "--workspace",
+        "--lib",
+        "--bins"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "clippy-workspace",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--workspace"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "clippy-packed",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime,native-packed-base",
+        "--tests"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "clippy-workflow-strict",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "command_policy": "Commands preserve the executed argv, including --offline and the test codegen setting. No command was rewritten to match a textual workflow substring."
+}
