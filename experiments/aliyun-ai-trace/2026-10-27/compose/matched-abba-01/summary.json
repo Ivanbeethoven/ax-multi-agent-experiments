@@ -1,0 +1,2906 @@
+{
+  "scope": "One fixed-work B-C-C-B diagnostic on one host; descriptive evidence, not acceptance or population inference",
+  "accepted": null,
+  "archive_sha256": "8875c1b7791020303582d851688d38c94e6664ab660c330b829b4eb54c89b347",
+  "manifest_files_rehashed": 548,
+  "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+  "baseline_sha256": "765bce82ad5b971c4d24fc989f5a6ca201c8c7c3638c5a7c91501a0a1e4e994a",
+  "candidate_sha256": "c1f6de4e5fa06873cbd2e281c697a65470ad602b9c5fc4b20b43b9fe74e3c3d2",
+  "image_ids": {
+    "brewfs-xfstests:local": "sha256:86902c83396b2915412d32bd4ba07c8d1b25c8b8488d13c694dfc45ef66ed52e",
+    "redis:7.2-alpine": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs/rustfs:latest": "sha256:7bc4270ebbf1c17a76de8cdf59ec010bddac36d90f19be520b77d12eb256016c",
+    "amazon/aws-cli:latest": "sha256:ad55930568d8f80fc446c4c3d7f9cb0e4fc64d6d94d9e8ee022eebda3f238855"
+  },
+  "sessions": [
+    {
+      "version": "baseline",
+      "cases": {
+        "fio-seqwrite-direct0": {
+          "write_bytes": 5326766080,
+          "seed": 354,
+          "fio_active_write_seconds": 13.407,
+          "fio_job_runtime_seconds": 13.406,
+          "fio_reported_active_mib_s": 378.9065408706665,
+          "command_wall_monotonic_seconds": 14.251721106,
+          "case_wall_mib_s": 356.44817648454483,
+          "command_wall_monotonic_raw_seconds": 14.251485789,
+          "command_wall_realtime_seconds": 14.251722013,
+          "realtime_minus_monotonic_elapsed_seconds": 9.070000004385292e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.00023531699999956857,
+          "shell_wall_monotonic_seconds": 14.39935321,
+          "shell_outside_command_seconds": 0.1476321039999995,
+          "command_minus_fio_active_seconds": 0.8447211059999997,
+          "prepare_close_seconds": 4.2e-05,
+          "final_close_seconds": 0.243298,
+          "final_close_evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:28",
+          "maximum_close_seconds": 0.439621,
+          "maximum_close_evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:18",
+          "strace_close_count": 11,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089836.727521",
+              "arguments": "7</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 4.2e-05,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.222:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089837.866467",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 6.6e-05,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089838.688501",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.173813,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089840.225288",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.082656,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089841.744732",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.027383,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089843.112694",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.145501,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089844.641469",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.081254,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089846.168557",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.021647,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089847.133517",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.439621,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089848.878792",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.265748,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089850.251536",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.243298,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:28"
+            }
+          ],
+          "all_target_close_seconds": 1.481029,
+          "intermediate_close_seconds": 1.237689,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 9.129733035433,
+          "write_slat_mean_ms": 0.10796366378,
+          "write_clat_mean_ms": 9.021769371654,
+          "write_clat_percentiles_ms": {
+            "1.000000": 2.408448,
+            "5.000000": 2.473984,
+            "10.000000": 2.506752,
+            "20.000000": 2.572288,
+            "30.000000": 2.637824,
+            "40.000000": 2.768896,
+            "50.000000": 2.965504,
+            "60.000000": 3.391488,
+            "70.000000": 4.01408,
+            "80.000000": 6.06208,
+            "90.000000": 23.199744,
+            "95.000000": 34.340864,
+            "99.000000": 112.72192,
+            "99.500000": 121.110528,
+            "99.900000": 130.547712,
+            "99.950000": 145.752064,
+            "99.990000": 145.752064
+          },
+          "total_ios_not_independent_replicates": 1270,
+          "post_write_drain": {
+            "tool": "fio-seqwrite-direct0",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct0.json"
+        },
+        "fio-seqwrite-direct1": {
+          "write_bytes": 6337593344,
+          "seed": 354,
+          "fio_active_write_seconds": 16.282,
+          "fio_job_runtime_seconds": 16.281,
+          "fio_reported_active_mib_s": 371.2074680328369,
+          "command_wall_monotonic_seconds": 16.928863195,
+          "case_wall_mib_s": 357.02338251425624,
+          "command_wall_monotonic_raw_seconds": 16.928576369,
+          "command_wall_realtime_seconds": 16.928863745,
+          "realtime_minus_monotonic_elapsed_seconds": 5.499999993219262e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.0002868259999999623,
+          "shell_wall_monotonic_seconds": 17.077434246,
+          "shell_outside_command_seconds": 0.14857105099999757,
+          "command_minus_fio_active_seconds": 0.6468631950000017,
+          "prepare_close_seconds": 3.7e-05,
+          "final_close_seconds": 0.324607,
+          "final_close_evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:32",
+          "maximum_close_seconds": 0.615885,
+          "maximum_close_evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:6",
+          "strace_close_count": 13,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089851.232586",
+              "arguments": "7</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 3.7e-05,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1553:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089851.969381",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.031181,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089852.883900",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.615885,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089854.423444",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.551685,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089855.932431",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.51664,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089857.823650",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.069341,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089858.809480",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.5106,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089860.350369",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.516104,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089861.992501",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.359379,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089863.639608",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.191553,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089865.170654",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.10962,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:22"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089866.540192",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.2341,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:24"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089867.632119",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.324607,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1564:32"
+            }
+          ],
+          "all_target_close_seconds": 4.030732,
+          "intermediate_close_seconds": 3.7060880000000003,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 8.201595080741,
+          "write_slat_mean_ms": 8.199907091330001,
+          "write_clat_mean_ms": 0.001687989411,
+          "write_clat_percentiles_ms": {
+            "1.000000": 0.00031,
+            "5.000000": 0.000382,
+            "10.000000": 0.000438,
+            "20.000000": 0.000548,
+            "30.000000": 0.000692,
+            "40.000000": 0.00094,
+            "50.000000": 0.001448,
+            "60.000000": 0.001832,
+            "70.000000": 0.002008,
+            "80.000000": 0.002256,
+            "90.000000": 0.003088,
+            "95.000000": 0.004448,
+            "99.000000": 0.006112,
+            "99.500000": 0.007008,
+            "99.900000": 0.020096,
+            "99.950000": 0.057088,
+            "99.990000": 0.057088
+          },
+          "total_ios_not_independent_replicates": 1511,
+          "post_write_drain": {
+            "tool": "fio-seqwrite-direct1",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-seqwrite-direct1.json"
+        },
+        "fio-randwrite-direct0": {
+          "write_bytes": 5062524928,
+          "seed": 354,
+          "fio_active_write_seconds": 12.992,
+          "fio_job_runtime_seconds": 12.991,
+          "fio_reported_active_mib_s": 371.6133003234863,
+          "command_wall_monotonic_seconds": 13.795246133,
+          "case_wall_mib_s": 349.975633160383,
+          "command_wall_monotonic_raw_seconds": 13.795012403,
+          "command_wall_realtime_seconds": 13.795246858,
+          "realtime_minus_monotonic_elapsed_seconds": 7.250000013669933e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.00023372999999971,
+          "shell_wall_monotonic_seconds": 13.944212434,
+          "shell_outside_command_seconds": 0.14896630100000152,
+          "command_minus_fio_active_seconds": 0.8032461329999983,
+          "prepare_close_seconds": 3.9e-05,
+          "final_close_seconds": 0.432837,
+          "final_close_evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:28",
+          "maximum_close_seconds": 0.68359,
+          "maximum_close_evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:10",
+          "strace_close_count": 11,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089868.423835",
+              "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 3.9e-05,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2987:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089869.486301",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.391319,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089870.771861",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.318731,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089871.998546",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.413565,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089873.222324",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.68359,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089874.841260",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.558268,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089876.243242",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.629899,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089877.731653",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.621088,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089879.280447",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.560034,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089880.704526",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.619443,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089881.532889",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.432837,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2998:28"
+            }
+          ],
+          "all_target_close_seconds": 5.228813,
+          "intermediate_close_seconds": 4.795937,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 6.546502257664,
+          "write_slat_mean_ms": 0.09626403894,
+          "write_clat_mean_ms": 6.450238218724,
+          "write_clat_percentiles_ms": {
+            "1.000000": 2.408448,
+            "5.000000": 2.473984,
+            "10.000000": 2.53952,
+            "20.000000": 2.605056,
+            "30.000000": 2.736128,
+            "40.000000": 2.932736,
+            "50.000000": 3.293184,
+            "60.000000": 6.193152,
+            "70.000000": 9.895936,
+            "80.000000": 10.81344,
+            "90.000000": 13.303808,
+            "95.000000": 15.007744,
+            "99.000000": 19.529728,
+            "99.500000": 21.102592,
+            "99.900000": 25.296896,
+            "99.950000": 34.865152,
+            "99.990000": 34.865152
+          },
+          "total_ios_not_independent_replicates": 1207,
+          "post_write_drain": {
+            "tool": "fio-randwrite-direct0",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct0.json"
+        },
+        "fio-randwrite-direct1": {
+          "write_bytes": 3028287488,
+          "seed": 354,
+          "fio_active_write_seconds": 7.063,
+          "fio_job_runtime_seconds": 7.062,
+          "fio_reported_active_mib_s": 408.8914051055908,
+          "command_wall_monotonic_seconds": 8.16239467,
+          "case_wall_mib_s": 353.81773569642894,
+          "command_wall_monotonic_raw_seconds": 8.162256078,
+          "command_wall_realtime_seconds": 8.162395509,
+          "realtime_minus_monotonic_elapsed_seconds": 8.390000001412545e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.00013859199999899374,
+          "shell_wall_monotonic_seconds": 8.313632819,
+          "shell_outside_command_seconds": 0.151238149000001,
+          "command_minus_fio_active_seconds": 1.0993946699999997,
+          "prepare_close_seconds": 3.9e-05,
+          "final_close_seconds": 0.713546,
+          "final_close_evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4228:20",
+          "maximum_close_seconds": 0.740593,
+          "maximum_close_evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4228:10",
+          "strace_close_count": 7,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089882.477513",
+              "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 3.9e-05,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4210:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089883.381513",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.33241,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4228:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089884.450538",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.508271,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4228:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089885.734802",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.706131,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4228:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089887.185452",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.740593,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4228:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089888.700546",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.715096,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4228:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089889.658098",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.713546,
+              "outcome": "0",
+              "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4228:20"
+            }
+          ],
+          "all_target_close_seconds": 3.716086,
+          "intermediate_close_seconds": 3.0025009999999996,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 5.599403371190999,
+          "write_slat_mean_ms": 5.597921447368,
+          "write_clat_mean_ms": 0.0014819238230000002,
+          "write_clat_percentiles_ms": {
+            "1.000000": 0.000262,
+            "5.000000": 0.00031,
+            "10.000000": 0.00035,
+            "20.000000": 0.000498,
+            "30.000000": 0.000772,
+            "40.000000": 0.001144,
+            "50.000000": 0.001656,
+            "60.000000": 0.001832,
+            "70.000000": 0.001928,
+            "80.000000": 0.00204,
+            "90.000000": 0.002224,
+            "95.000000": 0.002448,
+            "99.000000": 0.00344,
+            "99.500000": 0.005344,
+            "99.900000": 0.0448,
+            "99.950000": 0.0448,
+            "99.990000": 0.0448
+          },
+          "total_ios_not_independent_replicates": 722,
+          "post_write_drain": {
+            "tool": "fio-randwrite-direct1",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-01-baseline/compose-baseline/run/results/fio-randwrite-direct1.json"
+        }
+      },
+      "natural_mount_exits": [
+        {
+          "generation": "4a97ccd3cbc54c019437a041a95ffbd5",
+          "child_exit_code": 0,
+          "normal_unmount_seconds_realtime_based": 0.007122619999790913,
+          "child_exit_wait_seconds_realtime_based": 0.10085566399993695
+        }
+      ],
+      "compose_command_wall_seconds": 55.7988205620004,
+      "sum_four_command_wall_seconds": 53.138225104,
+      "sum_four_active_write_seconds": 49.744,
+      "sum_four_final_close_seconds": 1.714288,
+      "first_tool_to_last_tool_end_monotonic_seconds": 54.060649213,
+      "tool_window_note": "Contains gaps between tools, but excludes the final post-tool drain and final unmount.",
+      "fixed_sequence_write_bytes": 19755171840,
+      "cleanup_errors": [],
+      "status_sha256": "bb3388205618202c39d042ce09f9bdf6b2f257b5037933901e025b4f1bf297a2",
+      "index": 1,
+      "session_end_to_end_monotonic_seconds": 82.079976583
+    },
+    {
+      "version": "candidate",
+      "cases": {
+        "fio-seqwrite-direct0": {
+          "write_bytes": 5326766080,
+          "seed": 354,
+          "fio_active_write_seconds": 13.171,
+          "fio_job_runtime_seconds": 13.17,
+          "fio_reported_active_mib_s": 385.6958465576172,
+          "command_wall_monotonic_seconds": 14.167160602,
+          "case_wall_mib_s": 358.5757331841674,
+          "command_wall_monotonic_raw_seconds": 14.166920679,
+          "command_wall_realtime_seconds": 14.167161725,
+          "realtime_minus_monotonic_elapsed_seconds": 1.123000000546881e-06,
+          "raw_minus_monotonic_elapsed_seconds": -0.000239922999998754,
+          "shell_wall_monotonic_seconds": 14.314916411,
+          "shell_outside_command_seconds": 0.1477558090000013,
+          "command_minus_fio_active_seconds": 0.9961606019999998,
+          "prepare_close_seconds": 3.7e-05,
+          "final_close_seconds": 0.555638,
+          "final_close_evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:28",
+          "maximum_close_seconds": 0.617134,
+          "maximum_close_evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:14",
+          "strace_close_count": 11,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089925.562572",
+              "arguments": "7</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 3.7e-05,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.223:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089926.644986",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.00305,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089927.448657",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.257722,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089928.760316",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.40288,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089930.104159",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.55197,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089931.707659",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.401219,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089932.981265",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.617134,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089934.729782",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.339707,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089936.203948",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.28501,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089937.599292",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.444099,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089938.849025",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.555638,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:28"
+            }
+          ],
+          "all_target_close_seconds": 3.858466,
+          "intermediate_close_seconds": 3.302791,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 7.42455186063,
+          "write_slat_mean_ms": 0.106500574803,
+          "write_clat_mean_ms": 7.318051285827,
+          "write_clat_percentiles_ms": {
+            "1.000000": 2.277376,
+            "5.000000": 2.310144,
+            "10.000000": 2.342912,
+            "20.000000": 2.408448,
+            "30.000000": 2.473984,
+            "40.000000": 2.637824,
+            "50.000000": 2.899968,
+            "60.000000": 3.653632,
+            "70.000000": 4.17792,
+            "80.000000": 10.027008,
+            "90.000000": 12.648448,
+            "95.000000": 25.55904,
+            "99.000000": 73.924608,
+            "99.500000": 98.041856,
+            "99.900000": 137.363456,
+            "99.950000": 137.363456,
+            "99.990000": 137.363456
+          },
+          "total_ios_not_independent_replicates": 1270,
+          "post_write_drain": {
+            "tool": "fio-seqwrite-direct0",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct0.json"
+        },
+        "fio-seqwrite-direct1": {
+          "write_bytes": 6337593344,
+          "seed": 354,
+          "fio_active_write_seconds": 16.178,
+          "fio_job_runtime_seconds": 16.177,
+          "fio_reported_active_mib_s": 373.5937690734863,
+          "command_wall_monotonic_seconds": 17.173648754,
+          "case_wall_mib_s": 351.9345298472034,
+          "command_wall_monotonic_raw_seconds": 17.173358458,
+          "command_wall_realtime_seconds": 17.17364959,
+          "realtime_minus_monotonic_elapsed_seconds": 8.360000016693903e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.00029029599999930156,
+          "shell_wall_monotonic_seconds": 17.326622544,
+          "shell_outside_command_seconds": 0.15297379000000078,
+          "command_minus_fio_active_seconds": 0.9956487539999976,
+          "prepare_close_seconds": 4.6e-05,
+          "final_close_seconds": 0.618686,
+          "final_close_evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:32",
+          "maximum_close_seconds": 0.618686,
+          "maximum_close_evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:32",
+          "strace_close_count": 13,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089940.003949",
+              "arguments": "7</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 4.6e-05,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1756:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089940.637112",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.321713,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089941.847555",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.584921,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089943.452300",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.454894,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089944.873875",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.509595,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089946.315120",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.493928,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089947.745804",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.592726,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089949.442358",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.381036,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089950.800600",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.492467,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089952.220636",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.557124,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089953.749178",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.492932,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:22"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089955.435524",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.286321,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:24"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089956.297952",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.618686,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:32"
+            }
+          ],
+          "all_target_close_seconds": 5.786389,
+          "intermediate_close_seconds": 5.167657,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 7.244981391132,
+          "write_slat_mean_ms": 7.243385674388,
+          "write_clat_mean_ms": 0.0015957167440000001,
+          "write_clat_percentiles_ms": {
+            "1.000000": 0.000286,
+            "5.000000": 0.000334,
+            "10.000000": 0.000366,
+            "20.000000": 0.000498,
+            "30.000000": 0.00074,
+            "40.000000": 0.00098,
+            "50.000000": 0.001224,
+            "60.000000": 0.00172,
+            "70.000000": 0.001976,
+            "80.000000": 0.002192,
+            "90.000000": 0.002896,
+            "95.000000": 0.004048,
+            "99.000000": 0.005984,
+            "99.500000": 0.00656,
+            "99.900000": 0.01312,
+            "99.950000": 0.054016,
+            "99.990000": 0.054016
+          },
+          "total_ios_not_independent_replicates": 1511,
+          "post_write_drain": {
+            "tool": "fio-seqwrite-direct1",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-seqwrite-direct1.json"
+        },
+        "fio-randwrite-direct0": {
+          "write_bytes": 5062524928,
+          "seed": 354,
+          "fio_active_write_seconds": 12.976,
+          "fio_job_runtime_seconds": 12.975,
+          "fio_reported_active_mib_s": 372.0715160369873,
+          "command_wall_monotonic_seconds": 13.787658794,
+          "case_wall_mib_s": 350.1682245067603,
+          "command_wall_monotonic_raw_seconds": 13.787425417,
+          "command_wall_realtime_seconds": 13.787659643,
+          "realtime_minus_monotonic_elapsed_seconds": 8.489999991923014e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.00023337700000070072,
+          "shell_wall_monotonic_seconds": 13.936404066,
+          "shell_outside_command_seconds": 0.14874527199999932,
+          "command_minus_fio_active_seconds": 0.8116587939999995,
+          "prepare_close_seconds": 3.8e-05,
+          "final_close_seconds": 0.453272,
+          "final_close_evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:28",
+          "maximum_close_seconds": 0.680755,
+          "maximum_close_evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:10",
+          "strace_close_count": 11,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089957.420584",
+              "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 3.8e-05,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3594:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089958.459162",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.385074,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089959.714370",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.295543,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089960.913139",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.484508,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089962.208746",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.680755,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089963.789240",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.586876,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089965.200597",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.656348,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089966.687304",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.673424,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089968.275357",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.566004,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089969.698198",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.61602,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089970.512778",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.453272,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:28"
+            }
+          ],
+          "all_target_close_seconds": 5.397862,
+          "intermediate_close_seconds": 4.944552,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 6.422656758906,
+          "write_slat_mean_ms": 0.098385906379,
+          "write_clat_mean_ms": 6.324270852527,
+          "write_clat_percentiles_ms": {
+            "1.000000": 2.277376,
+            "5.000000": 2.310144,
+            "10.000000": 2.342912,
+            "20.000000": 2.408448,
+            "30.000000": 2.53952,
+            "40.000000": 2.736128,
+            "50.000000": 3.129344,
+            "60.000000": 6.455296,
+            "70.000000": 10.027008,
+            "80.000000": 10.682368,
+            "90.000000": 13.041664,
+            "95.000000": 15.007744,
+            "99.000000": 19.267584,
+            "99.500000": 20.054016,
+            "99.900000": 22.675456,
+            "99.950000": 23.199744,
+            "99.990000": 23.199744
+          },
+          "total_ios_not_independent_replicates": 1207,
+          "post_write_drain": {
+            "tool": "fio-randwrite-direct0",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct0.json"
+        },
+        "fio-randwrite-direct1": {
+          "write_bytes": 3028287488,
+          "seed": 354,
+          "fio_active_write_seconds": 7.073,
+          "fio_job_runtime_seconds": 7.072,
+          "fio_reported_active_mib_s": 408.31330394744873,
+          "command_wall_monotonic_seconds": 8.159383887,
+          "case_wall_mib_s": 353.9482931549927,
+          "command_wall_monotonic_raw_seconds": 8.159245449,
+          "command_wall_realtime_seconds": 8.15938471,
+          "realtime_minus_monotonic_elapsed_seconds": 8.229999988174086e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.00013843800000046258,
+          "shell_wall_monotonic_seconds": 8.30690016,
+          "shell_outside_command_seconds": 0.14751627299999903,
+          "command_minus_fio_active_seconds": 1.0863838870000002,
+          "prepare_close_seconds": 3.8e-05,
+          "final_close_seconds": 0.717253,
+          "final_close_evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:20",
+          "maximum_close_seconds": 0.753551,
+          "maximum_close_evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:12",
+          "strace_close_count": 7,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089971.461215",
+              "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 3.8e-05,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5025:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089972.336593",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.417475,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089973.438795",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.531684,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089974.707445",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.739921,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089976.188760",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.736581,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089977.668475",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.753551,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793089978.650251",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.717253,
+              "outcome": "0",
+              "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:20"
+            }
+          ],
+          "all_target_close_seconds": 3.896503,
+          "intermediate_close_seconds": 3.179212,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 5.383085810249,
+          "write_slat_mean_ms": 5.381693524930999,
+          "write_clat_mean_ms": 0.001392285319,
+          "write_clat_percentiles_ms": {
+            "1.000000": 0.000286,
+            "5.000000": 0.000354,
+            "10.000000": 0.000422,
+            "20.000000": 0.000588,
+            "30.000000": 0.000756,
+            "40.000000": 0.000972,
+            "50.000000": 0.001272,
+            "60.000000": 0.001672,
+            "70.000000": 0.0018,
+            "80.000000": 0.001928,
+            "90.000000": 0.002064,
+            "95.000000": 0.00232,
+            "99.000000": 0.003632,
+            "99.500000": 0.005344,
+            "99.900000": 0.044288,
+            "99.950000": 0.044288,
+            "99.990000": 0.044288
+          },
+          "total_ios_not_independent_replicates": 722,
+          "post_write_drain": {
+            "tool": "fio-randwrite-direct1",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-02-candidate/compose-candidate/run/results/fio-randwrite-direct1.json"
+        }
+      },
+      "natural_mount_exits": [
+        {
+          "generation": "35dba686fd924516833369542915a62d",
+          "child_exit_code": 0,
+          "normal_unmount_seconds_realtime_based": 0.005052362000242283,
+          "child_exit_wait_seconds_realtime_based": 0.1010955739993733
+        }
+      ],
+      "compose_command_wall_seconds": 55.934977746000186,
+      "sum_four_command_wall_seconds": 53.287852037,
+      "sum_four_active_write_seconds": 49.398,
+      "sum_four_final_close_seconds": 2.344849,
+      "first_tool_to_last_tool_end_monotonic_seconds": 54.206929253,
+      "tool_window_note": "Contains gaps between tools, but excludes the final post-tool drain and final unmount.",
+      "fixed_sequence_write_bytes": 19755171840,
+      "cleanup_errors": [],
+      "status_sha256": "682eaa9e604b8dde7f3d7e0de09a9df5c16a871845b9af8fe78e106bdc66e821",
+      "index": 2,
+      "session_end_to_end_monotonic_seconds": 82.176535437
+    },
+    {
+      "version": "candidate",
+      "cases": {
+        "fio-seqwrite-direct0": {
+          "write_bytes": 5326766080,
+          "seed": 354,
+          "fio_active_write_seconds": 13.328,
+          "fio_job_runtime_seconds": 13.327,
+          "fio_reported_active_mib_s": 381.1524600982666,
+          "command_wall_monotonic_seconds": 14.134453786,
+          "case_wall_mib_s": 359.40546956484985,
+          "command_wall_monotonic_raw_seconds": 14.134213336,
+          "command_wall_realtime_seconds": 14.134454262,
+          "realtime_minus_monotonic_elapsed_seconds": 4.7600000030456613e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.0002404499999997256,
+          "shell_wall_monotonic_seconds": 14.282619518,
+          "shell_outside_command_seconds": 0.14816573200000072,
+          "command_minus_fio_active_seconds": 0.8064537860000005,
+          "prepare_close_seconds": 3.3e-05,
+          "final_close_seconds": 0.38245,
+          "final_close_evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:28",
+          "maximum_close_seconds": 0.551391,
+          "maximum_close_evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:14",
+          "strace_close_count": 11,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090014.652308",
+              "arguments": "7</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 3.3e-05,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.223:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090015.759293",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 5.9e-05,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090016.612574",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.140077,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090017.927156",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.32607,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090019.185240",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.535569,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090020.853556",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.165544,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090022.127665",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.551391,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090023.731237",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.434192,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090025.149422",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.457235,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090026.817684",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.302334,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090028.095882",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.38245,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.strace.233:28"
+            }
+          ],
+          "all_target_close_seconds": 3.294954,
+          "intermediate_close_seconds": 2.912471,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 7.762763825197,
+          "write_slat_mean_ms": 0.107779187402,
+          "write_clat_mean_ms": 7.654984637795001,
+          "write_clat_percentiles_ms": {
+            "1.000000": 2.310144,
+            "5.000000": 2.342912,
+            "10.000000": 2.37568,
+            "20.000000": 2.408448,
+            "30.000000": 2.473984,
+            "40.000000": 2.53952,
+            "50.000000": 2.736128,
+            "60.000000": 3.129344,
+            "70.000000": 3.948544,
+            "80.000000": 8.716288,
+            "90.000000": 12.648448,
+            "95.000000": 26.345472,
+            "99.000000": 82.313216,
+            "99.500000": 125.304832,
+            "99.900000": 147.849216,
+            "99.950000": 149.946368,
+            "99.990000": 149.946368
+          },
+          "total_ios_not_independent_replicates": 1270,
+          "post_write_drain": {
+            "tool": "fio-seqwrite-direct0",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct0.json"
+        },
+        "fio-seqwrite-direct1": {
+          "write_bytes": 6337593344,
+          "seed": 354,
+          "fio_active_write_seconds": 16.282,
+          "fio_job_runtime_seconds": 16.281,
+          "fio_reported_active_mib_s": 371.2074680328369,
+          "command_wall_monotonic_seconds": 17.170502009,
+          "case_wall_mib_s": 351.99902698430185,
+          "command_wall_monotonic_raw_seconds": 17.170211573,
+          "command_wall_realtime_seconds": 17.170502704,
+          "realtime_minus_monotonic_elapsed_seconds": 6.95000000661139e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.00029043600000022707,
+          "shell_wall_monotonic_seconds": 17.31587927,
+          "shell_outside_command_seconds": 0.14537726100000015,
+          "command_minus_fio_active_seconds": 0.8885020089999998,
+          "prepare_close_seconds": 3.9e-05,
+          "final_close_seconds": 0.524803,
+          "final_close_evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:32",
+          "maximum_close_seconds": 0.677873,
+          "maximum_close_evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:18",
+          "strace_close_count": 13,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090029.051109",
+              "arguments": "7</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 3.9e-05,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1756:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090029.692111",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.334906,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090030.841492",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.659691,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090032.367357",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.610849,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090033.888151",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.566512,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090035.481947",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.453233,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090036.931236",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.477466,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090038.239261",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.647368,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090039.683263",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.677873,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090041.182665",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.652064,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090042.806960",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.510171,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:22"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090044.310564",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.475649,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:24"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090045.449713",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.524803,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.strace.1766:32"
+            }
+          ],
+          "all_target_close_seconds": 6.590624,
+          "intermediate_close_seconds": 6.0657820000000005,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 6.751649297154,
+          "write_slat_mean_ms": 6.750062248842,
+          "write_clat_mean_ms": 0.0015870483119999998,
+          "write_clat_percentiles_ms": {
+            "1.000000": 0.000298,
+            "5.000000": 0.000366,
+            "10.000000": 0.00045,
+            "20.000000": 0.000604,
+            "30.000000": 0.000772,
+            "40.000000": 0.001048,
+            "50.000000": 0.00132,
+            "60.000000": 0.001704,
+            "70.000000": 0.001912,
+            "80.000000": 0.002128,
+            "90.000000": 0.002672,
+            "95.000000": 0.003792,
+            "99.000000": 0.0056,
+            "99.500000": 0.006688,
+            "99.900000": 0.025728,
+            "99.950000": 0.043776,
+            "99.990000": 0.043776
+          },
+          "total_ios_not_independent_replicates": 1511,
+          "post_write_drain": {
+            "tool": "fio-seqwrite-direct1",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-seqwrite-direct1.json"
+        },
+        "fio-randwrite-direct0": {
+          "write_bytes": 5062524928,
+          "seed": 354,
+          "fio_active_write_seconds": 12.94,
+          "fio_job_runtime_seconds": 12.939,
+          "fio_reported_active_mib_s": 373.10664558410645,
+          "command_wall_monotonic_seconds": 13.788832411,
+          "case_wall_mib_s": 350.13842043279004,
+          "command_wall_monotonic_raw_seconds": 13.788599363,
+          "command_wall_realtime_seconds": 13.788833372,
+          "realtime_minus_monotonic_elapsed_seconds": 9.609999995774388e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.0002330480000001245,
+          "shell_wall_monotonic_seconds": 13.935226363,
+          "shell_outside_command_seconds": 0.14639395200000038,
+          "command_minus_fio_active_seconds": 0.8488324110000001,
+          "prepare_close_seconds": 3.6e-05,
+          "final_close_seconds": 0.437958,
+          "final_close_evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:28",
+          "maximum_close_seconds": 0.680895,
+          "maximum_close_evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:10",
+          "strace_close_count": 11,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090046.462226",
+              "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 3.6e-05,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3594:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090047.504019",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.419298,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090048.785858",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.312998,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090050.005715",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.428264,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090051.237774",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.680895,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090052.826759",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.570903,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090054.227895",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.65242,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090055.724613",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.635913,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090057.263882",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.572535,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090058.701818",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.614275,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090059.517816",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.437958,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.strace.3604:28"
+            }
+          ],
+          "all_target_close_seconds": 5.325495,
+          "intermediate_close_seconds": 4.887501,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 6.434816716653,
+          "write_slat_mean_ms": 0.09702260646199999,
+          "write_clat_mean_ms": 6.337794110191,
+          "write_clat_percentiles_ms": {
+            "1.000000": 2.277376,
+            "5.000000": 2.342912,
+            "10.000000": 2.37568,
+            "20.000000": 2.441216,
+            "30.000000": 2.53952,
+            "40.000000": 2.736128,
+            "50.000000": 3.19488,
+            "60.000000": 6.520832,
+            "70.000000": 9.895936,
+            "80.000000": 10.682368,
+            "90.000000": 12.910592,
+            "95.000000": 14.614528,
+            "99.000000": 19.267584,
+            "99.500000": 20.840448,
+            "99.900000": 23.199744,
+            "99.950000": 27.131904,
+            "99.990000": 27.131904
+          },
+          "total_ios_not_independent_replicates": 1207,
+          "post_write_drain": {
+            "tool": "fio-randwrite-direct0",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct0.json"
+        },
+        "fio-randwrite-direct1": {
+          "write_bytes": 3028287488,
+          "seed": 354,
+          "fio_active_write_seconds": 7.025,
+          "fio_job_runtime_seconds": 7.024,
+          "fio_reported_active_mib_s": 411.1032028198242,
+          "command_wall_monotonic_seconds": 8.1599969,
+          "case_wall_mib_s": 353.92170308299995,
+          "command_wall_monotonic_raw_seconds": 8.159858444,
+          "command_wall_realtime_seconds": 8.159997532,
+          "realtime_minus_monotonic_elapsed_seconds": 6.320000007775661e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.00013845600000017555,
+          "shell_wall_monotonic_seconds": 8.308074054,
+          "shell_outside_command_seconds": 0.148077154000001,
+          "command_minus_fio_active_seconds": 1.134996899999999,
+          "prepare_close_seconds": 4.7e-05,
+          "final_close_seconds": 0.699512,
+          "final_close_evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:20",
+          "maximum_close_seconds": 0.761854,
+          "maximum_close_evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:10",
+          "strace_close_count": 7,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090060.506479",
+              "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 4.7e-05,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5025:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090061.382244",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.315814,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090062.401242",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.553463,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090063.699711",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.726272,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090065.169127",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.761854,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090066.676388",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.720481,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090067.647880",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.699512,
+              "outcome": "0",
+              "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct1.strace.5036:20"
+            }
+          ],
+          "all_target_close_seconds": 3.7774430000000003,
+          "intermediate_close_seconds": 3.077884,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 5.456169566482,
+          "write_slat_mean_ms": 5.454674279778,
+          "write_clat_mean_ms": 0.0014952867040000002,
+          "write_clat_percentiles_ms": {
+            "1.000000": 0.000302,
+            "5.000000": 0.00037,
+            "10.000000": 0.000434,
+            "20.000000": 0.000636,
+            "30.000000": 0.000836,
+            "40.000000": 0.001128,
+            "50.000000": 0.00156,
+            "60.000000": 0.001832,
+            "70.000000": 0.001944,
+            "80.000000": 0.002064,
+            "90.000000": 0.002256,
+            "95.000000": 0.002512,
+            "99.000000": 0.003728,
+            "99.500000": 0.004384,
+            "99.900000": 0.03968,
+            "99.950000": 0.03968,
+            "99.990000": 0.03968
+          },
+          "total_ios_not_independent_replicates": 722,
+          "post_write_drain": {
+            "tool": "fio-randwrite-direct1",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-03-candidate/compose-candidate/run/results/fio-randwrite-direct1.json"
+        }
+      },
+      "natural_mount_exits": [
+        {
+          "generation": "406c58d34b2541cc8dccf1fc8131795e",
+          "child_exit_code": 0,
+          "normal_unmount_seconds_realtime_based": 0.004968896000718814,
+          "child_exit_wait_seconds_realtime_based": 0.10088678699958109
+        }
+      ],
+      "compose_command_wall_seconds": 55.87229163900065,
+      "sum_four_command_wall_seconds": 53.253785105999995,
+      "sum_four_active_write_seconds": 49.575,
+      "sum_four_final_close_seconds": 2.0447230000000003,
+      "first_tool_to_last_tool_end_monotonic_seconds": 54.160828172,
+      "tool_window_note": "Contains gaps between tools, but excludes the final post-tool drain and final unmount.",
+      "fixed_sequence_write_bytes": 19755171840,
+      "cleanup_errors": [],
+      "status_sha256": "569baa662459c9138bb4f730969c7ee569d3e5acbde44f9525f62c6a5380c13f",
+      "index": 3,
+      "session_end_to_end_monotonic_seconds": 82.139735264
+    },
+    {
+      "version": "baseline",
+      "cases": {
+        "fio-seqwrite-direct0": {
+          "write_bytes": 5326766080,
+          "seed": 354,
+          "fio_active_write_seconds": 13.587,
+          "fio_job_runtime_seconds": 13.586,
+          "fio_reported_active_mib_s": 373.88680267333984,
+          "command_wall_monotonic_seconds": 14.344792822,
+          "case_wall_mib_s": 354.13547362001765,
+          "command_wall_monotonic_raw_seconds": 14.344550469,
+          "command_wall_realtime_seconds": 14.344794088,
+          "realtime_minus_monotonic_elapsed_seconds": 1.2659999999442562e-06,
+          "raw_minus_monotonic_elapsed_seconds": -0.00024235300000086113,
+          "shell_wall_monotonic_seconds": 14.497057718,
+          "shell_outside_command_seconds": 0.15226489600000015,
+          "command_minus_fio_active_seconds": 0.7577928220000008,
+          "prepare_close_seconds": 4.1e-05,
+          "final_close_seconds": 0.212148,
+          "final_close_evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:28",
+          "maximum_close_seconds": 0.251956,
+          "maximum_close_evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:18",
+          "strace_close_count": 11,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090101.523087",
+              "arguments": "7</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 4.1e-05,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.222:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090102.705449",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 6.2e-05,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090103.611215",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.045331,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090105.152543",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.04075,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090106.476303",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.105394,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090108.072440",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.079451,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090109.564299",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.003447,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090110.844292",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.2001,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090112.281940",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.251956,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090113.963072",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.099948,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090115.228040",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct0/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.212148,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.strace.233:28"
+            }
+          ],
+          "all_target_close_seconds": 1.038628,
+          "intermediate_close_seconds": 0.826439,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 9.386030958268,
+          "write_slat_mean_ms": 0.110445559843,
+          "write_clat_mean_ms": 9.275585398425,
+          "write_clat_percentiles_ms": {
+            "1.000000": 2.441216,
+            "5.000000": 2.473984,
+            "10.000000": 2.506752,
+            "20.000000": 2.572288,
+            "30.000000": 2.605056,
+            "40.000000": 2.70336,
+            "50.000000": 2.8672,
+            "60.000000": 3.162112,
+            "70.000000": 3.915776,
+            "80.000000": 5.210112,
+            "90.000000": 23.724032,
+            "95.000000": 42.729472,
+            "99.000000": 115.867648,
+            "99.500000": 137.363456,
+            "99.900000": 145.752064,
+            "99.950000": 145.752064,
+            "99.990000": 145.752064
+          },
+          "total_ios_not_independent_replicates": 1270,
+          "post_write_drain": {
+            "tool": "fio-seqwrite-direct0",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct0.json"
+        },
+        "fio-seqwrite-direct1": {
+          "write_bytes": 6337593344,
+          "seed": 354,
+          "fio_active_write_seconds": 16.266,
+          "fio_job_runtime_seconds": 16.265,
+          "fio_reported_active_mib_s": 371.57260513305664,
+          "command_wall_monotonic_seconds": 17.189571369,
+          "case_wall_mib_s": 351.6085346316351,
+          "command_wall_monotonic_raw_seconds": 17.18928047,
+          "command_wall_realtime_seconds": 17.189572149,
+          "realtime_minus_monotonic_elapsed_seconds": 7.800000005886432e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.000290898999999456,
+          "shell_wall_monotonic_seconds": 17.338114441,
+          "shell_outside_command_seconds": 0.14854307199999894,
+          "command_minus_fio_active_seconds": 0.9235713690000011,
+          "prepare_close_seconds": 3.8e-05,
+          "final_close_seconds": 0.285714,
+          "final_close_evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:32",
+          "maximum_close_seconds": 0.66339,
+          "maximum_close_evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:10",
+          "strace_close_count": 13,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090116.129833",
+              "arguments": "7</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 3.8e-05,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1448:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090116.887497",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.031421,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090118.055436",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.364671,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090119.311718",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.585148,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090120.700512",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.66339,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090122.415579",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.421713,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090124.021801",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.159793,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090125.399708",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.397846,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090127.078382",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.188366,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090128.108467",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.642573,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090129.795442",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.436798,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:22"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090131.425606",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.285047,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:24"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090132.513591",
+              "arguments": "8</mnt/brewfs/.perf-fio-seqwrite-direct1/brewfs-seqwrite.0.0>",
+              "duration_seconds": 0.285714,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.strace.1463:32"
+            }
+          ],
+          "all_target_close_seconds": 4.462518,
+          "intermediate_close_seconds": 4.176766,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 7.876697539378,
+          "write_slat_mean_ms": 7.875094830576,
+          "write_clat_mean_ms": 0.001602708802,
+          "write_clat_percentiles_ms": {
+            "1.000000": 0.000302,
+            "5.000000": 0.000354,
+            "10.000000": 0.000398,
+            "20.000000": 0.000478,
+            "30.000000": 0.000596,
+            "40.000000": 0.000828,
+            "50.000000": 0.001256,
+            "60.000000": 0.001736,
+            "70.000000": 0.001928,
+            "80.000000": 0.002128,
+            "90.000000": 0.002864,
+            "95.000000": 0.00432,
+            "99.000000": 0.005792,
+            "99.500000": 0.005984,
+            "99.900000": 0.038656,
+            "99.950000": 0.068096,
+            "99.990000": 0.068096
+          },
+          "total_ios_not_independent_replicates": 1511,
+          "post_write_drain": {
+            "tool": "fio-seqwrite-direct1",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-seqwrite-direct1.json"
+        },
+        "fio-randwrite-direct0": {
+          "write_bytes": 5062524928,
+          "seed": 354,
+          "fio_active_write_seconds": 13.019,
+          "fio_job_runtime_seconds": 13.018,
+          "fio_reported_active_mib_s": 370.84261417388916,
+          "command_wall_monotonic_seconds": 13.792196419,
+          "case_wall_mib_s": 350.05301935440775,
+          "command_wall_monotonic_raw_seconds": 13.791963304,
+          "command_wall_realtime_seconds": 13.792197448,
+          "realtime_minus_monotonic_elapsed_seconds": 1.0289999998747135e-06,
+          "raw_minus_monotonic_elapsed_seconds": -0.00023311500000033902,
+          "shell_wall_monotonic_seconds": 13.94174567,
+          "shell_outside_command_seconds": 0.14954925099999983,
+          "command_minus_fio_active_seconds": 0.7731964189999996,
+          "prepare_close_seconds": 3.8e-05,
+          "final_close_seconds": 0.429376,
+          "final_close_evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:28",
+          "maximum_close_seconds": 0.65088,
+          "maximum_close_evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:14",
+          "strace_close_count": 11,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090133.579283",
+              "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 3.8e-05,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2885:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090134.637132",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.405294,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090135.955972",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.348795,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090137.259023",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.371484,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090138.427464",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.634715,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090139.990954",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.563566,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090141.387062",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.65088,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:14"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090142.895862",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.629228,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:16"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090144.445668",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.561859,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:18"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090145.864889",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.629858,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:20"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090146.715210",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct0/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.429376,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.strace.2897:28"
+            }
+          ],
+          "all_target_close_seconds": 5.225093,
+          "intermediate_close_seconds": 4.795679,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 6.541534130903,
+          "write_slat_mean_ms": 0.098029271748,
+          "write_clat_mean_ms": 6.443504859155,
+          "write_clat_percentiles_ms": {
+            "1.000000": 2.408448,
+            "5.000000": 2.473984,
+            "10.000000": 2.506752,
+            "20.000000": 2.605056,
+            "30.000000": 2.736128,
+            "40.000000": 2.965504,
+            "50.000000": 3.325952,
+            "60.000000": 5.668864,
+            "70.000000": 9.895936,
+            "80.000000": 10.944512,
+            "90.000000": 13.041664,
+            "95.000000": 15.269888,
+            "99.000000": 19.791872,
+            "99.500000": 21.102592,
+            "99.900000": 23.986176,
+            "99.950000": 43.25376,
+            "99.990000": 43.25376
+          },
+          "total_ios_not_independent_replicates": 1207,
+          "post_write_drain": {
+            "tool": "fio-randwrite-direct0",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct0.json"
+        },
+        "fio-randwrite-direct1": {
+          "write_bytes": 3028287488,
+          "seed": 354,
+          "fio_active_write_seconds": 7.092,
+          "fio_job_runtime_seconds": 7.091,
+          "fio_reported_active_mib_s": 407.2194013595581,
+          "command_wall_monotonic_seconds": 8.169247987,
+          "case_wall_mib_s": 353.5209121568805,
+          "command_wall_monotonic_raw_seconds": 8.169109248,
+          "command_wall_realtime_seconds": 8.169248706,
+          "realtime_minus_monotonic_elapsed_seconds": 7.189999990941942e-07,
+          "raw_minus_monotonic_elapsed_seconds": -0.00013873900000049844,
+          "shell_wall_monotonic_seconds": 8.319325439,
+          "shell_outside_command_seconds": 0.15007745199999967,
+          "command_minus_fio_active_seconds": 1.0772479870000007,
+          "prepare_close_seconds": 4.1e-05,
+          "final_close_seconds": 0.710985,
+          "final_close_evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4127:20",
+          "maximum_close_seconds": 0.734318,
+          "maximum_close_evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4127:10",
+          "strace_close_count": 7,
+          "target_close_calls": [
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090147.644100",
+              "arguments": "7</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 4.1e-05,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4116:166"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090148.546393",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.325927,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4127:4"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090149.612775",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.541054,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4127:6"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090150.915629",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.731554,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4127:8"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090152.389492",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.734318,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4127:10"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090153.886812",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.72873,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4127:12"
+            },
+            {
+              "name": "close",
+              "strace_realtime_timestamp": "1793090154.853803",
+              "arguments": "8</mnt/brewfs/.perf-fio-randwrite-direct1/brewfs-randwrite.0.0>",
+              "duration_seconds": 0.710985,
+              "outcome": "0",
+              "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct1.strace.4127:20"
+            }
+          ],
+          "all_target_close_seconds": 3.772609,
+          "intermediate_close_seconds": 3.061583,
+          "target_fsync_fdatasync_calls": [],
+          "write_total_lat_mean_ms": 5.557089443213,
+          "write_slat_mean_ms": 5.555582934903,
+          "write_clat_mean_ms": 0.00150650831,
+          "write_clat_percentiles_ms": {
+            "1.000000": 0.000318,
+            "5.000000": 0.000382,
+            "10.000000": 0.000462,
+            "20.000000": 0.000676,
+            "30.000000": 0.000924,
+            "40.000000": 0.001256,
+            "50.000000": 0.00164,
+            "60.000000": 0.001784,
+            "70.000000": 0.001864,
+            "80.000000": 0.001976,
+            "90.000000": 0.00216,
+            "95.000000": 0.002352,
+            "99.000000": 0.003696,
+            "99.500000": 0.00432,
+            "99.900000": 0.04224,
+            "99.950000": 0.04224,
+            "99.990000": 0.04224
+          },
+          "total_ios_not_independent_replicates": 722,
+          "post_write_drain": {
+            "tool": "fio-randwrite-direct1",
+            "post_write_drain_s": "0",
+            "pending_bytes": "0",
+            "dirty_bytes": "0",
+            "buffer_dirty_bytes": "0"
+          },
+          "fio_exit_code": 0,
+          "timing_exit_code": 0,
+          "evidence": "results/session-04-baseline/compose-baseline/run/results/fio-randwrite-direct1.json"
+        }
+      },
+      "natural_mount_exits": [
+        {
+          "generation": "42d94e17fb0a4152be6d5b5419461fdc",
+          "child_exit_code": 0,
+          "normal_unmount_seconds_realtime_based": 0.005039781999585102,
+          "child_exit_wait_seconds_realtime_based": 0.10034652000013011
+        }
+      ],
+      "compose_command_wall_seconds": 56.14491834399996,
+      "sum_four_command_wall_seconds": 53.495808597,
+      "sum_four_active_write_seconds": 49.964,
+      "sum_four_final_close_seconds": 1.638223,
+      "first_tool_to_last_tool_end_monotonic_seconds": 54.428896317,
+      "tool_window_note": "Contains gaps between tools, but excludes the final post-tool drain and final unmount.",
+      "fixed_sequence_write_bytes": 19755171840,
+      "cleanup_errors": [],
+      "status_sha256": "c1cfa28ba16fc3ad2fc7026700c4bf5d1f5424712d514c1195a34331712395bf",
+      "index": 4,
+      "session_end_to_end_monotonic_seconds": 82.307117645
+    }
+  ],
+  "version_ranges": {
+    "baseline": {
+      "sessions": {
+        "session_end_to_end_monotonic_seconds": {
+          "values_in_order": [
+            82.079976583,
+            82.307117645
+          ],
+          "min": 82.079976583,
+          "max": 82.307117645
+        },
+        "compose_command_wall_seconds": {
+          "values_in_order": [
+            55.7988205620004,
+            56.14491834399996
+          ],
+          "min": 55.7988205620004,
+          "max": 56.14491834399996
+        },
+        "sum_four_command_wall_seconds": {
+          "values_in_order": [
+            53.138225104,
+            53.495808597
+          ],
+          "min": 53.138225104,
+          "max": 53.495808597
+        },
+        "sum_four_final_close_seconds": {
+          "values_in_order": [
+            1.714288,
+            1.638223
+          ],
+          "min": 1.638223,
+          "max": 1.714288
+        }
+      },
+      "cases": {
+        "fio-seqwrite-direct0": {
+          "fio_active_write_seconds": {
+            "values_in_order": [
+              13.407,
+              13.587
+            ],
+            "min": 13.407,
+            "max": 13.587
+          },
+          "command_wall_monotonic_seconds": {
+            "values_in_order": [
+              14.251721106,
+              14.344792822
+            ],
+            "min": 14.251721106,
+            "max": 14.344792822
+          },
+          "case_wall_mib_s": {
+            "values_in_order": [
+              356.44817648454483,
+              354.13547362001765
+            ],
+            "min": 354.13547362001765,
+            "max": 356.44817648454483
+          },
+          "final_close_seconds": {
+            "values_in_order": [
+              0.243298,
+              0.212148
+            ],
+            "min": 0.212148,
+            "max": 0.243298
+          },
+          "all_target_close_seconds": {
+            "values_in_order": [
+              1.481029,
+              1.038628
+            ],
+            "min": 1.038628,
+            "max": 1.481029
+          },
+          "write_total_lat_mean_ms": {
+            "values_in_order": [
+              9.129733035433,
+              9.386030958268
+            ],
+            "min": 9.129733035433,
+            "max": 9.386030958268
+          }
+        },
+        "fio-seqwrite-direct1": {
+          "fio_active_write_seconds": {
+            "values_in_order": [
+              16.282,
+              16.266
+            ],
+            "min": 16.266,
+            "max": 16.282
+          },
+          "command_wall_monotonic_seconds": {
+            "values_in_order": [
+              16.928863195,
+              17.189571369
+            ],
+            "min": 16.928863195,
+            "max": 17.189571369
+          },
+          "case_wall_mib_s": {
+            "values_in_order": [
+              357.02338251425624,
+              351.6085346316351
+            ],
+            "min": 351.6085346316351,
+            "max": 357.02338251425624
+          },
+          "final_close_seconds": {
+            "values_in_order": [
+              0.324607,
+              0.285714
+            ],
+            "min": 0.285714,
+            "max": 0.324607
+          },
+          "all_target_close_seconds": {
+            "values_in_order": [
+              4.030732,
+              4.462518
+            ],
+            "min": 4.030732,
+            "max": 4.462518
+          },
+          "write_total_lat_mean_ms": {
+            "values_in_order": [
+              8.201595080741,
+              7.876697539378
+            ],
+            "min": 7.876697539378,
+            "max": 8.201595080741
+          }
+        },
+        "fio-randwrite-direct0": {
+          "fio_active_write_seconds": {
+            "values_in_order": [
+              12.992,
+              13.019
+            ],
+            "min": 12.992,
+            "max": 13.019
+          },
+          "command_wall_monotonic_seconds": {
+            "values_in_order": [
+              13.795246133,
+              13.792196419
+            ],
+            "min": 13.792196419,
+            "max": 13.795246133
+          },
+          "case_wall_mib_s": {
+            "values_in_order": [
+              349.975633160383,
+              350.05301935440775
+            ],
+            "min": 349.975633160383,
+            "max": 350.05301935440775
+          },
+          "final_close_seconds": {
+            "values_in_order": [
+              0.432837,
+              0.429376
+            ],
+            "min": 0.429376,
+            "max": 0.432837
+          },
+          "all_target_close_seconds": {
+            "values_in_order": [
+              5.228813,
+              5.225093
+            ],
+            "min": 5.225093,
+            "max": 5.228813
+          },
+          "write_total_lat_mean_ms": {
+            "values_in_order": [
+              6.546502257664,
+              6.541534130903
+            ],
+            "min": 6.541534130903,
+            "max": 6.546502257664
+          }
+        },
+        "fio-randwrite-direct1": {
+          "fio_active_write_seconds": {
+            "values_in_order": [
+              7.063,
+              7.092
+            ],
+            "min": 7.063,
+            "max": 7.092
+          },
+          "command_wall_monotonic_seconds": {
+            "values_in_order": [
+              8.16239467,
+              8.169247987
+            ],
+            "min": 8.16239467,
+            "max": 8.169247987
+          },
+          "case_wall_mib_s": {
+            "values_in_order": [
+              353.81773569642894,
+              353.5209121568805
+            ],
+            "min": 353.5209121568805,
+            "max": 353.81773569642894
+          },
+          "final_close_seconds": {
+            "values_in_order": [
+              0.713546,
+              0.710985
+            ],
+            "min": 0.710985,
+            "max": 0.713546
+          },
+          "all_target_close_seconds": {
+            "values_in_order": [
+              3.716086,
+              3.772609
+            ],
+            "min": 3.716086,
+            "max": 3.772609
+          },
+          "write_total_lat_mean_ms": {
+            "values_in_order": [
+              5.599403371190999,
+              5.557089443213
+            ],
+            "min": 5.557089443213,
+            "max": 5.599403371190999
+          }
+        }
+      }
+    },
+    "candidate": {
+      "sessions": {
+        "session_end_to_end_monotonic_seconds": {
+          "values_in_order": [
+            82.176535437,
+            82.139735264
+          ],
+          "min": 82.139735264,
+          "max": 82.176535437
+        },
+        "compose_command_wall_seconds": {
+          "values_in_order": [
+            55.934977746000186,
+            55.87229163900065
+          ],
+          "min": 55.87229163900065,
+          "max": 55.934977746000186
+        },
+        "sum_four_command_wall_seconds": {
+          "values_in_order": [
+            53.287852037,
+            53.253785105999995
+          ],
+          "min": 53.253785105999995,
+          "max": 53.287852037
+        },
+        "sum_four_final_close_seconds": {
+          "values_in_order": [
+            2.344849,
+            2.0447230000000003
+          ],
+          "min": 2.0447230000000003,
+          "max": 2.344849
+        }
+      },
+      "cases": {
+        "fio-seqwrite-direct0": {
+          "fio_active_write_seconds": {
+            "values_in_order": [
+              13.171,
+              13.328
+            ],
+            "min": 13.171,
+            "max": 13.328
+          },
+          "command_wall_monotonic_seconds": {
+            "values_in_order": [
+              14.167160602,
+              14.134453786
+            ],
+            "min": 14.134453786,
+            "max": 14.167160602
+          },
+          "case_wall_mib_s": {
+            "values_in_order": [
+              358.5757331841674,
+              359.40546956484985
+            ],
+            "min": 358.5757331841674,
+            "max": 359.40546956484985
+          },
+          "final_close_seconds": {
+            "values_in_order": [
+              0.555638,
+              0.38245
+            ],
+            "min": 0.38245,
+            "max": 0.555638
+          },
+          "all_target_close_seconds": {
+            "values_in_order": [
+              3.858466,
+              3.294954
+            ],
+            "min": 3.294954,
+            "max": 3.858466
+          },
+          "write_total_lat_mean_ms": {
+            "values_in_order": [
+              7.42455186063,
+              7.762763825197
+            ],
+            "min": 7.42455186063,
+            "max": 7.762763825197
+          }
+        },
+        "fio-seqwrite-direct1": {
+          "fio_active_write_seconds": {
+            "values_in_order": [
+              16.178,
+              16.282
+            ],
+            "min": 16.178,
+            "max": 16.282
+          },
+          "command_wall_monotonic_seconds": {
+            "values_in_order": [
+              17.173648754,
+              17.170502009
+            ],
+            "min": 17.170502009,
+            "max": 17.173648754
+          },
+          "case_wall_mib_s": {
+            "values_in_order": [
+              351.9345298472034,
+              351.99902698430185
+            ],
+            "min": 351.9345298472034,
+            "max": 351.99902698430185
+          },
+          "final_close_seconds": {
+            "values_in_order": [
+              0.618686,
+              0.524803
+            ],
+            "min": 0.524803,
+            "max": 0.618686
+          },
+          "all_target_close_seconds": {
+            "values_in_order": [
+              5.786389,
+              6.590624
+            ],
+            "min": 5.786389,
+            "max": 6.590624
+          },
+          "write_total_lat_mean_ms": {
+            "values_in_order": [
+              7.244981391132,
+              6.751649297154
+            ],
+            "min": 6.751649297154,
+            "max": 7.244981391132
+          }
+        },
+        "fio-randwrite-direct0": {
+          "fio_active_write_seconds": {
+            "values_in_order": [
+              12.976,
+              12.94
+            ],
+            "min": 12.94,
+            "max": 12.976
+          },
+          "command_wall_monotonic_seconds": {
+            "values_in_order": [
+              13.787658794,
+              13.788832411
+            ],
+            "min": 13.787658794,
+            "max": 13.788832411
+          },
+          "case_wall_mib_s": {
+            "values_in_order": [
+              350.1682245067603,
+              350.13842043279004
+            ],
+            "min": 350.13842043279004,
+            "max": 350.1682245067603
+          },
+          "final_close_seconds": {
+            "values_in_order": [
+              0.453272,
+              0.437958
+            ],
+            "min": 0.437958,
+            "max": 0.453272
+          },
+          "all_target_close_seconds": {
+            "values_in_order": [
+              5.397862,
+              5.325495
+            ],
+            "min": 5.325495,
+            "max": 5.397862
+          },
+          "write_total_lat_mean_ms": {
+            "values_in_order": [
+              6.422656758906,
+              6.434816716653
+            ],
+            "min": 6.422656758906,
+            "max": 6.434816716653
+          }
+        },
+        "fio-randwrite-direct1": {
+          "fio_active_write_seconds": {
+            "values_in_order": [
+              7.073,
+              7.025
+            ],
+            "min": 7.025,
+            "max": 7.073
+          },
+          "command_wall_monotonic_seconds": {
+            "values_in_order": [
+              8.159383887,
+              8.1599969
+            ],
+            "min": 8.159383887,
+            "max": 8.1599969
+          },
+          "case_wall_mib_s": {
+            "values_in_order": [
+              353.9482931549927,
+              353.92170308299995
+            ],
+            "min": 353.92170308299995,
+            "max": 353.9482931549927
+          },
+          "final_close_seconds": {
+            "values_in_order": [
+              0.717253,
+              0.699512
+            ],
+            "min": 0.699512,
+            "max": 0.717253
+          },
+          "all_target_close_seconds": {
+            "values_in_order": [
+              3.896503,
+              3.7774430000000003
+            ],
+            "min": 3.7774430000000003,
+            "max": 3.896503
+          },
+          "write_total_lat_mean_ms": {
+            "values_in_order": [
+              5.383085810249,
+              5.456169566482
+            ],
+            "min": 5.383085810249,
+            "max": 5.456169566482
+          }
+        }
+      }
+    }
+  },
+  "limits": [
+    "Each version has two sequential sessions from one ABBA, not independent experimental batches. I/O counts are not sample size.",
+    "The command timer includes filtered strace overhead. Close duration is strace -T itself; it does not isolate internal FUSE flush from other close work.",
+    "No write/io_uring calls were traced, so the exact last-write boundary is unavailable. Command minus fio-active duration is not an isolated flush measurement.",
+    "Realtime, monotonic and monotonic_raw are reported separately. No epoch/monotonic cross-source subtraction is used.",
+    "fio total lat mean and clat percentiles are distinct measures. clat percentiles are not total latency percentiles.",
+    "The fixed sequence has the same bytes and seed in each session. Session end-to-end includes fresh backend preparation and cleanup; four-command sums exclude those costs.",
+    "io_size exceeds the 512 MiB working set, so fio reopens the file across passes. All close calls are retained separately; their duration sum must not be added again to active or command time.",
+    "Earlier broad compose and CI evidence remain separate; this one ABBA cannot alone establish general performance or acceptance."
+  ],
+  "whole_abba_host_monotonic_span_seconds": 347.223996147
+}

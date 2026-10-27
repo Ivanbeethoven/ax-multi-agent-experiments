@@ -1,0 +1,353 @@
+{
+  "started_utc": "2026-10-27T08:30:08.511030+00:00",
+  "phase": "complete",
+  "overall_timeout": null,
+  "sessions": [
+    {
+      "index": 1,
+      "version": "baseline",
+      "root": "/data/compose-abba-01/session-01-baseline",
+      "evidence": "/var/log/ax-trace/compose-abba-01/session-01-baseline",
+      "image_ids": {
+        "brewfs-xfstests:local": "sha256:86902c83396b2915412d32bd4ba07c8d1b25c8b8488d13c694dfc45ef66ed52e",
+        "redis:7.2-alpine": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+        "rustfs/rustfs:latest": "sha256:7bc4270ebbf1c17a76de8cdf59ec010bddac36d90f19be520b77d12eb256016c",
+        "amazon/aws-cli:latest": "sha256:ad55930568d8f80fc446c4c3d7f9cb0e4fc64d6d94d9e8ee022eebda3f238855"
+      },
+      "data_free_bytes": 507926712320,
+      "log_free_bytes": 36649238528,
+      "command": [
+        "/usr/bin/python3",
+        "/data/compose-abba/compose_diagnostic.py",
+        "--root",
+        "/data/compose-abba-01/session-01-baseline",
+        "--candidate",
+        "/data/c4/brewfs",
+        "--runtime-archive",
+        "/data/runtime.tar.gz",
+        "--trace-archive",
+        "/data/input/trace.tar.gz",
+        "--observer",
+        "/data/compose-abba/observer.py",
+        "--compose-runner",
+        "/data/compose-abba/run_perf_in_container.sh",
+        "--harness",
+        "/data/compose-abba/cloud_harness.py",
+        "--compose-image",
+        "brewfs-xfstests:local",
+        "--compose-tools",
+        "fio-seqwrite fio-randwrite",
+        "--only-version",
+        "baseline"
+      ],
+      "before_spawn_monotonic_ns": 7475406335286,
+      "pid": 7676,
+      "exit_code": 0,
+      "after_wait_monotonic_ns": 7557486311869,
+      "verification": {
+        "timings": {
+          "fio-seqwrite-direct0": {
+            "bytes": 5326766080,
+            "monotonic_wall_seconds": 14.251721106
+          },
+          "fio-seqwrite-direct1": {
+            "bytes": 6337593344,
+            "monotonic_wall_seconds": 16.928863195
+          },
+          "fio-randwrite-direct0": {
+            "bytes": 5062524928,
+            "monotonic_wall_seconds": 13.795246133
+          },
+          "fio-randwrite-direct1": {
+            "bytes": 3028287488,
+            "monotonic_wall_seconds": 8.16239467
+          }
+        },
+        "natural_mount_generations": 1,
+        "status_sha256": "bb3388205618202c39d042ce09f9bdf6b2f257b5037933901e025b4f1bf297a2"
+      }
+    },
+    {
+      "index": 2,
+      "version": "candidate",
+      "root": "/data/compose-abba-01/session-02-candidate",
+      "evidence": "/var/log/ax-trace/compose-abba-01/session-02-candidate",
+      "image_ids": {
+        "brewfs-xfstests:local": "sha256:86902c83396b2915412d32bd4ba07c8d1b25c8b8488d13c694dfc45ef66ed52e",
+        "redis:7.2-alpine": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+        "rustfs/rustfs:latest": "sha256:7bc4270ebbf1c17a76de8cdf59ec010bddac36d90f19be520b77d12eb256016c",
+        "amazon/aws-cli:latest": "sha256:ad55930568d8f80fc446c4c3d7f9cb0e4fc64d6d94d9e8ee022eebda3f238855"
+      },
+      "data_free_bytes": 486287040512,
+      "log_free_bytes": 36649103360,
+      "command": [
+        "/usr/bin/python3",
+        "/data/compose-abba/compose_diagnostic.py",
+        "--root",
+        "/data/compose-abba-01/session-02-candidate",
+        "--candidate",
+        "/data/c4/brewfs",
+        "--runtime-archive",
+        "/data/runtime.tar.gz",
+        "--trace-archive",
+        "/data/input/trace.tar.gz",
+        "--observer",
+        "/data/compose-abba/observer.py",
+        "--compose-runner",
+        "/data/compose-abba/run_perf_in_container.sh",
+        "--harness",
+        "/data/compose-abba/cloud_harness.py",
+        "--compose-image",
+        "brewfs-xfstests:local",
+        "--compose-tools",
+        "fio-seqwrite fio-randwrite",
+        "--only-version",
+        "candidate"
+      ],
+      "before_spawn_monotonic_ns": 7564332670280,
+      "pid": 14179,
+      "exit_code": 0,
+      "after_wait_monotonic_ns": 7646509205717,
+      "verification": {
+        "timings": {
+          "fio-seqwrite-direct0": {
+            "bytes": 5326766080,
+            "monotonic_wall_seconds": 14.167160602
+          },
+          "fio-seqwrite-direct1": {
+            "bytes": 6337593344,
+            "monotonic_wall_seconds": 17.173648754
+          },
+          "fio-randwrite-direct0": {
+            "bytes": 5062524928,
+            "monotonic_wall_seconds": 13.787658794
+          },
+          "fio-randwrite-direct1": {
+            "bytes": 3028287488,
+            "monotonic_wall_seconds": 8.159383887
+          }
+        },
+        "natural_mount_generations": 1,
+        "status_sha256": "682eaa9e604b8dde7f3d7e0de09a9df5c16a871845b9af8fe78e106bdc66e821"
+      }
+    },
+    {
+      "index": 3,
+      "version": "candidate",
+      "root": "/data/compose-abba-01/session-03-candidate",
+      "evidence": "/var/log/ax-trace/compose-abba-01/session-03-candidate",
+      "image_ids": {
+        "brewfs-xfstests:local": "sha256:86902c83396b2915412d32bd4ba07c8d1b25c8b8488d13c694dfc45ef66ed52e",
+        "redis:7.2-alpine": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+        "rustfs/rustfs:latest": "sha256:7bc4270ebbf1c17a76de8cdf59ec010bddac36d90f19be520b77d12eb256016c",
+        "amazon/aws-cli:latest": "sha256:ad55930568d8f80fc446c4c3d7f9cb0e4fc64d6d94d9e8ee022eebda3f238855"
+      },
+      "data_free_bytes": 464647806976,
+      "log_free_bytes": 36647944192,
+      "command": [
+        "/usr/bin/python3",
+        "/data/compose-abba/compose_diagnostic.py",
+        "--root",
+        "/data/compose-abba-01/session-03-candidate",
+        "--candidate",
+        "/data/c4/brewfs",
+        "--runtime-archive",
+        "/data/runtime.tar.gz",
+        "--trace-archive",
+        "/data/input/trace.tar.gz",
+        "--observer",
+        "/data/compose-abba/observer.py",
+        "--compose-runner",
+        "/data/compose-abba/run_perf_in_container.sh",
+        "--harness",
+        "/data/compose-abba/cloud_harness.py",
+        "--compose-image",
+        "brewfs-xfstests:local",
+        "--compose-tools",
+        "fio-seqwrite fio-randwrite",
+        "--only-version",
+        "candidate"
+      ],
+      "before_spawn_monotonic_ns": 7653355682433,
+      "pid": 20960,
+      "exit_code": 0,
+      "after_wait_monotonic_ns": 7735495417697,
+      "verification": {
+        "timings": {
+          "fio-seqwrite-direct0": {
+            "bytes": 5326766080,
+            "monotonic_wall_seconds": 14.134453786
+          },
+          "fio-seqwrite-direct1": {
+            "bytes": 6337593344,
+            "monotonic_wall_seconds": 17.170502009
+          },
+          "fio-randwrite-direct0": {
+            "bytes": 5062524928,
+            "monotonic_wall_seconds": 13.788832411
+          },
+          "fio-randwrite-direct1": {
+            "bytes": 3028287488,
+            "monotonic_wall_seconds": 8.1599969
+          }
+        },
+        "natural_mount_generations": 1,
+        "status_sha256": "569baa662459c9138bb4f730969c7ee569d3e5acbde44f9525f62c6a5380c13f"
+      }
+    },
+    {
+      "index": 4,
+      "version": "baseline",
+      "root": "/data/compose-abba-01/session-04-baseline",
+      "evidence": "/var/log/ax-trace/compose-abba-01/session-04-baseline",
+      "image_ids": {
+        "brewfs-xfstests:local": "sha256:86902c83396b2915412d32bd4ba07c8d1b25c8b8488d13c694dfc45ef66ed52e",
+        "redis:7.2-alpine": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+        "rustfs/rustfs:latest": "sha256:7bc4270ebbf1c17a76de8cdf59ec010bddac36d90f19be520b77d12eb256016c",
+        "amazon/aws-cli:latest": "sha256:ad55930568d8f80fc446c4c3d7f9cb0e4fc64d6d94d9e8ee022eebda3f238855"
+      },
+      "data_free_bytes": 443008978944,
+      "log_free_bytes": 36646776832,
+      "command": [
+        "/usr/bin/python3",
+        "/data/compose-abba/compose_diagnostic.py",
+        "--root",
+        "/data/compose-abba-01/session-04-baseline",
+        "--candidate",
+        "/data/c4/brewfs",
+        "--runtime-archive",
+        "/data/runtime.tar.gz",
+        "--trace-archive",
+        "/data/input/trace.tar.gz",
+        "--observer",
+        "/data/compose-abba/observer.py",
+        "--compose-runner",
+        "/data/compose-abba/run_perf_in_container.sh",
+        "--harness",
+        "/data/compose-abba/cloud_harness.py",
+        "--compose-image",
+        "brewfs-xfstests:local",
+        "--compose-tools",
+        "fio-seqwrite fio-randwrite",
+        "--only-version",
+        "baseline"
+      ],
+      "before_spawn_monotonic_ns": 7740323213788,
+      "pid": 27730,
+      "exit_code": 0,
+      "after_wait_monotonic_ns": 7822630331433,
+      "verification": {
+        "timings": {
+          "fio-seqwrite-direct0": {
+            "bytes": 5326766080,
+            "monotonic_wall_seconds": 14.344792822
+          },
+          "fio-seqwrite-direct1": {
+            "bytes": 6337593344,
+            "monotonic_wall_seconds": 17.189571369
+          },
+          "fio-randwrite-direct0": {
+            "bytes": 5062524928,
+            "monotonic_wall_seconds": 13.792196419
+          },
+          "fio-randwrite-direct1": {
+            "bytes": 3028287488,
+            "monotonic_wall_seconds": 8.169247987
+          }
+        },
+        "natural_mount_generations": 1,
+        "status_sha256": "c1cfa28ba16fc3ad2fc7026700c4bf5d1f5424712d514c1195a34331712395bf"
+      }
+    }
+  ],
+  "order": [
+    "baseline",
+    "candidate",
+    "candidate",
+    "baseline"
+  ],
+  "fixed_write_bytes": {
+    "fio-seqwrite-direct0": 5326766080,
+    "fio-seqwrite-direct1": 6337593344,
+    "fio-randwrite-direct0": 5062524928,
+    "fio-randwrite-direct1": 3028287488
+  },
+  "fixed_seed": 354,
+  "diagnostic_only": true,
+  "source_archive_sha256": "d609a429dfce0943114717495a76c164598df36a4564768fc346156548ea2783",
+  "baseline_sha256": "765bce82ad5b971c4d24fc989f5a6ca201c8c7c3638c5a7c91501a0a1e4e994a",
+  "candidate_sha256": "c1f6de4e5fa06873cbd2e281c697a65470ad602b9c5fc4b20b43b9fe74e3c3d2",
+  "bundle_manifest_sha256": "01894ce624845069ff952df3e4ebc6546b08fe3d1fb63556789215e26b835acd",
+  "kernel": "Linux ax-disk500-pl1 6.8.0-147-generic #147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:33:16 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+  "docker_version": {
+    "Client": {
+      "Version": "29.1.3",
+      "ApiVersion": "1.52",
+      "DefaultAPIVersion": "1.52",
+      "GitCommit": "29.1.3-0ubuntu3~24.04.2",
+      "GoVersion": "go1.24.4",
+      "Os": "linux",
+      "Arch": "amd64",
+      "BuildTime": "Wed Apr 29 16:41:06 2026",
+      "Context": "default"
+    },
+    "Server": {
+      "Platform": {
+        "Name": ""
+      },
+      "Version": "29.1.3",
+      "ApiVersion": "1.52",
+      "MinAPIVersion": "1.44",
+      "Os": "linux",
+      "Arch": "amd64",
+      "Components": [
+        {
+          "Name": "Engine",
+          "Version": "29.1.3",
+          "Details": {
+            "ApiVersion": "1.52",
+            "Arch": "amd64",
+            "BuildTime": "Wed Apr 29 16:41:06 2026",
+            "Experimental": "false",
+            "GitCommit": "29.1.3-0ubuntu3~24.04.2",
+            "GoVersion": "go1.24.4",
+            "KernelVersion": "6.8.0-147-generic",
+            "MinAPIVersion": "1.44",
+            "Os": "linux"
+          }
+        },
+        {
+          "Name": "containerd",
+          "Version": "2.2.1",
+          "Details": {
+            "GitCommit": ""
+          }
+        },
+        {
+          "Name": "runc",
+          "Version": "1.3.4-0ubuntu1~24.04.1",
+          "Details": {
+            "GitCommit": ""
+          }
+        },
+        {
+          "Name": "docker-init",
+          "Version": "0.19.0",
+          "Details": {
+            "GitCommit": ""
+          }
+        }
+      ],
+      "GitCommit": "29.1.3-0ubuntu3~24.04.2",
+      "GoVersion": "go1.24.4",
+      "KernelVersion": "6.8.0-147-generic",
+      "BuildTime": "2026-04-29T16:41:06.000000000+00:00"
+    }
+  },
+  "compose_version": "Docker Compose version 2.40.3+ds1-0ubuntu1~24.04.1",
+  "cross_host_comparison": false,
+  "waiting_ports": [
+    9000
+  ],
+  "completed_utc": "2026-10-27T08:35:56.497319+00:00"
+}

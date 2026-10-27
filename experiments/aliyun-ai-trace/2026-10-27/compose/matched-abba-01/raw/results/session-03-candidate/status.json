@@ -1,0 +1,91 @@
+{
+  "methods": {},
+  "created_containers": [
+    "ax-ai-fix-redis-1db477f0dfe4",
+    "ax-ai-fix-rustfs-1db477f0dfe4"
+  ],
+  "scope": "single ECS host paired compose; no host page-cache drop",
+  "correctness_certified": false,
+  "started_epoch": 1793089987.2716913,
+  "network_scope": "loopback backends; child HTTP proxies disabled",
+  "result_location": "system disk; fresh backend/cache on /data",
+  "validation_scope": "Instrumented direct randwrite diagnosis only; not performance acceptance",
+  "selected_methods": [],
+  "replay_executed": false,
+  "repository_compose_runner_sha256": "caec2e7ed32e2e18588406911ef08376687c44310293c5e39bec1c450a04b98e",
+  "source": {
+    "trace_sha256": "9953d90517eaf520814150f80abccb11f9d74b7ac84ecc56fa394a5f8495aa3d",
+    "baseline_binaries": {
+      "brewfs": "765bce82ad5b971c4d24fc989f5a6ca201c8c7c3638c5a7c91501a0a1e4e994a",
+      "packed_v3_snapshot_fixture": "a48be898345836ef689d3fef65ab7fc743e0c301a756044c25eec7b3d15bbfc2",
+      "full-fuse-replay": "a352dfe4965efabff55fa53c05a82f7540765ca7dc2c395cd9c7394c5940aa25"
+    },
+    "candidate_sha256": "c1f6de4e5fa06873cbd2e281c697a65470ad602b9c5fc4b20b43b9fe74e3c3d2",
+    "observer_sha256": "e3413299bbaefeb880eeee45c1d3cf5211124d3f0a8366161c1ba1391a78cb98",
+    "runtime_observer_sha256": "f42a30cd74cee8ab6a9430fa3ba803b99ebf3eab7afc8746ee73fc8ca9b848ba",
+    "repro_script_sha256": "85aecd1c413d0d1bdf8bda95257c6f54b512a87f5350cc00e50e17d61e483f16"
+  },
+  "observer_executed": false,
+  "observer_copy_scope_note": "Frozen WSL-labelled observer is retained as provenance, not run.",
+  "compose_runner_adaptation": {
+    "original_sha256": "2ecffea40c6271b2daa36d09f0e5f7e090f407a1dbf9f8ffffe0392faa0b553c",
+    "adapted_sha256": "61743d2fe85244ca667101719136099cdeee14b46f49833fb6f3ed9fac9ac1f7",
+    "adapter_sha256": "83b41901789dbb231c236af25c32746c4e451209a7c1554027a21902cfa05271",
+    "supervisor_sha256": "1a0de5a447760740fb29893c97990b60a158a93e0534628f39d6711d21380e59",
+    "embedded_supervisor_sha256": "1a0de5a447760740fb29893c97990b60a158a93e0534628f39d6711d21380e59",
+    "changed_regions": [
+      "mount helper launch statement",
+      "cleanup",
+      "on_exit"
+    ],
+    "all_other_bytes_identical": true,
+    "natural_exit_timeout_s": null,
+    "diagnostic": {
+      "timing_helper_sha256": "1b4c12cdd72c62c3bdb266954a8362145545805ad61b95fe9f64077c24a60a43",
+      "diagnostic_runner_sha256": "f011a0b5f377f33a0afac3f8e7b091263df9f2ba9c9cba9a31d2adedca9d0401",
+      "scope": "Only measured fio command wrapping and five shell clock markers; original parameters and drain logic unchanged.",
+      "limits": "Markers have process-start overhead; syscall-filtered strace is diagnostic, not acceptance performance.",
+      "syscalls": [
+        "open",
+        "openat",
+        "close",
+        "fsync",
+        "fdatasync",
+        "fallocate",
+        "ftruncate"
+      ],
+      "seccomp_bpf": true,
+      "overall_timeout": null
+    }
+  },
+  "backend_images": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:7bc4270ebbf1c17a76de8cdf59ec010bddac36d90f19be520b77d12eb256016c"
+  },
+  "compose_order": [
+    "candidate"
+  ],
+  "compose_tools": "fio-seqwrite fio-randwrite",
+  "compose": {
+    "candidate": {
+      "phase": "finished",
+      "runner_sha256": "f011a0b5f377f33a0afac3f8e7b091263df9f2ba9c9cba9a31d2adedca9d0401",
+      "project": "ax-ai-fix-candidate-041c06627ad2",
+      "profile": "workspace-v1, upload_before_commit, 512MiB memory, buffered/direct",
+      "image": "sha256:86902c83396b2915412d32bd4ba07c8d1b25c8b8488d13c694dfc45ef66ed52e",
+      "command": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 55.87229163900065
+      },
+      "cleanup": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.06381684899952234
+      },
+      "remaining_project_containers": []
+    }
+  },
+  "cleanup_errors": [],
+  "finished_epoch": 1793090069.3511326
+}
