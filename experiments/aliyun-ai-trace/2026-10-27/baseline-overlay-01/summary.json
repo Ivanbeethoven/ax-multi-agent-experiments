@@ -1,0 +1,68 @@
+{
+  "scope": "One full original-overlay replay paired with the previously completed C4 overlay on the same node; diagnostic only",
+  "configuration": {
+    "instance_type": "ecs.g8i.2xlarge",
+    "data_disk_gib": 500,
+    "data_disk_performance_level": "PL1",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8575C",
+    "system_disk_gib": 40,
+    "logs": "system disk"
+  },
+  "source_archive_identity": {
+    "original": {
+      "sha256": "8711e9c8edac5128efb0dec2718acfa15ec0c10d125ce492ad80b08a0f55960f",
+      "bytes": 2456496
+    },
+    "c4": {
+      "sha256": "6941381a98b1c9cf5ce7e3ebaf6392de66ed1e3a7f16f117449923b0e0e735b6",
+      "bytes": 945975
+    }
+  },
+  "reports": {
+    "original": {
+      "actual_read_bytes": 281774624,
+      "actual_write_bytes": 194706661,
+      "completed": true,
+      "execution_seconds": 1621.413164849,
+      "expected_errors": 45525,
+      "mode": "performance",
+      "operations": 1747109,
+      "probe_errno_differences": 1048,
+      "remaining_handles": 0,
+      "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+      "valid": false
+    },
+    "c4": {
+      "actual_read_bytes": 281774624,
+      "actual_write_bytes": 194706661,
+      "completed": true,
+      "execution_seconds": 561.168935968,
+      "expected_errors": 45525,
+      "mode": "performance",
+      "operations": 1747109,
+      "probe_errno_differences": 1048,
+      "remaining_handles": 0,
+      "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+      "valid": false
+    }
+  },
+  "observed_original_over_c4_elapsed_ratio": 2.8893494648845977,
+  "ratio_definition": "original.execution_seconds / c4.execution_seconds; observed single-run elapsed ratio, not an isolated causal speedup",
+  "n_per_version": 1,
+  "correctness_certified": false,
+  "performance_accepted": false,
+  "resource_status": "Existing node retained under explicit authorization while remaining matched B-C-C-B compose acceptance is evaluated; not released",
+  "constraints": [
+    "C4 ran earlier; original ran after the matrix, with fresh backend and directories.",
+    "No host page-cache drop and no order/crossover replication; cache/order effects are not isolated.",
+    "Full operation and byte counts do not certify strict correctness; valid remains false.",
+    "Original previously timed out in a different test; this new full result does not erase that record.",
+    "No new instance was created for this follow-up; no overall replay deadline."
+  ],
+  "links": {
+    "original_report": "original/baseline-overlay-replay.json",
+    "c4_report": "c4/candidate-overlay-replay.json",
+    "matrix": "../disk-matrix/summary/summary.zh.md",
+    "hardware": "../disk-matrix/summary/evidence/500g-pl1/host-identity.json"
+  }
+}

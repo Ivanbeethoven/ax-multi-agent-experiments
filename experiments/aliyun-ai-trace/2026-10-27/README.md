@@ -2,7 +2,7 @@
 
 最新结果见已推送提交 `8a0530d` 的 [g8i 三种磁盘配置、四方法完整回放摘要](disk-matrix/summary/summary.zh.md)。本次 trace 中 native 在已有工作区上的回放明显更快，overlay 的额外开销需优先定位；packed 减少了 Redis 命令计数，但回放更慢，尚不能由此证明数据库瓶颈下的收益。主图只计回放，不代表包括准备、fork、保存和回收的全生命周期成本，也不证明严格正确性；C4 性能验收仍待完成。三台各一次且 CPU 型号不同，不能将差异全部归因于磁盘。
 
-新 g8i 批次中，100 GiB PL0、500 GiB PL0 已核验释放；500 GiB PL1 为额外 baseline-overlay 验证保留，尚未释放。下文“已释放”仅指旧 e 系列批次。
+新 g8i 批次中，100 GiB PL0、500 GiB PL0 已核验释放；500 GiB PL1 上的[原版 overlay 补测](baseline-overlay-01/README.md)也已完整结束，实例为剩余等量负载的 compose 对照保留，尚未释放。下文“已释放”仅指旧 e 系列批次。
 
 后续沿用[既有五个 RQ 与实验设计](../../ax-multi-agent/paper-design/plan.zh.md)，先做单因素小组，再按结果扩展，不铺开全部组合：
 
