@@ -17,6 +17,18 @@
       "observed_commit": "a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed",
       "observed_on": "2026-10-27",
       "status": "required_for_future_deployments_not_yet_measured",
+      "frozen_commit": null,
+      "observed_commit_is_not_a_pin": true,
+      "freeze_policy": "observed_commit is a dated observation of the branch tip, not a pin. Each batch resolves the branch again and writes the SHA it actually built and deployed into frozen_commit; that value stays fixed for the whole batch and is what every result of the batch cites.",
+      "rationale": "This branch carries the EC dynamic-layout read path (in order: reduce dynamic layout read overhead, compact deferred shard reader state, include shard checksums in file buffer cap). The backend layout is a controlled variable in RQ3, so it has to be a fixed, named backend rather than whatever latest is.",
+      "image": {
+        "reference": null,
+        "digest": null,
+        "built_from_commit": null,
+        "provenance_check": "docker inspect -f '{{ index .Config.Labels \"org.opencontainers.image.revision\" }}' <image> must equal frozen_commit. A pinned digest alone does not prove which source produced the image.",
+        "placeholder_rejection": "The deploy generator must fail closed on any image string containing REPLACE_WITH or REGISTRY/. A placeholder that reaches a running node is a silent downgrade to an unintended backend."
+      },
+      "runtime_evidence": "Record the effective block size and layout the server actually reports at runtime, not just the configured value; dynamic-block work only counts if the effective layout changed.",
       "selection_rule": "Deploy RustFS from this required repository and branch for future experiments. At each batch start, resolve and freeze its full commit, build or verify the corresponding image, and record its digest separately from the BrewFS client. Do not silently fall back to another branch or the official latest image. Keep the backend fixed across overlay/packed pairs; dynamic-block comparisons require qualified effective layouts. Preserve historical versions and results."
     },
     "measured_results": null

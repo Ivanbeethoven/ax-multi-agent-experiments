@@ -8,7 +8,7 @@
 
 `generate_rustfs.py` 按已冻结的 image digest 生成逐节点 Compose JSON。`smoke` 为1节点1盘，只验接入；`distributed` 固定4节点、每节点4个独立文件系统。后者沿用官方多节点 host network 和 volume 展开语法；16个目录不能指向同一块盘。容器默认 UID 10001；运行前确认目录属主、实际 EC/副本、服务端布局和节点故障目标。4×4 拓扑本身不证明任何耐久性。[官方 Docker 部署](https://github.com/rustfs/docs.rustfs.com/blob/main/content/en/installation/container/docker.md)、[部署模式与冗余](https://docs.rustfs.com/en/installation)
 
-1. 按 `rustfs-smoke.example.json` 填私网 IP、已挂载数据盘路径、日志目录，并把镜像占位替换为上述分支对应的已验证镜像地址和 digest。源码与镜像对应关系单独保存为本批证据，不向 spec 添加生成器未约定的字段。正式配置将 mode 改为 distributed，列4个 node，每个 `data_mounts` 为 `/mnt/rustfs0`…`/mnt/rustfs3`；IP和盘由本批 inventory 确认。
+1. 按 `rustfs-smoke.example.json` 填私网 IP、已挂载数据盘路径、日志目录，并把镜像占位替换为上述分支对应的已验证镜像地址和 digest。**来源校验先做完再填**：`docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.revision" }}' <image>` 必须等于本批 `frozen_commit`；对不上就阻断本批、写 `blocked_reason`，不换分支也不退回官方 `latest`。生成器遇到 `REPLACE_WITH` / `REGISTRY/` 占位必须直接失败，不能产出可运行的 spec。源码与镜像对应关系单独保存为本批证据，不向 spec 添加生成器未约定的字段。正式配置将 mode 改为 distributed，列4个 node，每个 `data_mounts` 为 `/mnt/rustfs0`…`/mnt/rustfs3`；IP和盘由本批 inventory 确认。
 2. 每节点创建相同凭据的 `/etc/agent-experiment/rustfs.env`，权限0600，内容是 `RUSTFS_ACCESS_KEY=…`、`RUSTFS_SECRET_KEY=…`。值用至少12位随机字母数字；不放进 spec、tfvars、命令行或输出。数据挂载点和日志目录需已归 UID10001；脚本不会自动改目录或格式化盘。
 3. 生成配置，将各节点目录发送到对应节点：
 
