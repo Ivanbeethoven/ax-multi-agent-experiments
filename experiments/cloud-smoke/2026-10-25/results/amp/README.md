@@ -2,15 +2,25 @@
 
 主报告：[jfs-write-amplification.md](../../jfs-write-amplification.md)。所有数值按 case 的 before/after 原始 Prometheus 文本做差，权威复算结果为 `summary.json`。
 
+原始 case 快照和三份完整 mount 日志已经逐字节打包到 [`raw-20261025.tar.zst`](raw-20261025.tar.zst)，共 154 个文件、76,893,265 字节；[`archive-manifest.json`](archive-manifest.json) 保存每个原路径、大小、SHA-256 以及归档 SHA-256。报告中标注“归档原始文件”的链接，解档后会恢复下面描述的原始路径。归档是在 2026-10-28 整理时完成的，摘要、源码快照、复算脚本和清单仍在当前目录。
+
+解档示例（目标目录必须为空）：
+
+```bash
+mkdir /tmp/amp-raw-20261025
+zstd -d raw-20261025.tar.zst -o /tmp/amp-raw-20261025.tar
+tar -xf /tmp/amp-raw-20261025.tar -C /tmp/amp-raw-20261025
+```
+
 - `preflight.json`：原进程、版本、挂载帮助、原始指标与脱敏卷格式。
 - `setup.json`、`setup-commands.jsonl`：独立挂载参数、64 KiB 卷创建命令（凭据已脱敏）。原挂载保留。
-- 各 case 目录：`before.json`、`immediate.json`、`after.json`、`after-validation.json`、settle 轮询记录、`result.json`。JSON 内同时保存四个客户端的完整原始 metrics 文本和解析字段。
+- 各 case 目录（已归档）：`before.json`、`immediate.json`、`after.json`、`after-validation.json`、settle 轮询记录、`result.json`。JSON 内同时保存四个客户端的完整原始 metrics 文本和解析字段。
 - F/D/E 读探针还保存首轮写前、写后、读后快照，以及每轮阶段差值。`F_write_400` 的 `read_phase` 是相同位置的无读采样段，可能包含异步写完成，不能将其命名当成执行过读。
 - `summary.json`、`tables.md`：重新从原始文本解析的统一摘要。早期快照/运行结果的辅助 `selected` 字段没有正确选中 FUSE 字节及 staging 字节的实际指标名称；其零占位不作为证据。最终复算明确读取 `juicefs_fuse_written_size_bytes_*`、`juicefs_fuse_read_size_bytes_*`、`juicefs_staging_block_bytes`，并检查实际 staging gauges 排空。PUT、GET、compaction 的指标选择在整个实验中一致。
 - `smoke-recheck.json`：只读重算旧 initial/stable/cleandiag 的计数器，附原快照哈希；不包含任何主负载执行。
-- `*-mount.log`：三个实验客户端完整 debug 日志，包含对象请求和 compaction。
+- `*-mount.log`（已归档）：三个实验客户端完整 debug 日志，包含对象请求和 compaction。
 - `source/`、`source-commit.txt`、`source-final-manifest.json`：对应实际 binary commit 的源码副本与哈希。`source-manifest.json` 保留云端首次下载部分失败的记录；缺少文件随后由本地官方 GitHub 下载补齐，最终以 final manifest 为准。
-- `finish.json`、`final-before-unmount.json`：排空后的最终指标、卷 block 配置、三个实验挂载点卸载结果、原挂载存在性。
+- `finish.json`、`final-before-unmount.json`（已归档）：排空后的最终指标、卷 block 配置、三个实验挂载点卸载结果、原挂载存在性。
 - `verify_amp.ps1`、`local-verification.json`：独立用 .NET decimal 解析 raw 文本，核对 16 个 case、表格、快照与源码哈希、配置和卸载状态；792 项断言通过。既有 129 个归档文件哈希匹配旧 manifest，`report.md` 原内容按字节保持一致，仅追加链接。
 - `amp-manifest.json`：交付文件大小与 SHA256 清单（不包含清单自身）。
 

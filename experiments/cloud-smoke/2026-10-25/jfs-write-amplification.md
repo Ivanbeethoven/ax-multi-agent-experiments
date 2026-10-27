@@ -9,7 +9,7 @@
 ## 环境、边界与计量
 
 - 经 `ssh osdi-smoke` 连接，保留原 `/mnt/jfs`（端口 9567）和原进程。没有读写 `/mnt/brewfs` 中的文件；收尾仅用 `findmnt` 检查它仍挂载。
-- 默认配置另挂 `/data/amp/default`（9571）；同卷 `--writeback` 另挂 `/data/amp/writeback`（9572），均使用 Redis 6380 db1。64 KiB 卷另挂 `/data/amp/small`（9573），使用预先确认空的 db2、独立 bucket `jfs-amp-64k-20261025`。格式中的 `BlockSize` 分别为 4096、64，单位 KiB，见 [finish.json](results/amp/finish.json)。
+- 默认配置另挂 `/data/amp/default`（9571）；同卷 `--writeback` 另挂 `/data/amp/writeback`（9572），均使用 Redis 6380 db1。64 KiB 卷另挂 `/data/amp/small`（9573），使用预先确认空的 db2、独立 bucket `jfs-amp-64k-20261025`。格式中的 `BlockSize` 分别为 4096、64，单位 KiB，见归档清单中的 [`finish.json`](results/amp/archive-manifest.json)。
 - 三个实验挂载各用独立新缓存目录，其余参数沿用原挂载：cache 8192 MiB、buffer 2048 MiB、compression none、`--no-bgjob`、metadata backup 0。额外启用 debug 日志辅助定位合并；不作延迟比较。
 - 每个 case 用新目录 `/data/amp/<mount>/amp-20261025-<case>/`。单个 Python 进程串行发起系统调用，一次只运行一个 case。JuiceFS 自身后台 goroutine 仍可并发上传/合并。
 - 除稀疏 case 外，先顺序填满新文件并 fsync；等计数器稳定后才取 `before.json`，因此排除建树、初始上传。主写阶段不显式读取文件。最终 fsync、close 后等待至少连续 3 秒计数器稳定，再取 `after.json`。还保存 `immediate.json`，没有只取 writeback 尚未上传完的瞬间。
@@ -61,7 +61,7 @@ A/D/E 使用完全相同的 1000 个 4 KiB 对齐随机 offset（固定种子 20
 | 4 次 pwrite + fsync，尚未读 | 16,384 / 4 | 0 / 0 | 16,384 | 0 / 0 |
 | 随后一次 4 KiB pread，等待合并完成 | 4,194,304 / 1 | 7,323,648 / 5 | 0 | 1 / 4,194,304 |
 
-写后 Redis chunk slice 列表长度为 5，读及合并后为 1。debug 日志同时记录 inode 19470 的 `5 slices (4194304 bytes)` 合并，见 [default-mount.log](results/amp/default-mount.log)。[写后快照](results/amp/F_read_trigger/cycle-first-after-writes.json)、[读后快照](results/amp/F_read_trigger/cycle-first-after-read.json)可独立复算。读阶段没有新 FUSE 写，却出现 4 MiB PUT，排除了“这个 PUT 就是前面 4 KiB 写的固定块上传”的解释。
+写后 Redis chunk slice 列表长度为 5，读及合并后为 1。debug 日志同时记录 inode 19470 的 `5 slices (4194304 bytes)` 合并；日志和两个阶段快照已放入 [`raw-20261025.tar.zst`](results/amp/raw-20261025.tar.zst)，文件路径与哈希见 [`archive-manifest.json`](results/amp/archive-manifest.json)。读阶段没有新 FUSE 写，却出现 4 MiB PUT，排除了“这个 PUT 就是前面 4 KiB 写的固定块上传”的解释。
 
 这里 GET 不等于恰好 4 MiB：应用读取、内核读提前、JuiceFS range GET/整对象预取及合并读取可重叠。应用 4096 B pread 在本探针产生了 16,384 B 的 FUSE 读；不能仅凭 GET/PUT 相等逐请求识别 RMW。
 
