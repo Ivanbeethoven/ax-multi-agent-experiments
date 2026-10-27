@@ -31,6 +31,9 @@ Overlay 两组必须面对同一固定版本、相同 payload、缓存总预算�
 
 ## 基础能力和语义资格
 
+**JuiceFS 对照位。** JuiceFS 在同一 Redis、同一 RustFS S3 后端和同一 payload 上执行创建、读取、覆盖、truncate、rename、unlink、sync 及重开 smoke；记录同样的独立 readback 和元数据确认。JuiceFS 没有 BrewFS Packed lower 和同一 fork 语义的地方，只作语义/连通性对照，不参加 Packed 或 BrewFS 专有能力排名。
+
+
 目的：确认每个配置真的提供后续实验需要的操作，并把不支持能力从性能比较中排除。装置使用完整四节点资源；smoke 可用 `fixtures.json` 中 1 GiB 文件树的前 256 个小文件和两个 4 MiB 文件，但必须标明是子集。
 
 负载按固定顺序执行：创建、读取、覆盖、truncate、rename、unlink、sync；先修改父状态再确认版本，从该版本创建两个子状态；父、子、兄弟分别修改；关闭一个 worker 后由另一个 worker 重开已确认版本；删除一半引用并观察回收；最后让新 writer 获得权威后使旧 writer 真正发出迟到写和发布。
@@ -41,6 +44,9 @@ Overlay 两组必须面对同一固定版本、相同 payload、缓存总预算�
 
 ## 属性缓存与重复打开
 
+**JuiceFS 对照位。** JuiceFS 用相同文件大小、相同 4 KiB/64 KiB/1 MiB `open→read→close` 负载，显式记录 `--attr-cache`、`--entry-cache`、`--open-cache`、`--cache-dir` 和实际 FUSE/磁盘字节；与 BrewFS 共用 Redis、RustFS、payload 和缓存预算。JuiceFS 没有 `KEEP_CACHE` FOPEN 标志和 Packed lower，因此只比较重复打开的磁盘字节与 stat 延迟；KEEP_CACHE 机制归因、Packed 指标不排名。
+
+
 目的：找到安全缓存复用条件，解释 Overlay 的元数据路径开销。
 
 属性缓存使用一个固定文件执行 100,000 次 `stat`，再使用 1,000、10,000、100,000 inode 的轮转工作集。BrewFS flat-v1 与 BrewFS Overlay + 原生封存下层分别测试有效 TTL 0、100 ms、1 s；实现不支持的值写明缺失。记录实际回复 TTL 的分桶/采样、FUSE `getattr`/`lookup`、后端 RPC、CPU、墙钟、p50/p95/p99，以及 TTL 过期、lease 改变和修改边界的正确性。
@@ -49,6 +55,9 @@ Overlay 两组必须面对同一固定版本、相同 payload、缓存总预算�
 
 ## 同机四配置写入成本
 
+**JuiceFS 对照位。** JuiceFS 按相同 ABBA/小文件/大文件/随机覆盖/删除负载运行，使用同一 Redis、RustFS、CPU/内存上限和缓存总预算；分别记应用返回、writeback 上传、远端确认、排空和终检。JuiceFS 没有 BrewFS Overlay/Packed lower，故只参加通用写入等待和生命周期列，不参加 Overlay 或 Packed 专属排名。
+
+
 目的：在同一输入和资源下分解 Overlay、Packed 和外部对照的写入等待，避免把 close 重复计入总时间。
 
 复用 `pytest-full-02` 和固定 ABBA 工作量，在同一机器、同一资源和同一输入下运行四个配置。顺序采用随机化配对区组；补充多小文件、单大文件、随机覆盖和写入中删除。每次 `flush`/`close` 入口记录 dirty 字节、未完成上传和队列长度。
@@ -56,6 +65,9 @@ Overlay 两组必须面对同一固定版本、相同 payload、缓存总预算�
 记录准备、回放、排空、终检和完整生命周期；上传等待、元数据提交、锁等待、销毁和远端确认分别记账。每个写入动作报告应用返回、远端确认、另一客户端恢复读取三个时间。ABBA 报告中的累计 close 已包含多次文件周转，不能再作为额外阶段加到墙钟时间。单次重跑是描述性证据，不能给出统计显著性。
 
 ## Delta 分支、继承和历史保留
+
+**JuiceFS 对照位。** JuiceFS 在相同父 payload、子数量、修改率、树形和历史保留窗口上使用其原生 clone/snapshot 能力，并记录 clone、首写、save、重开和回收的同层计量；Redis、RustFS、缓存预算和 payload 与 BrewFS 对齐。若本版本/单机后端无法提供可恢复 clone，记录确切错误并将 JuiceFS 该臂标为不参加排名，不用物化复制冒充 clone。
+
 
 目的：证明成本优势来自隔离状态的创建、修改和长期保留，而不是只来自一次快速 fork。
 
@@ -67,6 +79,9 @@ Overlay 两组必须面对同一固定版本、相同 payload、缓存总预算�
 
 ## Packed 访问、共享数据库干扰与偿本
 
+**JuiceFS 对照位。** JuiceFS 对同一个 lookup/stat/readdir/read 查询序列、消费者数、缓存冷暖状态和共享数据库探针运行原生目录/对象路径，并记录元数据请求、对象请求、客户端解码和物理读字节；Redis、RustFS、payload、CPU/内存和 8192 MiB cache 预算保持一致。JuiceFS 没有 Packed lower、Packed manifest、索引页/descriptor 指标和打包构建偿本，因此这些列写“不适用”，该配置不参加 Packed 专属排名，只保留通用查询基线。
+
+
 目的：同时回答“中心数据库少做了什么”“对象服务和客户端多做了什么”以及“首次构建何时回本”。
 
 访问使用 32,768 和 1,048,576 个 1 KiB 文件，每个 session 固定 32,768 个查询，消费者为 1、16、64，访问重叠和不重叠分别记录。查询族包括随机正 lookup、固定正负比例 lookup、inode 属性、相邻名称、readdir 后取属性、lookup 后读取内容。Overlay + 原生封存下层与 Overlay + Packed 下层固定 lower 版本、payload、缓存预算、g/B/q、inline/压缩条件，并区分客户端冷、索引暖、元数据暖。
@@ -76,6 +91,9 @@ Overlay 两组必须面对同一固定版本、相同 payload、缓存总预算�
 Packed 生命周期把首次构建、上传、校验、发布和第一次使用全部计入；原生固定版本的必要准备也计入。每版本复用次数为 1、4、16、64、256，更新率 0.1%、1%、10%，连续 8 个版本，每版本使用 4 或 64 次，历史保留 0 或 600 秒。没有增量打包器时按实际全量构建计费，不假定成本与变化率成正比。CPU 秒、请求数、存储字节和墙钟分别核算，并行阶段不相加。结果必须保留少消费者、频繁更新、低局部性和缓存已热的原生参照不回本边界。
 
 ## 对象粒度和动态布局
+
+**JuiceFS 对照位。** JuiceFS 在相同对象长度、读请求列表、缓存预算和 RustFS 后端上运行 whole/range/随机/顺序读，记录其 block-size、GET range、客户端字节、服务端/设备字节和尾延迟。JuiceFS 没有 BrewFS 的 `g`、Packed frame 和 RustFS B/q hint 接线；这些指标标记“不适用”，不把 JuiceFS 默认块大小与 BrewFS 动态布局放在同一排名。
+
 
 目的：先证明处理变量确实改变了持久布局，再比较性能。
 
@@ -87,6 +105,9 @@ Packed 生命周期把首次构建、上传、校验、发布和第一次使用�
 
 ## 迁移、恢复和 fencing
 
+**JuiceFS 对照位。** JuiceFS 用相同保存点、冷/暖缓存、迁移数量、pending 修改和故障屏障测重挂/重开、首个正确读、所有权转移与迟到写拒绝；同一 Redis、RustFS、payload 和资源预算保持不变。JuiceFS 不提供 BrewFS Packed 构建、Entity lease/fencing 证据的地方，分别记“不适用/未资格”，不把简单重挂耗时解释为迁移安全能力。
+
+
 目的：覆盖完整停顿，并验证真实写权威，而不是只测目标挂载耗时。
 
 四个源 worker 承载 16 个工作区，四个目标 worker 预先可用；迁移数量为 0、1、4、8，状态分别带 0、1、16、128 MiB pending 修改，目标分冷和暖。计时从迁移请求开始，包含工具边界等待、drain、版本固定、必要打包、上传、校验、发布和目标取数。报告请求到首个正确文件操作、权威转移、工具完成、剩余任务完成，以及未迁移邻居的尾延迟和按时完成率。
@@ -94,6 +115,9 @@ Packed 生命周期把首次构建、上传、校验、发布和第一次使用�
 故障由事件屏障控制，覆盖确认前、确认后、目标恢复中断、旧 reader 与 GC 并存、源失去协调连接但仍能访问存储。新 writer 获得权威后，旧 writer 必须真正发出迟到写和发布；检查存储层拒绝和独立 readback 未污染。主要故障点每点 20 次用于时序覆盖，但零失败不能解释为生产可靠性。该协议不能用杀进程替代 fencing，也不能把同宿主容器交接称为跨节点迁移。
 
 ## 固定任务完成能力和真实 Agent
+
+**JuiceFS 对照位。** JuiceFS 使用相同冻结 trace、模型、工具权限、worker 并发、截止时间、共享 payload 和 8192 MiB cache 预算，记录准备、工具返回、远端确认、正确完成率和资源消耗。没有 BrewFS fork/Packed/迁移语义的 JuiceFS 任务臂保留原始失败原因并从对应专有排名剔除；只在共同可执行的读写路径上作外部基线。
+
 
 固定任务主实验使用 7 条 trace、每条 8 份，共 56 个任务；worker 并发为 1、4、16；每任务 1,800 秒，共同观察截止 101,100 秒。只比较通过资格的四个配置；准备共享只计一次但纳入生命周期。报告正确完成曲线、共同截止完成率、合格任务吞吐、任务族延迟、全成功 makespan（仅全成功时）和多服务资源消耗。旧 `campaign.py` 的四 trace/64 任务输出不是本协议任务表。
 
