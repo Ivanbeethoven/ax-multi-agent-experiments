@@ -211,7 +211,7 @@ def draw(nodes, out, skill_scripts):
     fig.legend(loc='upper right', bbox_to_anchor=(0.975, 0.945), ncol=3, fontsize=8)
     fig.text(0.035, 0.98, '四方法 × 三磁盘配置：完整 trace 的单次观测', fontsize=9, va='top')
     fig.text(0.035, 0.15, 'n=1 / 单元；实际 CPU 型号不同（8475B / 8575C），不能归因为容量或 PL 单因素。', fontsize=7, va='top')
-    fig.text(0.035, 0.105, '原端口预检失败后仅补跑未完成项；未清宿主页缓存。准备与 fio 校准不计入回放。', fontsize=7, va='top')
+    fig.text(0.035, 0.105, '实际 FUSE TTL 可能不同，尚待运行时核实；不能作机制开销因果比较（issue #364）。', fontsize=7, va='top')
     fig.text(0.035, 0.06, '开发诊断；工作量完整不等于严格正确性，C4 尚未通过性能验收。', fontsize=7, va='top')
     fig.canvas.draw()
     require_matplotlib_panel_alignment(fig, json_out=str(out / 'alignment.json'),
@@ -322,6 +322,16 @@ def redis_note(nodes):
             '`total_commands_processed` 前后差，包含监测和其他命令；不能当成单类元数据请求数或缓存因果收益。')
 
 
+def ttl_review_note():
+    return ('**新增源码审查限制（不是已测归因）：**[issue #364](https://github.com/brewfs/brewfs/issues/364)'
+            '指出，C4 的 legacy MetaClient 在 ACL capability 为 Unsupported 时可使用 `BREWFS_CACHE_TTL_MS`'
+            '（默认 1 s），而 ReadWrite overlay 使用显式配置的 TTL（本实验配置为 0）。'
+            '因此 driver 写入 0 不足以保证各方法的有效 FUSE TTL 相同；历史运行未记录该环境变量与实际回复 TTL。'
+            '输入约 91% 为 getattr，内核属性缓存可能影响进入用户态的请求数，但本组没有运行时证据量化这一影响，'
+            '不能将 native 与 overlay 的全部差值归因于 overlay 机制成本。'
+            '原提交 `8a0530d` 是此次源码审查之前的报告快照；本次只补充解释边界，测量数值与原始证据不变。')
+
+
 def render(nodes, out, skill_scripts, calibration):
     if os.name == 'nt' and not str(out).startswith('\\\\?\\'):
         out = Path('\\\\?\\' + str(out))
@@ -330,6 +340,11 @@ def render(nodes, out, skill_scripts, calibration):
     provenance = {'scope': 'Single trace, n=1 per cell; no causal disk-only or strict correctness claim',
                   'source_archive_sha256': SOURCE_SHA, 'trace_sha256': TRACE_SHA, 'performance_accepted': False,
                   'nodes': {}, 'files': {}, 'rendered_qa': 'pending final PDF/font/collision and visual inspection'}
+    provenance['subsequent_source_review'] = {
+        'issue': 'https://github.com/brewfs/brewfs/issues/364',
+        'pre_review_snapshot_commit': '8a0530d',
+        'scope': 'Potential effective FUSE TTL mismatch; runtime environment and reply TTL were not recorded. No measured causal attribution.',
+        'measurement_values_changed': False}
     for node in nodes:
         folder = out / 'evidence' / node['label']
         folder.mkdir(parents=True)
@@ -363,6 +378,7 @@ def render(nodes, out, skill_scripts, calibration):
               '[校准与观测摘要](calibration-observation.json) · [校准原值 CSV](calibration.csv)。clat p99 不是总延迟；原 fio 未采总延迟分位，保留 null。API Throughput 的 MB/s 标签不冒充实测 MiB/s。']
     lines += ['', extra_accounting_text(preparation, calibration)]
     lines += ['', redis_note(nodes)]
+    lines += ['', ttl_review_note()]
     lines += ['', '每项均完成 1,747,109 ops，read 281,774,624 B／write 194,706,661 B，剩余句柄 0，回放及自然挂载退出 0。保留 expected errors 与 probe errno 差异，performance mode 不证明严格正确性。', '',
               '三节点均为 ecs.g8i.2xlarge；实际 CPU：' + '；'.join(node['label'] + ' = ' + node['cpu'] for node in nodes) + '。n=1、宿主型号混杂、顺序执行和未清宿主页缓存限制了容量／PL 因果解释。', '',
               '原 attempt 在 packed 启动前发生端口预检错误；原失败记录保留。仅 packed 与 JuiceFS 在同实例新后端和目录补跑，恢复间隔不计入回放。观察日志都在系统盘；host 身份采集发生在测量开始后，loadavg 不是初始负载。', '',

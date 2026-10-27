@@ -27,6 +27,8 @@ pack／snapshot fixture 构建与上传合并计时依配置顺序为 3.651 / 3.
 
 各节点 packed 相对 overlay 的 Redis 命令计数减少 38.7%–40.3%，回放耗时却增加 14.2%–16.3%。这里使用 Redis instance 的 `total_commands_processed` 前后差，包含监测和其他命令；不能当成单类元数据请求数或缓存因果收益。
 
+**新增源码审查限制（不是已测归因）：**[issue #364](https://github.com/brewfs/brewfs/issues/364)指出，C4 的 legacy MetaClient 在 ACL capability 为 Unsupported 时可使用 `BREWFS_CACHE_TTL_MS`（默认 1 s），而 ReadWrite overlay 使用显式配置的 TTL（本实验配置为 0）。因此 driver 写入 0 不足以保证各方法的有效 FUSE TTL 相同；历史运行未记录该环境变量与实际回复 TTL。输入约 91% 为 getattr，内核属性缓存可能影响进入用户态的请求数，但本组没有运行时证据量化这一影响，不能将 native 与 overlay 的全部差值归因于 overlay 机制成本。原提交 `8a0530d` 是此次源码审查之前的报告快照；本次只补充解释边界，测量数值与原始证据不变。
+
 每项均完成 1,747,109 ops，read 281,774,624 B／write 194,706,661 B，剩余句柄 0，回放及自然挂载退出 0。保留 expected errors 与 probe errno 差异，performance mode 不证明严格正确性。
 
 三节点均为 ecs.g8i.2xlarge；实际 CPU：100g-pl0 = Intel(R) Xeon(R) Platinum 8575C；500g-pl0 = Intel(R) Xeon(R) Platinum 8475B；500g-pl1 = Intel(R) Xeon(R) Platinum 8575C。n=1、宿主型号混杂、顺序执行和未清宿主页缓存限制了容量／PL 因果解释。

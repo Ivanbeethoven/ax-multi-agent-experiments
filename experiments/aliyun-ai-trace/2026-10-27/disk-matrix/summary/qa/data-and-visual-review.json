@@ -9,10 +9,18 @@
   "credential_scanned_documents": 140,
   "credential_hits": [],
   "visual_review": {
-    "assistant": "passed; PNG and PDF preview inspected, no truncation/overlap",
-    "root": "passed; root actually viewed final PNG and confirmed text/legend/axes/captions unobstructed"
+    "assistant": "passed; regenerated PNG and final PDF preview inspected after TTL annotation change; no truncation/overlap",
+    "root": "passed; root actually inspected revised PNG and PDF preview after TTL annotation change; text, footnotes and plot unobstructed with no truncation"
   },
   "performance_accepted": false,
   "resource_state": "100g-pl0 and 500g-pl0 released; 500g-pl1 explicitly retained for separate baseline overlay",
-  "observer_cpu_scope": "all 12 method observations, exact range 0.3605552813700185 to 0.5200354750472438 percent of one core"
+  "observer_cpu_scope": "all 12 method observations, exact range 0.3605552813700185 to 0.5200354750472438 percent of one core",
+  "subsequent_source_review": {
+    "issue": "https://github.com/brewfs/brewfs/issues/364",
+    "classification": "source-review limitation, not measured causal attribution",
+    "historical_runtime_effective_ttl_recorded": false,
+    "pre_review_snapshot_commit": "8a0530d",
+    "measurement_values_changed": false,
+    "immutable_evidence_and_data_files_verified": 127
+  }
 }
