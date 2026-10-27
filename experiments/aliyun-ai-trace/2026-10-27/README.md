@@ -10,6 +10,8 @@
 
 等量对照每版本两次、16 个作业全部完成。四项命令墙钟均值变化依次为 −1.03%、+0.66%、−0.04%、−0.08%，直接随机写没有复现额外数秒的收尾；但 C4 顺序写的多次 close 总耗时更高，不能仅按 write 延迟宣称提速。结合已有混合读写 compose 与 17 项 CI，本轮接受的是 **C4 冻结基线上的 #354 修复及受租约保护的缓存变更**，不是普遍无性能回退的结论。源码提交为 `2457de5`；合并最新 main 后仍须重新验证，历史 WSL 挂起根因也未被本组证明。
 
+[修复 PR #365](https://github.com/brewfs/brewfs/pull/365) 已作为草稿提交；GitHub 检出与最新 main 的合并冲突，当前未合并。它保留已测源码，后续集成需保留两侧缓存与目录版本逻辑并重新验证。
+
 后续新批次优先采用对象存储后端 [Ivanbeethoven/rustfs 的 feat/dynamic-block-size-rebased 分支](https://github.com/Ivanbeethoven/rustfs/tree/feat/dynamic-block-size-rebased)，本次查得 HEAD 为 `a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed`，尚未用于本批测量。开跑前分别固定 BrewFS 客户端 SHA、RustFS 后端 SHA 和镜像摘要；本轮收尾仍使用原冻结镜像。比较 overlay/packed 时固定后端，dynamic block 的实际布局另设控制组。
 
 后续沿用[既有五个 RQ 与实验设计](../../ax-multi-agent/paper-design/plan.zh.md)，先做单因素小组，再按结果扩展，不铺开全部组合：
