@@ -50,9 +50,18 @@ class Matrix(unittest.TestCase):
             self.assertIn(wanted,cmd)
         expected={'memory_max_bytes':8,'swap_max_bytes':0,'cpu_quota_us':400000,'cpu_period_us':100000}
         actual={'memory.max':'8','memory.swap.max':'0','cpu.max':'400000 100000'}
+        self.assertNotIn('--wait',cmd);self.assertNotIn('--pipe',cmd)
         self.assertEqual(suite.qualify_cgroup(expected,actual),expected)
         actual['cpu.max']='max 100000'
         with self.assertRaises(ValueError):suite.qualify_cgroup(expected,actual)
+    def test_active_exited_systemd_unit_is_collected_without_wait_hang(self):
+        states=['LoadState=loaded\nSubState=running\nExecMainStatus=0\n',
+                'LoadState=loaded\nSubState=exited\nExecMainStatus=0\n']
+        with patch.object(matrix.subprocess,'check_output',side_effect=states),patch.object(matrix.time,'sleep'):
+            self.assertEqual(matrix.wait_unit('ax-owned'),(0,'exited'))
+        with patch.object(matrix.subprocess,'check_output',return_value='LoadState=not-found\nSubState=dead\n'):
+            self.assertEqual(matrix.wait_unit('ax-missing'),(None,'unknown'))
+
     def test_juicefs_has_xattr_capacity_and_compression_controls(self):
         s={'method':'juicefs','juicefs':{'path':'/bin/juicefs'},'redis_url':'redis://localhost/0','cache_mib':8192,'buffer_mib':1024}
         argv,_=suite.mount_command(s,'/mnt','/data/cache',None,0,False)

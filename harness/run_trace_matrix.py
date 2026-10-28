@@ -93,7 +93,9 @@ def new_buckets(endpoint,names):
 
 
 def cgroup_command(unit,spec,output,limits):
-    return ['systemd-run','--unit='+unit,'--wait','--pipe','--service-type=exec',
+    return ['systemd-run','--unit='+unit,'--service-type=exec',
+            '--property=StandardOutput=append:'+str(Path(output).parent/(Path(output).name+'-unit.log')),
+            '--property=StandardError=append:'+str(Path(output).parent/(Path(output).name+'-unit.log')),
             '--property=RemainAfterExit=yes','--property=RuntimeMaxSec=infinity',
             '--property=TimeoutStartSec=infinity','--property=MemoryMax='+str(limits['memory_bytes']),
             '--property=MemorySwapMax=0','--property=CPUQuota='+str(limits['cpu_percent'])+'%',
@@ -101,6 +103,25 @@ def cgroup_command(unit,spec,output,limits):
             # EnvironmentFile keeps credentials out of argv and the journal.
             '--property=EnvironmentFile='+str(limits['environment_file']),
             sys.executable,str(Path(suite.__file__).resolve()),'trace','--spec',str(spec),'--output',str(output)]
+
+
+def wait_unit(unit):
+    # RemainAfterExit keeps the result inspectable. Do not combine it with
+    # systemd-run --wait, which waits indefinitely for an active (exited) unit.
+    while True:
+        try:
+            text=subprocess.check_output(['systemctl','show',unit,'--property=LoadState',
+                '--property=SubState','--property=ExecMainStatus'],text=True)
+            values=dict(line.split('=',1) for line in text.splitlines() if '=' in line)
+        except (OSError,subprocess.CalledProcessError):return None,'unknown'
+        state=values.get('SubState','unknown')
+        if values.get('LoadState')!='loaded':return None,'unknown'
+        if state in ('exited','dead','failed'):
+            try:return int(values['ExecMainStatus']),state
+            except (KeyError,ValueError):return None,'unknown'
+        if state not in ('running','start','start-pre','start-post','stop','stop-sigterm','stop-sigkill'):
+            return None,state
+        time.sleep(5)
 
 
 def archive_results(output,archive,terminal):
@@ -207,13 +228,12 @@ def run(config,arms,archive=None):
                 entry.update(status='running',bucket=bucket,requested_ttl_ms=ttl,cache_budget=dict(CACHE),
                              client_limits=limits,started_epoch=time.time());suite.save(state,progress)
                 unit='ax-cell-'+runhash+'-'+str(i)
-                rc=command(cgroup_command(unit,path,out/label,limits),out/(label+'-driver.log'))
-                try:
-                    substate=subprocess.check_output(['systemctl','show',unit,'--property=SubState','--value'],text=True).strip()
-                except (OSError,subprocess.CalledProcessError):substate='unknown'
-                if substate not in ('exited','dead','failed'):
+                launch=command(cgroup_command(unit,path,out/label,limits),out/(label+'-driver.log'))
+                rc,substate=wait_unit(unit)
+                if rc is None:
                     entry.update(status='unknown',cleanup_error='client service state is '+substate)
                     fatal='client job may still run; retain resources';break
+                if launch:rc=launch
                 result=suite.load(out/label/'result.json') if (out/label/'result.json').is_file() else {}
                 entry.update(status=result.get('status','failed'),exit_code=rc,finished_epoch=time.time(),
                              cleanup_error=result.get('cleanup_error'))
