@@ -17,7 +17,7 @@
 
 - **版本**：BrewFS `350dc108a3bffcb5e7e27cc4279dfb5729febe60`，RustFS `Ivanbeethoven/rustfs:feat/dynamic-block-size-rebased` 的 `a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed`；固定 producer/replayer/JuiceFS 的源码及二进制摘要，核验运行中镜像 digest。新版本必须另起批次。
 - **资源**：相同实例规格、500 GiB PL1 数据盘、服务 CPU/内存上限；逐机标定磁盘和实例级 IOPS/带宽，记录盘与缓存竞争。读取/写入方向分别标定，不能把高于单盘标定的成绩自动作废。
-- **TTL/KEEP_CACHE**：主对照显式设 TTL=0、KEEP_CACHE=false，并记录实际生效证据；默认配置组单独命名、单独汇总。不能把默认 TTL 的差异全算作 Overlay 代价。JuiceFS 没有等价 KEEP_CACHE 开关时记录 N/A。
+- **正常缓存主组**：四方法使用各自正常的内核缓存默认策略，固定其余资源/codec/持久性。BrewFS 不传 TTL/KEEP_CACHE 覆盖且清除相应继承环境变量；JuiceFS 不覆盖 attr/entry/dir-entry TTL。保存配置值、实际回复与缓存计数；不能用 TTL=0、KEEP_CACHE=false 的强制诊断组作为正常主性能结论。
 - **缓存预算**：主对照统一客户端进程资源上限，并登记读/写内存缓存、磁盘缓存和内核缓存条件。BrewFS 读/写内存缓存各 512 MiB，`memory_budget_bytes=1 GiB`；读/写磁盘缓存各 4 GiB，总 8 GiB。JuiceFS 使用 `--buffer-size=1024`、`--cache-size=8192`（MiB）。两者完整 job 使用相同 cgroup CPU/内存上限；缓存预算不等于总 RSS，同数值也不代表缓存语义相同，实际配置与占用都保存。新分臂驱动将落实这些参数，实机证据通过前不能标为已统一。
 - **codec**：四方法数据 payload 压缩统一关闭，必须用各自真实支持的参数验证；Pack 的 metadata codec 固定并登记，inline 关闭。数据压缩/校验策略不能随方法悄悄变化，默认 codec 结果另列。
 - **数据与持久性**：四方法走各自装置中同版 RustFS S3；BrewFS 显式 `upload_before_commit`，JuiceFS 关闭 writeback；先做 fsync/正常卸载/独立重挂读回资格验证。Pack 的 trace-root 必须在 lower，不能复制到 upper 遮盖机制。
@@ -27,6 +27,31 @@
 旧六臂驱动只是 native/overlay/Pack 的默认值和 TTL=0，**不包含 JuiceFS，也没有完成上述 12 格轮换**；新分臂驱动补齐 JuiceFS 和每机任务清单，先做离线测试和实机 smoke，不能把旧六臂原样复制三次就称作主对照。
 
 本轮开跑资格门是：运行版本与构建来源；TTL/KEEP_CACHE、上述缓存预算和 codec；持久确认及独立重开读回；相同实例上限、每盘及并发盘标定；trace、观测、回收链完整。每项保存实测证据，缺测为 null、未通过保持 not_run/invalid，不因已有脚本就算完成。
+
+## 缓存语义与单因素消融
+
+这几项必须分别记录，不能用“缓存开/关”一个标签概括：
+
+| 层次 | 控制什么 | 冻结版本的事实 |
+|---|---|---|
+| 内核 metadata | 属性与正向路径项（attr/dentry）的回复有效期，减少部分 FUSE 请求 | TTL=0 不代表用户态元数据缓存关闭。BrewFS workspace 配置默认 1000 ms，但只有受 fence 保护的 LOOKUP/GETATTR 可返回正 TTL，创建等路径仍可能为 0；flat 配置默认 0，实际非 ACL 路径可走 legacy 1s 策略，须看实际回复。JuiceFS CE 的 attr/entry/dir-entry 默认各 1s。 |
+| 用户态 metadata | client 内部的属性、打开文件、row、索引/解析结果复用 | BrewFS native open-file cache 默认 1s；workspace 的 lease-bound row cache 默认 60s。JuiceFS CE open-cache 默认 0，并非其所有元数据缓存均关闭。各机制保留正常默认，不能靠修改内核 TTL 冒充消融。 |
+| 内核 data page cache | 打开文件后读到的数据页以及重复打开时是否继续保留 | BrewFS KEEP_CACHE 默认 false，只控制 FOPEN_KEEP_CACHE 的跨 open 保留，不是 metadata 开关，也不关闭用户态/磁盘数据缓存。JuiceFS 会在重新打开时检查文件是否修改后决定是否保留页缓存，不能假造同义 KEEP_CACHE 参数。 |
+| 用户态/磁盘 data cache | 读写缓冲、对象块磁盘缓存、预取等 | 保持上面的资源预算及相同压缩/持久性策略；单独记录请求、命中与占用，不能用应用读取字节数当缓存未命中字节。 |
+
+组别预注册如下，不做所有缓存层的全笛卡尔积：
+
+| 组别 | 配置与用途 |
+|---|---|
+| `kernel-default` 主组 | 本轮 12 格采用上面的正常内核默认策略；记录实际差异，结论是该资源预算下的系统表现，不把全部差异直接归因某一个机制。 |
+| `cache-enabled-aligned` 对齐组 | 先验证单 writer/单挂载、不可变 lower 或合格失效机制，再为 BrewFS 显式 TTL=1000 ms、KEEP_CACHE=true；JuiceFS 显式三个 kernel TTL=1s，保留其正常页缓存校验机制。必须用重复打开/实际 FUSE 回复和读取计数核验，不能仅凭配置声称完全等价；该组单独汇总，不能与主组混池。 |
+| 内核 metadata TTL 消融 | 以合格对齐配置为基础，仅把 kernel TTL 从 1s 改为 0；KEEP_CACHE、用户态缓存、预算和数据保持不变。它用于量化绕过内核 metadata cache 的影响。 |
+| data page retention 消融 | BrewFS 三方法固定 kernel TTL=1s，仅比较 KEEP_CACHE=true/false；不称“关掉全部缓存”。JuiceFS 的对应项记无同义开关，可报告其重复打开行为，不能凭空构造匹配臂。 |
+| 用户态 metadata 消融 | 仅在实际可控接口和失效语义通过资格后，单独改变 native open-file cache、workspace row cache 或 JFS open-cache；其余层固定。需要让请求实际到达该层，必要时双方固定相同的 kernel TTL=0 诊断条件。不是正常主组。 |
+
+BrewFS KEEP_CACHE=true 的源码说明限制了外部修改场景：同尺寸/mtime 的外部内容修改可能保留旧页。跨 client 共享可写文件或迁移/故障实验必须先做一致性与 fencing 资格；不能把单 writer 的性能配置无条件套过去。初始树验证带来的预热、重新挂载和真正的冷/暖状态也分别记录。
+
+依据：[BrewFS 冻结配置源码](https://github.com/brewfs/brewfs/blob/350dc108a3bffcb5e7e27cc4279dfb5729febe60/src/config.rs)、[FUSE 回复路径](https://github.com/brewfs/brewfs/blob/350dc108a3bffcb5e7e27cc4279dfb5729febe60/src/fuse/mod.rs)、[JuiceFS CE 缓存语义](https://juicefs.com/docs/community/guide/cache/)、[JuiceFS CE 参数默认值](https://juicefs.com/docs/community/command_reference/)。固定的 JuiceFS 二进制还须保存 `version` 和 `mount --help`，以实测版本为准，不套用企业版参数。
 
 ## 后续：一次只改变一个机制
 
