@@ -29,6 +29,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
    with socket.create_connection((host,port),timeout=30) as upstream:
     self.send_response(200,'Connection established');self.end_headers();self.tunnel(upstream)
   except OSError:self.close_connection=True
+  finally:self.close_connection=True
  def do_GET(self):
   if not self.permitted():return
   u=urllib.parse.urlsplit(self.path)
