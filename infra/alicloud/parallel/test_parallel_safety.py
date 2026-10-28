@@ -1,0 +1,54 @@
+import io,json,tarfile,tempfile,unittest
+from pathlib import Path
+from unittest.mock import patch
+import parallel_controller as controller
+import cleanup_parallel as cleanup
+ARMS=['native-kernel-default','overlay-kernel-default','packed-kernel-default','juicefs-kernel-default']
+class GateTests(unittest.TestCase):
+ def setUp(self):
+  self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name);self.planpath=self.root/'plan.json'
+  self.plan={'schema_version':2,'workers':['node-a','node-b','node-c'],'planned_cells':12,'arm_controls':{a:{'group':'kernel-default','requested_kernel_metadata_ttl_ms':None,'requested_open_keep_cache':None} for a in ARMS},'assignments':[{'worker_id':w,'arms':ARMS[i:]+ARMS[:i]} for i,w in enumerate(('node-a','node-b','node-c'))]}
+  self.plan['phases']=[{'phase':i+1,'workers':{a['worker_id']:a['arms'][i] for a in self.plan['assignments']}} for i in range(4)];self.planpath.write_text(json.dumps(self.plan));(self.root/'runner-ready.json').write_text(json.dumps({'runner_commit':controller.RUNNER,'arms':ARMS,'plan_sha256':controller.sha(self.planpath)}))
+  self.patches=[patch.object(controller,'ROOT',self.root),patch.object(controller,'PLAN',self.planpath),patch.object(controller,'STATE',self.root/'state.json')]
+  for p in self.patches:p.start()
+  self.assets={'brewfs_source':'350dc108a3bffcb5e7e27cc4279dfb5729febe60','rustfs_source':'a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed','registry_image':{},'credential_scan':'passed','binaries':{x:{} for x in ('brewfs','packed_v3_snapshot_fixture','full-fuse-replay','ax-fs-probe','juicefs')}}
+ def tearDown(self):
+  for p in reversed(self.patches):p.stop()
+  self.temp.cleanup()
+ def test_positive_reviewed_normal_gate(self):self.assertTrue(controller.gate(self.assets,self.plan,controller.RUNNER))
+ def test_pause_stops_complete_assets(self):
+  (self.root/'PAUSED-FOR-CACHE-PLAN').write_text('review')
+  with self.assertRaises(ValueError):controller.gate(self.assets,self.plan,controller.RUNNER)
+ def test_wrong_source(self):
+  self.assets['brewfs_source']='wrong'
+  with self.assertRaises(ValueError):controller.gate(self.assets,self.plan,controller.RUNNER)
+ def test_wrong_runner(self):
+  with self.assertRaises(ValueError):controller.gate(self.assets,self.plan,'0'*40)
+ def test_duplicate_worker(self):
+  self.plan['assignments'][1]['worker_id']='node-a'
+  with self.assertRaises(ValueError):controller.gate(self.assets,self.plan,controller.RUNNER)
+ def test_legacy_cache_controls_rejected(self):
+  self.plan['arm_controls'][ARMS[0]]['requested_kernel_metadata_ttl_ms']=0
+  with self.assertRaises(ValueError):controller.gate(self.assets,self.plan,controller.RUNNER)
+ def test_plan_mutation(self):
+  self.planpath.write_text(self.planpath.read_text()+' ')
+  with self.assertRaises(ValueError):controller.gate(self.assets,self.plan,controller.RUNNER)
+ def test_provision_pause_before_cloud(self):
+  with patch.object(controller,'ecs') as api,patch.object(controller,'revalidate',side_effect=ValueError('paused')):
+   with self.assertRaises(ValueError):controller.provision({}, {})
+   api.assert_not_called()
+ def test_extra_limit(self):
+  with patch.object(controller,'revalidate'),patch.object(controller,'ecs') as api:
+   with self.assertRaises(ValueError):controller.provision({'runner_bundle':{'commit':controller.RUNNER},'workers':{str(i):{'source_node':False} for i in range(3)}},{})
+   api.assert_not_called()
+ def test_existing_build_node_not_recreated(self):
+  state={'batch_id':'batch','runner_bundle':{'commit':controller.RUNNER},'ssh_key_imported':True,'ssh_key_name':'key','ssh_source':'192.0.2.1/32','source_ssh_rule_created':True,'worker_security_group':'sg-test','ssh_rule_created':True,'workers':{'node-a':{'source_node':True,'instance_id':'i-source','data_disk_id':'d-a'},'node-b':{'source_node':False,'instance_id':'i-existing','data_disk_id':'d-b'}}};created=[]
+  def api(action,**kw):
+   if action=='RunInstances':created.append(kw);return {'InstanceIdSets':{'InstanceIdSet':['i-new']}}
+   if action=='DescribeInstances':return {'Instances':{'Instance':[{'Status':'Running','PublicIpAddress':{'IpAddress':[]},'VpcAttributes':{'PrivateIpAddress':{'IpAddress':['192.0.2.3']}}}]}}
+   if action=='DescribeDisks':return {'Disks':{'Disk':[{'DiskId':'d-new-sys','Type':'system','Size':40,'DeleteWithInstance':True},{'DiskId':'d-new-data','Type':'data','Size':500,'DeleteWithInstance':True}]}}
+   raise AssertionError(action)
+  with patch.object(controller,'revalidate'),patch.object(controller,'ecs',side_effect=api),patch.object(controller,'quote',return_value=({},1.5106)):
+   controller.provision(state,{'approved_spec':{'vpc_id':'vpc','vswitch_id':'vsw'}});controller.provision(state,{'approved_spec':{'vpc_id':'vpc','vswitch_id':'vsw'}})
+  self.assertEqual(len(created),1);self.assertTrue(state['workers']['node-c']['private_only']);self.assertEqual(state['workers']['node-b']['instance_id'],'i-existing');self.assertEqual(state['workers']['node-c']['instance_id'],'i-new')
+if __name__=='__main__':unittest.main()
