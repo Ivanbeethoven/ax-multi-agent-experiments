@@ -12,8 +12,12 @@ trap 'rm -rf "$TMP"' EXIT
 
 printf 'selftest: fixtures=%s\n' "$FIXTURES"
 printf 'selftest: ceilings=%s\n' "$CEILINGS"
-printf '%s\n' '== validate: 15 real CSV fixtures =='
-python3 "$VALIDATE" "$FIXTURES"/*.csv
+printf '%s\n' '== validate: 14 historical CSVs plus expected invalid C3 W2 =='
+python3 "$VALIDATE" --self-test
+valid=()
+for path in "$FIXTURES"/*.csv; do
+  [[ $(basename "$path") == c3-w2.csv ]] || valid+=("$path")
+done
 
 printf '%s\n' '== validate: malformed fixtures must fail =='
 bad_failures=0
@@ -31,7 +35,7 @@ if (( bad_failures )); then
 fi
 
 printf '%s\n' '== summarize: cross-configuration table =='
-python3 "$SUMMARIZE" "$FIXTURES"/*.csv \
+python3 "$SUMMARIZE" "${valid[@]}" \
   --ceilings "$CEILINGS" \
   --output-md "$TMP/summary.md" \
   --output-json "$TMP/summary.json"
@@ -48,8 +52,10 @@ configs = sorted({entry["config"] for entry in entries})
 labels = sorted({label for entry in entries for label in entry["annotations"]})
 if len(configs) < 3:
     raise SystemExit(f"expected a cross-configuration table, got {configs!r}")
-if "cache-hit" not in labels:
-    raise SystemExit(f"expected cache-hit annotation, got {labels!r}")
+if "cache-hit" in labels or "kernel-cache" in labels:
+    raise SystemExit(f"unsupported causal annotation: {labels!r}")
+if not all('status_counts' in entry for entry in entries):
+    raise SystemExit('missing outcome counts')
 print(f"summary entries: {len(entries)}")
 print(f"summary configs: {', '.join(configs)}")
 print(f"summary labels: {', '.join(labels)}")

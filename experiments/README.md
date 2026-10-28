@@ -1,10 +1,13 @@
-# 迁入的实验材料
+# 实验结果索引
 
-当前执行入口是 [实验手册](../paper-design/README.md)，工具使用仓库根目录的现行版本。
+当前规划在 [paper-design](../paper-design/README.md)，这里保存已有实验结果与分析。
 
-- `agent-fuse-observations/`：论文中八次任务观察的分析、派生数据和绘图脚本；论文输出位置为 `../paper/figures/`。
-- `cloud-smoke/`：已有云上冒烟代码、报告与本地原始材料。
-- `paper-planning/`：从论文仓库迁入的历史规划和审阅。
-- `ax-multi-agent/` 及本目录旧矩阵/协议：历史副本，保留原内容供追溯，不作为当前执行入口。
+| 目录 | 内容 |
+|---|---|
+| [aliyun-ai-trace/2026-10-27](aliyun-ai-trace/2026-10-27/README.md) | 完整 trace、磁盘矩阵、固定工作量对照和资源清理记录 |
+| [aliyun-ai-trace/2026-10-26](aliyun-ai-trace/2026-10-26/README.md) | 早期回放与失败诊断 |
+| [agent-fuse-observations](agent-fuse-observations/README.md) | 任务访问分析、派生数据与绘图 |
+| [cloud-smoke/2026-10-25](cloud-smoke/2026-10-25/report.md) | 冒烟报告、原始证据和归档 |
+| [paper-planning](paper-planning/) | 论文迁入的历史备查材料，不是执行入口 |
 
-所有材料已从论文仓库迁出，逐文件摘要核对保存在 `../validation/repository-migration.json`。本地工具链和大原始包保留在磁盘，但不加入Git。
+原 `ax-multi-agent/` 整仓库副本和旧矩阵/协议已经删除展开文件，完整内容见 [历史归档](../archive/README.md)。迁移记录中的原路径与哈希保持历史含义。

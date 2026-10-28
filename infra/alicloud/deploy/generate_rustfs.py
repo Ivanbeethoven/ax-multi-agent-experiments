@@ -18,12 +18,14 @@ def linux_path(value):
 
 def generate(spec, out):
     image = spec["image"]
+    if 'REPLACE_WITH' in image or 'REGISTRY/' in image:
+        raise ValueError('replace deployment placeholders before generating')
     if not re.fullmatch(r"[^\s]+@sha256:[0-9a-f]{64}", image):
         raise ValueError("image must be pinned by sha256 digest")
     mode, nodes = spec["mode"], spec["nodes"]
-    if mode not in ("smoke", "distributed"):
-        raise ValueError("mode must be smoke or distributed")
-    count, disks = (1, 1) if mode == "smoke" else (4, 4)
+    if mode not in ("smoke", "single-node-four-disk", "distributed"):
+        raise ValueError("mode must be smoke, single-node-four-disk or distributed")
+    count, disks = {"smoke": (1, 1), "single-node-four-disk": (1, 4), "distributed": (4, 4)}[mode]
     if len(nodes) != count:
         raise ValueError(f"{mode} profile requires exactly {count} nodes")
     ips = [str(ipaddress.IPv4Address(n["private_ip"])) for n in nodes]
@@ -46,7 +48,8 @@ def generate(spec, out):
             "RUSTFS_CONSOLE_ENABLE": "false",
             "RUSTFS_OBS_LOGGER_LEVEL": "warn",
             "RUSTFS_OBS_LOG_DIRECTORY": "/var/log/rustfs/",
-            "RUSTFS_VOLUMES": "/data/rustfs0" if mode == "smoke" else "http://rustfs{1...4}:9000/data/rustfs{0...3}",
+            "RUSTFS_VOLUMES": {"smoke": "/data/rustfs0", "single-node-four-disk": "/data/rustfs{0...3}",
+                               "distributed": "http://rustfs{1...4}:9000/data/rustfs{0...3}"}[mode],
         }
         service = {
             "image": image, "network_mode": "host", "restart": "unless-stopped",

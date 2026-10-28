@@ -1,63 +1,11 @@
-# 实验执行手册
+# 实验规划入口
 
-从这里开始即可。先小规模跑通，再做正式对照；所有配置都要校验结果，失败也记录。目前是实验计划，尚未执行。
+1. 先读 [最终方案](FINAL-PLAN.zh.md)：五个 RQ、主组/扩展组、计时和结果规则。
+2. 再读 [阿里云执行入口](../infra/alicloud/RUN.zh.md)：已接脚本、验证范围与剩余接口。
+3. 开跑时查 [机器与磁盘](EXPERIMENT-CONFIG.zh.md)、[流水线说明](PIPELINE.md) 和 [部署](../infra/alicloud/deploy/README.md)。
 
-方案入口：[`plan.zh.md`](plan.zh.md)；装置约束见 [`EXPERIMENT-CONFIG.zh.md`](EXPERIMENT-CONFIG.zh.md)，执行判据见 [`TEST-PLAN.zh.md`](TEST-PLAN.zh.md)，章节补充见 [`REORG-EXPERIMENT-PLAN.zh.md`](REORG-EXPERIMENT-PLAN.zh.md)，JuiceFS 对照见 [`JUICEFS-PARITY.md`](JUICEFS-PARITY.md)。
+`harness/final_plan.py` 生成当前五个 RQ 的任务表。`design.json`、`execution-grid.json`、`run-grid.*` 仅保留历史追溯；`execution_enabled=false` 保持不变。静态校验通过不等于正式实验已放行。
 
-## 先准备
+`fixtures.json`、`trace-archives.json`、`live-tasks.json` 是输入定义；`run-record.template.json` 是记录模板。脚本在 `pipeline/` 与 `tools/`，细节备查在 `reference/`。
 
-1. 固定 BrewFS、JuiceFS 和 RustFS 版本。使用同一套四节点 RustFS，保持客户端资源、缓存和持久化条件一致。
-2. 确认三组配置能实际运行：`native` 是基础路径；`native-overlay` 增加隔离工作区，可直接fork；`native-overlay-pack` 在相同Overlay上使用Packed下层。Dynamic block单独控制。
-3. 先验证读写、保存、父子隔离和重开，再跑一份完整Pytest回放。没有的接口记录为不支持，不假设名称就是CLI开关。
-4. 按 [首轮任务表](first-pass.csv) 逐组跑一次，确认工具和指标正常；正式比较每格做3个独立批次，交替配置顺序。暂不同时启动全部实验。
-
-现有单任务回放器可用；旧 `campaign.py` 仍是四份trace，需要适配七份任务表和协调器。三组配置的真实命令也要先核对。
-
-## 各实验怎么做
-
-| 实验 / RQ | 怎么跑 | 重点记录 |
-|---|---|---|
-| 基础检查 | 四配置各检查一次读写、保存、fork和重开；独立客户端核对内容 | 实际路径、缺失能力、错误 |
-| Overlay / RQ1 | native、native-overlay、JuiceFS。父状态先修改再fork 1/16/64个子，每子改1 MiB；另用三种形状创建相同33个状态。四配置补测普通读写开销 | 父版本准备、首个正确读、保存时间、私有元数据和上传量 |
-| 历史保留 / RQ1、5 | 保留1千/1万个状态，抽样重开；删一半引用，保护600秒后观察3600秒 | 可恢复数量、内存、空间、实际回收；10万为扩展 |
-| Packed访问 / RQ2 | native-overlay对native-overlay-pack。同一固定版本，32,768/1,048,576个1 KiB文件；16消费者，每人32,768次查询，分别测随机、相邻、缺失、属性、列目录、查后读取 | DB请求/CPU/内存，索引与元数据页请求、字节、查询延迟 |
-| Packed减压 / RQ2 | 同一DB保留可写探针；背景读取按0/r/4r发令，两表示用相同到达表。r由无背景pilot标定，探针固定0.25r | 探针按时完成率和p95；DB下降的工作，以及对象端新增工作 |
-| Packed成本 / RQ2、4 | 从未打包的父状态测首次fork；再复用1/4/16/64/256次。连续更新8个版本，每次改0.1%/1%/10%，每版本用4/64次 | 固定版本、打包、上传、校验、发布、首读和总成本；何时回本 |
-| 对象粒度 / RQ3 | 固定其它机制，测g=1/4/8/16 MiB的稀疏读、顺序读、覆盖写；再固定对象分别改变获取策略及后端B/q | 对象/请求数、实际传输、校验CPU、写入尾部；实际布局是否改变 |
-| 迁移 / RQ4 | 4源、4目标、16工作区，迁移1/4/8个，与不迁移配对；另测1/16/128 MiB未确认修改。native-overlay、Pack和JuiceFS分别跑 | 工具停顿、排队、保存/发布、目标首个正确操作、邻居延迟 |
-| 故障 / RQ4 | 保存确认前、确认后、源失去协调但仍可写存储、目标恢复中断；正式每点20次 | 已确认内容、旧写者实际写入结果、恢复成功/失败和残留对象 |
-| 完整回放 / RQ5 | 七份trace各8次，共56任务；4worker，并发1/4/16；四配置对照 | 正确完成曲线、各case耗时、准备/回放/终检、资源 |
-| 规模 / RQ5 | native-overlay与JuiceFS，4/16worker，每worker七份任务、4并发；64/128worker为扩展，后端资源固定 | 正确任务/秒、失败比例、逐case延迟与服务端瓶颈 |
-| 真实Agent / RQ4、5 | 两道已选题，在第三个完整工具结果后继续、fork四子或迁移。仅在会话接口可用后运行 | 真实续接工具结果、最终评分、父子隔离；总预算和期限不重置 |
-
-先完成Overlay与Packed，再做粒度、迁移和回放；规模与真实Agent最后开展。冷/暖缓存、低局部性、大修改等边界按参数表单独跑，不把所有变量任意组合。
-
-## 三个容易测错的地方
-
-- **Pack不等于fork。** native-overlay自己能fork。对比Pack时必须计入第一次固定版本和打包发布成本，已有包的复用另报。
-- **DB减压不等于释放空间。** 可写上层和控制记录仍在DB；源记录保留时，只能按实测说明查询减少。安全退休源记录的能力需另外验证。
-- **对照要等价。** native没有fork时计入创建隔离子状态的实际成本；JuiceFS允许原生clone，迁移时重开原目录。分离Pack贡献时固定upper、payload、缓存和对象粒度。
-
-## 统一计时与记录
-
-- 计入排队、固定版本、必要打包、远端确认和尾部排空；流水化阶段不相加成总耗时。迁移同时报告工具边界等待，不能只计目标打开时间。
-- 每个完整回放任务1800秒包含准备、回放、终检；56任务的共同观察截止101100秒。规模组共同截止3900秒。其它截止取参数表，全部成功可提前结束。
-- 每批保存配置/版本、输入摘要、命令、事件、内容校验、服务指标和失败原因。没有采到的指标填null；HTTP字节不当作物理读盘量。
-- 时间、CPU、字节和请求数分别报告；共享构建只计一次。比较Packed与native同等工作量下的累计成本，没回本就报告没回本。
-- 一个完整批次才算一次独立重复；请求、fork子节点和同批K前缀不是额外样本。三个初始批次报告原值、中位数和范围。
-
-## 数据与命令
-
-输入已有：F1是1 GiB文件树，F2是1 GiB分片记录，M是上述小文件树，另有七份完整trace。确定性内容见 [fixtures.json](fixtures.json)，trace下载与校验见 [数据目录](../scenarios/k8s-containers/data-catalog.md)。两份Pytest来自同一道题，不算两种任务。
-
-**负载回放复用已有的Rust工具 `tools/full-fuse-replay`，使用release构建。** Python只负责准备、启动、采集和最终校验，不逐条驱动回放I/O；这些阶段分别计时。新增高频查询/读写负载也采用Rust，尚未接通的执行器保留待实现。Rust回放仍包含JSON解析和内容校验，运行时检查其CPU开销，不能把总回放时间当作纯文件系统耗时。
-
-精确参数用 [execution-grid.json](execution-grid.json)，运行编号用 [run-grid.csv](run-grid.csv)；两者供脚本/Agent读取，不必人工通读。`run-grid.csv` 的 1174 条展开行是重复、配置和轴值的计划记录，不是 1174 个独立 cell；50 个 cell 的摘要在 [run-grid.json](run-grid.json)。这里只检查或生成计划，不启动实验：
-
-```bash
-python paper-design/tools/check_design.py
-# 修改参数后重新生成任务表：
-python paper-design/tools/check_design.py --write-grid
-```
-
-部署和采集沿用仓库现有工具。遇到缺失接口先记录并补齐，继续可独立运行的实验；不要将未运行的格填写为零成本。更细的操作与统计解释放在 [备查资料](reference/details.zh.md)，需要时再查。
+旧迭代方案、审计与重复仓库已从日常目录删除，追溯见 [历史资料](../archive/README.md)。不要用旧版本覆盖当前方案。
