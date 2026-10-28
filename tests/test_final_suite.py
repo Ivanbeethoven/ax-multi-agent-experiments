@@ -126,6 +126,25 @@ class RuntimePin(unittest.TestCase):
 
 
 class Results(unittest.TestCase):
+    def test_packed_trace_uses_existing_lower_without_copy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); mount=root/'mount';mount.mkdir();lower=mount/'trace-root';lower.mkdir()
+            case=root/'case';case.mkdir();suite.save(case/'initial-tree.json',{'file':'expected'})
+            out=root/'out';out.mkdir();session=MagicMock();session.mp=mount;session.out=out
+            session.s={'method':'native-overlay-pack'}
+            self.assertEqual(suite.prepare_trace_root(session,case,lambda _: {'file':'expected'}),lower)
+            session.command.assert_not_called()
+            self.assertEqual(suite.load(out/'trace-preparation.json')['mode'],'existing_packed_lower')
+            with self.assertRaises(ValueError):suite.prepare_trace_root(session,case,lambda _: {'file':'wrong'})
+
+    def test_native_trace_materializes_initial_tree(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);case=root/'case';case.mkdir();suite.save(case/'initial-tree.json',{})
+            mount=root/'mount';mount.mkdir();out=root/'out';out.mkdir()
+            session=MagicMock();session.mp=mount;session.out=out;session.s={'method':'native'}
+            suite.prepare_trace_root(session,case,lambda _: {})
+            self.assertEqual(session.command.call_args.args[0],'initial-copy')
+            self.assertEqual(suite.load(out/'trace-preparation.json')['mode'],'materialized_copy')
     def test_json_summary_does_not_mix_controls_or_failed_runs(self):
         with tempfile.TemporaryDirectory() as tmp:
             roots=[]

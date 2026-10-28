@@ -551,6 +551,25 @@ def fork_base(session):
          'scope':'existing immutable base, sequential child mounts; not the modified-parent F1 experiment'})
 
 
+def prepare_trace_root(session, case, tree):
+    """Check the same initial tree, without masking an existing packed lower."""
+    started=time.monotonic()
+    root=session.mp/'trace-root'
+    if session.s['method']=='native-overlay-pack':
+        mode='existing_packed_lower'
+        if not root.is_dir():
+            raise ValueError('packed manifest must contain trace-root with the original initial tree')
+    else:
+        mode='materialized_copy'
+        session.command('initial-copy', ['cp', '-a', str(case/'initial'), str(root)])
+    if tree(root) != load(case/'initial-tree.json'):
+        raise ValueError('initial tree mismatch')
+    save(session.out/'trace-preparation.json', {'mode':mode, 'wall_seconds':time.monotonic()-started,
+         'includes_tree_verification':True,'packed_build_freeze_upload_seconds':None,
+         'note':'packed construction and publication are separate and are not included in this time'})
+    return root
+
+
 def trace(session):
     s = session.s
     binary = check_binary(s['replayer'])
@@ -571,12 +590,9 @@ def trace(session):
             if f.is_file() and not f.is_symlink() and f.relative_to(case).as_posix() not in manifest:
                 raise ValueError('trace payload absent from manifest')
     session.mount()
-    root = session.mp / 'trace-root'
-    session.command('initial-copy', ['cp', '-a', str(case / 'initial'), str(root)])
     sys.path.insert(0, str(REPO / 'scripts'))
     from full_trace_common import tree
-    if tree(root) != load(case/'initial-tree.json'):
-        raise ValueError('initial tree mismatch')
+    root = prepare_trace_root(session, case, tree)
     before = snapshot(s['redis_url']); start = time.monotonic()
     session.command('trace-performance', [binary, str(case/'capture/events.jsonl'), str(case/'capture/blobs'),
                                          str(root), str(session.out/'replay.json'), '--performance'])

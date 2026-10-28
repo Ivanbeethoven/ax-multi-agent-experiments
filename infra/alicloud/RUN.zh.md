@@ -33,7 +33,7 @@ trace、object-io 等模式默认不指定 TTL/KEEP_CACHE 并清除对应继承�
 | `packed-queries` | `manifest_key`（Pack）或 `parent_revision`（native overlay），相同 Rust corpus 路径、files/file_bytes，consumers、query=`stat/read/readdir`、operations、warm、neighbor_operations。可加 consumer_interval_ns、neighbor_interval_ns、neighbor_slo_ns，按固定到达表测邻居延迟/按时完成率；过载请求排队后全部执行，不因 SLO 超期杀掉。默认 interval=0 为闭环，持续负载速率仍须预标定。整批测 Redis 差值。 |
 | `object-io` | files/file_bytes/operations，client_block_bytes；可选 ec_block_hint。实跑顺序读、4 KiB 稀疏读、覆盖写；真实 B/q 和 HTTP/设备层计数缺测为 null，不因 hint 存在就称 dynamic 生效。 |
 | `fork-base` | native-overlay、已有 parent_revision、fork_count、file_bytes。真实 CLI fork、子挂载正确读、每子 1 MiB 私有写和兄弟隔离检查；尚非“修改父状态后封存”的 F1。 |
-| `trace` | replayer 路径/摘要、trace_case、trace_manifest、trace_manifest_sha256。manifest 为相对文件名→SHA256，覆盖 events、blob、initial、initial-tree、metrics。先校验并 `cp -a` 初始状态，再调用原 Rust `--performance`，保留 xattr；核对完成、操作/字节数和零句柄。不设总超时，不宣称严格正确性。 |
+| `trace` | replayer 路径/摘要、trace_case、trace_manifest、trace_manifest_sha256。manifest 为相对文件名→SHA256，覆盖 events、blob、initial、initial-tree、metrics。native/overlay 先 `cp -a` 初始状态；Pack 从预先打包的 lower 直接读取 `trace-root`（其内容必须与同一 initial tree 一致），不得复制到 upper 覆盖。准备及校验时间单独记录，Pack 的固定版本和构建上传费用不包含其中。调用原 Rust `--performance`，保留 xattr；核对完成、操作/字节数和零句柄。不设总超时，不宣称严格正确性。 |
 
 所有模式正常卸载；失败保留 result.json、phases.json、原始日志和数据，不清桶/删云盘。观测默认每 5 秒读一次 `/proc`，Redis 在阶段边界读 INFO；记录的是整台 Redis（含观测请求），不能当单客户端精确计数。`observe=false` 可配对测量周期观测开销；边界 INFO 仍保留。
 
