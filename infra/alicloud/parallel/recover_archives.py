@@ -73,7 +73,7 @@ def main():
  mirror=base/('sanitized-cell-results-'+tag+'-v1');archive=base/('sanitized-cell-results-'+tag+'-v1.tar.gz')
  if mirror.exists() or archive.exists():raise ValueError('recovery mirror already exists; inspect its receipt instead of replacing')
  record=sanitized_mirror(source,mirror,patterns,{'juicefs-kernel-default/0001-format.stderr':{'AWS_ACCESS_KEY_ID'}})
- prep=base/('results-'+attempt);prep_dest=mirror/'worker-preparation';prep_dest.mkdir()
+ prep=base/('results-'+attempt);prep_dest=mirror/'archival-worker-preparation';prep_dest.mkdir()
  for f in prep.glob('*'):
   if f.is_symlink():raise ValueError('preparation symlink')
   if f.is_file():
