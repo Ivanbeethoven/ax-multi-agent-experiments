@@ -68,8 +68,8 @@ class PrivateProxyTests(unittest.TestCase):
 class DeploymentTransportTests(unittest.TestCase):
  def test_large_private_script_is_stdin_not_command_line(self):
   import subprocess
-  with tempfile.TemporaryDirectory() as d,patch.object(controller,'ROOT',Path(d)),patch.object(controller,'ssh_config',return_value=Path(d)/'ssh.conf'),patch.object(controller.subprocess,'run',return_value=subprocess.CompletedProcess([],0,'started','')) as run:
-   script='# approved payload\n'*10000;controller.deploy_via_verified_ssh({'workers':{'node-a':{'backup_ssh_verified':True}}},'node-a',script);args=run.call_args.args[0];self.assertEqual(run.call_args.kwargs['input'],script);self.assertNotIn(script,args);self.assertLess(len(subprocess.list2cmdline(args)),32767)
+  with tempfile.TemporaryDirectory() as d,patch.object(controller,'ROOT',Path(d)),patch.object(controller,'ssh_config',return_value=Path(d)/'ssh.conf'),patch.object(controller.subprocess,'run',return_value=subprocess.CompletedProcess([],0,b'started',b'')) as run:
+   script='# approved payload\n'*10000;controller.deploy_via_verified_ssh({'workers':{'node-a':{'backup_ssh_verified':True}}},'node-a',script);args=run.call_args.args[0];self.assertEqual(run.call_args.kwargs['input'],script.encode('utf-8'));self.assertNotIn('text',run.call_args.kwargs);self.assertNotIn(script,args);self.assertLess(len(subprocess.list2cmdline(args)),32767)
  def test_resumed_collector_records_actual_new_owner_pid(self):
   with tempfile.TemporaryDirectory() as d,patch.object(controller,'ROOT',Path(d)),patch.object(controller,'STATE',Path(d)/'state.json'),patch.object(controller.os,'getpid',return_value=999):
    state={'collector_takeover':{'pid':111,'epoch':1,'watch_preserved':True}};controller.takeover_collector(state);saved=json.loads(controller.STATE.read_text());self.assertEqual(saved['collector_takeover']['pid'],999);self.assertEqual(saved['collector_takeover_history'][0]['pid'],111)

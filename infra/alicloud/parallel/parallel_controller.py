@@ -190,11 +190,11 @@ def ssh_config(state):
 def deploy_via_verified_ssh(state,name,script):
  if not state['workers'][name].get('backup_ssh_verified'):raise ValueError('SSH deployment channel not verified')
  args=['ssh','-F',str(ssh_config(state)),'ax-'+name,'bash','-s']
- result=subprocess.run(args,input=script,capture_output=True,text=True,timeout=45)
+ result=subprocess.run(args,input=script.encode('utf-8'),capture_output=True,timeout=45)
  receipt={'worker':name,'transport':'verified SSH stdin','script_sha256':hashlib.sha256(script.encode()).hexdigest(),'script_bytes':len(script.encode()),'argv_chars':len(subprocess.list2cmdline(args)),'exit_code':result.returncode,'epoch':time.time()};save(ROOT/(name+'-deployment.local.json'),receipt)
  if result.returncode:
-  save(ROOT/(name+'-deployment-error.private.json'),{'stdout':result.stdout,'stderr':result.stderr});raise RuntimeError('private deployment error retained; no automatic replay resubmission')
- return result.stdout
+  save(ROOT/(name+'-deployment-error.private.json'),{'stdout':result.stdout.decode('utf-8',errors='replace'),'stderr':result.stderr.decode('utf-8',errors='replace')});raise RuntimeError('private deployment error retained; no automatic replay resubmission')
+ return result.stdout.decode('utf-8',errors='replace')
 def purchase_backup_gaps(state):
  needs_purchase=any(not state['workers'].get(w,{}).get('instance_id') for w in ('node-b','node-c'))
  if not needs_purchase:return []
