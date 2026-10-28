@@ -149,6 +149,15 @@ def snapshot(redis_url=None):
             result[name] = Path('/proc/' + name).read_text()
         except OSError:
             result[name] = None
+    result['client_cgroup'] = None
+    try:
+        line = next(v for v in Path('/proc/self/cgroup').read_text().splitlines() if v.startswith('0::'))
+        group = Path('/sys/fs/cgroup') / line[3:].lstrip('/')
+        result['client_cgroup'] = {k: (group/k).read_text().strip() for k in
+                                  ('memory.current', 'memory.max', 'memory.swap.current', 'memory.swap.max',
+                                   'memory.events', 'cpu.max', 'cpu.stat') if (group/k).is_file()}
+    except (OSError, StopIteration):
+        pass
     result['redis'] = None
     if redis_url:
         try:
@@ -173,6 +182,18 @@ def redis_delta(before, after):
     result['used_memory_after'] = int(b['used_memory']) if 'used_memory' in b else None
     result['scope'] = 'entire Redis server; includes observer INFO requests and other clients'
     return result
+
+
+def qualify_cgroup(expected, actual):
+    if not actual:
+        raise ValueError('missing cgroup-v2 resource observations')
+    values={key:int(actual[field]) for key,field in
+            [('memory_max_bytes','memory.max'),('swap_max_bytes','memory.swap.max')]}
+    quota,period=actual['cpu.max'].split()
+    values.update(cpu_quota_us=int(quota),cpu_period_us=int(period))
+    if values != expected:
+        raise ValueError('effective client resource limits differ from requested limits')
+    return values
 
 
 class Observer:
@@ -263,6 +284,9 @@ class Session:
         relative=PurePosixPath(s.get('corpus_relative','ax-corpus'))
         if relative.is_absolute() or '..' in relative.parts or str(relative)=='.':
             raise ValueError('corpus_relative must stay below the measured mount')
+        if s.get('expected_cgroup_limits'):
+            actual_limits=qualify_cgroup(s['expected_cgroup_limits'],snapshot().get('client_cgroup'))
+            save(self.out/'client-resource-qualification.json',{'passed':True,'effective':actual_limits})
         no_credentials_in_url(s['redis_url']); no_credentials_in_url(s['endpoint'])
         self.brewfs = check_binary(s['brewfs']) if s['method'] != 'juicefs' else None
         self.juicefs = check_binary(s['juicefs']) if s['method'] == 'juicefs' else None
@@ -299,7 +323,7 @@ class Session:
             if block % 1024 or not 65536 <= block <= 16777216:
                 raise ValueError('JuiceFS block size must be 64 KiB..16 MiB in whole KiB')
             self.command('format', [self.juicefs, 'format', '--storage', 's3', '--bucket',
-                                   s['endpoint'].rstrip('/') + '/' + s['bucket'], '--block-size', str(block//1024),
+                                   s['endpoint'].rstrip('/') + '/' + s['bucket'], '--block-size', str(block//1024), '--compress', 'none',
                                    s['redis_url'], s['volume_name']])
         elif s['method'] != 'native':
             cmd = [self.brewfs, 'workspace', '--meta-backend', 'redis', '--meta-url', s['redis_url']]
@@ -337,7 +361,14 @@ class Session:
         if self.s['method'] != 'juicefs':
             # BrewFS defaults its cache to a system-disk path. Make each mount's
             # client cache explicit and place it below this run's data disk.
-            save(str(cache)+'.json', {'cache': {'cache_root': str(cache)}})
+            config = dict(self.s.get('brewfs_cache', {}))
+            allowed = {'read_memory_bytes', 'write_memory_bytes', 'read_ssd_bytes', 'write_ssd_bytes',
+                       'memory_budget_bytes', 'compression', 'verify_cache_checksum', 'writeback_mode'}
+            if set(config)-allowed:
+                raise ValueError('unsupported BrewFS cache control')
+            config['cache_root'] = str(cache)
+            save(str(cache)+'.json', {'cache': config})
+            save(self.out/f'client-cache-{self.mount_serial}.json',{'requested':config,'effective_observation':None})
         cmd, env = mount_command(self.s, self.mp, cache, self.workspace, ttl, keep)
         for name, value in env.items():
             if value is None:
@@ -400,7 +431,8 @@ def mount_command(s, mp, cache, workspace, ttl, keep):
     if s['method'] == 'juicefs':
         # Foreground; writeback deliberately absent. New cache per mount, no live deletion.
         cmd = [s['juicefs']['path'], 'mount', s['redis_url'], str(mp), '--cache-dir', str(cache),
-               '--cache-size', str(s.get('cache_mib', 8192))]
+               '--cache-size', str(s.get('cache_mib', 8192)),
+               '--buffer-size', str(s.get('buffer_mib', 1024)), '--enable-xattr', '--enable-cap']
         if ttl is not None:
             cmd += ['--attr-cache', str(ttl/1000), '--entry-cache', str(ttl/1000),
                     '--dir-entry-cache', str(ttl/1000)]
@@ -593,6 +625,21 @@ def trace(session):
     sys.path.insert(0, str(REPO / 'scripts'))
     from full_trace_common import tree
     root = prepare_trace_root(session, case, tree)
+    if s.get('qualify_reopen', False):
+        marker=session.mp/'.ax-reopen-qualification'
+        content=b'ax explicit fsync and new mount readback v1\n'
+        with marker.open('xb') as f:
+            f.write(content);f.flush();os.fsync(f.fileno())
+        session.unmount()
+        session.mount()
+        root = session.mp/'trace-root'
+        if marker.read_bytes()!=content:
+            raise ValueError('explicit fsync marker did not survive independent remount')
+        marker.unlink()
+        if tree(root) != load(case/'initial-tree.json'):
+            raise ValueError('independent remount readback mismatch')
+        save(session.out/'reopen-qualification.json', {'passed': True, 'explicit_file_fsync_returned':True, 'marker_readback_equal':True, 'same_host_new_mount_process': True,
+             'cross_host_durability_qualified': False, 'note': 'outside replay timing; tree validation warms cache'})
     before = snapshot(s['redis_url']); start = time.monotonic()
     session.command('trace-performance', [binary, str(case/'capture/events.jsonl'), str(case/'capture/blobs'),
                                          str(root), str(session.out/'replay.json'), '--performance'])

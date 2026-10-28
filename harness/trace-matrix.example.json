@@ -1,0 +1,41 @@
+{
+  "run_id": "trace-main-batch-01",
+  "worker_id": "A",
+  "arms": ["native-ttl0", "overlay-ttl0", "packed-ttl0", "juicefs-ttl0"],
+  "work_base": "/data/workspaces/trace-main-batch-01-A",
+  "output": "/var/log/ax/trace-main-batch-01-A",
+  "environment_file": "/data/secrets/client.env",
+  "redis_db_start": 2,
+  "client_memory_bytes": 8589934592,
+  "client_cpu_percent": 400,
+  "scope_note": "Independent local-backend diagnostic. Optional *-default arms retain only kernel TTL/KEEP_CACHE defaults while other budgets remain controlled. POSIX regression tests do not qualify cloud FUSE/S3 durability.",
+  "fixture": {
+    "path": "/data/assets/bin/packed_v3_snapshot_fixture",
+    "source_sha": "350dc108a3bffcb5e7e27cc4279dfb5729febe60",
+    "sha256": "REPLACE_WITH_ASSET_BINARY_SHA256"
+  },
+  "base_spec": {
+    "backend_pin": "/data/assets/metadata/backend-pin.json",
+    "rustfs_container": "ax-rustfs",
+    "endpoint": "http://127.0.0.1:9000",
+    "redis_url": "redis://127.0.0.1:6379/0",
+    "data_mount": "/data",
+    "client_block_bytes": 4194304,
+    "brewfs": {
+      "path": "/data/assets/bin/brewfs",
+      "source_sha": "350dc108a3bffcb5e7e27cc4279dfb5729febe60",
+      "sha256": "REPLACE_WITH_ASSET_BINARY_SHA256"
+    },
+    "probe": {"path": "/data/assets/bin/ax-fs-probe", "sha256": "REPLACE_WITH_ASSET_BINARY_SHA256"},
+    "replayer": {"path": "/data/assets/bin/full-fuse-replay", "sha256": "REPLACE_WITH_ASSET_BINARY_SHA256"},
+    "juicefs": {
+      "path": "/data/assets/bin/juicefs",
+      "sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+      "version": "1.4.2+2026-10-22.46af7af"
+    },
+    "trace_case": "/data/input/case/pytest-full-02",
+    "trace_manifest": "/data/input/trace-manifest.json",
+    "trace_manifest_sha256": "REPLACE_WITH_FROZEN_TRACE_MANIFEST_SHA256",
+    "observe": true
+  }
+}

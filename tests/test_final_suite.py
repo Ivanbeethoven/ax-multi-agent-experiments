@@ -263,7 +263,7 @@ class RealTraceIntegration(unittest.TestCase):
             manifest=parent/'manifest.json';suite.save(manifest,inventory)
             binary=os.environ['AX_TRACE_BINARY']
             s=spec();s.update(work_root=str(parent/'work'),replayer={'path':binary,'sha256':suite.digest(binary)},
-                trace_case=str(case),trace_manifest=str(manifest),trace_manifest_sha256=suite.digest(manifest))
+                trace_case=str(case),trace_manifest=str(manifest),trace_manifest_sha256=suite.digest(manifest),qualify_reopen=True)
             session=suite.Session(s,parent/'output')
             # This test exercises real POSIX replay, not FUSE/cloud qualification.
             with patch.object(session,'mount'),patch.object(session,'unmount'),patch.object(suite,'snapshot',return_value={'redis':None}):
