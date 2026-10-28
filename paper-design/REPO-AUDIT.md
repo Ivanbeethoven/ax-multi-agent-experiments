@@ -190,5 +190,5 @@
 
 ## 8. 实际改动
 
-- 修改 [`paper-design/tools/check-disk-layout.sh`](paper-design/tools/check-disk-layout.sh)：缺失 `d1..d4` 现在直接 `FAIL`；新增四个 RustFS volume 必须来自四个不同设备的检查。原因是原脚本只警告缺盘且允许四个目录共用一个文件系统，可能静默放行 EC/动态布局失真的装置。影响所有未来执行批次的装置资格门；不读取、不修改实验数据。
-- 新增本报告的仓库版本 [`paper-design/REPO-AUDIT.md`](paper-design/REPO-AUDIT.md) 和人读版本 [`REPO-AUDIT.md`](REPO-AUDIT.md)。没有修改 `experiments/`、`results/`、输入数据或历史证据。
+- 修改 [`paper-design/tools/check-disk-layout.sh`](tools/check-disk-layout.sh)：缺失 `d1..d4` 现在直接 `FAIL`；新增四个 RustFS volume 必须来自四个不同设备的检查。原因是原脚本只警告缺盘且允许四个目录共用一个文件系统，可能静默放行 EC/动态布局失真的装置。影响所有未来执行批次的装置资格门；不读取、不修改实验数据。
+- 新增本报告的仓库版本 [`paper-design/REPO-AUDIT.md`](REPO-AUDIT.md) 和人读版本 [`REPO-AUDIT.md`](REPO-AUDIT.md)。没有修改 `experiments/`、`results/`、输入数据或历史证据。

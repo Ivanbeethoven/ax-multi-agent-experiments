@@ -2,6 +2,8 @@
 
 从这里开始即可。先小规模跑通，再做正式对照；所有配置都要校验结果，失败也记录。目前是实验计划，尚未执行。
 
+方案入口：[`plan.zh.md`](plan.zh.md)；装置约束见 [`EXPERIMENT-CONFIG.zh.md`](EXPERIMENT-CONFIG.zh.md)，执行判据见 [`TEST-PLAN.zh.md`](TEST-PLAN.zh.md)，章节补充见 [`REORG-EXPERIMENT-PLAN.zh.md`](REORG-EXPERIMENT-PLAN.zh.md)，JuiceFS 对照见 [`JUICEFS-PARITY.md`](JUICEFS-PARITY.md)。
+
 ## 先准备
 
 1. 固定 BrewFS、JuiceFS 和 RustFS 版本。使用同一套四节点 RustFS，保持客户端资源、缓存和持久化条件一致。
@@ -50,7 +52,7 @@
 
 **负载回放复用已有的Rust工具 `tools/full-fuse-replay`，使用release构建。** Python只负责准备、启动、采集和最终校验，不逐条驱动回放I/O；这些阶段分别计时。新增高频查询/读写负载也采用Rust，尚未接通的执行器保留待实现。Rust回放仍包含JSON解析和内容校验，运行时检查其CPU开销，不能把总回放时间当作纯文件系统耗时。
 
-精确参数用 [execution-grid.json](execution-grid.json)，运行编号用 [run-grid.csv](run-grid.csv)；两者供脚本/Agent读取，不必人工通读。这里只检查或生成计划，不启动实验：
+精确参数用 [execution-grid.json](execution-grid.json)，运行编号用 [run-grid.csv](run-grid.csv)；两者供脚本/Agent读取，不必人工通读。`run-grid.csv` 的 1174 条展开行是重复、配置和轴值的计划记录，不是 1174 个独立 cell；50 个 cell 的摘要在 [run-grid.json](run-grid.json)。这里只检查或生成计划，不启动实验：
 
 ```bash
 python paper-design/tools/check_design.py

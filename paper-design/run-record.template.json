@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "planned",
+  "status": "unmeasured(template-only)",
   "execution_enabled": false,
   "campaign_id": null,
   "run_id": null,
@@ -44,5 +44,56 @@
   "measurements": null,
   "outcome": null,
   "raw_artifacts": [],
-  "notes": "Planning template only. Create a separate executed record backed by actual commands, receipts, independent assertions and hashed raw artifacts."
+  "notes": "Planning template only. Create a separate executed record backed by actual commands, receipts, independent assertions and hashed raw artifacts.",
+  "status_contract": "ok | void(reason) | unmeasured(reason)",
+  "cell_id": null,
+  "layer": null,
+  "layer_values": [
+    "fuse",
+    "backend",
+    "disk",
+    "client"
+  ],
+  "judge": null,
+  "expected_artifact": null,
+  "config": null,
+  "workload": null,
+  "params": {},
+  "reps": null,
+  "artifact_paths": [],
+  "measured_at": null,
+  "host": null,
+  "device_map": {
+    "corpus": {
+      "path": null,
+      "device": null
+    },
+    "fio_target": {
+      "path": null,
+      "device": null
+    },
+    "cache_dir": {
+      "path": null,
+      "device": null
+    },
+    "volumes": {
+      "volume_1": {
+        "path": null,
+        "device": null
+      },
+      "volume_2": {
+        "path": null,
+        "device": null
+      },
+      "volume_3": {
+        "path": null,
+        "device": null
+      },
+      "volume_4": {
+        "path": null,
+        "device": null
+      }
+    },
+    "recording_rule": "corpus、fio target、cache dir 和四个 volume 必须逐项填写实际块设备；未知写 null 并使该格 unmeasured(reason)。"
+  }
 }

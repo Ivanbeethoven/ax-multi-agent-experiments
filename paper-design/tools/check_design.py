@@ -38,19 +38,23 @@ def expand(design, grid):
                 configs = list(group['configurations'])
                 rng.shuffle(configs)
                 for order, config in enumerate(configs, 1):
-                    rows.append(dict(zip(FIELDS, [
+                    row = dict(zip(FIELDS, [
                         f'{pair_id}-{config}', pair_id, group['id'],
                         group['experiment_id'], rqs[group['experiment_id']],
                         group['tier'], config, repeat, order, group['replicate_kind'],
                         json.dumps(parameters, ensure_ascii=False, sort_keys=True, separators=(',', ':')),
                         group['protocol'], 'planned', 'false'
-                    ])))
+                    ]))
+                    row['b_hint_bytes'] = (json.dumps([262144, 4194304], separators=(',', ':'))
+                                           if group['experiment_id'] == 'object_granularity' else '')
+                    rows.append(row)
     return rows, csv_bytes(rows)
 
 
 def csv_bytes(rows):
     stream = io.StringIO(newline='')
-    writer = csv.DictWriter(stream, fieldnames=FIELDS, lineterminator='\n')
+    output_fields = FIELDS + ['b_hint_bytes']
+    writer = csv.DictWriter(stream, fieldnames=output_fields, lineterminator='\n')
     writer.writeheader()
     writer.writerows(rows)
     return stream.getvalue().encode('utf-8')
@@ -92,7 +96,24 @@ def validate(design, grid):
         errors.append('Exactly RQ1 through RQ5 required')
     experiments = {e['id'] for e in design['experiments']}
     if len(experiments) != 11 or len(experiments) != len(design['experiments']):
-        errors.append('Expected 11 unique experiments')
+        errors.append('Expected 11 detailed design experiments')
+    registry_path = design.get('experiment_class_registry')
+    if registry_path != grid.get('experiment_class_registry'):
+        errors.append('design and execution grid must reference the same experiment class registry')
+    try:
+        registry = read_json(registry_path)
+        registry_ids = {item['id'] for item in registry['classes']}
+        if not experiments <= registry_ids:
+            errors.append('Detailed design experiments missing from registry')
+        if set(registry.get('run_grid_ids', [])) != registry_ids:
+            errors.append('Registry run_grid_ids must match registry classes')
+        if set(grid.get('experiment_class_registry_scope', [])) != set(registry.get('design_detailed_ids', [])):
+            errors.append('execution-grid registry scope must match detailed design classes')
+        run_grid = read_json('run-grid.json')
+        if run_grid.get('experiment_class_registry') != registry_path or set(run_grid.get('experiment_class_registry_scope', [])) != registry_ids:
+            errors.append('run-grid must reference the registry and expose its complete class scope')
+    except (OSError, KeyError, TypeError, ValueError):
+        errors.append('Missing or invalid experiment class registry')
     seen = set()
     for group in grid['groups']:
         gid = group['id']
@@ -153,10 +174,20 @@ def validate(design, grid):
         if p['batch_deadline_s'] != waves * p['case_total_deadline_s'] + 300:
             errors.append(f'{group_id}: case deadline arithmetic mismatch')
     template = read_json('run-record.template.json')
-    if template['status'] != 'planned' or template['measurements'] is not None or template['outcome'] is not None:
-        errors.append('Run template contains results or is not planned')
+    if template['status'] != 'unmeasured(template-only)' or template['measurements'] is not None or template['outcome'] is not None:
+        errors.append('Run template must use the explicit unmeasured template status and contain no results')
     if template['execution_enabled'] is not False or template['raw_artifacts']:
         errors.append('Run template must remain unexecuted')
+    required_template_fields = ['cell_id', 'layer', 'judge', 'expected_artifact', 'config',
+        'workload', 'params', 'reps', 'status', 'artifact_paths', 'measured_at', 'host', 'device_map']
+    if any(field not in template for field in required_template_fields):
+        errors.append('Run template missing cell binding fields')
+    if template.get('layer_values') != ['fuse', 'backend', 'disk', 'client']:
+        errors.append('Run template layer values must be fuse/backend/disk/client')
+    device_map = template.get('device_map', {})
+    for key in ['corpus', 'fio_target', 'cache_dir', 'volumes']:
+        if key not in device_map:
+            errors.append(f'Run template device_map missing {key}')
     for required in ['README.md', 'reference/details.zh.md']:
         if not (ROOT / required).is_file():
             errors.append(f'Missing {required}')

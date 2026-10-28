@@ -6,9 +6,11 @@
 
 研究对象是 BrewFS 的 flat-v1、Overlay 加原生封存下层、Overlay 加 Packed 下层，外部对照是 JuiceFS。每个研究小节都必须包含 JuiceFS 格子；JuiceFS 只在能力相同的指标上排名，缺失能力按“无等价能力”保留可比替代测量。
 
-设计参数的权威来源是仓库的 `paper-design/design.json` 和重整计划；实测依据是 `/home/hxy/us-artifacts/small-us-rs.tgz`、`small-us-dev2.tgz` 解出的报告及其 CSV。仓库中未找到用户所说的 `paper-design/plan.zh.md`；因此不把不存在的文件当作参数来源。草稿 `/home/hxy/TEST-PLAN-v4.md` 的决定在 `/home/hxy/PLAN-V4-REPORT.md` 逐项说明。
+设计参数的权威来源是仓库的 [`design.json`](design.json)；本入口由 [`plan.zh.md`](plan.zh.md) 指向现行的 [`TEST-PLAN.zh.md`](TEST-PLAN.zh.md)、[`EXPERIMENT-CONFIG.zh.md`](EXPERIMENT-CONFIG.zh.md) 和 [`design.json`](design.json)。历史实测依据 `/home/hxy/us-artifacts/` 只作外部只读证据，不替代本批 pin。
 
 正式批次使用四台对象服务、worker、Redis 和监控资源，资源上限以每批 manifest 为准；同一配对批次固定物理节点、CPU/内存、缓存和时段。小型 smoke 只能使用已有主机，且每条命令不超过两分钟。
+
+共同装置硬约束见 [`EXPERIMENT-CONFIG.zh.md`](EXPERIMENT-CONFIG.zh.md)，开跑前必须通过 [`tools/check-disk-layout.sh`](tools/check-disk-layout.sh)；脚本退出码作为四盘与裸盘落点资格门。
 
 版本合同：
 
@@ -114,7 +116,7 @@ JuiceFS 使用相同冻结 trace、模型、权限、worker 并发、payload 和
 
 ## 统一产物
 
-每批至少保存 `batch-manifest.json`、`backend-pin.json`、BrewFS/JuiceFS 版本、配置原文、输入摘要、命令和返回码、阶段事件、资源采样、服务指标、对象/版本清单、内容断言、namespace digest、失败原因和最终 readback。每格还必须有 `status`、`layer`、`judge`、`expected_artifact`；机器清单见 [run-grid.json](run-grid.json)。
+每批至少保存 `batch-manifest.json`、`backend-pin.json`、BrewFS/JuiceFS 版本、配置原文、输入摘要、命令和返回码、阶段事件、资源采样、服务指标、对象/版本清单、内容断言、namespace digest、失败原因和最终 readback。每格还必须有 `status`、`layer`、`judge`、`expected_artifact`；机器清单见 [run-grid.json](run-grid.json)。补充对照规则见 [`JUICEFS-PARITY.md`](JUICEFS-PARITY.md)，章节化说明见 [`REORG-EXPERIMENT-PLAN.zh.md`](REORG-EXPERIMENT-PLAN.zh.md)。
 
 ## 明确不做和不能回答什么
 

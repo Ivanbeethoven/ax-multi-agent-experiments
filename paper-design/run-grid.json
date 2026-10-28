@@ -394,11 +394,24 @@
         ]
       },
       "reps": 3,
-      "judge": "remote confirmation and independent readback present; early app return is insufficient",
-      "layer": "backend",
+      "judge": "remote confirmation、independent readback 和 drain 必须成功；application_return/remote_confirm/drain/readback/device_bytes 分别按 client/backend/disk 账本记录，不得用 device_bytes 代替 backend 远端确认。",
+      "layer": "disk",
       "expected_artifact": "write-cost.csv",
       "valid_if": "same inputs/resources/lifecycle finish within ceiling",
-      "invalid_status": "void(write-cost)"
+      "invalid_status": "void(write-cost)",
+      "measurement_layers": {
+        "client": [
+          "application_return",
+          "readback"
+        ],
+        "backend": [
+          "remote_confirm",
+          "drain"
+        ],
+        "disk": [
+          "device_bytes"
+        ]
+      }
     },
     {
       "cell_id": "write-overlay",
@@ -420,11 +433,24 @@
         ]
       },
       "reps": 3,
-      "judge": "remote confirmation and independent readback present; early app return is insufficient",
-      "layer": "backend",
+      "judge": "remote confirmation、independent readback 和 drain 必须成功；application_return/remote_confirm/drain/readback/device_bytes 分别按 client/backend/disk 账本记录，不得用 device_bytes 代替 backend 远端确认。",
+      "layer": "disk",
       "expected_artifact": "write-cost.csv",
       "valid_if": "same inputs/resources/lifecycle finish within ceiling",
-      "invalid_status": "void(write-cost)"
+      "invalid_status": "void(write-cost)",
+      "measurement_layers": {
+        "client": [
+          "application_return",
+          "readback"
+        ],
+        "backend": [
+          "remote_confirm",
+          "drain"
+        ],
+        "disk": [
+          "device_bytes"
+        ]
+      }
     },
     {
       "cell_id": "write-packed",
@@ -446,11 +472,24 @@
         ]
       },
       "reps": 3,
-      "judge": "remote confirmation and independent readback present; early app return is insufficient",
-      "layer": "backend",
+      "judge": "remote confirmation、independent readback 和 drain 必须成功；application_return/remote_confirm/drain/readback/device_bytes 分别按 client/backend/disk 账本记录，不得用 device_bytes 代替 backend 远端确认。",
+      "layer": "disk",
       "expected_artifact": "write-cost.csv",
       "valid_if": "same inputs/resources/lifecycle finish within ceiling",
-      "invalid_status": "void(write-cost)"
+      "invalid_status": "void(write-cost)",
+      "measurement_layers": {
+        "client": [
+          "application_return",
+          "readback"
+        ],
+        "backend": [
+          "remote_confirm",
+          "drain"
+        ],
+        "disk": [
+          "device_bytes"
+        ]
+      }
     },
     {
       "cell_id": "write-juicefs",
@@ -472,15 +511,28 @@
         ]
       },
       "reps": 3,
-      "judge": "remote confirmation and independent readback present; early app return is insufficient",
-      "layer": "backend",
+      "judge": "remote confirmation、independent readback 和 drain 必须成功；application_return/remote_confirm/drain/readback/device_bytes 分别按 client/backend/disk 账本记录，不得用 device_bytes 代替 backend 远端确认。",
+      "layer": "disk",
       "expected_artifact": "write-cost.csv",
       "valid_if": "same inputs/resources/lifecycle finish within ceiling",
-      "invalid_status": "void(write-cost)"
+      "invalid_status": "void(write-cost)",
+      "measurement_layers": {
+        "client": [
+          "application_return",
+          "readback"
+        ],
+        "backend": [
+          "remote_confirm",
+          "drain"
+        ],
+        "disk": [
+          "device_bytes"
+        ]
+      }
     },
     {
       "cell_id": "fork-native-1",
-      "experiment": "overlay-fork",
+      "experiment": "overlay_fork",
       "config": "BrewFS Overlay + native lower",
       "workload": "edited parent then child fork",
       "params": {
@@ -505,7 +557,7 @@
     },
     {
       "cell_id": "fork-native-16",
-      "experiment": "overlay-fork",
+      "experiment": "overlay_fork",
       "config": "BrewFS Overlay + native lower",
       "workload": "edited parent then child fork",
       "params": {
@@ -530,7 +582,7 @@
     },
     {
       "cell_id": "fork-native-64",
-      "experiment": "overlay-fork",
+      "experiment": "overlay_fork",
       "config": "BrewFS Overlay + native lower",
       "workload": "edited parent then child fork",
       "params": {
@@ -555,7 +607,7 @@
     },
     {
       "cell_id": "fork-juicefs",
-      "experiment": "overlay-fork",
+      "experiment": "overlay_fork",
       "config": "JuiceFS",
       "workload": "same parent/child workload",
       "params": {
@@ -656,7 +708,7 @@
     },
     {
       "cell_id": "access-native",
-      "experiment": "packed-access",
+      "experiment": "packed_access",
       "config": "BrewFS Overlay + native lower",
       "workload": "six query families and shared/disjoint access",
       "params": {
@@ -687,15 +739,20 @@
         "packed": false
       },
       "reps": 3,
-      "judge": "jointly judge latency, DB/object/client counters and probe completion",
+      "judge": "PASS iff probe completion >=99.5%, probe p95 <=2 s, error rate <=0.5%, and all DB/object/client counters are present; compare only matched workload rows.",
       "layer": "backend",
       "expected_artifact": "packed-access.csv",
       "valid_if": "sessions/probes finish and counters are captured or null",
-      "invalid_status": "void(packed-access)"
+      "invalid_status": "void(packed-access)",
+      "judge_thresholds": {
+        "probe_completion_min": 0.995,
+        "probe_p95_s_max": 2,
+        "error_rate_max": 0.005
+      }
     },
     {
       "cell_id": "access-packed",
-      "experiment": "packed-access",
+      "experiment": "packed_access",
       "config": "BrewFS Overlay + Packed lower",
       "workload": "six query families and shared/disjoint access",
       "params": {
@@ -726,15 +783,20 @@
         "packed": true
       },
       "reps": 3,
-      "judge": "jointly judge latency, DB/object/client counters and probe completion",
+      "judge": "PASS iff probe completion >=99.5%, probe p95 <=2 s, error rate <=0.5%, and all DB/object/client counters are present; compare only matched workload rows.",
       "layer": "backend",
       "expected_artifact": "packed-access.csv",
       "valid_if": "sessions/probes finish and counters are captured or null",
-      "invalid_status": "void(packed-access)"
+      "invalid_status": "void(packed-access)",
+      "judge_thresholds": {
+        "probe_completion_min": 0.995,
+        "probe_p95_s_max": 2,
+        "error_rate_max": 0.005
+      }
     },
     {
       "cell_id": "access-juicefs",
-      "experiment": "packed-access",
+      "experiment": "packed_access",
       "config": "JuiceFS",
       "workload": "six query families and shared/disjoint access",
       "params": {
@@ -765,15 +827,20 @@
         "packed": false
       },
       "reps": 3,
-      "judge": "jointly judge latency, DB/object/client counters and probe completion",
+      "judge": "PASS iff probe completion >=99.5%, probe p95 <=2 s, error rate <=0.5%, and all DB/object/client counters are present; compare only matched workload rows.",
       "layer": "backend",
       "expected_artifact": "packed-access.csv",
       "valid_if": "sessions/probes finish and counters are captured or null",
-      "invalid_status": "unmeasured(no-packed-lower)"
+      "invalid_status": "unmeasured(no-packed-lower)",
+      "judge_thresholds": {
+        "probe_completion_min": 0.995,
+        "probe_p95_s_max": 2,
+        "error_rate_max": 0.005
+      }
     },
     {
       "cell_id": "lifecycle-native",
-      "experiment": "packed-lifecycle",
+      "experiment": "packed_lifecycle",
       "config": "BrewFS Overlay + native lower",
       "workload": "first fork,reuse and eight update cycles",
       "params": {
@@ -805,15 +872,21 @@
         ]
       },
       "reps": 3,
-      "judge": "judge per-resource cumulative differences at observed K; no extrapolated crossing",
+      "judge": "PASS iff protected reopen/readback success=100%, error rate=0%, and cumulative construction+publish+read+retention cost is recorded at every K; declare a crossing only when packed cumulative cost <= native cumulative cost at the observed K with p99 <=2x native.",
       "layer": "backend",
       "expected_artifact": "packed-lifecycle.csv",
       "valid_if": "actual completed prefixes and resource ledger recorded",
-      "invalid_status": "void(lifecycle)"
+      "invalid_status": "void(lifecycle)",
+      "judge_thresholds": {
+        "protected_readback_min": 1.0,
+        "error_rate_max": 0.0,
+        "cumulative_cost_ratio_max_for_crossing": 1.0,
+        "p99_ratio_max_for_crossing": 2.0
+      }
     },
     {
       "cell_id": "lifecycle-packed",
-      "experiment": "packed-lifecycle",
+      "experiment": "packed_lifecycle",
       "config": "BrewFS Overlay + Packed lower",
       "workload": "first fork,reuse and eight update cycles",
       "params": {
@@ -845,15 +918,21 @@
         ]
       },
       "reps": 3,
-      "judge": "judge per-resource cumulative differences at observed K; no extrapolated crossing",
+      "judge": "PASS iff protected reopen/readback success=100%, error rate=0%, and cumulative construction+publish+read+retention cost is recorded at every K; declare a crossing only when packed cumulative cost <= native cumulative cost at the observed K with p99 <=2x native.",
       "layer": "backend",
       "expected_artifact": "packed-lifecycle.csv",
       "valid_if": "actual completed prefixes and resource ledger recorded",
-      "invalid_status": "void(lifecycle)"
+      "invalid_status": "void(lifecycle)",
+      "judge_thresholds": {
+        "protected_readback_min": 1.0,
+        "error_rate_max": 0.0,
+        "cumulative_cost_ratio_max_for_crossing": 1.0,
+        "p99_ratio_max_for_crossing": 2.0
+      }
     },
     {
       "cell_id": "lifecycle-juicefs",
-      "experiment": "packed-lifecycle",
+      "experiment": "packed_lifecycle",
       "config": "JuiceFS",
       "workload": "first fork,reuse and eight update cycles",
       "params": {
@@ -885,15 +964,21 @@
         ]
       },
       "reps": 3,
-      "judge": "judge per-resource cumulative differences at observed K; no extrapolated crossing",
+      "judge": "PASS iff protected reopen/readback success=100%, error rate=0%, and cumulative construction+publish+read+retention cost is recorded at every K; declare a crossing only when packed cumulative cost <= native cumulative cost at the observed K with p99 <=2x native.",
       "layer": "backend",
       "expected_artifact": "packed-lifecycle.csv",
       "valid_if": "actual completed prefixes and resource ledger recorded",
-      "invalid_status": "unmeasured(no-equivalent)"
+      "invalid_status": "unmeasured(no-equivalent)",
+      "judge_thresholds": {
+        "protected_readback_min": 1.0,
+        "error_rate_max": 0.0,
+        "cumulative_cost_ratio_max_for_crossing": 1.0,
+        "p99_ratio_max_for_crossing": 2.0
+      }
     },
     {
       "cell_id": "object-client-g",
-      "experiment": "object-granularity",
+      "experiment": "object_granularity",
       "config": "BrewFS flat-v1",
       "workload": "F2 sparse read, scan and overwrite by client g",
       "params": {
@@ -920,18 +1005,36 @@
           4096,
           65536,
           1048576
+        ],
+        "b_hint_bytes": [
+          262144,
+          4194304
         ]
       },
       "reps": 3,
-      "judge": "only compare after persisted lengths/layout recorded; all content reads pass",
-      "layer": "backend",
+      "judge": "B 必须显式取 256 KiB 或 4 MiB 才会产生 ec-read-quantum 标记；默认 1 MiB 时该格判 unmeasured(默认 B 使特性成为 no-op)；仅在实际持久布局 digest 变化且全部内容校验通过后比较有效 B/q。",
+      "layer": "client",
       "expected_artifact": "object-granularity.csv",
       "valid_if": "each g yields qualified distinct object set",
-      "invalid_status": "void(layout-unchanged)"
+      "invalid_status": "void(layout-unchanged)",
+      "b_hint_bytes": [
+        262144,
+        4194304
+      ],
+      "measurement_layers": {
+        "client": [
+          "g",
+          "object_count",
+          "read_request_bytes"
+        ],
+        "backend": [
+          "service_bytes"
+        ]
+      }
     },
     {
       "cell_id": "object-backend-bq",
-      "experiment": "object-granularity",
+      "experiment": "object_granularity",
       "config": "BrewFS flat-v1",
       "workload": "same objects with legal backend B/q variants",
       "params": {
@@ -947,18 +1050,26 @@
           "1M",
           "cross-boundary",
           "sequential"
+        ],
+        "b_hint_bytes": [
+          262144,
+          4194304
         ]
       },
       "reps": 3,
-      "judge": "judge effective persisted B/q from metadata, not requested hint; include device/service counters",
+      "judge": "B 必须显式取 256 KiB 或 4 MiB 才会产生 ec-read-quantum 标记；默认 1 MiB 时该格判 unmeasured(默认 B 使特性成为 no-op)；仅在实际持久布局 digest 变化且全部内容校验通过后比较有效 B/q。",
       "layer": "backend",
       "expected_artifact": "object-backend-bq.csv",
       "valid_if": "qualified B/q changes persisted layout",
-      "invalid_status": "void(layout-unchanged)"
+      "invalid_status": "void(layout-unchanged)",
+      "b_hint_bytes": [
+        262144,
+        4194304
+      ]
     },
     {
       "cell_id": "object-juicefs",
-      "experiment": "object-granularity",
+      "experiment": "object_granularity",
       "config": "JuiceFS",
       "workload": "same whole/range/random/sequential reads",
       "params": {
@@ -976,14 +1087,22 @@
           "whole",
           "range",
           "random"
+        ],
+        "b_hint_bytes": [
+          262144,
+          4194304
         ]
       },
       "reps": 3,
-      "judge": "judge common latency, GET ranges, client/server/device bytes and actual block-size",
+      "judge": "B 必须显式取 256 KiB 或 4 MiB 才会产生 ec-read-quantum 标记；默认 1 MiB 时该格判 unmeasured(默认 B 使特性成为 no-op)；仅在实际持久布局 digest 变化且全部内容校验通过后比较有效 B/q。",
       "layer": "backend",
       "expected_artifact": "object-juicefs.csv",
       "valid_if": "same content and requests complete",
-      "invalid_status": "unmeasured(no-Bq-hint)"
+      "invalid_status": "unmeasured(no-Bq-hint)",
+      "b_hint_bytes": [
+        262144,
+        4194304
+      ]
     },
     {
       "cell_id": "migration-native",
@@ -1023,7 +1142,14 @@
       "layer": "client",
       "expected_artifact": "migration.csv",
       "valid_if": "fencing/readback and resource ceilings pass",
-      "invalid_status": "void(migration)"
+      "invalid_status": "void(migration)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "至少 2 个节点",
+        "source_workers>=4 且 target_workers>=4",
+        "真实 source/target workspace 交接",
+        "节点身份与落盘位置可验证"
+      ]
     },
     {
       "cell_id": "migration-packed",
@@ -1063,7 +1189,14 @@
       "layer": "client",
       "expected_artifact": "migration.csv",
       "valid_if": "fencing/readback and resource ceilings pass",
-      "invalid_status": "void(migration)"
+      "invalid_status": "void(migration)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "至少 2 个节点",
+        "source_workers>=4 且 target_workers>=4",
+        "真实 source/target workspace 交接",
+        "节点身份与落盘位置可验证"
+      ]
     },
     {
       "cell_id": "migration-juicefs",
@@ -1103,7 +1236,14 @@
       "layer": "client",
       "expected_artifact": "migration.csv",
       "valid_if": "fencing/readback and resource ceilings pass",
-      "invalid_status": "unmeasured(no-fencing)"
+      "invalid_status": "unmeasured(no-fencing)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "至少 2 个节点",
+        "source_workers>=4 且 target_workers>=4",
+        "真实 source/target workspace 交接",
+        "节点身份与落盘位置可验证"
+      ]
     },
     {
       "cell_id": "recovery-native",
@@ -1129,7 +1269,13 @@
       "layer": "client",
       "expected_artifact": "recovery.json",
       "valid_if": "all barrier trials have event/readback evidence",
-      "invalid_status": "void(recovery)"
+      "invalid_status": "void(recovery)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "至少 2 个会话/节点",
+        "真实故障屏障与 stale-writer 注入器",
+        "独立 reader 验证确认内容"
+      ]
     },
     {
       "cell_id": "recovery-packed",
@@ -1155,7 +1301,13 @@
       "layer": "client",
       "expected_artifact": "recovery.json",
       "valid_if": "all barrier trials have event/readback evidence",
-      "invalid_status": "void(recovery)"
+      "invalid_status": "void(recovery)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "至少 2 个会话/节点",
+        "真实故障屏障与 stale-writer 注入器",
+        "独立 reader 验证确认内容"
+      ]
     },
     {
       "cell_id": "recovery-juicefs",
@@ -1181,7 +1333,13 @@
       "layer": "client",
       "expected_artifact": "recovery.json",
       "valid_if": "all barrier trials have event/readback evidence",
-      "invalid_status": "unmeasured(no-fencing)"
+      "invalid_status": "unmeasured(no-fencing)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "至少 2 个会话/节点",
+        "真实故障屏障与 stale-writer 注入器",
+        "独立 reader 验证确认内容"
+      ]
     },
     {
       "cell_id": "replay-native",
@@ -1298,7 +1456,13 @@
       "layer": "client",
       "expected_artifact": "scale.csv",
       "valid_if": "worker identities, traces and resources valid",
-      "invalid_status": "void(resource-or-trace)"
+      "invalid_status": "void(resource-or-trace)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "至少 2 个 worker 节点",
+        "workers=64/128 时资源超过单机 8 vCPU/30 GiB",
+        "实际 worker placement manifest"
+      ]
     },
     {
       "cell_id": "scale-packed",
@@ -1325,7 +1489,13 @@
       "layer": "client",
       "expected_artifact": "scale.csv",
       "valid_if": "worker identities, traces and resources valid",
-      "invalid_status": "void(resource-or-trace)"
+      "invalid_status": "void(resource-or-trace)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "至少 2 个 worker 节点",
+        "workers=64/128 时资源超过单机 8 vCPU/30 GiB",
+        "实际 worker placement manifest"
+      ]
     },
     {
       "cell_id": "scale-juicefs",
@@ -1352,11 +1522,17 @@
       "layer": "client",
       "expected_artifact": "scale.csv",
       "valid_if": "worker identities, traces and resources valid",
-      "invalid_status": "void(resource-or-trace)"
+      "invalid_status": "void(resource-or-trace)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "至少 2 个 worker 节点",
+        "workers=64/128 时资源超过单机 8 vCPU/30 GiB",
+        "实际 worker placement manifest"
+      ]
     },
     {
       "cell_id": "agent-native",
-      "experiment": "agent-validation",
+      "experiment": "agent_validation",
       "config": "BrewFS Overlay + native lower",
       "workload": "two live tasks; continue/fork/migrate after third complete tool result",
       "params": {
@@ -1375,15 +1551,28 @@
         "input_manifest": "live-tasks.json"
       },
       "reps": 3,
-      "judge": "judge score, independent file state and real subsequent tool call; retain child outcomes",
+      "judge": "PASS iff score >=0.80, independent file-state checks are 100% correct, at least one real subsequent tool call is observed, and error rate=0%; otherwise retain void(reason) or unmeasured(reason).",
       "layer": "client",
       "expected_artifact": "agent-validation.json",
       "valid_if": "execution interface, manifest and verifier available",
-      "invalid_status": "void(agent-validation)"
+      "invalid_status": "void(agent-validation)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "真实 Agent 会话接口",
+        "真实后续 tool call",
+        "固定模型与评分器",
+        "父子会话 lineage 和剩余预算证据"
+      ],
+      "judge_thresholds": {
+        "score_min": 0.8,
+        "file_state_correctness_min": 1.0,
+        "subsequent_tool_calls_min": 1,
+        "error_rate_max": 0.0
+      }
     },
     {
       "cell_id": "agent-packed",
-      "experiment": "agent-validation",
+      "experiment": "agent_validation",
       "config": "BrewFS Overlay + Packed lower",
       "workload": "two live tasks; continue/fork/migrate after third complete tool result",
       "params": {
@@ -1402,15 +1591,28 @@
         "input_manifest": "live-tasks.json"
       },
       "reps": 3,
-      "judge": "judge score, independent file state and real subsequent tool call; retain child outcomes",
+      "judge": "PASS iff score >=0.80, independent file-state checks are 100% correct, at least one real subsequent tool call is observed, and error rate=0%; otherwise retain void(reason) or unmeasured(reason).",
       "layer": "client",
       "expected_artifact": "agent-validation.json",
       "valid_if": "execution interface, manifest and verifier available",
-      "invalid_status": "void(agent-validation)"
+      "invalid_status": "void(agent-validation)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "真实 Agent 会话接口",
+        "真实后续 tool call",
+        "固定模型与评分器",
+        "父子会话 lineage 和剩余预算证据"
+      ],
+      "judge_thresholds": {
+        "score_min": 0.8,
+        "file_state_correctness_min": 1.0,
+        "subsequent_tool_calls_min": 1,
+        "error_rate_max": 0.0
+      }
     },
     {
       "cell_id": "agent-juicefs",
-      "experiment": "agent-validation",
+      "experiment": "agent_validation",
       "config": "JuiceFS",
       "workload": "two live tasks; continue/fork/migrate after third complete tool result",
       "params": {
@@ -1429,11 +1631,41 @@
         "input_manifest": "live-tasks.json"
       },
       "reps": 3,
-      "judge": "judge score, independent file state and real subsequent tool call; retain child outcomes",
+      "judge": "PASS iff score >=0.80, independent file-state checks are 100% correct, at least one real subsequent tool call is observed, and error rate=0%; otherwise retain void(reason) or unmeasured(reason).",
       "layer": "client",
       "expected_artifact": "agent-validation.json",
       "valid_if": "execution interface, manifest and verifier available",
-      "invalid_status": "unmeasured(no-equivalent)"
+      "invalid_status": "unmeasured(no-equivalent)",
+      "single_node_ok": false,
+      "required_conditions": [
+        "真实 Agent 会话接口",
+        "真实后续 tool call",
+        "固定模型与评分器",
+        "父子会话 lineage 和剩余预算证据"
+      ],
+      "judge_thresholds": {
+        "score_min": 0.8,
+        "file_state_correctness_min": 1.0,
+        "subsequent_tool_calls_min": 1,
+        "error_rate_max": 0.0
+      }
     }
+  ],
+  "experiment_class_registry": "experiment_class_registry.json",
+  "experiment_class_registry_scope": [
+    "agent_validation",
+    "attribute-cache",
+    "migration",
+    "object_granularity",
+    "overlay_fork",
+    "packed_access",
+    "packed_lifecycle",
+    "qualification",
+    "recovery",
+    "reopen-cache",
+    "replay",
+    "retention",
+    "scale",
+    "write-cost"
   ]
 }
