@@ -256,6 +256,10 @@ class Session:
             value=s.get(key,default)
             if type(value) is not int or value<minimum:
                 raise ValueError('invalid integer workload parameter: '+key)
+        if s.get('fuse_ttl_ms') is not None and (type(s['fuse_ttl_ms']) is not int or s['fuse_ttl_ms'] < 0):
+            raise ValueError('fuse_ttl_ms must be a nonnegative integer or null')
+        if s.get('fuse_keep_cache') is not None and type(s['fuse_keep_cache']) is not bool:
+            raise ValueError('fuse_keep_cache must be boolean or null')
         relative=PurePosixPath(s.get('corpus_relative','ax-corpus'))
         if relative.is_absolute() or '..' in relative.parts or str(relative)=='.':
             raise ValueError('corpus_relative must stay below the measured mount')
@@ -320,13 +324,26 @@ class Session:
             self.workspace = result['workspace_id']
             save(self.out / 'workspace.json', result)
 
-    def mount(self, ttl=0, keep=False):
+    def mount(self, ttl=None, keep=None):
+        if ttl is None:
+            ttl = self.s.get('fuse_ttl_ms')
+        if keep is None:
+            keep = self.s.get('fuse_keep_cache')
         self.mount_serial += 1
         self.requested_controls={'ttl_ms':ttl,'keep_cache':keep,
                                  'client_block_bytes':self.s.get('client_block_bytes',4194304),
                                  'ec_block_hint':self.s.get('ec_block_hint')}
-        cmd, env = mount_command(self.s, self.mp, self.root / f'cache-{self.mount_serial}', self.workspace, ttl, keep)
-        self.env.update(env)
+        cache = self.root / f'cache-{self.mount_serial}'
+        if self.s['method'] != 'juicefs':
+            # BrewFS defaults its cache to a system-disk path. Make each mount's
+            # client cache explicit and place it below this run's data disk.
+            save(str(cache)+'.json', {'cache': {'cache_root': str(cache)}})
+        cmd, env = mount_command(self.s, self.mp, cache, self.workspace, ttl, keep)
+        for name, value in env.items():
+            if value is None:
+                self.env.pop(name, None)
+            else:
+                self.env[name] = value
         save(self.out / f'mount-{self.mount_serial}.json', {'argv': cmd, 'requested_controls': env,
              'effective_fuse_reply_ttl_ms': None, 'effective_open_keep_cache': None,
              'note': 'process configuration is recorded; actual FUSE reply observations require a qualified probe'})
@@ -382,13 +399,18 @@ class Session:
 def mount_command(s, mp, cache, workspace, ttl, keep):
     if s['method'] == 'juicefs':
         # Foreground; writeback deliberately absent. New cache per mount, no live deletion.
-        return [s['juicefs']['path'], 'mount', s['redis_url'], str(mp), '--cache-dir', str(cache),
-                '--cache-size', str(s.get('cache_mib', 8192)), '--attr-cache', str(ttl/1000),
-                '--entry-cache', str(ttl/1000), '--dir-entry-cache', str(ttl/1000)], {}
-    cmd = [s['brewfs']['path'], 'mount', '--data-backend', 's3', '--s3-bucket', s['bucket'],
+        cmd = [s['juicefs']['path'], 'mount', s['redis_url'], str(mp), '--cache-dir', str(cache),
+               '--cache-size', str(s.get('cache_mib', 8192))]
+        if ttl is not None:
+            cmd += ['--attr-cache', str(ttl/1000), '--entry-cache', str(ttl/1000),
+                    '--dir-entry-cache', str(ttl/1000)]
+        return cmd, {}
+    cmd = [s['brewfs']['path'], 'mount', '--config', str(cache)+'.json', '--data-backend', 's3', '--s3-bucket', s['bucket'],
            '--s3-endpoint', s['endpoint'], '--s3-region', s.get('region', 'us-east-1'),
            '--s3-force-path-style', 'true', '--meta-backend', 'redis', '--meta-url', s['redis_url'],
-           '--fuse-cache-ttl-ms', str(ttl), '--block-size', str(s.get('client_block_bytes', 4194304))]
+           '--block-size', str(s.get('client_block_bytes', 4194304))]
+    if ttl is not None:
+        cmd += ['--fuse-cache-ttl-ms', str(ttl)]
     if s['method'] != 'native':
         if not workspace:
             raise ValueError('workspace identity missing')
@@ -396,7 +418,8 @@ def mount_command(s, mp, cache, workspace, ttl, keep):
     if s.get('ec_block_hint') is not None:
         cmd += ['--s3-rustfs-ec-block-size-hint', str(s['ec_block_hint'])]
     cmd += [str(mp)]
-    return cmd, {'BREWFS_CACHE_TTL_MS': str(ttl), 'BREWFS_FUSE_KEEP_CACHE': str(keep).lower(),
+    return cmd, {'BREWFS_CACHE_TTL_MS': str(ttl) if ttl is not None else None,
+                 'BREWFS_FUSE_KEEP_CACHE': str(keep).lower() if keep is not None else None,
                  'BREWFS_FUSE_DIRECT_IO': 'false', 'BREWFS_FUSE_READ_DIRECT_IO': 'false',
                  'BREWFS_FUSE_WRITE_DIRECT_IO': 'false'}
 

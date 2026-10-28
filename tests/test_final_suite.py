@@ -37,6 +37,7 @@ class Controls(unittest.TestCase):
             s=spec();s['method']=method
             cmd,env=suite.mount_command(s,'/mnt/test','/mnt/cache','1234',0,False)
             self.assertEqual(cmd[cmd.index('--data-backend')+1],'s3')
+            self.assertEqual(cmd[cmd.index('--config')+1],'/mnt/cache.json')
             self.assertNotIn('local-fs',cmd)
             self.assertEqual('--workspace' in cmd,method!='native')
 
@@ -50,6 +51,30 @@ class Controls(unittest.TestCase):
         self.assertEqual(ea['BREWFS_FUSE_KEEP_CACHE'],'false')
         self.assertEqual(eb['BREWFS_FUSE_KEEP_CACHE'],'true')
         self.assertNotIn('--fuse-keep-cache',a+b)
+
+    def test_main_defaults_are_not_overridden(self):
+        cmd, env = suite.mount_command(spec(), '/mnt/test', '/cache', None, None, None)
+        self.assertNotIn('--fuse-cache-ttl-ms', cmd)
+        self.assertIsNone(env['BREWFS_CACHE_TTL_MS'])
+        self.assertIsNone(env['BREWFS_FUSE_KEEP_CACHE'])
+        s = spec(); s['method'] = 'juicefs'
+        cmd, _ = suite.mount_command(s, '/mnt/test', '/cache', None, None, None)
+        self.assertNotIn('--attr-cache', cmd)
+
+    def test_mount_uses_data_disk_cache_and_unsets_inherited_controls(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); s=spec(); s['work_root']=str(root/'data'/'work')
+            with patch.dict(os.environ,{'BREWFS_CACHE_TTL_MS':'42','BREWFS_FUSE_KEEP_CACHE':'true'}):
+                session=suite.Session(s,root/'logs')
+                with patch.object(suite,'find_mount',return_value={'fstype':'fuse.brewfs'}), \
+                     patch.object(suite.subprocess,'Popen') as popen:
+                    session.mount()
+                argv=popen.call_args.args[0]; env=popen.call_args.kwargs['env']
+                config=suite.load(argv[argv.index('--config')+1])
+                self.assertEqual(config['cache']['cache_root'],str(session.root/'cache-1'))
+                self.assertNotIn('BREWFS_CACHE_TTL_MS',env)
+                self.assertNotIn('BREWFS_FUSE_KEEP_CACHE',env)
+                session.mount_log.close()
 
     def test_juicefs_writeback_is_off_and_foreground(self):
         s=spec();s['method']='juicefs'

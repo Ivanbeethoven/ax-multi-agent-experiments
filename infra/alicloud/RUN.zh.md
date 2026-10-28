@@ -21,7 +21,9 @@ python3 infra/alicloud/calibrate.py --disk /mnt/rustfs0 --disk /mnt/rustfs1 \
 python3 harness/aliyun_suite.py diagnostics --spec native.local.json --output /var/log/ax/native-new
 ```
 
-只支持本机 RustFS 的诊断装置。每次真实卸载并重新启动 FUSE，使用相同、已写入并核验的语料；暖态实际遍历读入。TTL 同时设置 CLI 和 legacy 环境变量，KEEP_CACHE 用源码支持的环境变量。记录请求设置，**实际 FUSE reply 值缺测时仍为 null**。冷态默认仅指新客户端；远端缓存未控制，不称全栈冷读。JuiceFS 不开启 writeback，KEEP_CACHE 专属对照记 unsupported。
+只支持本机 RustFS 的诊断装置。每次真实卸载并重新启动 FUSE，使用相同、已写入并核验的语料；客户端磁盘缓存目录置于数据盘、每次挂载新建；暖态实际遍历读入。TTL 同时设置 CLI 和 legacy 环境变量，KEEP_CACHE 用源码支持的环境变量。记录请求设置，**实际 FUSE reply 值缺测时仍为 null**。冷态默认仅指新客户端；远端缓存未控制，不称全栈冷读。JuiceFS 不开启 writeback，KEEP_CACHE 专属对照记 unsupported。
+
+trace、object-io 等模式默认不指定 TTL/KEEP_CACHE 并清除对应继承环境变量，以测试客户端自身默认配置。为控制变量，可在 spec 显式填写 `"fuse_ttl_ms": 0`（或 1000）和 `"fuse_keep_cache": false`；`diagnostics` 的各臂仍显式指定各自设置。BrewFS 975deac 的 workspace-v1 默认 TTL 为 1000 ms，配置值与实际 FUSE reply TTL 不能混同。
 
 ## 其它已接入口
 
