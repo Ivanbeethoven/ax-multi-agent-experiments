@@ -15,7 +15,7 @@ p=subprocess.run(['ssh','-i',s['ssh_key_path'],'-o','BatchMode=yes','-o','Connec
 b['backup_ssh_verified']=p.returncode==0;save(STATE,s)
 if p.returncode:print('SSH backup unverified; CloudAssistant+OSS remain active; no broad ingress added')
 # The wrapper goes first and atomically: active BrewFS cargo is already executing the real binary.
-wrapper=base64.b64encode((ROOT/'rustfs_cargo_handoff.py').read_bytes()).decode()
+wrapper=base64.b64encode((ROOT/'rustfs_cargo_handoff.py').read_text().encode()).decode()
 script="""set -eu
 python3 - <<'PY'
 import pathlib,base64,subprocess,hashlib
@@ -27,7 +27,7 @@ new.replace(p)
 assert hashlib.sha256(p.read_bytes()).hexdigest()=='WRAPPERSHA'
 print('strict external RustFS handoff installed; BrewFS unchanged')
 PY
-""".replace('WRAPPERSHA',hashlib.sha256((ROOT/'rustfs_cargo_handoff.py').read_bytes()).hexdigest()).replace('WRAPPER',wrapper)
+""".replace('WRAPPERSHA',hashlib.sha256((ROOT/'rustfs_cargo_handoff.py').read_text().encode()).hexdigest()).replace('WRAPPER',wrapper)
 print(invoke(s['workers']['node-a']['instance_id'],script,'ax-rustfs-handoff-install').strip());s['external_rustfs_handoff']={'script_sha256':sha(ROOT/'rustfs_cargo_handoff.py'),'builder_instance':b['instance_id'],'source':R,'installed':True};save(STATE,s)
 config={'source_instance':s['workers']['node-a']['instance_id'],'cache_put':signed(bucket,'parallel-build/rustfs-public-cache.tar.gz','PUT','application/gzip'),'manifest_put':signed(bucket,'parallel-build/cache-manifest.json','PUT','application/json')}
 export=base64.b64encode((ROOT/'rustfs_cache_export.py').read_bytes()).decode();config64=base64.b64encode(json.dumps(config).encode()).decode()

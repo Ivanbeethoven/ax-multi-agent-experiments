@@ -58,6 +58,9 @@ class PrivateProxyTests(unittest.TestCase):
  def test_only_ubuntu_http_and_no_extra_ports(self):
   from private_egress_proxy import allowed
   self.assertTrue(allowed('security.ubuntu.com',80,False));self.assertFalse(allowed('security.ubuntu.com',443,False));self.assertFalse(allowed('example.com',80,False))
+class WrapperTransferTests(unittest.TestCase):
+ def test_executable_sources_have_unix_shebang(self):
+  p=Path(controller.__file__).parent/'rustfs_cargo_handoff.py';self.assertEqual(p.read_bytes().splitlines(keepends=True)[0],b'#!/usr/bin/python3\n')
 class ExternalAttemptTests(unittest.TestCase):
  def check(self,provenance,status):
   import ast

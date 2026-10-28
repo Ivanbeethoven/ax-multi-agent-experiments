@@ -252,6 +252,22 @@ def collect(state,source):
   if terminal.get('terminal_reason')!=receipt['terminal_reason'] or (receipt['terminal_reason']=='completed' and any(v['status']!='ok' for v in methods.values())):raise ValueError('terminal reason differs from method outcomes')
   item['receipt']=receipt;item['terminal']=terminal;item['archive']=archive.name;item['phase']='collected';save(STATE,state)
  return complete and all(v.get('receipt') for v in state['workers'].values())
+def refresh_build_progress(state):
+ for key,name in (('parallel-build/node-b-checkpoint.json','node-b-checkpoint.local.json'),('parallel-build/cache-manifest.json','rustfs-cache-manifest.local.json')):
+  value=get_json(state['bucket'],key)
+  if value:save(ROOT/name,value)
+ receipt=get_json(state['bucket'],'parallel-build/node-b-build-evidence-receipt.json')
+ if receipt and not state.get('build_evidence_saved'):
+  if receipt.get('instance')!=state['workers']['node-b']['instance_id'] or receipt.get('build_attempt_id')!=state['workers']['node-b']['build_attempt_id']:raise ValueError('build evidence identity differs')
+  path=ROOT/'node-b-build-evidence.tar.gz';cli(['oss','cp','oss://'+state['bucket']+'/parallel-build/node-b-build-evidence.tar.gz',path,'--endpoint','https://oss-'+REGION+'.aliyuncs.com','-f'])
+  if sha(path)!=receipt['sha256'] or path.stat().st_size!=receipt['bytes']:raise ValueError('build evidence hash differs')
+  save(ROOT/'node-b-build-evidence-receipt.local.json',receipt);state['build_evidence_saved']={'archive':path.name,**receipt};save(STATE,state)
+def takeover_collector(state):
+ if state.get('collector_takeover'):return
+ # This independently running gate is the successor collector. The old one exits through its own marker.
+ save(ROOT/'gate-status.local.json',{'phase':'collector_takeover','pid':os.getpid(),'epoch':time.time()})
+ (ORIGINAL/'stop-collect').write_text('three-worker gate owns collection; see parallel state')
+ state['collector_takeover']={'pid':os.getpid(),'epoch':time.time(),'original_marker':'stop-collect','watch_preserved':True};save(STATE,state)
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--execute',action='store_true');p.add_argument('--once',action='store_true');a=p.parse_args()
  source=json.loads((ORIGINAL/'state.local.json').read_text());bucket=source['created_resources']['bucket'];plan=json.loads(PLAN.read_text())
@@ -263,6 +279,7 @@ def main():
  else:
   state={'batch_id':'ax-main-parallel-'+time.strftime('%Y%m%d-%H%M%S',time.gmtime()),'runner_commit':frozen_contract()['runner_commit'],'plan_sha256':sha(PLAN),'bucket':bucket,'workers':{'node-a':{'source_node':True,'instance_id':source['created_resources']['instances'][0],'disks':source['created_resources']['disks'],'data_disk_id':next(d['DiskId'] for d in source['disks'] if d['Type']=='data'),'public_ip':source['instance_snapshot'][0]['PublicIpAddress']['IpAddress'][0]}},'phase':'waiting_assets','created_epoch':time.time()};save(STATE,state)
  while True:
+  refresh_build_progress(state)
   if (ROOT/'PAUSED-FOR-CACHE-PLAN').exists():
    save(ROOT/'gate-status.local.json',{'phase':'waiting_pause_review','epoch':time.time(),'new_resources':False})
    if a.once:return
@@ -281,8 +298,12 @@ def main():
    save(ROOT/'gate-status.local.json',{'phase':'waiting_backup_channel','workers':missing,'epoch':time.time(),'new_resources':False})
    if a.once:return
    time.sleep(60);state=json.loads(STATE.read_text());continue
+  takeover_collector(state)
   provision(state,source);deploy(state,source,assets,plan);state['phase']='running';save(STATE,state)
-  if collect(state,source):state['phase']='collected_all';save(STATE,state);print('All three archives verified; cleanup is now eligible');subprocess.run([sys.executable,str(CODE/'cleanup_parallel.py'),'--execute'],check=True);return
+  if collect(state,source):
+   refresh_build_progress(state)
+   if not state.get('build_evidence_saved'):raise ValueError('terminal build evidence must be saved before cleanup')
+   state['phase']='collected_all';save(STATE,state);print('All three archives verified; cleanup is now eligible');subprocess.run([sys.executable,str(CODE/'cleanup_parallel.py'),'--execute'],check=True);return
   if a.once:return
   time.sleep(90)
 if __name__=='__main__':main()
