@@ -56,6 +56,8 @@ def gate(manifest,plan,runner_commit):
  if runner_commit!=contract['runner_commit'] or sha(PLAN)!=contract['plan_sha256']:raise ValueError('frozen runner/plan differs')
  return True
 def revalidate(state):
+ if (ROOT/'PAUSED-FOR-CACHE-PLAN').exists() and state.get('launch_authorized'):
+  authorize_launch(state,False);state['launch_authorized']=False;save(STATE,state)
  if sha(PLAN)!=state['plan_sha256']:raise ValueError('plan changed after gate started')
  return gate(state.get('asset_manifest'),json.loads(PLAN.read_text()),state['runner_commit'])
 def prepare_runner_bundle(state,source):
@@ -174,11 +176,16 @@ def private_egress(state,source):
  invoke(a['instance_id'],script,'ax-private-dependency-egress');state['private_egress_proxy_ready']=True;c['egress_proxy']='http://'+a['private_ip']+':3128';save(STATE,state)
 def ssh_config(state):
  path=ROOT/'ssh-client.local.conf';key=Path(state['ssh_key_path']).as_posix();known=(ROOT/'known_hosts.local').as_posix();a=state['workers']['node-a']
- lines=['Host ax-bastion',' HostName '+a['public_ip'],' User root',' IdentityFile "'+key+'"',' UserKnownHostsFile "'+known+'"',' StrictHostKeyChecking yes',' BatchMode yes',' ConnectTimeout 15']
- for name,item in state['workers'].items():
-  address=item.get('public_ip') or item.get('private_ip')
-  lines+=['Host ax-'+name,' HostName '+address,' User root',' IdentityFile "'+key+'"',' UserKnownHostsFile "'+known+'"',' StrictHostKeyChecking yes',' BatchMode yes',' ConnectTimeout 15',' Port '+str(item.get('ssh_port',22))]
-  if item.get('private_only'):lines+=[' ProxyJump ax-bastion']
+ def entry(alias,item):
+  address=item.get('public_ip') or item.get('private_ip');lines=['Host '+alias,' HostName '+address,' User root',' IdentityFile "'+key+'"',' UserKnownHostsFile "'+known+'"',' StrictHostKeyChecking yes',' BatchMode yes',' ConnectTimeout 20',' Port 22']
+  tls=item.get('tls_ssh')
+  if tls:
+   args=[sys.executable,str(CODE/'ssh_tls_stdio.py'),item['public_ip'],'443',tls['certificate_local_path'],tls['fingerprint_sha256'],tls['server_name']]
+   lines+=[' ProxyCommand '+' '.join('"'+str(x).replace('\\','/')+'"' for x in args)]
+  elif item.get('private_only'):lines+=[' ProxyJump ax-bastion']
+  return lines
+ lines=entry('ax-bastion',a)
+ for name,item in state['workers'].items():lines+=entry('ax-'+name,item)
  path.write_text('\n'.join(lines)+'\n');return path
 def deploy(state,source,assets,plan):
  bucket=source['created_resources']['bucket'];base_name='experiment-25ea317.bundle'
@@ -210,7 +217,10 @@ pathlib.Path('/data').mkdir(exist_ok=True)
 if subprocess.run(['findmnt','-M','/data'],stdout=subprocess.DEVNULL).returncode:subprocess.run(['mount',dev,'/data'],check=True)
 elif subprocess.check_output(['findmnt','-n','-o','SOURCE','-M','/data'],text=True).strip()!=dev:raise ValueError('wrong mounted disk')
 PY"""
-  shell='set -eu\ncommand -v mkfs.xfs >/dev/null || { apt-get update -qq; DEBIAN_FRONTEND=noninteractive apt-get install -y -qq xfsprogs; }\n'+mount+'\nexec /usr/bin/python3 /root/ax-parallel-worker.py /root/ax-parallel-config.json\n'
+  proxy=''
+  if item.get('egress_proxy'):
+   proxy='export http_proxy='+__import__('shlex').quote(item['egress_proxy'])+' https_proxy='+__import__('shlex').quote(item['egress_proxy'])+' HTTP_PROXY='+__import__('shlex').quote(item['egress_proxy'])+' HTTPS_PROXY='+__import__('shlex').quote(item['egress_proxy'])+' no_proxy=127.0.0.1,localhost,.aliyuncs.com,.aliyun.com NO_PROXY=127.0.0.1,localhost,.aliyuncs.com,.aliyun.com\n'
+  shell='set -eu\n'+proxy+'command -v mkfs.xfs >/dev/null || { apt-get update -qq; DEBIAN_FRONTEND=noninteractive apt-get install -y -qq xfsprogs; }\n'+mount+'\nexec /usr/bin/python3 /root/ax-parallel-worker.py /root/ax-parallel-config.json\n'
   launch=base64.b64encode(shell.encode()).decode()
   script='set -eu\numask 077\nprintf %s '+payload+' | base64 -d > /root/ax-parallel-config.json\nprintf %s '+code+' | base64 -d > /root/ax-parallel-worker.py\nprintf %s '+launch+' | base64 -d > /root/ax-parallel-launch.sh\nsystemd-run --unit=ax-parallel-prepare --property=RuntimeMaxSec=infinity --property=TimeoutStartSec=infinity --property=RemainAfterExit=yes --property=StandardOutput=append:/var/log/ax-parallel-prepare.log --property=StandardError=append:/var/log/ax-parallel-prepare.log /bin/bash /root/ax-parallel-launch.sh\n'
   for _ in range(60):
@@ -282,6 +292,8 @@ def main():
  else:
   state={'batch_id':'ax-main-parallel-'+time.strftime('%Y%m%d-%H%M%S',time.gmtime()),'runner_commit':frozen_contract()['runner_commit'],'plan_sha256':sha(PLAN),'bucket':bucket,'workers':{'node-a':{'source_node':True,'instance_id':source['created_resources']['instances'][0],'disks':source['created_resources']['disks'],'data_disk_id':next(d['DiskId'] for d in source['disks'] if d['Type']=='data'),'public_ip':source['instance_snapshot'][0]['PublicIpAddress']['IpAddress'][0]}},'phase':'waiting_assets','created_epoch':time.time()};save(STATE,state)
  while True:
+  state=json.loads(STATE.read_text())
+  if state.get('runner_commit')!=frozen_contract()['runner_commit'] or state.get('plan_sha256')!=sha(PLAN):raise ValueError('persistent runner/plan binding changed')
   refresh_build_progress(state)
   if (ROOT/'PAUSED-FOR-CACHE-PLAN').exists():
    if state.get('launch_authorized'):
@@ -298,7 +310,7 @@ def main():
   gate(assets,plan,state['runner_commit']);state['asset_manifest']=assets;state['phase']='assets_ready';save(STATE,state)
   prepare_runner_bundle(state,source)
   # Existing workers must have an independently verified recovery channel before buying node-c.
-  missing=[name for name,item in state['workers'].items() if not item.get('source_node') and not item.get('backup_ssh_verified')]
+  missing=[name for name,item in state['workers'].items() if not item.get('backup_ssh_verified')]
   if missing:
    save(ROOT/'gate-status.local.json',{'phase':'waiting_backup_channel','workers':missing,'epoch':time.time(),'new_resources':False})
    if a.once:return

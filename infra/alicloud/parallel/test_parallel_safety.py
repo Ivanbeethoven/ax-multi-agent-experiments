@@ -37,6 +37,13 @@ class GateTests(unittest.TestCase):
   with patch.object(controller,'ecs') as api,patch.object(controller,'revalidate',side_effect=ValueError('paused')):
    with self.assertRaises(ValueError):controller.provision({}, {})
    api.assert_not_called()
+ def test_pause_exception_revokes_published_worker_launch(self):
+  (self.root/'PAUSED-FOR-CACHE-PLAN').write_text('pause')
+  state={'plan_sha256':controller.sha(self.planpath),'launch_authorized':True,'runner_commit':controller.RUNNER}
+  with patch.object(controller,'authorize_launch') as revoke:
+   with self.assertRaises(ValueError):controller.revalidate(state)
+   revoke.assert_called_once_with(state,False)
+  self.assertFalse(json.loads(controller.STATE.read_text())['launch_authorized'])
  def test_extra_limit(self):
   with patch.object(controller,'revalidate'),patch.object(controller,'ecs') as api:
    with self.assertRaises(ValueError):controller.provision({'runner_bundle':{'commit':controller.RUNNER},'workers':{str(i):{'source_node':False} for i in range(3)}},{})
@@ -58,6 +65,11 @@ class PrivateProxyTests(unittest.TestCase):
  def test_only_ubuntu_http_and_no_extra_ports(self):
   from private_egress_proxy import allowed
   self.assertTrue(allowed('security.ubuntu.com',80,False));self.assertFalse(allowed('security.ubuntu.com',443,False));self.assertFalse(allowed('example.com',80,False))
+class TLSConfigTests(unittest.TestCase):
+ def test_pinned_transport_covers_bastion_and_existing_nodes(self):
+  with tempfile.TemporaryDirectory() as d,patch.object(controller,'ROOT',Path(d)):
+   def node(ip):return {'public_ip':ip,'tls_ssh':{'certificate_local_path':'cert.pem','fingerprint_sha256':'f'*64,'server_name':'trusted'}}
+   state={'ssh_key_path':'key','workers':{'node-a':node('192.0.2.1'),'node-b':node('192.0.2.2'),'node-c':{'private_only':True,'private_ip':'10.0.0.3'}}};text=controller.ssh_config(state).read_text();self.assertEqual(text.count('ProxyCommand'),3);self.assertIn('ProxyJump ax-bastion',text);self.assertIn('StrictHostKeyChecking yes',text);self.assertIn('f'*64,text)
 class WrapperTransferTests(unittest.TestCase):
  def test_executable_sources_have_unix_shebang(self):
   p=Path(controller.__file__).parent/'rustfs_cargo_handoff.py';self.assertEqual(p.read_bytes().splitlines(keepends=True)[0],b'#!/usr/bin/python3\n')
