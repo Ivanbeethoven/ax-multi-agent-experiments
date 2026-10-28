@@ -19,12 +19,34 @@ import time
 
 import aliyun_suite as suite
 
-ARMS = {
-    'native-ttl0': ('native', 0), 'overlay-ttl0': ('native-overlay', 0),
-    'packed-ttl0': ('native-overlay-pack', 0), 'juicefs-ttl0': ('juicefs', 0),
-    'native-default': ('native', None), 'overlay-default': ('native-overlay', None),
-    'packed-default': ('native-overlay-pack', None), 'juicefs-default': ('juicefs', None),
-}
+# Kernel cache controls are independent of userspace metadata/data caches.
+METHODS = {'native':'native', 'overlay':'native-overlay',
+           'packed':'native-overlay-pack', 'juicefs':'juicefs'}
+ARMS = {}
+for prefix, method in METHODS.items():
+    # method, requested kernel metadata TTL, requested FOPEN_KEEP_CACHE, group
+    ARMS[prefix+'-kernel-default'] = (method, None, None, 'kernel-default')
+    ARMS[prefix+'-default'] = ARMS[prefix+'-kernel-default']  # Historical default alias.
+    keep = None if method == 'juicefs' else True
+    ARMS[prefix+'-cache-enabled'] = (method, 1000, keep, 'cache-enabled-aligned')
+    ARMS[prefix+'-no-kmeta'] = (method, 0, keep, 'kernel-metadata-ablation')
+    if method != 'juicefs':
+        ARMS[prefix+'-no-reopen-data'] = (method, 1000, False, 'data-page-retention-ablation')
+    # Historical joint intervention, never the default or a single-factor arm.
+    ARMS[prefix+'-ttl0'] = (method, 0, None if method == 'juicefs' else False,
+                           'legacy-combined-disabled')
+DEFAULT_ARMS = [prefix+'-kernel-default' for prefix in METHODS]
+
+
+def arm_controls(label):
+    method, ttl, keep, group = ARMS[label]
+    return {'method':method, 'group':group, 'requested_kernel_metadata_ttl_ms':ttl,
+            'requested_open_keep_cache':keep,
+            'open_keep_cache_control':'not_applicable_native_conditional' if method=='juicefs' else 'FOPEN_KEEP_CACHE',
+            'userspace_cache_policy':'unchanged; controlled budgets and normal metadata policy',
+            'effective_fuse_reply_ttl_ms':None, 'effective_open_keep_cache':None,
+            'reference_group':'cache-enabled-aligned' if group.endswith('-ablation') else None}
+
 CACHE = {'read_memory_bytes':512*1024**2, 'write_memory_bytes':512*1024**2,
          'read_ssd_bytes':4*1024**3, 'write_ssd_bytes':4*1024**3,
          'memory_budget_bytes':1024**3, 'compression':'none',
@@ -51,7 +73,8 @@ def rotation(workers, rounds, arms):
             arm=arms[(phase+i)%len(arms)]
             row['workers'][worker]=arm;assignments[worker].append(arm)
         schedule.append(row)
-    return {'schema_version':1,'workers':workers,'phases':schedule,
+    return {'schema_version':2,'workers':workers,'phases':schedule,
+            'arm_controls':{label:arm_controls(label) for label in arms},
             'assignments':[{'worker_id':w,'arms':v} for w,v in assignments.items()],
             'scope':'independent per-worker backends; order is not a synchronized distributed load',
             'balanced_complete_blocks':rounds%len(arms)==0,
@@ -65,13 +88,15 @@ def command(argv, log, env=None):
 
 
 def spec_for(base, label, batch, worker, work, manifest_key=None):
-    method,ttl=ARMS[label]
+    method,ttl,keep,group=ARMS[label]
     s=deepcopy(base)
     for key in ('fuse_ttl_ms','fuse_keep_cache','manifest_key','parent_revision','workspace_id'):
         s.pop(key,None)
     s.update(method=method, batch_id=batch, worker_id=worker, work_root=str(work),
              qualify_reopen=True, cache_mib=8192, buffer_mib=1024, brewfs_cache=dict(CACHE))
-    if ttl is not None: s.update(fuse_ttl_ms=ttl, fuse_keep_cache=False)
+    s['cache_controls']=arm_controls(label)
+    if ttl is not None:s['fuse_ttl_ms']=ttl
+    if keep is not None:s['fuse_keep_cache']=keep
     if method=='native-overlay-pack':
         if not manifest_key: raise ValueError('packed arm needs a real manifest')
         s['manifest_key']=manifest_key
@@ -182,6 +207,10 @@ def worker_qualification(path):
 
 def run(config,arms,archive=None):
     arms=select_arms(arms)
+    if any(ARMS[a][3]=='legacy-combined-disabled' for a in arms):
+        if config.get('allow_legacy_combined_cache') is not True:
+            raise ValueError('legacy *-ttl0 combines TTL0 and KEEP_CACHE=false; use kernel-default or explicitly allow_legacy_combined_cache')
+        print('Legacy combined cache diagnostic selected; excluded from normal main comparison.',file=sys.stderr)
     for k in ('run_id','worker_id'):
         if not IDENTIFIER.fullmatch(config[k]): raise ValueError('invalid '+k)
     base=config['base_spec'];out=Path(config['output']).resolve()
@@ -209,7 +238,10 @@ def run(config,arms,archive=None):
         suite.check_endpoint_container(base['endpoint'],base['rustfs_container'])
         required=['probe','replayer']+(['brewfs'] if any(ARMS[a][0]!='juicefs' for a in arms) else [])
         for key in required:suite.check_binary(base[key])
-        if any(ARMS[a][0]=='juicefs' for a in arms):suite.check_binary(base['juicefs'])
+        if any(ARMS[a][0]=='juicefs' for a in arms):
+            jfs=suite.check_binary(base['juicefs'])
+            for args,name in ((['version'],'juicefs-version.txt'),(['mount','--help'],'juicefs-mount-help.txt')):
+                if command([jfs]+args,out/name):raise RuntimeError('JuiceFS help/version evidence failed')
         if suite.digest(base['trace_manifest'])!=base['trace_manifest_sha256']:raise ValueError('trace manifest mismatch')
         runhash=hashlib.sha256((config['run_id']+':'+config['worker_id']).encode()).hexdigest()[:16]
         source=work/'packed-source';copied=False
@@ -218,7 +250,7 @@ def run(config,arms,archive=None):
                 'cpu_percent':int(config.get('client_cpu_percent',400)), 'environment_file':config['environment_file']}
         if limits['memory_bytes']<1024**3 or limits['cpu_percent']<1:raise ValueError('invalid cgroup limits')
         for i,label in enumerate(arms):
-            method,ttl=ARMS[label];entry=progress['arms'][label];progress['stage']=label
+            method,ttl,keep,group=ARMS[label];entry=progress['arms'][label];progress['stage']=label
             try:
                 bucket='ax-'+runhash+'-'+label
                 new_buckets(base['endpoint'],[bucket])
@@ -250,7 +282,7 @@ def run(config,arms,archive=None):
                             expected_cgroup_limits={'memory_max_bytes':limits['memory_bytes'],'swap_max_bytes':0,
                                                     'cpu_quota_us':limits['cpu_percent']*1000,'cpu_period_us':100000})
                 path=out/(label+'.spec.json');suite.save(path,spec)
-                entry.update(status='running',bucket=bucket,requested_ttl_ms=ttl,cache_budget=dict(CACHE),
+                entry.update(status='running',bucket=bucket,cache_controls=arm_controls(label),cache_budget=dict(CACHE),
                              client_limits=limits,started_epoch=time.time());suite.save(state,progress)
                 unit='ax-cell-'+runhash+'-'+str(i)
                 launch=command(cgroup_command(unit,path,out/label,limits),out/(label+'-driver.log'))
@@ -291,7 +323,7 @@ def run(config,arms,archive=None):
 def main():
     p=argparse.ArgumentParser(description=__doc__);sub=p.add_subparsers(dest='mode',required=True)
     plan=sub.add_parser('plan');plan.add_argument('--workers',nargs='+',required=True)
-    plan.add_argument('--rounds',type=int,default=None);plan.add_argument('--arms',nargs='+',default=[a for a in ARMS if a.endswith('-ttl0')]);plan.add_argument('--output',type=Path,required=True)
+    plan.add_argument('--rounds',type=int,default=None);plan.add_argument('--arms',nargs='+',default=DEFAULT_ARMS);plan.add_argument('--output',type=Path,required=True)
     execute=sub.add_parser('run');execute.add_argument('--config',type=Path,required=True)
     execute.add_argument('--arms',nargs='+');execute.add_argument('--archive',type=Path)
     a=p.parse_args()
@@ -299,7 +331,7 @@ def main():
         if a.output.exists():raise ValueError('new output required')
         suite.save(a.output,rotation(a.workers,a.rounds,a.arms));return 0
     c=suite.load(a.config)
-    return run(c,a.arms or c.get('arms',[a for a in ARMS if a.endswith('-ttl0')]),a.archive)
+    return run(c,a.arms or c.get('arms',DEFAULT_ARMS),a.archive)
 
 
 if __name__=='__main__':raise SystemExit(main())

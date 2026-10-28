@@ -1,15 +1,20 @@
 {
-  "run_id": "trace-main-batch-01",
+  "run_id": "trace-kernel-default-batch-01",
   "worker_id": "A",
-  "arms": ["native-ttl0", "overlay-ttl0", "packed-ttl0", "juicefs-ttl0"],
-  "work_base": "/data/workspaces/trace-main-batch-01-A",
-  "output": "/var/log/ax/trace-main-batch-01-A",
+  "arms": [
+    "native-kernel-default",
+    "overlay-kernel-default",
+    "packed-kernel-default",
+    "juicefs-kernel-default"
+  ],
+  "work_base": "/data/workspaces/trace-kernel-default-batch-01-A",
+  "output": "/var/log/ax/trace-kernel-default-batch-01-A",
   "environment_file": "/data/secrets/client.env",
   "redis_db_start": 2,
   "worker_qualification_file": "/data/parallel/results/qualification.json",
   "client_memory_bytes": 8589934592,
   "client_cpu_percent": 400,
-  "scope_note": "Independent local-backend diagnostic. Optional *-default arms retain only kernel TTL/KEEP_CACHE defaults while other budgets remain controlled. POSIX regression tests do not qualify cloud FUSE/S3 durability.",
+  "scope_note": "Independent local-backend main comparison; normal kernel defaults, fixed remaining budgets/codec/durability. Actual replies remain unknown until observed. Optional cache-enabled and single-factor groups require separate qualification and batches; legacy *-ttl0 is never the default.",
   "fixture": {
     "path": "/data/assets/bin/packed_v3_snapshot_fixture",
     "source_sha": "350dc108a3bffcb5e7e27cc4279dfb5729febe60",
@@ -27,8 +32,14 @@
       "source_sha": "350dc108a3bffcb5e7e27cc4279dfb5729febe60",
       "sha256": "REPLACE_WITH_ASSET_BINARY_SHA256"
     },
-    "probe": {"path": "/data/assets/bin/ax-fs-probe", "sha256": "REPLACE_WITH_ASSET_BINARY_SHA256"},
-    "replayer": {"path": "/data/assets/bin/full-fuse-replay", "sha256": "REPLACE_WITH_ASSET_BINARY_SHA256"},
+    "probe": {
+      "path": "/data/assets/bin/ax-fs-probe",
+      "sha256": "REPLACE_WITH_ASSET_BINARY_SHA256"
+    },
+    "replayer": {
+      "path": "/data/assets/bin/full-fuse-replay",
+      "sha256": "REPLACE_WITH_ASSET_BINARY_SHA256"
+    },
     "juicefs": {
       "path": "/data/assets/bin/juicefs",
       "sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",

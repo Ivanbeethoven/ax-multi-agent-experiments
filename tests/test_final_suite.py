@@ -50,7 +50,8 @@ class Controls(unittest.TestCase):
         self.assertEqual(eb['BREWFS_CACHE_TTL_MS'],'1000')
         self.assertEqual(ea['BREWFS_FUSE_KEEP_CACHE'],'false')
         self.assertEqual(eb['BREWFS_FUSE_KEEP_CACHE'],'true')
-        self.assertNotIn('--fuse-keep-cache',a+b)
+        self.assertEqual(a[a.index('--fuse-keep-cache')+1],'false')
+        self.assertEqual(b[b.index('--fuse-keep-cache')+1],'true')
 
     def test_main_defaults_are_not_overridden(self):
         cmd, env = suite.mount_command(spec(), '/mnt/test', '/cache', None, None, None)

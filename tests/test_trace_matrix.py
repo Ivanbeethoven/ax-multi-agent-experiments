@@ -17,7 +17,7 @@ import run_trace_matrix as matrix
 
 class Matrix(unittest.TestCase):
     def test_four_phases_cover_all_methods_on_all_three_hosts(self):
-        arms=[a for a in matrix.ARMS if a.endswith('-ttl0')]
+        arms=matrix.DEFAULT_ARMS
         plan=matrix.rotation(['A','B','C'],None,arms)
         self.assertEqual(plan['planned_cells'],12)
         self.assertEqual(plan['independent_blocks'],3)
@@ -26,23 +26,64 @@ class Matrix(unittest.TestCase):
         for worker in plan['assignments']:
             self.assertEqual(set(worker['arms']),set(arms));self.assertEqual(len(worker['arms']),4)
         self.assertIsNone(plan['total_replay_timeout_s'])
-    def test_defaults_are_optional_and_not_mixed_into_ttl0(self):
-        plan=matrix.rotation(['A','B','C'],None,[a for a in matrix.ARMS if a.endswith('-default')])
-        self.assertTrue(all(a.endswith('-default') for item in plan['assignments'] for a in item['arms']))
+    def test_kernel_defaults_are_the_main_selector(self):
+        plan=matrix.rotation(['A','B','C'],None,matrix.DEFAULT_ARMS)
+        self.assertEqual(len(matrix.DEFAULT_ARMS),4)
+        self.assertTrue(all(a.endswith('-kernel-default') for item in plan['assignments'] for a in item['arms']))
+        self.assertTrue(all(v['requested_kernel_metadata_ttl_ms'] is None for v in plan['arm_controls'].values()))
         for bad in [[],['native-ttl0','native-ttl0'],['pretend-fork']]:
             with self.assertRaises(ValueError):matrix.select_arms(bad)
     def test_cache_and_controls_explicit_without_mutating_template(self):
         base={'fuse_ttl_ms':123,'fuse_keep_cache':True,'manifest_key':'old','redis_url':'redis://localhost/0'}
-        spec=matrix.spec_for(base,'native-ttl0','batch','A',Path('/data/new'))
+        spec=matrix.spec_for(base,'native-no-kmeta','batch','A',Path('/data/new'))
         self.assertEqual(spec['brewfs_cache']['read_ssd_bytes']+spec['brewfs_cache']['write_ssd_bytes'],8*1024**3)
         self.assertEqual(spec['brewfs_cache']['writeback_mode'],'upload_before_commit')
         self.assertEqual(spec['brewfs_cache']['compression'],'none')
         self.assertEqual(spec['cache_mib'],8192);self.assertEqual(spec['buffer_mib'],1024)
-        self.assertEqual(spec['fuse_ttl_ms'],0);self.assertFalse(spec['fuse_keep_cache'])
+        self.assertEqual(spec['fuse_ttl_ms'],0);self.assertTrue(spec['fuse_keep_cache'])
         default=matrix.spec_for(base,'native-default','batch','A',Path('/data/next'))
         self.assertNotIn('fuse_ttl_ms',default);self.assertNotIn('fuse_keep_cache',default)
         self.assertEqual(base['fuse_ttl_ms'],123)
         with self.assertRaises(ValueError):matrix.spec_for(base,'packed-ttl0','batch','A',Path('/data/pack'))
+    def test_metadata_and_page_retention_ablations_change_one_control(self):
+        for prefix in ('native','overlay','packed'):
+            enabled=matrix.arm_controls(prefix+'-cache-enabled')
+            metadata=matrix.arm_controls(prefix+'-no-kmeta')
+            retention=matrix.arm_controls(prefix+'-no-reopen-data')
+            self.assertEqual(enabled['requested_kernel_metadata_ttl_ms'],1000)
+            self.assertTrue(enabled['requested_open_keep_cache'])
+            self.assertEqual(metadata['requested_kernel_metadata_ttl_ms'],0)
+            self.assertEqual(metadata['requested_open_keep_cache'],enabled['requested_open_keep_cache'])
+            self.assertEqual(retention['requested_kernel_metadata_ttl_ms'],enabled['requested_kernel_metadata_ttl_ms'])
+            self.assertFalse(retention['requested_open_keep_cache'])
+            self.assertIsNone(enabled['effective_fuse_reply_ttl_ms'])
+        self.assertNotIn('juicefs-no-reopen-data',matrix.ARMS)
+        for label in ('juicefs-cache-enabled','juicefs-no-kmeta','juicefs-ttl0'):
+            self.assertIsNone(matrix.arm_controls(label)['requested_open_keep_cache'])
+        controls=matrix.arm_controls('juicefs-no-kmeta')
+        self.assertEqual(controls['open_keep_cache_control'],'not_applicable_native_conditional')
+
+    def test_legacy_joint_disabled_arms_require_explicit_opt_in(self):
+        self.assertEqual(matrix.arm_controls('native-ttl0')['group'],'legacy-combined-disabled')
+        with self.assertRaisesRegex(ValueError,'allow_legacy_combined_cache'):
+            matrix.run({},['native-ttl0'])
+
+    def test_plan_cli_default_and_example_do_not_select_legacy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'plan.json'
+            with patch.object(sys,'argv',['run_trace_matrix.py','plan','--workers','A','B','C','--output',str(path)]):
+                self.assertEqual(matrix.main(),0)
+            planned=suite.load(path)
+            self.assertEqual(planned['planned_cells'],12)
+            for worker in planned['assignments']:
+                self.assertEqual(set(worker['arms']),set(matrix.DEFAULT_ARMS))
+        example=suite.load(ROOT/'harness/trace-matrix.example.json')
+        self.assertEqual(example['arms'],matrix.DEFAULT_ARMS)
+        for label in example['arms']:
+            s=matrix.spec_for({'fuse_ttl_ms':0,'fuse_keep_cache':False},label,'batch','A',Path('/data/test'),
+                              'real-manifest' if label.startswith('packed-') else None)
+            self.assertNotIn('fuse_ttl_ms',s);self.assertNotIn('fuse_keep_cache',s)
+
     def test_cgroup_limits_are_real_and_not_replay_deadlines(self):
         cmd=matrix.cgroup_command('ax-test','/cfg','/out',{'memory_bytes':8*1024**3,'cpu_percent':400,'environment_file':'/secret.env'})
         for wanted in ['--property=MemoryMax=8589934592','--property=MemorySwapMax=0','--property=CPUQuota=400%',
@@ -64,7 +105,7 @@ class Matrix(unittest.TestCase):
 
     def test_juicefs_has_xattr_capacity_and_compression_controls(self):
         s={'method':'juicefs','juicefs':{'path':'/bin/juicefs'},'redis_url':'redis://localhost/0','cache_mib':8192,'buffer_mib':1024}
-        argv,_=suite.mount_command(s,'/mnt','/data/cache',None,0,False)
+        argv,_=suite.mount_command(s,'/mnt','/data/cache',None,0,None)
         for item in ['--enable-xattr','--enable-cap','--buffer-size','1024','--cache-size','8192']:
             self.assertIn(item,argv)
         self.assertNotIn('--writeback',argv)

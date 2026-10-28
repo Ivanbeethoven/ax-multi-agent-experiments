@@ -376,6 +376,7 @@ class Session:
             else:
                 self.env[name] = value
         save(self.out / f'mount-{self.mount_serial}.json', {'argv': cmd, 'requested_controls': env,
+             'cache_controls':self.s.get('cache_controls'),
              'effective_fuse_reply_ttl_ms': None, 'effective_open_keep_cache': None,
              'note': 'process configuration is recorded; actual FUSE reply observations require a qualified probe'})
         self.mount_log = (self.out / f'mount-{self.mount_serial}.log').open('x')
@@ -433,6 +434,7 @@ def mount_command(s, mp, cache, workspace, ttl, keep):
         cmd = [s['juicefs']['path'], 'mount', s['redis_url'], str(mp), '--cache-dir', str(cache),
                '--cache-size', str(s.get('cache_mib', 8192)),
                '--buffer-size', str(s.get('buffer_mib', 1024)), '--enable-xattr', '--enable-cap']
+        # dir-entry-cache is directory dentry TTL, not a userspace/readdir-list cache.
         if ttl is not None:
             cmd += ['--attr-cache', str(ttl/1000), '--entry-cache', str(ttl/1000),
                     '--dir-entry-cache', str(ttl/1000)]
@@ -443,6 +445,8 @@ def mount_command(s, mp, cache, workspace, ttl, keep):
            '--block-size', str(s.get('client_block_bytes', 4194304))]
     if ttl is not None:
         cmd += ['--fuse-cache-ttl-ms', str(ttl)]
+    if keep is not None:
+        cmd += ['--fuse-keep-cache', str(keep).lower()]
     if s['method'] != 'native':
         if not workspace:
             raise ValueError('workspace identity missing')
