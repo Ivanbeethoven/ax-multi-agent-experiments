@@ -262,11 +262,20 @@ def results_prefix(state):
  return 'parallel-results/'+attempt+'/'
 def preparation_failure_needs_repair(state):
  return any(v.get('terminal',{}).get('methods') and all(a.get('status')=='not_run' for a in v['terminal']['methods'].values()) for v in state['workers'].values())
+def cell_archive_is_preserved(state,item):
+ from cleanup_parallel import archive_cell_evidence
+ try:
+  with tarfile.open(ROOT/item['archive']) as tar:archive_cell_evidence(tar,item['terminal'])
+ except (ValueError,KeyError,tarfile.TarError) as exc:
+  item['evidence_hold']=str(exc);save(STATE,state);return False
+ item.pop('evidence_hold',None);return True
 def collect(state,source):
  bucket=source['created_resources']['bucket']
  complete=True
  for name,item in state['workers'].items():
-  if item.get('receipt'):continue
+  if item.get('receipt'):
+   if not cell_archive_is_preserved(state,item):complete=False
+   continue
   receipt=get_json(bucket,results_prefix(state)+name+'/receipt.json')
   if not receipt:complete=False;continue
   if state.get('attempt_id') and receipt.get('attempt_id')!=state['attempt_id']:raise ValueError('receipt belongs to another attempt')
@@ -286,7 +295,8 @@ def collect(state,source):
   if terminal.get('worker_id')!=name or terminal.get('run_id')!=state['batch_id'] or set(methods)!=set(expected) or any(v.get('status') not in ('ok','failed','interrupted','not_run','unsupported') for v in methods.values()):raise ValueError('nonterminal, incomplete or wrong worker archive')
   if terminal.get('terminal_reason')!=receipt['terminal_reason'] or (receipt['terminal_reason']=='completed' and any(v['status']!='ok' for v in methods.values())):raise ValueError('terminal reason differs from method outcomes')
   item['receipt']=receipt;item['terminal']=terminal;item['archive']=archive.name;item['phase']='collected';save(STATE,state)
- return complete and all(v.get('receipt') for v in state['workers'].values())
+  if not cell_archive_is_preserved(state,item):complete=False
+ return complete and all(v.get('receipt') and not v.get('evidence_hold') for v in state['workers'].values())
 def refresh_build_progress(state):
  for key,name in (('parallel-build/node-b-checkpoint.json','node-b-checkpoint.local.json'),('parallel-build/cache-manifest.json','rustfs-cache-manifest.local.json')):
   value=get_json(state['bucket'],key)
@@ -348,6 +358,8 @@ def main():
    refresh_build_progress(state)
    if not state.get('build_evidence_saved'):raise ValueError('terminal build evidence must be saved before cleanup')
    state['phase']='collected_all';save(STATE,state);print('All three archives verified; cleanup is now eligible');subprocess.run([sys.executable,str(CODE/'cleanup_parallel.py'),'--execute'],check=True);return
+  if any(v.get('evidence_hold') for v in state['workers'].values()):
+   state['phase']='evidence_hold';save(STATE,state);print('Terminal archive lacks required cell evidence; preserve all resources for archival recovery');return
   if a.once:return
   time.sleep(90)
 if __name__=='__main__':main()

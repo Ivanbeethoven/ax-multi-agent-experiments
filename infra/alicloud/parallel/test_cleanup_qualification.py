@@ -29,13 +29,28 @@ class CleanupQualification(unittest.TestCase):
     def tearDown(self):
         for p in reversed(self.patches):p.stop()
         self.temp.cleanup()
-    def write(self,name,methods=None,reason='completed',duplicate=False,attempt=None):
+    def write(self,name,methods=None,reason='completed',duplicate=False,attempt=None,cell_records=True,documents=None):
         terminal={'run_id':'batch','worker_id':name,'terminal_reason':reason,'methods':methods or {a:{'status':'ok'} for a in ARMS}}
         if attempt is not None:terminal['attempt_id']=attempt
+        records={}
+        if cell_records:
+            for arm,entry in terminal['methods'].items():
+                if entry['status']=='not_run':continue
+                prefix='results/'+arm+'/'
+                records[prefix+'result.json']={'status':entry['status'],'mode':'trace','batch_id':'batch'}
+                if entry['status']=='ok':
+                    replay={'completed':True,'remaining_handles':0,'operations':10,'actual_read_bytes':1024,'actual_write_bytes':256}
+                    records[prefix+'replay.json']=replay
+                    records[prefix+'trace-result.json']={'status':'ok','completed':True,'replay':replay}
+        records.update(documents or {})
         p=self.root/(name+'.tar.gz');raw=json.dumps(terminal).encode()
         with tarfile.open(p,'w:gz') as tar:
             for _ in range(2 if duplicate else 1):
                 info=tarfile.TarInfo('results/terminal.json');info.size=len(raw);tar.addfile(info,io.BytesIO(raw))
+            for path,value in records.items():
+                if value is None:continue
+                content=value if isinstance(value,bytes) else json.dumps(value).encode()
+                info=tarfile.TarInfo(path);info.size=len(content);tar.addfile(info,io.BytesIO(content))
         self.state['workers'][name].update(archive=p.name,receipt={'run_id':'batch','worker_id':name,'bytes':p.stat().st_size,
             'sha256':controller.sha(p),'terminal_reason':reason,'known_credential_scan':'passed'})
         if attempt is not None:self.state['workers'][name]['receipt']['attempt_id']=attempt
@@ -44,6 +59,56 @@ class CleanupQualification(unittest.TestCase):
         self.api.assert_not_called()
     def test_valid_complete_archives_only_qualify_not_delete(self):
         self.assertTrue(cleanup.evidence(self.state));self.api.assert_not_called()
+    def test_prepare_only_fallback_cannot_authorize_successful_cells(self):
+        self.write('node-b',reason='failed',cell_records=False);self.reject()
+    def test_completed_terminal_without_cell_evidence_rejected(self):
+        self.write('node-b',cell_records=False);self.reject()
+    def test_each_successful_cell_requires_replay_trace_and_result(self):
+        for filename in ('replay.json','trace-result.json','result.json'):
+            with self.subTest(filename=filename):
+                self.write('node-b',documents={'results/'+ARMS[0]+'/'+filename:None});self.reject()
+    def test_incomplete_or_live_handle_replay_rejected(self):
+        for change in ({'completed':False},{'remaining_handles':1},{'operations':0},{'actual_read_bytes':'1024'}):
+            with self.subTest(change=change):
+                value={'completed':True,'remaining_handles':0,'operations':10,'actual_read_bytes':1024,'actual_write_bytes':256,**change}
+                self.write('node-b',documents={'results/'+ARMS[0]+'/replay.json':value});self.reject()
+    def test_inconsistent_embedded_replay_rejected(self):
+        self.write('node-b',documents={'results/'+ARMS[0]+'/trace-result.json':{'status':'ok','completed':True,'replay':{}}});self.reject()
+    def test_invalid_json_evidence_rejected(self):
+        self.write('node-b',documents={'results/'+ARMS[0]+'/result.json':b'not-json'});self.reject()
+    def test_failed_started_cell_requires_its_result_diagnostic(self):
+        self.write('node-b',{a:{'status':'failed' if i==0 else 'not_run'} for i,a in enumerate(ARMS)},reason='failed',cell_records=False);self.reject()
+    def supplement(self,status='archived',evidence=True,terminal_attempt=None,terminal_run=None):
+        self.use_attempt();arm=ARMS[-1];run='batch-a-retry01';attempt='prep-current'
+        terminal={'run_id':terminal_run or run,'worker_id':'node-a','attempt_id':terminal_attempt or attempt,
+            'terminal_reason':'completed','methods':{arm:{'status':'ok'}}}
+        path=self.root/'supplement.tar.gz'
+        with tarfile.open(path,'w:gz') as target:
+            raw=json.dumps(terminal).encode();member=tarfile.TarInfo('results/terminal.json');member.size=len(raw);target.addfile(member,io.BytesIO(raw))
+            if evidence:
+                with tarfile.open(self.root/'node-a.tar.gz') as source:
+                    for member in source.getmembers():
+                        if member.name.startswith('results/'+arm+'/'):target.addfile(member,source.extractfile(member))
+        receipt={'run_id':run,'worker_id':'node-a','attempt_id':attempt,'terminal_reason':'completed',
+            'bytes':path.stat().st_size,'sha256':controller.sha(path),'known_credential_scan':'passed'}
+        item={'status':status,'worker_id':'node-a','arm':arm,'run_id':run,'parent_attempt_id':attempt,'archive':path.name,'receipt':receipt}
+        self.state['supplemental_replays']=[item];return item
+    def test_archived_supplement_requires_and_accepts_full_single_cell_evidence(self):
+        self.supplement();self.assertTrue(cleanup.evidence(self.state));self.api.assert_not_called()
+    def test_running_supplement_blocks_cleanup(self):
+        self.supplement(status='running');self.reject()
+    def test_supplement_outside_batch_rejected(self):
+        item=self.supplement();item['archive']='../outside.tar.gz';self.reject()
+    def test_supplement_archive_hash_must_match(self):
+        item=self.supplement();item['receipt']['sha256']='0'*64;self.reject()
+    def test_supplement_scan_must_pass(self):
+        item=self.supplement();item['receipt']['known_credential_scan']='unknown';self.reject()
+    def test_supplement_terminal_attempt_must_match_parent(self):
+        self.supplement(terminal_attempt='old');self.reject()
+    def test_supplement_terminal_run_must_match_exact_record(self):
+        self.supplement(terminal_run='another-run');self.reject()
+    def test_supplement_cannot_be_archived_without_cell_evidence(self):
+        self.supplement(evidence=False);self.reject()
     def use_attempt(self):
         self.state['attempt_id']='prep-current'
         for name in self.state['workers']:self.write(name,attempt='prep-current')
@@ -97,6 +162,7 @@ class CleanupQualification(unittest.TestCase):
             self.assertIn('processes=$(ps -eo comm=) || exit 10',script)
             self.assertIn('mounts=$(findmnt -rn -o FSTYPE) || exit 11',script)
             self.assertIn('ax-parallel-prepare',script)
+            self.assertIn('ax-parallel-*-retry*',script)
             raise RuntimeError('simulated active workload/mount')
         with patch.object(cleanup,'invoke',side_effect=gate):
             with self.assertRaises(RuntimeError):cleanup.execute(self.state,original)

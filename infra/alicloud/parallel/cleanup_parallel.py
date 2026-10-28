@@ -4,6 +4,61 @@ import argparse,base64,hashlib,json,re,subprocess,tarfile,time
 from pathlib import Path
 from parallel_controller import ROOT,ORIGINAL,STATE,REGION,PLAN,ecs,cli,invoke,sha,save
 TERMINAL={'ok','failed','interrupted','unsupported','not_run'}
+
+def archive_cell_evidence(tar,terminal):
+ def record(path):
+  try:
+   member=tar.getmember(path)
+   if not member.isfile():raise ValueError('not a regular evidence file')
+   value=json.load(tar.extractfile(member))
+  except (KeyError,ValueError,TypeError) as exc:raise ValueError('missing or invalid cell evidence: '+path) from exc
+  if not isinstance(value,dict):raise ValueError('cell evidence must be a JSON object: '+path)
+  return value
+ for label,entry in terminal.get('methods',{}).items():
+  if entry.get('status')=='not_run':continue
+  prefix='results/'+label+'/'
+  result=record(prefix+'result.json')
+  if result.get('mode')!='trace' or result.get('status')!=entry.get('status'):
+   raise ValueError('cell result differs from terminal: '+label)
+  if entry.get('status')!='ok':continue
+  replay=record(prefix+'replay.json');trace=record(prefix+'trace-result.json')
+  counts=('operations','actual_read_bytes','actual_write_bytes')
+  if replay.get('completed') is not True or replay.get('remaining_handles')!=0 or any(type(replay.get(k)) is not int or replay[k]<0 for k in counts) or replay['operations']==0:
+   raise ValueError('successful cell has no completed replay evidence: '+label)
+  if trace.get('status')!='ok' or trace.get('completed') is not True or trace.get('replay')!=replay:
+   raise ValueError('trace and replay evidence differ: '+label)
+ return True
+def supplemental_evidence(state,expected):
+ supplements=state.get('supplemental_replays',[])
+ if not isinstance(supplements,list):raise ValueError('supplemental replays must be a list')
+ seen_runs=set()
+ for item in supplements:
+  if item.get('status')!='archived':raise ValueError('supplemental replay is not archived')
+  worker=item.get('worker_id');arm=item.get('arm');run=item.get('run_id');attempt=state.get('attempt_id','initial')
+  if worker not in expected or arm not in expected[worker] or not run or run in seen_runs or item.get('parent_attempt_id')!=attempt:
+   raise ValueError('supplemental identity differs')
+  seen_runs.add(run);receipt=item.get('receipt',{});archive=(ROOT/item.get('archive','missing')).resolve()
+  if not archive.is_relative_to(ROOT.resolve()):raise ValueError('supplemental archive outside this batch')
+  if receipt.get('run_id')!=run or receipt.get('worker_id')!=worker or receipt.get('attempt_id')!=attempt or receipt.get('known_credential_scan')!='passed':
+   raise ValueError('supplemental receipt differs or is not scanned')
+  if not archive.is_file() or sha(archive)!=receipt.get('sha256') or archive.stat().st_size!=receipt.get('bytes'):
+   raise ValueError('supplemental archive unverified')
+  with tarfile.open(archive) as tar:
+   names=set()
+   for member in tar.getmembers():
+    if member.name in names or not member.isfile() or Path(member.name).is_absolute() or '..' in Path(member.name).parts or '\\' in member.name:
+     raise ValueError('unsafe supplemental archive')
+    names.add(member.name)
+   terminal=json.load(tar.extractfile('results/terminal.json'))
+   methods=terminal.get('methods',{})
+   if terminal.get('run_id')!=run or terminal.get('worker_id')!=worker or terminal.get('attempt_id')!=attempt or terminal.get('terminal_reason') not in ('completed','failed') or terminal.get('terminal_reason')!=receipt.get('terminal_reason'):
+    raise ValueError('supplemental terminal differs')
+   if not isinstance(methods,dict) or set(methods)!={arm} or any(not isinstance(v,dict) or v.get('status') not in TERMINAL for v in methods.values()):
+    raise ValueError('supplemental single-cell terminal required')
+   if terminal['terminal_reason']=='completed' and methods[arm]['status']!='ok':raise ValueError('completed supplemental cell was not successful')
+   archive_cell_evidence(tar,terminal)
+ return True
+
 def evidence(state):
  if set(state['workers'])!={'node-a','node-b','node-c'}:raise ValueError('wrong participant set')
  if not PLAN.is_file() or not re.fullmatch('[0-9a-f]{64}',state.get('plan_sha256','')) or sha(PLAN)!=state['plan_sha256']:
@@ -40,6 +95,8 @@ def evidence(state):
   if any(not isinstance(v,dict) or v.get('status') not in TERMINAL for v in methods.values()):raise ValueError('worker may still run')
   if terminal['terminal_reason']=='completed' and any(v['status']!='ok' for v in methods.values()):
    raise ValueError('completed worker includes unsuccessful arm')
+  with tarfile.open(archive) as tar:archive_cell_evidence(tar,terminal)
+ supplemental_evidence(state,expected)
  return True
 
 def instances(ids):return ecs('DescribeInstances',InstanceIds=json.dumps(ids))['Instances']['Instance']
@@ -62,7 +119,7 @@ def execute(state,original):
    script="""set -eu
 processes=$(ps -eo comm=) || exit 10
 if printf '%s\n' "$processes" | grep -Ex 'full-fuse-repla|ax-fs-probe|cargo|rustc|brewfs|packed_v3_snaps|juicefs|mount.juicefs' >/dev/null; then exit 7; fi
-units=$(systemctl list-units 'ax-cell-*' 'ax-parallel-matrix*' 'ax-parallel-prepare*' 'ax-main-rebuild*' --all --plain --no-legend) || exit 12
+units=$(systemctl list-units 'ax-cell-*' 'ax-parallel-matrix*' 'ax-parallel-prepare*' 'ax-parallel-*-retry*' 'ax-main-rebuild*' --all --plain --no-legend) || exit 12
 for unit in $(printf '%s\n' "$units" | awk '{print $1}'); do state=$(systemctl show "$unit" -p SubState --value) || exit 13; case "$state" in exited|dead|failed) ;; *) exit 8;; esac; done
 mounts=$(findmnt -rn -o FSTYPE) || exit 11
 if printf '%s\n' "$mounts" | grep -E '^fuse($|[.]|blk$)' >/dev/null; then exit 9; fi
