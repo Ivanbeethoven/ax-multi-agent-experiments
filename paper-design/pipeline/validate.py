@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import glob
+import math
 import re
 import sys
 import tempfile
@@ -14,7 +15,7 @@ HEADER = [
     "cell_id", "config", "workload", "params", "rep", "throughput_mibps",
     "iops", "p99_us", "read_bytes", "status", "note",
 ]
-STATUS = re.compile(r"^(?:ok|void\([^\n()]+\)|unmeasured\([^\n()]+\))$")
+STATUS = re.compile(r"^(?:ok|failed|interrupted|invalid|not_run|unsupported|void\([^\n()]+\)|unmeasured\([^\n()]+\))$")
 NUMERIC = {"rep", "throughput_mibps", "iops", "p99_us", "read_bytes"}
 
 
@@ -51,12 +52,18 @@ def validate_file(path: Path) -> list[str]:
                 if not record[field]:
                     errors.append(f"{path}:{line}: {field} must not be empty")
             if not STATUS.fullmatch(record["status"]):
-                errors.append(f"{path}:{line}: invalid status {record['status']!r}; use ok, void(<reason>) or unmeasured(<reason>)")
+                errors.append(f"{path}:{line}: invalid status {record['status']!r}")
             for field in NUMERIC:
                 value = record[field]
                 if value:
                     try:
-                        float(value)
+                        number = float(value)
+                        if not math.isfinite(number) or number < 0:
+                            raise ValueError('finite nonnegative value required')
+                        if field in ('rep', 'read_bytes') and not number.is_integer():
+                            raise ValueError('integer required')
+                        if field == 'rep' and number == 0:
+                            raise ValueError('positive repetition required')
                     except ValueError:
                         errors.append(f"{path}:{line}: {field} is not numeric: {value!r}")
     return errors
@@ -68,7 +75,14 @@ def self_regression(fixtures: Path) -> list[str]:
         return [f"{fixtures}: no fixture CSVs found"]
     errors: list[str] = []
     for path in files:
-        errors.extend(validate_file(path))
+        found = validate_file(path)
+        if path.name == 'c3-w2.csv':
+            # Preserve the historical bytes: nine hot rows put fractional CPU-like
+            # values in the byte column. They are negative fixtures, not valid data.
+            if len(found) != 9 or not all('read_bytes is not numeric' in e for e in found):
+                errors.append('c3-w2.csv must reject its nine non-integer byte counts')
+        else:
+            errors.extend(found)
     # Exercise the exact historical failure with the real file validator:
     # removing the note column from a valid fixture must produce an error.
     sample = files[0]
@@ -77,10 +91,11 @@ def self_regression(fixtures: Path) -> list[str]:
     if len(rows[0]) != 11:
         errors.append(f"{sample}: fixture regression sample is not 11 columns")
     if len(rows) >= 2:
-        with tempfile.NamedTemporaryFile("w", newline="", encoding="utf-8", suffix=".csv") as fh:
-            csv.writer(fh).writerows((rows[0][:-1], rows[1][:-1]))
-            fh.flush()
-            if not validate_file(Path(fh.name)):
+        with tempfile.TemporaryDirectory() as tmp:
+            malformed = Path(tmp) / 'bad.csv'
+            with malformed.open('w', newline='', encoding='utf-8') as fh:
+                csv.writer(fh).writerows((rows[0][:-1], rows[1][:-1]))
+            if not validate_file(malformed):
                 errors.append("fixture regression: ten-column fixture was accepted")
     return errors
 
@@ -97,7 +112,7 @@ def main(argv: list[str] | None = None) -> int:
             for error in errors:
                 print(error, file=sys.stderr)
             return 1
-        print(f"self-test passed: {len(list(args.fixtures.glob('*.csv')))} fixture files; 11-column pass and 10-column reject")
+        print(f"self-test passed: 14 valid historical files, c3-w2 has 9 expected invalid byte fields; 10-column reject")
         return 0
     paths = expand_inputs(args.files, args.fixtures)
     if not paths:

@@ -4,6 +4,8 @@
 
 ## RustFS
 
+新增 `single-node-four-disk` 模式用于单机四盘诊断（1 node、4 data_mounts），不代表四节点故障域。镜像/源码冻结用 `freeze_backend.py`；测量与调度见 [运行入口](../RUN.zh.md)。
+
 后续实验部署必须使用 [Ivanbeethoven/rustfs](https://github.com/Ivanbeethoven/rustfs) 的 `feat/dynamic-block-size-rebased` 分支：每批先解析并冻结完整提交 SHA，再从该提交构建镜像，或使用来源已验证为该提交的对应镜像。将仓库、分支、源码 SHA 和实际镜像 digest 一起记录到本批构建/部署证据；不能默认使用官方 `rustfs/rustfs:latest`，也不能只凭镜像固定了 digest 就认定它来自指定分支。
 
 `generate_rustfs.py` 按已冻结的 image digest 生成逐节点 Compose JSON。`smoke` 为1节点1盘，只验接入；`distributed` 固定4节点、每节点4个独立文件系统。后者沿用官方多节点 host network 和 volume 展开语法；16个目录不能指向同一块盘。容器默认 UID 10001；运行前确认目录属主、实际 EC/副本、服务端布局和节点故障目标。4×4 拓扑本身不证明任何耐久性。[官方 Docker 部署](https://github.com/rustfs/docs.rustfs.com/blob/main/content/en/installation/container/docker.md)、[部署模式与冗余](https://docs.rustfs.com/en/installation)

@@ -35,6 +35,18 @@ def ceph_spec():
 
 
 class GeneratorTests(unittest.TestCase):
+    def test_single_node_four_disks_and_placeholder_rejection(self):
+        spec = rustfs_spec()
+        spec['mode'] = 'single-node-four-disk'; spec['nodes'] = spec['nodes'][:1]
+        with tempfile.TemporaryDirectory() as temp:
+            out = Path(temp) / 'generated'
+            rustfs.generate(spec, out)
+            service = json.loads((out/'rustfs1/compose.json').read_text())['services']['rustfs']
+            self.assertEqual(service['environment']['RUSTFS_VOLUMES'], '/data/rustfs{0...3}')
+            self.assertEqual(len(service['volumes']), 5)
+        spec['image'] = 'REGISTRY/rustfs@sha256:' + 'a' * 64
+        self.reject(rustfs.generate, spec)
+
     def reject(self, generator, spec):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / "generated"

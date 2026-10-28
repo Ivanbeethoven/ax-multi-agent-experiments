@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Summarize validated workload CSVs with cache and kernel-cache labels."""
+"""Summarize protocol-valid rows; retain every outcome in status counts."""
 from __future__ import annotations
 
 import argparse
@@ -8,7 +8,8 @@ import glob
 import json
 import math
 import statistics
-from collections import defaultdict
+from collections import Counter, defaultdict
+from validate import validate_file
 from pathlib import Path
 from typing import Any
 
@@ -55,8 +56,10 @@ def ceiling_for(ceilings: dict[str, Any], config: str, workload: str) -> float |
 
 
 def fnum(value: str) -> float | None:
-    try: return float(value) if value != '' else None
-    except ValueError: return None
+    if value == '': return None
+    number = float(value)
+    if not math.isfinite(number): raise ValueError('nonfinite measurement')
+    return number
 
 
 def fmt(value: float | None) -> str:
@@ -76,6 +79,8 @@ def main() -> int:
     ceilings=load_ceiling(args.ceilings)
     groups: dict[tuple[str,str,str], list[dict[str,Any]]] = defaultdict(list)
     for path in paths:
+        errors = validate_file(path)
+        if errors: raise SystemExit('\n'.join(errors))
         with path.open(newline='', encoding='utf-8-sig') as fh:
             reader=csv.DictReader(fh)
             if reader.fieldnames != HEADER: raise SystemExit(f'{path}: validate.py must pass before summarize.py')
@@ -84,31 +89,30 @@ def main() -> int:
                 annotations=[]
                 limit=ceiling_for(ceilings, row['config'], row['workload'])
                 if limit is not None and row['_throughput'] is not None and row['_throughput'] > limit:
-                    annotations.append('cache-hit')
-                if row['workload']=='stat' and row['_iops'] is not None and row['_iops'] > 100000:
-                    annotations.append('kernel-cache')
+                    annotations.append('above_single_disk_reference; cause_unverified')
                 row['_annotations']=annotations
                 groups[(row['workload'], row['params'], row['config'])].append(row)
     entries=[]
     for (workload, params, config), rows in sorted(groups.items()):
         def stats(key):
-            vals=[r[key] for r in rows if r[key] is not None]
+            vals=[r[key] for r in rows if r['status'] == 'ok' and r[key] is not None]
             return {'min':min(vals) if vals else None, 'median':statistics.median(vals) if vals else None, 'max':max(vals) if vals else None}
         annotations=sorted({a for r in rows for a in r['_annotations']})
-        entries.append({'workload':workload,'params':params,'config':config,'throughput_mibps':stats('_throughput'),'iops':stats('_iops'),'p99_us':stats('_p99'),'annotations':annotations,'rows':len(rows)})
+        entries.append({'workload':workload,'params':params,'config':config,'throughput_mibps':stats('_throughput'),'iops':stats('_iops'),'p99_us':stats('_p99'),'annotations':annotations,'rows':len(rows), 'status_counts':dict(Counter(r['status'] for r in rows)), 'performance_rows':sum(r['status']=='ok' for r in rows)})
     md=['| workload | params | config | throughput MiB/s (min / median / max) | IOPS (min / median / max) | p99 us (min / median / max) | labels |','|---|---|---|---:|---:|---:|---|']
     for e in entries:
         def triple(key):
             s=e[key]; return ' / '.join(fmt(s[x]) for x in ('min','median','max'))
         params = e['params'].replace('|', '\\|')
-        md.append(f"| {e['workload']} | {params} | {e['config']} | {triple('throughput_mibps')} | {triple('iops')} | {triple('p99_us')} | {', '.join(e['annotations'])} |")
+        labels = ', '.join(e['annotations']) + '; statuses=' + json.dumps(e['status_counts'])
+        md.append(f"| {e['workload']} | {params} | {e['config']} | {triple('throughput_mibps')} | {triple('iops')} | {triple('p99_us')} | {labels} |")
     text='\n'.join(md)+'\n'
     if args.output_md:
         args.output_md.parent.mkdir(parents=True, exist_ok=True); args.output_md.write_text(text,encoding='utf-8')
     else: print(text, end='')
     if args.output_json:
         args.output_json.parent.mkdir(parents=True, exist_ok=True)
-        args.output_json.write_text(json.dumps({'inputs':[str(p) for p in paths],'entries':entries},indent=2)+'\n',encoding='utf-8')
+        args.output_json.write_text(json.dumps({'inputs':[str(p) for p in paths],'entries':entries, 'qualification': 'status-filtered only; historical ok labels do not prove final-protocol qualification'},indent=2)+'\n',encoding='utf-8')
     return 0
 
 if __name__=='__main__': raise SystemExit(main())

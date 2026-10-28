@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-28",
+  "scope": "local regression, real POSIX probe and recorded preflight replay; no new cloud experiment",
+  "linux_unittest": {"total": 148, "passed": 142, "skipped": 6, "failed": 0},
+  "windows_new_suite": {"total": 24, "passed": 21, "skipped": 3, "failed": 0},
+  "rust_probe_unit_tests": {"passed": 2, "failed": 0},
+  "real_integration_checks": [
+    "non-sparse corpus and deterministic content verification",
+    "corrupted corpus rejected",
+    "actual full-file and 4 KiB sparse-read byte counts",
+    "fixed-arrival overload retains all operations and records missed SLOs",
+    "existing Rust full-fuse-replay --performance on a recorded preflight, with count/byte checks"
+  ],
+  "historical_csv": {"valid_files": 14, "negative_file": "c3-w2.csv", "expected_invalid_byte_fields": 9, "raw_files_modified": false},
+  "generated_final_plan": {"cells": 759, "independent_batches": 3, "execution_enabled": false},
+  "legacy_archive_files_verified": 181,
+  "not_verified": [
+    "end-to-end FUSE/S3 run with the required RustFS branch image",
+    "effective FUSE replies, object/request path counters, backend B/q and remote durability",
+    "modified-parent seal/save and cross-host fencing",
+    "actual remote SSH/systemd dispatch and collection",
+    "periodic-observer overhead on/off comparison on cloud hardware"
+  ],
+  "cloud_resources_created": false,
+  "paper_repository_modified": false
+}
