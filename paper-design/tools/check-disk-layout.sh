@@ -12,11 +12,29 @@ warn() { printf '  WARN %s\n' "$*"; }
 
 say "== 1. 每块盘的设备与能力 =="
 for p in "$ROOT" "$ROOT"/d1 "$ROOT"/d2 "$ROOT"/d3 "$ROOT"/d4; do
-  [ -e "$p" ] || { warn "$p 不存在"; continue; }
+  [ -e "$p" ] || { bad "$p 不存在"; continue; }
   dev=$(df --output=source "$p" 2>/dev/null | tail -1)
   size=$(df -h --output=size "$p" 2>/dev/null | tail -1 | tr -d ' ')
   say "  $p -> $dev ($size)"
 done
+
+# 四个 RustFS volume 必须分别落在四个数据设备上；同一文件系统上的
+# 四个目录会让 EC/动态布局实验退化，即使它们都不在系统盘。
+DATA_DEVS=()
+for i in 1 2 3 4; do
+  p="$ROOT/d$i"
+  [ -e "$p" ] || continue
+  dev=$(df --output=source "$p" 2>/dev/null | tail -1)
+  DATA_DEVS+=("$dev")
+done
+if [ "${#DATA_DEVS[@]}" -eq 4 ]; then
+  unique=$(printf '%s\n' "${DATA_DEVS[@]}" | sort -u | wc -l)
+  if [ "$unique" -ne 4 ]; then
+    bad "RustFS volume d1..d4 没有落在四个不同设备上（实际设备: ${DATA_DEVS[*]}）"
+  else
+    ok "RustFS volume d1..d4 分别位于四个不同设备"
+  fi
+fi
 
 say
 say "== 2. 必须落在数据盘的重活目录 =="
