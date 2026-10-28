@@ -1,0 +1,82 @@
+selftest: fixtures=/home/hxy/ax-exp-pipeline/paper-design/pipeline/fixtures
+selftest: ceilings=/home/hxy/ax-exp-pipeline/paper-design/pipeline/fixtures/ceilings.json
+== validate: 15 real CSV fixtures ==
+validated 15 CSV file(s): exact 11-column contract
+== validate: malformed fixtures must fail ==
+/home/hxy/ax-exp-pipeline/paper-design/pipeline/fixtures/bad/few-columns.csv:2: expected exactly 11 columns, got 10
+expected nonzero: /home/hxy/ax-exp-pipeline/paper-design/pipeline/fixtures/bad/few-columns.csv
+/home/hxy/ax-exp-pipeline/paper-design/pipeline/fixtures/bad/invalid-status.csv:2: invalid status 'not-a-status'; use ok, void(<reason>) or unmeasured(<reason>)
+expected nonzero: /home/hxy/ax-exp-pipeline/paper-design/pipeline/fixtures/bad/invalid-status.csv
+/home/hxy/ax-exp-pipeline/paper-design/pipeline/fixtures/bad/many-columns.csv:2: expected exactly 11 columns, got 12
+expected nonzero: /home/hxy/ax-exp-pipeline/paper-design/pipeline/fixtures/bad/many-columns.csv
+== summarize: cross-configuration table ==
+| workload | params | config | throughput MiB/s (min / median / max) | IOPS (min / median / max) | p99 us (min / median / max) | labels |
+|---|---|---|---:|---:|---:|---|
+| 1MiB | bytes=1048576,rounds=200,keep_cache=false | C3 | 522.482 / 528.763 / 530.843 | 1044.960 / 1057.530 / 1061.690 |  /  /  |  |
+| 1MiB | bytes=1048576,rounds=200,keep_cache=true | C3 | 1061.550 / 1067.790 / 1115.820 | 2123.110 / 2135.580 / 2231.640 |  /  /  |  |
+| 4KiB | bytes=4096,rounds=200,keep_cache=false | C3 | 4.107 / 4.206 / 10.824 | 2102.890 / 2153.270 / 5541.950 |  /  /  |  |
+| 4KiB | bytes=4096,rounds=200,keep_cache=true | C3 | 5.157 / 5.639 / 5.926 | 2640.420 / 2886.980 / 3033.930 |  /  /  |  |
+| 64KiB | bytes=65536,rounds=200,keep_cache=false | C3 | 58.214 / 61.089 / 61.134 | 1862.840 / 1954.860 / 1956.290 |  /  /  |  |
+| 64KiB | bytes=65536,rounds=200,keep_cache=true | C3 | 78.671 / 79.720 / 82.699 | 2517.460 / 2551.050 / 2646.380 |  /  /  |  |
+| open-read-open-read | keep_cache=false,size=1048576,rounds=200 | C2-flat-v1 | 717.260 / 719.006 / 734.215 | 717.260 / 719.006 / 734.215 | 659.692 / 688.204 / 715.452 |  |
+| open-read-open-read | keep_cache=false,size=4096,rounds=200 | C2-flat-v1 | 11.228 / 11.560 / 11.631 | 2874.413 / 2959.431 / 2977.467 | 165.483 / 214.278 / 1388.867 |  |
+| open-read-open-read | keep_cache=false,size=65536,rounds=200 | C2-flat-v1 | 132.639 / 141.940 / 153.012 | 2122.218 / 2271.033 / 2448.196 | 235.773 / 239.420 / 251.388 |  |
+| open-read-open-read | keep_cache=true,size=1048576,rounds=200 | C2-flat-v1 | 1524.248 / 1546.542 / 1613.545 | 1524.248 / 1546.542 / 1613.545 | 290.651 / 293.314 / 308.827 |  |
+| open-read-open-read | keep_cache=true,size=4096,rounds=200 | C2-flat-v1 | 19.494 / 20.215 / 21.096 | 4990.471 / 5175.032 / 5400.455 | 119.831 / 119.836 / 121.848 |  |
+| open-read-open-read | keep_cache=true,size=65536,rounds=200 | C2-flat-v1 | 304.435 / 347.913 / 348.561 | 4870.962 / 5566.611 / 5576.974 | 109.396 / 126.658 / 137.902 |  |
+| randread | bs=4KiB,numjobs=8,iodepth=32,direct=1,runtime=20s,cold | C4 |  /  /  |  /  /  |  /  /  |  |
+| randread | bs=4k,numjobs=8,iodepth=32,direct=1,ioengine=libaio,runtime=20s | C3 | 66.934 / 67.432 / 68.055 | 17135.193 / 17262.637 / 17422.129 | 160432.128 / 160432.128 / 162529.280 |  |
+| randread | bs=4k,numjobs=8,iodepth=32,direct=1,runtime=20s | C2-flat-v1 | 365.176 / 367.909 / 369.728 | 93485.126 / 94184.591 / 94650.417 | 2899.968 / 2932.736 / 2998.272 | cache-hit |
+| randread | bs=4k;numjobs=8;iodepth=32;direct=1;runtime=20s | juicefs | 228.142 / 247.492 / 274.544 | 58391.661 / 63345.215 / 70270.469 | 10551.296 / 17432.576 / 19791.872 | cache-hit |
+| randread | corpus=8GiB,cache=8192MiB,cold=drop_caches+remount,hot=full-prewarm | C4 |  /  /  |  /  /  |  /  /  |  |
+| randread | temperature=cold,corpus=8GiB,cache_budget=8192MiB,bs=4k,numjobs=8,iodepth=32,direct=0,runtime=20s | C2-flat-v1 | 473.154 / 680.248 / 825.706 | 121127.344 / 174143.593 / 211380.631 | 3620.864 / 3915.776 / 3948.544 | cache-hit |
+| randread | temperature=hot,corpus=8GiB,cache_budget=8192MiB,bs=4k,numjobs=8,iodepth=32,direct=0,runtime=20s | C2-flat-v1 | 1285.070 / 1360.064 / 1630.864 | 328978.001 / 348176.441 / 417501.199 | 3555.328 / 3719.168 / 3751.936 | cache-hit |
+| randread | workers=8;block_size=4096;logical_bytes=8192000000 | juicefs | 111.571 / 298.574 / 490.948 | 28562.200 / 76435.000 / 125683.000 | 3483.841 / 7894.327 / 17344.193 | cache-hit |
+| randread-cold | bs=4k,numjobs=1,iodepth=1,direct=0,ioengine=psync,size=8GiB,runtime=20s,cache_budget=8192MiB | C3 | 7.222 / 7.416 / 7.464 | 1848.708 / 1898.405 / 1910.704 | 1073.152 / 1089.536 / 1138.688 |  |
+| randread-hot | bs=4k,numjobs=1,iodepth=1,direct=0,ioengine=psync,size=8GiB,runtime=20s,cache_budget=8192MiB | C3 | 16.290 / 16.344 / 16.514 | 4170.291 / 4184.066 / 4227.639 | 2703.360 / 2703.360 / 2736.128 |  |
+| randwrite | bs=4KiB,numjobs=8,iodepth=32,direct=1,runtime=20s,cold | C4 |  /  /  |  /  /  |  /  /  |  |
+| randwrite | bs=4k,numjobs=8,iodepth=32,direct=1,ioengine=libaio,runtime=20s | C3 | 4.566 / 4.784 / 4.907 | 1168.788 / 1224.755 / 1256.295 | 767557.632 / 1367343.104 / 3774873.600 |  |
+| randwrite | bs=4k,numjobs=8,iodepth=32,direct=1,runtime=20s | C2-flat-v1 | 10.495 / 10.500 / 10.511 | 2686.747 / 2688.097 / 2690.777 | 135266.304 / 137363.456 / 141557.760 |  |
+| randwrite | bs=4k;numjobs=8;iodepth=32;direct=1;runtime=20s | juicefs | 2.723 / 4.437 / 7.722 | 684.444 / 1123.014 / 1964.030 | 2231369.728 / 2566914.048 / 2634022.912 |  |
+| read | bs=1M,numjobs=8,iodepth=32,direct=1,ioengine=libaio,runtime=20s | C3 | 3194.381 / 3427.207 / 4610.639 | 3194.381 / 3427.207 / 4610.639 | 189792.256 / 287309.824 / 350224.384 |  |
+| read | bs=1M,numjobs=8,iodepth=32,direct=1,runtime=20s | C2-flat-v1 | 9886.706 / 10116.588 / 10260.587 | 9886.706 / 10116.588 / 10260.587 | 36438.016 / 36438.016 / 36438.016 |  |
+| read | bs=1M;numjobs=8;iodepth=32;direct=1;runtime=20s | juicefs | 3447.060 / 3787.510 / 4068.820 | 3434.268 / 3774.718 / 4056.028 | 263192.576 / 304087.040 / 358612.992 |  |
+| read | bs=1MiB,numjobs=8,iodepth=32,direct=1,runtime=20s,cold | C4 |  /  /  |  /  /  |  /  /  |  |
+| read | corpus=8GiB,cache=8192MiB,cold=drop_caches+remount,hot=full-prewarm | C4 |  /  /  |  /  /  |  /  /  |  |
+| read | temperature=cold,corpus=8GiB,cache_budget=8192MiB,bs=1M,numjobs=8,iodepth=32,direct=0,runtime=20s | C2-flat-v1 | 189.344 / 1278.208 / 2088.591 | 189.344 / 1278.208 / 2088.591 | 943718.400 / 1149239.296 / 1535115.264 |  |
+| read | temperature=hot,corpus=8GiB,cache_budget=8192MiB,bs=1M,numjobs=8,iodepth=32,direct=0,runtime=20s | C2-flat-v1 | 5456.109 / 5528.771 / 5548.995 | 5456.109 / 5528.771 / 5548.995 | 145752.064 / 147849.216 / 147849.216 |  |
+| read | workers=8;block_size=1048576;logical_bytes=8192000000 | juicefs | 33.023 / 405.020 / 695.365 | 422.690 / 5184.265 / 8900.680 | 3068.343 / 7788.325 / 504520.567 |  |
+| read-cold | bs=1M,numjobs=1,iodepth=1,direct=0,ioengine=psync,size=8GiB,runtime=20s,cache_budget=8192MiB | C3 | 170.841 / 173.339 / 227.359 | 170.841 / 173.339 / 227.359 | 17170.432 / 20316.160 / 20840.448 |  |
+| read-hot | bs=1M,numjobs=1,iodepth=1,direct=0,ioengine=psync,size=8GiB,runtime=20s,cache_budget=8192MiB | C3 | 992.250 / 1001.100 / 1317.434 | 992.250 / 1001.100 / 1317.434 | 3489.792 / 3620.864 / 3620.864 |  |
+| reopen-read | size=1MiB,keep_cache=false,rounds=200,open-read-close-open-read-close | C4 |  /  /  |  /  /  |  /  /  |  |
+| reopen-read | size=1MiB,keep_cache=true,rounds=200,open-read-close-open-read-close | C4 |  /  /  |  /  /  |  /  /  |  |
+| reopen-read | size=4KiB,keep_cache=false,rounds=200,open-read-close-open-read-close | C4 |  /  /  |  /  /  |  /  /  |  |
+| reopen-read | size=4KiB,keep_cache=true,rounds=200,open-read-close-open-read-close | C4 |  /  /  |  /  /  |  /  /  |  |
+| reopen-read | size=64KiB,keep_cache=false,rounds=200,open-read-close-open-read-close | C4 |  /  /  |  /  /  |  /  /  |  |
+| reopen-read | size=64KiB,keep_cache=true,rounds=200,open-read-close-open-read-close | C4 |  /  /  |  /  /  |  /  /  |  |
+| repeat-open-read | bytes=1048576;rounds=200 | juicefs | 5749.350 / 5983.120 / 6024.970 | 5749.345 / 5983.124 / 6024.974 | 178.783 / 205.684 / 223.004 |  |
+| repeat-open-read | bytes=4096;rounds=200 | juicefs | 59.281 / 59.354 / 60.896 | 15175.992 / 15194.687 / 15589.354 | 86.679 / 89.228 / 93.704 |  |
+| repeat-open-read | bytes=65536;rounds=200 | juicefs | 830.818 / 839.947 / 866.819 | 13293.081 / 13439.149 / 13869.098 | 83.664 / 102.219 / 142.440 |  |
+| stat | inodes=100k,ops=100000,fuse_cache_ttl_ms=0 | C4 |  /  /  |  /  /  |  /  /  |  |
+| stat | inodes=100k,ops=100000,fuse_cache_ttl_ms=1000 | C4 |  /  /  |  /  /  |  /  /  |  |
+| stat | inodes=10k,ops=100000,fuse_cache_ttl_ms=0 | C4 |  /  /  |  /  /  |  /  /  |  |
+| stat | inodes=10k,ops=100000,fuse_cache_ttl_ms=1000 | C4 |  /  /  |  /  /  |  /  /  |  |
+| stat | inodes=1k,ops=100000,fuse_cache_ttl_ms=0 | C4 |  /  /  |  /  /  |  /  /  |  |
+| stat | inodes=1k,ops=100000,fuse_cache_ttl_ms=1000 | C4 |  /  /  |  /  /  |  /  /  |  |
+| stat | ttl_ms=0,inodes=1000,meta=persistent-sqlite-for-remount | C2-flat-v1 | 0.000 / 0.000 / 0.000 | 3554296.279 / 3846756.159 / 4674552.468 | 497.770 / 507.187 / 540.070 | kernel-cache |
+| stat | ttl_ms=0,inodes=10000,meta=persistent-sqlite-for-remount | C2-flat-v1 | 0.000 / 0.000 / 0.000 | 1685460.187 / 1697311.038 / 1723233.221 | 1054.987 / 1075.664 / 1094.544 | kernel-cache |
+| stat | ttl_ms=0,inodes=100000 | C2-flat-v1 |  /  /  |  /  /  |  /  /  |  |
+| stat | ttl_ms=1000,inodes=1000,meta=persistent-sqlite-for-remount | C2-flat-v1 | 0.000 / 0.000 / 0.000 | 3493674.390 / 3901862.873 / 4001800.954 | 450.683 / 472.134 / 475.163 | kernel-cache |
+| stat | ttl_ms=1000,inodes=10000,meta=persistent-sqlite-for-remount | C2-flat-v1 | 0.000 / 0.000 / 0.000 | 1666767.060 / 1705244.489 / 1710171.399 | 1049.532 / 1056.279 / 1073.041 | kernel-cache |
+| stat | ttl_ms=1000,inodes=100000 | C2-flat-v1 |  /  /  |  /  /  |  /  /  |  |
+| stat | working_set=100000;operations=100000 | juicefs | 20746.808 / 20803.574 / 21666.427 | 20746.808 / 20803.574 / 21666.427 | 74.239 / 77.486 / 80.317 |  |
+| stat | working_set=10000;operations=100000 | juicefs | 154273.773 / 163268.041 / 168000.227 | 154273.773 / 163268.041 / 168000.227 | 51.461 / 52.753 / 62.870 | kernel-cache |
+| stat | working_set=1000;operations=100000 | juicefs | 475130.259 / 485320.221 / 487463.580 | 475130.259 / 485320.221 / 487463.580 | 9.455 / 9.764 / 10.196 | kernel-cache |
+| write | bs=1M,numjobs=8,iodepth=32,direct=1,ioengine=libaio,runtime=20s | C3 | 248.976 / 250.723 / 250.764 | 248.976 / 250.723 / 250.764 | 2533359.616 / 3003121.664 / 3472883.712 |  |
+| write | bs=1M,numjobs=8,iodepth=32,direct=1,runtime=20s | C2-flat-v1 | 290.630 / 296.431 / 298.916 | 290.630 / 296.431 / 298.916 | 1266679.808 / 1300234.240 / 1317011.456 | cache-hit |
+| write | bs=1M;numjobs=8;iodepth=32;direct=1;runtime=20s | juicefs | 425.193 / 540.858 / 580.658 | 412.422 / 528.157 / 567.896 | 2264924.160 / 2801795.072 / 3439329.280 | cache-hit |
+| write | bs=1MiB,numjobs=8,iodepth=32,direct=1,runtime=20s,cold | C4 |  /  /  |  /  /  |  /  /  |  |
+summary entries: 64
+summary configs: C2-flat-v1, C3, C4, juicefs
+summary labels: cache-hit, kernel-cache
+selftest: PASS

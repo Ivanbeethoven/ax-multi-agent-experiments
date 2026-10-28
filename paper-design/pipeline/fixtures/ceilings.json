@@ -1,0 +1,28 @@
+{
+  "source": "fio 3.36 on bare ext4 /work/d2/c2-ceiling-fio",
+  "common_params": {
+    "direct": 1,
+    "numjobs": 8,
+    "iodepth": 32,
+    "runtime_s": 20,
+    "group_reporting": true
+  },
+  "seq_write_1MiB": {
+    "throughput_mibps": 257.9099702835083,
+    "iops": 257.909971,
+    "p99_us": 135266.304,
+    "runtime_ms": 20038,
+    "io_bytes": 5419040768
+  },
+  "rand_read_4KiB": {
+    "throughput_mibps": 102.6042308807373,
+    "iops": 26266.683329,
+    "p99_us": 6127.616,
+    "runtime_ms": 20005,
+    "io_bytes": 2152304640
+  },
+  "raw_fio_json": [
+    "/work/results/g2-seq-write.json",
+    "/work/results/g2-randread.json"
+  ]
+}
