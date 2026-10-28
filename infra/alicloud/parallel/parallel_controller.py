@@ -140,11 +140,13 @@ def provision(state,source):
  for worker in ('node-b','node-c'):
   item=state['workers'].setdefault(worker,{'source_node':False,'token':str(uuid.uuid4())});save(STATE,state)
   if item.get('instance_id'):continue
+  revalidate(state)
   params,price=quote(spec,private=(worker=='node-c'));params={k:v for k,v in params.items() if k not in ('ResourceType','PriceUnit','Period','InstanceNetworkType')}
   params.update(VSwitchId=spec['vswitch_id'],InstanceChargeType='PostPaid',Amount=1,InstanceName=state['batch_id']+'-'+worker,HostName='ax-'+worker,ClientToken=item['token'],KeyPairName=state['ssh_key_name'])
   params.update({'SecurityGroupIds.1':state['worker_security_group'],'DataDisk.1.DeleteWithInstance':True,'Tag.1.Key':'ax-batch','Tag.1.Value':state['batch_id']})
   if worker=='node-c':item['private_only']=True
   item.update(price_cny_per_hour=price,create_parameters=params,phase='creating');save(STATE,state)
+  revalidate(state)
   r=ecs('RunInstances',**params);ids=r['InstanceIdSets']['InstanceIdSet']
   if len(ids)!=1:raise ValueError('unexpected number of instances')
   item['instance_id']=ids[0];item['phase']='created';save(STATE,state)
@@ -183,7 +185,7 @@ def deploy(state,source,assets,plan):
  revalidate(state)
  private_egress(state,source)
  if not state.get('runner_bundle'):raise ValueError('runner source not ready')
- authorize_launch(state,True)
+ authorize_launch(state,True);state['launch_authorized']=True;save(STATE,state)
  bootstrap=(CODE/'worker_bootstrap.py').read_text()
  for assignment in plan['assignments']:
   name=assignment['worker_id'];item=state['workers'][name]
@@ -228,6 +230,7 @@ PY"""
   check=subprocess.run(['ssh','-F',str(ssh_config(state)),'ax-'+name,'true'],capture_output=True,text=True)
   if check.returncode:raise RuntimeError('backup SSH connection failed; no replay started')
   item['backup_ssh_verified']=True;save(STATE,state)
+  revalidate(state)
   result=invoke(item['instance_id'],script,'ax-parallel-deploy-'+name);item['deployed']=True;item['phase']='preparing';save(STATE,state)
 def collect(state,source):
  bucket=source['created_resources']['bucket']
@@ -281,6 +284,8 @@ def main():
  while True:
   refresh_build_progress(state)
   if (ROOT/'PAUSED-FOR-CACHE-PLAN').exists():
+   if state.get('launch_authorized'):
+    authorize_launch(state,False);state['launch_authorized']=False;save(STATE,state)
    save(ROOT/'gate-status.local.json',{'phase':'waiting_pause_review','epoch':time.time(),'new_resources':False})
    if a.once:return
    time.sleep(30);continue
