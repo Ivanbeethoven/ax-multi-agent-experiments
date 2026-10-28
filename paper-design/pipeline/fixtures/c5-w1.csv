@@ -1,0 +1,13 @@
+cell_id,config,workload,params,rep,throughput_mibps,iops,p99_us,read_bytes,status,note
+w1-write,juicefs,write,bs=1M;numjobs=8;iodepth=32;direct=1;runtime=20s,1,540.858000,528.156785,2801795.072,669437952,void(cache hit),client_cpu_pct=23.364;fio_elapsed_s=22.727;fio_bw_bytes=567131082
+w1-write,juicefs,write,bs=1M;numjobs=8;iodepth=32;direct=1;runtime=20s,2,580.658000,567.896311,3439329.28,705159168,void(cache hit),client_cpu_pct=23.540;fio_elapsed_s=22.600;fio_bw_bytes=608864070
+w1-write,juicefs,write,bs=1M;numjobs=8;iodepth=32;direct=1;runtime=20s,3,425.193000,412.422050,2264924.16,581804032,void(cache hit),client_cpu_pct=23.021;fio_elapsed_s=22.632;fio_bw_bytes=445847505
+w1-read,juicefs,read,bs=1M;numjobs=8;iodepth=32;direct=1;runtime=20s,1,3447.060000,3434.267726,304087.04,2966470656,void(cache hit),client_cpu_pct=136.254;fio_elapsed_s=22.568;fio_bw_bytes=3614503769
+w1-read,juicefs,read,bs=1M;numjobs=8;iodepth=32;direct=1;runtime=20s,2,4068.820000,4056.027589,263192.576,4058918912,void(cache hit),client_cpu_pct=156.144;fio_elapsed_s=22.595;fio_bw_bytes=4266469591
+w1-read,juicefs,read,bs=1M;numjobs=8;iodepth=32;direct=1;runtime=20s,3,3787.510000,3774.717585,358612.992,4007473152,void(cache hit),client_cpu_pct=145.732;fio_elapsed_s=22.685;fio_bw_bytes=3971496013
+w1-randwrite,juicefs,randwrite,bs=4k;numjobs=8;iodepth=32;direct=1;runtime=20s,1,4.436580,1123.014094,2231369.728,824152064,ok,client_cpu_pct=39.938;fio_elapsed_s=22.660;fio_bw_bytes=4652088
+w1-randwrite,juicefs,randwrite,bs=4k;numjobs=8;iodepth=32;direct=1;runtime=20s,2,2.723400,684.443780,2634022.912,495632384,ok,client_cpu_pct=38.559;fio_elapsed_s=22.641;fio_bw_bytes=2855696
+w1-randwrite,juicefs,randwrite,bs=4k;numjobs=8;iodepth=32;direct=1;runtime=20s,3,7.721740,1964.029851,2566914.048,423735296,ok,client_cpu_pct=56.111;fio_elapsed_s=22.509;fio_bw_bytes=8096834
+w1-randread,juicefs,randread,bs=4k;numjobs=8;iodepth=32;direct=1;runtime=20s,1,228.142000,58391.660834,17432.576,1088835584,ok,client_cpu_pct=244.951;fio_elapsed_s=22.560;fio_bw_bytes=239224666
+w1-randread,juicefs,randread,bs=4k;numjobs=8;iodepth=32;direct=1;runtime=20s,2,247.492000,63345.215478,19791.872,1543061504,ok,client_cpu_pct=253.696;fio_elapsed_s=22.468;fio_bw_bytes=259514426
+w1-randread,juicefs,randread,bs=4k;numjobs=8;iodepth=32;direct=1;runtime=20s,3,274.544000,70270.468859,10551.296,1117376512,ok,client_cpu_pct=279.634;fio_elapsed_s=22.411;fio_bw_bytes=287880253
