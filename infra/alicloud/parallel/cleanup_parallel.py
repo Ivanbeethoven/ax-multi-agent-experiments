@@ -18,6 +18,7 @@ def evidence(state):
   if not archive.is_relative_to(ROOT.resolve()):raise ValueError('archive outside this batch')
   if not receipt or receipt.get('run_id')!=state['batch_id'] or receipt.get('worker_id')!=name:
    raise ValueError('wrong worker receipt')
+  if state.get('attempt_id') and receipt.get('attempt_id')!=state['attempt_id']:raise ValueError('receipt belongs to another attempt')
   if receipt.get('known_credential_scan')!='passed':raise ValueError('worker credential scan not verified')
   if not archive.is_file() or sha(archive)!=receipt.get('sha256') or archive.stat().st_size!=receipt.get('bytes'):
    raise ValueError('worker archive unverified')
@@ -32,6 +33,7 @@ def evidence(state):
    terminal=json.load(record)
   if terminal.get('worker_id')!=name or terminal.get('run_id')!=state['batch_id'] or terminal.get('terminal_reason') not in ('completed','failed'):
    raise ValueError('worker terminal mismatch')
+  if state.get('attempt_id') and terminal.get('attempt_id')!=state['attempt_id']:raise ValueError('terminal belongs to another attempt')
   if terminal['terminal_reason']!=receipt.get('terminal_reason'):raise ValueError('receipt terminal reason differs')
   methods=terminal.get('methods',{})
   if not isinstance(methods,dict) or set(methods)!=set(expected[name]):raise ValueError('terminal methods differ from planned arms')
@@ -45,6 +47,7 @@ def execute(state,original):
  evidence(state)
  expected_ids={v['instance_id'] for v in state['workers'].values()}
  if len(expected_ids)!=3 or original['created_resources']['instances'][0] not in expected_ids:raise ValueError('wrong exact instance set')
+ present=set()
  for name,item in state['workers'].items():
   for instance in instances([item['instance_id']]):
    tags={t['TagKey']:t['TagValue'] for t in instance.get('Tags',{}).get('Tag',[])}
@@ -62,12 +65,17 @@ if printf '%s\n' "$processes" | grep -Ex 'full-fuse-repla|ax-fs-probe|cargo|rust
 units=$(systemctl list-units 'ax-cell-*' 'ax-parallel-matrix*' 'ax-parallel-prepare*' 'ax-main-rebuild*' --all --plain --no-legend) || exit 12
 for unit in $(printf '%s\n' "$units" | awk '{print $1}'); do state=$(systemctl show "$unit" -p SubState --value) || exit 13; case "$state" in exited|dead|failed) ;; *) exit 8;; esac; done
 mounts=$(findmnt -rn -o FSTYPE) || exit 11
-if printf '%s\n' "$mounts" | grep -E '^fuse' >/dev/null; then exit 9; fi
-systemctl stop ax-parallel-redis ax-parallel-registry ax-main-registry ax-main-checkpoint-recovery 2>/dev/null || true
-docker stop ax-parallel-rustfs ax-rustfs >/dev/null 2>&1 || true
+if printf '%s\n' "$mounts" | grep -E '^fuse($|[.]|blk$)' >/dev/null; then exit 9; fi
 """
    invoke(item['instance_id'],script,'ax-parallel-cleanup-gate')
-   ecs('DeleteInstance',InstanceId=item['instance_id'],Force=True)
+   present.add(item['instance_id'])
+ # Every existing participant must be idle before any service stop or deletion.
+ # Preserve the source bastion until both other participants have been handled.
+ for name in ('node-c','node-b','node-a'):
+  item=state['workers'][name]
+  if item['instance_id'] not in present:continue
+  invoke(item['instance_id'],"systemctl stop ax-parallel-redis ax-parallel-registry ax-main-registry ax-main-checkpoint-recovery 2>/dev/null || true\ndocker stop ax-parallel-rustfs ax-rustfs >/dev/null 2>&1 || true\n",'ax-parallel-stop-idle-auxiliary')
+  ecs('DeleteInstance',InstanceId=item['instance_id'],Force=True)
  for _ in range(40):
   if not instances(list(expected_ids)):break
   time.sleep(3)

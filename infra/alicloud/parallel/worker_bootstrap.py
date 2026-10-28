@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Prepare one owned participant with immutable assets; no compilation, no replay deadline."""
-import hashlib,http.client,json,os,secrets,shutil,subprocess,sys,tarfile,time,urllib.parse,urllib.request
+import hashlib,http.client,json,os,re,secrets,shutil,subprocess,sys,tarfile,time,urllib.parse,urllib.request
 from pathlib import Path
 C=json.loads(Path(sys.argv[1]).read_text())
 if C.get('egress_proxy'):
  os.environ.update(http_proxy=C['egress_proxy'],https_proxy=C['egress_proxy'],HTTP_PROXY=C['egress_proxy'],HTTPS_PROXY=C['egress_proxy'],no_proxy='127.0.0.1,localhost,.aliyuncs.com,.aliyun.com',NO_PROXY='127.0.0.1,localhost,.aliyuncs.com,.aliyun.com')
-BASE=Path('/data/parallel');OUT=BASE/'results';OUT.mkdir(parents=True,exist_ok=True)
+BASE=Path('/data/parallel');ATTEMPT=C.get('attempt_id','initial');assert re.fullmatch('[a-z0-9][a-z0-9-]{0,63}',ATTEMPT);TAG='' if ATTEMPT=='initial' else '-'+ATTEMPT;OUT=BASE/('results'+TAG);OUT.mkdir(parents=True,exist_ok=True);MATRIX_UNIT='ax-parallel-matrix'+TAG
 def save(path,x):
  t=path.with_suffix(path.suffix+'.tmp');t.write_text(json.dumps(x,indent=2)+'\n');t.replace(path)
 def call(a):return subprocess.check_output(a,text=True,stderr=subprocess.STDOUT).strip()
@@ -15,7 +15,7 @@ def sha(p):
  with p.open('rb') as f:
   for b in iter(lambda:f.read(1048576),b''):h.update(b)
  return h.hexdigest()
-def stage(name,**kw):save(OUT/'worker-state.json',{'worker':C['worker_id'],'phase':name,'epoch':time.time(),**kw})
+def stage(name,**kw):save(OUT/'worker-state.json',{'worker':C['worker_id'],'attempt_id':ATTEMPT,'matrix_unit':MATRIX_UNIT,'phase':name,'epoch':time.time(),**kw})
 def download(info,p):
  p.parent.mkdir(parents=True,exist_ok=True)
  if p.is_file() and sha(p)==info['sha256']:return
@@ -45,8 +45,73 @@ def put_file(url,p,ctype):
 def git_transport_environment():
  # Git's own config environment is inherited by runtime_pin; keep certificate verification enabled.
  return {'GIT_CONFIG_COUNT':'2','GIT_CONFIG_KEY_0':'http.version','GIT_CONFIG_VALUE_0':'HTTP/1.1','GIT_CONFIG_KEY_1':'http.sslVerify','GIT_CONFIG_VALUE_1':'true'}
+def redact_diagnostic(text,known=()):
+ for value in sorted((v for v in known if len(v)>=4),key=len,reverse=True):
+  text=text.replace(value,'[REDACTED]')
+ text=re.sub(r'(?i)\b(?:https?|socks5)://[^\s"<>]+','[URL]',text)
+ text=re.sub(r'(?im)\bauthorization\s*[:=]\s*[^\r\n]+','authorization=[REDACTED]',text)
+ text=re.sub(r'(?i)\b(token|password|secret|access[_-]?key)\s*[:=]\s*[^\s,}]+',r'\1=[REDACTED]',text)
+ return text
+def read_client_env(environment_file):
+ env=dict(os.environ);known=[]
+ for line in environment_file.read_text().splitlines():
+  if '=' in line:
+   key,value=line.split('=',1);env[key]=value
+   if key in ('AWS_ACCESS_KEY_ID','AWS_SECRET_ACCESS_KEY','REDISCLI_AUTH','HTTP_PROXY','HTTPS_PROXY','http_proxy','https_proxy'):known.append(value)
+ return env,known
+def preparation_pin_diagnostics(pin_path,image,container,environment_file,filename='pin-preflight-diagnostics.json',required=True):
+ env,known=read_client_env(environment_file)
+ checks=[('git_branch',['git','ls-remote','https://github.com/Ivanbeethoven/rustfs','refs/heads/feat/dynamic-block-size-rebased']),('image_identity',['docker','image','inspect',image]),('container_image',['docker','inspect','--format','{{json .Image}}',container]),('container_running',['docker','inspect','--format','{{.State.Running}}',container])];records=[]
+ for label,args in checks:
+  try:
+   result=subprocess.run(args,env=env,capture_output=True,text=True,timeout=90);text=result.stdout
+   if label=='image_identity':
+    # Never serialize Config.Env, even for a malformed docker response.
+    text=''
+    if result.returncode==0:
+     v=json.loads(result.stdout)[0];text=json.dumps({'Id':v['Id'],'RepoDigests':v.get('RepoDigests',[]),'revision':v.get('Config',{}).get('Labels',{}).get('org.opencontainers.image.revision')})
+   records.append({'check':label,'returncode':result.returncode,'stdout':redact_diagnostic(text,known)[:4000],'stderr':redact_diagnostic(result.stderr,known)[-4000:],'epoch':time.time()})
+  except (subprocess.TimeoutExpired,OSError,ValueError,KeyError,IndexError) as exc:
+   records.append({'check':label,'returncode':None,'error_type':type(exc).__name__,'epoch':time.time()})
+ save(OUT/filename,{'attempt_id':ATTEMPT,'diagnostic_only':True,'does_not_replace_frozen_driver_validation':True,'commands':records})
+ if required and any(r.get('returncode')!=0 for r in records):raise RuntimeError('preparation pin diagnostic failed; inspect sanitized per-command evidence')
+def sanitize_trace2(source,dest,known):
+ # Trace2 is written to a private directory. Publish an allowlist of timing,
+ # event, exit fields, and sanitized Git error messages only; never argv or environment.
+ allowed=('event','time','sid','thread','category','code','t_abs','t_rel','nesting','pid')
+ records=[]
+ if source.exists():
+  for line in source.read_text(encoding='utf-8',errors='replace').splitlines():
+   try:x=json.loads(line)
+   except ValueError:continue
+   if not isinstance(x,dict):continue
+   item={k:x[k] for k in allowed if k in x and isinstance(x[k],(str,int,float))}
+   if x.get('event')=='error' and isinstance(x.get('msg'),str):item['msg']=x['msg']
+   records.append({k:redact_diagnostic(v,known) if isinstance(v,str) else v for k,v in item.items()})
+ save(dest,{'attempt_id':ATTEMPT,'events':records,'scope':'sanitized trace2 allowlist; original retained privately'})
+def registry_owned_ready():
+ try: status=registry_request('GET','/v2/')[0]
+ except OSError:return False
+ if status!=200:return False
+ # A healthy but unrelated service on port 5000 must never be adopted.
+ pid=int(call(['systemctl','show','ax-parallel-registry','-p','MainPID','--value']))
+ listeners=call(['ss','-H','-ltnp','sport = :5000'])
+ if pid<=0 or set(map(int,re.findall(r'pid=(\d+)',listeners)))!={pid}:
+  raise ValueError('registry port is not owned by ax-parallel-registry')
+ return True
+def registry_upload_probe():
+ status,headers,_=registry_request('POST','/v2/ax/rustfs/blobs/uploads/')
+ if status!=202:raise ValueError('registry upload probe rejected: HTTP '+str(status))
+ loc=urllib.parse.urlsplit(headers.get('Location',headers.get('location','')))
+ prefix='/v2/ax/rustfs/blobs/uploads/'
+ if loc.scheme not in ('','http') or loc.netloc not in ('','127.0.0.1:5000','localhost:5000') or not loc.path.startswith(prefix) or '..' in loc.path.split('/'):
+  raise ValueError('invalid registry upload location')
+ path=loc.path+('?' + loc.query if loc.query else '')
+ status,_,_=registry_request('DELETE',path)
+ if status!=204:raise ValueError('registry probe cleanup rejected: HTTP '+str(status))
 def launch_gate():
  with urllib.request.urlopen(C['launch_gate_url'],timeout=30) as response:gate=json.load(response)
+ if gate.get('attempt_id','initial')!=ATTEMPT:raise ValueError('launch attempt differs')
  if not gate.get('active') or gate.get('batch_id')!=C['run_id'] or gate.get('runner_commit')!=C['runner_commit'] or gate.get('plan_sha256')!=C['plan_sha256']:raise ValueError('launch authorization is paused or differs')
  if len(C['arms'])!=4 or set(C['arms'])!={'native-kernel-default','overlay-kernel-default','packed-kernel-default','juicefs-kernel-default'}:raise ValueError('unexpected normal-cache matrix')
 def main():
@@ -78,23 +143,27 @@ def main():
   (OUT/('ldd-'+name+'.txt')).write_text(result.stdout+result.stderr)
   if 'not found' in result.stdout:raise ValueError('missing runtime dependency: '+name)
  stage('restoring_exact_image')
- try: registry_ready=registry_request('GET','/v2/')[0]==200
- except OSError: registry_ready=False
+ # The package default starts with Basic Auth on :5000; it is not this task's loopback registry.
+ run(['systemctl','stop','docker-registry'])
+ registry_ready=registry_owned_ready()
  if not registry_ready:
   directory=BASE/'registry';directory.mkdir(exist_ok=True)
   (directory/'config.yml').write_text('version: 0.1\nlog:\n  level: warn\nstorage:\n  filesystem:\n    rootdirectory: /data/parallel/registry/files\nhttp:\n  addr: 127.0.0.1:5000\n')
+  subprocess.run(['systemctl','reset-failed','ax-parallel-registry'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
   run(['systemd-run','--unit=ax-parallel-registry','--property=RemainAfterExit=yes','--property=RuntimeMaxSec=infinity','/usr/bin/docker-registry','serve',str(directory/'config.yml')])
   for _ in range(30):
    try:
-    if registry_request('GET','/v2/')[0]==200:break
+    if registry_owned_ready():registry_ready=True;break
    except OSError:pass
    time.sleep(1)
+ if not registry_ready:raise ValueError('owned loopback registry did not return HTTP 200')
+ registry_upload_probe()
  for blob in manifest['registry_image']['blobs']:
   p=assets/blob['path'];digest=blob['digest']
   if 'sha256:'+sha(p)!=digest:raise ValueError('image blob SHA mismatch')
   if registry_request('HEAD','/v2/ax/rustfs/blobs/'+digest)[0]==200:continue
   status,headers,_=registry_request('POST','/v2/ax/rustfs/blobs/uploads/')
-  if status!=202:raise ValueError('cannot begin registry import')
+  if status!=202:raise ValueError('cannot begin registry import: HTTP '+str(status))
   location=urllib.parse.urlsplit(headers.get('Location',headers.get('location')))
   path=location.path+'?'+location.query+('&' if location.query else '')+'digest='+digest
   with p.open('rb') as f:
@@ -125,11 +194,13 @@ def main():
  trace_manifest=BASE/'input/trace-manifest.json';save(trace_manifest,inventory)
  stage('configuring_equal_resources')
  subprocess.run(['systemctl','stop','redis-server'],check=True)
- secret_dir=BASE/'secrets';secret_dir.mkdir(mode=0o700,exist_ok=True);access=secrets.token_hex(12);secret=secrets.token_hex(24)
+ secret_dir=BASE/('secrets'+TAG);secret_dir.mkdir(mode=0o700,exist_ok=True);access=secrets.token_hex(12);secret=secrets.token_hex(24)
  client_env=secret_dir/'client.env';client_env.write_text(f'AWS_ACCESS_KEY_ID={access}\nAWS_SECRET_ACCESS_KEY={secret}\n');client_env.chmod(0o600)
  with client_env.open('a') as f:
   for key,value in git_transport_environment().items():f.write(key+'='+value+'\n')
  save(OUT/'git-transport.json',git_transport_environment())
+ git_trace=secret_dir/'git-trace2.jsonl';git_trace.touch(mode=0o600)
+ with client_env.open('a') as f:f.write('GIT_TRACE2_EVENT='+str(git_trace)+'\n')
  if C.get('egress_proxy'):
   with client_env.open('a') as f:
    for key in ('http_proxy','https_proxy','HTTP_PROXY','HTTPS_PROXY','no_proxy','NO_PROXY'):f.write(key+'='+os.environ[key]+'\n')
@@ -140,9 +211,9 @@ def main():
   if previous.returncode==0:
    if previous.stdout.strip()!=manifest['image_id']:raise ValueError('unexpected old server identity')
    run(['docker','stop','ax-rustfs'],stdout=subprocess.DEVNULL)
- data=BASE/'rustfs';data.mkdir(exist_ok=True)
+ data=BASE/('rustfs'+TAG);data.mkdir(exist_ok=True)
  run(['docker','run','-d','--name','ax-parallel-rustfs','--network','host','--cpus','2','--memory','16g','--memory-swap','16g','--env-file',str(server_env),'-v',str(data)+':/data',image],stdout=(OUT/'container-id.txt').open('w'))
- redis_dir=BASE/'redis';redis_dir.mkdir(exist_ok=True)
+ redis_dir=BASE/('redis'+TAG);redis_dir.mkdir(exist_ok=True)
  run(['systemd-run','--unit=ax-parallel-redis','--property=RemainAfterExit=yes','--property=RuntimeMaxSec=infinity','--property=CPUQuota=100%','--property=MemoryMax=2G','--property=MemorySwapMax=0','/usr/bin/redis-server','--bind','127.0.0.1','--port','6380','--dir',str(redis_dir),'--appendonly','yes','--appendfsync','always','--maxmemory','1536mb','--maxmemory-policy','noeviction'])
  for _ in range(120):
   try:
@@ -158,30 +229,37 @@ def main():
  actual=(Path('/sys/fs/cgroup')/group.lstrip('/')/'cpu.max').read_text().split()
  if actual[0]=='max' or int(actual[0])!=int(actual[1]):raise ValueError('Redis CPU quota differs')
  pin=json.loads((assets/'metadata/backend-pin.json').read_text());pin['image_reference']=image
- pin_path=BASE/'backend-pin.json';save(pin_path,pin)
+ pin_path=BASE/('backend-pin'+TAG+'.json');save(pin_path,pin)
  binary=lambda name:{'path':str(assets/'bin'/name),'sha256':manifest['binaries'][name]['sha256']}
  brewfs={**binary('brewfs'),'source_sha':manifest['brewfs_source']}
- config={'run_id':C['run_id'],'worker_id':C['worker_id'],'output':str(BASE/'cell-results'),'work_base':str(BASE/'workspaces'),'environment_file':str(client_env),'arms':C['arms'],'worker_qualification_file':str(OUT/'qualification.json'),'client_memory_bytes':8*1024**3,'client_cpu_percent':400,'fixture':{**binary('packed_v3_snapshot_fixture'),'source_sha':manifest['brewfs_source']},'base_spec':{'method':'native','backend_pin':str(pin_path),'rustfs_container':'ax-parallel-rustfs','endpoint':'http://127.0.0.1:9000','region':'us-east-1','bucket':'unused-overridden-per-cell','redis_url':'redis://127.0.0.1:6380/0','data_mount':'/data','brewfs':brewfs,'juicefs':binary('juicefs'),'probe':binary('ax-fs-probe'),'replayer':binary('full-fuse-replay'),'trace_case':str(case),'trace_manifest':str(trace_manifest),'trace_manifest_sha256':sha(trace_manifest),'observe':True}}
- save(BASE/'worker-config.json',config);save(OUT/'qualification.json',{'worker':C['worker_id'],'runner_commit':C['runner_commit'],'runner_dirty':False,'asset_manifest_sha256':C['asset_manifest_sha256'],'image_id':identity['Id'],'image_digest':manifest['image_digest'],'rustfs_resources':{k:host[k] for k in ('NanoCpus','Memory','MemorySwap')},'redis_resources':redis_props,'trace_archive_sha256':sha(trace_tar),'prepared':True})
+ config={'run_id':C['run_id'],'worker_id':C['worker_id'],'output':str(BASE/('cell-results'+TAG)),'work_base':str(BASE/('workspaces'+TAG)),'environment_file':str(client_env),'arms':C['arms'],'worker_qualification_file':str(OUT/'qualification.json'),'client_memory_bytes':8*1024**3,'client_cpu_percent':400,'fixture':{**binary('packed_v3_snapshot_fixture'),'source_sha':manifest['brewfs_source']},'base_spec':{'method':'native','backend_pin':str(pin_path),'rustfs_container':'ax-parallel-rustfs','endpoint':'http://127.0.0.1:9000','region':'us-east-1','bucket':'unused-overridden-per-cell','redis_url':'redis://127.0.0.1:6380/0','data_mount':'/data','brewfs':brewfs,'juicefs':binary('juicefs'),'probe':binary('ax-fs-probe'),'replayer':binary('full-fuse-replay'),'trace_case':str(case),'trace_manifest':str(trace_manifest),'trace_manifest_sha256':sha(trace_manifest),'observe':True}}
+ worker_config=BASE/('worker-config'+TAG+'.json');save(worker_config,config);save(OUT/'qualification.json',{'worker':C['worker_id'],'runner_commit':C['runner_commit'],'runner_dirty':False,'asset_manifest_sha256':C['asset_manifest_sha256'],'image_id':identity['Id'],'image_digest':manifest['image_digest'],'rustfs_resources':{k:host[k] for k in ('NanoCpus','Memory','MemorySwap')},'redis_resources':redis_props,'trace_archive_sha256':sha(trace_tar),'prepared':True})
  launch_gate()
  stage('ready_to_run')
- archive=BASE/'results.tar.gz'
- subprocess.run(['systemd-run','--unit=ax-parallel-matrix','--wait','--property=RuntimeMaxSec=infinity','--property=TimeoutStartSec=infinity','--property=EnvironmentFile='+str(client_env),'/usr/bin/python3',str(repo/'harness/run_trace_matrix.py'),'run','--config',str(BASE/'worker-config.json'),'--archive',str(archive)],check=False)
+ preparation_pin_diagnostics(pin_path,image,'ax-parallel-rustfs',client_env)
+ archive=BASE/('results'+TAG+'.tar.gz')
+ matrix=subprocess.run(['systemd-run','--unit='+MATRIX_UNIT,'--wait','--property=RuntimeMaxSec=infinity','--property=TimeoutStartSec=infinity','--property=EnvironmentFile='+str(client_env),'/usr/bin/python3',str(repo/'harness/run_trace_matrix.py'),'run','--config',str(worker_config),'--archive',str(archive)],check=False)
+ _,known=read_client_env(client_env)
+ sanitize_trace2(git_trace,OUT/'git-trace2-sanitized.json',known)
+ journal=subprocess.run(['journalctl','-u',MATRIX_UNIT,'-n','100','--no-pager','-o','cat'],capture_output=True,text=True);(OUT/'matrix-journal.txt').write_text(redact_diagnostic(journal.stdout,known))
+ if matrix.returncode!=0:preparation_pin_diagnostics(pin_path,image,'ax-parallel-rustfs',client_env,filename='pin-postfailure-diagnostics.json',required=False)
  if not archive.is_file():raise RuntimeError('matrix ended without archive; retain all resources')
  # Record the actual host libraries; archived dependencies are retained as
  # provenance, not silently substituted for the worker OS loader's libraries.
  actual=OUT/'actual-runtime-packages.txt'
  actual.write_text(call(['dpkg-query','-W','-f=${Package}=${Version}\\n','libc6','libfuse3-3','libzstd1','redis-server','docker.io']))
- preparation=BASE/'cell-results/worker-preparation';preparation.mkdir(exist_ok=True)
+ preparation=BASE/('cell-results'+TAG)/'worker-preparation';preparation.mkdir(exist_ok=True)
  for p in OUT.glob('*'):
   if p.is_file() and not p.is_symlink():shutil.copy2(p,preparation/p.name)
  for line in client_env.read_text().splitlines():
   if '=' in line:
    key,value=line.split('=',1);os.environ[key]=value
  sys.path.insert(0,str(repo/'harness'));from run_trace_matrix import archive_results
- terminal=json.loads((BASE/'cell-results/terminal.json').read_text())
- archive=BASE/'results-with-preparation.tar.gz';archive_results(BASE/'cell-results',archive,terminal)
- receipt=json.loads(archive.with_name(archive.name+'.receipt.json').read_text())
+ terminal_path=BASE/('cell-results'+TAG)/'terminal.json';terminal=json.loads(terminal_path.read_text())
+ terminal['attempt_id']=ATTEMPT;save(terminal_path,terminal)
+ archive=BASE/('results-with-preparation'+TAG+'.tar.gz');archive_results(BASE/('cell-results'+TAG),archive,terminal)
+ receipt_path=archive.with_name(archive.name+'.receipt.json');receipt=json.loads(receipt_path.read_text())
+ receipt['attempt_id']=ATTEMPT;save(receipt_path,receipt)
  if receipt['sha256']!=sha(archive) or receipt['worker_id']!=C['worker_id']:raise ValueError('matrix receipt mismatch')
  for attempt in range(5):
   try:
@@ -194,16 +272,16 @@ if __name__=='__main__':
  try:main()
  except Exception as e:
   stage('failed',error_type=type(e).__name__)
-  state=subprocess.run(['systemctl','show','ax-parallel-matrix','-p','SubState','--value'],capture_output=True,text=True).stdout.strip()
+  state=subprocess.run(['systemctl','show',MATRIX_UNIT,'-p','SubState','--value'],capture_output=True,text=True).stdout.strip()
   if state in ('running','start','start-pre','start-post','stop','stop-sigterm','stop-sigkill'):
    raise
-  prior=BASE/'cell-results/trace-arms.json'
+  prior=BASE/('cell-results'+TAG)/'trace-arms.json'
   methods=json.loads(prior.read_text()).get('arms',{}) if prior.is_file() else {label:{'status':'not_run'} for label in C['arms']}
   if any(v.get('status') in ('running','unknown') for v in methods.values()):raise
-  terminal={'run_id':C['run_id'],'worker_id':C['worker_id'],'terminal_reason':'failed','methods':methods,'failure_class':type(e).__name__,'strict_correctness':False}
-  save(OUT/'terminal.json',terminal);archive=BASE/'preparation-failed.tar.gz'
+  terminal={'run_id':C['run_id'],'worker_id':C['worker_id'],'attempt_id':ATTEMPT,'terminal_reason':'failed','methods':methods,'failure_class':type(e).__name__,'strict_correctness':False}
+  save(OUT/'terminal.json',terminal);archive=BASE/('preparation-failed'+TAG+'.tar.gz')
   patterns=[b'OSSAccessKeyId=',b'Signature=',b'X-Amz-Signature=',b'X-Amz-Credential=']
-  env=BASE/'secrets/client.env'
+  env=BASE/('secrets'+TAG)/'client.env'
   if env.is_file():patterns += [v.split('=',1)[1].encode() for v in env.read_text().splitlines() if v.startswith(('AWS_ACCESS_KEY_ID=','AWS_SECRET_ACCESS_KEY='))]
   for f in OUT.glob('*'):
    if not f.is_file():continue
@@ -216,7 +294,7 @@ if __name__=='__main__':
   with tarfile.open(archive,'w:gz') as tar:
    for f in OUT.glob('*'):
     if f.is_file() and not f.is_symlink():tar.add(f,arcname='results/'+f.name,recursive=False)
-  receipt={'run_id':C['run_id'],'worker_id':C['worker_id'],'bytes':archive.stat().st_size,'sha256':sha(archive),'terminal_reason':'failed','known_credential_scan':'passed'}
-  rp=BASE/'preparation-failed.receipt.json';save(rp,receipt)
+  receipt={'run_id':C['run_id'],'worker_id':C['worker_id'],'attempt_id':ATTEMPT,'bytes':archive.stat().st_size,'sha256':sha(archive),'terminal_reason':'failed','known_credential_scan':'passed'}
+  rp=BASE/('preparation-failed'+TAG+'.receipt.json');save(rp,receipt)
   put_file(C['result_upload_url'],archive,'application/gzip');put_file(C['receipt_upload_url'],rp,'application/json')
   raise

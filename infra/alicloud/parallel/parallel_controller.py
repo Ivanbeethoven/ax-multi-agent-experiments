@@ -78,7 +78,7 @@ def prepare_runner_bundle(state,source):
  upload(bundle,key,source['created_resources']['bucket'])
  state['runner_bundle']={'commit':commit,'ref':ref,'sha256':sha(bundle),'key':key,'local_file':bundle.name};save(STATE,state)
 def authorize_launch(state,active):
- value={'batch_id':state['batch_id'],'active':active,'plan_sha256':state['plan_sha256'],'runner_commit':state['runner_commit'],'epoch':time.time()}
+ value={'batch_id':state['batch_id'],'active':active,'attempt_id':state.get('attempt_id','initial'),'plan_sha256':state['plan_sha256'],'runner_commit':state['runner_commit'],'epoch':time.time()}
  path=ROOT/'launch-authorization.local.json';save(path,value);upload(path,'parallel-assets/launch-authorization.json',state['bucket'])
 def quote(spec,private=False):
  params={'ZoneId':spec['zone'],'ResourceType':'instance','InstanceType':spec['instance_type'],'InstanceNetworkType':'vpc','IoOptimized':'optimized','ImageId':spec['image_id'],'PriceUnit':'Hour','Period':1,'SpotStrategy':'SpotAsPriceGo','SpotDuration':1,'SystemDisk.Category':'cloud_essd','SystemDisk.Size':40,'SystemDisk.PerformanceLevel':'PL0','DataDisk.1.Category':'cloud_essd','DataDisk.1.Size':500,'DataDisk.1.PerformanceLevel':'PL1','InternetChargeType':'PayByTraffic','InternetMaxBandwidthOut':5}
@@ -210,7 +210,7 @@ def deploy(state,source,assets,plan):
   name=assignment['worker_id'];item=state['workers'][name]
   revalidate(state)
   if item.get('deployed'):continue
-  config={'run_id':state['batch_id'],'worker_id':name,'egress_proxy':item.get('egress_proxy'),'source_node':item['source_node'],'data_disk_id':item['data_disk_id'],'arms':assignment['arms'],'runner_commit':state['runner_commit'],'plan_sha256':state['plan_sha256'],'launch_gate_url':signed(bucket,'parallel-assets/launch-authorization.json'),'asset_manifest':assets,'asset_manifest_sha256':hashlib.sha256(json.dumps(assets,sort_keys=True).encode()).hexdigest(),'bundle':{**assets['bundle'],'url':signed(bucket,'parallel-assets/'+assets['bundle']['key'])},'base_bundle':{'url':signed(bucket,base_name),'sha256':source['uploaded_files'][base_name]['sha256']},'runner_bundle':{'url':signed(bucket,state['runner_bundle']['key']),'sha256':state['runner_bundle']['sha256'],'ref':state['runner_bundle']['ref']},'trace_archive':{'url':signed('brewfs-agent-traces-20261023-4ccdae73','full-fuse/20261023/pytest-full-02.tar.gz'),'sha256':assets['trace_archive_sha256']},'result_upload_url':signed(bucket,'parallel-results/'+name+'/results.tar.gz','PUT','application/gzip'),'receipt_upload_url':signed(bucket,'parallel-results/'+name+'/receipt.json','PUT','application/json')}
+  config={'run_id':state['batch_id'],'worker_id':name,'attempt_id':state.get('attempt_id','initial'),'egress_proxy':item.get('egress_proxy'),'source_node':item['source_node'],'data_disk_id':item['data_disk_id'],'arms':assignment['arms'],'runner_commit':state['runner_commit'],'plan_sha256':state['plan_sha256'],'launch_gate_url':signed(bucket,'parallel-assets/launch-authorization.json'),'asset_manifest':assets,'asset_manifest_sha256':hashlib.sha256(json.dumps(assets,sort_keys=True).encode()).hexdigest(),'bundle':{**assets['bundle'],'url':signed(bucket,'parallel-assets/'+assets['bundle']['key'])},'base_bundle':{'url':signed(bucket,base_name),'sha256':source['uploaded_files'][base_name]['sha256']},'runner_bundle':{'url':signed(bucket,state['runner_bundle']['key']),'sha256':state['runner_bundle']['sha256'],'ref':state['runner_bundle']['ref']},'trace_archive':{'url':signed('brewfs-agent-traces-20261023-4ccdae73','full-fuse/20261023/pytest-full-02.tar.gz'),'sha256':assets['trace_archive_sha256']},'result_upload_url':signed(bucket,results_prefix(state)+name+'/results.tar.gz','PUT','application/gzip'),'receipt_upload_url':signed(bucket,results_prefix(state)+name+'/receipt.json','PUT','application/json')}
   payload=base64.b64encode(json.dumps(config).encode()).decode();code=base64.b64encode(bootstrap.encode()).decode()
   mount="""python3 - <<'PY'
 import json,pathlib,subprocess
@@ -232,9 +232,10 @@ PY"""
   proxy=''
   if item.get('egress_proxy'):
    proxy='export http_proxy='+__import__('shlex').quote(item['egress_proxy'])+' https_proxy='+__import__('shlex').quote(item['egress_proxy'])+' HTTP_PROXY='+__import__('shlex').quote(item['egress_proxy'])+' HTTPS_PROXY='+__import__('shlex').quote(item['egress_proxy'])+' no_proxy=127.0.0.1,localhost,.aliyuncs.com,.aliyun.com NO_PROXY=127.0.0.1,localhost,.aliyuncs.com,.aliyun.com\n'
+  prepare_unit='ax-parallel-prepare'+('-'+state['attempt_id'] if state.get('attempt_id') else '')
   shell='set -eu\n'+proxy+'command -v mkfs.xfs >/dev/null || { apt-get update -qq; DEBIAN_FRONTEND=noninteractive apt-get install -y -qq xfsprogs; }\n'+mount+'\nexec /usr/bin/python3 /root/ax-parallel-worker.py /root/ax-parallel-config.json\n'
   launch=base64.b64encode(shell.encode()).decode()
-  script='set -eu\numask 077\nprintf %s '+payload+' | base64 -d > /root/ax-parallel-config.json\nprintf %s '+code+' | base64 -d > /root/ax-parallel-worker.py\nprintf %s '+launch+' | base64 -d > /root/ax-parallel-launch.sh\nsystemd-run --unit=ax-parallel-prepare --property=RuntimeMaxSec=infinity --property=TimeoutStartSec=infinity --property=RemainAfterExit=yes --property=StandardOutput=append:/var/log/ax-parallel-prepare.log --property=StandardError=append:/var/log/ax-parallel-prepare.log /bin/bash /root/ax-parallel-launch.sh\n'
+  script='set -eu\numask 077\nprintf %s '+payload+' | base64 -d > /root/ax-parallel-config.json\nprintf %s '+code+' | base64 -d > /root/ax-parallel-worker.py\nprintf %s '+launch+' | base64 -d > /root/ax-parallel-launch.sh\nsystemd-run --unit='+prepare_unit+' --property=RuntimeMaxSec=infinity --property=TimeoutStartSec=infinity --property=RemainAfterExit=yes --property=StandardOutput=append:/var/log/ax-parallel-prepare.log --property=StandardError=append:/var/log/ax-parallel-prepare.log /bin/bash /root/ax-parallel-launch.sh\n'
   for _ in range(60):
    rows=ecs('DescribeCloudAssistantStatus',**{'InstanceId.1':item['instance_id']})['InstanceCloudAssistantStatusSet']['InstanceCloudAssistantStatus']
    if any(str(v.get('CloudAssistantStatus')).lower()=='true' for v in rows):break
@@ -253,22 +254,31 @@ PY"""
   if check.returncode:raise RuntimeError('backup SSH connection failed; no replay started')
   item['backup_ssh_verified']=True;save(STATE,state)
   revalidate(state)
-  result=deploy_via_verified_ssh(state,name,script);item['deployed']=True;item['phase']='preparing';save(STATE,state)
+  result=deploy_via_verified_ssh(state,name,script);item['deployed']=True;item['phase']='preparing';item['prepare_unit']=prepare_unit;item['matrix_unit']='ax-parallel-matrix'+('-'+state['attempt_id'] if state.get('attempt_id') else '');save(STATE,state)
+def results_prefix(state):
+ attempt=state.get('attempt_id')
+ if not attempt:return 'parallel-results/'
+ if not __import__('re').fullmatch('[a-z0-9][a-z0-9-]{0,63}',attempt):raise ValueError('invalid result attempt')
+ return 'parallel-results/'+attempt+'/'
+def preparation_failure_needs_repair(state):
+ return any(v.get('terminal',{}).get('methods') and all(a.get('status')=='not_run' for a in v['terminal']['methods'].values()) for v in state['workers'].values())
 def collect(state,source):
  bucket=source['created_resources']['bucket']
  complete=True
  for name,item in state['workers'].items():
   if item.get('receipt'):continue
-  receipt=get_json(bucket,'parallel-results/'+name+'/receipt.json')
+  receipt=get_json(bucket,results_prefix(state)+name+'/receipt.json')
   if not receipt:complete=False;continue
+  if state.get('attempt_id') and receipt.get('attempt_id')!=state['attempt_id']:raise ValueError('receipt belongs to another attempt')
   if receipt.get('known_credential_scan')!='passed' or receipt.get('run_id')!=state['batch_id'] or receipt.get('worker_id')!=name or receipt.get('terminal_reason') not in ('completed','failed'):raise ValueError('wrong terminal receipt')
-  archive=ROOT/(name+'-results.tar.gz');cli(['oss','cp','oss://'+bucket+'/parallel-results/'+name+'/results.tar.gz',archive,'--endpoint','https://oss-'+REGION+'.aliyuncs.com','-f'])
+  archive=ROOT/(name+'-results.tar.gz');cli(['oss','cp','oss://'+bucket+'/'+results_prefix(state)+name+'/results.tar.gz',archive,'--endpoint','https://oss-'+REGION+'.aliyuncs.com','-f'])
   if sha(archive)!=receipt['sha256'] or archive.stat().st_size!=receipt['bytes']:raise ValueError('result archive mismatch')
   with tarfile.open(archive) as tar:
    if len([m for m in tar.getmembers() if m.name=='results/terminal.json'])!=1:raise ValueError('unique terminal record required')
    for m in tar.getmembers():
     if not m.isfile() or '..' in Path(m.name).parts or Path(m.name).is_absolute():raise ValueError('unsafe result archive')
    terminal=json.load(tar.extractfile('results/terminal.json'))
+  if state.get('attempt_id') and terminal.get('attempt_id')!=state['attempt_id']:raise ValueError('terminal belongs to another attempt')
   plan=json.loads(PLAN.read_text())
   if sha(PLAN)!=state['plan_sha256']:raise ValueError('frozen plan changed before collection')
   expected=next(a['arms'] for a in plan['assignments'] if a['worker_id']==name)
@@ -333,6 +343,8 @@ def main():
   takeover_collector(state)
   provision(state,source);deploy(state,source,assets,plan);state['phase']='running';save(STATE,state)
   if collect(state,source):
+   if preparation_failure_needs_repair(state):
+    authorize_launch(state,False);state['launch_authorized']=False;state['phase']='repair_hold';save(STATE,state);print('Preparation-only failure retained for repair; no automatic resource cleanup');return
    refresh_build_progress(state)
    if not state.get('build_evidence_saved'):raise ValueError('terminal build evidence must be saved before cleanup')
    state['phase']='collected_all';save(STATE,state);print('All three archives verified; cleanup is now eligible');subprocess.run([sys.executable,str(CODE/'cleanup_parallel.py'),'--execute'],check=True);return
