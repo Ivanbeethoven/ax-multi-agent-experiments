@@ -60,7 +60,7 @@ def main():
         "negative_findings": [{"repository": "brewfs", "search": "BrewFSWorkspaceFork|brewfsworkspaceforks", "tool": "rg -l", "exit_code": 1, "meaning": "No matching CRD/controller identifier found in reviewed checkout; does not exclude internal fork mechanisms or later commits."}],
         "prior_observation": {"path_relative_to_plan": "../agent-fuse-observations/derived/summary.json", "sha256": hashlib.sha256(summary_path.read_bytes()).hexdigest(), "total_events": summary["total_events"], "task_count": len(summary["tasks"]), "evidence_state": "previously_derived_observation_not_recollected_here"}
     }
-    (ROOT / "sources.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (ROOT / "validation" / "sources.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Recorded {len(records)} source files and one bounded negative finding.")
 
 

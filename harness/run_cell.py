@@ -2,7 +2,7 @@
 
 Usage: python -m harness.run_cell --cell-file cell.json --adapter adapter.json
        --output /new/run-directory --preflight  (or --execute)
-Run from experiments/ax-multi-agent, or invoke this file by absolute path.
+Run from the repository root, or invoke this file by absolute path.
 """
 from __future__ import annotations
 
