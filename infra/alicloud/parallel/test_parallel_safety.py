@@ -58,4 +58,13 @@ class PrivateProxyTests(unittest.TestCase):
  def test_only_ubuntu_http_and_no_extra_ports(self):
   from private_egress_proxy import allowed
   self.assertTrue(allowed('security.ubuntu.com',80,False));self.assertFalse(allowed('security.ubuntu.com',443,False));self.assertFalse(allowed('example.com',80,False))
+class ExternalAttemptTests(unittest.TestCase):
+ def check(self,provenance,status):
+  import ast
+  source=ast.parse((Path(controller.__file__).parent/'rustfs_import_external.py').read_text());function=next(n for n in source.body if isinstance(n,ast.FunctionDef) and n.name=='candidate_state');ns={'R':'source'};exec(compile(ast.Module(body=[function],type_ignores=[]),'<actual candidate_state>','exec'),ns);return ns['candidate_state'](provenance,status,'builder','new')
+ def test_old_failure_cannot_abort_current_attempt(self):self.assertEqual(self.check({'build_attempt_id':'old'},{'build_attempt_id':'old','stage':'failed'}),'pending')
+ def test_new_failure_detected_even_when_old_provenance_exists(self):self.assertEqual(self.check({'build_attempt_id':'old'},{'build_attempt_id':'new','source':'source','instance':'builder','stage':'failed'}),'failed')
+ def test_new_provenance_only_is_ready(self):self.assertEqual(self.check({'build_attempt_id':'new','source':'source','builder_instance':'builder'},None),'ready')
+ def test_wrong_builder_rejected(self):
+  with self.assertRaises(ValueError):self.check(None,{'build_attempt_id':'new','source':'source','instance':'other','stage':'failed'})
 if __name__=='__main__':unittest.main()

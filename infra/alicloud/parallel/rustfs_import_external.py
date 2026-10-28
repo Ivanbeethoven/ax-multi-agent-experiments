@@ -9,22 +9,30 @@ def sha(p):
  return h.hexdigest()
 def save(p,m):
  t=p.with_suffix('.tmp');t.write_text(json.dumps(m,indent=2)+'\n');t.replace(p)
+def candidate_state(provenance,status,builder,attempt):
+ if status and status.get('build_attempt_id')==attempt:
+  if status.get('instance')!=builder or status.get('source')!=R:raise ValueError('builder status identity differs')
+  if status.get('stage')=='failed':return 'failed'
+ if provenance and provenance.get('build_attempt_id')==attempt:
+  if provenance.get('builder_instance')!=builder or provenance.get('source')!=R:raise ValueError('build provenance identity differs')
+  return 'ready'
+ return 'pending'
 def run():
  p=OUT/'rustfs-external-import-status.json';save(p,{'stage':'waiting_node_b_provenance','builder_instance':C['builder_instance'],'epoch':time.time(),'build_attempt_id':C['build_attempt_id']})
  while True:
+  m=None;status=None
   try:
-   with urllib.request.urlopen(C['provenance_get'],timeout=60) as f:m=json.load(f)
-   if m.get('build_attempt_id')==C['build_attempt_id']:break
-   time.sleep(15);continue
+   with urllib.request.urlopen(C['provenance_get'],timeout=60) as response:m=json.load(response)
   except urllib.error.HTTPError as e:
    if e.code!=404:raise
-   try:
-    with urllib.request.urlopen(C['builder_status_get'],timeout=30) as response:status=json.load(response)
-    assert status.get('source')==R and status.get('instance')==C['builder_instance'],'builder status identity differs'
-    if status.get('build_attempt_id')==C['build_attempt_id'] and status.get('stage')=='failed':raise RuntimeError('fixed external builder reported failure')
-   except urllib.error.HTTPError as status_error:
-    if status_error.code!=404:raise
-   time.sleep(15)
+  try:
+   with urllib.request.urlopen(C['builder_status_get'],timeout=30) as response:status=json.load(response)
+  except urllib.error.HTTPError as e:
+   if e.code!=404:raise
+  decision=candidate_state(m,status,C['builder_instance'],C['build_attempt_id'])
+  if decision=='failed':raise RuntimeError('fixed external builder reported failure')
+  if decision=='ready':break
+  time.sleep(15)
  assert m['build_exit_code']==0,'external compilation failed'
  assert m['source']==R and m['builder_instance']==C['builder_instance'] and m['package_versions_match'] is True
  assert m['command']==['build','--release','--locked','--manifest-path','/data/src/rustfs/Cargo.toml','-p','rustfs','--bin','rustfs']

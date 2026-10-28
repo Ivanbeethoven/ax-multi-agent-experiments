@@ -13,3 +13,5 @@ The RustFS build-only helpers export only approved public caches, verify tools/s
 Offline checks: `python -m unittest discover -s infra/alicloud/parallel -p "test_*.py"`. These checks do not qualify cloud performance or a particular storage layout.
 
 Private node-c uses a source-restricted dependency proxy on node-a's private address for GitHub branch checks and Ubuntu packages; OSS internal, localhost registry, and local data traffic bypass it. The proxy accepts only the recorded private client address and approved public dependency hosts, and never logs request URLs.
+
+An already running Bash process can cache Cargo's absolute path. Installing a PATH wrapper alone does not replace that cached command. After BrewFS finishes, the source continuation must explicitly invoke `/data/build/gitwrap/cargo`, preserve the existing BrewFS hashes, and avoid rebuilding it. This batch recorded and stopped one duplicate source-side RustFS attempt before continuing through the checked handoff.

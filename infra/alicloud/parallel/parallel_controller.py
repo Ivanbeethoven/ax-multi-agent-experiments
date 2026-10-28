@@ -180,8 +180,8 @@ def ssh_config(state):
  path.write_text('\n'.join(lines)+'\n');return path
 def deploy(state,source,assets,plan):
  bucket=source['created_resources']['bucket'];base_name='experiment-25ea317.bundle'
- private_egress(state,source)
  revalidate(state)
+ private_egress(state,source)
  if not state.get('runner_bundle'):raise ValueError('runner source not ready')
  authorize_launch(state,True)
  bootstrap=(CODE/'worker_bootstrap.py').read_text()
