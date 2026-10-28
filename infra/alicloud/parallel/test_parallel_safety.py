@@ -65,6 +65,11 @@ class PrivateProxyTests(unittest.TestCase):
  def test_only_ubuntu_http_and_no_extra_ports(self):
   from private_egress_proxy import allowed
   self.assertTrue(allowed('security.ubuntu.com',80,False));self.assertFalse(allowed('security.ubuntu.com',443,False));self.assertFalse(allowed('example.com',80,False))
+class GitTransportTests(unittest.TestCase):
+ def test_runtime_git_receives_http1_and_verified_tls(self):
+  import ast,os,subprocess
+  source=ast.parse((Path(controller.__file__).parent/'worker_bootstrap.py').read_text());function=next(n for n in source.body if isinstance(n,ast.FunctionDef) and n.name=='git_transport_environment');ns={};exec(compile(ast.Module(body=[function],type_ignores=[]),'<actual Git environment>','exec'),ns);env={**os.environ,**ns['git_transport_environment']()}
+  self.assertEqual(subprocess.check_output(['git','config','--get','http.version'],env=env,text=True).strip(),'HTTP/1.1');self.assertEqual(subprocess.check_output(['git','config','--get','http.sslVerify'],env=env,text=True).strip(),'true')
 class TLSConfigTests(unittest.TestCase):
  def test_pinned_transport_covers_bastion_and_existing_nodes(self):
   with tempfile.TemporaryDirectory() as d,patch.object(controller,'ROOT',Path(d)):

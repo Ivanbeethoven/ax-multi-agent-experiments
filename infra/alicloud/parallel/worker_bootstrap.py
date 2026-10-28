@@ -42,6 +42,9 @@ def put_file(url,p,ctype):
   for b in iter(lambda:f.read(1048576),b''):con.send(b)
  r=con.getresponse();r.read();con.close()
  if r.status not in (200,201):raise RuntimeError('result upload HTTP '+str(r.status))
+def git_transport_environment():
+ # Git's own config environment is inherited by runtime_pin; keep certificate verification enabled.
+ return {'GIT_CONFIG_COUNT':'2','GIT_CONFIG_KEY_0':'http.version','GIT_CONFIG_VALUE_0':'HTTP/1.1','GIT_CONFIG_KEY_1':'http.sslVerify','GIT_CONFIG_VALUE_1':'true'}
 def launch_gate():
  with urllib.request.urlopen(C['launch_gate_url'],timeout=30) as response:gate=json.load(response)
  if not gate.get('active') or gate.get('batch_id')!=C['run_id'] or gate.get('runner_commit')!=C['runner_commit'] or gate.get('plan_sha256')!=C['plan_sha256']:raise ValueError('launch authorization is paused or differs')
@@ -124,6 +127,9 @@ def main():
  subprocess.run(['systemctl','stop','redis-server'],check=True)
  secret_dir=BASE/'secrets';secret_dir.mkdir(mode=0o700,exist_ok=True);access=secrets.token_hex(12);secret=secrets.token_hex(24)
  client_env=secret_dir/'client.env';client_env.write_text(f'AWS_ACCESS_KEY_ID={access}\nAWS_SECRET_ACCESS_KEY={secret}\n');client_env.chmod(0o600)
+ with client_env.open('a') as f:
+  for key,value in git_transport_environment().items():f.write(key+'='+value+'\n')
+ save(OUT/'git-transport.json',git_transport_environment())
  if C.get('egress_proxy'):
   with client_env.open('a') as f:
    for key in ('http_proxy','https_proxy','HTTP_PROXY','HTTPS_PROXY','no_proxy','NO_PROXY'):f.write(key+'='+os.environ[key]+'\n')
