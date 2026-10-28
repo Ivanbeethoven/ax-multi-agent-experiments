@@ -66,6 +66,7 @@
 - `design.json` 配置名是 `native`、`native-overlay`、`native-overlay-pack`；`run-grid.json` 写成 `BrewFS flat-v1`、`BrewFS Overlay + native lower`、`BrewFS Overlay + Packed lower`；`TEST-PLAN`/`JUICEFS-PARITY` 又写中文全称。语义可映射，字符串不能直接 join。
 - `design.json` 的 RustFS `frozen_commit`、image reference/digest 和 measured results 都是空值；这符合“计划未执行”，但意味着不能从该文件推出任何后端已 pin 或动态布局已生效。
 - `TEST-PLAN` 明确引用不存在的 `paper-design/plan.zh.md`，同时把 `/home/hxy/us-artifacts/*.tgz` 当实测依据；这两个路径都不属于仓库可复现输入。
+- 最新 `EXPERIMENT-CONFIG.zh.md` 已从 RustFS 源码定位动态块根因：默认 `B=1MiB` 时 `frame_size==shard_size`，即使四个开关全为 true 也不会写 `x-rustfs-internal-ec-read-quantum`；动态块格必须显式记录客户端 B hint，并以持久布局变化为资格门。
 
 ## 3. 50 格逐格审计
 
@@ -167,9 +168,10 @@
 
 1. **本批没有合格的批次 pin。** 现象：仓库没有本批 `backend-pin.json`；外部 pin 的 `brewfs_client_sha=null`，且不是 10-28 开跑时重新 `git ls-remote` 的完整记录。影响：RustFS 来源、镜像、BrewFS 客户端无法机械绑定，违反版本合同。建议：每批开跑前写完整 `backend-pin.json`，检查 image label 等于 frozen SHA；缺字段直接阻断。
 2. **配置资格失败且没有有效执行记录。** 现象：C4 的 `--workspace 0` 被客户端拒绝，G1 失败后 G2/G3/W1–W4 停止；仓库 `execution_enabled=false`。影响：50 格均不能写入论文结果。建议：为 975deac 生成真实 32 位 workspace ID 和初始化 catalog，修正配置卡后以新批次重跑资格门，不能回填旧批次。
-3. **计划有两个互相独立的机器可读源。** 现象：`design.json` 11 类，`run-grid.json` 14 类，新增三类没有冻结设计参数。影响：执行器无法知道哪一套是唯一依据。建议：把属性/重复打开/写入三类正式加入 `design.json`，或从 run-grid 移除并保留为附录；由校验器拒绝未声明实验。
-4. **记录模板无法绑定格子产物。** 现象：template 无 `cell_id/layer/judge/expected_artifact`。影响：产物存在也无法自动证明属于哪格、测量层是否正确。建议：模板增加这些必填字段并用 JSON Schema/脚本逐格校验。
-5. **`paper-design/plan.zh.md` 死链造成入口不确定。** 现象：多份历史文档指向不存在的当前路径。影响：新执行者会读到缺失入口或误用历史副本。建议：明确恢复为当前方案并标版本，或把所有链接改到现行 `TEST-PLAN`/`REORG`，同时在校验器中检查链接。
+3. **动态块默认参数会使特性成为 no-op。** 现象：源码和最新配置文档都说明默认 B=1MiB 不产生 q 标记；当前网格没有 B hint 字段，仓库也没有运行时 B/q 证据。影响：不能声称 object-granularity 已测试 dynamic block。建议：在对象格加入显式 B hint、来源、实际 B/q 和布局 digest；默认 B 直接写 `unmeasured(默认 B 使特性成为 no-op)`。
+4. **计划有两个互相独立的机器可读源。** 现象：`design.json` 11 类，`run-grid.json` 14 类，新增三类没有冻结设计参数。影响：执行器无法知道哪一套是唯一依据。建议：把属性/重复打开/写入三类正式加入 `design.json`，或从 run-grid 移除并保留为附录；由校验器拒绝未声明实验。
+5. **记录模板无法绑定格子产物。** 现象：template 无 `cell_id/layer/judge/expected_artifact`。影响：产物存在也无法自动证明属于哪格、测量层是否正确。建议：模板增加这些必填字段并用 JSON Schema/脚本逐格校验。
+6. **`paper-design/plan.zh.md` 死链造成入口不确定。** 现象：多份历史文档指向不存在的当前路径。影响：新执行者会读到缺失入口或误用历史副本。建议：明确恢复为当前方案并标版本，或把所有链接改到现行 `TEST-PLAN`/`REORG`，同时在校验器中检查链接。
 
 ### major
 
