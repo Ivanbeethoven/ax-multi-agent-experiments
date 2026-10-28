@@ -132,7 +132,7 @@ python3 paper-design/pipeline/summarize.py paper-design/pipeline/fixtures/*.csv 
 - `--workspace` 参数必须是初始化后解析出的 32 位 UUID，不能传 `0` 或任意占位值。
 - `sqlite::memory:` 只在单进程内存在，跨进程或 remount 不共享 catalog；元数据后端必须 Redis。
 - packed workspace 可能返回 `packed workspace binding requires complete catalog permission/ID/lifecycle capabilities`，这批应记录 `unmeasured(G1: ...)`。
-- packed initializer 忽略 `data-config` 的 `dir`，它会从当前工作目录下的 `./data/<manifest-key>` 查找；记录 `--init-cwd`、命令和完整输出。
+- packed initializer 忽略 `data-config.dir`（`data-config` 的 `dir` 字段），它会从当前工作目录下的 `./data/<manifest-key>` 查找；记录 `--init-cwd`、命令和完整输出。
 - 默认 `B=1MiB` 时 `frame_size == shard_size`，动态块选择成为 no-op；必须记录运行时实际 B/q 和布局，不能只看开关。
 - 系统盘约 6,800 IOPS，不得承载语料、fio、cache 或 RustFS volume 的测量 I/O。
 - CSV 的 `params`/`note` 可能含逗号，必须由 Python `csv` writer/reader 正确引用；裸逗号会被解析成额外列并由 `validate.py` 拒绝。
