@@ -113,3 +113,73 @@ bash paper-design/tools/check-disk-layout.sh /work
 | 混用实例族或跨区 | 顺序吞吐差 1.9 倍（205 vs 392 MB/s），结论会被硬件吃掉 |
 | 抢占被回收后换一台不同规格续跑 | 前后两半不可比 |
 | 只在容器 `env` 里看到开关为 true 就宣称特性生效 | 必须看持久元数据里的标记与分片形态 |
+
+## 6. 动态块（dynamic block）为什么「开关全开也没有生效」—— 已定位到源码
+
+2026-10-28 实测：4 卷 EC 2+2 已真实分片（4 块盘各占约一份分片，总计约 2 倍冗余，
+8 MiB 对象在磁盘上约 16 MiB），但 `x-rustfs-internal-ec-read-quantum` 标记
+在 `xl.meta` 与 S3 响应里都不存在。
+
+读源码后确认**这不是配置错误，而是默认参数下该特性在数学上就是 no-op**。
+
+### 写入条件（`crates/ecstore/src/set_disk/ops/object.rs:3691`）
+
+```rust
+let frame_size = if !is_inline_buffer && !protect_write && ec_read_quantum_write_enabled() {
+    select_ec_read_quantum(fi.erasure.block_size, erasure.data_shards, shard_size)
+        .unwrap_or(shard_size)
+} else {
+    shard_size
+};
+if frame_size != shard_size {                       // 只有「变了」才写标记
+    insert_ec_read_quantum(&mut user_defined, frame_size);
+}
+```
+
+`ec_read_quantum_write_enabled()` 只是两个环境变量相与：
+`RUSTFS_EC_READ_QUANTUM_ENABLE && RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED`（默认均为 `false`）。
+**开关为 true 只代表「允许走这条路」，不代表「这条路的输出会变」。**
+
+### 几何条件（`ec_block_layout.rs:283`）
+
+```
+quantum <= shard_size
+且 shard_size % quantum == 0
+且 (quantum * data_shards) 整除 block_size
+```
+
+候选值固定为 `{1 MiB, 512 KiB, 256 KiB, 128 KiB, 64 KiB, 32 KiB, …}`。
+
+### 关键结论：默认 `B = 1 MiB` 必然不写标记
+
+`DEFAULT_EC_BLOCK_SIZE = 1024 * 1024`（`ec_block_layout.rs:13`）。以 EC 2+2 为例：
+
+| B（EC 块大小） | shard_size | 选出的 quantum | 是否写标记 |
+|---|---:|---:|---|
+| 64 KiB | 32 KiB | 无（几何不匹配） | 否 |
+| 256 KiB | 128 KiB | 64 KiB | **是** |
+| **1 MiB（默认）** | 512 KiB | **512 KiB（等于 shard_size）** | **否** |
+| 4 MiB | 2 MiB | 1 MiB | **是** |
+
+因此在默认配置下，无论四个开关怎么设，`frame_size == shard_size` 恒成立，标记永不写入。
+这一点与 `REORG-EXPERIMENT-PLAN.zh.md` 里的提醒一致：
+「`B=1 MiB` 可能与旧布局相同，不能把『没有新 q 标记』当成失败」。
+
+### 要让特性真正生效，必须显式改变 B
+
+两条路，二选一：
+
+1. **客户端提示头**：每次写请求带
+   `x-rustfs-internal-ec-block-size-hint: 262144`（256 KiB）或 `: 4194304`（4 MiB）。
+   该头名即常量 `EC_BLOCK_SIZE_HINT_INTERNAL_KEY`。
+   服务端需 `RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE=true` 与 `..._FLEET_CONFIRMED=true`。
+2. **服务端默认 B**：源码里 `DEFAULT_EC_BLOCK_SIZE` 是**编译期常量**，没有对应环境变量，
+   所以只能通过客户端提示头改变。**不要以为调环境变量能改 B。**
+
+### 因此对实验的约束
+
+- 任何声称「启用了动态块」的批次，**必须记录 B 的来源**（提示头值或默认值），
+  并记录 `x-rustfs-internal-ec-read-quantum` 的实际值（例如 `1048576`）；
+- **B 取默认 1 MiB 的批次，动态块相关格子一律标 `unmeasured(默认 B 使特性成为 no-op)`**；
+- 只把容器 `env` 里的四个开关打印出来**不构成任何证据**。
+
