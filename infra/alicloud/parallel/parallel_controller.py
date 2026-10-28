@@ -157,6 +157,19 @@ def provision(state,source):
   disks=ecs('DescribeDisks',InstanceId=item['instance_id'])['Disks']['Disk']
   if len(disks)!=2 or sorted(d['Size'] for d in disks)!=[40,500] or not all(d['DeleteWithInstance'] for d in disks):raise ValueError('unexpected disposable disk inventory')
   item['disks']=[d['DiskId'] for d in disks];item['data_disk_id']=next(d['DiskId'] for d in disks if d['Type']=='data');item['public_ip']=next(iter(nodes[0]['PublicIpAddress']['IpAddress']),None);item['private_ip']=nodes[0]['VpcAttributes']['PrivateIpAddress']['IpAddress'][0];save(STATE,state)
+def private_egress(state,source):
+ if 'node-c' not in state['workers']:return
+ a=state['workers']['node-a'];c=state['workers']['node-c']
+ if not c.get('private_only'):raise ValueError('new node-c must be private only')
+ if not a.get('private_ip'):
+  rows=ecs('DescribeInstances',InstanceIds=json.dumps([a['instance_id']]))['Instances']['Instance'];a['private_ip']=rows[0]['VpcAttributes']['PrivateIpAddress']['IpAddress'][0];save(STATE,state)
+ if state.get('private_egress_proxy_ready'):return
+ group=source['created_resources']['security_group'];cidr=c['private_ip']+'/32'
+ if not state.get('private_egress_rule'):
+  ecs('AuthorizeSecurityGroup',SecurityGroupId=group,IpProtocol='tcp',PortRange='3128/3128',SourceCidrIp=cidr,NicType='intranet',Policy='accept');state['private_egress_rule']={'group':group,'source':cidr,'port':'3128/3128'};save(STATE,state)
+ body=base64.b64encode((CODE/'private_egress_proxy.py').read_bytes()).decode();config=base64.b64encode(json.dumps({'bind_ip':a['private_ip'],'clients':[c['private_ip']]}).encode()).decode()
+ script='set -eu\numask 077\nprintf %s '+body+' | base64 -d > /root/ax-private-egress-proxy.py\nprintf %s '+config+' | base64 -d > /root/ax-private-egress-proxy.json\nsystemd-run --unit=ax-private-egress --property=RuntimeMaxSec=infinity --property=TimeoutStartSec=infinity --property=CPUQuota=5% --property=MemoryMax=128M /usr/bin/python3 /root/ax-private-egress-proxy.py /root/ax-private-egress-proxy.json\n'
+ invoke(a['instance_id'],script,'ax-private-dependency-egress');state['private_egress_proxy_ready']=True;c['egress_proxy']='http://'+a['private_ip']+':3128';save(STATE,state)
 def ssh_config(state):
  path=ROOT/'ssh-client.local.conf';key=Path(state['ssh_key_path']).as_posix();known=(ROOT/'known_hosts.local').as_posix();a=state['workers']['node-a']
  lines=['Host ax-bastion',' HostName '+a['public_ip'],' User root',' IdentityFile "'+key+'"',' UserKnownHostsFile "'+known+'"',' StrictHostKeyChecking yes',' BatchMode yes',' ConnectTimeout 15']
@@ -167,6 +180,7 @@ def ssh_config(state):
  path.write_text('\n'.join(lines)+'\n');return path
 def deploy(state,source,assets,plan):
  bucket=source['created_resources']['bucket'];base_name='experiment-25ea317.bundle'
+ private_egress(state,source)
  revalidate(state)
  if not state.get('runner_bundle'):raise ValueError('runner source not ready')
  authorize_launch(state,True)
@@ -175,7 +189,7 @@ def deploy(state,source,assets,plan):
   name=assignment['worker_id'];item=state['workers'][name]
   revalidate(state)
   if item.get('deployed'):continue
-  config={'run_id':state['batch_id'],'worker_id':name,'source_node':item['source_node'],'data_disk_id':item['data_disk_id'],'arms':assignment['arms'],'runner_commit':state['runner_commit'],'plan_sha256':state['plan_sha256'],'launch_gate_url':signed(bucket,'parallel-assets/launch-authorization.json'),'asset_manifest':assets,'asset_manifest_sha256':hashlib.sha256(json.dumps(assets,sort_keys=True).encode()).hexdigest(),'bundle':{**assets['bundle'],'url':signed(bucket,'parallel-assets/'+assets['bundle']['key'])},'base_bundle':{'url':signed(bucket,base_name),'sha256':source['uploaded_files'][base_name]['sha256']},'runner_bundle':{'url':signed(bucket,state['runner_bundle']['key']),'sha256':state['runner_bundle']['sha256'],'ref':state['runner_bundle']['ref']},'trace_archive':{'url':signed('brewfs-agent-traces-20261023-4ccdae73','full-fuse/20261023/pytest-full-02.tar.gz'),'sha256':assets['trace_archive_sha256']},'result_upload_url':signed(bucket,'parallel-results/'+name+'/results.tar.gz','PUT','application/gzip'),'receipt_upload_url':signed(bucket,'parallel-results/'+name+'/receipt.json','PUT','application/json')}
+  config={'run_id':state['batch_id'],'worker_id':name,'egress_proxy':item.get('egress_proxy'),'source_node':item['source_node'],'data_disk_id':item['data_disk_id'],'arms':assignment['arms'],'runner_commit':state['runner_commit'],'plan_sha256':state['plan_sha256'],'launch_gate_url':signed(bucket,'parallel-assets/launch-authorization.json'),'asset_manifest':assets,'asset_manifest_sha256':hashlib.sha256(json.dumps(assets,sort_keys=True).encode()).hexdigest(),'bundle':{**assets['bundle'],'url':signed(bucket,'parallel-assets/'+assets['bundle']['key'])},'base_bundle':{'url':signed(bucket,base_name),'sha256':source['uploaded_files'][base_name]['sha256']},'runner_bundle':{'url':signed(bucket,state['runner_bundle']['key']),'sha256':state['runner_bundle']['sha256'],'ref':state['runner_bundle']['ref']},'trace_archive':{'url':signed('brewfs-agent-traces-20261023-4ccdae73','full-fuse/20261023/pytest-full-02.tar.gz'),'sha256':assets['trace_archive_sha256']},'result_upload_url':signed(bucket,'parallel-results/'+name+'/results.tar.gz','PUT','application/gzip'),'receipt_upload_url':signed(bucket,'parallel-results/'+name+'/receipt.json','PUT','application/json')}
   payload=base64.b64encode(json.dumps(config).encode()).decode();code=base64.b64encode(bootstrap.encode()).decode()
   mount="""python3 - <<'PY'
 import json,pathlib,subprocess

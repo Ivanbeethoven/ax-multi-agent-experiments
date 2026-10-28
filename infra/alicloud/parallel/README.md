@@ -11,3 +11,5 @@ The RustFS build-only helpers export only approved public caches, verify tools/s
 `cleanup_parallel.py` requires all three verified archives with exactly the planned terminal arms, matching receipts and successful credential scans. It refuses active compilers, replay/FS processes, or any FUSE mounts, and deletes only the recorded batch resources, including its keypair.
 
 Offline checks: `python -m unittest discover -s infra/alicloud/parallel -p "test_*.py"`. These checks do not qualify cloud performance or a particular storage layout.
+
+Private node-c uses a source-restricted dependency proxy on node-a's private address for GitHub branch checks and Ubuntu packages; OSS internal, localhost registry, and local data traffic bypass it. The proxy accepts only the recorded private client address and approved public dependency hosts, and never logs request URLs.

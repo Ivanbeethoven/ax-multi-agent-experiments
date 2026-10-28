@@ -51,4 +51,11 @@ class GateTests(unittest.TestCase):
   with patch.object(controller,'revalidate'),patch.object(controller,'ecs',side_effect=api),patch.object(controller,'quote',return_value=({},1.5106)):
    controller.provision(state,{'approved_spec':{'vpc_id':'vpc','vswitch_id':'vsw'}});controller.provision(state,{'approved_spec':{'vpc_id':'vpc','vswitch_id':'vsw'}})
   self.assertEqual(len(created),1);self.assertTrue(state['workers']['node-c']['private_only']);self.assertEqual(state['workers']['node-b']['instance_id'],'i-existing');self.assertEqual(state['workers']['node-c']['instance_id'],'i-new')
+class PrivateProxyTests(unittest.TestCase):
+ def test_only_public_dependency_https_targets(self):
+  from private_egress_proxy import allowed
+  self.assertTrue(allowed('github.com',443,True));self.assertFalse(allowed('github.com.attacker.invalid',443,True));self.assertFalse(allowed('127.0.0.1',443,True));self.assertFalse(allowed('169.254.169.254',443,True));self.assertFalse(allowed('github.com',22,True));self.assertFalse(allowed('user@github.com',443,True))
+ def test_only_ubuntu_http_and_no_extra_ports(self):
+  from private_egress_proxy import allowed
+  self.assertTrue(allowed('security.ubuntu.com',80,False));self.assertFalse(allowed('security.ubuntu.com',443,False));self.assertFalse(allowed('example.com',80,False))
 if __name__=='__main__':unittest.main()

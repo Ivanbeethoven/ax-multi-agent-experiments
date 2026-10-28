@@ -2,7 +2,10 @@
 """Prepare one owned participant with immutable assets; no compilation, no replay deadline."""
 import hashlib,http.client,json,os,secrets,shutil,subprocess,sys,tarfile,time,urllib.parse,urllib.request
 from pathlib import Path
-C=json.loads(Path(sys.argv[1]).read_text());BASE=Path('/data/parallel');OUT=BASE/'results';OUT.mkdir(parents=True,exist_ok=True)
+C=json.loads(Path(sys.argv[1]).read_text())
+if C.get('egress_proxy'):
+ os.environ.update(http_proxy=C['egress_proxy'],https_proxy=C['egress_proxy'],HTTP_PROXY=C['egress_proxy'],HTTPS_PROXY=C['egress_proxy'],no_proxy='127.0.0.1,localhost,.aliyuncs.com,.aliyun.com',NO_PROXY='127.0.0.1,localhost,.aliyuncs.com,.aliyun.com')
+BASE=Path('/data/parallel');OUT=BASE/'results';OUT.mkdir(parents=True,exist_ok=True)
 def save(path,x):
  t=path.with_suffix(path.suffix+'.tmp');t.write_text(json.dumps(x,indent=2)+'\n');t.replace(path)
 def call(a):return subprocess.check_output(a,text=True,stderr=subprocess.STDOUT).strip()
@@ -121,6 +124,9 @@ def main():
  subprocess.run(['systemctl','stop','redis-server'],check=True)
  secret_dir=BASE/'secrets';secret_dir.mkdir(mode=0o700,exist_ok=True);access=secrets.token_hex(12);secret=secrets.token_hex(24)
  client_env=secret_dir/'client.env';client_env.write_text(f'AWS_ACCESS_KEY_ID={access}\nAWS_SECRET_ACCESS_KEY={secret}\n');client_env.chmod(0o600)
+ if C.get('egress_proxy'):
+  with client_env.open('a') as f:
+   for key in ('http_proxy','https_proxy','HTTP_PROXY','HTTPS_PROXY','no_proxy','NO_PROXY'):f.write(key+'='+os.environ[key]+'\n')
  server_env=secret_dir/'rustfs.env';server_env.write_text(f'RUSTFS_ACCESS_KEY={access}\nRUSTFS_SECRET_KEY={secret}\nRUSTFS_VOLUMES=/data\nRUSTFS_ADDRESS=127.0.0.1:9000\nRUSTFS_CONSOLE_ENABLE=false\n');server_env.chmod(0o600)
  # On the original builder, the verified packaging probe is the only prior S3 service.
  if C.get('source_node'):
