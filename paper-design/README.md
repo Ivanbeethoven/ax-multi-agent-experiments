@@ -1,5 +1,7 @@
 # 实验执行手册
 
+> 当前研究与执行口径以 [最终方案](FINAL-PLAN.zh.md) 为准。本文冲突的超时、性能阈值作废及拓扑解释不再适用；现有流水线尚未通过机制/测量资格，具体问题见 [执行器审阅](REVIEW-20261028.md)。
+
 从这里开始即可。先小规模跑通，再做正式对照；所有配置都要校验结果，失败也记录。目前是实验计划，尚未执行。
 
 方案入口：[`plan.zh.md`](plan.zh.md)；装置约束见 [`EXPERIMENT-CONFIG.zh.md`](EXPERIMENT-CONFIG.zh.md)，执行判据见 [`TEST-PLAN.zh.md`](TEST-PLAN.zh.md)，章节补充见 [`REORG-EXPERIMENT-PLAN.zh.md`](REORG-EXPERIMENT-PLAN.zh.md)，JuiceFS 对照见 [`JUICEFS-PARITY.md`](JUICEFS-PARITY.md)。
