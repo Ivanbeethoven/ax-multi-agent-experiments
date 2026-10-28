@@ -9,10 +9,13 @@ help() {
   cat <<'HELP'
 Usage: run-all.sh --config CONFIG --pin backend-pin.json --output-dir DIR [options]
 
-CONFIG: flat-v1 | overlay-native | overlay-packed | juicefs
+CONFIG: c2 | c3 | c4 | c5 (aliases for flat-v1 | overlay-native |
+        overlay-packed | juicefs), or the canonical names directly.
 Required for a real run: --pin, --output-dir, --mount-point, --data-dir,
 --data-disk and (for G3) --rustfs-evidence.  --dry-run only prints commands
 and expected products, and never invokes brewfs, juicefs, FUSE, Docker or fio.
+For a dry run, --pin and --output-dir are optional; the output directory
+defaults to ./pipeline-dry-run/<config>.
 
 Options:
   --image IMAGE             RustFS image for G0
@@ -50,9 +53,22 @@ while [[ $# -gt 0 ]]; do
     --dry-run) dry=1; shift;; -h|--help) help; exit 0;; *) die "unknown option: $1";;
   esac
 done
-[[ "$config" =~ ^(flat-v1|overlay-native|overlay-packed|juicefs)$ ]] || die '--config must be flat-v1, overlay-native, overlay-packed or juicefs'
 [[ "$reps" =~ ^[1-9][0-9]*$ ]] || die '--reps must be positive'
-[[ -n "$pin" && -n "$out" ]] || die '--pin and --output-dir are required'
+# Keep the historical names in artifacts while accepting the C2--C5 names
+# used by the archived real outputs.  The mapping is deliberately explicit so
+# a typo cannot silently select another backend.
+case "${config,,}" in
+  c2|flat-v1) config=flat-v1;;
+  c3|overlay-native) config=overlay-native;;
+  c4|overlay-packed) config=overlay-packed;;
+  c5|juicefs) config=juicefs;;
+  *) die '--config must be c2/c3/c4/c5 or flat-v1/overlay-native/overlay-packed/juicefs';;
+esac
+if (( dry == 0 )); then
+  [[ -n "$pin" && -n "$out" ]] || die '--pin and --output-dir are required for a real run'
+else
+  out=${out:-"$PWD/pipeline-dry-run/$config"}
+fi
 assert_no_placeholders "$pin"; assert_no_placeholders "$out"; assert_no_placeholders "${image:-none}"
 
 if (( dry )); then
@@ -84,9 +100,15 @@ ensure_dir "$out"
 # The required per-batch remote lookup happens before any workload starts.
 cp "$pin" "$out/backend-pin.json"
 batch_pin="$out/backend-pin.json"
-freeze_pin_check "$batch_pin" >"$out/backend-pin-remote.txt"
+if ! freeze_pin_check "$batch_pin" >"$out/backend-pin-remote.txt" 2>&1; then
+  printf 'unmeasured(pin: see backend-pin-remote.txt)\n' >"$out/gate-failure.txt"
+  exit 1
+fi
 if [[ -z "$image" ]]; then die 'real run requires --image for G0'; fi
-gate_g0 "$batch_pin" "$image" >"$out/g0.txt"
+if ! gate_g0 "$batch_pin" "$image" >"$out/g0.txt" 2>&1; then
+  printf 'unmeasured(G0: see g0.txt)\n' >"$out/gate-failure.txt"
+  exit 1
+fi
 
 mount_rc=0
 case "$config" in
@@ -120,9 +142,19 @@ if ! gate_g1 "$mp" "$out/g1-output.txt" "$mp/.pipeline-g1-file"; then
   write_manifest 'unmeasured(G1: see g1-output.txt)'; exit 0
 fi
 # G2 is deliberately on the raw data disk, before W1. G3 requires actual probe evidence.
-gate_g2 "$disk" "$out/ceilings.json" "${FIO_BIN:-fio}" "$out"
-[[ -n "$evidence" ]] || die 'real run requires --rustfs-evidence containing measured headers and occupancy'
-gate_g3 "$evidence" "$out/ec-facts.json"
+if ! gate_g2 "$disk" "$out/ceilings.json" "${FIO_BIN:-fio}" "$out" >"$out/g2-output.txt" 2>&1; then
+  write_manifest 'unmeasured(G2: see g2-output.txt)'
+  exit 1
+fi
+if [[ -z "$evidence" ]]; then
+  printf '%s\n' 'missing --rustfs-evidence containing measured headers and occupancy' >"$out/g3-output.txt"
+  write_manifest 'unmeasured(G3: missing evidence)'
+  exit 1
+fi
+if ! gate_g3 "$evidence" "$out/ec-facts.json" >"$out/g3-output.txt" 2>&1; then
+  write_manifest 'unmeasured(G3: see g3-output.txt)'
+  exit 1
+fi
 for w in w1 w2 w3 w4; do
   args=("$DIR/run-$w.sh" --config "$config" --mount-point "$mp" --output "$out/$w.csv" --ceilings "$out/ceilings.json" --data-disk "$disk" --cache-dir "${cache:-$out/cache}" --corpus "${data}/pipeline-corpus" --reps "$reps")
   [[ "$config" == juicefs ]] && args+=(--juicefs "$juicefs") || args+=(--brewfs "$brewfs")

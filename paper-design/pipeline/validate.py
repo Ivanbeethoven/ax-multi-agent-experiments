@@ -7,6 +7,7 @@ import csv
 import glob
 import re
 import sys
+import tempfile
 from pathlib import Path
 
 HEADER = [
@@ -68,19 +69,20 @@ def self_regression(fixtures: Path) -> list[str]:
     errors: list[str] = []
     for path in files:
         errors.extend(validate_file(path))
-    # Exercise the exact historical failure: ten columns must be rejected.
+    # Exercise the exact historical failure with the real file validator:
+    # removing the note column from a valid fixture must produce an error.
     sample = files[0]
     with sample.open(newline="", encoding="utf-8") as fh:
         rows = list(csv.reader(fh))
     if len(rows[0]) != 11:
         errors.append(f"{sample}: fixture regression sample is not 11 columns")
-    if rows and len(rows[0][:-1]) == 10 and validate_rows_for_regression(rows[0][:-1]):
-        errors.append("fixture regression: ten-column header was accepted")
+    if len(rows) >= 2:
+        with tempfile.NamedTemporaryFile("w", newline="", encoding="utf-8", suffix=".csv") as fh:
+            csv.writer(fh).writerows((rows[0][:-1], rows[1][:-1]))
+            fh.flush()
+            if not validate_file(Path(fh.name)):
+                errors.append("fixture regression: ten-column fixture was accepted")
     return errors
-
-
-def validate_rows_for_regression(row: list[str]) -> bool:
-    return len(row) == len(HEADER)
 
 
 def main(argv: list[str] | None = None) -> int:

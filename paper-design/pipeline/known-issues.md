@@ -39,3 +39,7 @@ one is represented by a check, a status value, or an explicit prohibition.
    result, and the response value of `x-rustfs-effective-ec-block-size`.
    W4 marks `stat` IOPS above 100,000 as `void(kernel-cache)` and reports
    `fuse_getattr_ops`, `attr_valid_ns`, `entry_valid_ns`, and row-cache counts.
+9. **CSV quoting is part of the contract.** `params` and `note` may contain
+   commas. Producers must use a CSV writer and readers must use Python's
+   `csv` module; an unquoted comma creates a twelfth column and is rejected by
+   `validate.py` rather than being silently folded into a measurement.
