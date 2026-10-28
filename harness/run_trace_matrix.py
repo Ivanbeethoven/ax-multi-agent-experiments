@@ -159,6 +159,27 @@ def archive_results(output,archive,terminal):
     return receipt
 
 
+def worker_qualification(path):
+    value=suite.load(path)
+    allowed={'worker','runner_commit','runner_dirty','asset_manifest_sha256','image_id','image_digest',
+             'rustfs_resources','redis_resources','trace_archive_sha256','prepared'}
+    result={k:value[k] for k in allowed if k in value}
+    if set(result)!=allowed or result['runner_dirty'] is not False or result['prepared'] is not True:
+        raise ValueError('incomplete or unprepared worker qualification')
+    if not re.fullmatch('[0-9a-f]{40}',result['runner_commit']):raise ValueError('full runner commit required')
+    for key in ('asset_manifest_sha256','trace_archive_sha256'):
+        if not re.fullmatch('[0-9a-f]{64}',result[key]):raise ValueError('worker artifact digest invalid')
+    for key in ('image_id','image_digest'):
+        if not re.fullmatch('sha256:[0-9a-f]{64}',result[key]):raise ValueError('worker image identity invalid')
+    rustfs=result['rustfs_resources'];redis=result['redis_resources']
+    result['rustfs_resources']={k:rustfs[k] for k in ('NanoCpus','Memory','MemorySwap')}
+    result['redis_resources']={k:redis[k] for k in ('CPUQuotaPerSecUSec','MemoryMax','MemorySwapMax')}
+    if not all(type(v) is int for v in result['rustfs_resources'].values()):raise ValueError('invalid Docker resource observation')
+    if not all(type(v) is str for v in result['redis_resources'].values()):raise ValueError('invalid Redis resource observation')
+    if not IDENTIFIER.fullmatch(result['worker']):raise ValueError('invalid worker identity')
+    return result
+
+
 def run(config,arms,archive=None):
     arms=select_arms(arms)
     for k in ('run_id','worker_id'):
@@ -180,6 +201,10 @@ def run(config,arms,archive=None):
     started=time.monotonic();fatal=None
     try:
         # Inputs are pre-staged and hash checked; workers never compile binaries.
+        if config.get('worker_qualification_file'):
+            qualification=worker_qualification(config['worker_qualification_file'])
+            if qualification['worker']!=config['worker_id']:raise ValueError('worker qualification identity mismatch')
+            suite.save(out/'worker-qualification.json',qualification)
         suite.save(out/'worker-backend-qualification.json',suite.runtime_pin(suite.load(base['backend_pin']),base['rustfs_container']))
         suite.check_endpoint_container(base['endpoint'],base['rustfs_container'])
         required=['probe','replayer']+(['brewfs'] if any(ARMS[a][0]!='juicefs' for a in arms) else [])

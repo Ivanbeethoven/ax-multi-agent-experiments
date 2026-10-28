@@ -73,6 +73,20 @@ class Matrix(unittest.TestCase):
         session.juicefs='/bin/juicefs'
         with patch.object(session,'command') as call:session.initialize()
         self.assertIn('--compress',call.call_args.args[1]);self.assertIn('none',call.call_args.args[1])
+    def test_worker_qualification_keeps_only_explicit_public_fields(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'worker.json'
+            value={'worker':'A','runner_commit':'a'*40,'runner_dirty':False,'asset_manifest_sha256':'b'*64,
+                   'image_id':'sha256:'+'c'*64,'image_digest':'sha256:'+'d'*64,'trace_archive_sha256':'e'*64,
+                   'prepared':True,'Env':['do-not-copy'],
+                   'rustfs_resources':{'NanoCpus':4_000_000_000,'Memory':8*1024**3,'MemorySwap':8*1024**3,'Env':['private']},
+                   'redis_resources':{'CPUQuotaPerSecUSec':'1000000','MemoryMax':'2147483648','MemorySwapMax':'0','secret':'private'}}
+            suite.save(path,value);copied=matrix.worker_qualification(path)
+            self.assertNotIn('Env',copied);self.assertNotIn('Env',copied['rustfs_resources'])
+            self.assertNotIn('secret',copied['redis_resources'])
+            value['runner_dirty']=True;suite.save(path,value)
+            with self.assertRaises(ValueError):matrix.worker_qualification(path)
+
     def test_archive_receipt_and_code_hashes_without_private_sources(self):
         with tempfile.TemporaryDirectory() as tmp:
             d=Path(tmp);out=d/'results';out.mkdir();archive=d/'saved.tar.gz'
