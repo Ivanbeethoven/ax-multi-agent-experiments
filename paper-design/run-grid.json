@@ -1,0 +1,1439 @@
+{
+  "schema_version": 1,
+  "generated_on": "2026-10-28",
+  "status": "plan-only",
+  "layer_values": [
+    "fuse",
+    "backend",
+    "disk",
+    "client"
+  ],
+  "cells": [
+    {
+      "cell_id": "qualification-flat",
+      "experiment": "qualification",
+      "config": "BrewFS flat-v1",
+      "workload": "POSIX create/read/overwrite/truncate/rename/unlink/sync/reopen",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "configuration": "flat-v1"
+      },
+      "reps": 1,
+      "judge": "all content, attributes, namespace digest, independent readback and GC assertions pass",
+      "layer": "client",
+      "expected_artifact": "qualification.json",
+      "valid_if": "versions pinned and all semantic assertions pass",
+      "invalid_status": "void(qualification)"
+    },
+    {
+      "cell_id": "qualification-overlay-native",
+      "experiment": "qualification",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "same sequence with edited parent and two child states",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "lower": "native"
+      },
+      "reps": 1,
+      "judge": "parent inheritance, sibling isolation, reopen and stale-writer rejection pass",
+      "layer": "client",
+      "expected_artifact": "qualification.json",
+      "valid_if": "workspace-overlay loads and assertions pass",
+      "invalid_status": "void(qualification)"
+    },
+    {
+      "cell_id": "qualification-overlay-packed",
+      "experiment": "qualification",
+      "config": "BrewFS Overlay + Packed lower",
+      "workload": "same sequence using packed-v3 fixture",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "lower": "packed-v3",
+        "fixture": "/home/hxy/packed_v3_snapshot_fixture"
+      },
+      "reps": 1,
+      "judge": "manifest resolves and all semantic assertions pass",
+      "layer": "client",
+      "expected_artifact": "qualification.json",
+      "valid_if": "fixture, manifest and workspace-overlay mount pass",
+      "invalid_status": "void(qualification)"
+    },
+    {
+      "cell_id": "qualification-juicefs",
+      "experiment": "qualification",
+      "config": "JuiceFS",
+      "workload": "same POSIX sequence, readback and reopen",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true
+      },
+      "reps": 1,
+      "judge": "common assertions pass; BrewFS-only unsupported operations retain exact error",
+      "layer": "client",
+      "expected_artifact": "qualification-juicefs.json",
+      "valid_if": "common assertions pass",
+      "invalid_status": "unmeasured(qualification)"
+    },
+    {
+      "cell_id": "attrs-flat-0",
+      "experiment": "attribute-cache",
+      "config": "BrewFS flat-v1",
+      "workload": "100000 stat operations over 1000/10000/100000 inode rotations",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "working_set_inodes": [
+          1000,
+          10000,
+          100000
+        ],
+        "stats": 100000,
+        "ttl_ms": 0
+      },
+      "reps": 3,
+      "judge": "record p50/p95/p99,FUSE getattr/lookup,runtime TTL,row-cache and generation checks",
+      "layer": "fuse",
+      "expected_artifact": "attribute-cache.csv",
+      "valid_if": "all sets finish within ceiling",
+      "invalid_status": "void(attribute-cache)"
+    },
+    {
+      "cell_id": "attrs-overlay-0",
+      "experiment": "attribute-cache",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "100000 stat operations over 1000/10000/100000 inode rotations",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "working_set_inodes": [
+          1000,
+          10000,
+          100000
+        ],
+        "stats": 100000,
+        "ttl_ms": 0
+      },
+      "reps": 3,
+      "judge": "record p50/p95/p99,FUSE getattr/lookup,runtime TTL,row-cache and generation checks",
+      "layer": "fuse",
+      "expected_artifact": "attribute-cache.csv",
+      "valid_if": "all sets finish within ceiling",
+      "invalid_status": "void(attribute-cache)"
+    },
+    {
+      "cell_id": "attrs-overlay-1000",
+      "experiment": "attribute-cache",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "100000 stat operations over 1000/10000/100000 inode rotations",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "working_set_inodes": [
+          1000,
+          10000,
+          100000
+        ],
+        "stats": 100000,
+        "ttl_ms": 1000
+      },
+      "reps": 3,
+      "judge": "record p50/p95/p99,FUSE getattr/lookup,runtime TTL,row-cache and generation checks",
+      "layer": "fuse",
+      "expected_artifact": "attribute-cache.csv",
+      "valid_if": "all sets finish within ceiling",
+      "invalid_status": "void(attribute-cache)"
+    },
+    {
+      "cell_id": "attrs-juicefs",
+      "experiment": "attribute-cache",
+      "config": "JuiceFS",
+      "workload": "same stat rotations and actual cache defaults",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "working_set_inodes": [
+          1000,
+          10000,
+          100000
+        ],
+        "stats": 100000
+      },
+      "reps": 3,
+      "judge": "record attr/entry/open cache settings,FUSE/metadata latency and content checks",
+      "layer": "fuse",
+      "expected_artifact": "attribute-cache.csv",
+      "valid_if": "all completed sets within ceiling",
+      "invalid_status": "unmeasured(attribute-cache)"
+    },
+    {
+      "cell_id": "reopen-flat-on",
+      "experiment": "reopen-cache",
+      "config": "BrewFS flat-v1",
+      "workload": "open/read/close/open/read/close",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "file_bytes": [
+          4096,
+          65536,
+          1048576
+        ],
+        "rounds": 200,
+        "keep_cache": "on"
+      },
+      "reps": 3,
+      "judge": "judge only second-read FUSE bytes/ops plus content; never throughput",
+      "layer": "fuse",
+      "expected_artifact": "reopen-cache.csv",
+      "valid_if": "second reads complete and hashes match",
+      "invalid_status": "void(reopen-cache)"
+    },
+    {
+      "cell_id": "reopen-flat-off",
+      "experiment": "reopen-cache",
+      "config": "BrewFS flat-v1",
+      "workload": "open/read/close/open/read/close",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "file_bytes": [
+          4096,
+          65536,
+          1048576
+        ],
+        "rounds": 200,
+        "keep_cache": "off"
+      },
+      "reps": 3,
+      "judge": "judge only second-read FUSE bytes/ops plus content; never throughput",
+      "layer": "fuse",
+      "expected_artifact": "reopen-cache.csv",
+      "valid_if": "second reads complete and hashes match",
+      "invalid_status": "void(reopen-cache)"
+    },
+    {
+      "cell_id": "reopen-overlay-on",
+      "experiment": "reopen-cache",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "open/read/close/open/read/close",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "file_bytes": [
+          4096,
+          65536,
+          1048576
+        ],
+        "rounds": 200,
+        "keep_cache": "on"
+      },
+      "reps": 3,
+      "judge": "judge only second-read FUSE bytes/ops plus content; never throughput",
+      "layer": "fuse",
+      "expected_artifact": "reopen-cache.csv",
+      "valid_if": "second reads complete and hashes match",
+      "invalid_status": "void(reopen-cache)"
+    },
+    {
+      "cell_id": "reopen-overlay-off",
+      "experiment": "reopen-cache",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "open/read/close/open/read/close",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "file_bytes": [
+          4096,
+          65536,
+          1048576
+        ],
+        "rounds": 200,
+        "keep_cache": "off"
+      },
+      "reps": 3,
+      "judge": "judge only second-read FUSE bytes/ops plus content; never throughput",
+      "layer": "fuse",
+      "expected_artifact": "reopen-cache.csv",
+      "valid_if": "second reads complete and hashes match",
+      "invalid_status": "void(reopen-cache)"
+    },
+    {
+      "cell_id": "reopen-packed-on",
+      "experiment": "reopen-cache",
+      "config": "BrewFS Overlay + Packed lower",
+      "workload": "open/read/close/open/read/close",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "file_bytes": [
+          4096,
+          65536,
+          1048576
+        ],
+        "rounds": 200,
+        "keep_cache": "on"
+      },
+      "reps": 3,
+      "judge": "judge only second-read FUSE bytes/ops plus content; never throughput",
+      "layer": "fuse",
+      "expected_artifact": "reopen-cache.csv",
+      "valid_if": "second reads complete and hashes match",
+      "invalid_status": "void(reopen-cache)"
+    },
+    {
+      "cell_id": "reopen-packed-off",
+      "experiment": "reopen-cache",
+      "config": "BrewFS Overlay + Packed lower",
+      "workload": "open/read/close/open/read/close",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "file_bytes": [
+          4096,
+          65536,
+          1048576
+        ],
+        "rounds": 200,
+        "keep_cache": "off"
+      },
+      "reps": 3,
+      "judge": "judge only second-read FUSE bytes/ops plus content; never throughput",
+      "layer": "fuse",
+      "expected_artifact": "reopen-cache.csv",
+      "valid_if": "second reads complete and hashes match",
+      "invalid_status": "void(reopen-cache)"
+    },
+    {
+      "cell_id": "reopen-juicefs",
+      "experiment": "reopen-cache",
+      "config": "JuiceFS",
+      "workload": "open/read/close/open/read/close",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "file_bytes": [
+          4096,
+          65536,
+          1048576
+        ],
+        "rounds": 200,
+        "keep_cache": "no-equivalent-default"
+      },
+      "reps": 3,
+      "judge": "judge only second-read FUSE bytes/ops plus content; never throughput",
+      "layer": "fuse",
+      "expected_artifact": "reopen-cache.csv",
+      "valid_if": "second reads complete and hashes match",
+      "invalid_status": "unmeasured(no-equivalent-keep-cache)"
+    },
+    {
+      "cell_id": "write-flat",
+      "experiment": "write-cost",
+      "config": "BrewFS flat-v1",
+      "workload": "ABBA, small files, large file, random overwrite and delete-during-write",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "record": [
+          "application_return",
+          "remote_confirm",
+          "drain",
+          "readback",
+          "device_bytes"
+        ]
+      },
+      "reps": 3,
+      "judge": "remote confirmation and independent readback present; early app return is insufficient",
+      "layer": "backend",
+      "expected_artifact": "write-cost.csv",
+      "valid_if": "same inputs/resources/lifecycle finish within ceiling",
+      "invalid_status": "void(write-cost)"
+    },
+    {
+      "cell_id": "write-overlay",
+      "experiment": "write-cost",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "ABBA, small files, large file, random overwrite and delete-during-write",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "record": [
+          "application_return",
+          "remote_confirm",
+          "drain",
+          "readback",
+          "device_bytes"
+        ]
+      },
+      "reps": 3,
+      "judge": "remote confirmation and independent readback present; early app return is insufficient",
+      "layer": "backend",
+      "expected_artifact": "write-cost.csv",
+      "valid_if": "same inputs/resources/lifecycle finish within ceiling",
+      "invalid_status": "void(write-cost)"
+    },
+    {
+      "cell_id": "write-packed",
+      "experiment": "write-cost",
+      "config": "BrewFS Overlay + Packed lower",
+      "workload": "ABBA, small files, large file, random overwrite and delete-during-write",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "record": [
+          "application_return",
+          "remote_confirm",
+          "drain",
+          "readback",
+          "device_bytes"
+        ]
+      },
+      "reps": 3,
+      "judge": "remote confirmation and independent readback present; early app return is insufficient",
+      "layer": "backend",
+      "expected_artifact": "write-cost.csv",
+      "valid_if": "same inputs/resources/lifecycle finish within ceiling",
+      "invalid_status": "void(write-cost)"
+    },
+    {
+      "cell_id": "write-juicefs",
+      "experiment": "write-cost",
+      "config": "JuiceFS",
+      "workload": "ABBA, small files, large file, random overwrite and delete-during-write",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "record": [
+          "application_return",
+          "remote_confirm",
+          "drain",
+          "readback",
+          "device_bytes"
+        ]
+      },
+      "reps": 3,
+      "judge": "remote confirmation and independent readback present; early app return is insufficient",
+      "layer": "backend",
+      "expected_artifact": "write-cost.csv",
+      "valid_if": "same inputs/resources/lifecycle finish within ceiling",
+      "invalid_status": "void(write-cost)"
+    },
+    {
+      "cell_id": "fork-native-1",
+      "experiment": "overlay-fork",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "edited parent then child fork",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "fixture": "F1",
+        "children": 1,
+        "parent_write_bytes": 1048576,
+        "parent_renames": 32,
+        "parent_deletes": 32,
+        "child_write_bytes": 1048576
+      },
+      "reps": 3,
+      "judge": "child inherits and remains isolated; use fork-to-first-correct, first durable write, save and shared bytes",
+      "layer": "backend",
+      "expected_artifact": "overlay-fork.csv",
+      "valid_if": "readbacks and namespace digests pass",
+      "invalid_status": "void(semantic)"
+    },
+    {
+      "cell_id": "fork-native-16",
+      "experiment": "overlay-fork",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "edited parent then child fork",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "fixture": "F1",
+        "children": 16,
+        "parent_write_bytes": 1048576,
+        "parent_renames": 32,
+        "parent_deletes": 32,
+        "child_write_bytes": 1048576
+      },
+      "reps": 3,
+      "judge": "child inherits and remains isolated; use fork-to-first-correct, first durable write, save and shared bytes",
+      "layer": "backend",
+      "expected_artifact": "overlay-fork.csv",
+      "valid_if": "readbacks and namespace digests pass",
+      "invalid_status": "void(semantic)"
+    },
+    {
+      "cell_id": "fork-native-64",
+      "experiment": "overlay-fork",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "edited parent then child fork",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "fixture": "F1",
+        "children": 64,
+        "parent_write_bytes": 1048576,
+        "parent_renames": 32,
+        "parent_deletes": 32,
+        "child_write_bytes": 1048576
+      },
+      "reps": 3,
+      "judge": "child inherits and remains isolated; use fork-to-first-correct, first durable write, save and shared bytes",
+      "layer": "backend",
+      "expected_artifact": "overlay-fork.csv",
+      "valid_if": "readbacks and namespace digests pass",
+      "invalid_status": "void(semantic)"
+    },
+    {
+      "cell_id": "fork-juicefs",
+      "experiment": "overlay-fork",
+      "config": "JuiceFS",
+      "workload": "same parent/child workload",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "fixture": "F1",
+        "children": [
+          1,
+          16,
+          64
+        ],
+        "operation": "native clone/snapshot if supported"
+      },
+      "reps": 3,
+      "judge": "same first-correct/save/readback; retain exact no-clone error",
+      "layer": "backend",
+      "expected_artifact": "overlay-fork-juicefs.csv",
+      "valid_if": "clone recoverable or explicit no-clone",
+      "invalid_status": "unmeasured(no-clone)"
+    },
+    {
+      "cell_id": "retention-native-1000",
+      "experiment": "retention",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "create,reopen,delete half,GC observe",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "states": 1000,
+        "create_concurrency": 64,
+        "create_deadline_s": 1800,
+        "retention_s": 600,
+        "gc_observation_s": 3600,
+        "max_reopen_sample": 1024
+      },
+      "reps": 3,
+      "judge": "sampled states reopen; protected references survive; logical and physical reclaim separate",
+      "layer": "backend",
+      "expected_artifact": "retention.csv",
+      "valid_if": "state/reopen/GC within ceilings",
+      "invalid_status": "void(retention-limit)"
+    },
+    {
+      "cell_id": "retention-native-10000",
+      "experiment": "retention",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "create,reopen,delete half,GC observe",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "states": 10000,
+        "create_concurrency": 64,
+        "create_deadline_s": 1800,
+        "retention_s": 600,
+        "gc_observation_s": 3600,
+        "max_reopen_sample": 1024
+      },
+      "reps": 3,
+      "judge": "sampled states reopen; protected references survive; logical and physical reclaim separate",
+      "layer": "backend",
+      "expected_artifact": "retention.csv",
+      "valid_if": "state/reopen/GC within ceilings",
+      "invalid_status": "void(retention-limit)"
+    },
+    {
+      "cell_id": "retention-juicefs",
+      "experiment": "retention",
+      "config": "JuiceFS",
+      "workload": "same retention/reopen/delete workload",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "states": [
+          1000,
+          10000
+        ],
+        "retention_s": 600,
+        "gc_observation_s": 3600
+      },
+      "reps": 3,
+      "judge": "judge common reopen/delete/reclaim; history support explicit",
+      "layer": "backend",
+      "expected_artifact": "retention-juicefs.csv",
+      "valid_if": "common workload within ceilings",
+      "invalid_status": "unmeasured(no-history-version)"
+    },
+    {
+      "cell_id": "access-native",
+      "experiment": "packed-access",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "six query families and shared/disjoint access",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "fixture": "M",
+        "files": [
+          32768,
+          1048576
+        ],
+        "bytes_per_file": 1024,
+        "consumers": [
+          1,
+          16,
+          64
+        ],
+        "queries_per_session": 32768,
+        "background_rate_multipliers": [
+          0,
+          1,
+          4
+        ],
+        "probe_rate_fraction": 0.25,
+        "probe_deadline_s": 2,
+        "packed": false
+      },
+      "reps": 3,
+      "judge": "jointly judge latency, DB/object/client counters and probe completion",
+      "layer": "backend",
+      "expected_artifact": "packed-access.csv",
+      "valid_if": "sessions/probes finish and counters are captured or null",
+      "invalid_status": "void(packed-access)"
+    },
+    {
+      "cell_id": "access-packed",
+      "experiment": "packed-access",
+      "config": "BrewFS Overlay + Packed lower",
+      "workload": "six query families and shared/disjoint access",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "fixture": "M",
+        "files": [
+          32768,
+          1048576
+        ],
+        "bytes_per_file": 1024,
+        "consumers": [
+          1,
+          16,
+          64
+        ],
+        "queries_per_session": 32768,
+        "background_rate_multipliers": [
+          0,
+          1,
+          4
+        ],
+        "probe_rate_fraction": 0.25,
+        "probe_deadline_s": 2,
+        "packed": true
+      },
+      "reps": 3,
+      "judge": "jointly judge latency, DB/object/client counters and probe completion",
+      "layer": "backend",
+      "expected_artifact": "packed-access.csv",
+      "valid_if": "sessions/probes finish and counters are captured or null",
+      "invalid_status": "void(packed-access)"
+    },
+    {
+      "cell_id": "access-juicefs",
+      "experiment": "packed-access",
+      "config": "JuiceFS",
+      "workload": "six query families and shared/disjoint access",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "fixture": "M",
+        "files": [
+          32768,
+          1048576
+        ],
+        "bytes_per_file": 1024,
+        "consumers": [
+          1,
+          16,
+          64
+        ],
+        "queries_per_session": 32768,
+        "background_rate_multipliers": [
+          0,
+          1,
+          4
+        ],
+        "probe_rate_fraction": 0.25,
+        "probe_deadline_s": 2,
+        "packed": false
+      },
+      "reps": 3,
+      "judge": "jointly judge latency, DB/object/client counters and probe completion",
+      "layer": "backend",
+      "expected_artifact": "packed-access.csv",
+      "valid_if": "sessions/probes finish and counters are captured or null",
+      "invalid_status": "unmeasured(no-packed-lower)"
+    },
+    {
+      "cell_id": "lifecycle-native",
+      "experiment": "packed-lifecycle",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "first fork,reuse and eight update cycles",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "reuse_K": [
+          1,
+          4,
+          16,
+          64,
+          256
+        ],
+        "version_cycles": 8,
+        "changed_fraction": [
+          0.001,
+          0.01,
+          0.1
+        ],
+        "uses_per_version": [
+          4,
+          64
+        ],
+        "post_use_retention_s": [
+          0,
+          600
+        ]
+      },
+      "reps": 3,
+      "judge": "judge per-resource cumulative differences at observed K; no extrapolated crossing",
+      "layer": "backend",
+      "expected_artifact": "packed-lifecycle.csv",
+      "valid_if": "actual completed prefixes and resource ledger recorded",
+      "invalid_status": "void(lifecycle)"
+    },
+    {
+      "cell_id": "lifecycle-packed",
+      "experiment": "packed-lifecycle",
+      "config": "BrewFS Overlay + Packed lower",
+      "workload": "first fork,reuse and eight update cycles",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "reuse_K": [
+          1,
+          4,
+          16,
+          64,
+          256
+        ],
+        "version_cycles": 8,
+        "changed_fraction": [
+          0.001,
+          0.01,
+          0.1
+        ],
+        "uses_per_version": [
+          4,
+          64
+        ],
+        "post_use_retention_s": [
+          0,
+          600
+        ]
+      },
+      "reps": 3,
+      "judge": "judge per-resource cumulative differences at observed K; no extrapolated crossing",
+      "layer": "backend",
+      "expected_artifact": "packed-lifecycle.csv",
+      "valid_if": "actual completed prefixes and resource ledger recorded",
+      "invalid_status": "void(lifecycle)"
+    },
+    {
+      "cell_id": "lifecycle-juicefs",
+      "experiment": "packed-lifecycle",
+      "config": "JuiceFS",
+      "workload": "first fork,reuse and eight update cycles",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "reuse_K": [
+          1,
+          4,
+          16,
+          64,
+          256
+        ],
+        "version_cycles": 8,
+        "changed_fraction": [
+          0.001,
+          0.01,
+          0.1
+        ],
+        "uses_per_version": [
+          4,
+          64
+        ],
+        "post_use_retention_s": [
+          0,
+          600
+        ]
+      },
+      "reps": 3,
+      "judge": "judge per-resource cumulative differences at observed K; no extrapolated crossing",
+      "layer": "backend",
+      "expected_artifact": "packed-lifecycle.csv",
+      "valid_if": "actual completed prefixes and resource ledger recorded",
+      "invalid_status": "unmeasured(no-equivalent)"
+    },
+    {
+      "cell_id": "object-client-g",
+      "experiment": "object-granularity",
+      "config": "BrewFS flat-v1",
+      "workload": "F2 sparse read, scan and overwrite by client g",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "fixture": "F2",
+        "g_mib": [
+          1,
+          4,
+          8,
+          16
+        ],
+        "consumers": [
+          1,
+          16,
+          64
+        ],
+        "records_per_consumer": 1024,
+        "record_bytes": 4096,
+        "read_bytes": [
+          4096,
+          65536,
+          1048576
+        ]
+      },
+      "reps": 3,
+      "judge": "only compare after persisted lengths/layout recorded; all content reads pass",
+      "layer": "backend",
+      "expected_artifact": "object-granularity.csv",
+      "valid_if": "each g yields qualified distinct object set",
+      "invalid_status": "void(layout-unchanged)"
+    },
+    {
+      "cell_id": "object-backend-bq",
+      "experiment": "object-granularity",
+      "config": "BrewFS flat-v1",
+      "workload": "same objects with legal backend B/q variants",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "freeze_B_q_during_qualification": true,
+        "loads": [
+          "random-4K",
+          "64K",
+          "1M",
+          "cross-boundary",
+          "sequential"
+        ]
+      },
+      "reps": 3,
+      "judge": "judge effective persisted B/q from metadata, not requested hint; include device/service counters",
+      "layer": "backend",
+      "expected_artifact": "object-backend-bq.csv",
+      "valid_if": "qualified B/q changes persisted layout",
+      "invalid_status": "void(layout-unchanged)"
+    },
+    {
+      "cell_id": "object-juicefs",
+      "experiment": "object-granularity",
+      "config": "JuiceFS",
+      "workload": "same whole/range/random/sequential reads",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "read_bytes": [
+          4096,
+          65536,
+          1048576
+        ],
+        "fetch": [
+          "whole",
+          "range",
+          "random"
+        ]
+      },
+      "reps": 3,
+      "judge": "judge common latency, GET ranges, client/server/device bytes and actual block-size",
+      "layer": "backend",
+      "expected_artifact": "object-juicefs.csv",
+      "valid_if": "same content and requests complete",
+      "invalid_status": "unmeasured(no-Bq-hint)"
+    },
+    {
+      "cell_id": "migration-native",
+      "experiment": "migration",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "partial workspace migration cold/warm target",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "source_workers": 4,
+        "target_workers": 4,
+        "workspaces": 16,
+        "selected": [
+          0,
+          1,
+          4,
+          8
+        ],
+        "pending_mib": [
+          0,
+          1,
+          16,
+          128
+        ],
+        "target_cache": [
+          "cold",
+          "warm"
+        ],
+        "first_correct_deadline_s": 600,
+        "continuation_deadline_s": 900
+      },
+      "reps": 3,
+      "judge": "judge first-correct, authority transfer, completion, neighbor latency and readback",
+      "layer": "client",
+      "expected_artifact": "migration.csv",
+      "valid_if": "fencing/readback and resource ceilings pass",
+      "invalid_status": "void(migration)"
+    },
+    {
+      "cell_id": "migration-packed",
+      "experiment": "migration",
+      "config": "BrewFS Overlay + Packed lower",
+      "workload": "partial workspace migration cold/warm target",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "source_workers": 4,
+        "target_workers": 4,
+        "workspaces": 16,
+        "selected": [
+          0,
+          1,
+          4,
+          8
+        ],
+        "pending_mib": [
+          0,
+          1,
+          16,
+          128
+        ],
+        "target_cache": [
+          "cold",
+          "warm"
+        ],
+        "first_correct_deadline_s": 600,
+        "continuation_deadline_s": 900
+      },
+      "reps": 3,
+      "judge": "judge first-correct, authority transfer, completion, neighbor latency and readback",
+      "layer": "client",
+      "expected_artifact": "migration.csv",
+      "valid_if": "fencing/readback and resource ceilings pass",
+      "invalid_status": "void(migration)"
+    },
+    {
+      "cell_id": "migration-juicefs",
+      "experiment": "migration",
+      "config": "JuiceFS",
+      "workload": "partial workspace migration cold/warm target",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "source_workers": 4,
+        "target_workers": 4,
+        "workspaces": 16,
+        "selected": [
+          0,
+          1,
+          4,
+          8
+        ],
+        "pending_mib": [
+          0,
+          1,
+          16,
+          128
+        ],
+        "target_cache": [
+          "cold",
+          "warm"
+        ],
+        "first_correct_deadline_s": 600,
+        "continuation_deadline_s": 900
+      },
+      "reps": 3,
+      "judge": "judge first-correct, authority transfer, completion, neighbor latency and readback",
+      "layer": "client",
+      "expected_artifact": "migration.csv",
+      "valid_if": "fencing/readback and resource ceilings pass",
+      "invalid_status": "unmeasured(no-fencing)"
+    },
+    {
+      "cell_id": "recovery-native",
+      "experiment": "recovery",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "four fault barriers with stale-writer trials",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "fault_points": [
+          "before_confirmation",
+          "after_confirmation",
+          "source_coordination_loss_storage_alive",
+          "target_recovery_failure"
+        ],
+        "attempts_per_point": 20
+      },
+      "reps": 20,
+      "judge": "judge stale-writer rejection, confirmed-content preservation and independent readback",
+      "layer": "client",
+      "expected_artifact": "recovery.json",
+      "valid_if": "all barrier trials have event/readback evidence",
+      "invalid_status": "void(recovery)"
+    },
+    {
+      "cell_id": "recovery-packed",
+      "experiment": "recovery",
+      "config": "BrewFS Overlay + Packed lower",
+      "workload": "four fault barriers with stale-writer trials",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "fault_points": [
+          "before_confirmation",
+          "after_confirmation",
+          "source_coordination_loss_storage_alive",
+          "target_recovery_failure"
+        ],
+        "attempts_per_point": 20
+      },
+      "reps": 20,
+      "judge": "judge stale-writer rejection, confirmed-content preservation and independent readback",
+      "layer": "client",
+      "expected_artifact": "recovery.json",
+      "valid_if": "all barrier trials have event/readback evidence",
+      "invalid_status": "void(recovery)"
+    },
+    {
+      "cell_id": "recovery-juicefs",
+      "experiment": "recovery",
+      "config": "JuiceFS",
+      "workload": "four fault barriers with stale-writer trials",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "fault_points": [
+          "before_confirmation",
+          "after_confirmation",
+          "source_coordination_loss_storage_alive",
+          "target_recovery_failure"
+        ],
+        "attempts_per_point": 20
+      },
+      "reps": 20,
+      "judge": "judge stale-writer rejection, confirmed-content preservation and independent readback",
+      "layer": "client",
+      "expected_artifact": "recovery.json",
+      "valid_if": "all barrier trials have event/readback evidence",
+      "invalid_status": "unmeasured(no-fencing)"
+    },
+    {
+      "cell_id": "replay-native",
+      "experiment": "replay",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "seven frozen traces, eight copies per case",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "cases": 7,
+        "copies_per_case": 8,
+        "assignments": 56,
+        "concurrency": [
+          1,
+          4,
+          16
+        ],
+        "case_deadline_s": 1800,
+        "common_observation_deadline_s": 101100,
+        "requires_pytest_full_02_archive": true
+      },
+      "reps": 3,
+      "judge": "judge correct completion/readback; absent pytest-full-02 means unmeasured(trace-missing; 不执行)",
+      "layer": "client",
+      "expected_artifact": "replay.csv",
+      "valid_if": "all assigned archives verify and qualification passed",
+      "invalid_status": "unmeasured(trace-missing)"
+    },
+    {
+      "cell_id": "replay-packed",
+      "experiment": "replay",
+      "config": "BrewFS Overlay + Packed lower",
+      "workload": "seven frozen traces, eight copies per case",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "cases": 7,
+        "copies_per_case": 8,
+        "assignments": 56,
+        "concurrency": [
+          1,
+          4,
+          16
+        ],
+        "case_deadline_s": 1800,
+        "common_observation_deadline_s": 101100,
+        "requires_pytest_full_02_archive": true
+      },
+      "reps": 3,
+      "judge": "judge correct completion/readback; absent pytest-full-02 means unmeasured(trace-missing; 不执行)",
+      "layer": "client",
+      "expected_artifact": "replay.csv",
+      "valid_if": "all assigned archives verify and qualification passed",
+      "invalid_status": "unmeasured(trace-missing)"
+    },
+    {
+      "cell_id": "replay-juicefs",
+      "experiment": "replay",
+      "config": "JuiceFS",
+      "workload": "seven frozen traces, eight copies per case",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "cases": 7,
+        "copies_per_case": 8,
+        "assignments": 56,
+        "concurrency": [
+          1,
+          4,
+          16
+        ],
+        "case_deadline_s": 1800,
+        "common_observation_deadline_s": 101100,
+        "requires_pytest_full_02_archive": true
+      },
+      "reps": 3,
+      "judge": "judge correct completion/readback; absent pytest-full-02 means unmeasured(trace-missing; 不执行)",
+      "layer": "client",
+      "expected_artifact": "replay.csv",
+      "valid_if": "all assigned archives verify and qualification passed",
+      "invalid_status": "unmeasured(trace-missing)"
+    },
+    {
+      "cell_id": "scale-native",
+      "experiment": "scale",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "fixed traces with growing worker load",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "workers": [
+          4,
+          16,
+          64,
+          128
+        ],
+        "slots_per_worker": 4,
+        "cases_per_worker": 7
+      },
+      "reps": 3,
+      "judge": "judge completion, throughput and tails only under resource ceilings",
+      "layer": "client",
+      "expected_artifact": "scale.csv",
+      "valid_if": "worker identities, traces and resources valid",
+      "invalid_status": "void(resource-or-trace)"
+    },
+    {
+      "cell_id": "scale-packed",
+      "experiment": "scale",
+      "config": "BrewFS Overlay + Packed lower",
+      "workload": "fixed traces with growing worker load",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "workers": [
+          4,
+          16,
+          64,
+          128
+        ],
+        "slots_per_worker": 4,
+        "cases_per_worker": 7
+      },
+      "reps": 3,
+      "judge": "judge completion, throughput and tails only under resource ceilings",
+      "layer": "client",
+      "expected_artifact": "scale.csv",
+      "valid_if": "worker identities, traces and resources valid",
+      "invalid_status": "void(resource-or-trace)"
+    },
+    {
+      "cell_id": "scale-juicefs",
+      "experiment": "scale",
+      "config": "JuiceFS",
+      "workload": "fixed traces with growing worker load",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "workers": [
+          4,
+          16,
+          64,
+          128
+        ],
+        "slots_per_worker": 4,
+        "cases_per_worker": 7
+      },
+      "reps": 3,
+      "judge": "judge completion, throughput and tails only under resource ceilings",
+      "layer": "client",
+      "expected_artifact": "scale.csv",
+      "valid_if": "worker identities, traces and resources valid",
+      "invalid_status": "void(resource-or-trace)"
+    },
+    {
+      "cell_id": "agent-native",
+      "experiment": "agent-validation",
+      "config": "BrewFS Overlay + native lower",
+      "workload": "two live tasks; continue/fork/migrate after third complete tool result",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "tasks": [
+          "pytest-dev__pytest-10051",
+          "sympy__sympy-11618"
+        ],
+        "fork_children": 4,
+        "trigger_tool_result": 3,
+        "task_deadline_s": 1800,
+        "input_manifest": "live-tasks.json"
+      },
+      "reps": 3,
+      "judge": "judge score, independent file state and real subsequent tool call; retain child outcomes",
+      "layer": "client",
+      "expected_artifact": "agent-validation.json",
+      "valid_if": "execution interface, manifest and verifier available",
+      "invalid_status": "void(agent-validation)"
+    },
+    {
+      "cell_id": "agent-packed",
+      "experiment": "agent-validation",
+      "config": "BrewFS Overlay + Packed lower",
+      "workload": "two live tasks; continue/fork/migrate after third complete tool result",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "tasks": [
+          "pytest-dev__pytest-10051",
+          "sympy__sympy-11618"
+        ],
+        "fork_children": 4,
+        "trigger_tool_result": 3,
+        "task_deadline_s": 1800,
+        "input_manifest": "live-tasks.json"
+      },
+      "reps": 3,
+      "judge": "judge score, independent file state and real subsequent tool call; retain child outcomes",
+      "layer": "client",
+      "expected_artifact": "agent-validation.json",
+      "valid_if": "execution interface, manifest and verifier available",
+      "invalid_status": "void(agent-validation)"
+    },
+    {
+      "cell_id": "agent-juicefs",
+      "experiment": "agent-validation",
+      "config": "JuiceFS",
+      "workload": "two live tasks; continue/fork/migrate after third complete tool result",
+      "params": {
+        "same_rustfs": true,
+        "same_redis": true,
+        "same_payload": true,
+        "same_cache_budget": true,
+        "same_machine_and_window": true,
+        "tasks": [
+          "pytest-dev__pytest-10051",
+          "sympy__sympy-11618"
+        ],
+        "fork_children": 4,
+        "trigger_tool_result": 3,
+        "task_deadline_s": 1800,
+        "input_manifest": "live-tasks.json"
+      },
+      "reps": 3,
+      "judge": "judge score, independent file state and real subsequent tool call; retain child outcomes",
+      "layer": "client",
+      "expected_artifact": "agent-validation.json",
+      "valid_if": "execution interface, manifest and verifier available",
+      "invalid_status": "unmeasured(no-equivalent)"
+    }
+  ]
+}
