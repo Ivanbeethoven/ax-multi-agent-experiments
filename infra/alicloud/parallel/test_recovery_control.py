@@ -40,6 +40,15 @@ class RecoveryEvidenceTests(unittest.TestCase):
  def test_state_cannot_hide_started_archive_method(self):
   self.write('node-a',started=True);self.state['workers']['node-a']['terminal']={**self.state['workers']['node-a']['terminal'],'methods':{a:{'status':'not_run'} for a in ARMS}}
   with self.assertRaises(ValueError):recovery.snapshot_attempt(self.state)
+class MissingBackendTests(unittest.TestCase):
+ def test_embedded_reset_recognizes_only_explicit_named_absence(self):
+  import ast,subprocess
+  body=recovery.RESET.split("python3 - <<'PY'\n",1)[1].split('\nPY',1)[0];tree=ast.parse(body);condition=next(n.test for n in ast.walk(tree) if isinstance(n,ast.If) and isinstance(n.test,ast.UnaryOp) and any(isinstance(x,ast.Constant) and x.value=='[]' for x in ast.walk(n.test)))
+  code=compile(ast.Expression(condition),'<actual absence guard>','eval')
+  for error in ('error: no such object: ax-parallel-rustfs\n','Error: No such object: ax-parallel-rustfs\n'):
+   self.assertFalse(eval(code,{'r':subprocess.CompletedProcess([],1,'[]\n',error)}))
+  for error in ('cannot connect to Docker daemon','error: no such object: another-container'):
+   self.assertTrue(eval(code,{'r':subprocess.CompletedProcess([],1,'[]\n',error)}))
 class AttemptControlTests(unittest.TestCase):
  def test_attempt_prefix_is_disjoint_and_path_safe(self):
   self.assertEqual(controller.results_prefix({}),'parallel-results/');self.assertEqual(controller.results_prefix({'attempt_id':'prep-2'}),'parallel-results/prep-2/')

@@ -65,7 +65,7 @@ if r.returncode==0:
  archived='ax-parallel-rustfs-'+c['old_attempt'];existing=subprocess.run(['docker','inspect',archived],capture_output=True,text=True)
  assert existing.returncode!=0,'archived container name already occupied'
  subprocess.run(['docker','rename','ax-parallel-rustfs',archived],check=True);proof['archived_backend_name']=archived
-elif 'No such object' not in r.stderr and 'No such container' not in r.stderr:raise ValueError('cannot determine owned backend state')
+elif not (r.returncode==1 and r.stdout.strip()=='[]' and r.stderr.strip().lower() in ('error: no such object: ax-parallel-rustfs','error: no such container: ax-parallel-rustfs','error response from daemon: no such container: ax-parallel-rustfs')):raise ValueError('cannot determine owned backend state')
 substate=subprocess.check_output(['systemctl','show','ax-parallel-redis','-p','SubState','--value'],text=True).strip()
 if substate=='running':
  command=subprocess.check_output(['systemctl','show','ax-parallel-redis','-p','ExecStart','--value'],text=True);assert '--port 6380' in command and str(base/('redis'+c['old_tag'])) in command,'unexpected Redis owner'
