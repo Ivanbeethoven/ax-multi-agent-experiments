@@ -187,6 +187,18 @@ def ssh_config(state):
  lines=entry('ax-bastion',a)
  for name,item in state['workers'].items():lines+=entry('ax-'+name,item)
  path.write_text('\n'.join(lines)+'\n');return path
+def deploy_via_verified_ssh(state,name,script):
+ if not state['workers'][name].get('backup_ssh_verified'):raise ValueError('SSH deployment channel not verified')
+ args=['ssh','-F',str(ssh_config(state)),'ax-'+name,'bash','-s']
+ result=subprocess.run(args,input=script,capture_output=True,text=True,timeout=45)
+ receipt={'worker':name,'transport':'verified SSH stdin','script_sha256':hashlib.sha256(script.encode()).hexdigest(),'script_bytes':len(script.encode()),'argv_chars':len(subprocess.list2cmdline(args)),'exit_code':result.returncode,'epoch':time.time()};save(ROOT/(name+'-deployment.local.json'),receipt)
+ if result.returncode:
+  save(ROOT/(name+'-deployment-error.private.json'),{'stdout':result.stdout,'stderr':result.stderr});raise RuntimeError('private deployment error retained; no automatic replay resubmission')
+ return result.stdout
+def purchase_backup_gaps(state):
+ needs_purchase=any(not state['workers'].get(w,{}).get('instance_id') for w in ('node-b','node-c'))
+ if not needs_purchase:return []
+ return [name for name,item in state['workers'].items() if name in ('node-a','node-b') and item.get('instance_id') and not item.get('backup_ssh_verified')]
 def deploy(state,source,assets,plan):
  bucket=source['created_resources']['bucket'];base_name='experiment-25ea317.bundle'
  revalidate(state)
@@ -241,7 +253,7 @@ PY"""
   if check.returncode:raise RuntimeError('backup SSH connection failed; no replay started')
   item['backup_ssh_verified']=True;save(STATE,state)
   revalidate(state)
-  result=invoke(item['instance_id'],script,'ax-parallel-deploy-'+name);item['deployed']=True;item['phase']='preparing';save(STATE,state)
+  result=deploy_via_verified_ssh(state,name,script);item['deployed']=True;item['phase']='preparing';save(STATE,state)
 def collect(state,source):
  bucket=source['created_resources']['bucket']
  complete=True
@@ -276,7 +288,10 @@ def refresh_build_progress(state):
   if sha(path)!=receipt['sha256'] or path.stat().st_size!=receipt['bytes']:raise ValueError('build evidence hash differs')
   save(ROOT/'node-b-build-evidence-receipt.local.json',receipt);state['build_evidence_saved']={'archive':path.name,**receipt};save(STATE,state)
 def takeover_collector(state):
- if state.get('collector_takeover'):return
+ if state.get('collector_takeover'):
+  if state['collector_takeover'].get('pid')!=os.getpid():
+   state.setdefault('collector_takeover_history',[]).append(dict(state['collector_takeover']));state['collector_takeover'].update(pid=os.getpid(),epoch=time.time());save(STATE,state)
+  return
  # This independently running gate is the successor collector. The old one exits through its own marker.
  save(ROOT/'gate-status.local.json',{'phase':'collector_takeover','pid':os.getpid(),'epoch':time.time()})
  (ORIGINAL/'stop-collect').write_text('three-worker gate owns collection; see parallel state')
@@ -310,7 +325,7 @@ def main():
   gate(assets,plan,state['runner_commit']);state['asset_manifest']=assets;state['phase']='assets_ready';save(STATE,state)
   prepare_runner_bundle(state,source)
   # Existing workers must have an independently verified recovery channel before buying node-c.
-  missing=[name for name,item in state['workers'].items() if not item.get('backup_ssh_verified')]
+  missing=purchase_backup_gaps(state)
   if missing:
    save(ROOT/'gate-status.local.json',{'phase':'waiting_backup_channel','workers':missing,'epoch':time.time(),'new_resources':False})
    if a.once:return

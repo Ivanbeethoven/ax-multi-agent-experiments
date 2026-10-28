@@ -65,6 +65,20 @@ class PrivateProxyTests(unittest.TestCase):
  def test_only_ubuntu_http_and_no_extra_ports(self):
   from private_egress_proxy import allowed
   self.assertTrue(allowed('security.ubuntu.com',80,False));self.assertFalse(allowed('security.ubuntu.com',443,False));self.assertFalse(allowed('example.com',80,False))
+class DeploymentTransportTests(unittest.TestCase):
+ def test_large_private_script_is_stdin_not_command_line(self):
+  import subprocess
+  with tempfile.TemporaryDirectory() as d,patch.object(controller,'ROOT',Path(d)),patch.object(controller,'ssh_config',return_value=Path(d)/'ssh.conf'),patch.object(controller.subprocess,'run',return_value=subprocess.CompletedProcess([],0,'started','')) as run:
+   script='# approved payload\n'*10000;controller.deploy_via_verified_ssh({'workers':{'node-a':{'backup_ssh_verified':True}}},'node-a',script);args=run.call_args.args[0];self.assertEqual(run.call_args.kwargs['input'],script);self.assertNotIn(script,args);self.assertLess(len(subprocess.list2cmdline(args)),32767)
+ def test_resumed_collector_records_actual_new_owner_pid(self):
+  with tempfile.TemporaryDirectory() as d,patch.object(controller,'ROOT',Path(d)),patch.object(controller,'STATE',Path(d)/'state.json'),patch.object(controller.os,'getpid',return_value=999):
+   state={'collector_takeover':{'pid':111,'epoch':1,'watch_preserved':True}};controller.takeover_collector(state);saved=json.loads(controller.STATE.read_text());self.assertEqual(saved['collector_takeover']['pid'],999);self.assertEqual(saved['collector_takeover_history'][0]['pid'],111)
+ def test_unverified_transport_refuses_without_process(self):
+  with patch.object(controller.subprocess,'run') as run:
+   with self.assertRaises(ValueError):controller.deploy_via_verified_ssh({'workers':{'node-a':{}}},'node-a','payload')
+   run.assert_not_called()
+ def test_pre_purchase_includes_A_and_B_but_resume_can_qualify_C(self):
+  state={'workers':{'node-a':{'instance_id':'a','backup_ssh_verified':False},'node-b':{'instance_id':'b','backup_ssh_verified':True}}};self.assertEqual(controller.purchase_backup_gaps(state),['node-a']);state['workers']['node-a']['backup_ssh_verified']=True;self.assertEqual(controller.purchase_backup_gaps(state),[]);state['workers']['node-c']={'instance_id':'c','backup_ssh_verified':None};self.assertEqual(controller.purchase_backup_gaps(state),[])
 class GitTransportTests(unittest.TestCase):
  def test_runtime_git_receives_http1_and_verified_tls(self):
   import ast,os,subprocess
