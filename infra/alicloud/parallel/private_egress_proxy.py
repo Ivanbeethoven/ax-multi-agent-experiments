@@ -26,7 +26,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
   except (ValueError,AttributeError):self.send_error(400);return
   if not allowed(host,port,True):self.send_error(403);return
   try:
-   with socket.create_connection((host,port),timeout=30) as upstream:
+   with socket.create_connection((host,port),timeout=120) as upstream:
     self.send_response(200,'Connection established');self.end_headers();self.tunnel(upstream)
   except OSError:self.close_connection=True
   finally:self.close_connection=True

@@ -42,7 +42,12 @@ class SupplementalIdentityTests(unittest.TestCase):
  def test_second_ordinal_cannot_redirect_A_JFS(self):
   with self.assertRaises(ValueError):recovery.case_identity({'worker_id':'node-a'},True,True,False,2)
  def test_unrecorded_ordinal_is_rejected(self):
-  with self.assertRaises(ValueError):recovery.case_identity({'worker_id':'node-c'},False,True,True,3)
+  with self.assertRaises(ValueError):recovery.case_identity({'worker_id':'node-c'},False,True,True,4)
+ def test_C_third_preflight_attempt_has_separate_archive_identity(self):
+  c={'worker_id':'node-c','run_id':'batch','attempt_id':'attempt'};self.assertEqual(recovery.case_identity(c,False,True,True,3),('attempt-native-retry03','batch-c-native-retry03',{'native-kernel-default'}))
+ def test_third_ordinal_cannot_redirect_A_JFS_or_main(self):
+  for jfs in (True,False):
+   with self.assertRaises(ValueError):recovery.case_identity({'worker_id':'node-a'},jfs,True,False,3)
 class CachedArchiveEvidenceTests(unittest.TestCase):
  def test_cached_small_fallback_requires_hold_and_no_network(self):
   with tempfile.TemporaryDirectory() as d:

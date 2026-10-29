@@ -50,7 +50,7 @@ def put(url,path,ctype):
  r=c.getresponse();r.read();c.close()
  if r.status not in (200,201):raise RuntimeError('result upload failed HTTP '+str(r.status))
 def case_identity(c,jfs_retry,no_upload,native_retry=False,ordinal=1):
- if type(ordinal) is not int or ordinal not in (1,2) or (ordinal!=1 and not native_retry):raise ValueError('only the recorded C Native second preflight attempt is supported')
+ if type(ordinal) is not int or ordinal not in (1,2,3) or (ordinal!=1 and not native_retry):raise ValueError('only recorded C Native preflight attempts 1 through 3 are supported')
  if jfs_retry and native_retry:raise ValueError('only one supplemental case may be selected')
  if native_retry:
   if c['worker_id']!='node-c' or not no_upload:raise ValueError('native supplement is local-retained only on node-c')
@@ -59,7 +59,7 @@ def case_identity(c,jfs_retry,no_upload,native_retry=False,ordinal=1):
  if jfs_retry and (c['worker_id']!='node-a' or not no_upload):raise ValueError('single-cell supplement is local-retained only on node-a')
  return c['attempt_id']+('-jfs-retry01' if jfs_retry else ''),c['run_id']+('-a-jfs-retry01' if jfs_retry else ''),({'juicefs-kernel-default'} if jfs_retry else set(c['arms']))
 def main():
- p=argparse.ArgumentParser();p.add_argument('--config',type=Path,required=True);p.add_argument('--jfs-retry',action='store_true');p.add_argument('--native-retry',action='store_true');p.add_argument('--no-upload',action='store_true');p.add_argument('--retry-ordinal',type=int,choices=(1,2),default=1);a=p.parse_args();c=json.loads(a.config.read_text());attempt=c['attempt_id'];base=Path('/data/parallel')
+ p=argparse.ArgumentParser();p.add_argument('--config',type=Path,required=True);p.add_argument('--jfs-retry',action='store_true');p.add_argument('--native-retry',action='store_true');p.add_argument('--no-upload',action='store_true');p.add_argument('--retry-ordinal',type=int,choices=(1,2,3),default=1);a=p.parse_args();c=json.loads(a.config.read_text());attempt=c['attempt_id'];base=Path('/data/parallel')
  if not re.fullmatch('[a-z0-9][a-z0-9-]{0,63}',attempt):raise ValueError('invalid attempt')
  quiescent(attempt)
  repo=base/'repo'
