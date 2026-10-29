@@ -23,6 +23,19 @@ python3 bench/scale_plan.py --profile main --cluster C1 --isolation docker \
 
 128 Agent / 32M 文件等扩展用 --profile expanded；独立 VM 用 --isolation vm；阿里云用 --provider aliyun。其他组替换 C 参数。可加 --include-llm-simulation **额外规划**多 Agent trace 的有等待配对条件；T 仍为空，须在调度单明确后逐任务生成 think plan。该参数不会启动任何回放。
 
+上传策略消融单独生成，不与默认主矩阵自动交叉：
+
+```bash
+python3 bench/scale_plan.py --study writeback --cluster C1 --isolation docker \
+  --provider provided --output "$RUN_DIR/C1-writeback.json"
+```
+
+C1 输出 186 个 cohort；改为 C4 输出 90 个。C2/C3 不适用，传入会拒绝；本消融也拒绝 expanded。计划是六臂产品/Overlay 交互、四臂持续队列、八臂 stay/move，以及限定的一组 fork/clone/cp 完成边界，细目见 SCALE。`params.write_policy` 是共同策略标签，实际配置要求按 baseline 写在 `required_effective_config`；并非已经修改挂载或证明功能启用。所有执行/采购仍关闭。
+
+先在同一构建、同一方法格式上完成模式生效、暂存/恢复和远端 drain 资格，保留 readiness 证据；C4 还需冻结写后 checkpoint 和其 SHA，drain 只能覆盖迁移集合。按一次配置→核生效→一个 cohort→收集应用/drain/远端确认与队列曲线逐步推进。异步任务间不删除待上传数据。布局不支持就报告，不为开启异步临时换布局。
+
+本消融的 --include-llm-simulation 只追加 C1 archive-I/O、64 Agent 的 Overlay/JuiceFS×两策略 12 项；先冻结边界和固定 T，其他条件不加等待。不要把这里的有限交互规则误当作默认主矩阵的全体多 trace 模拟规则。
+
 旧 final_plan.py / experiment_inventory.py 对应基础资格组；规模矩阵使用 scale_plan.py，输出中的 placement_templates 只是逻辑位置，actual_host_id 尚空，不是可部署清单。主会话必须另行批准实际资源映射。
 
 现有 experiment_step.py 一次只执行一个已审阅命令；不能用它把 N 个实例顺序启动就算同时并发。尚缺的 cohort 屏障/观测、并发 S3、burst fork、批量迁移适配必须先补齐并小规模验证。不会用 sleep 伪造就绪或结果。工具入口和未完成项按 [RUN](RUN.zh.md) 保留。

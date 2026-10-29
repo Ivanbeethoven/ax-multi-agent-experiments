@@ -92,5 +92,60 @@ class ScaleTests(unittest.TestCase):
             self.assertTrue(all(c['cluster_id']==cluster for c in p['cells']))
         self.assertNotEqual(scale.build(provider='aliyun')['cells'][0]['paired_block'],scale.build(provider='provided')['cells'][0]['paired_block'])
 
+    def test_writeback_study_preserves_policy_pairs_and_scopes(self):
+        p=scale.build(study='writeback')
+        self.assertEqual(p['total_cells'],276)
+        self.assertEqual(p['group_counts'],{'writeback-trace':162,'writeback-queue':24,
+                                          'writeback-handoff':72,'writeback-copy-readiness':18})
+        self.assertEqual(set(p['clusters']),{'C1','C4'})
+        self.assertFalse(p['execution_enabled']);self.assertFalse(p['provisioning_enabled'])
+        self.assertEqual(len({c['id'] for c in p['cells']}),276)
+        for key in {c['paired_block'] for c in p['cells']}:
+            rows=[c for c in p['cells'] if c['paired_block']==key]
+            for method in {c['method'] for c in rows}:
+                self.assertEqual({c['params']['write_policy'] for c in rows if c['method']==method},
+                                 {'upload_before_commit','commit_before_upload'})
+            self.assertEqual(sorted(c['order_in_block'] for c in rows),list(range(1,len(rows)+1)))
+        for c in p['cells']:
+            self.assertFalse(c['execution_enabled'])
+            self.assertIn('same-build-and-volume-format-between-write-policies',c['requires'])
+            self.assertIn('scoped-remote-drain-and-independent-read',c['requires'])
+            self.assertFalse(c['writeback_qualification_verified'])
+            asynchronous=c['params']['write_policy']=='commit_before_upload'
+            conf=c['required_effective_config']
+            if c['method'].startswith('juicefs'):
+                self.assertEqual(conf['writeback'],asynchronous)
+                if asynchronous:self.assertEqual(conf['upload_delay_seconds'],0)
+            else:self.assertEqual(conf['cache.writeback_mode'],c['params']['write_policy'])
+            if c['load_kind']=='handoff':
+                self.assertIsNone(c['checkpoint_manifest_sha256'])
+                self.assertIn('resumable-trace-checkpoint-state',c['requires'])
+                self.assertIn('neighbor-writers-continue-outside-drain-scope',c['requires'])
+        fork=[c for c in p['cells'] if c['load_kind']=='fork']
+        self.assertTrue(all(not c['capacity_floor']['fits_4TiB_backend_data_only'] for c in fork))
+
+    def test_writeback_pacing_is_one_predeclared_interaction(self):
+        p=scale.build(study='writeback',include_llm_simulation=True)
+        self.assertEqual(p['total_cells'],288)
+        extra=[c for c in p['cells'] if c['params']['simulate_llm']]
+        self.assertEqual(len(extra),12)
+        for c in extra:
+            self.assertEqual(c['group'],'writeback-trace')
+            self.assertEqual(c['params']['agents'],64)
+            self.assertEqual(c['params']['trace_case'],'archive-io-20261026')
+            self.assertIn(c['method'],['native-overlay','juicefs'])
+            self.assertIsNone(c['think_budget_ms_per_task'])
+        self.assertFalse(any(c['params']['simulate_llm'] for c in scale.build(study='writeback')['cells']))
+
+    def test_writeback_does_not_expand_unrelated_dimensions(self):
+        for args in [dict(study='unknown'),dict(study='writeback',cluster='C2'),
+                     dict(study='writeback',cluster='C3'),dict(study='writeback',profile='expanded')]:
+            with self.assertRaises(ValueError):scale.build(**args)
+        self.assertEqual(scale.build(study='writeback',cluster='C1')['total_cells'],186)
+        self.assertEqual(scale.build(study='writeback',cluster='C4')['total_cells'],90)
+        self.assertEqual(scale.build(study='writeback'),scale.build(study='writeback'))
+        main_ids={c['id'] for c in scale.build()['cells']}
+        self.assertFalse(main_ids & {c['id'] for c in scale.build(study='writeback')['cells']})
+
 
 if __name__=='__main__':unittest.main()

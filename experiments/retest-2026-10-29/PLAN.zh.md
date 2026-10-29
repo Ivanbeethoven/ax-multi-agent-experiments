@@ -13,7 +13,18 @@
 
 **Pack 仅用于 C2。** HTTP 并发、扫描进程、回放实例、真实 Agent 分别命名。旧 7 份 trace 可扩增任务实例数量，不能冒充新增独立 benchmark。
 
-**写入主口径**：BrewFS `upload_before_commit` 对齐 JuiceFS 客户端 writeback 关闭。可选 `commit_before_upload` vs `--writeback` 另做 C1 配对组，workspace 支持与恢复/远端就绪资格通过后才运行；分别报告应用完成、尾部 drain 和远端完成确认时间。它不计入当前 618/990 单元，也不改变首次 pilot。C2 发布、C4 fork 源树及迁移 drain 的统一边界见 [扩展方案的写入完成口径](SCALE.zh.md)。
+**写入主口径**：BrewFS `upload_before_commit` 对齐 JuiceFS 客户端 writeback 关闭。上传策略消融另生成 `--study writeback`，两种模式同时配对，不仅给 BrewFS 加开关。workspace 支持与恢复/远端就绪资格通过后才运行；分别报告应用完成、尾部 drain 和远端完成确认时间。
+
+| 场景 | 上传策略消融安排 |
+|---|---|
+| C1 trace / Overlay / 固定队列 | 加；三份 trace 的 1/16/64 六臂同时覆盖产品对比和内部消融，队列限 16/64 |
+| C1 暖只读 | 不加；准备上传完成后测读取 |
+| C1 LLM 等待 / 真实模型 | 合成等待只追加一个 64 Agent 写场景交互；真实模型另做少量代表条件验证 |
+| C2 只读 ML / C3 直接 S3 | 不加；前者固定远端就绪的语料，后者不经过该客户端路径 |
+| C4 跨节点迁移 | 加；两文件系统×两策略×stay/move，drain 纳入暂停且只针对迁移集合 |
+| C4 fork/clone/cp | 不扩增全部规模；补 400 GiB×8、burst 三方法×两策略，覆盖 cp 的异步行为 |
+
+独立消融共 **276 cohort**（C1 186、C4 90），可选等待交互另加 12。已有主矩阵 618/990 与首次 pilot 保持不变。数据选择、配对、完成边界和操作入口统一见 [扩展方案](SCALE.zh.md)，未上传数据时 fork/恢复先做正确性资格，不混入只读基底的创建成绩。
 
 ## 2. 机器数
 

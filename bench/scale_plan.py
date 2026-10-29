@@ -10,6 +10,8 @@ import random
 from experiment_io import write_new
 
 PROTOCOL='SCALE-20261029-v2'
+WRITEBACK_PROTOCOL='WRITEBACK-20261029-v1'
+WRITE_POLICIES=['upload_before_commit','commit_before_upload']
 N=[1,8,16,32,64,128]
 FS=['native-overlay','juicefs']
 LAYOUTS=['default','enabled-64KiB','enabled-256KiB','enabled-1MiB','enabled-4MiB']
@@ -63,6 +65,27 @@ def groups():
     ]
 
 
+def writeback_groups():
+    """Bounded paired study, not a multiplier over the baseline matrix."""
+    def g(owner,name,methods,axes,kind):
+        return dict(cluster=owner,name=name,methods=methods,axes=axes,kind=kind,extension_only=False)
+    return [
+        g('C1','writeback-trace',['native','native-overlay','juicefs'],
+          {'trace_case':['django','ripgrep-20261026','archive-io-20261026'],
+           'agents':[1,16,64],'tasks_per_agent':[1]},'trace'),
+        g('C1','writeback-queue',FS,
+          {'agents':[16,64],'total_tasks':[256],
+           'queue_recipe':['alternate-ripgrep-archive-128-each']},'trace'),
+        g('C4','writeback-handoff',
+          ['native-overlay-stay','native-overlay-move','juicefs-stay','juicefs-move'],
+          {'trace_case':['archive-io-20261026'],
+           'handoff':[{'agents':1,'moved_agents':1},{'agents':64,'moved_agents':8},
+                      {'agents':64,'moved_agents':64}]},'handoff'),
+        g('C4','writeback-copy-readiness',['brewfs-fork','juicefs-clone','native-full-copy'],
+          {'dataset':['mixed-400GiB'],'children':[8],'creation':['burst']},'fork'),
+    ]
+
+
 def topology(cluster,agents,isolation):
     refs=hardware_reference(isolation)
     if cluster=='C3':
@@ -103,28 +126,40 @@ def placement(agents,isolation,migration=False):
     return rows
 
 
-def build(profile='main',isolation='docker',provider='provided',cluster=None,seed=42,include_llm_simulation=False):
+def build(profile='main',isolation='docker',provider='provided',cluster=None,seed=42,include_llm_simulation=False,study='baseline'):
     if profile not in ('main','expanded') or isolation not in ('docker','vm') or provider not in ('provided','aliyun'):
         raise ValueError('invalid profile/isolation/provider')
     if cluster is not None and cluster not in ('C1','C2','C3','C4'):raise ValueError('unknown cluster')
+    if study not in ('baseline','writeback'):raise ValueError('unknown study')
+    writeback=study=='writeback'
+    if writeback and (profile!='main' or cluster in ('C2','C3')):
+        raise ValueError('writeback study is limited to main profile C1/C4; no automatic expanded matrix')
+    selected_groups=writeback_groups() if writeback else groups()
+    protocol=WRITEBACK_PROTOCOL if writeback else PROTOCOL
     cells=[]
     common=['frozen-code-input-and-placement','all-ready-before-one-barrier','private-agent-workspace-home-xdg',
             'shared-backend-runtime-verified','actual-cgroups-and-cache-accounting','all-agent-result-retention',
             'role-hardware-and-physical-capacity-verified','load-input-and-observer-headroom-verified']
-    for g in groups():
+    for g in selected_groups:
         if cluster and g['cluster']!=cluster:continue
         for values in itertools.product(*g['axes'].values()):
             params=dict(zip(g['axes'],values)); agents=params.get('agents',params.get('handoff',{}).get('agents',0))
             extension=(g['extension_only'] or agents>64 or params.get('children',0)>64
                        or params.get('requests_in_flight',0)>64 or params.get('files',0)>8388608)
             if extension and profile=='main':continue
-            modes=[False,True] if include_llm_simulation and g['kind']=='trace' and agents>1 else [False]
+            can_simulate=g['kind']=='trace' and agents>1
+            if writeback:
+                can_simulate=(g['name']=='writeback-trace' and agents==64
+                              and params['trace_case']=='archive-io-20261026')
+            modes=[False,True] if include_llm_simulation and can_simulate else [False]
             for simulate in modes:
                 condition=dict(params,simulate_llm=simulate)
-                key=hashlib.sha256(json.dumps([PROTOCOL,provider,isolation,g['name'],condition],sort_keys=True).encode()).hexdigest()[:16]
+                key=hashlib.sha256(json.dumps([protocol,provider,isolation,g['name'],condition],sort_keys=True).encode()).hexdigest()[:16]
                 for block in (1,2,3):
-                    methods=list(g['methods']);random.Random(f'{seed}:{key}:{block}').shuffle(methods)
-                    for order,method in enumerate(methods,1):
+                    methods=FS if writeback and simulate else g['methods']
+                    arms=list(itertools.product(methods,WRITE_POLICIES if writeback else [None]))
+                    random.Random(f'{seed}:{key}:{block}').shuffle(arms)
+                    for order,(method,policy) in enumerate(arms,1):
                         gates=list(common)
                         if g['kind']=='trace':gates+=['complete-trace-bytes-and-final-state','frozen-balanced-task-assignment']
                         if simulate:gates+=['reviewed-tool-turn-boundaries','explicit-fixed-total-think-ms-per-task','same-plan-between-baselines']
@@ -133,12 +168,30 @@ def build(profile='main',isolation='docker',provider='provided',cluster=None,see
                         if g['kind']=='object':gates+=['actual-four-flags-and-B-q','external-layout','parallel-request-runner-and-layered-counters']
                         if g['kind']=='fork':gates+=['all-baseline-physical-capacity','native-fork-clone-isolation','burst-runner']
                         if g['kind']=='handoff':gates+=['same-checkpoint-stay-move','native-session-restore','all-source-writers-released','target-on-different-host']
-                        cell={'id':f'{key}-b{block}-{method}','paired_block':f'{key}-b{block}',
+                        if writeback:
+                            gates+=['same-build-and-volume-format-between-write-policies',
+                                    'effective-writeback-mode-and-staging-budget-verified',
+                                    'local-staging-failure-and-recovery-qualified',
+                                    'scoped-remote-drain-and-independent-read',
+                                    'application-drain-and-remote-confirmation-timestamps']
+                            if g['kind']=='handoff':gates+=['frozen-post-write-tool-checkpoint','resumable-trace-checkpoint-state','neighbor-writers-continue-outside-drain-scope']
+                            if g['kind']=='fork':gates+=['source-remotely-ready-before-fork','same-remote-ready-boundary-including-full-copy']
+                            if g['name']=='writeback-queue':gates+=['frozen-256-task-assignment','per-task-staging-cleanup-only-after-remote-ready']
+                        suffix=f'-{policy}' if writeback else ''
+                        cell={'id':f'{key}-b{block}-{method}{suffix}','paired_block':f'{key}-b{block}',
                               'cluster_id':g['cluster'],'owner_agent':g['cluster'].lower()+'-owner','group':g['name'],
                               'load_kind':g['kind'],'method':method,'order_in_block':order,'params':deepcopy(condition),
                               'tier':'extension' if extension else 'primary','requires':gates,
                               'status':'not_run','execution_enabled':False,
                               'runner_status':'planning only; distributed barrier, telemetry and real service qualification pending'}
+                        if writeback:
+                            cell['params']['write_policy']=policy
+                            cell['writeback_qualification_verified']=False
+                            if method.startswith('juicefs'):
+                                cell['required_effective_config']={'writeback':policy=='commit_before_upload'}
+                                if policy=='commit_before_upload':cell['required_effective_config']['upload_delay_seconds']=0
+                            else:cell['required_effective_config']={'cache.writeback_mode':policy}
+                            if g['kind']=='handoff':cell['checkpoint_manifest_sha256']=None
                         if simulate:cell['think_budget_ms_per_task']=None
                         if g['kind']=='fork':
                             source_bytes=1048576*4096 if params['dataset']=='1M-4KiB' else 400*1024**3
@@ -152,14 +205,15 @@ def build(profile='main',isolation='docker',provider='provided',cluster=None,see
                         cells.append(cell)
     clusters=sorted({c['cluster_id'] for c in cells}); n=64 if profile=='main' else 128
     topologies={c:topology(c,n,isolation) for c in clusters}
-    return {'protocol':PROTOCOL,'profile':profile,'provider':provider,'isolation':isolation,'seed':seed,
+    return {'protocol':protocol,'profile':profile,'provider':provider,'isolation':isolation,'seed':seed,
+            'study':study,
             'execution_enabled':False,'provisioning_enabled':False,'agent_count_is_not_physical_host_count':True,
             'include_llm_simulation':include_llm_simulation,'simulation_default':False,
             'paired_blocks':3,'total_cells':len(cells),'clusters':topologies,
             'parallel_node_count':sum(t['node_count'] for t in topologies.values()),
             'parallel_reference_compute':reference_compute(topologies),
             'placement_templates':{c:placement(n,isolation,c=='C4') for c in clusters if c!='C3'},
-            'group_counts':{g['name']:sum(c['group']==g['name'] for c in cells) for g in groups() if any(c['group']==g['name'] for c in cells)},
+            'group_counts':{g['name']:sum(c['group']==g['name'] for c in cells) for g in selected_groups if any(c['group']==g['name'] for c in cells)},
             'cells':cells,'note':'One filesystem at a time per shared service pool; extra parallel baseline pools must be allocated separately. No automatic dispatcher.'}
 
 
@@ -169,8 +223,9 @@ if __name__=='__main__':
     p.add_argument('--isolation',choices=['docker','vm'],required=True)
     p.add_argument('--provider',choices=['provided','aliyun'],required=True)
     p.add_argument('--cluster',choices=['C1','C2','C3','C4']);p.add_argument('--seed',type=int,default=42)
+    p.add_argument('--study',choices=['baseline','writeback'],default='baseline',help='writeback plans a separate bounded C1/C4 policy ablation; never enables a mount or executes it')
     p.add_argument('--include-llm-simulation',action='store_true',help='also plan paired paced multi-trace conditions; fixed budget/boundary qualification still required')
     p.add_argument('--output',required=True);a=p.parse_args()
-    result=build(a.profile,a.isolation,a.provider,a.cluster,a.seed,a.include_llm_simulation)
+    result=build(a.profile,a.isolation,a.provider,a.cluster,a.seed,a.include_llm_simulation,a.study)
     write_new(a.output,result)
     print(json.dumps({'cells':result['total_cells'],'nodes':result['parallel_node_count'],'execution_enabled':False}))

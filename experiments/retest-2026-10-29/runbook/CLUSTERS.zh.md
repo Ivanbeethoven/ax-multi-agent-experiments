@@ -4,6 +4,8 @@
 
 基础资格参数以 [实验方案](../../../paper-design/FINAL-PLAN.zh.md) 为准，规模组以 [SCALE](../SCALE.zh.md) 与 [硬件预算](../HARDWARE.zh.md) 为准，操作按 [分步手册](RUN.zh.md)。C1–C4 是实验设置与资源分组，baseline 在组内比较。每组由一个 Agent 负责；阿里云与自备服务器使用相同合同。当前只有准备代码，未分配或启动新测试服务器。首次交给一个 Agent 时可使用 [C1 限定试跑 prompt](agents/C1-pilot.prompt.md)。
 
+调度单另填 `study=baseline/writeback`，默认 baseline。writeback 是 SCALE 定义的独立上传策略消融：C1 186 cohort、C4 90；C2/C3 不扩增。C1 可另加 12 项等待交互，不自动扩展全矩阵。该选择只是计划范围，不是运行权限或功能已就绪的证据。
+
 ## 1. 固定分工
 
 | 集群 / 唯一负责人 | 实验 | baseline 与并行安排 | 初始 prompt |
@@ -51,6 +53,7 @@
 {
   "campaign_id": "实际唯一批次 ID",
   "cluster_id": "C1",
+  "study": "baseline",
   "owner_agent": "c1-owner",
   "phase": "prepare",
   "run_dir": "本集群绝对路径",
