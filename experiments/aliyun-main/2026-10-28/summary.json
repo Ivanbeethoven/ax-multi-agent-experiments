@@ -171,7 +171,7 @@
       "artifact_path": "node-c-results.tar.gz::results/native-kernel-default/result.json",
       "strict_correctness": false,
       "selected_for_comparison": false,
-      "supplement_run_id": null
+      "supplement_run_id": "ax-parallel-20261028-135240-c-native-retry03"
     },
     {
       "node": "node-c",
@@ -248,9 +248,66 @@
       "strict_correctness": false,
       "selected_for_comparison": true,
       "supplement_run_id": null
+    },
+    {
+      "node": "node-c",
+      "method": "native",
+      "status": "not_run",
+      "source_kind": "supplement",
+      "attempt": "prep-20261028-171445",
+      "run_id": "ax-parallel-20261028-135240-c-native-retry01",
+      "execution_seconds": null,
+      "operations": null,
+      "read_bytes": null,
+      "write_bytes": null,
+      "remaining_handles": null,
+      "probe_errno_differences": null,
+      "archive_sha256": "c00c2308db9b6994b15759d53d71db9f1283558f6df560ff42f83b510b18e5c9",
+      "artifact_path": null,
+      "strict_correctness": false,
+      "selected_for_comparison": false,
+      "supplement_run_id": null
+    },
+    {
+      "node": "node-c",
+      "method": "native",
+      "status": "not_run",
+      "source_kind": "supplement",
+      "attempt": "prep-20261028-171445",
+      "run_id": "ax-parallel-20261028-135240-c-native-retry02",
+      "execution_seconds": null,
+      "operations": null,
+      "read_bytes": null,
+      "write_bytes": null,
+      "remaining_handles": null,
+      "probe_errno_differences": null,
+      "archive_sha256": "545aa0b6514a5b9059be6ecc971acf8b8e48084279c47773fc7ad19c7ef2cbd6",
+      "artifact_path": null,
+      "strict_correctness": false,
+      "selected_for_comparison": false,
+      "supplement_run_id": null
+    },
+    {
+      "node": "node-c",
+      "method": "native",
+      "status": "ok",
+      "source_kind": "supplement",
+      "attempt": "prep-20261028-171445",
+      "run_id": "ax-parallel-20261028-135240-c-native-retry03",
+      "execution_seconds": 37.33372829,
+      "operations": 1747109,
+      "read_bytes": 281774624,
+      "write_bytes": 194706661,
+      "remaining_handles": 0,
+      "probe_errno_differences": 1048,
+      "archive_sha256": "1ca286ed26a20037c8b698371ff03d30ad90b065cb084c26a894ab30c9f080a2",
+      "artifact_path": "supplemental/node-c-native-retry03.tar.gz::results/native-kernel-default/replay.json",
+      "strict_correctness": false,
+      "selected_for_comparison": true,
+      "supplement_run_id": null
     }
   ],
-  "selected_count": 11,
+  "selected_count": 12,
   "scope": "application-level serialized trace performance; no strict correctness claim",
   "supplement_note": "supplement is a separately timed retry, not the original failure"
 }
