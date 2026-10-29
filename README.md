@@ -6,6 +6,7 @@
 |---|---|
 | 审阅实验设置、配置、方法和指标 | [基础方案](paper-design/FINAL-PLAN.zh.md) · [规模方案](experiments/retest-2026-10-29/SCALE.zh.md) |
 | 给四位实验 Agent 分工 | [C1–C4 与初始 prompt](experiments/retest-2026-10-29/runbook/CLUSTERS.zh.md) |
+| 交给新的执行方启动 C1 | [独立环境交接 prompt](experiments/retest-2026-10-29/runbook/agents/C1.prompt.md) · [5 节点首次试跑](experiments/retest-2026-10-29/runbook/agents/C1-pilot.prompt.md)；从 GitHub 获取代码，在执行方环境重新核资源/输入/版本 |
 | 逐步操作与检查 | [基础操作](experiments/retest-2026-10-29/runbook/RUN.zh.md) · [规模操作](experiments/retest-2026-10-29/runbook/SCALE-RUN.zh.md) |
 | 找具体测量脚本 | [bench](bench/README.md) |
 | 准备服务器和 RustFS | [infra](infra/README.md) |

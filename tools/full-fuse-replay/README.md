@@ -4,8 +4,10 @@
 
 这个 Rust 入口读取 `full_fuse_record.py` 产生的高层 FUSE 回调记录。它是完整任务试跑的扩展入口；原独立 `fuse-workload-replay` 的 v1 输入格式和 27 次操作记录保持原样。
 
+在本环境指定专用的绝对构建目录 `REPLAY_BUILD_DIR`，记录到本轮构建清单；从实验仓库根目录执行：
+
 ```bash
-CARGO_TARGET_DIR=/home/hxy/ax-full-trace-build cargo build --release --locked \
+CARGO_TARGET_DIR="${REPLAY_BUILD_DIR:?set an absolute build directory for this run}" cargo build --release --locked \
   --manifest-path tools/full-fuse-replay/Cargo.toml
 ```
 

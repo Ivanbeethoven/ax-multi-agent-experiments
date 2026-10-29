@@ -1,18 +1,17 @@
 # C1 首次试跑 prompt
 
-将以下内容发给一个负责 Agent。本 prompt 限定为 C1 pilot，提供真实资源/预算授权后执行；没有资源清单时先把配置和缺项做实。它不启动 C2–C4 或完整 64 Agent 矩阵。
+将以下内容发给一个负责 Agent。本 prompt 限定为 C1 pilot，提供真实资源/预算授权后执行；没有资源清单时先把配置和缺项做实。它不启动 C2–C4 或完整 64 Agent 矩阵。新的执行方先读 [可独立交接的 C1 prompt](C1.prompt.md)，本页只补充 pilot 合同。
 
 ---
 
-你是 c1-pilot-owner，负责先验证 BrewFS Overlay＋native lower 与 JuiceFS 的跨节点回放流程。实验仓库：
-`C:/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-multi-agent-experiments`。
+你是 c1-pilot-owner，负责先验证 BrewFS Overlay＋native lower 与 JuiceFS 的跨节点回放流程。实验仓库为 [Ivanbeethoven/ax-multi-agent-experiments](https://github.com/Ivanbeethoven/ax-multi-agent-experiments)，从 main 获取，在本次执行方自己的目录中克隆/安全同步并冻结完整 SHA。全部运行路径、主机和结果位置由本轮调度单指定，不依赖原作者机器、个人 SSH 别名、ignored 资产或旧云实例。
 
 先读 `AGENTS.md`、`experiments/retest-2026-10-29/PLAN.zh.md`、`HARDWARE.zh.md`、`SCALE.zh.md` 及 `runbook/SCALE-RUN.zh.md`、`runbook/RUN.zh.md`。保留当前工作树和历史证据，先同步实验仓库与 BrewFS 的约定远端主分支；已有本地改动不得覆盖。RustFS 必须为 `Ivanbeethoven/rustfs` 的 `feat/dynamic-block-size-rebased`，本批 fresh 解析并冻结完整 SHA、镜像 digest/OCI revision；BrewFS、JuiceFS、replayer 分别钉版本。每套相同版本/参数只构建一次，核 SHA 后内网分发。
 
 **试跑合同**
 
-- 默认 provider=aliyun、isolation=docker；若调度单交付自备服务器则改为 provided 并单独记录，不租机补缺。
-- 仅完整 `pytest-full-02`，依次 N=1→8→16，每档一个两臂配对 cohort。每个工作 Agent 重放一份完整任务；它们是重复任务实例，不是新 benchmark。三档共 6 个 cohort；单 Agent 资格另记。随机顺序固定 seed=42；可从 `python3 bench/scale_plan.py --cluster C1 --profile main --isolation docker --provider aliyun --output "$RUN_DIR/C1-scale.json"` 的 `trace-weak` 第一配对区组选择三档，输出独立 pilot-plan，记录来源 ID。pilot 的实际 topology 改为以下 5 节点，placement 只保留最多 16 个环境，**不部署 main 的 64 环境，不执行其余矩阵**。provider 改变时相应改命令。
+- 默认 isolation=docker；provider 由本次执行方明确选择 aliyun/provided，两类独立记录。不沿用原聊天的账号、凭据和资源授权，也不租机补缺。
+- 仅完整 `pytest-full-02`，依次 N=1→8→16，每档一个两臂配对 cohort。每个工作 Agent 重放一份完整任务；它们是重复任务实例，不是新 benchmark。三档共 6 个 cohort；单 Agent 资格另记。随机顺序固定 seed=42；可从 `python3 bench/scale_plan.py --study baseline --cluster C1 --profile main --isolation docker --provider "$PROVIDER" --output "$RUN_DIR/C1-scale.json"` 的 `trace-weak` 第一配对区组选择三档，输出独立 pilot-plan，记录来源 ID。PROVIDER/RUN_DIR 来自本环境调度单；pilot 的实际 topology 改为以下 5 节点，placement 只保留最多 16 个环境，**不部署 main 的 64 环境，不执行其余矩阵**。
 - 这是部署/并发资格，不计入正式三区组，不凭这组小 trace 发布谁更快。完成 16 后收集并汇报，不自动扩到 64/128、真实模型、固定队列或新 trace。
 - 两臂使用同一共享服务池、输入、初态、预算、缓存规则和逐 Agent 分配；按臂顺序运行。Overlay 的 lower 不可变、写入 upper；Pack、动态 block hint、合成 LLM 等待均关闭。核实际生效配置，不能只看启动参数。通用回放不套用旧 TTL0 诊断配置。
 - BrewFS 固定 `cache.writeback_mode=upload_before_commit`，JuiceFS 客户端 `--writeback` 关闭；本 pilot 不试异步新功能。应用完成后按 SCALE 核队列、远端就绪和独立内容，另记尾部 drain/确认时间；不能将 fsync 返回作为唯一证据。
