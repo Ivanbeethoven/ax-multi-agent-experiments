@@ -1,5 +1,7 @@
 # 实验配置入口
 
+64/128 Agent 的规模、VM/Docker 角色预算和固定总量随机等待见 [SCALE](../experiments/retest-2026-10-29/SCALE.zh.md)；本页链接的 FINAL-PLAN 保留基础机制与资格配置。
+
 硬件、资源限额、版本、baseline、语料、缓存与重复次数统一维护在 [实验方案](FINAL-PLAN.zh.md)，本页不复制参数。
 
 | 配置文件 | 用途 |

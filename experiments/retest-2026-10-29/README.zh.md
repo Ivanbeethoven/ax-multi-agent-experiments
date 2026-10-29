@@ -1,10 +1,12 @@
 # 2026-10-29 重测准备与证据
 
+**最新范围：64 Agent 主目标 / 128 扩展，一 Agent 一 VM 或 Docker；先看 [规模方案](SCALE.zh.md) 与 [默认关闭的固定总量随机等待](../../tools/full-fuse-replay/THINK-TIME.zh.md)。全部仍为准备状态。**
+
 **先看 [四集群实验总览](PLAN.zh.md)：每组场景、baseline、机器数、指标，以及阿里云/自备服务器差异。** 详细参数在 [主方案](../../paper-design/FINAL-PLAN.zh.md)，本目录同时保存资格证据和辅助脚本。当前只准备供用户审阅，尚未启动本轮正式性能测量。
 
 | 入口 | 内容与边界 |
 |---|---|
-| [四集群总览](PLAN.zh.md) | 推荐 9 台 / 最低 3 台；四组对照、指标和两类环境的操作边界 |
+| [四集群总览](PLAN.zh.md) | 64/128 Agent；四组对照、指标、角色机器数和两类环境差异 |
 | [分步执行手册](../../infra/experiment/RUN.zh.md) | 操作脚本、命令、输出与 AI 检查点 |
 | [四集群与 prompt](../../infra/experiment/CLUSTERS.zh.md) | 四位负责人、资源边界与逐步执行合同 |
 | [trace 来源与完整性](../../paper-design/TRACE-WORKLOADS.zh.md) | 7 份已有输入、SWE-bench/定制任务来源、OSS 对账与回放边界 |

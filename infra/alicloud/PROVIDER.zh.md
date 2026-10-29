@@ -1,5 +1,7 @@
 # 阿里云资源准备
 
+规模更新：主实验按 [64/128 Agent 方案](../../experiments/retest-2026-10-29/SCALE.zh.md) 区分 Docker 节点与一 Agent 一 ECS；下文 experiment_inventory.py 的 9/3 台模板仅用于基础资格。规模资源仍须明确实际清单/费用范围，当前不开跑。
+
 测量方法统一见 [RUN](../experiment/RUN.zh.md)，分工与 9 台/3 台拓扑见 [CLUSTERS](../experiment/CLUSTERS.zh.md)。本文件只规定云资源差异，不再维护第二份测量流程。
 
 1. `python3 harness/experiment_inventory.py template --provider aliyun --mode parallel --output "$RUN_DIR/inventory.json"` 生成待填清单；此操作不调用云 API。

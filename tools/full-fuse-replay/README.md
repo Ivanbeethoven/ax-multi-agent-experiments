@@ -1,5 +1,7 @@
 # 完整任务的挂载请求回放
 
+可选 [LLM 等待模拟](THINK-TIME.zh.md)：默认关闭，只在多 Agent 回放显式使用 --simulate-llm PLAN.json；工具/轮次边界每段 0–15 秒，计划总等待固定，直接性能命令保持无等待。
+
 这个 Rust 入口读取 `full_fuse_record.py` 产生的高层 FUSE 回调记录。它是完整任务试跑的扩展入口；原独立 `fuse-workload-replay` 的 v1 输入格式和 27 次操作记录保持原样。
 
 ```bash

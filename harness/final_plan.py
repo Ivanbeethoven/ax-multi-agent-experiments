@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the current staged plan; never deploy or run a measurement."""
+"""Generate the base qualification/mechanism plan; scale campaigns use scale_plan.py."""
 import argparse
 from copy import deepcopy
 import hashlib
@@ -20,12 +20,9 @@ TRACE_CATALOG = ROOT/'scenarios/k8s-containers/archives.json'
 TRACE_ARCHIVES = {r['case']: r for r in json.loads(TRACE_CATALOG.read_text(encoding='utf-8'))['archives']}
 TRACE_CASES = list(TRACE_ARCHIVES)
 DEFERRED = [
-    'Mid-tool/process-memory migration, network-partition takeover and migration scale-out; M only plans clean-boundary handoff',
-    '56-task multi-worker batch and live-agent end-to-end scores',
-    '8,388,608 distinct small files: new frozen corpus and capacity qualification required',
-    '64 readers, reuse/update/neighbor studies after the main readonly result',
-    'EC 4+2 and client block-size changes',
-    '400 GiB fork/copy and large fanout after physical capacity qualification',
+    '64/128-agent replay/live, 8M/32M readonly corpus, large fork and fleet handoff are planned separately in harness/scale_plan.py',
+    'Mid-tool/process-memory migration and network-partition takeover remain outside the clean-boundary handoff protocol',
+    'EC 4+2 and client block-size changes require a separate study',
 ]
 
 

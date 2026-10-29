@@ -11,7 +11,9 @@ from full_trace_common import tree,save
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--bundle',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-    p.add_argument('--binary',type=Path,required=True);a=p.parse_args()
+    p.add_argument('--binary',type=Path,required=True)
+    p.add_argument('--simulate-llm',type=Path,help='explicit multi-agent think plan; default has no synthetic waits')
+    a=p.parse_args()
     bundle=a.bundle.resolve();out=a.output.resolve();out.mkdir(parents=True,exist_ok=False)
     manifest=json.loads((bundle/'bundle.json').read_text())
     archive=out/'archive.tar.gz';digest=hashlib.sha256()
@@ -27,7 +29,9 @@ def main():
     data=out/'input';root=out/'replayed'
     shutil.copytree(data/'initial',root,symlinks=True)
     if tree(root)!=json.loads((data/'initial-tree.json').read_text()):raise ValueError('Initial tree mismatch')
-    subprocess.run([str(a.binary.resolve()),str(data/'capture/events.jsonl'),str(data/'capture/blobs'),str(root),str(out/'replay.json')],check=True)
+    command=[str(a.binary.resolve()),str(data/'capture/events.jsonl'),str(data/'capture/blobs'),str(root),str(out/'replay.json')]
+    if a.simulate_llm: command += ['--simulate-llm',str(a.simulate_llm.resolve())]
+    subprocess.run(command,check=True)
     expected=json.loads((data/'final-tree.json').read_text())
     if tree(root)!=expected:raise ValueError('Final tree mismatch')
     report=json.loads((out/'replay.json').read_text());metrics=json.loads((data/'metrics.json').read_text())

@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-29",
+  "scope": "planning and local regression only",
+  "formal_experiments_started": false,
+  "cloud_actions": false,
+  "scale": {
+    "main_agents": 64,
+    "extension_agents": 128,
+    "per_isolation_main_cells": 618,
+    "per_isolation_expanded_cells": 990,
+    "docker_nodes_four_groups_64": 45,
+    "docker_nodes_sequential_peak_64": 19
+  },
+  "pacing": {
+    "default_enabled": false,
+    "explicit_flag": "--simulate-llm PLAN.json",
+    "boundary_kind": "reviewed tool/turn only",
+    "max_interval_ms": 15000,
+    "total_budget": "explicit, exact integer millisecond sum; no default",
+    "timing": "scheduler oversleep compensated in later waits; measured residual reported",
+    "existing_trace_boundary_maps_qualified": false
+  },
+  "validation": {
+    "windows": {
+      "run": 97,
+      "passed": 91,
+      "skipped": [
+        [
+          "test_fork_challenge_and_first_use_steps (test_experiment_steps.WorkloadTests.test_fork_challenge_and_first_use_steps)",
+          "file/directory fsync and FUSE-compatible semantics tested on Linux"
+        ],
+        [
+          "test_original_rust_performance_replay (test_final_suite.RealTraceIntegration.test_original_rust_performance_replay)",
+          "set AX_TRACE_CASE/BINARY for real recorded preflight replay"
+        ],
+        [
+          "test_non_sparse_corpus_fixed_counts_and_corruption (test_final_suite.RustIntegration.test_non_sparse_corpus_fixed_counts_and_corruption)",
+          "set AX_FS_PROBE for actual Linux filesystem tests"
+        ],
+        [
+          "test_open_loop_keeps_all_late_operations (test_final_suite.RustIntegration.test_open_loop_keeps_all_late_operations)",
+          "set AX_FS_PROBE for actual Linux filesystem tests"
+        ],
+        [
+          "test_default_off_paced_same_bytes_and_bad_plan_no_mutation (test_trace_think_plan.ReplayTests.test_default_off_paced_same_bytes_and_bad_plan_no_mutation)",
+          "set AX_PACED_REPLAY_BINARY for Linux binary integration"
+        ],
+        [
+          "test_strict_mode_still_checks_same_content_with_waits (test_trace_think_plan.ReplayTests.test_strict_mode_still_checks_same_content_with_waits)",
+          "set AX_PACED_REPLAY_BINARY for Linux binary integration"
+        ]
+      ],
+      "errors": [],
+      "failures": []
+    },
+    "linux": {
+      "run": 97,
+      "passed": 94,
+      "skipped": [
+        [
+          "test_original_rust_performance_replay (test_final_suite.RealTraceIntegration.test_original_rust_performance_replay)",
+          "set AX_TRACE_CASE/BINARY for real recorded preflight replay"
+        ],
+        [
+          "test_non_sparse_corpus_fixed_counts_and_corruption (test_final_suite.RustIntegration.test_non_sparse_corpus_fixed_counts_and_corruption)",
+          "set AX_FS_PROBE for actual Linux filesystem tests"
+        ],
+        [
+          "test_open_loop_keeps_all_late_operations (test_final_suite.RustIntegration.test_open_loop_keeps_all_late_operations)",
+          "set AX_FS_PROBE for actual Linux filesystem tests"
+        ]
+      ],
+      "errors": [],
+      "failures": []
+    },
+    "post_compensation_test_refactor": {
+      "rust_unit_passed": 2,
+      "python_pacing_with_linux_binary_passed": 5
+    }
+  },
+  "rust_unit_tests": {
+    "passed": 2,
+    "tool": "cargo test --locked --offline",
+    "build_profile": "debug"
+  },
+  "linux_binary_integration": "synthetic recorded-byte fixture: default-off, strict/performance paced, same content/counts, bad budget/hash/lifecycle rejected before mutation",
+  "planning_links_checked": 169,
+  "broken_links": [],
+  "credential_pattern_findings": [],
+  "limitations": [
+    "No 64/128-Agent run performed",
+    "Distributed barrier/telemetry and concurrent object/fork/handoff adapters pending",
+    "Real ML readset, 8M/32M corpus, live task/model quotas and trace tool-boundary maps pending"
+  ],
+  "files_sha256": {
+    "experiments/retest-2026-10-29/PLAN.zh.md": "deb564ec1f6fd647dd84af71e633b1100b072edbdb41ab1e13766254955fc4ba",
+    "experiments/retest-2026-10-29/README.zh.md": "6d8239955f8a04a2501a9ace369ae8998ab59243ece99cd839c2c364b411c1bf",
+    "experiments/retest-2026-10-29/SCALE.zh.md": "ecb8c551786bafe79f33be301b3e7a75284204813dc50f8b3981cd3de7a278f4",
+    "harness/README.md": "dd427aeb4015a5e9999c8659f9890853f7461f9f2cded4d8f55ea3bceed06216",
+    "harness/final_plan.py": "040210187f2df567a86320a22d4bc52fbf194298e3061e143cd9ba56b64f9c15",
+    "harness/scale_plan.py": "f7a8de434e3ceae4ed4a1a4f5c4c8cd85b613c72fd1c372359884d229b77362c",
+    "harness/trace_think_plan.py": "0cb44603ac968dd2e27d8b26546a44c56e731893dd3ffb0c5460449686efbba7",
+    "infra/alicloud/PROVIDER.zh.md": "ef9826602dc4b7ca0fc894474cc7f88729bc2fa439420bf17f3b84df14c6f61c",
+    "infra/experiment/CLUSTERS.zh.md": "ee284f67a966efb4cc73ca1d75cbe2c2ec80e33568619cacf778cb42702f451b",
+    "infra/experiment/MIGRATION.zh.md": "8df9a21fff9f7eaf64b2041b26f014b2a4e37a8f67275e52b3cd4b42e1217d9a",
+    "infra/experiment/RUN.zh.md": "df8e1b90a903c9b3cd42a213954a35f5eb8235bdc5b95826a850d2a786074846",
+    "infra/experiment/SCALE-RUN.zh.md": "af3d11f4cd80c8f900435498309e6b11cdb89e9976ce5d530f2c50667319df10",
+    "infra/experiment/agents/C1.prompt.md": "7ca43ac1275de5ccc815398ccb0cae81009f019522ce022d6763a0ec394532ef",
+    "infra/experiment/agents/C2.prompt.md": "0123e489890a3e65d610f2211fab4de554d4832c5c3756ae9f1e1f88912c330e",
+    "infra/experiment/agents/C3.prompt.md": "ded97d78507ab161351d3e88e04034d3e56e28b38fae1766ce3651f82ef4062b",
+    "infra/experiment/agents/C4.prompt.md": "aaad502389e8d2cd5afb8e1845ac067394b124e769b099d5e4cb1b2eb3c0f1b4",
+    "infra/servers/README.zh.md": "dd432397bec25d479114d3aa1ca0030cbc7dfd3674900cebeb7e1ed4332ef5c6",
+    "paper-design/EXPERIMENT-CONFIG.zh.md": "eb28fc37b5fd2ef81017b540a448400d22c3665dad6b69014f6beff9a32aa242",
+    "paper-design/FINAL-PLAN.zh.md": "d69bf43a94935b951005e8e57e3b3340ea10446d2af3514cf3ec23e0f5e8f61f",
+    "scripts/replay_full_trace_bundle.py": "8696e7362fa856da51b98c9497183e6a3e56a391c22602885a9aefe6cc214a19",
+    "tests/test_scale_plan.py": "6ad0cb138bbe61806f37a9ae3e6c8ab64bcc21b7514159331cbed47c0084cb4b",
+    "tests/test_trace_think_plan.py": "a929d49a7d9c8929d2d3360f97782343a7b23d90bcd9edd629686ab574997f7f",
+    "tools/full-fuse-replay/README.md": "f759556c1fe5eda90798fee1189d8da580a1d81ac17758fbee0932f513a3cbfb",
+    "tools/full-fuse-replay/THINK-TIME.zh.md": "dabe27f7daa0bd33f16c33f6ecfbf2625062a79fe659bf4a4fab6c53fd9d513a",
+    "tools/full-fuse-replay/src/main.rs": "f25b270e73de76c229fd42d1e931712cb65109a40108c34788a80516759bbf18",
+    "tools/full-fuse-replay/src/pacing.rs": "0b363df840d3a1afc8fb61aa704e11e2a26cbdb9a79af810ea8d39bc10ea7b3f"
+  }
+}

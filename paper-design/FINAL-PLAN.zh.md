@@ -1,5 +1,7 @@
 # BrewFS 实验方案
 
+**范围更新：本页保留基础机制与资格配置。主实验已扩展为 [64/128 Agent 方案](../experiments/retest-2026-10-29/SCALE.zh.md)，VM/Docker 分开测；本页的 9/3 台、342 项不再是总体规模上限。规模计划使用 scale_plan.py，基础资格仍用 final_plan.py。**
+
 操作命令见 [分步执行手册](../infra/experiment/RUN.zh.md)，四集群归属与初始 prompt 见 [Agent 分工](../infra/experiment/CLUSTERS.zh.md)。本轮只准备方案与脚本，尚未启动正式测试。
 
 ## 1. 实验设置
@@ -83,7 +85,7 @@
 | 数量 | 2 任务×2 filesystem×2 去向×3 区组＝24 次；先完成两节点原生会话恢复资格验证 |
 | 方法 | [M 分步协议与检查脚本](../infra/experiment/MIGRATION.zh.md)；不做进程内存/工具中途迁移，不新增多级共享目录 |
 
-规划合计 **342 次测量**：基础 318＋通过资格门后执行的 M 24（C1 192、C2 48、C3 60、C4 42）。生成 C4 计划必须带 `--include-migration`；不带时仅 F 18。P 的共享 payload 消融和 D 的 block-only 组另有 96 项条件诊断，非自动追加。8M 文件、64 读者、EC4+2、400 GiB fork 暂不展开。
+规划合计 **342 次测量**：基础 318＋通过资格门后执行的 M 24（C1 192、C2 48、C3 60、C4 42）。生成 C4 计划必须带 `--include-migration`；不带时仅 F 18。P 的共享 payload 消融和 D 的 block-only 组另有 96 项条件诊断，非自动追加。8M/32M 文件、64/128 Agent、400 GiB fork 现进入独立扩展矩阵；EC4+2 仍另议。
 
 ## 3. 实验方法
 

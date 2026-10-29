@@ -1,5 +1,7 @@
 # 四集群与 Agent 分工
 
+**主目标已改为 64 Agent / 扩展 128 Agent，每 Agent 独立 VM 或 Docker。** 先按 [扩展方案](../../experiments/retest-2026-10-29/SCALE.zh.md) 和 [SCALE-RUN](SCALE-RUN.zh.md) 填写调度单的 protocol_profile=scale 或 qualification、isolation=docker/vm。下文 9/3 台与 192/48/60/42 计数只属于基础资格池，不可套用到规模测量。四个 owner 管理工作 Agent，不计入被测并发。
+
 参数以 [实验方案](../../paper-design/FINAL-PLAN.zh.md) 为准，操作按 [分步手册](RUN.zh.md)。C1–C4 是实验设置与资源分组，baseline 在组内比较。每组由一个 Agent 负责；阿里云与自备服务器使用相同合同。当前只有准备代码，未分配或启动新测试服务器。
 
 ## 1. 固定分工
@@ -11,7 +13,7 @@
 | C3 / c3-owner | D RustFS 动态布局 | 无 hint 与四个 B。一个 worker 顺序测完整配对组；不同完整区组可分机 | [C3](agents/C3.prompt.md) |
 | C4 / c4-owner | F fork / clone；M Agent 跨节点流转 | F 三臂同机；M 在固定源/目标执行节点与独立服务节点上比较 BrewFS/JuiceFS，各有 stay/move 对照 | [C4](agents/C4.prompt.md) |
 
-推荐 **9 台 Linux 服务器**；管理由现有工作站承担：
+基础机制/资格推荐 **9 台 Linux 服务器**；管理由现有工作站承担：
 
 | 节点 | 用途 | 数据盘 |
 |---|---|---|
@@ -26,7 +28,7 @@
 
 同一对照硬件、磁盘、网络与系统版本必须相同。自备机实际规格不足时另开规格批次，统一各臂预算，不把不同规格或不同供应商结果混成配对区组。阿里云资源数量/地域/费用范围先写调度单；自备机的机器所有权始终属于提供方。
 
-C2/C3/C4 扩容只能增加执行完整配对区组的 worker，不把“方法 X 永远在机器 1、方法 Y 永远在机器 2”当可比结果。机器身份、区组、周期、方法在任务表中明确记录。
+基础资格池的 C2/C3/C4 扩容只增加执行完整配对区组的 worker；规模组按 SCALE 的共享后端与固定资源预算扩容客户端，不把“方法 X 永远在机器 1、方法 Y 永远在机器 2”当可比结果。机器身份、区组、周期、方法在任务表中明确记录。
 
 ## 2. 资源和数据边界
 
@@ -34,7 +36,7 @@ C2/C3/C4 扩容只能增加执行完整配对区组的 worker，不把“方法 
 |---|---|
 | 云资源 | 每个 Agent 只管理自己清单中的实例、盘、SG/来源规则、临时桶和 keypair；以精确 ID 和归属为准，不按宽泛名称批量删除 |
 | 状态 | `runs/<campaign>/<C1..C4>/` 各自保存调度单、配置、事件日志、结果、保全与清理回执；新尝试用新 attempt ID |
-| 后端 | G/A/P/D/F 每个 worker 独占 RustFS/元数据/缓存；C1 的 G/A 不共享可变服务。M 的源/目标访问同一专用持久服务节点，两种 filesystem 顺序使用隔离的 DB/bucket/卷；不把服务随 Agent 一起搬走 |
+| 后端 | 基础资格 G/A/P/D/F 每个 worker 独占 RustFS/元数据/缓存；规模组的所有 Agent 共享本组服务池，按 SCALE 固定预算；C1 的 G/A 不共享可变服务。M 的源/目标访问同一专用持久服务节点，两种 filesystem 顺序使用隔离的 DB/bucket/卷；不把服务随 Agent 一起搬走 |
 | 版本与资产 | 主会话先统一冻结；同一构建只做一次，所有 Agent 按 SHA/digest 取用；不能各自更新分支造成版本漂移 |
 | OSS 输入 | [7 份 trace 目录](../../paper-design/TRACE-WORKLOADS.zh.md)只读；新结果不能覆盖输入。公开桶不能直接存私有配置或原始凭据 |
 | 网络 | 优先单一管理入口＋私网 worker；严格 host-key 和既定来源；共享跳板由主会话负责，各 Agent 不删除 |

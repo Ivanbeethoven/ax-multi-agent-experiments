@@ -1,5 +1,7 @@
 # M：Agent 跨节点流转
 
+本页描述两节点恢复资格。64/128 Agent 的迁移子集、备用池和邻居干扰指标见 [扩展方案](../../experiments/retest-2026-10-29/SCALE.zh.md)，另用 scale_plan.py；保持同 checkpoint 的 stay/move 对照。
+
 负责人 C4。比较 **BrewFS Overlay 与 JuiceFS，每种各有 stay / move**，不是只测 BrewFS。两道已有来源任务 Pytest-10356、SymPy-13878 × 2 filesystem × 2 去向 × 3 区组＝24 个单元。新 benchmark 需另冻结任务和评分器，不临时替换。
 
 ## 设置与边界

@@ -1,4 +1,5 @@
 use serde_json::{json, Value};
+mod pacing;
 use sha2::{Digest, Sha256};
 use std::{
     collections::HashMap,
@@ -336,10 +337,24 @@ impl Replay {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let a = std::env::args().skip(1).collect::<Vec<_>>();
-    if a.len() < 4 || a.len() > 5 || (a.len() == 5 && a[4] != "--performance") {
-        return Err("usage: full-fuse-replay EVENTS BLOBS DEDICATED_ROOT OUTPUT [--performance]".into());
+    if a.len() < 4 {
+        return Err("usage: full-fuse-replay EVENTS BLOBS DEDICATED_ROOT OUTPUT [--performance] [--simulate-llm THINK_PLAN.json]".into());
     }
-    let performance = a.len() == 5;
+    let mut performance = false;
+    let mut think_path = None;
+    let mut option = 4;
+    while option < a.len() {
+        match a[option].as_str() {
+            "--performance" if !performance => performance = true,
+            "--simulate-llm" if think_path.is_none() && option + 1 < a.len() => {
+                option += 1;
+                think_path = Some(Path::new(&a[option]));
+            }
+            _ => return Err("unknown/duplicate option or missing think plan".into()),
+        }
+        option += 1;
+    }
+    let mut pacer = think_path.map(|path| pacing::Pacer::load(path, Path::new(&a[0]))).transpose()?;
     let root = PathBuf::from(&a[2]).canonicalize()?;
     if root.components().count() < 4 || root == std::env::current_dir()? {
         return Err("root too broad".into());
@@ -371,6 +386,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             return Err("capture missing init".into());
         }
         last_op = string(&e["op"]).to_owned();
+        if let Some(p) = &mut pacer { p.before(count as u64); }
         let actual = r.operation(&e);
         let expected = num(&e["errno"]);
         let good = match &actual {
@@ -389,7 +405,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if !good {
             serde_json::to_writer_pretty(
                 output,
-                &json!({"valid":false,"seq":count,"event":e,"actual":format!("{actual:?}")}),
+                &json!({"valid":false,"completed":false,"seq":count,"event":e,"actual":format!("{actual:?}"),
+                        "think_time":pacer.as_ref().map(|p|p.report()).unwrap_or(json!({"enabled":false}))}),
             )?;
             return Err(format!("mismatch at {count}: {} {actual:?}", e["op"]).into());
         }
@@ -403,9 +420,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if count == 0 || last_op != "destroy" {
         return Err("capture missing normal unmount/destroy".into());
     }
+    if pacer.as_ref().is_some_and(|p|!p.finished()) { return Err("unused think boundaries".into()); }
+    let execution = started.elapsed();
+    let slept = pacer.as_ref().map(|p|p.slept()).unwrap_or(std::time::Duration::ZERO);
     serde_json::to_writer_pretty(
         output,
-        &json!({"valid":!performance,"completed":true,"mode":if performance {"performance"} else {"strict"},"probe_errno_differences":probe_errno_differences,"operations":count,"expected_errors":expected_errors,"actual_read_bytes":r.read,"actual_write_bytes":r.write,"execution_seconds":started.elapsed().as_secs_f64(),"remaining_handles":r.handles.len(),"scope":"serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay"}),
+        &json!({"valid":!performance,"completed":true,"mode":if performance {"performance"} else {"strict"},"probe_errno_differences":probe_errno_differences,"operations":count,"expected_errors":expected_errors,"actual_read_bytes":r.read,"actual_write_bytes":r.write,"execution_seconds":execution.as_secs_f64(),
+                "active_replay_seconds":execution.saturating_sub(slept).as_secs_f64(),
+                "think_time":pacer.as_ref().map(|p|p.report()).unwrap_or(json!({"enabled":false,"planned_total_ms":0,"actual_sleep_seconds":0.0})),
+                "remaining_handles":r.handles.len(),"scope":"serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay"}),
     )?;
     println!(
         "validated {count} callbacks; read {} write {}",

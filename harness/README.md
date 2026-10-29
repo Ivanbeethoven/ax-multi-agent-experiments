@@ -1,5 +1,7 @@
 # 当前实验脚本入口
 
+扩展入口：[scale_plan.py](scale_plan.py) 生成 64/128 Agent、VM/Docker、两类服务器矩阵；[trace_think_plan.py](trace_think_plan.py) 生成默认不启用的固定总量随机等待。规模操作见 [SCALE-RUN](../infra/experiment/SCALE-RUN.zh.md)。
+
 操作命令和 AI 检查点只维护在 [统一分步手册](../infra/experiment/RUN.zh.md)，不在这里再复制参数。
 
 | 工具 | 单次职责 |
