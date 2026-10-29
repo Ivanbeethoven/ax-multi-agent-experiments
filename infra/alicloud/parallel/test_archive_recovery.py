@@ -37,6 +37,12 @@ class SupplementalIdentityTests(unittest.TestCase):
   with self.assertRaises(ValueError):recovery.case_identity({'worker_id':'node-c'},False,False,True)
  def test_supplemental_cases_cannot_be_combined(self):
   with self.assertRaises(ValueError):recovery.case_identity({'worker_id':'node-c'},True,True,True)
+ def test_C_second_preflight_attempt_has_separate_archive_identity(self):
+  c={'worker_id':'node-c','run_id':'batch','attempt_id':'attempt'};self.assertEqual(recovery.case_identity(c,False,True,True,2),('attempt-native-retry02','batch-c-native-retry02',{'native-kernel-default'}))
+ def test_second_ordinal_cannot_redirect_A_JFS(self):
+  with self.assertRaises(ValueError):recovery.case_identity({'worker_id':'node-a'},True,True,False,2)
+ def test_unrecorded_ordinal_is_rejected(self):
+  with self.assertRaises(ValueError):recovery.case_identity({'worker_id':'node-c'},False,True,True,3)
 class CachedArchiveEvidenceTests(unittest.TestCase):
  def test_cached_small_fallback_requires_hold_and_no_network(self):
   with tempfile.TemporaryDirectory() as d:

@@ -49,20 +49,22 @@ def put(url,path,ctype):
   for chunk in iter(lambda:f.read(1048576),b''):c.send(chunk)
  r=c.getresponse();r.read();c.close()
  if r.status not in (200,201):raise RuntimeError('result upload failed HTTP '+str(r.status))
-def case_identity(c,jfs_retry,no_upload,native_retry=False):
+def case_identity(c,jfs_retry,no_upload,native_retry=False,ordinal=1):
+ if type(ordinal) is not int or ordinal not in (1,2) or (ordinal!=1 and not native_retry):raise ValueError('only the recorded C Native second preflight attempt is supported')
  if jfs_retry and native_retry:raise ValueError('only one supplemental case may be selected')
  if native_retry:
   if c['worker_id']!='node-c' or not no_upload:raise ValueError('native supplement is local-retained only on node-c')
-  return c['attempt_id']+'-native-retry01',c['run_id']+'-c-native-retry01',{'native-kernel-default'}
+  suffix='-native-retry'+str(ordinal).zfill(2)
+  return c['attempt_id']+suffix,c['run_id']+'-c'+suffix,{'native-kernel-default'}
  if jfs_retry and (c['worker_id']!='node-a' or not no_upload):raise ValueError('single-cell supplement is local-retained only on node-a')
  return c['attempt_id']+('-jfs-retry01' if jfs_retry else ''),c['run_id']+('-a-jfs-retry01' if jfs_retry else ''),({'juicefs-kernel-default'} if jfs_retry else set(c['arms']))
 def main():
- p=argparse.ArgumentParser();p.add_argument('--config',type=Path,required=True);p.add_argument('--jfs-retry',action='store_true');p.add_argument('--native-retry',action='store_true');p.add_argument('--no-upload',action='store_true');a=p.parse_args();c=json.loads(a.config.read_text());attempt=c['attempt_id'];base=Path('/data/parallel')
+ p=argparse.ArgumentParser();p.add_argument('--config',type=Path,required=True);p.add_argument('--jfs-retry',action='store_true');p.add_argument('--native-retry',action='store_true');p.add_argument('--no-upload',action='store_true');p.add_argument('--retry-ordinal',type=int,choices=(1,2),default=1);a=p.parse_args();c=json.loads(a.config.read_text());attempt=c['attempt_id'];base=Path('/data/parallel')
  if not re.fullmatch('[a-z0-9][a-z0-9-]{0,63}',attempt):raise ValueError('invalid attempt')
  quiescent(attempt)
  repo=base/'repo'
  if subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()!=RUNNER or subprocess.check_output(['git','status','--porcelain','--untracked-files=all','--','harness'],cwd=repo,text=True).strip():raise ValueError('frozen archiver differs or harness is dirty')
- tag,expected_run,expected_arms=case_identity(c,a.jfs_retry,a.no_upload,a.native_retry)
+ tag,expected_run,expected_arms=case_identity(c,a.jfs_retry,a.no_upload,a.native_retry,a.retry_ordinal)
  source=base/('cell-results-'+tag);terminal=json.loads((source/'terminal.json').read_text())
  if terminal.get('run_id')!=expected_run or terminal.get('worker_id')!=c['worker_id'] or set(terminal.get('methods',{}))!=expected_arms or any(v.get('status') in ('running','unknown') for v in terminal['methods'].values()):raise ValueError('wrong or nonterminal result')
  patterns={}
