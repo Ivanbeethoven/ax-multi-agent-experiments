@@ -1,12 +1,12 @@
 # 扩展实验：逐步准备与监督
 
-先读 [64/128 Agent 方案](../SCALE.zh.md)。当前只准备，不分配资源或启动 cohort。一个负责 Agent 监督本组全体工作 Agent；不能给每个工作 Agent 独立修改 baseline 的权限。
+先读 [64/128 Agent 方案](../SCALE.zh.md) 和 [硬件预算与验收](../HARDWARE.zh.md)。当前只准备，不分配资源或启动 cohort；收到具体试跑调度后按其范围执行，[首次 C1 prompt](agents/C1-pilot.prompt.md) 限定 5 节点、1→8→16。一个负责 Agent 监督本组全体工作 Agent；不能给每个工作 Agent 独立修改 baseline 的权限。
 
 | 步骤 | 入口 / 产物 | 监督检查 |
 |---|---|---|
 | 1 计划 | scale_plan.py 输出 scale-plan.json | C/基准/规模/隔离/provider/种子、预算、有效条件，所有 execution=false |
 | 2 角色和预算 | 填实际 inventory、VM/容器/物理宿主映射、服务端角色 | 不使用旧 9 台模板冒充大规模清单；核峰值、备用节点、网络、费用/所有权；完整保存精确 ID |
-| 3 版本和容量 | 复用 RUN 的固定版本、构建分发、只读主机检查 | 服务池全体同源；真实四盘；C4 cp 全量占用和元数据/临时文件余量；主机检查器默认值不是 32 核/128 GiB 的证明 |
+| 3 版本和容量 | 复用 RUN 的固定版本、构建分发、只读主机检查；hardware-readiness.json | 逐角色核 CPU/内存/盘/网络；每卷峰值后 25% 空闲与 inode；C2 两臂真实占用、C4 cp 容量、输入/解析/观测余量；基础主机检查通过不代替本页验收 |
 | 4 输入与环境 | 完整 trace/语料/任务映射、独立 workspace/HOME/XDG、cgroup | 同一服务池，写者/缓存/会话不串；下载/全量核验在计时外 |
 | 5 可选等待 | trace_think_plan.py，一 Agent/任务一计划 | 默认关；只有多 trace 回放可开；明确 T、可信边界、每段≤15 s、总和=T、两臂共用 SHA |
 | 6 单 Agent 资格 | 原 Rust 回放、fs_step/session_check 等单步入口 | 完整性、语义、资源与数据路径；不以吞吐排名作为准入 |

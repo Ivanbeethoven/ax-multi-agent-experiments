@@ -9,10 +9,35 @@ import math
 import random
 from experiment_io import write_new
 
-PROTOCOL='SCALE-20261029-v1'
+PROTOCOL='SCALE-20261029-v2'
 N=[1,8,16,32,64,128]
 FS=['native-overlay','juicefs']
 LAYOUTS=['default','enabled-64KiB','enabled-256KiB','enabled-1MiB','enabled-4MiB']
+
+
+def ec22_capacity_floor(logical_bytes,physical_overhead_bytes=0):
+    """Raw bytes with 25% of total capacity free; overhead is already physical."""
+    if any(type(v) is not int or v<0 for v in (logical_bytes,physical_overhead_bytes)):
+        raise ValueError('capacity inputs must be nonnegative integer bytes')
+    return ((2*logical_bytes+physical_overhead_bytes)*4+2)//3
+
+
+def hardware_reference(isolation):
+    # Planning targets, not a claim that allocated machines passed qualification.
+    executor={'vcpus':32,'memory_gib':128,'input_disk_gib':1024,'scratch_disk_gib':1024}
+    if isolation=='vm':executor={'vcpus':4,'memory_gib':16,'input_disk_gib':256,'scratch_disk_gib':128}
+    return {
+        'executor_node_reference':executor,
+        'backend_reference':{'vcpus':32,'memory_gib':128,'independent_data_disks':4,'base_disk_gib':1024},
+        'metadata_reference':{'vcpus':16,'memory_gib':64,'data_disk_gib':1024},
+        'coordinator_reference':{'vcpus':8,'memory_gib':32,'result_disk_gib':2048},
+        'hardware_verified':False,'minimum_free_fraction':0.25,'system_disk_gib_per_node':100,
+        'shared_nodes_private_network_target_gbps':25,
+        'hardware_contract':'experiments/retest-2026-10-29/HARDWARE.zh.md',
+        'required_hardware_evidence':['actual-role-cpu-memory-cgroups-and-host-placement',
+            'per-volume-physical-bytes-and-inodes-including-temporary-retention',
+            'measured-input-io-parser-memory-and-observer-headroom',
+            'measured-private-network-and-provider-disk-instance-limits']}
 
 
 def groups():
@@ -39,9 +64,12 @@ def groups():
 
 
 def topology(cluster,agents,isolation):
+    refs=hardware_reference(isolation)
     if cluster=='C3':
+        refs.pop('executor_node_reference');refs.pop('metadata_reference')
+        refs['requester_reference']={'vcpus':32,'memory_gib':128,'scratch_disk_gib':1024}
         return {'load_unit':'HTTP request, not Agent','requester_nodes':2,'backend_nodes':1,'coordinator_nodes':1,
-                'node_count':4,'physical_host_count':None,'agent_environments':0}
+                'node_count':4,'physical_host_count':None,'agent_environments':0,**refs}
     spare=agents if cluster=='C4' else 0
     # Spare placement is reserved even for the matched stay arm.
     executors=math.ceil(agents/8)+math.ceil(spare/8) if isolation=='docker' else agents+spare
@@ -49,12 +77,19 @@ def topology(cluster,agents,isolation):
             'isolation':isolation,'agents_per_executor_node':8 if isolation=='docker' else 1,
             'executor_nodes':executors,'backend_nodes':1,'metadata_nodes':1,'coordinator_nodes':1,
             'node_count':executors+3,'physical_host_count':None,
-            'executor_node_reference':{'vcpus':32,'memory_gib':128} if isolation=='docker' else {'vcpus':4,'memory_gib':16},
             'per_agent_cgroup':{'vcpus':2,'memory_gib':8},
-            'backend_reference':{'vcpus':32,'memory_gib':128,'independent_data_disks':4,'base_disk_gib':1024},
-            'metadata_reference':{'vcpus':16,'memory_gib':64},
-            'coordinator_reference':{'vcpus':8,'memory_gib':32},
+            **refs,
             'note':'node_count counts allocated Linux nodes/VMs, not proven physical hosts; C4 fork capacity is checked separately'}
+
+
+def reference_compute(topologies):
+    total={'vcpus':0,'memory_gib':0}
+    for t in topologies.values():
+        for role,ref in [('executor','executor_node'),('requester','requester'),('backend','backend'),
+                         ('metadata','metadata'),('coordinator','coordinator')]:
+            for resource in total:
+                total[resource]+=t.get(role+'_nodes',0)*t.get(ref+'_reference',{}).get(resource,0)
+    return total
 
 
 def placement(agents,isolation,migration=False):
@@ -74,7 +109,8 @@ def build(profile='main',isolation='docker',provider='provided',cluster=None,see
     if cluster is not None and cluster not in ('C1','C2','C3','C4'):raise ValueError('unknown cluster')
     cells=[]
     common=['frozen-code-input-and-placement','all-ready-before-one-barrier','private-agent-workspace-home-xdg',
-            'shared-backend-runtime-verified','actual-cgroups-and-cache-accounting','all-agent-result-retention']
+            'shared-backend-runtime-verified','actual-cgroups-and-cache-accounting','all-agent-result-retention',
+            'role-hardware-and-physical-capacity-verified','load-input-and-observer-headroom-verified']
     for g in groups():
         if cluster and g['cluster']!=cluster:continue
         for values in itertools.product(*g['axes'].values()):
@@ -108,7 +144,10 @@ def build(profile='main',isolation='docker',provider='provided',cluster=None,see
                             source_bytes=1048576*4096 if params['dataset']=='1M-4KiB' else 400*1024**3
                             logical=source_bytes*(params['children']+1)
                             cell['capacity_floor']={'full_copy_source_plus_children_bytes':logical,
-                                'EC2_plus2_with_25pct_headroom_bytes':math.ceil(logical*2.5),
+                                'raw_data_only_with_25pct_free_bytes':ec22_capacity_floor(logical),
+                                'minimum_free_fraction':0.25,
+                                'fits_4TiB_backend_data_only':ec22_capacity_floor(logical)<=4*1024**4,
+                                'complete_budget_verified':False,
                                 'applies_to_all_paired_arms':True,'measured_metadata_and_temporary_bytes_additional':True}
                         cells.append(cell)
     clusters=sorted({c['cluster_id'] for c in cells}); n=64 if profile=='main' else 128
@@ -118,6 +157,7 @@ def build(profile='main',isolation='docker',provider='provided',cluster=None,see
             'include_llm_simulation':include_llm_simulation,'simulation_default':False,
             'paired_blocks':3,'total_cells':len(cells),'clusters':topologies,
             'parallel_node_count':sum(t['node_count'] for t in topologies.values()),
+            'parallel_reference_compute':reference_compute(topologies),
             'placement_templates':{c:placement(n,isolation,c=='C4') for c in clusters if c!='C3'},
             'group_counts':{g['name']:sum(c['group']==g['name'] for c in cells) for g in groups() if any(c['group']==g['name'] for c in cells)},
             'cells':cells,'note':'One filesystem at a time per shared service pool; extra parallel baseline pools must be allocated separately. No automatic dispatcher.'}

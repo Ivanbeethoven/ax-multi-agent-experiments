@@ -2,7 +2,7 @@
 
 **主目标已改为 64 Agent / 扩展 128 Agent，每 Agent 独立 VM 或 Docker。** 先按 [扩展方案](../SCALE.zh.md) 和 [SCALE-RUN](SCALE-RUN.zh.md) 填写调度单的 protocol_profile=scale 或 qualification、isolation=docker/vm。下文 9/3 台与 192/48/60/42 计数只属于基础资格池，不可套用到规模测量。四个 owner 管理工作 Agent，不计入被测并发。
 
-参数以 [实验方案](../../../paper-design/FINAL-PLAN.zh.md) 为准，操作按 [分步手册](RUN.zh.md)。C1–C4 是实验设置与资源分组，baseline 在组内比较。每组由一个 Agent 负责；阿里云与自备服务器使用相同合同。当前只有准备代码，未分配或启动新测试服务器。
+基础资格参数以 [实验方案](../../../paper-design/FINAL-PLAN.zh.md) 为准，规模组以 [SCALE](../SCALE.zh.md) 与 [硬件预算](../HARDWARE.zh.md) 为准，操作按 [分步手册](RUN.zh.md)。C1–C4 是实验设置与资源分组，baseline 在组内比较。每组由一个 Agent 负责；阿里云与自备服务器使用相同合同。当前只有准备代码，未分配或启动新测试服务器。首次交给一个 Agent 时可使用 [C1 限定试跑 prompt](agents/C1-pilot.prompt.md)。
 
 ## 1. 固定分工
 

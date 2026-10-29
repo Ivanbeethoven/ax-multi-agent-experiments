@@ -38,7 +38,42 @@ class ScaleTests(unittest.TestCase):
             for host in source|target:self.assertLessEqual(sum(r['executor_node']==host for r in rows),8 if mode=='docker' else 1)
         cells=scale.build(cluster='C4')['cells']
         large=[c for c in cells if c['group']=='fork-fanout' and c['params']['dataset']=='mixed-400GiB' and c['params']['children']==64]
-        self.assertTrue(all(c['capacity_floor']['EC2_plus2_with_25pct_headroom_bytes']>63*1024**4 for c in large))
+        expected=(400*1024**3*65*8+2)//3
+        self.assertTrue(large)
+        for cell in large:
+            floor=cell['capacity_floor']
+            self.assertEqual(floor['raw_data_only_with_25pct_free_bytes'],expected)
+            self.assertFalse(floor['fits_4TiB_backend_data_only'])
+            self.assertFalse(floor['complete_budget_verified'])
+
+    def test_free_capacity_fraction_and_physical_overhead(self):
+        # 300 raw used bytes require 400 total, not 375 (25% added to used).
+        self.assertEqual(scale.ec22_capacity_floor(150),400)
+        self.assertEqual(scale.ec22_capacity_floor(150,75),500)
+        self.assertEqual(scale.ec22_capacity_floor(1),3)
+        for args in [(-1,0),(1,-1),(1.5,0),(True,0)]:
+            with self.assertRaises(ValueError):scale.ec22_capacity_floor(*args)
+        cells=scale.build('expanded',cluster='C4')['cells']
+        for c in cells:
+            if c['group']!='fork-fanout' or c['params']['dataset']!='mixed-400GiB':continue
+            self.assertEqual(c['capacity_floor']['fits_4TiB_backend_data_only'],c['params']['children']==1)
+
+    def test_hardware_targets_are_not_ready_evidence(self):
+        for isolation in ('docker','vm'):
+            for profile,cpu,mem in [('main',1296,5184),('expanded',2320,9280)]:
+                p=scale.build(profile,isolation)
+                self.assertEqual(p['parallel_reference_compute'],{'vcpus':cpu,'memory_gib':mem})
+                for t in p['clusters'].values():
+                    self.assertFalse(t['hardware_verified'])
+                    self.assertEqual(t['minimum_free_fraction'],.25)
+                    self.assertTrue(t['required_hardware_evidence'])
+                for c in p['cells']:
+                    self.assertIn('role-hardware-and-physical-capacity-verified',c['requires'])
+        pilot=scale.topology('C1',16,'docker')
+        self.assertEqual(pilot['node_count'],5)
+        self.assertEqual(scale.reference_compute({'C1':pilot}),{'vcpus':120,'memory_gib':480})
+        self.assertEqual(pilot['executor_node_reference']['input_disk_gib'],1024)
+        self.assertEqual(pilot['executor_node_reference']['scratch_disk_gib'],1024)
 
     def test_simulation_only_explicit_multi_trace(self):
         p=scale.build(include_llm_simulation=True)
