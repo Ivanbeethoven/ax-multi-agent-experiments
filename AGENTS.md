@@ -3,7 +3,7 @@
 - 用户指定：后续实验部署 RustFS 使用 `https://github.com/Ivanbeethoven/rustfs` 的 `feat/dynamic-block-size-rebased` 分支。
 - 每批开始解析分支并冻结完整提交 SHA；从该提交构建镜像，或使用来源已验证的对应镜像。记录仓库、分支、源码 SHA 和镜像 digest，单独记录 BrewFS 客户端版本。
 - 同一批对照保持 RustFS 版本一致；分支或构建不可用时报告问题，不自动换成其他分支或官方 `latest`。
-- 历史实验保留实际使用的版本与结果。部署入口见 `infra/alicloud/deploy/README.md`。
+- 历史实验保留实际使用的版本与结果。部署入口见 `infra/rustfs/README.md`。
 
 ## 构建分发与远程访问（用户要求）
 
@@ -24,4 +24,4 @@
    **不自动换分支、不自动退回官方 `latest`**。
 7. 历史批次保留当时的真实版本与结果，不回填新 SHA。
 
-`paper-design/design.json` 里的 `observed_commit` 只是 2026-10-27 的观测，**不是 pin**；每批的 pin 是本批 `backend-pin.json` 的 `frozen_commit`。
+历史 `paper-design/design.json` 已收入 `archive/legacy-code-20261029.zip`；其中 `observed_commit` 只是 2026-10-27 的观测，**不是 pin**。每批的 pin 是本批 `backend-pin.json` 的 `frozen_commit`。

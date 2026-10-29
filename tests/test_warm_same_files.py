@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'harness'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'bench'))
 import warm_same_files as warm
 
 class WarmGate(unittest.TestCase):

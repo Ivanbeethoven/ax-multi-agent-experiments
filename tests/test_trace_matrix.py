@@ -10,7 +10,8 @@ import unittest
 from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
-sys.path.insert(0,str(ROOT/'harness'))
+sys.path.insert(0,str(ROOT/'bench'))
+sys.path.insert(0, str(ROOT/'bench/reference'))
 import aliyun_suite as suite
 import run_trace_matrix as matrix
 
@@ -79,7 +80,7 @@ class Matrix(unittest.TestCase):
             self.assertEqual(planned['planned_cells'],9)
             for worker in planned['assignments']:
                 self.assertEqual(set(worker['arms']),set(matrix.DEFAULT_ARMS))
-        example=suite.load(ROOT/'harness/trace-matrix.example.json')
+        example=suite.load(ROOT/'bench/reference/trace-matrix.example.json')
         self.assertEqual(example['arms'],matrix.DEFAULT_ARMS)
         for label in example['arms']:
             s=matrix.spec_for({'fuse_ttl_ms':0,'fuse_keep_cache':False},label,'batch','A',Path('/data/test'),

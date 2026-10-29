@@ -50,11 +50,11 @@ C1 的产品对比和消融顺序复用一池；若同时测试须另配一整�
 | 入口 | 内容 |
 |---|---|
 | [扩展方案](SCALE.zh.md) | 设置、配置、完整规模矩阵、方法、指标、机器/存储预算与结论边界 |
-| [扩展单步手册](../../infra/experiment/SCALE-RUN.zh.md) | 准备→资格→屏障→单个 cohort→收集，每步由 AI 监督 |
-| [四组分工与 prompts](../../infra/experiment/CLUSTERS.zh.md) | 一负责 Agent 管一组，工作 Agent 不得自行换 baseline |
-| [规模计划生成器](../../harness/scale_plan.py) | main/expanded、VM/Docker、Aliyun/provided；只生成计划和逻辑 placement |
+| [扩展单步手册](runbook/SCALE-RUN.zh.md) | 准备→资格→屏障→单个 cohort→收集，每步由 AI 监督 |
+| [四组分工与 prompts](runbook/CLUSTERS.zh.md) | 一负责 Agent 管一组，工作 Agent 不得自行换 baseline |
+| [规模计划生成器](../../bench/scale_plan.py) | main/expanded、VM/Docker、Aliyun/provided；只生成计划和逻辑 placement |
 | [基础机制方案](../../paper-design/FINAL-PLAN.zh.md) | 原单机配对、布局/内容/会话资格，342 项不是新总体规模上限 |
-| [基础单步工具](../../infra/experiment/RUN.zh.md) | 复用原子操作，未完成的并发适配明确标注 |
+| [基础单步工具](runbook/RUN.zh.md) | 复用原子操作，未完成的并发适配明确标注 |
 | [trace 来源](../../paper-design/TRACE-WORKLOADS.zh.md) | 已有输入的来源、完整性与多样性限制 |
 
 主矩阵每种隔离方式 618 个 cohort 单元，expanded 990；不包括可选等待模拟增量。真实任务集、8M/32M 语料、边界映射、分布式屏障/监控、并发 S3/burst fork/批量迁移适配仍需资格验证。计划可审阅不代表可直接开始全规模实验。

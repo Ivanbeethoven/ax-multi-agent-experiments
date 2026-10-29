@@ -90,6 +90,6 @@ F 的容量是独立硬条件：400 GiB×64 个全量子副本＋源约 25.39 Ti
 
 ## 6. 脚本与下一步
 
-- [scale_plan.py](../../harness/scale_plan.py)：只生成四组规模矩阵、角色数量、候选 placement、容量下限和待验证门；所有 execution/provisioning 均关闭。
-- [扩展单步操作](../../infra/experiment/SCALE-RUN.zh.md)：先做哪步、产物与监督检查点。已有单机工具继续复用；并发屏障/活跃度采集、并发对象请求、burst fork、批量会话流转仍待实现，不能称代码已能直接跑完 64 Agent。
-- [旧机制与资格方案](../../paper-design/FINAL-PLAN.zh.md)；[四位负责人](../../infra/experiment/CLUSTERS.zh.md)。本方案扩展规模，不覆盖或改写历史结果。
+- [scale_plan.py](../../bench/scale_plan.py)：只生成四组规模矩阵、角色数量、候选 placement、容量下限和待验证门；所有 execution/provisioning 均关闭。
+- [扩展单步操作](runbook/SCALE-RUN.zh.md)：先做哪步、产物与监督检查点。已有单机工具继续复用；并发屏障/活跃度采集、并发对象请求、burst fork、批量会话流转仍待实现，不能称代码已能直接跑完 64 Agent。
+- [旧机制与资格方案](../../paper-design/FINAL-PLAN.zh.md)；[四位负责人](runbook/CLUSTERS.zh.md)。本方案扩展规模，不覆盖或改写历史结果。

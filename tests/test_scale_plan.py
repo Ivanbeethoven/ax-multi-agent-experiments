@@ -2,7 +2,8 @@ import sys
 from pathlib import Path
 import unittest
 ROOT=Path(__file__).resolve().parents[1]
-sys.path.insert(0,str(ROOT/'harness'))
+sys.path.insert(0,str(ROOT/'bench'))
+sys.path.insert(0, str(ROOT/'bench/reference'))
 import scale_plan as scale
 
 

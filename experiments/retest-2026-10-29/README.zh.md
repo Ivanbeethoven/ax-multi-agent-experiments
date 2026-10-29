@@ -7,8 +7,8 @@
 | 入口 | 内容与边界 |
 |---|---|
 | [四集群总览](PLAN.zh.md) | 64/128 Agent；四组对照、指标、角色机器数和两类环境差异 |
-| [分步执行手册](../../infra/experiment/RUN.zh.md) | 操作脚本、命令、输出与 AI 检查点 |
-| [四集群与 prompt](../../infra/experiment/CLUSTERS.zh.md) | 四位负责人、资源边界与逐步执行合同 |
+| [分步执行手册](runbook/RUN.zh.md) | 操作脚本、命令、输出与 AI 检查点 |
+| [四集群与 prompt](runbook/CLUSTERS.zh.md) | 四位负责人、资源边界与逐步执行合同 |
 | [trace 来源与完整性](../../paper-design/TRACE-WORKLOADS.zh.md) | 7 份已有输入、SWE-bench/定制任务来源、OSS 对账与回放边界 |
 | [本次代码准备验证](evidence/portable-preparation-review.json) | 两种环境的拓扑、单步工具、Windows/Linux 检查；不代表正式实验通过 |
 | [主方案](../../paper-design/FINAL-PLAN.zh.md) | 实验设置、配置、方法、指标与注意事项 |
@@ -18,7 +18,7 @@
 | [构建回执](evidence/brewfs-build.json) | 已构建并校验的源码、features 和二进制摘要 |
 | [布局与真实客户端资格](evidence/layout-v2-qualification/summary.json) | 198 个对象边界、18 个布局、4 个真实 BrewFS 上传对象 |
 | [P1/P2 小规模资格](evidence/ml-1024-qualification/summary.json) | 两条 1,024 文件路径已通过；默认 8 MiB 解码工作区失败记录仍保留 |
-| [脚本](scripts/README.md) | 批次工具集中放置；单步执行工具在仓库 harness/ |
+| [脚本](scripts/README.md) | 批次工具集中放置；单步执行工具在仓库 bench/ |
 | [历史工具](history/README.md) | 已完成构建的恢复工具，只留追溯，不再次执行 |
 
 已准备 1,048,576 条独立 TinyStories 记录。当前扫描器只完成数据访问代理负载资格，真实 ML-agent 任务及其固定读集仍需冻结；不能把代理扫描分数称为完整 Agent 成绩。

@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 REPO=Path(__file__).resolve().parents[1]
-sys.path[:0]=[str(REPO/'harness'),str(REPO/'scripts')]
+sys.path[:0]=[str(REPO/'bench/reference'),str(REPO/'bench'),str(REPO/'scripts')]
 import aliyun_suite as suite
 from full_trace_common import tree
 

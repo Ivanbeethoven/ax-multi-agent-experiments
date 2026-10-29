@@ -32,7 +32,7 @@
 ## 第二步：生成一份计划（不执行）
 
 ```bash
-python3 harness/trace_think_plan.py --events "$EVENTS" --boundaries "$BOUNDARIES" \
+python3 bench/trace_think_plan.py --events "$EVENTS" --boundaries "$BOUNDARIES" \
   --agent-count 64 --agent-id a001 --seed 20261029 --total-think-seconds 12 \
   --output "$RUN_DIR/a001-think.json"
 ```

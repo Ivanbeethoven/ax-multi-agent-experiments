@@ -13,6 +13,14 @@ runs/
 .terraform/
 *.tfstate
 *.tfstate.*
+# Preserve the retired cloud directory's local configuration exclusions.
+/infra/**/*.tfplan
+/infra/**/terraform.tfvars
+/infra/**/managed-services.tfvars
+/infra/**/*.auto.tfvars
+/infra/**/crash.log
+/infra/**/inventory.json
+/infra/**/generated-*/
 /experiments/cloud-smoke/**/brewfs-linux-amd64
 /experiments/cloud-smoke/**/*.tar.gz
 

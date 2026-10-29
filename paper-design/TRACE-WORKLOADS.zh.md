@@ -66,12 +66,12 @@ Django 达到原采集的一小时上限，仍保留正常收尾并通过当时�
 
 7 个归档的 LIST/HEAD 大小、远端 SHA 元信息与两份本地目录一致；**7 份 sidecar 和两批小型 metadata 已下载并核 SHA**。每份 sidecar 均含 events、initial、blobs、initial-tree、final-tree、metrics、result、verification、replay，且有原始任务/Agent 记录可追溯。没有把失败 I/O 或仅 299 操作的预检当作有效完整任务。
 
-此次未下载全部 9.69 GiB 完整包，未重新逐字节验证包内 payload，也未运行七份 trace。开测前须用 [下载器](../scenarios/k8s-containers/scripts/download_archives.py) 与 [归档校验](../scenarios/k8s-containers/scripts/check_archives.py) 下载并核整包 SHA，再做 [输入和结果检查](../harness/trace_checks.py)。远端元信息匹配不能替代本地完整哈希。
+此次未下载全部 9.69 GiB 完整包，未重新逐字节验证包内 payload，也未运行七份 trace。开测前须用 [下载器](../scenarios/k8s-containers/scripts/download_archives.py) 与 [归档校验](../scenarios/k8s-containers/scripts/check_archives.py) 下载并核整包 SHA，再做 [输入和结果检查](../bench/trace_checks.py)。远端元信息匹配不能替代本地完整哈希。
 
 可独立重做本次只读核查：
 
 ```bash
-python3 harness/trace_oss_audit.py --output "$NEW_AUDIT_DIR"
+python3 bench/trace_oss_audit.py --output "$NEW_AUDIT_DIR"
 ```
 
-该脚本只读 trace 桶并下载 metadata/sidecar；账号全部桶的 CLI 盘点作为本次独立证据保存。完整单次回放命令与逐步检查见 [执行手册第 3 节](../infra/alicloud/RUN.zh.md#3-g1--a1一次真实-trace)。
+该脚本只读 trace 桶并下载 metadata/sidecar；账号全部桶的 CLI 盘点作为本次独立证据保存。完整单次回放命令与逐步检查见 [执行手册第 3 节](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/blob/0c39995d793dfbf15bf142c3be3b807b31949d6c/infra/alicloud/RUN.zh.md#3-g1--a1一次真实-trace)。

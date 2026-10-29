@@ -4,7 +4,8 @@ import sys
 import tempfile
 import unittest
 
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'harness'))
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bench'))
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bench/reference'))
 from ml_readonly_end_to_end import native_config, native_environment, import_files
 
 

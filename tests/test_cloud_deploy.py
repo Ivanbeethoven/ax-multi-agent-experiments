@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-DEPLOY = Path(__file__).resolve().parents[1] / "infra" / "alicloud" / "deploy"
+DEPLOY = Path(__file__).resolve().parents[1] / "infra" / "rustfs"
 
 
 def load(name):
@@ -17,7 +17,6 @@ def load(name):
 
 
 rustfs = load("generate_rustfs")
-ceph = load("generate_ceph")
 probe = load("s3_probe")
 
 
@@ -27,11 +26,6 @@ def rustfs_spec():
         "nodes": [{"private_ip": f"10.72.1.{20+i}", "data_mounts": [f"/mnt/rustfs{j}" for j in range(4)],
                    "log_dir": "/var/log/rustfs", "credentials_file": "/etc/agent-experiment/rustfs.env"} for i in range(4)],
     }
-
-
-def ceph_spec():
-    return {"nodes": [{"name": f"ceph-{i}", "private_ip": f"10.72.1.{30+i}",
-                       "devices": [f"/dev/disk/by-id/virtio-d-test{i}"]} for i in range(3)]}
 
 
 class GeneratorTests(unittest.TestCase):
@@ -90,24 +84,6 @@ class GeneratorTests(unittest.TestCase):
             service = json.loads((output / "rustfs1" / "compose.json").read_text())["services"]["rustfs"]
             self.assertNotIn("RUSTFS_SECRET_KEY", service["environment"])
             self.assertEqual(len(service["volumes"]), 5)
-
-    def test_ceph_rejects_root_traversal_and_duplicate_devices(self):
-        for bad in ("/", "/dev/disk/by-id", "/dev/disk/by-id/../sda", "/dev/disk/by-id/virtio-d-test0"):
-            with self.subTest(path=bad):
-                spec = ceph_spec()
-                spec["nodes"][-1]["devices"] = [bad]
-                self.reject(ceph.generate, spec)
-        spec = ceph_spec()
-        spec["nodes"][-1]["devices"] *= 2
-        self.reject(ceph.generate, spec)
-
-    def test_ceph_preview_uses_only_explicit_devices(self):
-        with tempfile.TemporaryDirectory() as temp:
-            output = Path(temp) / "generated"
-            ceph.generate(ceph_spec(), output)
-            preview = (output / "preview.sh").read_text()
-            self.assertIn("--dry-run", preview)
-            self.assertNotIn("all-available-devices", preview)
 
 
 class FakeS3:

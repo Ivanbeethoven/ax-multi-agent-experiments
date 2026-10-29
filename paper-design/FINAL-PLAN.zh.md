@@ -2,13 +2,13 @@
 
 **范围更新：本页保留基础机制与资格配置。主实验已扩展为 [64/128 Agent 方案](../experiments/retest-2026-10-29/SCALE.zh.md)，VM/Docker 分开测；本页的 9/3 台、342 项不再是总体规模上限。规模计划使用 scale_plan.py，基础资格仍用 final_plan.py。**
 
-操作命令见 [分步执行手册](../infra/experiment/RUN.zh.md)，四集群归属与初始 prompt 见 [Agent 分工](../infra/experiment/CLUSTERS.zh.md)。本轮只准备方案与脚本，尚未启动正式测试。
+操作命令见 [分步执行手册](../experiments/retest-2026-10-29/runbook/RUN.zh.md)，四集群归属与初始 prompt 见 [Agent 分工](../experiments/retest-2026-10-29/runbook/CLUSTERS.zh.md)。本轮只准备方案与脚本，尚未启动正式测试。
 
 ## 1. 实验设置
 
 | 项目 | 设置 |
 |---|---|
-| 测试机 | 阿里云参考规格 8 vCPU、32 GiB、4×250 GiB PL1；自备机使用同组一致的 CPU/内存/四盘规格，独立 campaign。推荐 9 台并行，最低 3 台顺序复用，见 [拓扑](../infra/experiment/CLUSTERS.zh.md) |
+| 测试机 | 阿里云参考规格 8 vCPU、32 GiB、4×250 GiB PL1；自备机使用同组一致的 CPU/内存/四盘规格，独立 campaign。推荐 9 台并行，最低 3 台顺序复用，见 [拓扑](../experiments/retest-2026-10-29/runbook/CLUSTERS.zh.md) |
 | 后端 | G/A/P/D/F 每台独立 RustFS，单机四盘 EC2+2；M 使用独立持久服务节点＋两个执行节点；均用专用 DB/bucket/缓存。四分区/四目录不能替代四盘 |
 | 资源预算 | 客户端与元数据服务合计 4 vCPU / 8 GiB；RustFS 3 vCPU / 16 GiB；其余留给系统。用 cgroup 核对实际限额，缓存和 buffer 计入总预算 |
 | 并行 | 四集群、每集群一个负责 Agent：C1=G/A（两个独立池各两机），C2=P，C3=D，C4=F/M。C 是实验资源组，baseline 在组内比较 |
@@ -83,7 +83,7 @@
 | 输入 | Pytest-10356、SymPy-13878；同一 filesystem 的 stay/move 从同一完成工具边界 checkpoint 续跑，固定模型、预算、恢复提示与评分器 |
 | 初态 | 源退出并确认写者释放；两去向均冷客户端恢复。共享数据留在服务节点，HOME/XDG/会话状态按实际需要保全、传输和验证 |
 | 数量 | 2 任务×2 filesystem×2 去向×3 区组＝24 次；先完成两节点原生会话恢复资格验证 |
-| 方法 | [M 分步协议与检查脚本](../infra/experiment/MIGRATION.zh.md)；不做进程内存/工具中途迁移，不新增多级共享目录 |
+| 方法 | [M 分步协议与检查脚本](../experiments/retest-2026-10-29/runbook/MIGRATION.zh.md)；不做进程内存/工具中途迁移，不新增多级共享目录 |
 
 规划合计 **342 次测量**：基础 318＋通过资格门后执行的 M 24（C1 192、C2 48、C3 60、C4 42）。生成 C4 计划必须带 `--include-migration`；不带时仅 F 18。P 的共享 payload 消融和 D 的 block-only 组另有 96 项条件诊断，非自动追加。8M/32M 文件、64/128 Agent、400 GiB fork 现进入独立扩展矩阵；EC4+2 仍另议。
 
@@ -135,20 +135,20 @@ G 与 A 各自使用以下安排，运行 3 个完整区组；第一个周期的
 
 | 步骤 | 入口 | 使用范围 |
 |---|---|---|
-| 生成任务表 | [final_plan.py](../harness/final_plan.py) | 只写计划，不启动任务 |
-| 两类服务器清单 / 节点检查 | [experiment_inventory.py](../harness/experiment_inventory.py) · [host_preflight.py](../harness/host_preflight.py) | 静态资源分配与 Linux 只读核查分开；不配置服务器 |
-| 单条命令计时 / 保全 | [experiment_step.py](../harness/experiment_step.py) | 固定输入/可执行文件 SHA，执行一次；另行 seal/verify，不自动重试或清理 |
-| 固定源码和镜像 | [freeze_backend.py](../infra/alicloud/deploy/freeze_backend.py) | 只校验并保存 pin |
-| 后端配置 / 检查 / 启动 | [generate_rustfs.py](../infra/alicloud/deploy/generate_rustfs.py) · [rustfs_node.py](../infra/alicloud/deploy/rustfs_node.py) | 生成、检查与 `--start` 分开调用 |
-| OSS trace 目录核查 | [trace_oss_audit.py](../harness/trace_oss_audit.py) | 只读整桶目录、归档 HEAD，下载核验 metadata/sidecar；不是完整包校验 |
-| trace 输入 / 结果 / 树检查 | [trace_checks.py](../harness/trace_checks.py) | 每次只检查一项；不挂载、不回放 |
+| 生成任务表 | [final_plan.py](../bench/final_plan.py) | 只写计划，不启动任务 |
+| 两类服务器清单 / 节点检查 | [experiment_inventory.py](../bench/experiment_inventory.py) · [host_preflight.py](../bench/host_preflight.py) | 静态资源分配与 Linux 只读核查分开；不配置服务器 |
+| 单条命令计时 / 保全 | [experiment_step.py](../bench/experiment_step.py) | 固定输入/可执行文件 SHA，执行一次；另行 seal/verify，不自动重试或清理 |
+| 固定源码和镜像 | [freeze_backend.py](../infra/rustfs/freeze_backend.py) | 只校验并保存 pin |
+| 后端配置 / 检查 / 启动 | [generate_rustfs.py](../infra/rustfs/generate_rustfs.py) · [rustfs_node.py](../infra/rustfs/rustfs_node.py) | 生成、检查与 `--start` 分开调用 |
+| OSS trace 目录核查 | [trace_oss_audit.py](../bench/trace_oss_audit.py) | 只读整桶目录、归档 HEAD，下载核验 metadata/sidecar；不是完整包校验 |
+| trace 输入 / 结果 / 树检查 | [trace_checks.py](../bench/trace_checks.py) | 每次只检查一项；不挂载、不回放 |
 | trace 单次回放 | [Rust full-fuse-replay](../tools/full-fuse-replay/README.md) | 对已准备的专用根目录回放一次 |
-| fio 单步任务 / 结果检查 | [warm_same_files.py](../harness/warm_same_files.py) | `prepare` 生成一个 job；AI 执行 fio 后再调用 `check` |
-| ML 文件清单 / 单次扫描 | [ml_corpus_inventory.py](../harness/ml_corpus_inventory.py) · [ml-corpus-scan](../tools/ml-corpus-scan/src/main.rs) | 清单检查与 verify/stat/read 分开执行 |
+| fio 单步任务 / 结果检查 | [warm_same_files.py](../bench/warm_same_files.py) | `prepare` 生成一个 job；AI 执行 fio 后再调用 `check` |
+| ML 文件清单 / 单次扫描 | [ml_corpus_inventory.py](../bench/ml_corpus_inventory.py) · [ml-corpus-scan](../tools/ml-corpus-scan/src/main.rs) | 清单检查与 verify/stat/read 分开执行 |
 | 布局解析 | [inspect-layout.py](../experiments/retest-2026-10-29/scripts/inspect-layout.py) | 检查持久化布局；不是性能运行器 |
-| P 原生导入 | [ml_import.py](../harness/ml_import.py) | 已挂载空目录上导入一次；不挂载/切臂 |
-| D 固定请求 | [s3_requests.py](../harness/s3_requests.py) | plan/upload/read 分开，逐请求时间和内容校验；不管理桶/服务/冷暖切换 |
-| F 首用 / 隔离；M 文件状态 | [fs_step.py](../harness/fs_step.py) | fixture/snapshot/check/first-read/durable-write/mutate 各独立调用 |
-| M 会话历史 | [session_check.py](../harness/session_check.py) | checkpoint/restored/resumed；校验原生 export，不调用模型 |
+| P 原生导入 | [ml_import.py](../bench/ml_import.py) | 已挂载空目录上导入一次；不挂载/切臂 |
+| D 固定请求 | [s3_requests.py](../bench/s3_requests.py) | plan/upload/read 分开，逐请求时间和内容校验；不管理桶/服务/冷暖切换 |
+| F 首用 / 隔离；M 文件状态 | [fs_step.py](../bench/fs_step.py) | fixture/snapshot/check/first-read/durable-write/mutate 各独立调用 |
+| M 会话历史 | [session_check.py](../bench/session_check.py) | checkpoint/restored/resumed；校验原生 export，不调用模型 |
 
-[分步执行手册](../infra/experiment/RUN.zh.md) 给出命令与每步检查点；[阿里云](../infra/alicloud/PROVIDER.zh.md) / [自备服务器](../infra/servers/README.zh.md) 只区分资源准备。脚本可供 Agent 分步调用；正式 ready 仍需当前服务器上验证原生 CLI、挂载/限额、真实 ML 读集、冷暖与计数器、fork/clone 及两节点会话恢复，不能把本地测试通过当作这些验证已完成。
+[分步执行手册](../experiments/retest-2026-10-29/runbook/RUN.zh.md) 给出命令与每步检查点；[阿里云](../infra/alicloud/PROVIDER.zh.md) / [自备服务器](../infra/servers/README.zh.md) 只区分资源准备。脚本可供 Agent 分步调用；正式 ready 仍需当前服务器上验证原生 CLI、挂载/限额、真实 ML 读集、冷暖与计数器、fork/clone 及两节点会话恢复，不能把本地测试通过当作这些验证已完成。

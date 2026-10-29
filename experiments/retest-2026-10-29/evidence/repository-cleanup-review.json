@@ -1,0 +1,36 @@
+{
+  "scope": "repository organization; offline validation only; no cloud, FUSE, model calls or benchmark runs",
+  "checked_at": "2026-10-29T12:23:05.446560+00:00",
+  "source_commit": "0c39995d793dfbf15bf142c3be3b807b31949d6c",
+  "archived_originals": 121,
+  "removed_retired_files": 117,
+  "relocated_files": 41,
+  "archive_members_sha256_verified": 302,
+  "current_document_link_check": "passed",
+  "python_syntax_check": "passed",
+  "plan_variants_equivalent_except_paths": 36,
+  "cli_help_checks_passed": 23,
+  "windows_portable_tests": {
+    "passed": 88,
+    "skipped": 6,
+    "isolated_modules": 12
+  },
+  "linux_tests": {
+    "passed": 107,
+    "skipped": 9,
+    "includes_real_rust_pacing_integration": true
+  },
+  "skip_reasons": [
+    "6 full-trace tests require FULL_TRACE_PROBE",
+    "2 filesystem tests require AX_FS_PROBE",
+    "1 historical real replay test requires AX_TRACE_CASE and AX_TRACE_BINARY"
+  ],
+  "platform_note": "The Linux strace capture tests were validated on Linux; native Windows path semantics are not supported by that suite.",
+  "preserved": [
+    "raw inputs, results and failed attempts",
+    "existing evidence hashes and frozen pins",
+    "pre-existing user changes remain unstaged",
+    "separate trace-expansion work untouched"
+  ],
+  "clean_index_export_checks": "passed; verified without local untracked files"
+}

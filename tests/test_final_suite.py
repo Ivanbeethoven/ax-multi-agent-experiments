@@ -1,6 +1,5 @@
 """Offline regression tests for measurement validity and fail-closed execution."""
 import csv
-import importlib.util
 import json
 import os
 import shutil
@@ -12,8 +11,9 @@ import unittest
 from unittest.mock import patch, MagicMock
 
 ROOT=Path(__file__).resolve().parents[1]
-sys.path.insert(0,str(ROOT/'harness'))
-sys.path.insert(0,str(ROOT/'paper-design/pipeline'))
+sys.path.insert(0,str(ROOT/'bench'))
+sys.path.insert(0, str(ROOT/'bench/reference'))
+sys.path.insert(0,str(ROOT/'bench/reference/csv'))
 import aliyun_suite as suite
 import final_plan
 import packed_cost
@@ -182,7 +182,7 @@ class Results(unittest.TestCase):
             with p.open('a',newline='') as f:
                 csv.writer(f).writerows([['c2','native','read','same','2','9999','9999','9999','9','failed',''],
                                         ['c3','native','read','same','3','3','1','1','1','ok','']])
-            subprocess.run([sys.executable,str(ROOT/'paper-design/pipeline/summarize.py'),str(p),'--output-json',str(out)],
+            subprocess.run([sys.executable,str(ROOT/'bench/reference/csv/summarize.py'),str(p),'--output-json',str(out)],
                            check=True,stdout=subprocess.PIPE)
             entry=json.loads(out.read_text())['entries'][0]
             self.assertEqual(entry['throughput_mibps']['median'],2)
@@ -349,20 +349,6 @@ class RealTraceIntegration(unittest.TestCase):
             result=suite.load(session.out/'trace-result.json')
             self.assertTrue(result['completed']);self.assertFalse(result['strict_correctness'])
             self.assertIsNone(result['total_timeout_s'])
-
-
-class Dispatch(unittest.TestCase):
-    def test_duplicate_metadata_reservation_rejected(self):
-        module_spec=importlib.util.spec_from_file_location('dispatch',ROOT/'infra/alicloud/dispatch.py')
-        m=importlib.util.module_from_spec(module_spec);module_spec.loader.exec_module(m)
-        a={'id':'one','host':'root@10.0.0.1','repository':'/repo','spec':'/cfg','output':'/out1','work_root':'/work1',
-           'environment_file':'/secret.env','redis_reservation':'redis://10.0.0.2/1','mode':'trace'}
-        b={**a,'id':'two','host':'root@10.0.0.3','output':'/out2','work_root':'/work2'}
-        with self.assertRaises(ValueError):m.validate({'concurrency':2,'jobs':[a,b]})
-        b['redis_reservation']='redis://10.0.0.2/2';m.validate({'concurrency':2,'jobs':[a,b]})
-        cmd=m.start_command(a)
-        self.assertIn('--property=RuntimeMaxSec=infinity',cmd)
-        self.assertIn('--property=RemainAfterExit=yes',cmd)
 
 
 if __name__=='__main__':unittest.main()

@@ -13,7 +13,8 @@ import time
 import urllib.request
 
 AX=Path(__file__).resolve().parents[3]
-sys.path.insert(0,str(AX/'harness'))
+sys.path.insert(0,str(AX/'bench'))
+sys.path.insert(0, str(AX/'bench/reference'))
 from aliyun_suite import digest, save, load
 from ml_readonly_matrix import run
 from ml_readonly_end_to_end import run as run_p2

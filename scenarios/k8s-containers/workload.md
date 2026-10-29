@@ -11,7 +11,7 @@
 ```bash
 tar -czf /tmp/ax-k8s-kit.tar.gz \
   scenarios/k8s-containers tools/full-fuse-replay \
-  infra/alicloud/deploy/s3_probe.py workloads.json
+  infra/rustfs/s3_probe.py workloads.json
 sha256sum /tmp/ax-k8s-kit.tar.gz
 ```
 

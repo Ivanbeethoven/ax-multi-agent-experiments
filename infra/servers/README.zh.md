@@ -2,7 +2,7 @@
 
 规模更新：主实验按 [64/128 Agent 方案](../../experiments/retest-2026-10-29/SCALE.zh.md) 交付执行/服务角色；Docker 与独立 VM 分开，宿主容量/密度另核。下文 9/3 台模板只供基础资格，不代表整个规模目标。
 
-实验方案、baseline、输入、指标、脚本与阿里云版本相同，使用 [统一分步手册](../experiment/RUN.zh.md)。推荐 9 台并行；最低 3 台顺序复用，分配见 [四组拓扑](../experiment/CLUSTERS.zh.md)。当前不要求提供地址，不连接或修改任何服务器。
+实验方案、baseline、输入、指标、脚本与阿里云版本相同，使用 [统一分步手册](../../experiments/retest-2026-10-29/runbook/RUN.zh.md)。推荐 9 台并行；最低 3 台顺序复用，分配见 [四组拓扑](../../experiments/retest-2026-10-29/runbook/CLUSTERS.zh.md)。当前不要求提供地址，不连接或修改任何服务器。
 
 ## 提供条件
 
@@ -17,11 +17,11 @@
 
 ## 准备顺序
 
-1. 生成未填拓扑：`python3 harness/experiment_inventory.py template --provider provided --mode parallel --output "$RUN_DIR/inventory.json"`。3 台改 `sequential`。此模板不可执行，空字段必须填成实际信息。
+1. 生成未填拓扑：`python3 bench/experiment_inventory.py template --provider provided --mode parallel --output "$RUN_DIR/inventory.json"`。3 台改 `sequential`。此模板不可执行，空字段必须填成实际信息。
 2. 填节点 SSH 别名、私网 IP、资产编号、已核 host-key、硬件类别、挂载点、工作区及容量下限。`resource_id` 是提供方资产号；不填 ECS ID，不复用历史机器清单。
 3. 用管理端专用 SSH 配置连接；设置 `StrictHostKeyChecking=yes`、`UserKnownHostsFile`、`IdentitiesOnly=yes`、`BatchMode=yes`，有跳板再填 ProxyJump。公钥指纹由可信管理渠道核对，不能把首次扫描自动当可信。
 4. `experiment_inventory.py check` 后，在每台运行 `host_preflight.py`。主会话对比实际 CPU/盘/内存/kernel，而非只相信填写的 `hardware_class`。单机检查不证明无人使用，还须查进程、FUSE、容器、端口与已知服务归属。
-5. 按 [统一手册](../experiment/RUN.zh.md) 冻结产物，分别准备资源限额、服务、数据和客户端。完成 1,024 文件/小 trace/布局与会话恢复资格验证后，AI 决定当前单元是否就绪。
+5. 按 [统一手册](../../experiments/retest-2026-10-29/runbook/RUN.zh.md) 冻结产物，分别准备资源限额、服务、数据和客户端。完成 1,024 文件/小 trace/布局与会话恢复资格验证后，AI 决定当前单元是否就绪。
 
 ## 收尾与差异
 

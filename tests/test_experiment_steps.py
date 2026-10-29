@@ -12,7 +12,8 @@ import unittest
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT/'harness'))
+sys.path.insert(0, str(ROOT/'bench'))
+sys.path.insert(0, str(ROOT/'bench/reference'))
 import experiment_inventory as inventory
 import experiment_step as step
 from experiment_io import load, digest, write_new

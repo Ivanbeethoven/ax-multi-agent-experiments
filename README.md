@@ -1,16 +1,32 @@
 # BrewFS 实验仓库
 
-| 入口 | 内容 |
+先看 **[本轮四集群实验总览](experiments/retest-2026-10-29/PLAN.zh.md)**：每组场景、baseline、机器数、指标与阿里云/自备服务器差异。当前是准备阶段，64 Agent 为主目标、128 为扩展；基础资格的 9/3 台模板另列，不代表规模实验。
+
+| 要做什么 | 从这里进入 |
 |---|---|
-| [本轮四集群总览](experiments/retest-2026-10-29/PLAN.zh.md) | 各组场景、baseline、机器数、指标和阿里云/自备环境差异；当前仅准备 |
-| [实验方案](paper-design/FINAL-PLAN.zh.md) | 实验设置、配置、方法、测量指标与注意事项 |
-| [四集群与 Agent prompt](infra/experiment/CLUSTERS.zh.md) | C1 通用/消融、C2 Pack、C3 动态块、C4 fork/clone 与跨节点流转；推荐 9 台，最低 3 台 |
-| [trace 来源与规模](paper-design/TRACE-WORKLOADS.zh.md) | 7 份输入的 benchmark、OSS 对账、回放方法与适用范围 |
-| [分步执行手册](infra/experiment/RUN.zh.md) | 具体操作脚本、命令、输出与 AI 检查点 |
-| [阿里云准备](infra/alicloud/PROVIDER.zh.md) / [自备服务器准备](infra/servers/README.zh.md) | 共用同一实验脚本，分别管理资源、连接和收尾 |
-| [本轮证据](experiments/retest-2026-10-29/README.zh.md) | 构建、布局、小规模验证与外部报告 |
-| [历史结果](experiments/README.md) | 已有实验原始记录 |
+| 审阅实验设置、配置、方法和指标 | [基础方案](paper-design/FINAL-PLAN.zh.md) · [规模方案](experiments/retest-2026-10-29/SCALE.zh.md) |
+| 给四位实验 Agent 分工 | [C1–C4 与初始 prompt](experiments/retest-2026-10-29/runbook/CLUSTERS.zh.md) |
+| 逐步操作与检查 | [基础操作](experiments/retest-2026-10-29/runbook/RUN.zh.md) · [规模操作](experiments/retest-2026-10-29/runbook/SCALE-RUN.zh.md) |
+| 找具体测量脚本 | [bench](bench/README.md) |
+| 准备服务器和 RustFS | [infra](infra/README.md) |
+| 查看 trace 来源、采集与回放 | [输入来源](paper-design/TRACE-WORKLOADS.zh.md) · [采集/回放脚本](scripts/README.md) |
+| 看已完成的验证与历史结果 | [本轮证据](experiments/retest-2026-10-29/README.zh.md) · [历史结果](experiments/README.md) |
+| 验证代码或查找旧实现 | [测试](tests/README.md) · [历史归档](archive/README.md) |
 
-方案包括产品比较、BrewFS 内部消融、Pack 小文件、动态块、fork/clone 与 Agent 跨节点流转。各组独立并行；baseline 在组内配对，AI 逐步监督执行。
+## 目录职责
 
-`paper-design/` 保存方案；`harness/` 保存单步工具与参考运行器；`experiments/retest-2026-10-29/scripts/` 保存本轮辅助工具；`evidence/` 保存验证记录。部署约定见 [AGENTS.md](AGENTS.md)。
+```text
+experiments/retest-2026-10-29/   本轮总览、规模方案、runbook、Agent prompts、证据
+paper-design/                  基础方法、参数索引、trace 来源（不再放旧网格和运行器）
+bench/                         当前单步测量、输入核验、计划生成
+  reference/                   仍被资格验证/历史结果校验使用的参考实现
+infra/                         阿里云 / 自备服务器准备；共用 RustFS 部署工具
+scripts/                       Trace 采集、打包、回放；仓库检查
+tools/                         Rust 测量程序与回放器
+tests/                         当前代码回归测试
+archive/                       已退役代码和旧方案；原路径、SHA、恢复说明
+```
+
+`inputs/` 是冻结输入，`runs/` 是不入库的运行产物，`results/`、`validation/` 与历史实验目录保留原始记录。[scenarios](scenarios/README.md) 是既有容器场景参考，`skills/` 是 trace 技能的可分发包，`paper/` 是论文子模块；都不作为本轮第二套执行入口。
+
+**执行顺序：读方案 → 准备环境 → 负责人逐条执行脚本并检查输出 → 保全结果。** 配对组内比较 baseline；采集、建机、测量和清理不由一个脚本包办。部署约定见 [AGENTS.md](AGENTS.md)。

@@ -1,6 +1,6 @@
-# 容器实验：BrewFS 对比 JuiceFS
+# 历史容器实验：BrewFS 对比 JuiceFS
 
-> 2026-10-26 论文设计更新：以 [五 RQ 方案](../../paper-design/README.md) 和 [参数清单](../../paper-design/design.json) 为准。Packed 测数据库减压及首次构建成本；固定工作量为七份 trace 各八次，共56任务，正式后端为四个 RustFS 服务。下文旧四份 trace 任务表、单节点起步预算和 campaign.py 输出保留为工具历史说明，尚未适配新设计。
+> 历史参考：本目录保留输入目录、下载/观测工具和早期验证。当前 `final_plan.py` 与 `trace_oss_audit.py` 仍读取 [archives.json](archives.json)；下文预算、campaign 和基线安排不用于新一轮。当前入口是[四集群方案](../../experiments/retest-2026-10-29/PLAN.zh.md)；旧五 RQ 参数清单已[归档](../../archive/README.md)。
 
 2026-10-24。**当前唯一外部对照是 JuiceFS CE＋Redis＋RustFS。**先跑通 JuiceFS，再加入 BrewFS 和自身消融。本轮不部署 AX 控制器，使用已有文件系统 trace；不新增模型调用。
 
