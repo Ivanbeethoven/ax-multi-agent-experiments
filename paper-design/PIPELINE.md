@@ -2,6 +2,9 @@
 
 使用 [阿里云运行说明](../infra/alicloud/RUN.zh.md) 和 [最终五个 RQ](FINAL-PLAN.zh.md)。
 
+**测量口径以 [pipeline/MEASUREMENT-PROTOCOL.zh.md](pipeline/MEASUREMENT-PROTOCOL.zh.md) 为准**：
+下层一律视为已预热（W 口径）才是主口径，清页缓存的冷口径只作参考，不得用于结论。
+
 旧 W1–W4 Bash 执行器已移除，避免继续生成伪冷暖/未切换 TTL 的结果；历史版本可在 Git 提交 `889262e` 找到。
 
 - `harness/aliyun_suite.py`：真实挂载、Rust 负载、Packed 构建/查询、已有固定版本 fork、原 Rust trace 回放。
