@@ -13,6 +13,8 @@
 
 **Pack 仅用于 C2。** HTTP 并发、扫描进程、回放实例、真实 Agent 分别命名。旧 7 份 trace 可扩增任务实例数量，不能冒充新增独立 benchmark。
 
+**写入主口径**：BrewFS `upload_before_commit` 对齐 JuiceFS 客户端 writeback 关闭。可选 `commit_before_upload` vs `--writeback` 另做 C1 配对组，workspace 支持与恢复/远端就绪资格通过后才运行；分别报告应用完成、尾部 drain 和远端完成确认时间。它不计入当前 618/990 单元，也不改变首次 pilot。C2 发布、C4 fork 源树及迁移 drain 的统一边界见 [扩展方案的写入完成口径](SCALE.zh.md)。
+
 ## 2. 机器数
 
 执行预算统一为每 Agent 2 vCPU / 8 GiB。Docker 参考每台 32 vCPU / 128 GiB 承载 8 个 Agent；VM 参考每 Agent 4 vCPU / 16 GiB、工作负载仍限制 2/8。服务端独立且随 Agent 数增加保持预算不变。
