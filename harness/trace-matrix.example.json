@@ -4,7 +4,6 @@
   "arms": [
     "native-kernel-default",
     "overlay-kernel-default",
-    "packed-kernel-default",
     "juicefs-kernel-default"
   ],
   "work_base": "/data/workspaces/trace-kernel-default-batch-01-A",
@@ -15,11 +14,6 @@
   "client_memory_bytes": 8589934592,
   "client_cpu_percent": 400,
   "scope_note": "Independent local-backend main comparison; normal kernel defaults, fixed remaining budgets/codec/durability. Actual replies remain unknown until observed. Optional cache-enabled and single-factor groups require separate qualification and batches; legacy *-ttl0 is never the default.",
-  "fixture": {
-    "path": "/data/assets/bin/packed_v3_snapshot_fixture",
-    "source_sha": "350dc108a3bffcb5e7e27cc4279dfb5729febe60",
-    "sha256": "REPLACE_WITH_ASSET_BINARY_SHA256"
-  },
   "base_spec": {
     "backend_pin": "/data/assets/metadata/backend-pin.json",
     "rustfs_container": "ax-rustfs",
@@ -29,7 +23,7 @@
     "client_block_bytes": 4194304,
     "brewfs": {
       "path": "/data/assets/bin/brewfs",
-      "source_sha": "350dc108a3bffcb5e7e27cc4279dfb5729febe60",
+      "source_sha": "80ddaf739e163c8933b0bb84390c4aa559bd2b40",
       "sha256": "REPLACE_WITH_ASSET_BINARY_SHA256"
     },
     "probe": {

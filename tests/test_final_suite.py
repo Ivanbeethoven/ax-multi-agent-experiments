@@ -200,13 +200,90 @@ class Results(unittest.TestCase):
 
 
 class PlanAndCost(unittest.TestCase):
-    def test_all_rqs_and_pairing(self):
+    def test_cluster_ownership_and_trace_identity(self):
+        all_plan = final_plan.build()
+        subsets = [final_plan.build(cluster=c) for c in final_plan.CLUSTERS]
+        self.assertEqual([len(p['cells']) for p in subsets], [192,48,60,18])
+        ids = [c['id'] for p in subsets for c in p['cells']]
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertEqual(set(ids), {c['id'] for c in all_plan['cells']})
+        for cluster, plan in zip(final_plan.CLUSTERS, subsets):
+            self.assertEqual(set(plan['clusters']), {cluster})
+            self.assertTrue(all(c['cluster_id']==cluster and c['owner_agent']==cluster.lower()+'-owner'
+                                for c in plan['cells']))
+        for stage in ('G','A'):
+            traces = [c for c in all_plan['cells'] if c['stage']==stage and 'trace' in c['params']]
+            self.assertEqual({c['params']['trace'] for c in traces}, set(final_plan.TRACE_ARCHIVES))
+            self.assertEqual(len(traces), 84)
+            for c in traces:
+                source = final_plan.TRACE_ARCHIVES[c['params']['trace']]
+                self.assertEqual(c['input_archive']['sha256'], source['sha256'])
+                self.assertEqual(c['input_archive']['root_dir'], source['root_dir'])
+        with self.assertRaises(ValueError): final_plan.build(cluster='C5')
+        with self.assertRaises(ValueError): final_plan.build(cluster='C1', stages=['P'])
+
+    def test_current_stages_and_pairing(self):
         p=final_plan.build();ids=[c['id'] for c in p['cells']]
         self.assertEqual(len(ids),len(set(ids)))
-        self.assertEqual({c['rq'] for c in p['cells']},{'RQ1','RQ2','RQ3','RQ4','RQ5'})
+        self.assertEqual({c['rq'] for c in p['cells']},{'RQ1','RQ2','RQ3','RQ5'})
+        self.assertEqual(len(ids),318)
+        self.assertEqual(p['stages'],['G','A','P','D','F'])
         self.assertIsNone(p['total_replay_timeout_s'])
         self.assertTrue(all(not c['execution_enabled'] for c in p['cells']))
+        self.assertEqual(p['scheduling']['same_worker_concurrency'],1)
+        self.assertFalse(p['scheduling']['cross_stage_dependency'])
+        self.assertFalse(p['scheduling']['provisioning_enabled'])
         self.assertFalse(any('persisted-layout-probe' in c['requires'] for c in p['cells'] if c['rq']!='RQ3'))
+        for pair in {c['paired_batch'] for c in p['cells']}:
+            cells=[c for c in p['cells'] if c['paired_batch']==pair]
+            self.assertEqual(len(cells),len({c['method'] for c in cells}) * (2 if cells[0]['stage'] in ('G','A') else 1))
+            self.assertEqual({c['order_in_pair'] for c in cells},set(range(1,len(cells)+1)))
+            self.assertEqual(len({c['isolation_pool'] for c in cells}),1)
+            self.assertTrue(all(c['within_worker_comparison_required'] and c['exclusive_backend_during_measurement'] for c in cells))
+    def test_general_matrix_excludes_pack_and_deferred_work(self):
+        p=final_plan.build(stages=['G'])
+        self.assertEqual(len(p['cells']),96)
+        self.assertEqual({c['method'] for c in p['cells']},{'native-overlay','juicefs'})
+        with self.assertRaises(ValueError):final_plan.build(stages=['G','G'])
+        with self.assertRaises(ValueError):final_plan.build(stages=['migration'])
+        ml=final_plan.build(stages=['P'])
+        self.assertFalse(ml['live_agent_score_claimed'])
+        self.assertTrue(all('frozen-ml-agent-task-readset' in c['requires'] for c in ml['cells']))
+        self.assertTrue(all('packed-target-path-qualified' in c['requires'] for c in ml['cells']))
+        self.assertEqual(len(ml['cells']),48)
+        self.assertEqual({c['params']['files'] for c in ml['cells']},{1048576})
+    def test_dynamic_layouts_are_paired_and_noop_is_retained(self):
+        primary=final_plan.build(1,stages=['D'])['cells']
+        self.assertEqual(len(primary),20)
+        self.assertFalse(any(c['method_controls']['profile']=='block-only' for c in primary))
+        cells=final_plan.build(1,stages=['D'],include_diagnostics=True)['cells']
+        first=[c for c in cells if c['paired_batch']==cells[0]['paired_batch']]
+        self.assertEqual(len(first),9)
+        controls=[c['method_controls'] for c in first]
+        self.assertEqual({c['requested_block_bytes'] for c in controls},{None,65536,262144,1048576,4194304})
+        self.assertEqual(sum(c.get('frame_noop_control_ec2_plus2',False) for c in controls),1)
+        for c in controls:
+            flags=c['flags']
+            self.assertEqual(flags['read_quantum_enable'],c['profile']=='enabled')
+    def test_conditional_diagnostics_do_not_remove_core_cells(self):
+        primary=final_plan.build();expanded=final_plan.build(include_diagnostics=True)
+        self.assertEqual(len(expanded['cells']),414)
+        self.assertEqual(sum(c['tier']=='conditional-diagnostic' for c in expanded['cells']),96)
+        self.assertEqual({c['id'] for c in primary['cells']},
+                         {c['id'] for c in expanded['cells'] if c['tier']=='primary'})
+    def test_product_and_ablation_are_independent_complete_crossovers(self):
+        p=final_plan.build(stages=['G','A'])
+        self.assertEqual(len(p['cells']),192)
+        for batch in {c['paired_batch'] for c in p['cells']}:
+            cells=[c for c in p['cells'] if c['paired_batch']==batch]
+            self.assertEqual(len(cells),4)
+            expected=set(final_plan.GENERAL_METHODS if cells[0]['stage']=='G' else final_plan.ABLATION_METHODS)
+            for worker in (1,2):
+                self.assertEqual({c['method'] for c in cells if c['worker_slot']==worker},expected)
+            for period in (1,2):
+                wave=[c for c in cells if c['parallel_period']==period]
+                self.assertEqual({c['worker_slot'] for c in wave},{1,2})
+                self.assertEqual({c['method'] for c in wave},expected)
     def test_same_seed_reproducible(self):self.assertEqual(final_plan.build(1,7),final_plan.build(1,7))
     def test_first_build_cost_included_once(self):
         d={'unit':'requests','native':{'F':0,'Q':[5,5,5],'U':[0,0,0],'G':[0,0,0]},

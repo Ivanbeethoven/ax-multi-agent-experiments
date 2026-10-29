@@ -1,0 +1,40 @@
+{
+  "scope": "local qualification, four directories on one filesystem; no physical-disk/performance claim",
+  "containers": [
+    {
+      "name": "ax-ml-a371df85fdbf-rustfs",
+      "id": "d96260849fc82f1a795f0c4f6e65c30e4c7d72e3fba494bb659c24b14e682911",
+      "image": "sha256:2449ed15a1747b97a690f1acb7536f06e6a2f7a20a72601e439ae5be63318f81",
+      "removed": true
+    },
+    {
+      "name": "ax-ml-a371df85fdbf-pd",
+      "id": "7c4af519d5e99b9c4ae35a5d85ce7f7dfa7eaecf0860da9909a956dda0e75ce7",
+      "image": "sha256:5f6dfb1645769bebc5c0e983cf46842709cfe2fb910d91fd039e68810a09d555",
+      "removed": true
+    },
+    {
+      "name": "ax-ml-a371df85fdbf-tikv",
+      "id": "17187eeedfc9398a736942a96449fb7b374948867b450589a952863136b7fc16",
+      "image": "sha256:7f607b81bc623ed4336ac551d8174abe17329a9d260da2178fff1689ffc7f68f",
+      "removed": true
+    }
+  ],
+  "status": "qualified",
+  "images": {
+    "rustfs": {
+      "reference": "ax-retest/rustfs@sha256:2449ed15a1747b97a690f1acb7536f06e6a2f7a20a72601e439ae5be63318f81",
+      "id": "sha256:2449ed15a1747b97a690f1acb7536f06e6a2f7a20a72601e439ae5be63318f81"
+    },
+    "pd": {
+      "reference": "pingcap/pd@sha256:5f6dfb1645769bebc5c0e983cf46842709cfe2fb910d91fd039e68810a09d555",
+      "id": "sha256:5f6dfb1645769bebc5c0e983cf46842709cfe2fb910d91fd039e68810a09d555",
+      "binary_version": "Release Version: v8.5.3\nEdition: Community\nGit Commit Hash: 65e429d26e81db93c590890ddacf18c4b970f299\nGit Branch: HEAD\nUTC Build Time:  2025-07-16 02:46:23"
+    },
+    "tikv": {
+      "reference": "pingcap/tikv@sha256:7f607b81bc623ed4336ac551d8174abe17329a9d260da2178fff1689ffc7f68f",
+      "id": "sha256:7f607b81bc623ed4336ac551d8174abe17329a9d260da2178fff1689ffc7f68f",
+      "binary_version": "TiKV \nRelease Version:   8.5.3\nEdition:           Community\nGit Commit Hash:   13b9af5c34ad0dd62b5ae5ee02e05806e6d31e0b\nGit Commit Branch: HEAD\nUTC Build Time:    2026-08-11 23:32:43\nRust Version:      rustc 1.77.0-nightly (89e2160c4 2023-12-27)\nEnable Features:   memory-engine pprof-fp jemalloc mem-profiling portable sse test-engine-kv-rocksdb test-engine-raft-raft-engine trace-async-tasks openssl-vendored\nProfile:           dist_release"
+    }
+  }
+}

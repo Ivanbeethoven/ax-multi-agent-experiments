@@ -1,0 +1,1342 @@
+{
+  "checked_at": "2026-10-29T09:52:49.621782+00:00",
+  "bucket": "brewfs-agent-traces-20261023-4ccdae73",
+  "catalog_sha256": "0e0995185ee6d878fc42c647d18fbf75a9c795318adbc072bd69e1f1d6724162",
+  "scope": "entire trace bucket listing, HEAD of every catalog archive, SHA-verified metadata/sidecars; no cloud mutations",
+  "objects": [
+    {
+      "key": "full-fuse/20261023/README.md",
+      "bytes": 1038
+    },
+    {
+      "key": "full-fuse/20261023/UPLOAD_COMPLETE.json",
+      "bytes": 7247
+    },
+    {
+      "key": "full-fuse/20261023/batch-metadata.files.jsonl.gz",
+      "bytes": 1297
+    },
+    {
+      "key": "full-fuse/20261023/batch-metadata.manifest.json",
+      "bytes": 629
+    },
+    {
+      "key": "full-fuse/20261023/batch-metadata.tar.gz",
+      "bytes": 35416
+    },
+    {
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/io-compatible.files.jsonl.gz",
+      "bytes": 19868112
+    },
+    {
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/io-compatible.tar.gz",
+      "bytes": 4752420807
+    },
+    {
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/metadata.files.jsonl.gz",
+      "bytes": 12481
+    },
+    {
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/metadata.tar.gz",
+      "bytes": 889165
+    },
+    {
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/pytest.files.jsonl.gz",
+      "bytes": 1490245
+    },
+    {
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/pytest.tar.gz",
+      "bytes": 185203598
+    },
+    {
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/rust.files.jsonl.gz",
+      "bytes": 28602299
+    },
+    {
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/rust.tar.gz",
+      "bytes": 1325864032
+    },
+    {
+      "key": "full-fuse/20261023/django.files.jsonl.gz",
+      "bytes": 6267114
+    },
+    {
+      "key": "full-fuse/20261023/django.manifest.json",
+      "bytes": 635
+    },
+    {
+      "key": "full-fuse/20261023/django.tar.gz",
+      "bytes": 2302532371
+    },
+    {
+      "key": "full-fuse/20261023/manifest.json",
+      "bytes": 3700
+    },
+    {
+      "key": "full-fuse/20261023/pytest-full-02.files.jsonl.gz",
+      "bytes": 3952616
+    },
+    {
+      "key": "full-fuse/20261023/pytest-full-02.manifest.json",
+      "bytes": 635
+    },
+    {
+      "key": "full-fuse/20261023/pytest-full-02.tar.gz",
+      "bytes": 407606955
+    },
+    {
+      "key": "full-fuse/20261023/sklearn.files.jsonl.gz",
+      "bytes": 7416622
+    },
+    {
+      "key": "full-fuse/20261023/sklearn.manifest.json",
+      "bytes": 636
+    },
+    {
+      "key": "full-fuse/20261023/sklearn.tar.gz",
+      "bytes": 842598913
+    },
+    {
+      "key": "full-fuse/20261023/sympy.files.jsonl.gz",
+      "bytes": 4991281
+    },
+    {
+      "key": "full-fuse/20261023/sympy.manifest.json",
+      "bytes": 629
+    },
+    {
+      "key": "full-fuse/20261023/sympy.tar.gz",
+      "bytes": 590808335
+    },
+    {
+      "key": "full-fuse/20261023/tools/archive_local_traces.py",
+      "bytes": 5908
+    },
+    {
+      "key": "full-fuse/20261023/tools/upload_trace_archives.py",
+      "bytes": 5946
+    }
+  ],
+  "object_count": 28,
+  "listing_complete": true,
+  "uncatalogued_trace_archives": [],
+  "metadata_downloads": [
+    {
+      "key": "full-fuse/20261023/batch-metadata.tar.gz",
+      "sha256": "b6592f9af5d3d9c1a3e236cda41c7ff2449105f54e65fb83a301ab520aaa8bd3"
+    },
+    {
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/metadata.tar.gz",
+      "sha256": "80fbbeca59c065016f106d8c85b1f1bb5848f992062eae7de80a028300f910ee"
+    }
+  ],
+  "excluded_incomplete": [
+    {
+      "case": "io-unreplayable",
+      "reason": "earlier I/O capture had unsupported ioctl and failed replay; metadata retained, no valid complete OSS case archive"
+    }
+  ],
+  "cases": [
+    {
+      "case": "sklearn",
+      "key": "full-fuse/20261023/sklearn.tar.gz",
+      "bytes": 842598913,
+      "sha256": "9292ea2b849f069e2e0fc48570380610161046acae574e01ff59ff411103b0b6",
+      "list_size_matches": true,
+      "head_size_matches": true,
+      "head_sha_metadata_matches": true,
+      "sidecar_sha256_verified": "30867eae8b0144380a689ce089e4291d02341d3e6315062e7a98ebf3a4d1ef06",
+      "member_inventory": {
+        "entries": 146922,
+        "initial_files": 1854,
+        "initial_bytes": 267816566,
+        "write_blobs": 130710,
+        "blob_bytes": 292939643,
+        "required_members": {
+          "agent-events.jsonl": {
+            "bytes": 549829,
+            "sha256": "13d466da66504c661bb614af57127b445a98aed117c71a12c5019c4050433300"
+          },
+          "final-tree.json": {
+            "bytes": 1406278,
+            "sha256": "55eb6433cd4d255cdc4d783a005546db4080bc9964964dfd7d27c300a5c0755b"
+          },
+          "initial-tree.json": {
+            "bytes": 390598,
+            "sha256": "ff45a4df3a7c75f38157d6deaf9447603418046de795a0f0c2017c40c0a097ba"
+          },
+          "metrics.json": {
+            "bytes": 2466,
+            "sha256": "a587d55caa20fb8890bc1bc41488a5f0b92abf9bfc9d464d6edb62a3fbbd4fd9"
+          },
+          "replay.json": {
+            "bytes": 319,
+            "sha256": "7348def85bfa957edafa287286dda6c33b575bfa29a5382595cd7275759a86c2"
+          },
+          "result.json": {
+            "bytes": 674,
+            "sha256": "1b268af353437161fbb7a903ccadb2d69803216d423cebbb18e3b27c694ea289"
+          },
+          "selection.json": {
+            "bytes": 3646,
+            "sha256": "548a6b5071ba7fc034e752ffac35bc5868a5ce148aac6114b6a9ad87b4e5354c"
+          },
+          "verification.json": {
+            "bytes": 438,
+            "sha256": "5c0e444f0175764fc6f734d169cc36408652ffaca37b985a8615dfdbea96ef05"
+          },
+          "capture/events.jsonl": {
+            "bytes": 3644932460,
+            "sha256": "c35dbf299bdb188cbc117a90d17346ecab2ab3a601e04c80107a1d6668afb26a"
+          }
+        },
+        "missing_members": [],
+        "scope": "archive file list only; payload files not fetched or rehashed"
+      },
+      "full_archive_downloaded_this_audit": false,
+      "historical_metrics": {
+        "callbacks": 9233326,
+        "operations_by_type": {
+          "init": 1,
+          "getattr": 8722900,
+          "statfs": 19,
+          "mkdir": 719,
+          "opendir": 59938,
+          "readdir": 59808,
+          "releasedir": 59938,
+          "create": 4384,
+          "getxattr": 68240,
+          "chown": 3,
+          "write": 135963,
+          "fsync": 80,
+          "fsyncdir": 2,
+          "flush": 31557,
+          "release": 26063,
+          "unlink": 194,
+          "truncate": 301,
+          "read": 36825,
+          "open": 21679,
+          "utimens": 4,
+          "rename": 446,
+          "rmdir": 6,
+          "chmod": 24,
+          "symlink": 8,
+          "link": 48,
+          "ioctl": 4175,
+          "destroy": 1
+        },
+        "errors_by_errno": {
+          "2": 78586,
+          "61": 68240,
+          "25": 4175
+        },
+        "actual_read_bytes": 1753942573,
+        "actual_write_bytes": 305043902,
+        "requested_read_bytes": 1812074496,
+        "requested_write_bytes": 305043902,
+        "repeated_read_bytes": 1522254313,
+        "repeated_read_ratio": 0.8679043068076551,
+        "namespaces": {
+          "state": {
+            "actual_read_bytes": 127499667,
+            "actual_write_bytes": 298785840,
+            "repeated_read_bytes": 107032446,
+            "repeated_read_ratio": 0.8394723572101565
+          },
+          "repo": {
+            "actual_read_bytes": 1626442906,
+            "actual_write_bytes": 6258062,
+            "repeated_read_bytes": 1415221867,
+            "repeated_read_ratio": 0.8701331364164098
+          }
+        },
+        "subtrees": {
+          "state/data": {
+            "actual_read_bytes": 115731397,
+            "actual_write_bytes": 125574415,
+            "repeated_read_bytes": 107031222
+          },
+          "repo": {
+            "actual_read_bytes": 1626442906,
+            "actual_write_bytes": 6258062,
+            "repeated_read_bytes": 1415221867
+          },
+          "state/state": {
+            "actual_read_bytes": 267,
+            "actual_write_bytes": 267,
+            "repeated_read_bytes": 0
+          },
+          "state/config": {
+            "actual_read_bytes": 6272,
+            "actual_write_bytes": 55262206,
+            "repeated_read_bytes": 1224
+          },
+          "state/cache": {
+            "actual_read_bytes": 11759632,
+            "actual_write_bytes": 5879457,
+            "repeated_read_bytes": 0
+          },
+          "state/home": {
+            "actual_read_bytes": 2099,
+            "actual_write_bytes": 112069495,
+            "repeated_read_bytes": 0
+          }
+        },
+        "distinct_request_pids": 3375,
+        "capture_elapsed_s": 798.204584577,
+        "scope": "FUSE callback bytes; excludes kernel cache hits, local lock handling, image runtime and /tmp",
+        "repeat_definition": "same file identity and offset already read since last overwrite; rename/link preserve identity",
+        "physical_device_bytes": null,
+        "application_syscall_bytes": null
+      },
+      "historical_verification": {
+        "actual_read_bytes": 1753942573,
+        "actual_write_bytes": 305043902,
+        "execution_seconds": 49.823429438,
+        "expected_errors": 151001,
+        "operations": 9233326,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": true,
+        "final_tree_equal": true,
+        "final_tree_sha256": "dd2abf9795c12b5997371a48a0ad127756d6b8830463f076b2a8208c7641a699"
+      },
+      "capture_exit": {
+        "exit_code": null,
+        "elapsed_s": 774.9381473064423,
+        "elapsed_basis": "last agent event minus start; process exit code lost by shutdown-timeout exception"
+      },
+      "model_steps": 71,
+      "origin": {
+        "benchmark": "SWE-bench Verified",
+        "task_id": "scikit-learn__scikit-learn-25102"
+      },
+      "source_files": [
+        "scenarios/k8s-containers/archives.json",
+        "scripts/run_opencode_full_trace.py",
+        "scripts/run_swebench_opencode.py"
+      ]
+    },
+    {
+      "case": "sympy",
+      "key": "full-fuse/20261023/sympy.tar.gz",
+      "bytes": 590808335,
+      "sha256": "7850be51481d22abcd35a397240f53cafd08ed27619d87db3f6787ba2c79eb1e",
+      "list_size_matches": true,
+      "head_size_matches": true,
+      "head_sha_metadata_matches": true,
+      "sidecar_sha256_verified": "bd48b939a24625b4f85d53fd249dce575164504084c64cfaf5e0081c3e013906",
+      "member_inventory": {
+        "entries": 99288,
+        "initial_files": 1553,
+        "initial_bytes": 93290887,
+        "write_blobs": 84091,
+        "blob_bytes": 225303556,
+        "required_members": {
+          "agent-events.jsonl": {
+            "bytes": 335152,
+            "sha256": "313887d16f26896680bda588fb94bb51e06e7c288f453c1b27a9fab1d2330789"
+          },
+          "final-tree.json": {
+            "bytes": 1330855,
+            "sha256": "1aa9de4f8c20e99dfe742f11cc678156911097c70d436f8c9c07aeb1e23b4a47"
+          },
+          "initial-tree.json": {
+            "bytes": 310453,
+            "sha256": "e72ff02a71a41ede1a0fa89d69737755bfee7f555a41058bfd6d3cfbb9fc1b10"
+          },
+          "metrics.json": {
+            "bytes": 2457,
+            "sha256": "300601f80d067eca684193b6edafe35f3af33bb348ee106acdaebaf635305ed9"
+          },
+          "replay.json": {
+            "bytes": 318,
+            "sha256": "bf68c111e86d3daf056f657de40329ad45e8e0a732160b6627abbd24f6dda0ce"
+          },
+          "result.json": {
+            "bytes": 604,
+            "sha256": "20bc26219bda27dc932c159d70eb5a65ef4de135a01e8e90a65d5fd852a92c4b"
+          },
+          "selection.json": {
+            "bytes": 4244,
+            "sha256": "a83007eaf91f3571d069d932ea1d4fef41c10f02c4d17c62ccf4f7020e0d2abf"
+          },
+          "verification.json": {
+            "bytes": 437,
+            "sha256": "f82d335416c378a041be735947c49411b38a4ae4020659a537ae46fbdb79f112"
+          },
+          "capture/events.jsonl": {
+            "bytes": 2856987303,
+            "sha256": "2acf06a64e11975092a245a54cf8e2dfce719ab5a5877c93d4ceda1c170d9aa1"
+          }
+        },
+        "missing_members": [],
+        "scope": "archive file list only; payload files not fetched or rehashed"
+      },
+      "full_archive_downloaded_this_audit": false,
+      "historical_metrics": {
+        "callbacks": 7265338,
+        "operations_by_type": {
+          "init": 1,
+          "getattr": 6925705,
+          "statfs": 2,
+          "mkdir": 672,
+          "opendir": 37448,
+          "readdir": 37445,
+          "releasedir": 37448,
+          "create": 4387,
+          "getxattr": 34218,
+          "chown": 3,
+          "write": 86383,
+          "fsync": 30,
+          "fsyncdir": 2,
+          "flush": 26561,
+          "release": 22226,
+          "unlink": 155,
+          "truncate": 217,
+          "read": 27840,
+          "open": 17839,
+          "utimens": 4,
+          "rename": 488,
+          "chmod": 22,
+          "rmdir": 2,
+          "symlink": 8,
+          "ioctl": 6179,
+          "link": 52,
+          "destroy": 1
+        },
+        "errors_by_errno": {
+          "2": 56775,
+          "61": 34218,
+          "25": 6179
+        },
+        "actual_read_bytes": 1124648770,
+        "actual_write_bytes": 232052204,
+        "requested_read_bytes": 1172099072,
+        "requested_write_bytes": 232052204,
+        "repeated_read_bytes": 1060539158,
+        "repeated_read_ratio": 0.9429958812830072,
+        "namespaces": {
+          "state": {
+            "actual_read_bytes": 96101952,
+            "actual_write_bytes": 224306825,
+            "repeated_read_bytes": 74184158,
+            "repeated_read_ratio": 0.7719318542041685
+          },
+          "repo": {
+            "actual_read_bytes": 1028546818,
+            "actual_write_bytes": 7745379,
+            "repeated_read_bytes": 986355000,
+            "repeated_read_ratio": 0.9589791954419327
+          }
+        },
+        "subtrees": {
+          "state/data": {
+            "actual_read_bytes": 84333682,
+            "actual_write_bytes": 51095400,
+            "repeated_read_bytes": 74182934
+          },
+          "repo": {
+            "actual_read_bytes": 1028546818,
+            "actual_write_bytes": 7745379,
+            "repeated_read_bytes": 986355000
+          },
+          "state/state": {
+            "actual_read_bytes": 267,
+            "actual_write_bytes": 267,
+            "repeated_read_bytes": 0
+          },
+          "state/config": {
+            "actual_read_bytes": 6272,
+            "actual_write_bytes": 55262206,
+            "repeated_read_bytes": 1224
+          },
+          "state/cache": {
+            "actual_read_bytes": 11759632,
+            "actual_write_bytes": 5879457,
+            "repeated_read_bytes": 0
+          },
+          "state/home": {
+            "actual_read_bytes": 2099,
+            "actual_write_bytes": 112069495,
+            "repeated_read_bytes": 0
+          }
+        },
+        "distinct_request_pids": 2552,
+        "capture_elapsed_s": 773.794517004,
+        "scope": "FUSE callback bytes; excludes kernel cache hits, local lock handling, image runtime and /tmp",
+        "repeat_definition": "same file identity and offset already read since last overwrite; rename/link preserve identity",
+        "physical_device_bytes": null,
+        "application_syscall_bytes": null
+      },
+      "historical_verification": {
+        "actual_read_bytes": 1124648770,
+        "actual_write_bytes": 232052204,
+        "execution_seconds": 73.784317962,
+        "expected_errors": 97172,
+        "operations": 7265338,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": true,
+        "final_tree_equal": true,
+        "final_tree_sha256": "7a6307df1450206921d5ea545db2021531959d8f524b3f1b0501cde17748086e"
+      },
+      "capture_exit": {
+        "exit_code": 0,
+        "elapsed_s": 773.6204082730001
+      },
+      "model_steps": 53,
+      "origin": {
+        "benchmark": "SWE-bench Verified",
+        "task_id": "sympy__sympy-13878"
+      },
+      "source_files": [
+        "scenarios/k8s-containers/archives.json",
+        "scripts/run_opencode_full_trace.py",
+        "scripts/run_swebench_opencode.py"
+      ]
+    },
+    {
+      "case": "django",
+      "key": "full-fuse/20261023/django.tar.gz",
+      "bytes": 2302532371,
+      "sha256": "17b37b8f5414bafa115c6548709051bced65a1b1b16c166172264772cb7adeb3",
+      "list_size_matches": true,
+      "head_size_matches": true,
+      "head_sha_metadata_matches": true,
+      "sidecar_sha256_verified": "bdfd03271c25173f4dd97383eec578d6bee6d3b2e89042c5b51756b123269086",
+      "member_inventory": {
+        "entries": 131578,
+        "initial_files": 6120,
+        "initial_bytes": 133481486,
+        "write_blobs": 94162,
+        "blob_bytes": 240889178,
+        "required_members": {
+          "agent-events.jsonl": {
+            "bytes": 461172,
+            "sha256": "3d7a31c00368618fd7f1c49da42991533ec9e9727dc03757ba74f5b466b6727e"
+          },
+          "final-tree.json": {
+            "bytes": 2543571,
+            "sha256": "1de95c4993a4ce79e20054640deb696f8a1c378c5f0c921b986bee59ddf46301"
+          },
+          "initial-tree.json": {
+            "bytes": 1503719,
+            "sha256": "9b211b4e00faaa091d093d1f675d78d62df6b19525c6d26062f481d9a5a99225"
+          },
+          "metrics.json": {
+            "bytes": 2491,
+            "sha256": "6f24a841c932234767320ab842d4d17e56c4e30b325f498ed5690eb2edf2676b"
+          },
+          "replay.json": {
+            "bytes": 321,
+            "sha256": "37f824d1728a2d67e4e34db514b608a5b9113cb9d1b00ed1ef0067061fb281da"
+          },
+          "result.json": {
+            "bytes": 700,
+            "sha256": "7cc61553c00ba773d4d65ca7d4a171b6db32da9cf1b78c201fe148983b5cfd52"
+          },
+          "selection.json": {
+            "bytes": 3998,
+            "sha256": "1d9f8084053f41859e33b0fef9cd21892b59e372df264c4d07466e8d4a6c8680"
+          },
+          "verification.json": {
+            "bytes": 440,
+            "sha256": "3d41751a6f07b607347e6ea8ca8873cd0e198468f2ba9f7c7e2f0c01d8ef4c7b"
+          },
+          "capture/events.jsonl": {
+            "bytes": 22936759846,
+            "sha256": "ad9933b4c0fc1a797315b5ec0b1b00d5508bba7c8397ec1c50cbf364a0692948"
+          }
+        },
+        "missing_members": [],
+        "scope": "archive file list only; payload files not fetched or rehashed"
+      },
+      "full_archive_downloaded_this_audit": false,
+      "historical_metrics": {
+        "callbacks": 57787980,
+        "operations_by_type": {
+          "init": 1,
+          "getattr": 55505230,
+          "statfs": 10,
+          "mkdir": 722,
+          "opendir": 643263,
+          "readdir": 642974,
+          "open": 41135,
+          "read": 60662,
+          "flush": 50989,
+          "release": 45618,
+          "releasedir": 643263,
+          "create": 4483,
+          "getxattr": 42091,
+          "chown": 3,
+          "write": 105713,
+          "fsync": 37,
+          "fsyncdir": 2,
+          "unlink": 218,
+          "truncate": 285,
+          "utimens": 13,
+          "rename": 517,
+          "chmod": 22,
+          "symlink": 8,
+          "rmdir": 2,
+          "readlink": 20,
+          "ioctl": 599,
+          "link": 99,
+          "destroy": 1
+        },
+        "errors_by_errno": {
+          "2": 339161,
+          "61": 42091,
+          "25": 599
+        },
+        "actual_read_bytes": 2292334532,
+        "actual_write_bytes": 284748789,
+        "requested_read_bytes": 2400608256,
+        "requested_write_bytes": 284748789,
+        "repeated_read_bytes": 2174126819,
+        "repeated_read_ratio": 0.9484334806504585,
+        "namespaces": {
+          "repo": {
+            "actual_read_bytes": 1842666104,
+            "actual_write_bytes": 6266725,
+            "repeated_read_bytes": 1785691988,
+            "repeated_read_ratio": 0.9690806077800409
+          },
+          "state": {
+            "actual_read_bytes": 449668428,
+            "actual_write_bytes": 278482064,
+            "repeated_read_bytes": 388434831,
+            "repeated_read_ratio": 0.863825002630605
+          }
+        },
+        "subtrees": {
+          "repo": {
+            "actual_read_bytes": 1842666104,
+            "actual_write_bytes": 6266725,
+            "repeated_read_bytes": 1785691988
+          },
+          "state/data": {
+            "actual_read_bytes": 437900095,
+            "actual_write_bytes": 105270639,
+            "repeated_read_bytes": 388433607
+          },
+          "state/state": {
+            "actual_read_bytes": 267,
+            "actual_write_bytes": 267,
+            "repeated_read_bytes": 0
+          },
+          "state/config": {
+            "actual_read_bytes": 6335,
+            "actual_write_bytes": 55262206,
+            "repeated_read_bytes": 1224
+          },
+          "state/cache": {
+            "actual_read_bytes": 11759632,
+            "actual_write_bytes": 5879457,
+            "repeated_read_bytes": 0
+          },
+          "state/home": {
+            "actual_read_bytes": 2099,
+            "actual_write_bytes": 112069495,
+            "repeated_read_bytes": 0
+          }
+        },
+        "distinct_request_pids": 5344,
+        "capture_elapsed_s": 3622.873212145,
+        "scope": "FUSE callback bytes; excludes kernel cache hits, local lock handling, image runtime and /tmp",
+        "repeat_definition": "same file identity and offset already read since last overwrite; rename/link preserve identity",
+        "physical_device_bytes": null,
+        "application_syscall_bytes": null
+      },
+      "historical_verification": {
+        "actual_read_bytes": 2292334532,
+        "actual_write_bytes": 284748789,
+        "execution_seconds": 410.416202429,
+        "expected_errors": 381851,
+        "operations": 57787980,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": true,
+        "final_tree_equal": true,
+        "final_tree_sha256": "74112b29f5650a4e1ee4bf4e2836cf50e1f97b9863c312c39c56b7af8adc142d"
+      },
+      "capture_exit": {
+        "exit_code": null,
+        "elapsed_s": 3592.2615184783936,
+        "elapsed_basis": "last agent event minus start, not exact process exit time",
+        "stop_reason": "runtime-limit",
+        "stop_reason_basis": "inferred; exit code was not persisted before cleanup exception"
+      },
+      "model_steps": 67,
+      "origin": {
+        "benchmark": "SWE-bench Verified",
+        "task_id": "django__django-10554"
+      },
+      "source_files": [
+        "scenarios/k8s-containers/archives.json",
+        "scripts/run_opencode_full_trace.py",
+        "scripts/run_swebench_opencode.py"
+      ]
+    },
+    {
+      "case": "pytest-full-02",
+      "key": "full-fuse/20261023/pytest-full-02.tar.gz",
+      "bytes": 407606955,
+      "sha256": "9953d90517eaf520814150f80abccb11f9d74b7ac84ecc56fa394a5f8495aa3d",
+      "list_size_matches": true,
+      "head_size_matches": true,
+      "head_sha_metadata_matches": true,
+      "sidecar_sha256_verified": "a221c7d76d3798d46fe8cfe7aa255ac761290c55913f57b26362cfc0809ead49",
+      "member_inventory": {
+        "entries": 78246,
+        "initial_files": 614,
+        "initial_bytes": 35526497,
+        "write_blobs": 66958,
+        "blob_bytes": 193251353,
+        "required_members": {
+          "agent-events.jsonl": {
+            "bytes": 188477,
+            "sha256": "209dc657bd1f444a28d51a3e4e6ca90b2ada1264e360e8afbc31dc1d83106623"
+          },
+          "final-tree.json": {
+            "bytes": 1065667,
+            "sha256": "c7f72521c9bd081a46816067f607ba5fa5bbf596f6d8d35ba575d61c5e0e646d"
+          },
+          "initial-tree.json": {
+            "bytes": 124753,
+            "sha256": "c1b9b066e6660301ad944fff78de1910e6388021c6caa90923355848eb1c2847"
+          },
+          "metrics.json": {
+            "bytes": 2445,
+            "sha256": "f158b5a4f52e50497249edcd93466fc78f8230087801785a360a4c05fc3ae466"
+          },
+          "replay.json": {
+            "bytes": 316,
+            "sha256": "75c22bb0f78b58757f60a9313571ae4869edd5c8a2f86807f3fb447464e2cc77"
+          },
+          "result.json": {
+            "bytes": 573,
+            "sha256": "7e27abc4df9c525d8edad2e42b1e2fc9659c02a5c5385bf56dc9cc40e1495c39"
+          },
+          "selection.json": {
+            "bytes": 6510,
+            "sha256": "efffe319125a666f0b94c3597615efc3fb437953d060a11de1cde87482eecab1"
+          },
+          "verification.json": {
+            "bytes": 435,
+            "sha256": "ff1797d6d06d887bb812f05b3b3ea614b983d5c605f4fee3e4431c292ef773a4"
+          },
+          "capture/events.jsonl": {
+            "bytes": 684223086,
+            "sha256": "0300a208c3fff9bbe125d40e2214f46d459d7cad3b86141e1960a8cf9384c45f"
+          }
+        },
+        "missing_members": [],
+        "scope": "archive file list only; payload files not fetched or rehashed"
+      },
+      "full_archive_downloaded_this_audit": false,
+      "historical_metrics": {
+        "callbacks": 1747109,
+        "actual_read_bytes": 281774624,
+        "actual_write_bytes": 194706661
+      },
+      "historical_verification": null,
+      "capture_exit": null,
+      "model_steps": null,
+      "metrics_source": "existing archived replay totals; scripts/full-fuse-trace.zh.md and agent-fs-trace format-and-checks; not freshly extracted from full tar",
+      "origin": {
+        "benchmark": "SWE-bench Verified",
+        "task_id": "pytest-dev__pytest-10356"
+      },
+      "source_files": [
+        "scenarios/k8s-containers/archives.json",
+        "scripts/run_opencode_full_trace.py",
+        "scripts/run_swebench_opencode.py"
+      ]
+    },
+    {
+      "case": "pytest-20261026",
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/pytest.tar.gz",
+      "bytes": 185203598,
+      "sha256": "b906565287211e3f6834eb1cb42fb457762d2d402c100daed291e758a8b500ef",
+      "list_size_matches": true,
+      "head_size_matches": true,
+      "head_sha_metadata_matches": true,
+      "sidecar_sha256_verified": "89049a38d37cd9609d88749bc47e3c7326e0d7169a5aa7b52f8034d1f83e3e1d",
+      "member_inventory": {
+        "entries": 33480,
+        "initial_files": 612,
+        "initial_bytes": 24200969,
+        "write_blobs": 19601,
+        "blob_bytes": 36981826,
+        "required_members": {
+          "agent-events.jsonl": {
+            "bytes": 183361,
+            "sha256": "26b27ac803cd2cd1bed714fb8ab594d39e346e9755abcdab49cac2d3b71e59ec"
+          },
+          "final-tree.json": {
+            "bytes": 1339824,
+            "sha256": "070f80a312a38364b1eb884eb72e811ceea1c0907a8d544204792f0a62b458f2"
+          },
+          "initial-tree.json": {
+            "bytes": 124236,
+            "sha256": "3fec727a3b6be74d54b7d9e60840d9aca1642ac1fda8cd87343b792819a1ab72"
+          },
+          "metrics.json": {
+            "bytes": 2199,
+            "sha256": "e1efaf40f393126ed3c36116703176522ad964fad96b021c0dbe7daf2590cf7a"
+          },
+          "replay.json": {
+            "bytes": 316,
+            "sha256": "2e7aff9a4ae3ab85e3bdc3f74a9f3ce29d1cea18cdeeb4a2eeec3bb31699b0ce"
+          },
+          "result.json": {
+            "bytes": 602,
+            "sha256": "92600e180fb091554f589623a55a98733e5e476c5cf5406d84e606bf2431fc77"
+          },
+          "selection.json": {
+            "bytes": 6510,
+            "sha256": "14c1718dcb8e4a7d52db8b9250d763bbfe66e4585deb88039aff865770e0c773"
+          },
+          "verification.json": {
+            "bytes": 435,
+            "sha256": "0036a7ac345fcdaa66fa2067a2d9b1c707a7bb4b91d0fdeec0a725e72886242c"
+          },
+          "capture/events.jsonl": {
+            "bytes": 1122132443,
+            "sha256": "800d0c57489b43b16b9f7456aef26681ac1cc47a4879403cda2b1b15dd0fc7d3"
+          }
+        },
+        "missing_members": [],
+        "scope": "archive file list only; payload files not fetched or rehashed"
+      },
+      "full_archive_downloaded_this_audit": false,
+      "historical_metrics": {
+        "callbacks": 2836142,
+        "operations_by_type": {
+          "init": 1,
+          "getattr": 2628054,
+          "statfs": 18,
+          "opendir": 16097,
+          "readdir": 15908,
+          "releasedir": 16097,
+          "mkdir": 1039,
+          "create": 3006,
+          "getxattr": 35847,
+          "write": 45765,
+          "truncate": 207,
+          "flush": 21360,
+          "release": 18028,
+          "chown": 4,
+          "fsync": 7,
+          "fsyncdir": 2,
+          "unlink": 731,
+          "read": 14763,
+          "open": 15022,
+          "rename": 246,
+          "symlink": 17,
+          "link": 2651,
+          "chmod": 13,
+          "ioctl": 1235,
+          "utimens": 23,
+          "destroy": 1
+        },
+        "errors_by_errno": {
+          "2": 31576,
+          "61": 35847,
+          "25": 1235,
+          "1": 1
+        },
+        "actual_read_bytes": 151974362,
+        "actual_write_bytes": 47828816,
+        "requested_read_bytes": 193888256,
+        "requested_write_bytes": 47828816,
+        "repeated_read_bytes": 89477259,
+        "repeated_read_ratio": 0.588765485325742,
+        "namespaces": {
+          "state": {
+            "actual_read_bytes": 65077509,
+            "actual_write_bytes": 46183492,
+            "repeated_read_bytes": 28345789,
+            "repeated_read_ratio": 0.43556966816292864
+          },
+          "repo": {
+            "actual_read_bytes": 86896853,
+            "actual_write_bytes": 1645324,
+            "repeated_read_bytes": 61131470,
+            "repeated_read_ratio": 0.7034946363362549
+          }
+        },
+        "subtrees": {
+          "state/cache": {
+            "actual_read_bytes": 21847490,
+            "actual_write_bytes": 13070433,
+            "repeated_read_bytes": 8781316
+          },
+          "state/data": {
+            "actual_read_bytes": 38774707,
+            "actual_write_bytes": 33112240,
+            "repeated_read_bytes": 15110751
+          },
+          "repo": {
+            "actual_read_bytes": 86896853,
+            "actual_write_bytes": 1645324,
+            "repeated_read_bytes": 61131470
+          },
+          "state/config": {
+            "actual_read_bytes": 4455312,
+            "actual_write_bytes": 819,
+            "repeated_read_bytes": 4453722
+          }
+        },
+        "distinct_request_pids": 1381,
+        "capture_elapsed_s": 561.219994334,
+        "scope": "FUSE callback bytes; excludes kernel cache hits, local lock handling, image runtime and /tmp",
+        "repeat_definition": "same file identity and offset already read since last overwrite; rename/link preserve identity",
+        "physical_device_bytes": null,
+        "application_syscall_bytes": null
+      },
+      "historical_verification": {
+        "actual_read_bytes": 151974362,
+        "actual_write_bytes": 47828816,
+        "execution_seconds": 32.536854253,
+        "expected_errors": 68659,
+        "operations": 2836142,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": true,
+        "final_tree_equal": true,
+        "final_tree_sha256": "99962c7a5d330a085a53f69544517ee567bbd43edd7921983cd06367f7afc966"
+      },
+      "capture_exit": {
+        "exit_code": 0,
+        "elapsed_s": 561.4491992899857
+      },
+      "model_steps": 45,
+      "origin": {
+        "benchmark": "SWE-bench Verified",
+        "task_id": "pytest-dev__pytest-10356",
+        "selection_member": "metadata/cases/pytest/selection.json",
+        "selection_sha256": "14c1718dcb8e4a7d52db8b9250d763bbfe66e4585deb88039aff865770e0c773",
+        "selection_fields": {
+          "instance_id": "pytest-dev__pytest-10356",
+          "base_commit": "3c1534944cbd34e8a41bc9e76818018fadefc9a1",
+          "image_id": "sha256:1d9488d31a9c08a467d2a3b7ec77387a49f366e15e9995d903bb2c0a921d9478",
+          "model": "deepseek-v4-flash",
+          "opencode": "1.19.4",
+          "max_steps": null,
+          "timeout_s": 3600
+        },
+        "prompt_sha256": "8ce63b1dcba101fa1a78a8c68428a833dadc538149b99175ea2b0e34ecf4e630",
+        "version_discrepancy": {
+          "static_selection": "1.19.4",
+          "batch_report_actual": "1.2.26",
+          "basis": "metadata/RUN-REPORT.md lines 86 and 261; runtime-provenance.json listed in full archive sidecar, not extracted this audit"
+        }
+      },
+      "source_files": [
+        "scenarios/k8s-containers/archives.json",
+        "scripts/run_opencode_full_trace.py",
+        "scripts/run_swebench_opencode.py"
+      ]
+    },
+    {
+      "case": "ripgrep-20261026",
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/rust.tar.gz",
+      "bytes": 1325864032,
+      "sha256": "99415604e5181c44d8e8b8f499451c69793993420851390e5c0f9b95e450812e",
+      "list_size_matches": true,
+      "head_size_matches": true,
+      "head_sha_metadata_matches": true,
+      "sidecar_sha256_verified": "db5234743ab344d6fbe0ac39f19bad9dea6204e26201f04c66df95663582ef8c",
+      "member_inventory": {
+        "entries": 573423,
+        "initial_files": 213,
+        "initial_bytes": 3026717,
+        "write_blobs": 551492,
+        "blob_bytes": 1102805243,
+        "required_members": {
+          "agent-events.jsonl": {
+            "bytes": 11204,
+            "sha256": "6d4350edaa123b914bae686b7c43e06233674e2e3138230a8462f881e5a9ccdf"
+          },
+          "final-tree.json": {
+            "bytes": 2440232,
+            "sha256": "496d663e4ed5c6a0e78d3c5cefd86e92d9be52c9db88c73d4421530aab70b9bc"
+          },
+          "initial-tree.json": {
+            "bytes": 44281,
+            "sha256": "eefbbd7239ef286cd56d58f464d1911432d92559309ac714a4b0e085e54e7c46"
+          },
+          "metrics.json": {
+            "bytes": 2240,
+            "sha256": "305fa7cc7554ca2b3574e8a19e6df37674f83b5ffc002c89465e4eaa4c01b895"
+          },
+          "replay.json": {
+            "bytes": 320,
+            "sha256": "7a7993b811bf2834babdee349b51f02e9796028963b04361c6f2b25c78dd2c5c"
+          },
+          "result.json": {
+            "bytes": 605,
+            "sha256": "61be487336ae169c5caaa97048fee6aadfee45a5fe011f3da1b7f385d32a5a71"
+          },
+          "selection.json": {
+            "bytes": 2226,
+            "sha256": "dccb4f546e21b3aa5922dd82d250cf5d2eeb0c5592c9e5d14ceefc8bf1aadaae"
+          },
+          "verification.json": {
+            "bytes": 439,
+            "sha256": "1d669c7c4f9beb17ea23f8a670d84d7d1e49a1905fb61b0e6881472f37bb3f50"
+          },
+          "capture/events.jsonl": {
+            "bytes": 1061849599,
+            "sha256": "5abdb82b77f623b2252986635e8684ada6cd51b2a3f5c3fe566fbe3ae7b04ebe"
+          }
+        },
+        "missing_members": [],
+        "scope": "archive file list only; payload files not fetched or rehashed"
+      },
+      "full_archive_downloaded_this_audit": false,
+      "historical_metrics": {
+        "callbacks": 3122195,
+        "operations_by_type": {
+          "init": 1,
+          "getattr": 1285797,
+          "statfs": 18,
+          "opendir": 944,
+          "readdir": 836,
+          "releasedir": 944,
+          "mkdir": 1501,
+          "create": 7357,
+          "getxattr": 693861,
+          "write": 921260,
+          "truncate": 28,
+          "flush": 26282,
+          "release": 16607,
+          "chown": 8,
+          "fsync": 16,
+          "fsyncdir": 6,
+          "unlink": 3606,
+          "read": 144434,
+          "open": 9250,
+          "rename": 170,
+          "symlink": 16,
+          "link": 5362,
+          "chmod": 1744,
+          "ioctl": 224,
+          "utimens": 1796,
+          "readlink": 6,
+          "rmdir": 120,
+          "destroy": 1
+        },
+        "errors_by_errno": {
+          "2": 49343,
+          "61": 693861,
+          "25": 224,
+          "1": 1
+        },
+        "actual_read_bytes": 4391117721,
+        "actual_write_bytes": 1178081436,
+        "requested_read_bytes": 4408307712,
+        "requested_write_bytes": 1178081436,
+        "repeated_read_bytes": 3765828699,
+        "repeated_read_ratio": 0.8576013986121052,
+        "namespaces": {
+          "state": {
+            "actual_read_bytes": 27394323,
+            "actual_write_bytes": 62859354,
+            "repeated_read_bytes": 102206,
+            "repeated_read_ratio": 0.003730918993690773
+          },
+          "repo": {
+            "actual_read_bytes": 4363723398,
+            "actual_write_bytes": 1115222082,
+            "repeated_read_bytes": 3765726493,
+            "repeated_read_ratio": 0.862961775882936
+          }
+        },
+        "subtrees": {
+          "state/cache": {
+            "actual_read_bytes": 24793640,
+            "actual_write_bytes": 52883538,
+            "repeated_read_bytes": 101435
+          },
+          "state/data": {
+            "actual_read_bytes": 2599078,
+            "actual_write_bytes": 9974997,
+            "repeated_read_bytes": 0
+          },
+          "state/config": {
+            "actual_read_bytes": 1605,
+            "actual_write_bytes": 819,
+            "repeated_read_bytes": 771
+          },
+          "repo": {
+            "actual_read_bytes": 4363723398,
+            "actual_write_bytes": 1115222082,
+            "repeated_read_bytes": 3765726493
+          }
+        },
+        "distinct_request_pids": 4345,
+        "capture_elapsed_s": 222.632399738,
+        "scope": "FUSE callback bytes; excludes kernel cache hits, local lock handling, image runtime and /tmp",
+        "repeat_definition": "same file identity and offset already read since last overwrite; rename/link preserve identity",
+        "physical_device_bytes": null,
+        "application_syscall_bytes": null
+      },
+      "historical_verification": {
+        "actual_read_bytes": 4391117721,
+        "actual_write_bytes": 1178081436,
+        "execution_seconds": 22.128834185,
+        "expected_errors": 743429,
+        "operations": 3122195,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": true,
+        "final_tree_equal": true,
+        "final_tree_sha256": "0416e6d580c406e557a544016f9dc625167a99b8e6e38b415968b015827437d2"
+      },
+      "capture_exit": {
+        "exit_code": 0,
+        "elapsed_s": 222.34929377402295
+      },
+      "model_steps": 3,
+      "origin": {
+        "benchmark": "custom Agent task",
+        "task_id": "ripgrep-14.1.1-build-test",
+        "selection_member": "metadata/cases/rust/selection.json",
+        "selection_sha256": "dccb4f546e21b3aa5922dd82d250cf5d2eeb0c5592c9e5d14ceefc8bf1aadaae",
+        "selection_fields": {
+          "instance_id": "ripgrep-14.1.1-build-test",
+          "image_id": "sha256:d206fa34784c1c49e05c636e682892881896cce563bda7ca0b4cd96e159c8806",
+          "model": "experiment/deepseek-v4-flash",
+          "upstream_model": "deepseek-flash",
+          "opencode": "1.2.26",
+          "opencode_sha256": "025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233",
+          "source_url": "https://codeload.github.com/BurntSushi/ripgrep/tar.gz/refs/tags/14.1.1",
+          "source_sha256": "4dad02a2f9c8c3c8d89434e47337aa654cb0e2aa50e806589132f186bf5c2b66",
+          "command": "timeout 1500 cargo build --locked --workspace > cargo-build.log 2>&1 && timeout 1500 cargo test --locked --workspace > cargo-test.log 2>&1 && ./target/debug/rg --version > ripgrep-version.txt",
+          "max_steps": null,
+          "timeout_s": 3600
+        },
+        "prompt_sha256": "e87428cd18861d6cc59a5b474a506a4dbbeb6c6aaba51385f261987e01808bf8"
+      },
+      "source_files": [
+        "scenarios/k8s-containers/archives.json",
+        "scripts/run_opencode_full_trace.py",
+        "scripts/run_swebench_opencode.py"
+      ]
+    },
+    {
+      "case": "archive-io-20261026",
+      "key": "full-fuse/20261023/deepseek-opencode-20261026/io-compatible.tar.gz",
+      "bytes": 4752420807,
+      "sha256": "a4ca1c9e50c7c6cae9bf7f29e2d67cd88777e8fba3934ed5fbb646cf0ce77fb2",
+      "list_size_matches": true,
+      "head_size_matches": true,
+      "head_sha_metadata_matches": true,
+      "sidecar_sha256_verified": "0499e91fb708a4a959960300f245ebb634cee3ec1256f7ba4b773dd1f717f9de",
+      "member_inventory": {
+        "entries": 411002,
+        "initial_files": 3,
+        "initial_bytes": 11838,
+        "write_blobs": 352920,
+        "blob_bytes": 1214990833,
+        "required_members": {
+          "agent-events.jsonl": {
+            "bytes": 5306,
+            "sha256": "f1f4a806990e156e103bde3e2109ce80fef3a24e5244999d088bcfe8a6ac392b"
+          },
+          "final-tree.json": {
+            "bytes": 5732723,
+            "sha256": "8ed5404ccbcd4ccd3bc77a6dbe11da2f77895f2f3aeca9c40c886a276fd49d49"
+          },
+          "initial-tree.json": {
+            "bytes": 1129,
+            "sha256": "b5db4cea746ed15732aad6001cc1926ffddfc0892327f695d91bf0932fb9c126"
+          },
+          "metrics.json": {
+            "bytes": 2189,
+            "sha256": "07e151aa0c408e90b5b22c5acfe8956fde4cbf320baff273aa1273244528e6b6"
+          },
+          "replay.json": {
+            "bytes": 320,
+            "sha256": "daf6fb751f6ed6a232a005a9b167ef00d11aa73f0996a9739c9371496c989a83"
+          },
+          "result.json": {
+            "bytes": 605,
+            "sha256": "fd3abd7b664be8aa1b3d272529d9251f0695809a8ebf38a9aca99cf1414c1aa0"
+          },
+          "selection.json": {
+            "bytes": 2410,
+            "sha256": "94283b0d262ad73472616efddf3691c6f925635680be18ca68c681d0184ef531"
+          },
+          "verification.json": {
+            "bytes": 439,
+            "sha256": "c2656fd185c179a2ea999a3b024556c63d7be3ed1c4fe621077ad3ad2deae6d0"
+          },
+          "capture/events.jsonl": {
+            "bytes": 1391958369,
+            "sha256": "c9eee4f9348cf6fcd9d848a349fb09c75b1847c7491b9bdaa5d909a92a6aad40"
+          }
+        },
+        "missing_members": [],
+        "scope": "archive file list only; payload files not fetched or rehashed"
+      },
+      "full_archive_downloaded_this_audit": false,
+      "historical_metrics": {
+        "callbacks": 3673814,
+        "operations_by_type": {
+          "init": 1,
+          "getattr": 2767601,
+          "statfs": 2,
+          "opendir": 785,
+          "readdir": 717,
+          "releasedir": 785,
+          "mkdir": 910,
+          "create": 26047,
+          "getxattr": 130767,
+          "write": 497982,
+          "truncate": 17,
+          "flush": 50191,
+          "release": 50164,
+          "chown": 12073,
+          "fsync": 16,
+          "fsyncdir": 4,
+          "unlink": 6,
+          "read": 37407,
+          "open": 24117,
+          "rename": 22,
+          "symlink": 17,
+          "link": 2014,
+          "chmod": 12070,
+          "ioctl": 48032,
+          "utimens": 12066,
+          "destroy": 1
+        },
+        "errors_by_errno": {
+          "2": 29609,
+          "61": 130767,
+          "25": 48032,
+          "1": 1
+        },
+        "actual_read_bytes": 1782028619,
+        "actual_write_bytes": 1799401111,
+        "requested_read_bytes": 1787404288,
+        "requested_write_bytes": 1799401111,
+        "repeated_read_bytes": 54101,
+        "repeated_read_ratio": 3.03592206225954e-05,
+        "namespaces": {
+          "state": {
+            "actual_read_bytes": 8740771,
+            "actual_write_bytes": 22972665,
+            "repeated_read_bytes": 771,
+            "repeated_read_ratio": 8.820732175685646e-05
+          },
+          "repo": {
+            "actual_read_bytes": 1773287848,
+            "actual_write_bytes": 1776428446,
+            "repeated_read_bytes": 53330,
+            "repeated_read_ratio": 3.0074079659513913e-05
+          }
+        },
+        "subtrees": {
+          "state/cache": {
+            "actual_read_bytes": 6107320,
+            "actual_write_bytes": 13070430,
+            "repeated_read_bytes": 0
+          },
+          "state/data": {
+            "actual_read_bytes": 2631846,
+            "actual_write_bytes": 9901416,
+            "repeated_read_bytes": 0
+          },
+          "state/config": {
+            "actual_read_bytes": 1605,
+            "actual_write_bytes": 819,
+            "repeated_read_bytes": 771
+          },
+          "repo": {
+            "actual_read_bytes": 1773287848,
+            "actual_write_bytes": 1776428446,
+            "repeated_read_bytes": 53330
+          }
+        },
+        "distinct_request_pids": 30,
+        "capture_elapsed_s": 469.771479487,
+        "scope": "FUSE callback bytes; excludes kernel cache hits, local lock handling, image runtime and /tmp",
+        "repeat_definition": "same file identity and offset already read since last overwrite; rename/link preserve identity",
+        "physical_device_bytes": null,
+        "application_syscall_bytes": null
+      },
+      "historical_verification": {
+        "actual_read_bytes": 1782028619,
+        "actual_write_bytes": 1799401111,
+        "execution_seconds": 31.391125307,
+        "expected_errors": 208409,
+        "operations": 3673814,
+        "remaining_handles": 0,
+        "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+        "valid": true,
+        "final_tree_equal": true,
+        "final_tree_sha256": "1fe96f238860df55e862e4d2de49f413e587d2df9ea50d8892b334cf3b18201d"
+      },
+      "capture_exit": {
+        "exit_code": 0,
+        "elapsed_s": 469.3194130619813
+      },
+      "model_steps": 3,
+      "origin": {
+        "benchmark": "custom Agent task",
+        "task_id": "archive-ingestion-12000-files-512mib-corpus",
+        "selection_member": "metadata/cases/io-compatible/selection.json",
+        "selection_sha256": "94283b0d262ad73472616efddf3691c6f925635680be18ca68c681d0184ef531",
+        "selection_fields": {
+          "instance_id": "archive-ingestion-12000-files-512mib-corpus",
+          "image_id": "sha256:1d9488d31a9c08a467d2a3b7ec77387a49f366e15e9995d903bb2c0a921d9478",
+          "model": "experiment/deepseek-v4-flash",
+          "upstream_model": "deepseek-flash",
+          "opencode": "1.2.26",
+          "opencode_sha256": "025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233",
+          "script_sha256": "adc299033311fb1f27c87c1f265b763ff8d0062185cda2301ebc841137668d15",
+          "command": "timeout 2400 /opt/miniconda3/envs/testbed/bin/python workload.py --small-files 12000 --large-files 4 --large-mib 128 --scan-rounds 1 > workload.log 2>&1",
+          "max_steps": null,
+          "timeout_s": 3600
+        },
+        "prompt_sha256": "a525d85e16d377398d9bc0d50c81d143b239a50a3fc87d9fee61aefb6651f0a8"
+      },
+      "source_files": [
+        "scenarios/k8s-containers/archives.json",
+        "scripts/run_opencode_full_trace.py",
+        "scripts/run_swebench_opencode.py"
+      ]
+    }
+  ],
+  "archive_bytes": 10407035011,
+  "passed": true,
+  "new_batch_report_sha256": "b86123ed7cdcabf694e51b120420609e67c263294f7dcf1c992d47d554ab641a",
+  "account_inventory": {
+    "source_receipt_sha256": "24a5961ad6557c1508bf88999b04c0e57f299f58be1bc749d362f898ecec96a6",
+    "bucket_count": 3,
+    "all_listing_pages_complete": true,
+    "other_buckets": [
+      {
+        "bucket": "brewfs-tikv-100k-20260928",
+        "objects": 239,
+        "trace_archive_candidates": 0
+      },
+      {
+        "bucket": "gitmono-lbench-1790668028",
+        "objects": 0,
+        "trace_archive_candidates": 0
+      }
+    ],
+    "trace_incomplete_multipart": 0,
+    "scope": "buckets visible to current CLI identity; full object listing in other two buckets; names inspected, payloads not opened"
+  },
+  "total_callbacks": 85665904,
+  "catalogs_identical": true,
+  "read_only": true,
+  "full_payload_hash_verification_this_audit": false
+}

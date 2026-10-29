@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-29",
+  "scope": "portable preparation only; no remote/cloud experiments",
+  "formal_performance_accepted": false,
+  "provider_modes": [
+    "aliyun",
+    "provided"
+  ],
+  "topologies": {
+    "parallel_nodes": 9,
+    "minimum_sequential_nodes": 3
+  },
+  "planned_cells": {
+    "C1": 192,
+    "C2": 48,
+    "C3": 60,
+    "C4": 42
+  },
+  "C4": {
+    "F": 18,
+    "M_after_qualification": 24
+  },
+  "windows": {
+    "run": 87,
+    "passed": 83,
+    "skipped": [
+      [
+        "test_fork_challenge_and_first_use_steps (test_experiment_steps.WorkloadTests.test_fork_challenge_and_first_use_steps)",
+        "file/directory fsync and FUSE-compatible semantics tested on Linux"
+      ],
+      [
+        "test_original_rust_performance_replay (test_final_suite.RealTraceIntegration.test_original_rust_performance_replay)",
+        "set AX_TRACE_CASE/BINARY for real recorded preflight replay"
+      ],
+      [
+        "test_non_sparse_corpus_fixed_counts_and_corruption (test_final_suite.RustIntegration.test_non_sparse_corpus_fixed_counts_and_corruption)",
+        "set AX_FS_PROBE for actual Linux filesystem tests"
+      ],
+      [
+        "test_open_loop_keeps_all_late_operations (test_final_suite.RustIntegration.test_open_loop_keeps_all_late_operations)",
+        "set AX_FS_PROBE for actual Linux filesystem tests"
+      ]
+    ]
+  },
+  "linux": {
+    "run": 87,
+    "passed": 84,
+    "skipped": [
+      [
+        "test_original_rust_performance_replay (test_final_suite.RealTraceIntegration.test_original_rust_performance_replay)",
+        "set AX_TRACE_CASE/BINARY for real recorded preflight replay"
+      ],
+      [
+        "test_non_sparse_corpus_fixed_counts_and_corruption (test_final_suite.RustIntegration.test_non_sparse_corpus_fixed_counts_and_corruption)",
+        "set AX_FS_PROBE for actual Linux filesystem tests"
+      ],
+      [
+        "test_open_loop_keeps_all_late_operations (test_final_suite.RustIntegration.test_open_loop_keeps_all_late_operations)",
+        "set AX_FS_PROBE for actual Linux filesystem tests"
+      ]
+    ]
+  },
+  "cli_help_passed": 10,
+  "local_document_links_verified": 106,
+  "raw_validation_dir": "runs/portable-preparation-20261029",
+  "files_sha256": {
+    "harness/experiment_inventory.py": "623df8a020a41dc2771f087346c3a751787e00d0294720e2affd6deb713c37b2",
+    "harness/host_preflight.py": "0691e10100e7f13952fe193fe381f9319c89ab01be052d9ca014fee544a13d17",
+    "harness/experiment_step.py": "cf571cffe6dde9433fef1c7e2ec732c395e79aa2414d47bed0ea86d130d248f9",
+    "harness/s3_requests.py": "a2ffac4af098b5e64026d8ace18f335e2631f4b12dfe2b2f46d9fd9176145f7a",
+    "harness/fs_step.py": "fd5be3c85b94ebfa020bd8889980e7d0bc65c5f554ed736be7033cfe2c3b1629",
+    "harness/session_check.py": "4b2d2fd44bed34be2369cf6780ec8acdfc423c8afb68759632996465172165e8",
+    "harness/ml_import.py": "4bf50de2555d89a9d1aa9dbbad98a40943ee8b09f91b44b3a065dce16b3b67af",
+    "harness/final_plan.py": "8bddfbbf31cecd3d1ce329ff72d070745027f1296f63ea3229dde20265f5d01e",
+    "harness/trace_checks.py": "85c1346cc14d339bf3b1927e13ff21a731e0af2eed9959683fa48a5d55d54af5",
+    "harness/warm_same_files.py": "c9c3a24b77f3a17b1fab41bc0d4de54654deaa1233fd079b1ae8cc7616fa877e",
+    "harness/experiment_io.py": "c8d37ec3f0c08908cbd5bbf2f81f271d69a7466b653b6dd59caeb4b61fe3531a",
+    "harness/ml_readonly_end_to_end.py": "fa817fa844a79acf77a3cb28d532c4edaac50ba4574035823ebb9b251f20aae0",
+    "harness/aliyun_suite.py": "0826b39fc43dc524678c7b9c8fb7b3a77730632196e5b0c8671480be07b599ba",
+    "infra/alicloud/deploy/generate_rustfs.py": "fd3d374fc38caa366af54b8f0fb2cc90f94b16a65d40e64be41645cc86561b40",
+    "infra/alicloud/deploy/rustfs_node.py": "b49443aa281d5b70f6376203d4224119318b5df34f7bb083778b696da48a02bc",
+    "tests/test_experiment_steps.py": "0c673ce2c9881c92c2283872e16c1300b37d7cbadb16b266d6b2790bdede9d91",
+    "README.md": "bc2abe938ee90e13e13d823b1c0fe35e11f230e235e321457b96596739242619",
+    "harness/README.md": "05054100f6b1ae1b803ec74c0a7fadefdc09d92c10c0bfcad9a0733fdccfa9bf",
+    "paper-design/FINAL-PLAN.zh.md": "0a8da9f33351c335d24e2af3668d9cf7fecd3a0493279b01c4180fce35903bd7",
+    "paper-design/EXPERIMENT-CONFIG.zh.md": "ba5e0ed91391b948628331b6e5b391e01250549d46e3adb7fa6c139ed7d5cb5e",
+    "infra/alicloud/PROVIDER.zh.md": "2e8274bb15f45148634de7e3b1e7aff74aa4d8ba5f525bdf79be183c2cb4d372",
+    "infra/servers/README.zh.md": "6e4d861b2fb81ca5275420dd5ca653d0337a21da23b83aba15ed1463c7b3edc2",
+    "infra/experiment/CLUSTERS.zh.md": "cd106d0337194c45ca040cdcd6ad9d9a5ca33295735e8074587e540513fa2f86",
+    "infra/experiment/MIGRATION.zh.md": "1fe94d41331b50beb118f1496b1c45316e220b525c3b2200ce4330dbbf3e26d7",
+    "infra/experiment/RUN.zh.md": "1e1082bfcb3b4c17bb0910a6a824def71f31338a79b90a0c7ad8b319b28f8c07",
+    "infra/experiment/agents/C1.prompt.md": "2957bda144e51d32309bb9273ad8f8a29dcbdcc6def5e5db194f526b9b5ad8ee",
+    "infra/experiment/agents/C2.prompt.md": "4257b0f271d4aa68a962502bcf85fb040dec8b37db402d1b2fe8a51bb964d3ff",
+    "infra/experiment/agents/C3.prompt.md": "5c79a401bc3606dee28a94385564cc7cc2928f1a376404845279a9dddd5b4501",
+    "infra/experiment/agents/C4.prompt.md": "d4a6513afa7d69435f63603e3c4a5ce33a09b0631af28af367df8ed638c9ef9d"
+  },
+  "remaining_real_environment_checks": [
+    "hardware/idle/network/cgroup runtime validation",
+    "native immutable lower and mount lifecycle",
+    "real ML-agent readset and scanner latency instrumentation",
+    "actual S3 conditional PUT, effective layout/cold state and layered byte counters",
+    "BrewFS fork/JuiceFS clone persistence and isolation",
+    "two-node native OpenCode restore, lease release and coordinator timeline instrumentation"
+  ]
+}

@@ -16,19 +16,21 @@ import run_trace_matrix as matrix
 
 
 class Matrix(unittest.TestCase):
-    def test_four_phases_cover_all_methods_on_all_three_hosts(self):
+    def test_three_phases_cover_general_methods_on_all_three_hosts(self):
         arms=matrix.DEFAULT_ARMS
         plan=matrix.rotation(['A','B','C'],None,arms)
-        self.assertEqual(plan['planned_cells'],12)
+        self.assertEqual(plan['planned_cells'],9)
         self.assertEqual(plan['independent_blocks'],3)
         self.assertTrue(plan['balanced_complete_blocks'])
         self.assertEqual(plan['phases'][0]['workers'],dict(zip(['A','B','C'],arms[:3])))
         for worker in plan['assignments']:
-            self.assertEqual(set(worker['arms']),set(arms));self.assertEqual(len(worker['arms']),4)
+            self.assertEqual(set(worker['arms']),set(arms));self.assertEqual(len(worker['arms']),3)
         self.assertIsNone(plan['total_replay_timeout_s'])
     def test_kernel_defaults_are_the_main_selector(self):
         plan=matrix.rotation(['A','B','C'],None,matrix.DEFAULT_ARMS)
-        self.assertEqual(len(matrix.DEFAULT_ARMS),4)
+        self.assertEqual(len(matrix.DEFAULT_ARMS),3)
+        with self.assertRaisesRegex(ValueError, 'readonly ML'):
+            matrix.select_arms(['packed-kernel-default'])
         self.assertTrue(all(a.endswith('-kernel-default') for item in plan['assignments'] for a in item['arms']))
         self.assertTrue(all(v['requested_kernel_metadata_ttl_ms'] is None for v in plan['arm_controls'].values()))
         for bad in [[],['native-ttl0','native-ttl0'],['pretend-fork']]:
@@ -74,7 +76,7 @@ class Matrix(unittest.TestCase):
             with patch.object(sys,'argv',['run_trace_matrix.py','plan','--workers','A','B','C','--output',str(path)]):
                 self.assertEqual(matrix.main(),0)
             planned=suite.load(path)
-            self.assertEqual(planned['planned_cells'],12)
+            self.assertEqual(planned['planned_cells'],9)
             for worker in planned['assignments']:
                 self.assertEqual(set(worker['arms']),set(matrix.DEFAULT_ARMS))
         example=suite.load(ROOT/'harness/trace-matrix.example.json')
@@ -114,6 +116,20 @@ class Matrix(unittest.TestCase):
         session.juicefs='/bin/juicefs'
         with patch.object(session,'command') as call:session.initialize()
         self.assertIn('--compress',call.call_args.args[1]);self.assertIn('none',call.call_args.args[1])
+    def test_layout_hint_cannot_override_explicit_sparse_fetch_policy(self):
+        base={'method':'native','brewfs':{'path':'/bin/brewfs'},'bucket':'owned',
+              'endpoint':'http://localhost:9000','redis_url':'redis://localhost/0'}
+        default,_=suite.mount_command(base,'/mnt','/cache',None,None,None)
+        self.assertNotIn('--read-fetch-policy',default)
+        for hint in (None,65536,262144,1048576,4194304):
+            spec={**base,'read_fetch_policy':'sparse','ec_block_hint':hint}
+            argv,_=suite.mount_command(spec,'/mnt','/cache',None,None,None)
+            self.assertEqual(argv[argv.index('--read-fetch-policy')+1],'sparse')
+        with self.assertRaisesRegex(ValueError,'read fetch policy'):
+            suite.mount_command({**base,'read_fetch_policy':'typo'},'/mnt','/cache',None,None,None)
+        planned=matrix.spec_for({**base,'read_fetch_policy':'sparse'},'native-default','batch','A',Path('/owned'))
+        self.assertEqual(planned['read_fetch_policy'],'sparse')
+
     def test_worker_qualification_keeps_only_explicit_public_fields(self):
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp)/'worker.json'

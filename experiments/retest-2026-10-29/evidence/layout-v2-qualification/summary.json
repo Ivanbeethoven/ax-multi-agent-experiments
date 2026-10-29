@@ -1,0 +1,58 @@
+{
+  "passed": true,
+  "boundary_objects": 198,
+  "layout_objects_three_profiles": 18,
+  "actual_brewfs_data_objects": 4,
+  "brewfs_upload_path_verified": true,
+  "scope": "local activation, placement and content qualification; no performance/physical-disk claim",
+  "previous_attempts": [
+    {
+      "run": "dynamic-probe-04",
+      "backend_boundaries_and_layout": "passed",
+      "client": "failed before first write: root-owned virtual inode with uid1000 runner"
+    },
+    {
+      "run": "dynamic-probe-05",
+      "client": "not started",
+      "reason": "stalled read-only Git resolver under sudo without proxy; interrupted before backend creation"
+    },
+    {
+      "run": "dynamic-probe-06",
+      "client": "probe failed: HEAD user-metadata echo incorrectly required; persisted hint and 4-byte client frame were then inspected; original records retained"
+    }
+  ],
+  "evidence": {
+    "disabled-boundaries.json": {
+      "sha256": "a8e6cd476ed132b3502c3ec953d74a4b33780b4b3ddf288431d088761bb79058",
+      "bytes": 124488
+    },
+    "block-only-boundaries.json": {
+      "sha256": "2e2963cb12f0a715a9f5404879821fc85803add36fc955834ca6034f5dadec2d",
+      "bytes": 124405
+    },
+    "enabled-boundaries.json": {
+      "sha256": "a80fb877c8d87278e6c294d5c4123e316bd061da640af27fdbe7bd478919655c",
+      "bytes": 124500
+    },
+    "backend-layout-three-profiles.json": {
+      "sha256": "0e4dc612e648360fc03409d5e16b556580e406f7ae506151fe8d12dbeef45643",
+      "bytes": 28173
+    },
+    "backend-pin.json": {
+      "sha256": "c178d0422c671569dd4e5d60955ee5a51078f0b058ac805702d3a43582d80227",
+      "bytes": 917
+    },
+    "backend-client-run.json": {
+      "sha256": "d53c6d464fb6a8b9fbe3fa6ab6591551a38fd5d6ca319f7a9a4b2815449209f4",
+      "bytes": 4991
+    },
+    "backend-client-layout.json": {
+      "sha256": "e0af80ac377b4a1036da161deb392020b6a74760c73b30013e2de76c149ba164",
+      "bytes": 9533
+    },
+    "brewfs-client.json": {
+      "sha256": "8bd27e9147241d86ada43d951f3767d4c23ee4273830fd28abd82ab679611977",
+      "bytes": 7190
+    }
+  }
+}

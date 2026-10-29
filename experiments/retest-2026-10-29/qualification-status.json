@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-29",
+  "brewfs_source_sha": "80ddaf739e163c8933b0bb84390c4aa559bd2b40",
+  "rustfs_source_sha": "a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed",
+  "formal_performance_accepted": false,
+  "active_local_qualification_processes": false,
+  "owned_local_containers_removed": true,
+  "new_cloud_resources_created": false,
+  "completed": {
+    "release_build": "evidence/brewfs-build.json; 1749 exported source files verified; do not rebuild same artifacts",
+    "layout_and_client_activation": "evidence/layout-v2-qualification/summary.json; 198 boundary objects, 18 base layouts, 4 actual BrewFS data objects",
+    "P1_P2_1024_file_paths": "evidence/ml-1024-qualification/summary.json; both passed with explicit 32 MiB packed decode workspace; original default-8-MiB P1 import failure retained",
+    "distinct_ml_records_prepared": 1048576,
+    "original_trace_source_content": "local ext4 qualification passed; not BrewFS/JuiceFS performance",
+    "focused_offline_tests": "17 trace tests and 8 ML tests passed after read-fetch-policy control change"
+  },
+  "remaining_before_formal_round": [
+    "Qualify target packed path against opt-381 anomaly; freeze real ML-agent task/readset; keep P1 conditional",
+    "Observe actual HTTP Range and backend read bytes in sparse application layout group",
+    "Qualify same-file fio warmup and complete trace inventory for new G1 deployment",
+    "Qualify total CPU/memory/cache parity including packed decode budgets and TiKV",
+    "Build fresh deployment plan from current pins; never reuse old worker/resource identifiers",
+    "Use qualified physical disk topology for performance; current four-directory EC proves layout/content only",
+    "Run million-file P groups and paired general Native/Overlay/JuiceFS matrix",
+    "Treat 8-million-file and fork/clone workloads as pending; no generated results"
+  ],
+  "design_decision": "Keep supported 64/256 KiB and 1/4 MiB EC blocks; stratify actual object placement and request type; defer new adaptive selection thresholds until paired measurements",
+  "planning_review": {
+    "status": "prepared_for_user_review_not_launched",
+    "primary_cells": 318,
+    "conditional_cells": 96,
+    "plan": "../../paper-design/FINAL-PLAN.zh.md",
+    "external_evidence": "evidence/external-opt-381/assessment.zh.md",
+    "latest_user_scope": "Refined four scenario/resource groups, per-agent steps, Aliyun and provided-server variants; no formal run",
+    "parallel_design": "9 servers for C1=4 C2=1 C3=1 C4=3; minimum 3 sequentially reused; same baselines inside each scenario group",
+    "execution_model": "AI-supervised single steps; warm_same_files CLI only prepares/checks one fio job; trace_checks checks one input/result/tree; no automatic dispatch",
+    "stepwise_gaps": [
+      "hardware/idle/network/cgroup runtime validation",
+      "native immutable lower and mount lifecycle",
+      "real ML-agent readset and scanner latency instrumentation",
+      "actual S3 conditional PUT, effective layout/cold state and layered byte counters",
+      "BrewFS fork/JuiceFS clone persistence and isolation",
+      "two-node native OpenCode restore, lease release and coordinator timeline instrumentation"
+    ],
+    "latest_validation": "evidence/portable-preparation-review.json",
+    "cluster_cells": {
+      "C1": 192,
+      "C2": 48,
+      "C3": 60,
+      "C4": 18
+    },
+    "trace_input_audit": "evidence/trace-inventory.json; all seven manifests/sidecars checked; full tar download and local payload hash remain required",
+    "migration_extension_cells": 24,
+    "planned_cells_with_migration": 342,
+    "cluster_cells_with_migration": {
+      "C1": 192,
+      "C2": 48,
+      "C3": 60,
+      "C4": 42
+    }
+  }
+}

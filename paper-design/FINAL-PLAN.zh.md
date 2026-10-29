@@ -1,53 +1,152 @@
-# 最终实验方案（2026-10-28 审阅版）
+# BrewFS 实验方案
 
-基于 `bf9aa65` 审阅。**研究方案确定，正式执行尚未放行**：先修复 [执行器审阅问题](REVIEW-20261028.md)，再生成绑定本方案的新任务表。旧 50 格、1174 条展开行与 W1–W4 都不是本方案的完成清单。本文优先于旧入口中冲突的超时、作废阈值和装置解释；未冲突的输入定义继续沿用。
+操作命令见 [分步执行手册](../infra/experiment/RUN.zh.md)，四集群归属与初始 prompt 见 [Agent 分工](../infra/experiment/CLUSTERS.zh.md)。本轮只准备方案与脚本，尚未启动正式测试。
 
-## 共同原则
+## 1. 实验设置
 
-- Overlay、Packed Metadata、dynamic block 独立可选。主故事分别是：共享父状态且私有修改；固定小文件元数据从中心数据库分担出去；减少不必要的对象传输/校验工作。允许每项机制有负收益和适用边界。
-- 共同读写对照为 native、native-overlay、native-overlay-pack、JuiceFS。前三者是用户定义的配置，必须记录实际 CLI、lower 类型和编译能力；不把代号当接口。内部消融只改变目标机制，JuiceFS 是外部参照，缺少专属开关记 N/A。
-- RustFS 必须来自 `Ivanbeethoven/rustfs:feat/dynamic-block-size-rebased`；每批冻结完整源码 SHA、镜像 digest、构建来源，并记录运行容器的镜像身份。BrewFS/fixture/回放器/JuiceFS 分别固定源码和二进制摘要。旧绝对路径、文件名中的短 SHA、OCI label 单独均不足以证明正在运行什么。
-- 正式共同对照全部使用同一 RustFS S3 数据路径及相同持久化目标。local-fs 仅用于独立诊断，不与 S3 路径混排。动态布局资格门只限制对应 RQ3 组，不能因 q 不变阻断 Overlay/Packed 研究。
-- 保留用户“不设回放超时”要求：真实 trace 跑到自然结束，不设总时长 kill/自动释放时刻。OOM、磁盘水位、节点回收等实际资源故障单独记录并保全结果；不能将它们悄悄丢弃。固定请求到达表中的 SLO deadline 是测量指标，不是杀掉回放的超时。真实 Agent 的模型/费用预算单独预注册。
+| 项目 | 设置 |
+|---|---|
+| 测试机 | 阿里云参考规格 8 vCPU、32 GiB、4×250 GiB PL1；自备机使用同组一致的 CPU/内存/四盘规格，独立 campaign。推荐 9 台并行，最低 3 台顺序复用，见 [拓扑](../infra/experiment/CLUSTERS.zh.md) |
+| 后端 | G/A/P/D/F 每台独立 RustFS，单机四盘 EC2+2；M 使用独立持久服务节点＋两个执行节点；均用专用 DB/bucket/缓存。四分区/四目录不能替代四盘 |
+| 资源预算 | 客户端与元数据服务合计 4 vCPU / 8 GiB；RustFS 3 vCPU / 16 GiB；其余留给系统。用 cgroup 核对实际限额，缓存和 buffer 计入总预算 |
+| 并行 | 四集群、每集群一个负责 Agent：C1=G/A（两个独立池各两机），C2=P，C3=D，C4=F/M。C 是实验资源组，baseline 在组内比较 |
+| 重复 | 每个条件 3 个完整区组；同一挂载下的短测、两机换位周期不作为额外独立样本 |
+| 数据与日志 | 测试数据、缓存、元数据均放数据盘；日志放独立结果目录。计时期间不编译、上传大文件或执行其他测试 |
+| 版本 | 开批前同步并冻结 BrewFS 源码/二进制；RustFS 固定 `Ivanbeethoven/rustfs:feat/dynamic-block-size-rebased` 并解析当时 SHA、镜像 digest；JuiceFS 1.4.2，记录实际二进制 SHA |
 
-## 最小主实验
+同一源码、features、工具链和 profile 只构建一次。配置、文件清单、二进制和镜像摘要保存在各批次目录，不在本文反复复制。
 
-每一行先 smoke 一次，再做 **3 个独立配对批次**；每批新状态，配置顺序随机化或平衡交叉。以下轴分组测试，不做全笛卡尔积。3 次只报告原值、中位数、范围及配对差值，不宣称高置信度普遍胜出。
+## 2. 实验配置
 
-| RQ | 主组与最小参数 | 必须回答的问题与产物 |
+### G：BrewFS 与 JuiceFS 产品比较
+
+| 项目 | 配置 |
+|---|---|
+| 两个 baseline | BrewFS Overlay：workspace-v1 + native lower；JuiceFS：Redis 元数据 + 同版 RustFS S3 |
+| 共同设置 | 正常内核缓存；4 MiB 客户端数据块；codec none；关闭 JuiceFS writeback；不启用 Pack 或动态块 hint；相同总资源预算 |
+| G1 输入 | [全部 7 份 trace](TRACE-WORKLOADS.zh.md)：4 道 SWE-bench Verified 题的 5 次采集＋ripgrep 构建测试＋archive-I/O；共 85,665,904 回调，逐 case 比较，保留 xattr |
+| G2 输入 | 同内容的 4×512 MiB 文件；fio 4 KiB randread，4 jobs，libaio，iodepth=32，direct=1，固定种子 20261029 |
+| 数量 | G1：7 case×3 区组×2 baseline×2 换位周期＝84 次；G2：12 次；共 96 次 |
+
+### A：BrewFS 内部 Overlay 消融
+
+| 项目 | 配置 |
+|---|---|
+| 两个 baseline | 同一 BrewFS 二进制：flat-v1 与 workspace-v1 + native lower；两者都使用 Redis 元数据和同版 RustFS |
+| A1 / A2 | 分别使用 G1 的 trace、G2 的暖读输入；保持资源、块大小、codec 和初态一致 |
+| 比较目标 | Overlay 整体增量成本；单独缓存优化的开关/提交对照另列，不混进此组 |
+| 数量 | A1：7 case 共 84 次；A2：12 次；共 96 次，与 G 独立执行、独立报告 |
+
+### P：Pack 海量只读小文件
+
+| 项目 | 配置 |
+|---|---|
+| 两个 baseline | Pack：packed-metadata-v3 只读挂载；Native+TiKV：相同 BrewFS 的普通 flat-v1 文件，TiKV 保存元数据 |
+| 数据 | 1,048,576 条独立 TinyStories 记录，一条一文件，约 805 MiB；文件名、大小、内容 SHA 固定 |
+| 工作负载 | ML-agent 语料发现/属性检查、预处理与训练数据加载的固定读集；读者数 1 / 16；发现属性 / 打乱读取分别测量 |
+| 冷暖 | client-cold：新客户端、空客户端缓存；warm：同一读集覆盖并预热。后端缓存状态单独记录 |
+| Pack 参数 | metadata/data codec=raw；inline-data=off；frame-policy=size-only；access-profile=sequential-small-file；解码工作区 32 MiB、metadata cache 64 MiB |
+| 资源 | 两臂都按“客户端＋元数据服务”合计预算；RustFS 预算相同；训练输出、日志放被测只读挂载之外 |
+| 数量 | 2 baseline×2 并发×2 工作负载×2 缓存状态×3 区组＝48 次 |
+
+先以 1,024 文件检查目标路径的内容、GET/读、索引/数据缓存及 Range。真实 ML-agent 任务与读集须在正式执行前冻结；现有扫描器属于文件访问代理，不是完整 Agent 成绩。
+
+### D：RustFS 动态块
+
+| 项目 | 配置 |
+|---|---|
+| 五个 baseline | 默认无 hint；完整启用 B=64 KiB / 256 KiB / 1 MiB / 4 MiB |
+| 启用条件 | block-hint enable/fleet-confirmed、read-quantum enable/fleet-confirmed 四开关全开；以 PUT/HEAD 和磁盘实际 B/q 验证 |
+| 相同输入 | 每对象 8 MiB+123 B，普通单 PUT、相同内容；各组均须实际存为 external |
+| 读取 | 完整 GET / 随机 4 KiB Range；已验证的冷启动 / 同对象暖态；固定对象清单、请求次数和随机种子；首轮单并发逐请求测量，不称饱和吞吐 |
+| 数量 | 5 baseline×2 读取方式×2 缓存状态×3 区组＝60 次 |
+
+对象池总量与请求次数在部署容量核查后写入本批配置，计时前冻结。参数源为 [layout-matrix.json](../experiments/retest-2026-10-29/layout-matrix.json)。1 MiB/EC2+2 保留为读帧 no-op 对照；暂不增加 4 KiB EC block。
+
+### F：BrewFS fork 与 JuiceFS clone
+
+| 项目 | 配置 |
+|---|---|
+| 三个 baseline | BrewFS 从不可变 revision fork；JuiceFS 在同一挂载内 clone；BrewFS Native flat-v1 挂载中的全量复制参考（不是本地 ext4/XFS） |
+| 相同输入 | 100,000×4 KiB 文件，静止且内容/目录结构一致；分别创建 1 / 8 个子副本 |
+| 复制参考 | `cp -a --reflink=never --sparse=never`；核查实际读取/写入字节 |
+| 语义检查 | 先做 1,024 文件：修改、追加、截断、删除、重命名、新建、fsync、重挂后检查源与兄弟副本不变 |
+| 数量 | 3 baseline×2 副本数×3 区组＝18 次 |
+
+### M：Agent 跨节点流转
+
+| 项目 | 配置 |
+|---|---|
+| baseline | BrewFS Overlay / JuiceFS，各自 stay（源节点恢复）与 move（目标节点恢复）；固定两个执行节点和独立持久服务节点 |
+| 输入 | Pytest-10356、SymPy-13878；同一 filesystem 的 stay/move 从同一完成工具边界 checkpoint 续跑，固定模型、预算、恢复提示与评分器 |
+| 初态 | 源退出并确认写者释放；两去向均冷客户端恢复。共享数据留在服务节点，HOME/XDG/会话状态按实际需要保全、传输和验证 |
+| 数量 | 2 任务×2 filesystem×2 去向×3 区组＝24 次；先完成两节点原生会话恢复资格验证 |
+| 方法 | [M 分步协议与检查脚本](../infra/experiment/MIGRATION.zh.md)；不做进程内存/工具中途迁移，不新增多级共享目录 |
+
+规划合计 **342 次测量**：基础 318＋通过资格门后执行的 M 24（C1 192、C2 48、C3 60、C4 42）。生成 C4 计划必须带 `--include-migration`；不带时仅 F 18。P 的共享 payload 消融和 D 的 block-only 组另有 96 项条件诊断，非自动追加。8M 文件、64 读者、EC4+2、400 GiB fork 暂不展开。
+
+## 3. 实验方法
+
+### 3.1 多机配对
+
+G 与 A 各自使用以下安排，运行 3 个完整区组；第一个周期的配置顺序由固定种子决定：
+
+| 周期 | 机器 1 | 机器 2 |
 |---|---|---|
-| RQ1 Overlay 的成本与收益 | 日常开销：四配置，先统一有效 TTL/KEEP_CACHE/缓存预算；fork：F1，父先修改，子数 1/16/64，每子写 1 MiB；native 采用明确计费的物化对照，JuiceFS 使用经验证的 clone 或另标物化；保留 1k/10k 状态 | 日常延迟和 CPU 的代价，是否换来较低 fork→首个正确读、首次持久写、保存和保留成本。星型/深链与 GC 放扩展组；物化不能标成原生 clone。 |
-| RQ2 Packed 的数据库分担与回本 | 同一冻结父版本，32,768/1,048,576 个 1 KiB 文件，消费者 1/16；先随机 lookup、属性、readdir，冷/暖分别测。Overlay native lower 对 Packed lower，JuiceFS 同语料参照；probe 测无背景/共同可持续背景/过载背景；复用 K=1/4/16/64，版本更新率 0.1%/1%/10%，每版复用 4/64 次 | DB 请求、CPU、内存与可写邻居 p95/按时完成率是否改善；对象端、客户端新增成本多少；首次固定版本+打包+上传+发布何时被复用抵消。过载是有效压力结果，不因队列增长删格。64 消费者、K=256、8M 文件为扩展。 |
-| RQ3 对象形成与后端布局 | 分三组：①固定后端布局，只变客户端 g=1/4/8/16 MiB；②固定对象内容和请求序列，只变经资格验证的 B/q；③固定布局，比较获取策略。4 KiB 稀疏读、顺序读、固定总覆盖写；JuiceFS 参与共同文件工作量参照 | 同时记录应用字节、FUSE 字节、HTTP payload、服务端读取和设备字节；不混作物理 I/O。B 候选 256 KiB/1 MiB/4 MiB，必须由冻结源码和持久布局验证；默认/no-op 是有效控制，不伪装成启用成功，也不删除。客户端形成不同对象时不能要求 JuiceFS 对象长度也相同；固定对象组另用共同 S3 请求发生器。 |
-| RQ4 fork 后迁移与安全交接 | 4 源/4 目标 worker，16 工作区，迁移 0/1/4；pending 0/16/128 MiB，冷/暖目标分组；native-overlay、Pack、JuiceFS 重开参照。确认前/后、旧 writer 迟到写、目标中断各做 20 次时序注入 | 从停止接收源操作到目标首个正确操作的暂停、保存/打包/发布/取数和邻居延迟；旧 writer 是否真被拒绝。跨主机恢复必须跨物理节点。JuiceFS 缺等价 fencing 时只报告重开，安全迁移列 N/A；不因此取消它的普通读写数据。 |
-| RQ5 真实 trace 与多 Agent 效果 | 七份 trace 各八次共 56 个固定任务，先 4 worker，并发 1/4/16；资格通过后扩到 16 worker。四配置共同读写，机制专属任务另列；真实 Agent 两道题，仅在会话续接接口可用后做继续/fork/迁移 | 完成曲线、每任务族耗时、makespan、失败率、CPU/存储成本；区分回放性能与真实 Agent 评分。64/128 worker 为扩展；静态 trace 回放不能证明进程或模型会话恢复。 |
+| 1 | baseline X | baseline Y |
+| 2 | baseline Y | baseline X |
 
-W1 带宽、W2 冷暖、W3 重复打开、W4 属性缓存是 **诊断前置组**，用于解释成本和校验控制变量，不能替代上面五个 RQ。先完成 RQ1/RQ2 主组，再做 RQ3/RQ4，最后 RQ5；动态布局或会话接口未就绪时不阻塞其它独立组。
+两机都完成准备和检查后，AI 才启动该周期。周期结束先核对结果，再重建初态、互换配置。每台机器同时只运行一个计时任务。P/D/F 在同一 worker 内完成全部 baseline 配对，不同完整区组可分机并行。
 
-## 装置与计时
+### 3.2 每次测量的步骤
 
-- 起步使用同一台 8 vCPU、至少 32 GiB 内存和 4×250 GiB PL1 数据盘做单机四盘诊断；正式跨节点组另固定四个 RustFS 服务节点、worker 和 Redis 资源。四盘不等于四节点；分别登记总盘数、EC 几何和物理故障域，不能共用一个含糊的“四节点”标签。
-- 测量目标、客户端缓存、RustFS volume、构建/准备重 I/O 落数据盘；低频日志与结果可落系统盘。共享数据盘的缓存/后端会竞争，必须固定并披露。校准每盘及并发聚合能力，并记录实例级 IOPS/带宽限制；盘能力相加不等于实例能提供的能力。
-- swap 可作防 OOM 的防护，但主比较期间须记录 swap-in/out；不能靠持续换页维持“等资源”成绩。记录被测进程实际 CPU/内存、steal、设备队列和网络。观测低频，代表性小组做开启/关闭对照量化开销。
-- 固定字节或固定操作数比较总成本，计入应用返回、远端确认、close/flush/drain 与自然卸载；总墙钟直接计时，重叠阶段及多个 close 不再重复相加。fio 固定运行时长的带宽诊断单列，不作为等工作量生命周期比较。
-- 冷暖条件由实际清缓存/预热动作和各层计数确认。吞吐高于单盘标定、stat 高于 100k/s、热/冷不足 2×都不能自动判无效。异常先保留原始数据，核查测量层和路径；零收益也是结果。
+1. **准备**：核源码/产物摘要、资源限额和数据清单；创建本次专用命名空间、结果目录和挂载。
+2. **检查**：核对挂载方式、缓存、对象布局和初始内容。内容检查会预热数据，冷测需随后重新建立规定初态。
+3. **执行**：只运行当前一个 baseline、一个条件。G1/A1 回放全部操作且不设总时限；G2/A2 完整覆盖一次、逐遍检查预热，再测 3×30 s。
+4. **验收**：检查退出码、实际操作/字节、内容和重挂结果；读取资源与请求计数。AI 据此决定是否执行下一步。
+5. **收集**：保存原始结果、日志和 SHA，确认进程结束，再卸载；本机结果下载核验后另行清理本批资源。
 
-## Packed 成本怎么算
+暖读预热最多 6 遍，连续两遍吞吐差小于 10% 后由 AI 检查缓存/GET 状态；测量中仍观察缓存淘汰和 GET 回升。未达到条件的记录标为未收敛，不称稳态。
 
-分别对墙钟关键路径、CPU 秒、请求数、传输/保留字节记账，禁止把不同单位直接相加。对某一可加资源 r：
+## 4. 测量指标
 
-`C_pack,r(K) = F_pack,r + Σ Q_pack,r(i) + U_pack,r + G_pack,r`
+| 实验 | 主指标 | 同时记录 |
+|---|---|---|
+| G1 / A1 | 完整 replay 墙钟秒数；计时包含解析和实际回放，排除准备与计时外内容核验 | 操作数、读写字节、errno 差异、剩余句柄、内容/重挂检查、CPU、内存、Redis/S3 请求 |
+| G2 / A2 | 吞吐 MiB/s、读延迟 p50/p95/p99 | 每遍原值、FUSE/Redis/GET 每读开销、缓存命中/淘汰、CPU、内存；预热成本单列 |
+| P | 文件访问吞吐、任务文件访问墙钟、访问延迟 | TiKV RPC、对象/GET 数、inline 比例、总内存/磁盘、构建发布/导入时间；训练计算与 LLM 等待分报 |
+| D | GET/Range 延迟、吞吐、读放大 | 应用返回字节、HTTP 字节、后端读取字节、设备 I/O 字节分别统计；实际 B/q、inline/external、占用空间 |
+| F | 命令返回、挂载就绪、首个正确读、首次持久写的耗时 | 基底准备时间、drain、对象/元数据净增量、隔离检查；同时报告从普通文件树到可用副本的总成本 |
+| M | 总暂停、首条正确工具恢复延迟、move−stay 增量 | 边界等待/drain/释放/挂载/会话恢复、传输字节、token、剩余预算、历史/内容/独立任务评分；协调端同一时钟 |
 
-`C_native,r(K) = F_native,r + Σ Q_native,r(i) + U_native,r + G_native,r`
+报告全部区组原值、中位数、范围和配对差值。G1/A1 逐 case 展示，不将七份不同负载合成一个吞吐；同题两次 Pytest 不当作两个独立题目。G2/A2 的三个短测先归并为该次测量；延迟百分位用原始直方图合并或按 job 分列，不平均 p99。错误、故障和缺测单列，不填零。
 
-F 包括各自必要的固定版本和准备；Q 是第 i 次消费；U 是更新维护；G 是实测保留/回收成本。同一构建只计一次。墙钟并发场景使用直接测得的 makespan，不能照搬请求求和。只有同单位、同语义、同工作量才报差值与实测交叉 K；未回本就报告未回本。费用若汇总，必须额外声明价格日期和单价。
+## 5. 注意事项
 
-每组同时报告“原数据库记录仍保留”和“可安全退休源记录”是否成立。前者可以证明请求减压，不能证明持久存储缩小；若尚无安全退休接口，后者明确未测。
+- Pack 仅用于只读小文件主实验，不进入通用读写组；外部大文件小读异常只作为路径诊断依据。
+- G/A/P/F 保持默认后端布局；D 独立切换布局。小对象可能进入 RustFS `xl.meta`，不能根据名义 B 推算空间浪费。
+- G/A 使用各自同时期的基准；不借用异机旧成绩。有效慢轮保留，故障按各臂一致的规则标注。
+- `--performance` 只表示性能回放；内容、持久性和所测语义分别验收，不宣称完整 POSIX 正确性。
+- AI 根据当前进程、挂载和结果决定下一步；脚本失败后不自动重跑、切配置或删除资源。
 
-## 结果有效性和开跑条件
+## 6. 操作脚本
 
-语义资格测试与性能测量分开：先验证真实挂载、预期内容、独立客户端读回、父子隔离和需要的持久性/fencing；性能区间不插逐操作严格校验。沿用 Rust release trace replayer，高频查询发生器也用 Rust；Python 负责调度和离线分析。保留全部 trace/xattr 操作；修改操作集必须新命名并报告覆盖，不能混进原 trace。
+| 步骤 | 入口 | 使用范围 |
+|---|---|---|
+| 生成任务表 | [final_plan.py](../harness/final_plan.py) | 只写计划，不启动任务 |
+| 两类服务器清单 / 节点检查 | [experiment_inventory.py](../harness/experiment_inventory.py) · [host_preflight.py](../harness/host_preflight.py) | 静态资源分配与 Linux 只读核查分开；不配置服务器 |
+| 单条命令计时 / 保全 | [experiment_step.py](../harness/experiment_step.py) | 固定输入/可执行文件 SHA，执行一次；另行 seal/verify，不自动重试或清理 |
+| 固定源码和镜像 | [freeze_backend.py](../infra/alicloud/deploy/freeze_backend.py) | 只校验并保存 pin |
+| 后端配置 / 检查 / 启动 | [generate_rustfs.py](../infra/alicloud/deploy/generate_rustfs.py) · [rustfs_node.py](../infra/alicloud/deploy/rustfs_node.py) | 生成、检查与 `--start` 分开调用 |
+| OSS trace 目录核查 | [trace_oss_audit.py](../harness/trace_oss_audit.py) | 只读整桶目录、归档 HEAD，下载核验 metadata/sidecar；不是完整包校验 |
+| trace 输入 / 结果 / 树检查 | [trace_checks.py](../harness/trace_checks.py) | 每次只检查一项；不挂载、不回放 |
+| trace 单次回放 | [Rust full-fuse-replay](../tools/full-fuse-replay/README.md) | 对已准备的专用根目录回放一次 |
+| fio 单步任务 / 结果检查 | [warm_same_files.py](../harness/warm_same_files.py) | `prepare` 生成一个 job；AI 执行 fio 后再调用 `check` |
+| ML 文件清单 / 单次扫描 | [ml_corpus_inventory.py](../harness/ml_corpus_inventory.py) · [ml-corpus-scan](../tools/ml-corpus-scan/src/main.rs) | 清单检查与 verify/stat/read 分开执行 |
+| 布局解析 | [inspect-layout.py](../experiments/retest-2026-10-29/scripts/inspect-layout.py) | 检查持久化布局；不是性能运行器 |
+| P 原生导入 | [ml_import.py](../harness/ml_import.py) | 已挂载空目录上导入一次；不挂载/切臂 |
+| D 固定请求 | [s3_requests.py](../harness/s3_requests.py) | plan/upload/read 分开，逐请求时间和内容校验；不管理桶/服务/冷暖切换 |
+| F 首用 / 隔离；M 文件状态 | [fs_step.py](../harness/fs_step.py) | fixture/snapshot/check/first-read/durable-write/mutate 各独立调用 |
+| M 会话历史 | [session_check.py](../harness/session_check.py) | checkpoint/restored/resumed；校验原生 export，不调用模型 |
 
-每格记录 batch/cell/config、输入摘要、版本、命令、控制变量实际值、拓扑、测量层、原始产物与状态。未观察字段为 null，配置值单独保存。`ok` 表示协议有效，不表示性能获胜；`failed/interrupted` 保留在可靠性与完成率分母，`invalid` 表示测量协议错误，`not_run/unsupported` 不冒充失败或零成本。有效数据才进入性能汇总，同时展示全部状态计数。
-
-**开跑条件：**本批 pin 与运行路径验证通过；本 RQ 所需能力通过；执行器真实切换变量并采集对应层指标；旧网格重生成且逐 cell 映射本方案；汇总器区分结果状态。当前 `execution_enabled=false` 保持不变，CSV 自测通过不能解除这些条件。
+[分步执行手册](../infra/experiment/RUN.zh.md) 给出命令与每步检查点；[阿里云](../infra/alicloud/PROVIDER.zh.md) / [自备服务器](../infra/servers/README.zh.md) 只区分资源准备。脚本可供 Agent 分步调用；正式 ready 仍需当前服务器上验证原生 CLI、挂载/限额、真实 ML 读集、冷暖与计数器、fork/clone 及两节点会话恢复，不能把本地测试通过当作这些验证已完成。

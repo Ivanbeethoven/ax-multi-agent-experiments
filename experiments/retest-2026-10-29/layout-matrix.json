@@ -1,0 +1,87 @@
+{
+  "schema": "rustfs-layout-matrix-v2",
+  "status": "qualification_and_measurement_design; no accepted performance",
+  "rustfs_source_sha": "a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed",
+  "supported_ec_block_bytes": [65536, 262144, 1048576, 4194304],
+  "negative_control_unsupported_block_bytes": [524288],
+  "new_4096_byte_block_or_forced_read_quantum": false,
+  "profiles": {
+    "disabled": {"block_hint_enable": false, "block_hint_fleet_confirmed": false, "read_quantum_enable": false, "read_quantum_fleet_confirmed": false},
+    "block-only": {"block_hint_enable": true, "block_hint_fleet_confirmed": true, "read_quantum_enable": false, "read_quantum_fleet_confirmed": false},
+    "enabled": {"block_hint_enable": true, "block_hint_fleet_confirmed": true, "read_quantum_enable": true, "read_quantum_fleet_confirmed": true}
+  },
+  "ec_2_plus_2_expected_external_frames": [
+    {"block_bytes": 65536, "block_only_frame_bytes": 32768, "enabled_frame_bytes": 16384},
+    {"block_bytes": 262144, "block_only_frame_bytes": 131072, "enabled_frame_bytes": 65536},
+    {"block_bytes": 1048576, "block_only_frame_bytes": 524288, "enabled_frame_bytes": 524288, "smaller_frame_feature_noop": true},
+    {"block_bytes": 4194304, "block_only_frame_bytes": 2097152, "enabled_frame_bytes": 1048576}
+  ],
+  "inline_boundary_qualification": {
+    "object_bytes": [1024, 4096, 32768, 32769, 65536, 65537, 131072, 131073, 262144, 262145, 1048576],
+    "requested_block_bytes": [null, 65536, 262144],
+    "bucket_versioning": [false, true],
+    "profiles": ["disabled", "block-only", "enabled"],
+    "requests": ["full GET", "4096-byte bounded Range GET"],
+    "verification": ["all shard metadata CRC", "inline payload and external part inventory", "full content and range before/after restart"],
+    "historical_evidence": "evidence/inline-qualification/summary.json",
+    "historical_evidence_scope": "108 objects from the previous 9-size/two-profile probe; preserved separately",
+    "current_evidence": "evidence/layout-v2-qualification/summary.json",
+    "qualified_objects": 198,
+    "qualification_status": "passed all three profiles, including 128 KiB boundaries; no performance acceptance"
+  },
+  "inline_performance_design": {
+    "object_bytes": [4096, 32768, 65536, 65537, 131072, 131073, 262144, 262145],
+    "bucket_versioning": false,
+    "requests_reported_separately": ["full GET", "4096-byte random Range GET"],
+    "stratification": ["actual inline/external", "128 KiB direct-memory GET threshold", "actual block and frame"],
+    "read_fast_path_activation_requires_observation": true
+  },
+  "external_performance_design": {
+    "object_bytes": [8388731, 33554555],
+    "upload": "plain single PUT; no compression or encryption",
+    "identical_content_across_layouts": true,
+    "required_placement": "all objects external in every candidate",
+    "requests_reported_separately": ["full sequential GET", "4096-byte random Range GET"],
+    "cache_modes_reported_separately": ["verified cold", "same-object converged warm"],
+    "paired_repetitions": 3,
+    "pure_frame_effect": "compare block-only/enabled at the same block, object bytes and read set",
+    "block_effect": "compare block sizes within block-only; record default frame change too"
+  },
+  "client_mapping_qualification": {
+    "brewfs_client_block_bytes": 4194304,
+    "uncompressed_persisted_header_bytes_per_block": 4,
+    "file_bytes": [4096, 131072, 5243003],
+    "expected_object_bytes": [4100, 131076, 4194308, 1048703],
+    "file_boundary_cases_for_future_client_sweep": "for an object threshold T, use file payload T-4 and T-3 within one client block",
+    "causal_application_layout_read_fetch_policy": "sparse in every layout arm; observe actual HTTP request ranges",
+    "suite_spec_controls": {"read_fetch_policy": "sparse"},
+    "product_default_policy": "separate deployment result, not pooled into causal layout results",
+    "auto_hint_policy_at_pinned_client": "no hint at <=1 MiB wire size; requests 1 MiB above it, so it does not select 64/256 KiB",
+    "required_observations": ["actual object sizes", "request hint", "effective layout", "all persisted shards", "content after backend restart and FUSE remount"],
+    "scope": "client object mapping; does not substitute for fixed-object backend comparison",
+    "current_evidence": "evidence/layout-v2-qualification/brewfs-client.json",
+    "qualification_status": "4 actual data objects passed upload, persisted hint/layout, restart and remount content checks; sparse HTTP request observation pending"
+  },
+  "adaptive_policy_decision": {
+    "status": "do not change product selection thresholds before paired performance results",
+    "selection_input": "actual S3 wire object size and observed workload, not user file size",
+    "inline_region": "retain the default layout as baseline; do not assume smaller B saves space",
+    "transition_region": "quantify the cost of leaving inline storage before choosing a smaller B",
+    "external_region": "evaluate 64/256 KiB for sparse random reads and 1/4 MiB for sequential access; these are hypotheses, not measured recommendations",
+    "read_quantum": "record separately from B; the 1 MiB EC2+2 arm is a no-op control for frame subdivision"
+  },
+  "pack_scope": {
+    "workload": "readonly ML data access",
+    "prepared_distinct_files": 1048576,
+    "P1": "same packed payload objects; vary metadata placement packed/native-TiKV",
+    "P2": "same source files; packed publication versus real flat-v1/TiKV filesystem writes",
+    "required_accounting": ["source files", "S3 objects and size distribution", "RustFS inline fraction", "prepare cost", "all content", "metadata memory/disk"],
+    "excluded_from_general_rw_matrix": true
+  },
+  "constraints": {
+    "current_local_ec": "four directories on one filesystem; layout/correctness only",
+    "EC_4_plus_2": "separate future topology; not qualified by EC 2+2 results",
+    "physical_disk_and_resource_parity_required_before_formal_performance": true,
+    "no_compilation_during_measurement": true
+  }
+}

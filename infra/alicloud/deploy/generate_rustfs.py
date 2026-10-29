@@ -23,6 +23,19 @@ def generate(spec, out):
     if not re.fullmatch(r"[^\s]+@sha256:[0-9a-f]{64}", image):
         raise ValueError("image must be pinned by sha256 digest")
     mode, nodes = spec["mode"], spec["nodes"]
+    experiment = spec.get('experiment')
+    if experiment is not None:
+        if not re.fullmatch(r'ax-[a-z0-9-]{3,55}', experiment.get('project_name', '')):
+            raise ValueError('unique ax- campaign/node/attempt project_name required')
+        if experiment.get('cpus') != 3 or experiment.get('memory_bytes') != 16 * 1024**3:
+            raise ValueError('formal backend budget is 3 CPU / 16 GiB')
+        if experiment.get('stage') not in ('G','A','P','D','F','M'):
+            raise ValueError('explicit experiment stage required')
+        profile = experiment.get('layout_profile')
+        if profile not in ('disabled','block-only','enabled') or (experiment['stage'] != 'D' and profile != 'disabled'):
+            raise ValueError('dynamic layout profiles are exclusive to D')
+        if mode != 'single-node-four-disk':
+            raise ValueError('current formal experiment requires single-node four-disk EC')
     if mode not in ("smoke", "single-node-four-disk", "distributed"):
         raise ValueError("mode must be smoke, single-node-four-disk or distributed")
     count, disks = {"smoke": (1, 1), "single-node-four-disk": (1, 4), "distributed": (4, 4)}[mode]
@@ -60,13 +73,25 @@ def generate(spec, out):
                 for j, p in enumerate(mounts)
             ] + [{"type": "bind", "source": node["log_dir"], "target": "/var/log/rustfs", "bind": {"create_host_path": False}}],
         }
+        if experiment is not None:
+            enabled = experiment['layout_profile'] != 'disabled'
+            quantum = experiment['layout_profile'] == 'enabled'
+            env.update({
+                'RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE': str(enabled).lower(),
+                'RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED': str(enabled).lower(),
+                'RUSTFS_EC_READ_QUANTUM_ENABLE': str(quantum).lower(),
+                'RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED': str(quantum).lower(),
+            })
+            service.update(cpus=experiment['cpus'], mem_limit=experiment['memory_bytes'],
+                           memswap_limit=experiment['memory_bytes'], restart='no')
         prepared.append((node, service))
     # No filesystem output is created until every node has passed validation.
     out.mkdir(parents=True, exist_ok=False)
     for i, (node, service) in enumerate(prepared):
         folder = out / f"rustfs{i + 1}"
         folder.mkdir()
-        (folder / "compose.json").write_text(json.dumps({"name": "agent-rustfs", "services": {"rustfs": service}}, indent=2) + "\n")
+        project = experiment['project_name'] if experiment else 'agent-rustfs'
+        (folder / "compose.json").write_text(json.dumps({"name": project, "services": {"rustfs": service}}, indent=2) + "\n")
         (folder / "node.json").write_text(json.dumps({**node, "mode": mode, "image": image}, indent=2) + "\n")
     (out / "deployment.json").write_text(json.dumps({"schema_version": 1, **spec, "status": "generated_not_deployed"}, indent=2) + "\n")
 

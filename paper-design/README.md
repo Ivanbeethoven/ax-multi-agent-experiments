@@ -1,11 +1,9 @@
 # 实验规划入口
 
-1. 先读 [最终方案](FINAL-PLAN.zh.md)：五个 RQ、主组/扩展组、计时和结果规则。
-2. 再读 [阿里云执行入口](../infra/alicloud/RUN.zh.md)：已接脚本、验证范围与剩余接口。
-3. 开跑时查 [机器与磁盘](EXPERIMENT-CONFIG.zh.md)、[流水线说明](PIPELINE.md) 和 [部署](../infra/alicloud/deploy/README.md)。
+1. [实验方案](FINAL-PLAN.zh.md)：设置、配置、方法、指标与注意事项。
+2. [分步执行手册](../infra/experiment/RUN.zh.md)：具体脚本与 AI 检查点。
+3. [四集群与初始 prompt](../infra/experiment/CLUSTERS.zh.md)：每个 Agent 的任务、资源边界与交付。
+4. [trace 来源与规模](TRACE-WORKLOADS.zh.md)：benchmark、数据完整性与回放解释。
+5. [配置文件索引](EXPERIMENT-CONFIG.zh.md)：本批参数、源码与镜像记录。
 
-`harness/final_plan.py` 生成当前五个 RQ 的任务表。`design.json`、`execution-grid.json`、`run-grid.*` 仅保留历史追溯；`execution_enabled=false` 保持不变。静态校验通过不等于正式实验已放行。
-
-`fixtures.json`、`trace-archives.json`、`live-tasks.json` 是输入定义；`run-record.template.json` 是记录模板。脚本在 `pipeline/` 与 `tools/`，细节备查在 `reference/`。
-
-旧迭代方案、审计与重复仓库已从日常目录删除，追溯见 [历史资料](../archive/README.md)。不要用旧版本覆盖当前方案。
+[旧方案](../archive/plans/2026-10-28/README.md) 供追溯；旧网格不作为当前执行入口。

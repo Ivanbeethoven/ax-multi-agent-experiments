@@ -6,6 +6,10 @@ import os
 from pathlib import Path
 import stat
 import subprocess
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]/'harness'))
+from host_preflight import backing_disks, distinct_data_disks
 
 
 def check(node):
@@ -13,7 +17,12 @@ def check(node):
     local_ips = {a["local"] for interface in json.loads(addresses) for a in interface.get("addr_info", [])}
     if node["private_ip"] not in local_ips:
         raise ValueError("node spec belongs to a different host")
-    devices = set()
+    def physical(device):
+        return backing_disks(json.loads(subprocess.check_output(['lsblk','--inverse','--json','--paths',
+            '--output','NAME,TYPE,MAJ:MIN','/dev/block/'+device],text=True)))
+    root_fs = json.loads(subprocess.check_output(['findmnt','--json','--target','/', '--output','MAJ:MIN'],text=True))['filesystems'][0]
+    root_disks = physical(root_fs['maj:min'])
+    devices = set(); disk_sets = []
     for name in node["data_mounts"]:
         path = Path(name)
         if path.is_symlink() or not os.path.ismount(path):
@@ -26,8 +35,10 @@ def check(node):
         if device in devices:
             raise ValueError("each formal RustFS volume must use a different underlying filesystem/device")
         devices.add(device)
+        disk_sets.append(physical(device))
         if path.stat().st_uid != 10001:
             raise ValueError(f"data mount owner must be container UID 10001: {name}")
+    distinct_data_disks(root_disks, disk_sets)
     log = Path(node["log_dir"])
     if not log.is_dir() or log.stat().st_uid != 10001:
         raise ValueError("log directory must exist and be owned by UID 10001")

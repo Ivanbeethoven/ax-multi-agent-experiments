@@ -21,6 +21,7 @@ import sys
 import threading
 import time
 from urllib.parse import urlsplit
+from experiment_io import digest, load
 
 REPO = Path(__file__).resolve().parents[1]
 RUSTFS_REPO = 'https://github.com/Ivanbeethoven/rustfs'
@@ -29,24 +30,12 @@ METHODS = ['native', 'native-overlay', 'native-overlay-pack', 'juicefs']
 STATES = {'ok', 'failed', 'interrupted', 'invalid', 'not_run', 'unsupported'}
 
 
-def load(path):
-    return json.loads(Path(path).read_text(encoding='utf-8'))
-
-
 def save(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_name(path.name + '.tmp')
     temp.write_text(json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + '\n', encoding='utf-8')
     temp.replace(path)
-
-
-def digest(path):
-    h = hashlib.sha256()
-    with Path(path).open('rb') as f:
-        for block in iter(lambda: f.read(1024 * 1024), b''):
-            h.update(block)
-    return h.hexdigest()
 
 
 def check_binary(item):
@@ -356,7 +345,8 @@ class Session:
         self.mount_serial += 1
         self.requested_controls={'ttl_ms':ttl,'keep_cache':keep,
                                  'client_block_bytes':self.s.get('client_block_bytes',4194304),
-                                 'ec_block_hint':self.s.get('ec_block_hint')}
+                                 'ec_block_hint':self.s.get('ec_block_hint'),
+                                 'read_fetch_policy':self.s.get('read_fetch_policy')}
         cache = self.root / f'cache-{self.mount_serial}'
         if self.s['method'] != 'juicefs':
             # BrewFS defaults its cache to a system-disk path. Make each mount's
@@ -453,6 +443,12 @@ def mount_command(s, mp, cache, workspace, ttl, keep):
         cmd += ['--volume-format', 'workspace-v1', '--workspace', workspace]
     if s.get('ec_block_hint') is not None:
         cmd += ['--s3-rustfs-ec-block-size-hint', str(s['ec_block_hint'])]
+    if s.get('read_fetch_policy') is not None:
+        if s['read_fetch_policy'] not in ('backend-default', 'sparse', 'whole-object'):
+            raise ValueError('unsupported BrewFS read fetch policy')
+        # A hint changes the S3 adapter's backend-default preference. D-group
+        # specs pin sparse in every arm to separate fetch policy from layout.
+        cmd += ['--read-fetch-policy', s['read_fetch_policy']]
     cmd += [str(mp)]
     return cmd, {'BREWFS_CACHE_TTL_MS': str(ttl) if ttl is not None else None,
                  'BREWFS_FUSE_KEEP_CACHE': str(keep).lower() if keep is not None else None,
@@ -619,6 +615,8 @@ def trace(session):
         if not path.is_relative_to(case) or digest(path) != expected:
             raise ValueError('trace input digest mismatch')
     required = {'capture/events.jsonl', 'metrics.json', 'initial-tree.json'}
+    if s.get('verify_final_tree'):
+        required.add('final-tree.json')
     if not required.issubset(manifest):
         raise ValueError('incomplete trace inventory')
     for root in [case/'capture/blobs', case/'initial']:
@@ -647,6 +645,8 @@ def trace(session):
     before = snapshot(s['redis_url']); start = time.monotonic()
     session.command('trace-performance', [binary, str(case/'capture/events.jsonl'), str(case/'capture/blobs'),
                                          str(root), str(session.out/'replay.json'), '--performance'])
+    replay_wall_seconds = time.monotonic()-start
+    after = snapshot(s['redis_url'])
     replay = load(session.out/'replay.json'); expected = load(case/'metrics.json')
     if not replay.get('completed') or replay.get('remaining_handles') != 0:
         raise ValueError('trace did not finish with zero live handles')
@@ -654,8 +654,28 @@ def trace(session):
                                    ('actual_write_bytes', 'actual_write_bytes')]:
         if replay.get(result_key) != expected[input_key]:
             raise ValueError('trace count mismatch: ' + result_key)
-    save(session.out/'trace-result.json', {'status': 'ok', 'wall_seconds': time.monotonic()-start,
-         'db': redis_delta(before, snapshot(s['redis_url'])), 'completed': True, 'strict_correctness': False,
+    final_tree_verified = False
+    if s.get('verify_final_tree'):
+        # Hash outside replay timing, then repeat from a new client mount.
+        expected_tree = load(case/'final-tree.json')
+        for phase in ('before-remount', 'after-remount'):
+            if phase == 'after-remount':
+                session.unmount(); session.mount()
+                root = session.mp/'trace-root'
+            actual_tree = tree(root)
+            equal = actual_tree == expected_tree
+            save(session.out/('final-tree-'+phase+'.json'), {'equal': equal,
+                 'expected_sha256': digest(case/'final-tree.json'),
+                 'scope': 'paths/types/modes/file lengths and SHA256/symlink targets; not all POSIX state'})
+            if not equal:
+                save(session.out/('final-tree-differences-'+phase+'.json'),
+                     {k:{'expected':expected_tree.get(k),'actual':actual_tree.get(k)}
+                      for k in expected_tree.keys() | actual_tree.keys() if expected_tree.get(k)!=actual_tree.get(k)})
+                raise ValueError('trace final tree mismatch '+phase)
+        final_tree_verified = True
+    save(session.out/'trace-result.json', {'status': 'ok', 'wall_seconds': replay_wall_seconds,
+         'db': redis_delta(before, after), 'completed': True, 'strict_correctness': False,
+         'final_tree_verified_before_and_after_remount': final_tree_verified,
          'total_timeout_s': None, 'manifest_sha256': s['trace_manifest_sha256'], 'replay': replay})
     session.unmount()
 

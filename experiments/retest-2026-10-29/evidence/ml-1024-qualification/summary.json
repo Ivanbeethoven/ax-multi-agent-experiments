@@ -1,0 +1,96 @@
+{
+  "scope": "local path/content qualification, not formal performance or live ML-agent measurement",
+  "files": 1024,
+  "payload_bytes": 829526,
+  "accepted_performance": false,
+  "runs": {
+    "P1-default-8MiB-failed": {
+      "status": "failed",
+      "all_owned_containers_removed": true,
+      "cells": 0,
+      "run_id": "ml-qualify-1024-p1-01"
+    },
+    "P1-explicit-32MiB": {
+      "status": "qualified",
+      "all_owned_containers_removed": true,
+      "cells": 2,
+      "run_id": "ml-qualify-1024-p1-02"
+    },
+    "P2-explicit-32MiB": {
+      "status": "qualified",
+      "all_owned_containers_removed": true,
+      "cells": 2,
+      "run_id": "ml-qualify-1024-p2-01"
+    }
+  },
+  "evidence": {
+    "P1-default-8MiB-failed/runtime.json": {
+      "sha256": "3dedfa6134e0a27086891b0f9b6204472a0b0e657bf4f1460d090222cafb4601",
+      "bytes": 2558
+    },
+    "P1-default-8MiB-failed/backend-pin.json": {
+      "sha256": "328881df531389ebdbfb1ed42f1d243cc30668318d803891d0bad8f61b126b2d",
+      "bytes": 674
+    },
+    "P1-default-8MiB-failed/matrix/result.json": {
+      "sha256": "a590cac84d45f3d37ff9c143799a585cd504207acf255c3bd6d922257dc818f9",
+      "bytes": 1450
+    },
+    "P1-explicit-32MiB/runtime.json": {
+      "sha256": "16f950f03b8f2932c3b34d9e1a209011ffead075bba06a4b8a86d4397dd7b5c1",
+      "bytes": 2220
+    },
+    "P1-explicit-32MiB/backend-pin.json": {
+      "sha256": "d410246fa0bd1091e8cedddd2b8db12281df45c4860d4864bf1adcc44bbbba4b",
+      "bytes": 674
+    },
+    "P1-explicit-32MiB/matrix/result.json": {
+      "sha256": "d56b149dc8e9654a0f039a4d4d8d859aefcc137f1323c39d58dce844ebaefa47",
+      "bytes": 22196
+    },
+    "P1-explicit-32MiB/matrix/source-content.json": {
+      "sha256": "f17dc0725f815421a5b6f646535d11a0edb56f5570e501ac91c2b1923b2a4bbd",
+      "bytes": 611
+    },
+    "P1-explicit-32MiB/matrix/r1-packed/content.json": {
+      "sha256": "e63351285010c9775bdbd906ad18dbc5b07e1aa5cf241c8a6e24af8f308af7ab",
+      "bytes": 611
+    },
+    "P1-explicit-32MiB/matrix/r1-native-tikv/content.json": {
+      "sha256": "7c1e512038b4ef03c2f10b6ba0dd42a024bdad7fb3be5afb64e43d165a3b92db",
+      "bytes": 611
+    },
+    "P2-explicit-32MiB/runtime.json": {
+      "sha256": "b3a97fb5defab17bd29a24ee323119ed1eb507581fd816e6e4a3ae59d35f2d05",
+      "bytes": 2220
+    },
+    "P2-explicit-32MiB/backend-pin.json": {
+      "sha256": "cf02f6f855e7d232e2146f384cb8e12bbce7380d701241f3f17851786c033732",
+      "bytes": 674
+    },
+    "P2-explicit-32MiB/matrix/result.json": {
+      "sha256": "b8f2b8c731a9b0d77e462251b9c64a8dc69439bec743a64a90c6ac996b6e9413",
+      "bytes": 23771
+    },
+    "P2-explicit-32MiB/matrix/source-content.json": {
+      "sha256": "0617f653b97d3a56409170042b745ce250a72ef3d1c8c97df28b0cc4c2f8ea9a",
+      "bytes": 611
+    },
+    "P2-explicit-32MiB/matrix/r1-packed/content.json": {
+      "sha256": "23fd6d36f4ca71ef800916f3728f861fa86f83563b7f2a9399db55e79443c41c",
+      "bytes": 611
+    },
+    "P2-explicit-32MiB/matrix/r1-native-tikv/content.json": {
+      "sha256": "29c0557a2a687cc30b36938c0fc737e96ae318df4e8f2ee9d357aca458012d0f",
+      "bytes": 611
+    },
+    "P2-explicit-32MiB/matrix/packed-prepare/objects.jsonl": {
+      "sha256": "f449e4018a5629f001fcc9e77c6a3c81c812519f7b039748f7db526ae152876f",
+      "bytes": 25725
+    },
+    "P2-explicit-32MiB/matrix/native-tikv-prepare/objects.jsonl": {
+      "sha256": "fb531d05778499649151d4e870b9ee343ec5b056d5662593d090b9cbbefc99bc",
+      "bytes": 973188
+    }
+  }
+}

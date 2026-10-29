@@ -35,7 +35,10 @@ for prefix, method in METHODS.items():
     # Historical joint intervention, never the default or a single-factor arm.
     ARMS[prefix+'-ttl0'] = (method, 0, None if method == 'juicefs' else False,
                            'legacy-combined-disabled')
-DEFAULT_ARMS = [prefix+'-kernel-default' for prefix in METHODS]
+# Packed is a readonly ML-corpus placement experiment, not a general trace arm.
+# Keep its historical labels readable for provenance and frozen old runners.
+GENERAL_METHODS = ('native', 'overlay', 'juicefs')
+DEFAULT_ARMS = [prefix+'-kernel-default' for prefix in GENERAL_METHODS]
 
 
 def arm_controls(label):
@@ -57,6 +60,8 @@ IDENTIFIER = re.compile(r'[A-Za-z0-9][A-Za-z0-9_-]{0,60}')
 def select_arms(values):
     if not values or len(values)!=len(set(values)) or set(values)-set(ARMS):
         raise ValueError('select unique, supported arms')
+    if any(ARMS[label][0] == 'native-overlay-pack' for label in values):
+        raise ValueError('Pack is restricted to the separate readonly ML-corpus/native-TiKV experiment')
     return list(values)
 
 
@@ -93,7 +98,8 @@ def spec_for(base, label, batch, worker, work, manifest_key=None):
     for key in ('fuse_ttl_ms','fuse_keep_cache','manifest_key','parent_revision','workspace_id'):
         s.pop(key,None)
     s.update(method=method, batch_id=batch, worker_id=worker, work_root=str(work),
-             qualify_reopen=True, cache_mib=8192, buffer_mib=1024, brewfs_cache=dict(CACHE))
+             qualify_reopen=True, verify_final_tree=True,
+             cache_mib=8192, buffer_mib=1024, brewfs_cache=dict(CACHE))
     s['cache_controls']=arm_controls(label)
     if ttl is not None:s['fuse_ttl_ms']=ttl
     if keep is not None:s['fuse_keep_cache']=keep

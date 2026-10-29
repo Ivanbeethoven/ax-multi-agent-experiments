@@ -35,6 +35,16 @@ def ceph_spec():
 
 
 class GeneratorTests(unittest.TestCase):
+    def test_formal_budget_and_dynamic_feature_controls(self):
+        spec = rustfs_spec(); spec['mode']='single-node-four-disk'; spec['nodes']=spec['nodes'][:1]
+        spec['experiment']={'project_name':'ax-test-c3-n1','cpus':3,'memory_bytes':16*1024**3,'stage':'D','layout_profile':'enabled'}
+        with tempfile.TemporaryDirectory() as temp:
+            out=Path(temp)/'generated'; rustfs.generate(spec,out)
+            compose=json.loads((out/'rustfs1/compose.json').read_text()); service=compose['services']['rustfs']
+            self.assertEqual(compose['name'],'ax-test-c3-n1'); self.assertEqual(service['mem_limit'],16*1024**3)
+            self.assertEqual(service['cpus'],3); self.assertEqual(service['restart'],'no')
+            self.assertEqual(service['environment']['RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED'],'true')
+        spec['experiment']['stage']='G'; self.reject(rustfs.generate,spec)
     def test_single_node_four_disks_and_placeholder_rejection(self):
         spec = rustfs_spec()
         spec['mode'] = 'single-node-four-disk'; spec['nodes'] = spec['nodes'][:1]
