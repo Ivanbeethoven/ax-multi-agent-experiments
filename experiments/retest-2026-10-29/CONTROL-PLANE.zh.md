@@ -1,6 +1,8 @@
 # BrewFS 无 Kubernetes 生命周期服务设计
 
-状态：**设计草案，接口尚未实现；不启动实验或分配资源。** 2026-10-31 核对 BrewFS `origin/main`，源码为 `80ddaf739e163c8933b0bb84390c4aa559bd2b40`。本页只规定产品接口和实验接入；规模、baseline、机器预算仍以 [PLAN](PLAN.zh.md)、[HARDWARE](HARDWARE.zh.md) 为准。
+状态：**P1 基础接口已由 [PR #390](https://github.com/brewfs/brewfs/pull/390) 合并；P2/P3 仍为设计，不启动实验或分配资源。** #390 仅支持单 Manager、本地 SQLite、`workspace-v1` 的卷初始化/登记、不可变 revision fork 和 lease 检查后的逻辑删除。实际路径、重试与完成判据见 [C1/C4 接入步骤](runbook/MANAGER.zh.md)，审查固定在合并提交 `1e7a95c10cbff8d34faf768ebd621ae8261cbd91`。这不代表当前共享服务池或两节点交接已可用。
+
+下文的原有能力盘点和源码链接保留设计时基线 `80ddaf739e163c8933b0bb84390c4aa559bd2b40`，不作为当前实现清单。规模、baseline、机器预算仍以 [PLAN](PLAN.zh.md)、[HARDWARE](HARDWARE.zh.md) 为准。
 
 ## 1. 已有能力与缺口
 
@@ -43,7 +45,7 @@ Kubernetes Operator 本身是基于 K8s 自定义资源和控制循环的扩展�
 
 ## 3. 建议的接口合同
 
-以下 `/api/v1` 路径是**待实现合同**，不能写入执行 prompt 冒充可用命令。第一版资源为 Volume、Workspace、Revision、Node、Attachment、Operation。卷身份必须包含真实 catalog 身份；Attachment 用全局 ID＋node ID＋boot ID＋写者 generation，不能用 PID 作为跨机身份。
+以下 `/api/v1` 路径是**完整目标合同，不是已实现 API 清单**。#390 已实现的子集及路径以 [MANAGER](runbook/MANAGER.zh.md) 为准，例如实际 fork 是 `POST /api/v1/volumes/{id}/forks`；Node、Attachment、checkpoint、drain、handoff 尚未实现。不能把本表直接写入执行 prompt。目标资源为 Volume、Workspace、Revision、Node、Attachment、Operation。卷身份必须包含真实 catalog 身份；Attachment 用全局 ID＋node ID＋boot ID＋写者 generation，不能用 PID 作为跨机身份。
 
 | 操作 | 建议 API | 完成条件 |
 |---|---|---|
@@ -89,4 +91,4 @@ Kubernetes Operator 本身是基于 K8s 自定义资源和控制循环的扩展�
 
 JuiceFS 继续调用其原生 clone/mount/排空机制，由实验仓库提供薄适配；Manager 是 BrewFS 产品组件，不需要让 JuiceFS 伪装成 BrewFS workspace。两种路径采用相同请求发起/完成观测边界、资源核算和验收条件。控制面耗时与文件系统核心耗时分别报告，外部模型/AI 监督等待不混进计时。
 
-已有执行工具见 [SCALE-RUN](runbook/SCALE-RUN.zh.md)、[迁移步骤](runbook/MIGRATION.zh.md)。**新 API 未实现且两节点资格未通过前，不添加伪可执行命令，不把 planning 状态改成 ready。** 后续只增加每步调用/核对的小脚本，不写自动购机、跑完整矩阵并删除资源的一体脚本。
+已有执行工具见 [SCALE-RUN](runbook/SCALE-RUN.zh.md)、[迁移步骤](runbook/MIGRATION.zh.md)；#390 的独立 API 调用与 C1/C4 接入见 [MANAGER](runbook/MANAGER.zh.md)。**当前正式后端接入与两节点资格仍未通过，不把 planning 状态改成 ready。** 后续只增加每步调用/核对的小脚本，不写自动购机、跑完整矩阵并删除资源的一体脚本。

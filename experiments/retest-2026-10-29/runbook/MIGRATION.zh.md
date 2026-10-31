@@ -16,6 +16,8 @@ M 中客户端预算 4 CPU/8 GiB 在当前执行节点；元数据仍计入这 8
 
 ## 单步执行
 
+Manager #390 的 [实际能力与接入步骤](MANAGER.zh.md) 仅覆盖本地 SQLite catalog 的创建/fork/逻辑删除，未提供 checkpoint、drain、attachment 或 handoff。本页步骤 02–07 仍由原生适配器完成；不调用草案 API，不用 DELETE 代替释放写者，也不因 Manager 已合并而把两节点恢复标为通过。
+
 | 步骤 | 操作 | 必须检查 |
 |---|---|---|
 | 01 资格 | 本机最小会话，再跨 E1/E2 恢复；分别对两个 FS 做 | 保留 session、历史、工具返回、未提交代码、HOME/XDG；空状态负对照不能凭初始提示“恢复” |

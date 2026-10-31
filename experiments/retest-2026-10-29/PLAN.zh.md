@@ -68,7 +68,7 @@ C1 的产品对比和消融顺序复用一池；若同时测试须另配一整�
 | [硬件预算与验收](HARDWARE.zh.md) | 每角色 CPU/内存/磁盘/网络、C2/C4 容量、5 节点首次试跑 |
 | [扩展单步手册](runbook/SCALE-RUN.zh.md) | 准备→资格→屏障→单个 cohort→收集，每步由 AI 监督 |
 | [四组分工与 prompts](runbook/CLUSTERS.zh.md) | 一负责 Agent 管一组，工作 Agent 不得自行换 baseline |
-| [无 K8s 生命周期服务设计](CONTROL-PLANE.zh.md) | BrewFS Manager 与 Operator/节点分工，完成条件、幂等恢复、C1/C4 接入；接口尚未实现 |
+| [Manager 接入](runbook/MANAGER.zh.md) / [生命周期设计](CONTROL-PLANE.zh.md) | P1 已实现 SQLite workspace-v1 基础 API；C1/C4 逐步调用、重试/删除判据与未实现的共享后端/节点能力 |
 | [规模计划生成器](../../bench/scale_plan.py) | main/expanded、VM/Docker、Aliyun/provided；只生成计划和逻辑 placement |
 | [基础机制方案](../../paper-design/FINAL-PLAN.zh.md) | 原单机配对、布局/内容/会话资格，342 项不是新总体规模上限 |
 | [基础单步工具](runbook/RUN.zh.md) | 复用原子操作，未完成的并发适配明确标注 |

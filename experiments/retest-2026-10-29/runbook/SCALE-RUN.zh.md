@@ -2,6 +2,8 @@
 
 先读 [64/128 Agent 方案](../SCALE.zh.md) 和 [硬件预算与验收](../HARDWARE.zh.md)。当前只准备，不分配资源或启动 cohort；收到具体试跑调度后按其范围执行，[首次 C1 prompt](agents/C1-pilot.prompt.md) 限定 5 节点、1→8→16。一个负责 Agent 监督本组全体工作 Agent；不能给每个工作 Agent 独立修改 baseline 的权限。
 
+C1/C4 生命周期接入另按 [MANAGER](MANAGER.zh.md) 查询能力、逐项确认与保全。#390 只支持本地 SQLite workspace-v1，不能替代本轮共享服务池；当前仍保留原生准备/挂载/迁移路径及各自待补资格。202/metadata_ready 不等于步骤 7 的挂载就绪；fork 每请求最多 100 项，128 需显式拆批，不能宣称原子操作或已通过规模资格。
+
 | 步骤 | 入口 / 产物 | 监督检查 |
 |---|---|---|
 | 1 计划 | scale_plan.py 输出 scale-plan.json | C/基准/规模/隔离/provider/种子、预算、有效条件，所有 execution=false |

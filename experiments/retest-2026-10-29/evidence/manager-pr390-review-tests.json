@@ -1,0 +1,74 @@
+{
+  "artifact_sha256": "9402f56ae207e301070cde9b04d09f68c564e256e3fd61670fa2b523ae0fa73a",
+  "artifact_bytes": 1518169704,
+  "validated_patch_sha256": "425e30ae9f1621ef3a69c63319cc3680b25e00f6f7c31aec1e4dcc79e049dbfd",
+  "reconstructed_source_tree": "4c2c18538d2ac3e4fa1b5ac943a78aacaf16a0ea",
+  "source_commit": "2396dd65fb8e64c1ea6cc1c6f11321503bca88ce",
+  "review_commit": "1e7a95c10cbff8d34faf768ebd621ae8261cbd91",
+  "reviewed_core_and_lockfiles_unchanged": true,
+  "fresh_merge_build_completed": false,
+  "started_at": "2026-10-31T13:23:29.575409+00:00",
+  "test_groups": [
+    {
+      "filter": "manager::",
+      "exit_code": 0,
+      "log_sha256": "bce8c7aedaaeae59e17332c9dfb73959ca6522efb6ad9fb7ed5f7fe2d00c88e5",
+      "summary": [
+        "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 3007 filtered out; finished in 2.34s"
+      ],
+      "log": "manager-pr390-tests-manager.txt"
+    },
+    {
+      "filter": "workspace_overlay::admin::tests::",
+      "exit_code": 0,
+      "log_sha256": "a19c2775bdb02ec5b2cb1af34635cb69ba25728bfc491d278a4251f5823617df",
+      "summary": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 3020 filtered out; finished in 0.26s"
+      ],
+      "log": "manager-pr390-tests-admin.txt"
+    },
+    {
+      "filter": "console::server::tests::manager_",
+      "exit_code": 0,
+      "log_sha256": "3fb27732bc2e94ab6f0bd78d1a6b94f4c548fc72b313e566c52721240972ccc6",
+      "summary": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 3020 filtered out; finished in 0.49s"
+      ],
+      "log": "manager-pr390-tests-http.txt"
+    },
+    {
+      "filter": "workspace_overlay::stores::database::manager_init_tests::",
+      "exit_code": 0,
+      "log_sha256": "4496d9e835a4fc0f9a46017d38bd186ff25a7a1fbf3c3084751ce359c5a1b4e7",
+      "summary": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 3017 filtered out; finished in 0.18s"
+      ],
+      "log": "manager-pr390-tests-catalog.txt"
+    }
+  ],
+  "finished_at": "2026-10-31T13:23:38.880511+00:00",
+  "mode": "independent_rerun_of_verified_author_artifact",
+  "runtime_environment": {
+    "os": "Ubuntu 24.04 (WSL)",
+    "RUST_TEST_THREADS": "2"
+  },
+  "reviewed_paths_unchanged_from_artifact_source": [
+    "src/manager",
+    "src/console",
+    "src/workspace_overlay/admin.rs",
+    "src/workspace_overlay/catalog.rs",
+    "src/workspace_overlay/stores/database.rs",
+    "src/workspace_overlay/lifecycle",
+    "Cargo.toml",
+    "Cargo.lock"
+  ],
+  "invocation": [
+    "env",
+    "RUST_TEST_THREADS=2",
+    "VERIFIED_LIBTEST",
+    "FILTER",
+    "--nocapture"
+  ],
+  "temporary_swap_removed": true,
+  "experiments_started": false
+}

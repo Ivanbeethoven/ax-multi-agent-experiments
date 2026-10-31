@@ -242,6 +242,8 @@ python3 bench/s3_requests.py read --plan "$REQUEST_PLAN" --plan-sha256 "$REQUEST
 
 ## 7. F：fork / clone
 
+生命周期 API 的实际范围、固定幂等键重试、逐子项完成与安全删除见 [MANAGER](MANAGER.zh.md)。#390 只支持本地 SQLite workspace-v1；本节正式对照仍使用与冻结格式兼容的原生路径，不能为使用 API 更换元数据后端。初始化卷的空 root revision 不代表已发布本节语料；API 202 不代表 fork 完成。未来兼容 API 路径必须独立冻结测量协议。
+
 AI 先准备并核验静止源树，再对一个 baseline 执行一次创建：
 
 | baseline | 创建操作 |
