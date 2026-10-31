@@ -7,6 +7,7 @@
 | 入口 | 内容与边界 |
 |---|---|
 | [四集群总览](PLAN.zh.md) | 64/128 Agent；四组对照、指标、角色机器数和两类环境差异 |
+| [无 K8s 生命周期接口](CONTROL-PLANE.zh.md) | 现有 Console/Operator 边界，Manager、fork/挂载/排空/交接合同；设计阶段 |
 | [分步执行手册](runbook/RUN.zh.md) | 操作脚本、命令、输出与 AI 检查点 |
 | [四集群与 prompt](runbook/CLUSTERS.zh.md) | 四位负责人、资源边界与逐步执行合同 |
 | [trace 来源与完整性](../../paper-design/TRACE-WORKLOADS.zh.md) | 7 份已有输入、SWE-bench/定制任务来源、OSS 对账与回放边界 |
