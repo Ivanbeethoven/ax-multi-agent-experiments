@@ -130,12 +130,13 @@ def placement(agents,isolation,migration=False):
 def build(profile='main',isolation='docker',provider='provided',cluster=None,seed=42,include_llm_simulation=False,study='baseline',campaign='legacy-20261029'):
     if campaign not in ('legacy-20261029',DEPLOYMENT_CAMPAIGN):raise ValueError('unknown campaign')
     modern=campaign==DEPLOYMENT_CAMPAIGN
-    if profile not in ('main','expanded','pilot','c1-8','pilot-8') or isolation not in ('docker','vm') or provider not in ('provided','aliyun'):
+    if profile not in ('main','expanded','pilot','c1-8','pilot-8') or isolation not in ('docker','vm') or provider not in ('provided','aliyun','ssh'):
         raise ValueError('invalid profile/isolation/provider')
+    if provider=='ssh' and not modern:raise ValueError('SSH matrices use ecs-20261101 methods')
     small=profile in ('c1-8','pilot-8')
     pilot=profile in ('pilot','pilot-8')
     if small and (not modern or cluster!='C1' or study!='baseline' or isolation!='docker'):
-        raise ValueError('eight-Agent campaign requires ECS campaign, C1 baseline and Docker on two executors')
+        raise ValueError('eight-Agent profile requires ecs-20261101 methods, C1 baseline and container isolation')
     if profile=='pilot' and (not modern or cluster!='C1' or study!='baseline'):
         raise ValueError('pilot requires ecs-20261101, C1, baseline')
     if modern and include_llm_simulation:
@@ -231,6 +232,25 @@ def build(profile='main',isolation='docker',provider='provided',cluster=None,see
             'group_counts':{g['name']:sum(c['group']==g['name'] for c in cells) for g in selected_groups if any(c['group']==g['name'] for c in cells)},
             'cells':cells,'note':'One filesystem at a time per shared service pool; extra parallel baseline pools must be allocated separately. No automatic dispatcher.'}
     if modern:attach_deployment(result,n)
+    if provider=='ssh':
+        # Keep the experiment axes, not a cloud allocation or assumed host count.
+        result['clusters']={c:{k:v for k,v in t.items() if k in ('active_agents','standby_environments','per_agent_cgroup','metadata_backend')}
+                            for c,t in result['clusters'].items()}
+        result['resource_requirements']=[]
+        result['parallel_node_count']=None
+        result['parallel_reference_compute']=None
+        result['provider_contract']={'transport':'ssh','allocation':'existing environments',
+                                    'allow_host_deletion':False,'allow_device_format':False}
+        for rows in result['placement_templates'].values():
+            for row in rows:row['executor_node']=None
+        for step in result['steps']:
+            if step['id'] in ('02-allocation','03-host'):
+                step['entrypoint']='bench/runtime/fleet.py'
+                step['state']='fill SSH slots; probe endpoints; qualify shared-host capacity'
+            if step['id']=='05-backend':
+                step['entrypoint']='experiments/retest-2026-10-29/runbook/DEPLOYMENT.zh.md'
+                step['state']='qualify supplied service endpoints, versions, layout and native metrics'
+        result['note']='SSH workload matrix; fill a v3 fleet and explicit slots for the available environments.'
     return result
 
 
@@ -352,7 +372,7 @@ if __name__=='__main__':
     p.add_argument('--campaign',choices=['legacy-20261029',DEPLOYMENT_CAMPAIGN],default='legacy-20261029')
     p.add_argument('--profile',choices=['pilot-8','c1-8','pilot','main','expanded'],default='main')
     p.add_argument('--isolation',choices=['docker','vm'],required=True)
-    p.add_argument('--provider',choices=['provided','aliyun'],required=True)
+    p.add_argument('--provider',choices=['provided','aliyun','ssh'],required=True)
     p.add_argument('--cluster',choices=['C1','C2','C3','C4']);p.add_argument('--seed',type=int,default=42)
     p.add_argument('--study',choices=['baseline','writeback'],default='baseline',help='writeback plans a separate bounded C1/C4 policy ablation; never enables a mount or executes it')
     p.add_argument('--include-llm-simulation',action='store_true',help='also plan paired paced multi-trace conditions; fixed budget/boundary qualification still required')

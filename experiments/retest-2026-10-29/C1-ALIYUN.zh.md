@@ -1,10 +1,6 @@
-# C1 重测方案：Redis 元数据，8 Agent、两个执行节点
+# 历史参考：C1 阿里云固定角色方案
 
-更新：2026-11-01，按用户最新范围缩减。**适配和离线验证先完成；实际资源、数据路径与可观测性验收通过后，才启动性能测量。** 阿里云和自备服务器使用同一方法。
-
-本页接入 [部署手册](runbook/DEPLOYMENT.zh.md)、[执行适配](runbook/ADAPTERS.zh.md)和[观测验收](runbook/OBSERVABILITY.zh.md)。本轮正式用 `--profile c1-8`，流程资格用 `--profile pilot-8`；均为两个执行节点各4个Agent，另加独立RustFS、Redis、协调节点，共5台。旧main/expanded仅保留复现和将来扩展，不默认运行。新profile使用独立ID，不与旧数据拼接。
-
-本页是本轮 **C1 / Aliyun / Docker** 的具体方案，覆盖旧 C1 入口中的元数据选择、硬件、矩阵和生命周期准备方式。C2/C3/C4 与自备服务器方案不变。C1 测共享后端上的 Agent 文件访问性能；fork/clone 耗时、跨节点流转另属 C4。
+本页保存已暂停采购的5台、168核方案。当前方法见[C1](C1.zh.md)，实际环境按[SSH-RUN](runbook/SSH-RUN.zh.md)交付；本页硬件表用于追溯旧报价。
 
 ## 1. 实验设置与对照
 

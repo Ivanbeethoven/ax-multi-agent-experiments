@@ -256,7 +256,9 @@ def worker(ref, directory):
             raise ValueError('mount identity changed')
     elif s.get('requires_mount', True): raise ValueError('missing mount receipt')
     write_new(directory/'ready.json', {'worker_id': s['worker_id'], 'spec': ref, 'resources': resources})
+    from .common import isolation_identity
     emit('ready', worker=s['worker_id'], spec_sha256=ref['sha256'], resources=resources,
+         isolation=isolation_identity() if s.get('purpose') != 'adapter-test' else None,
          purpose=s.get('purpose','experiment'), expected_jobs=len(jobs), workload_kind=s.get('kind','adapter-test'))
     request = json.loads(sys.stdin.readline())
     if request != {'action': 'go', 'spec_sha256': ref['sha256']}:

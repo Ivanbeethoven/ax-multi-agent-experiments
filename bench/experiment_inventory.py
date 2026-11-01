@@ -25,6 +25,9 @@ def template(provider, mode):
 
 
 def validate(value):
+    if value.get('schema') == 'experiment-inventory-v3':
+        from ssh_inventory import validate as validate_ssh
+        return validate_ssh(value)
     if value.get('schema') == 'experiment-inventory-v2':
         return validate_scale(value)
     if value.get('schema') != 'experiment-inventory-v1' or value.get('provider') not in ('aliyun', 'provided'):

@@ -95,6 +95,12 @@ def cgroup_limits(expected):
     return {'effective': actual, 'observed': observed}
 
 
+def isolation_identity():
+    return {'boot_id': Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
+            'cgroup_namespace': os.readlink('/proc/self/ns/cgroup'),
+            'cgroup_membership': Path('/proc/self/cgroup').read_text().strip()}
+
+
 def emit(kind, **value):
     print(json.dumps({'type': kind, **value}, separators=(',', ':')), flush=True)
 

@@ -1,8 +1,6 @@
 # 实验分步执行手册
 
-**新版ECS/自备执行准备先读 [DEPLOYMENT](DEPLOYMENT.zh.md)。本页是历史基础资格操作说明；3CPU/16GiB、9/3台、旧final_plan命令不用于ecs-20261101。新角色清单由scale_plan→inventory from-plan生成，RustFS必须显式指定新版protocol_profile。**
-
-**本页是基础机制/资格的单步工具。64/128 Agent 主实验先读 [SCALE-RUN](SCALE-RUN.zh.md)；不得将逐台调用本页命令称作并发 cohort，也不沿用本页单机 4/8＋3/16 预算作为规模组预算。**
+本页保留早期单机机制资格的命令与参数。当前执行从 [SSH-RUN](SSH-RUN.zh.md) 开始，使用 scale_plan 的方法矩阵与 SSH 清单 v3；下列 final_plan、3CPU/16GiB 和固定节点数仅用于对应历史资格的复现。
 
 参数见 [实验方案](../../../paper-design/FINAL-PLAN.zh.md)。以下命令在 Linux 测试机的实验仓库根目录执行；变量由 AI 从本批 `run-spec.json` 读取。每次只执行一个步骤，读取输出后再决定下一步。
 

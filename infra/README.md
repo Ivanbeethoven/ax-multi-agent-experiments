@@ -1,11 +1,11 @@
 # 环境准备
 
-本目录只负责服务器、网络、磁盘和后端服务的准备。场景、测量、分工与执行顺序放在[本轮实验目录](../experiments/retest-2026-10-29/README.zh.md)。
+已有SSH环境直接使用[SSH-RUN](../experiments/retest-2026-10-29/runbook/SSH-RUN.zh.md)。本目录用于需要单独准备的基础设施和对象服务。
 
 | 目录 | 用途 |
 |---|---|
-| [alicloud](alicloud/PROVIDER.zh.md) | 阿里云资源清单、私网访问、归属与释放规则 |
-| [servers](servers/README.zh.md) | 自备服务器条件、检查与清理边界 |
-| [rustfs](rustfs/README.md) | 两种环境共用的版本冻结、配置生成、节点检查与 S3 接入探测 |
+| [alicloud](alicloud/PROVIDER.zh.md) | 云资源清单、网络、归属和收尾 |
+| [servers](servers/README.zh.md) | 服务器设备与交付检查 |
+| [rustfs](rustfs/README.md) | 版本冻结、配置生成、节点检查与S3探测 |
 
-环境差异不改变 baseline、输入和测量方法。当前没有适用于 64/128 Agent 的自动购机入口；按实际资源清单由负责人分步准备。旧 Terraform、整批调度器、三机恢复/删除控制器、Ceph 生成器已[归档](../archive/README.md)，不能照旧参数启动新批次。
+方法、baseline、输入与指标由[实验方案](../experiments/retest-2026-10-29/PLAN.zh.md)定义，硬件按实际交付验收。旧Terraform和整批控制器保存在[archive](../archive/README.md)。

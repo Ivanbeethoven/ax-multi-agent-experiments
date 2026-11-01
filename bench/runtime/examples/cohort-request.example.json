@@ -1,0 +1,25 @@
+{
+  "purpose": "experiment",
+  "ready_timeout_seconds": 600,
+  "inventory": {"path": "/srv/control/fleet.json", "sha256": "FILL_VERIFIED_SHA256"},
+  "metric_contract": {"path": "/srv/control/qualification/metrics.json", "sha256": "FILL_VERIFIED_SHA256"},
+  "workload_contract": {"path": "/srv/control/qualification/workload.json", "sha256": "FILL_VERIFIED_SHA256"},
+  "allocation_qualification": {"path": "/srv/control/qualification/allocation.json", "sha256": "FILL_VERIFIED_SHA256"},
+  "hardware_qualification": {"path": "/srv/control/qualification/hardware.json", "sha256": "FILL_VERIFIED_SHA256"},
+  "input_qualification": {"path": "/srv/control/qualification/input.json", "sha256": "FILL_VERIFIED_SHA256"},
+  "filesystem_qualification": {"path": "/srv/control/qualification/filesystem.json", "sha256": "FILL_VERIFIED_SHA256"},
+  "observer_overhead": {"path": "/srv/control/qualification/overhead.json", "sha256": "FILL_VERIFIED_SHA256"},
+  "workers": [{
+    "id": "a01", "node_id": "a01", "slot_id": "a01",
+    "peer_ref": {"path": "/srv/control/probes/a01/peer.json", "sha256": "FILL_VERIFIED_SHA256"},
+    "spec": {"path": "/srv/ax/specs/worker.json", "sha256": "FILL_REVIEWED_SHA256"},
+    "output": "/srv/ax/results/cell-001/attempt-01"
+  }],
+  "observers": [{
+    "id": "a01", "node_id": "a01",
+    "peer_ref": {"path": "/srv/control/probes/a01/peer.json", "sha256": "FILL_VERIFIED_SHA256"},
+    "directory": "/srv/ax/observe/cell-001",
+    "spec": {"path": "/srv/ax/specs/observer.json", "sha256": "FILL_REVIEWED_SHA256"},
+    "required_live_targets": ["filesystem"]
+  }]
+}

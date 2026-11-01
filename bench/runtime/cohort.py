@@ -49,6 +49,12 @@ def validate(s):
     if any(not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9_-]*',o['id']) for o in observers):raise ValueError('simple observer IDs required')
     for o in observers:
         if o['peer']['alias']!=nodes[o['node_id']]['ssh_alias']:raise ValueError('observer inventory mismatch')
+        if inv['schema'] == 'experiment-inventory-v3':
+            node = nodes[o['node_id']]; peer = o['peer']
+            if peer.get('transport') != 'ssh' or peer.get('repo') != node['repo'] or peer.get('python') != node['python']:
+                raise ValueError('observer runtime differs from inventory')
+            if peer.get('container') or peer.get('cgroup'):
+                raise ValueError('observer peer must use its inventory SSH environment directly, outside Agent isolation')
     contract=load(pinned(s['metric_contract']))
     work=spec(s['workload_contract'],'experiment-workload-contract-v1')
     if not work.get('binary_pins') or not work.get('input_pins'):
@@ -71,6 +77,10 @@ def validate(s):
             raise ValueError('observer overhead qualification uses another metrics contract')
         if gate=='observer_overhead' and evidence.get('workload_contract_sha256')!=s['workload_contract']['sha256']:
             raise ValueError('observer overhead qualification uses another workload contract')
+    if inv['schema'] == 'experiment-inventory-v3':
+        from ssh_inventory import validate_workers
+        validate_workers(inv, workers)
+        return
     counts = {}
     for w in workers:
         node = nodes[w['node_id']]
@@ -89,6 +99,7 @@ def run(ref, output, observer=None):
     output = private_dir(output); write_new(output/'spec.json', s)
     events = queue.Queue(); procs = {}; logs = []; threads = []; released = False
     ready = set(); ended = {}; times = {}; jobs = []; release_times = []; expected_jobs = {}; kinds = {}
+    isolation_keys = set()
     def read(worker, proc):
         try:
             for line in proc.stdout:
@@ -144,6 +155,13 @@ def run(ref, output, observer=None):
                 expected_jobs[worker]=message['expected_jobs'];kinds[worker]=message['workload_kind']
                 if s.get('purpose') != 'adapter-test' and 'effective' not in message['resources']:
                     raise ValueError('worker did not validate actual resource limits')
+                if s.get('provider') == 'ssh' and s.get('purpose') != 'adapter-test':
+                    actual = message.get('isolation')
+                    if not actual or set(actual) != {'boot_id','cgroup_namespace','cgroup_membership'}:
+                        raise ValueError('actual SSH worker isolation identity required')
+                    key = json.dumps(actual, sort_keys=True)
+                    if key in isolation_keys: raise ValueError('two SSH aliases share one Agent cgroup')
+                    isolation_keys.add(key)
                 ready.add(worker)
             if any(p.poll() is not None for p in procs.values()): raise ValueError('ready worker disconnected')
             observe_mark('measurement-start')

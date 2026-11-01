@@ -1,8 +1,6 @@
-# 挂载、并发与迁移：两种环境共用的执行入口
+# 执行适配：配置字段与原生命令
 
-从实验仓库根目录执行。`aliyun` 使用已分配 ECS 的私网 SSH；`provided` 使用交付服务器的私网 SSH。两者复用以下代码，不需要 Kubernetes。资源取得、格式化、部署 Redis/TiKV/RustFS、数据准备、测量、保全分别执行；本目录工具不购机、不删除资源、不自动执行下一条件。
-
-**软件测试不等于云端资格。** C1本轮改为 **8 Agent、两个执行节点各4个**，加独立RustFS、Redis、协调共5台。使用c1-8/pilot-8；仍需本批产物、非空lower、内容、观测及资源资格。64/128配置仅保留扩展，不自动运行。
+操作顺序见[SSH-RUN](SSH-RUN.zh.md)。本页保留mount/worker/cohort/handoff的字段和原生命令细节。运行环境来自已交付SSH容器、VM或主机；按实际清单固定配额与放置。
 
 ## 1. 文件和执行单位
 
@@ -19,7 +17,7 @@
 
 ## 2. 每 Agent 的运行边界
 
-Docker worker扩展上限8个，本轮C1每机上限4个，cohort按inventory强制检查。Agent＋FUSE＋回放器共用 **2 CPU / 8 GiB / swap=0**。使用已分发digest镜像，禁止自动pull。`prepare container`只生成docker create，审阅后单步执行，再单独docker start。只开放/dev/fuse与mount所需能力，不共享宿主根目录或Docker socket；输入只读，缓存/输出独占。
+每个 Agent、FUSE 客户端和回放器共用 **2 CPU / 8 GiB / swap=0**。SSH 清单 v3 按实际 slots 分配，cohort 核对每个槽位与真实 cgroup 身份。直接进入已有容器时使用它的现有隔离；经宿主进入 Docker 时使用已分发的 digest 镜像。需要创建测试容器时，`prepare container` 生成 docker create，检查后再分步 create/start；输入只读，缓存和输出独占，权限限于 FUSE 挂载所需范围。
 
 container 输入字段：`name=ax-...`、`campaign_id`、`agent_id`、`docker` 绝对路径、`image=repo@sha256:...`、`cwd`、`binds=[{source,target,readonly}]`，可选受保护的 `environment_file` 引用。密钥不写入 argv/公开结果。
 
@@ -60,9 +58,9 @@ worker spec `experiment-worker-v1`：`reviewed`、`worker_id`、`purpose`、`kin
 | C3 | s3_requests read，一 requester 一 shard，不要求挂载 | 请求数、字节、shard、全局并发；两个 requester 的份额之和只能等于1/16/64。并发1只用一个 requester |
 | C4 F | 原生 fork/clone/cp，冻结ID/批次/原请求；每调用一 job | 全部完成/实际返回身份、后续首用/隔离检查；202不等于完成。不自动重试fork或清理失败项 |
 
-peer字段：`transport=ssh`、`alias`、`repo`、`python`、`pins`、`ssh={executable,config,known_hosts}`；container/cgroup二选一。pins由远端transport.runtime_pins取得，覆盖Python及全部runtime依赖。SSH使用独立Host配置，目标及跳板均设置StrictHostKeyChecking yes、UserKnownHostsFile为固定文件、GlobalKnownHostsFile none、ForwardAgent no、PermitLocalCommand no；不允许Include/Match/ProxyCommand/LocalCommand。local仅供adapter-test。
+peer字段：`transport=ssh`、`alias`、`repo`、`python`、`pins`、`ssh={executable,config,known_hosts}`；container/cgroup二选一。pins由fleet probe核验并写入peer.json，覆盖Python及全部runtime依赖。SSH使用独立Host配置，目标及跳板均设置StrictHostKeyChecking yes、UserKnownHostsFile为固定文件、GlobalKnownHostsFile none、ForwardAgent no、PermitLocalCommand no；不允许Include/Match/ProxyCommand/LocalCommand。local仅供adapter-test。
 
-cohort spec `experiment-cohort-v1`：`agents`、`provider`、`inventory`、`purpose`、`workers=[{id,node_id,peer,spec,output}]`、`metric_contract`、`workload_contract`、`observers`、`input_qualification`、`filesystem_qualification`、`observer_overhead`。资格引用实际passed记录。workload_contract是已审阅的experiment-workload-contract-v1，含binary_pins、input_pins、任务映射和缓存/资源配置，on/off两臂共用同一摘要。每observer填id,node_id,peer,directory,spec,required_live_targets；涉及集群的全部已分配主机均覆盖。C3的filesystem_qualification记录对象服务/布局资格，不虚构FUSE检查。
+cohort spec `experiment-cohort-v1`：`agents`、`provider`、`inventory`、`purpose`、`workers=[{id,node_id,slot_id,peer,spec,output}]`（slot_id用于SSH清单v3）、`metric_contract`、`workload_contract`、`observers`、`input_qualification`、`filesystem_qualification`、`observer_overhead`。资格引用实际passed记录。workload_contract是已审阅的experiment-workload-contract-v1，含binary_pins、input_pins、任务映射和缓存/资源配置，on/off两臂共用同一摘要。每observer填id,node_id,peer,directory,spec,required_live_targets；涉及集群的全部已分配主机均覆盖。C3的filesystem_qualification记录对象服务/布局资格，不虚构FUSE检查。
 
 另需 `allocation_qualification` 与 `hardware_qualification`，均引用passed记录且绑定inventory_sha256；前者记录真实授权范围/资产身份，后者汇集实际CPU/内存/盘/网络与负载头部余量。静态inventory通过不能代替这两项。每job填写workload_id，同类任务分别统计经验分位数和样本数；输入摘要检查在屏障前，任务输入全程只读冻结。大trace的预检时间单独预算，ready_timeout_seconds可按实际输入校验设置，不给回放设总时限。
 

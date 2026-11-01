@@ -1,4 +1,4 @@
-"""Pinned SSH/stdin transport shared by ECS and provided Linux servers."""
+"""Pinned SSH/stdin transport for existing Linux hosts and SSH containers."""
 import json
 from pathlib import Path
 import re
@@ -7,6 +7,9 @@ import subprocess
 import sys
 
 from .common import digest, pinned
+
+SUPPORT_FILES = ('__init__.py','experiment_io.py','experiment_step.py','session_check.py',
+                 'experiment_inventory.py','ssh_inventory.py')
 
 # Small constant argv; long specs never enter a Windows command line. The full
 # Python runtime and every imported local module are pinned before exec.
@@ -19,7 +22,7 @@ while not line.endswith(b'\x5cn'):
 x=json.loads(line)
 root=pathlib.Path(x['repo']).resolve(strict=True)
 required={str(p.resolve()) for p in (root/'bench/runtime').glob('*.py')}
-required.update(str(root/'bench'/n) for n in ('__init__.py','experiment_io.py','experiment_step.py','session_check.py'))
+required.update(str(root/'bench'/n) for n in ('__init__.py','experiment_io.py','experiment_step.py','session_check.py','experiment_inventory.py','ssh_inventory.py'))
 required.add(str(pathlib.Path(sys.executable).resolve()))
 pins={str(pathlib.Path(p['path']).resolve()):p['sha256'] for p in x['pins']}
 if not required.issubset(pins): raise ValueError('runtime closure not pinned')
@@ -39,7 +42,7 @@ os.execv(sys.executable,[sys.executable,'-u','-m',x['module'],*x['args']])
 def runtime_pins(repo, python):
     repo = Path(repo)
     paths = list((repo/'bench/runtime').glob('*.py'))
-    paths += [repo/'bench'/n for n in ('__init__.py','experiment_io.py','experiment_step.py','session_check.py')]
+    paths += [repo/'bench'/n for n in SUPPORT_FILES]
     paths += [Path(python).resolve()]
     return [{'path': str(p.resolve()), 'sha256': digest(p)} for p in sorted(set(paths))]
 
@@ -67,10 +70,8 @@ def verify_ssh(binary,config,known,alias,seen=None):
         verify_ssh(binary,config,known,jump,seen)
 
 
-def command(peer, test=False):
-    if peer['transport'] == 'local':
-        if not test: raise ValueError('local transport is adapter-test only')
-        return [peer['python'], '-u', '-c', BOOTSTRAP]
+def ssh_command(peer, remote):
+    """Secure transport, also usable by the read-only bootstrap probe."""
     if peer['transport'] != 'ssh': raise ValueError('ssh transport required')
     ssh = peer['ssh']
     if peer.get('container') and peer.get('cgroup'):raise ValueError('choose container or host cgroup, not both')
@@ -79,7 +80,6 @@ def command(peer, test=False):
     if not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9_.-]*', peer['alias']):
         raise ValueError('simple approved SSH alias required')
     verify_ssh(binary,config,known,peer['alias'])
-    remote = [peer['python'], '-u', '-c', BOOTSTRAP]
     if peer.get('container'):
         if not re.fullmatch(r'ax-[a-z0-9-]+', peer['container']): raise ValueError('campaign container name required')
         remote = ['/usr/bin/docker', 'exec', '-i', peer['container'], *remote]
@@ -89,6 +89,13 @@ def command(peer, test=False):
             '-o', 'UserKnownHostsFile='+known, '-o', 'GlobalKnownHostsFile=none', '-o', 'ForwardAgent=no', '-o', 'ClearAllForwardings=yes',
             '-o', 'ServerAliveInterval=15', '-o', 'ServerAliveCountMax=3', '-T',
             peer['alias'], shlex.join(remote)]
+
+
+def command(peer, test=False):
+    if peer['transport'] == 'local':
+        if not test: raise ValueError('local transport is adapter-test only')
+        return [peer['python'], '-u', '-c', BOOTSTRAP]
+    return ssh_command(peer, [peer['python'], '-u', '-c', BOOTSTRAP])
 
 
 def connect(peer, args, stderr, test=False):

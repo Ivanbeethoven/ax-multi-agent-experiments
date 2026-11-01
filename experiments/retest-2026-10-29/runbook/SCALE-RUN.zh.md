@@ -1,47 +1,25 @@
-# 扩展实验：逐步准备与监督
+# 扩展条件与上传策略消融
 
-**当前完整的四组ECS/自备步骤、角色与能力状态已统一到 [DEPLOYMENT](DEPLOYMENT.zh.md)。新计划显式使用--campaign ecs-20261101，C1无SQLite服务依赖；下文保留legacy通用参考，旧main数量与Manager作为必需步骤的表述不覆盖新版。输入以 [27份trace交接](DATA.zh.md) 为准。**
+共用操作顺序、观测和结果保全见 [SSH-RUN](SSH-RUN.zh.md)。场景定义见 [SCALE](../SCALE.zh.md)。本页只列扩展矩阵的生成方式。
 
-最新C1按[专用方案](../C1-ALIYUN.zh.md)缩为8 Agent、两执行节点各4个，pilot-8为1→8，共5节点；c1-8正式120 cohort。先读[适配手册](ADAPTERS.zh.md)和[观测验收](OBSERVABILITY.zh.md)。下文64/128与legacy矩阵仅留扩展参考；一个负责Agent监督整组，工作Agent不能自行修改baseline。
-
-C1/C4 生命周期接入另按 [MANAGER](MANAGER.zh.md) 查询能力、逐项确认与保全。本次基线为 PR #394 合并提交 `cba857b567fa6e94d50edd1d2e1c47c25c7b2e50`：共享 Redis/TiKV 的 workspace-v1 与 native-v2 P1 catalog lower 已支持，实际执行仍冻结 source/features/binary/capability。格式匹配、非空 lower 发布、API→客户端身份映射、RustFS/FUSE 读写与重挂均需独立资格；不能沿用旧 `local_api_only` 结论，也不能直接标 formal ready。Manager 不提供 checkpoint、mount、drain、handoff 或 remote-ready 证明，客户端与迁移适配仍保留待验证项。
-
-202/metadata_ready 不等于步骤 7 的挂载就绪。fork 每请求最多 100 项，128 预先固定 64+64 两份请求、各自 key 与逐项身份，按原请求对账恢复；串行、非原子执行的队列和全部完成边界分别留证，burst 提交不算并行资格。C4 首用计时前不扫描全部内容。native-v2 的异步上传、每 workspace 独立 bucket 和 TiKV TLS 均未由 #394 支持，需要这些能力的条件保持阻塞，不自动换格式或关闭 TLS。
-
-| 步骤 | 入口 / 产物 | 监督检查 |
-|---|---|---|
-| 1 计划 | scale_plan.py 输出 scale-plan.json | C/基准/规模/隔离/provider/种子、预算、有效条件，所有 execution=false |
-| 2 角色和预算 | 填实际 inventory、VM/容器/物理宿主映射、服务端角色 | 不使用旧 9 台模板冒充大规模清单；核峰值、备用节点、网络、费用/所有权；完整保存精确 ID |
-| 3 版本和容量 | 复用 RUN 的固定版本、构建分发、只读主机检查；hardware-readiness.json | 逐角色核 CPU/内存/盘/网络；每卷峰值后 25% 空闲与 inode；C2 两臂真实占用、C4 cp 容量、输入/解析/观测余量；基础主机检查通过不代替本页验收 |
-| 4 输入与环境 | 完整 trace/语料/任务映射、独立 workspace/HOME/XDG、cgroup；C1/C4 另存 manager-integration 与完整 operation/资源身份 | 同一服务池，写者/缓存/会话不串；下载/全量核验在计时外；非空受支持 revision 与实际挂载一致，Manager 元数据成功不替代客户端资格 |
-| 5 可选等待 | trace_think_plan.py，一 Agent/任务一计划 | 默认关；只有多 trace 回放可开；明确 T、可信边界、每段≤15 s、总和=T、两臂共用 SHA |
-| 6 单 Agent 资格 | 原 Rust 回放、fs_step/session_check 等单步入口 | 完整性、语义、资源与数据路径；不以吞吐排名作为准入 |
-| 7 cohort就绪 | runtime/cohort与observe | 全部worker与原生观测ready、采集开销资格通过后一次放行；内核并发另用CPU/I/O曲线佐证 |
-| 8 一个 cohort | N 个独立进程/容器或 VM 一次执行 | 不在计时路径插入监督 AI 思考；记录每 Agent 生命周期，失败不自动重投 |
-| 9 收集与下个条件 | 每 Agent 输出＋cohort 汇总＋SHA/失败表 | 全体终态、原值和保全；再重建初态换臂/升档，禁止按有利结果选子集 |
-
-计划命令每次只写一份文件：
+## 规模扩展
 
 ```bash
-python3 bench/scale_plan.py --profile main --cluster C1 --isolation docker \
-  --provider provided --output "$RUN_DIR/C1-scale.json"
+python3 bench/scale_plan.py --campaign ecs-20261101 --profile main --cluster C2 \
+  --isolation docker --provider ssh --output "$RUN/C2-plan.json"
 ```
 
-128 Agent / 32M 文件等扩展用 --profile expanded；独立 VM 用 --isolation vm；阿里云用 --provider aliyun。其他组替换 C 参数。可加 --include-llm-simulation **额外规划**多 Agent trace 的有等待配对条件；T 仍为空，须在调度单明确后逐任务生成 think plan。该参数不会启动任何回放。
+C1 当前用 pilot-8/c1-8；C2–C4 用 main。expanded 规划更大规模，vm 表示独立 VM 条件。逻辑放置通过实际 SSH 清单的 slots 落地，共享服务、宿主预算及 C4 目标端分别核验。
 
-上传策略消融单独生成，不与默认主矩阵自动交叉：
+## 独立上传策略消融
 
 ```bash
-python3 bench/scale_plan.py --study writeback --cluster C1 --isolation docker \
-  --provider provided --output "$RUN_DIR/C1-writeback.json"
+python3 bench/scale_plan.py --campaign ecs-20261101 --study writeback --cluster C1 \
+  --isolation docker --provider ssh --output "$RUN/C1-writeback.json"
 ```
 
-C1 输出 186 个 cohort；改为 C4 输出 90 个。C2/C3 不适用，传入会拒绝；本消融也拒绝 expanded。计划是六臂产品/Overlay 交互、四臂持续队列、八臂 stay/move，以及限定的一组 fork/clone/cp 完成边界，细目见 SCALE。`params.write_policy` 是共同策略标签，实际配置要求按 baseline 写在 `required_effective_config`；并非已经修改挂载或证明功能启用。所有执行/采购仍关闭。
+C1 为 186 项，C4 为 90 项；这套消融独立于当前 C1 的 8 Agent 主组。C2/C3 保持只读或对象布局研究。各臂的实际配置写在 required_effective_config，执行前验证同一格式上的模式生效、暂存恢复和远端 drain。C4 另固定写后 checkpoint，并分别报告应用完成与远端可读时间。
 
-先在同一构建、同一方法格式上完成模式生效、暂存/恢复和远端 drain 资格，保留 readiness 证据；C4 还需冻结写后 checkpoint 和其 SHA，drain 只能覆盖迁移集合。按一次配置→核生效→一个 cohort→收集应用/drain/远端确认与队列曲线逐步推进。异步任务间不删除待上传数据。布局不支持就报告，不为开启异步临时换布局。
+## 可选 LLM 等待
 
-本消融的 --include-llm-simulation 只追加 C1 archive-I/O、64 Agent 的 Overlay/JuiceFS×两策略 12 项；先冻结边界和固定 T，其他条件不加等待。不要把这里的有限交互规则误当作默认主矩阵的全体多 trace 模拟规则。
-
-旧 final_plan.py / experiment_inventory.py 对应基础资格组；规模矩阵使用 scale_plan.py，输出中的 placement_templates 只是逻辑位置，actual_host_id 尚空，不是可部署清单。主会话必须另行批准实际资源映射。
-
-experiment_step一次执行一个已审阅命令；runtime/cohort统一屏障释放一个批次，s3_requests分摊全局在途，handoff执行一次clean交接。原生fork/clone/burst和多迁移Agent的真实资格仍需现场验证；Manager的串行处理不能包装成并行完成。执行步骤以ADAPTERS和OBSERVABILITY为准。
+`--include-llm-simulation` 追加有等待的多 Agent trace 条件，默认关闭。每个任务固定总等待 T，各工具调用或轮次之间的间隔随机分配、每段 0–15 秒，两臂共用计划 SHA。该消融只追加 C1 archive-I/O、64 Agent 的 Overlay/JuiceFS × 两策略 12 项。边界与 T 的生成方法见 [think-time](../../../tools/full-fuse-replay/THINK-TIME.zh.md)。

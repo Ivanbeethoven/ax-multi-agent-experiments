@@ -106,6 +106,50 @@ def container_argv(s):
     return args
 
 
+def trace_worker(request, output):
+    """Prepare one full-trace job on its executor; all generated specs need review."""
+    from ..trace_checks import inputs
+    from ..experiment_io import linux_path
+    s = load(request)
+    if not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9_-]*',s['worker_id']): raise ValueError('worker ID required')
+    case = Path(s['case']).resolve(strict=True)
+    manifest = pinned(s['manifest'])
+    inputs(case, manifest, s['manifest']['sha256'])
+    metrics = load(case/'metrics.json')
+    for key in ('callbacks','actual_read_bytes','actual_write_bytes'):
+        if type(metrics.get(key)) is not int or metrics[key] < 0: raise ValueError('complete work counts required')
+    if metrics['callbacks'] == 0: raise ValueError('empty trace')
+    binary = str(pinned(s['binary']))
+    root = linux_path(s['root']); cwd = linux_path(s['cwd'])
+    out_path = linux_path(str(output))
+    if root == out_path or root in out_path.parents: raise ValueError('results must be outside measured tree')
+    mount_spec = load(pinned(s['mount']['spec']))
+    point = linux_path(mount_spec['mount_point'])
+    if out_path == point or point in out_path.parents: raise ValueError('results must be outside measured mount')
+    if root != point and point not in root.parents: raise ValueError('trace root must use supervised mount')
+    if case == Path(point) or Path(point) in case.parents: raise ValueError('inputs must be outside measured mount')
+    purpose = s.get('purpose','experiment')
+    if purpose not in ('experiment','observer-calibration-on','observer-calibration-off'): raise ValueError('invalid purpose')
+    output = private_dir(output)
+    refs = [{'path': str(case/p), 'sha256': sha} for p,sha in load(manifest).items()]
+    step = {'schema':'experiment-step-v1','reviewed':False,'cell_id':s['worker_id'],'stage':'trace-replay',
+            'argv':[binary,str(case/'capture/events.jsonl'),str(case/'capture/blobs'),str(root),
+                    str(output/'replay.json'),'--performance'],
+            'cwd':str(cwd),'executable_sha256':s['binary']['sha256'],'inputs':[s['manifest'],*refs],
+            'inherit_environment':[]}
+    write_new(output/'step.json', step)
+    value = {'schema':'experiment-worker-v1','reviewed':False,'worker_id':s['worker_id'],
+             'purpose':purpose,'kind':'trace','budget':AGENT_BUDGET,'requires_mount':True,'mount':s['mount'],
+             'jobs':[{'id':'trace-0001','workload_id':s['workload_id'],
+                      'step':{'path':str(output/'step.json'),'sha256':digest(output/'step.json')},
+                      'result':{'path':str(output/'replay.json'),'equals':{
+                          'completed':True,'mode':'performance','valid':False,'operations':metrics['callbacks'],
+                          'actual_read_bytes':metrics['actual_read_bytes'],
+                          'actual_write_bytes':metrics['actual_write_bytes'],'remaining_handles':0}}}]}
+    write_new(output/'worker.json', value)
+    return value
+
+
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);sub=p.add_subparsers(dest='action',required=True)
     m=sub.add_parser('mount')
@@ -114,10 +158,12 @@ if __name__=='__main__':
     m.add_argument('--metrics-address');m.add_argument('--purpose',choices=['experiment','observer-calibration-off'],default='experiment')
     m.add_argument('--inherit-environment',nargs='*',default=[]);m.add_argument('--fstypes',nargs='+',required=True)
     c=sub.add_parser('container');c.add_argument('--spec',required=True);c.add_argument('--output',required=True)
+    t=sub.add_parser('trace-worker');t.add_argument('--request',required=True);t.add_argument('--output',required=True)
     a=p.parse_args()
     if a.action=='mount':
         mount({'path':a.config,'sha256':a.config_sha256},{'path':a.binary,'sha256':a.binary_sha256},
               a.filesystem,a.cluster,a.mount_point,a.cwd,a.output,a.inherit_environment,a.fstypes,a.metrics_address,a.purpose)
+    elif a.action=='trace-worker':trace_worker(a.request,a.output)
     else:
         s=load(a.spec)
         write_new(a.output,{'schema':'experiment-step-v1','reviewed':False,'cell_id':s['agent_id'],'stage':'container-create',

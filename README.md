@@ -1,33 +1,30 @@
 # BrewFS 实验仓库
 
-先看 **[本轮四集群实验总览](experiments/retest-2026-10-29/PLAN.zh.md)**：每组场景、baseline、机器数、指标与阿里云/自备服务器差异。当前是准备阶段，64 Agent 为主目标、128 为扩展；基础资格的 9/3 台模板另列，不代表规模实验。
+执行 Agent 从 **[SSH 操作手册](experiments/retest-2026-10-29/runbook/SSH-RUN.zh.md)** 开始。环境可以是已配置 SSH 的容器、虚拟机或服务器；当前只准备脚本，运行时按实际清单分配资源。
 
-| 要做什么 | 从这里进入 |
+| 任务 | 入口 |
 |---|---|
-| 审阅实验设置、配置、方法和指标 | [基础方案](paper-design/FINAL-PLAN.zh.md) · [规模方案](experiments/retest-2026-10-29/SCALE.zh.md) |
-| 给四位实验 Agent 分工 | [C1–C4 与初始 prompt](experiments/retest-2026-10-29/runbook/CLUSTERS.zh.md) |
-| 交给新的执行方启动 C1 | [独立环境交接 prompt](experiments/retest-2026-10-29/runbook/agents/C1.prompt.md) · [5 节点首次试跑](experiments/retest-2026-10-29/runbook/agents/C1-pilot.prompt.md)；从 GitHub 获取代码，在执行方环境重新核资源/输入/版本 |
-| 逐步操作与检查 | [基础操作](experiments/retest-2026-10-29/runbook/RUN.zh.md) · [规模操作](experiments/retest-2026-10-29/runbook/SCALE-RUN.zh.md) |
-| 找具体测量脚本 | [bench](bench/README.md) |
-| 准备服务器和 RustFS | [infra](infra/README.md) |
-| 查看 trace 来源、采集与回放 | [输入来源](paper-design/TRACE-WORKLOADS.zh.md) · [采集/回放脚本](scripts/README.md) |
-| 看已完成的验证与历史结果 | [本轮证据](experiments/retest-2026-10-29/README.zh.md) · [历史结果](experiments/README.md) |
-| 验证代码或查找旧实现 | [测试](tests/README.md) · [历史归档](archive/README.md) |
+| 看实验设置、baseline 和指标 | [C1–C4 总览](experiments/retest-2026-10-29/PLAN.zh.md) |
+| 交给实验 Agent | [分工与调度单](experiments/retest-2026-10-29/runbook/CLUSTERS.zh.md) |
+| 连接节点并逐步执行 | [SSH-RUN](experiments/retest-2026-10-29/runbook/SSH-RUN.zh.md) |
+| 准备输入与核对来源 | [数据交接](experiments/retest-2026-10-29/runbook/DATA.zh.md) · [Trace 来源](paper-design/TRACE-WORKLOADS.zh.md) |
+| 查看性能记录要求 | [可观测性](experiments/retest-2026-10-29/runbook/OBSERVABILITY.zh.md) |
+| 找代码或运行测试 | [bench](bench/README.md) · [runtime](bench/runtime/README.md) · [tests](tests/README.md) |
+| 查看既有结果 | [本轮证据](experiments/retest-2026-10-29/README.zh.md) · [历史结果](experiments/README.md) |
 
-## 目录职责
+## 目录
 
 ```text
-experiments/retest-2026-10-29/   本轮总览、规模方案、runbook、Agent prompts、证据
-paper-design/                  基础方法、参数索引、trace 来源（不再放旧网格和运行器）
-bench/                         当前单步测量、输入核验、计划生成
-  reference/                   仍被资格验证/历史结果校验使用的参考实现
-infra/                         阿里云 / 自备服务器准备；共用 RustFS 部署工具
-scripts/                       Trace 采集、打包、回放；仓库检查
-tools/                         Rust 测量程序与回放器
-tests/                         当前代码回归测试
-archive/                       已退役代码和旧方案；原路径、SHA、恢复说明
+experiments/retest-2026-10-29/   实验方法、Agent 交接、运行手册与证据
+bench/                         方法矩阵、输入/结果核验、单步工具
+  runtime/                     SSH 接入、挂载、并发、流转与观测
+  reference/                   仍用于既有资格/结果校验的实现
+infra/                         可选环境准备与 RustFS 部署
+scripts/                       Trace 采集、打包、回放及仓库检查
+tools/                         Rust 回放器与测量程序
+tests/                         回归与接入测试
+paper-design/                  方法依据、参数及 Trace 来源
+archive/                       退役实现和旧方案
 ```
 
-`inputs/` 是冻结输入，`runs/` 是不入库的运行产物，`results/`、`validation/` 与历史实验目录保留原始记录。[scenarios](scenarios/README.md) 是既有容器场景参考，`skills/` 是 trace 技能的可分发包，`paper/` 是论文子模块；都不作为本轮第二套执行入口。
-
-**执行顺序：读方案 → 准备环境 → 负责人逐条执行脚本并检查输出 → 保全结果。** 配对组内比较 baseline；采集、建机、测量和清理不由一个脚本包办。部署约定见 [AGENTS.md](AGENTS.md)。
+`runs/` 保存本机配置、日志和结果，不入 Git；`inputs/`、`results/` 和历史证据保留原始记录。环境接入与实验测量分开，资源版本约定见 [AGENTS.md](AGENTS.md)。

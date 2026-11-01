@@ -1,3 +1,9 @@
+# 实验 Agent 入口
+
+- 当前从 `experiments/retest-2026-10-29/runbook/SSH-RUN.zh.md` 接入已有 SSH 容器、VM或服务器。方法见 `PLAN.zh.md`，本组差异见 `runbook/agents/`。运行前读取本批实际调度单。
+- 方法矩阵、节点清单、单步执行、测量程序、环境准备分别位于 `bench/scale_plan.py`、`bench/ssh_inventory.py`、`bench/runtime/`、`tools/`、`infra/`。扩展现有入口，避免另建包办整轮的控制器。
+- 文档按实验设置、配置、方法、指标和步骤写；共用要求写一次并链接。当前入口只写实际范围，旧硬件报价和证据放在历史/参考页。
+
 # 实验部署约定
 
 - 用户指定：后续实验部署 RustFS 使用 `https://github.com/Ivanbeethoven/rustfs` 的 `feat/dynamic-block-size-rebased` 分支。

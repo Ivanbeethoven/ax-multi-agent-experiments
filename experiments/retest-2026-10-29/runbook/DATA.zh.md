@@ -8,15 +8,15 @@
 
 | 用途 | 选择 | 边界 |
 |---|---|---|
-| C1 pilot | pytest-full-02完整包，407606955 B，约408 MB | 不需全量下载；N=1/8/16，共6 cohort |
-| C1正式主线 | 原7份历史trace：三份扩展负载＋四份单Agent覆盖，见[C1方案](../C1-ALIYUN.zh.md) | 27份可用不自动改变预先指定矩阵 |
+| C1 pilot | pytest-full-02完整包，407606955 B，约408 MB | 不需全量下载；N=1/8，共4 cohort |
+| C1正式主线 | 原7份历史trace：三份扩展负载＋四份单Agent覆盖，见[C1方案](../C1.zh.md) | 27份可用不自动改变预先指定矩阵 |
 | C1独立上传消融 | django、ripgrep-20261026、archive-io-20261026 | study=writeback，独立186 cohort；不与baseline的132+54混淆 |
 | 20份扩展trace | API-Bank、AppWorld、BFCL、DABench、dbt、ML、Office、terminal任务的采集 | 用TRACE-CATALOG逐项核benchmark/任务/模型/采集成功与可回放性；若加入测量，另冻结输入矩阵，不补跑原模型任务 |
 | C2 | 冻结真实ML corpus与访问读集 | ML任务trace本身不等于8M/32M真实独立小文件已备齐 |
 | C3 | 固定seed/对象manifest生成的对象池 | 不消费27份trace；4KiB Range内容验收独立 |
 | C4 | F的1M/400GiB语料；M的明确checkpoint及会话/受控trace | 普通文件访问trace不自动提供可恢复的Agent会话或工具边界 |
 
-Drive中旧C1 prompt的**数据路径和摘要仍有效**；旧硬件和计划数量以当前冻结仓库的[新版部署方案](DEPLOYMENT.zh.md)及[C1方案](../C1-ALIYUN.zh.md)为准。不会覆盖已上传交接原件。
+Drive中旧C1 prompt的**数据路径和摘要仍有效**；旧硬件和计划数量以当前冻结仓库的[新版部署方案](DEPLOYMENT.zh.md)及[C1方案](../C1.zh.md)为准。不会覆盖已上传交接原件。
 
 ## 2. 可信身份
 
