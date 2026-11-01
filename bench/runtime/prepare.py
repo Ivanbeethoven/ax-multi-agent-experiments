@@ -27,7 +27,7 @@ def anchor(filesystem, config):
             'storage_identity_sha256':hashlib.sha256(json.dumps(stable,sort_keys=True).encode()).hexdigest()}
 
 
-def native_argv(filesystem, binary, config_path, config, point, cluster, metrics_address=None):
+def native_argv(filesystem, binary, config_path, config, point, cluster, metrics_address=None, dynamic_block='auto'):
     if cluster not in ('C1','C2','C4'): raise ValueError('C3 has no filesystem mount')
     if filesystem == 'brewfs':
         fmt = config['volume_format']; backend = config['meta']['backend']
@@ -43,11 +43,15 @@ def native_argv(filesystem, binary, config_path, config, point, cluster, metrics
         if cache.get('writeback_mode') != 'upload_before_commit':
             raise ValueError('baseline mount adapter requires explicit upload_before_commit; async is a separate qualification')
         if fmt == 'workspace-native-v2' and 'native_base' not in config: raise ValueError('native P1 config missing')
-        if config['data']['s3'].get('rustfs_ec_block_size_hint') is not None:
-            raise ValueError('C1/C2/C4 do not enable C3 dynamic block treatment')
+        if dynamic_block not in ('auto','off','65536','262144','1048576','4194304'):
+            raise ValueError('dynamic block policy must be auto, off or a supported byte size')
+        configured = config['data']['s3'].get('rustfs_ec_block_size_hint')
+        if configured is not None and str(configured) != dynamic_block:
+            raise ValueError('config hint differs from the requested dynamic block policy')
         if not isinstance(config.get('fuse',{}).get('cache_ttl_ms'),int) or not isinstance(config['fuse'].get('keep_cache'),bool):
             raise ValueError('freeze cache TTL and keep_cache explicitly')
         argv=[binary,'mount','--config',config_path,point]
+        if dynamic_block != 'off': argv+=['--s3-rustfs-ec-block-size-hint',dynamic_block]
         if metrics_address:argv+=['--metrics','--metrics-addr',metrics_address]
         return argv
     if filesystem != 'juicefs' or cluster == 'C2': raise ValueError('unsupported baseline')
@@ -63,11 +67,11 @@ def native_argv(filesystem, binary, config_path, config, point, cluster, metrics
     return argv
 
 
-def mount(config_ref, binary_ref, filesystem, cluster, point, cwd, output, environment, fstypes, metrics_address,purpose='experiment'):
+def mount(config_ref, binary_ref, filesystem, cluster, point, cwd, output, environment, fstypes, metrics_address,purpose='experiment',dynamic_block='auto'):
     config_path = str(pinned(config_ref)); binary = str(pinned(binary_ref)); config = load(config_path)
     if purpose=='observer-calibration-off':metrics_address=None
     elif not re.fullmatch(r'127\.0\.0\.1:[0-9]{4,5}',metrics_address or ''):raise ValueError('dedicated loopback metrics port required')
-    argv = native_argv(filesystem,binary,config_path,config,point,cluster,metrics_address)
+    argv = native_argv(filesystem,binary,config_path,config,point,cluster,metrics_address,dynamic_block)
     output = private_dir(output)
     step = {'schema':'experiment-step-v1','reviewed':False,'cell_id':output.name,'stage':'mount',
             'argv':argv,'cwd':cwd,'executable_sha256':binary_ref['sha256'],
@@ -76,6 +80,7 @@ def mount(config_ref, binary_ref, filesystem, cluster, point, cwd, output, envir
     value = {'schema':'experiment-mount-v1','reviewed':False,'cluster':cluster,'filesystem':filesystem,
              'config':config_ref,
              'metrics_address':metrics_address,
+             'dynamic_block':dynamic_block if filesystem=='brewfs' else None,
              'purpose':purpose,
              'mount_point':point,'anchor':anchor(filesystem,config), 'allowed_fstypes':fstypes,
              'budget':AGENT_BUDGET,'command':{'path':str(output/'command.json'),'sha256':digest(output/'command.json')},
@@ -156,13 +161,15 @@ if __name__=='__main__':
     for key in ('config','config-sha256','binary','binary-sha256','filesystem','cluster','mount-point','cwd','output'):
         m.add_argument('--'+key,required=True)
     m.add_argument('--metrics-address');m.add_argument('--purpose',choices=['experiment','observer-calibration-off'],default='experiment')
+    m.add_argument('--dynamic-block',choices=['auto','off','65536','262144','1048576','4194304'],default='auto',
+                   help='BrewFS object hint policy; off is an explicit client ablation')
     m.add_argument('--inherit-environment',nargs='*',default=[]);m.add_argument('--fstypes',nargs='+',required=True)
     c=sub.add_parser('container');c.add_argument('--spec',required=True);c.add_argument('--output',required=True)
     t=sub.add_parser('trace-worker');t.add_argument('--request',required=True);t.add_argument('--output',required=True)
     a=p.parse_args()
     if a.action=='mount':
         mount({'path':a.config,'sha256':a.config_sha256},{'path':a.binary,'sha256':a.binary_sha256},
-              a.filesystem,a.cluster,a.mount_point,a.cwd,a.output,a.inherit_environment,a.fstypes,a.metrics_address,a.purpose)
+              a.filesystem,a.cluster,a.mount_point,a.cwd,a.output,a.inherit_environment,a.fstypes,a.metrics_address,a.purpose,a.dynamic_block)
     elif a.action=='trace-worker':trace_worker(a.request,a.output)
     else:
         s=load(a.spec)

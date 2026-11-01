@@ -82,6 +82,11 @@ def workspace_reply(text):
 
 
 def runtime_pin(pin, container):
+    pin = dict(pin)
+    if 'source_commit' in pin:
+        if 'frozen_commit' in pin and pin['frozen_commit'] != pin['source_commit']:
+            raise ValueError('conflicting source revision records')
+        pin['frozen_commit'] = pin['source_commit']  # historical receipt compatibility
     if not pin.get('resolved_by') or datetime.fromisoformat(pin['resolved_at']).tzinfo is None:
         raise ValueError('pin needs resolver and timezone-aware resolution time')
     for k in ['frozen_commit', 'built_from_commit', 'brewfs_client_sha']:
@@ -93,7 +98,7 @@ def runtime_pin(pin, container):
         raise ValueError('unqualified build')
     remote = capture(['git', 'ls-remote', RUSTFS_REPO, 'refs/heads/' + RUSTFS_BRANCH]).split()
     if not remote or remote[0] != pin['frozen_commit']:
-        raise ValueError('branch moved/unavailable: freeze and rebuild a new batch')
+        raise ValueError('branch advanced/unavailable: resolve its latest source and rebuild for the new batch')
     image = json.loads(capture(['docker', 'image', 'inspect', pin['image_reference']]))[0]
     # Never serialize container Config.Env (contains credentials).
     actual = json.loads(capture(['docker', 'inspect', '--format',

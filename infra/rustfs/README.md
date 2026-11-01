@@ -1,43 +1,83 @@
-# RustFS 后端准备（阿里云与自备服务器共用）
+# RustFS 后端准备
+
+阿里云、已有服务器和 SSH 容器使用同一套步骤。只跟随 [Ivanbeethoven/rustfs](https://github.com/Ivanbeethoven/rustfs) 的 `feat/dynamic-block-size-rebased` 分支最新代码。每批构建前同步；提交号和镜像 digest 记录本批实际产物，同批对照共用，下批重新同步。
 
 | 工具 | 职责 |
 |---|---|
-| [freeze_backend.py](freeze_backend.py) | 记录指定分支、源码与镜像对应关系 |
-| [generate_rustfs.py](generate_rustfs.py) | 校验 spec 并生成逐节点配置；不启动服务 |
-| [rustfs_node.py](rustfs_node.py) | 检查本机磁盘、挂载、凭据和 Compose；只有显式 `--start` 才启动 |
-| [s3_probe.py](s3_probe.py) | 临时独占桶上的 PUT/GET/Range/LIST 探测及清理 |
+| [resolve_backend.py](resolve_backend.py) | source 更新分支；image 核最新源码与镜像来源，保存版本回执 |
+| [generate_rustfs.py](generate_rustfs.py) | 校验 spec、生成逐节点配置；默认启用 dynamic |
+| [rustfs_node.py](rustfs_node.py) | 核磁盘、挂载、凭据和 Compose；显式 --start 才启动 |
+| [s3_probe.py](s3_probe.py) | 临时独占桶的 PUT/GET/Range/LIST 检查和清理 |
 
-模板是 [rustfs-smoke.example.json](rustfs-smoke.example.json)。先按[操作手册](../../experiments/retest-2026-10-29/runbook/RUN.zh.md)填写本批配置，机器已创建不代表服务可用。
+## 1. 同步、构建、记录
 
-## RustFS
-
-新增 `single-node-four-disk` 模式用于单机四盘诊断（1 node、4 data_mounts），不代表四节点故障域。镜像/源码冻结用 `freeze_backend.py`；测量与调度见 [运行入口](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/blob/0c39995d793dfbf15bf142c3be3b807b31949d6c/infra/alicloud/RUN.zh.md)。
-
-后续实验部署必须使用 [Ivanbeethoven/rustfs](https://github.com/Ivanbeethoven/rustfs) 的 `feat/dynamic-block-size-rebased` 分支：每批先解析并冻结完整提交 SHA，再从该提交构建镜像，或使用来源已验证为该提交的对应镜像。将仓库、分支、源码 SHA 和实际镜像 digest 一起记录到本批构建/部署证据；不能默认使用官方 `rustfs/rustfs:latest`，也不能只凭镜像固定了 digest 就认定它来自指定分支。
-
-`generate_rustfs.py` 按已冻结的 image digest 生成逐节点 Compose JSON。`smoke` 为1节点1盘，只验接入；`distributed` 固定4节点、每节点4个独立文件系统。后者沿用官方多节点 host network 和 volume 展开语法；16个目录不能指向同一块盘。容器默认 UID 10001；运行前确认目录属主、实际 EC/副本、服务端布局和节点故障目标。4×4 拓扑本身不证明任何耐久性。[官方 Docker 部署](https://github.com/rustfs/docs.rustfs.com/blob/main/content/en/installation/container/docker.md)、[部署模式与冗余](https://docs.rustfs.com/en/installation)
-
-1. 按 `rustfs-smoke.example.json` 填私网 IP、已挂载数据盘路径、日志目录，并把镜像占位替换为上述分支对应的已验证镜像地址和 digest。**来源校验先做完再填**：`docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.revision" }}' <image>` 必须等于本批 `frozen_commit`；对不上就阻断本批、写 `blocked_reason`，不换分支也不退回官方 `latest`。生成器遇到 `REPLACE_WITH` / `REGISTRY/` 占位必须直接失败，不能产出可运行的 spec。源码与镜像对应关系单独保存为本批证据，不向 spec 添加生成器未约定的字段。正式配置将 mode 改为 distributed，列4个 node，每个 `data_mounts` 为 `/mnt/rustfs0`…`/mnt/rustfs3`；IP和盘由本批 inventory 确认。
-2. 每节点创建相同凭据的 `/etc/agent-experiment/rustfs.env`，权限0600，内容是 `RUSTFS_ACCESS_KEY=…`、`RUSTFS_SECRET_KEY=…`。值用至少12位随机字母数字；不放进 spec、tfvars、命令行或输出。数据挂载点和日志目录需已归 UID10001；脚本不会自动改目录或格式化盘。
-3. 生成配置，将各节点目录发送到对应节点：
+首次准备专用 checkout：
 
 ```bash
-python3 generate_rustfs.py rustfs-spec.json generated-rustfs
-# 在 rustfs1 对应 Linux 节点执行；其他节点对应其目录。
-python3 rustfs_node.py /opt/agent-experiment/rustfs1
-python3 rustfs_node.py /opt/agent-experiment/rustfs1 --start
+git clone --single-branch --branch feat/dynamic-block-size-rebased \
+  https://github.com/Ivanbeethoven/rustfs "$RUSTFS_SOURCE"
 ```
 
-生成器先校验全部节点；重复 IP、重复/相互包含的数据与日志/凭据路径、根路径、`..` 路径和未固定 digest 的镜像都会失败，参数失败时不建立输出目录。跨平台生成也按 Linux 路径解释。不要启动生成失败或手工拼接的半成品配置。
-
-第一条节点命令仅验证本机 IP、独立挂载、UID、0600凭据文件和 Compose 语法；第二条才启动。分布式4节点使用同一 spec、相同凭据，逐节点启动后检查各私网 `http://IP:9000/health`。Console关闭，API绑定私网 IP。明文 HTTP仅用于独占私网测试；比较各方案的传输保护配置必须一致并记录。
-
-4. 从客户端以环境变量提供 `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`，运行：
+每批先同步，再按该分支的构建入口构建一次。镜像保留构建日志，并设置 `org.opencontainers.image.revision` 为实际源码 SHA。下列命令分别执行，中间由执行 Agent 完成构建与检查：
 
 ```bash
-python3 s3_probe.py --endpoint http://PRIVATE_S3_IP:9000
+python3 infra/rustfs/resolve_backend.py source \
+  --rustfs-source "$RUSTFS_SOURCE" --output "$RUN/source-version.json"
+# 在上述源码上构建并发布镜像；记录工具链、features 和构建日志。
+python3 infra/rustfs/resolve_backend.py image \
+  --rustfs-source "$RUSTFS_SOURCE" --brewfs-source "$BREWFS_SOURCE" \
+  --brewfs-binary "$BREWFS" --image "$IMAGE" --output "$RUN/backend-version.json"
 ```
 
-probe 创建随机命名的独占临时桶，检查 PUT、HEAD、完整GET、Range、LIST，再仅删除其对象和桶；成功只说明这些 API 正确。随后运行 BrewFS/JuiceFS 的真实创建、写、fsync、保存和跨客户端重开；另收集 RustFS 实际 EC/布局、GET/PUT、磁盘IO、容器CPU/内存及背景维护。未确认远端提交/冗余前，不开始耐久性等价的主比较。
+source 只快进指定分支，保留本地改动和分叉提交；image 重新核远端分支，拒绝旧源码或旧镜像。回执中的 `source_commit` 是版本记录，不提供指定历史 SHA 的参数。OCI 标签与构建日志共同记录来源；运行时另核实际镜像 ID。旧 [freeze_backend.py](freeze_backend.py) 兼容 image 命令，历史回执不改写。
 
-服务运行期间凭据可被节点上的 Docker 管理员查看；不要导出含 Env 的完整 `docker inspect`。只导出镜像ID、资源、端口和非密钥配置。stop/down只停服务，不删除数据盘；重新初始化新一轮请使用新的独占前缀/桶。
+## 2. 默认开启 dynamic
+
+所有节点使用 `layout_profile=enabled`，生成器默认写入：
+
+```text
+RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE=true
+RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED=true
+RUSTFS_EC_READ_QUANTUM_ENABLE=true
+RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED=true
+```
+
+部署前确认全体服务节点都是指定分支的对应构建。BrewFS 使用 [build-client.sh](../../experiments/retest-2026-10-29/scripts/build-client.sh) 编译 `rustfs-ec-block-size-hint` feature，挂载适配器默认传 `--s3-rustfs-ec-block-size-hint auto`。原生导入、lower 构建与 Pack 发布也要单独核上传者的实际 hint；只读挂载不会改变已有对象布局。JuiceFS 保持自身上传行为，两者共用相同 RustFS 开关。
+
+**当前 auto 尚未实现完整多档自动选择。** 2026-11-01 核对 BrewFS main 的[选择函数](https://github.com/Ivanbeethoven/brewfs/blob/main/src/cadapter/s3.rs)与[测试记录](https://github.com/Ivanbeethoven/brewfs/blob/main/doc/testing/rustfs-auto-object-hint.md)：
+
+| 最终上传对象大小（压缩、封装后） | auto 行为 |
+|---|---|
+| ≤1 MiB | 不发送 hint，保留 RustFS 默认/内联策略；并非所有这些对象都会内联 |
+| >1 MiB | 发送 1 MiB hint |
+
+64 KiB、256 KiB、1 MiB、4 MiB 的显式选择已经支持。按对象大小或访问模式自动选择多个档位的策略仍待实现和验证；开启开关不代表多档自适应已生效。该 hint 不改变 BrewFS 的逻辑数据块边界。上述 auto 规则是本次源码观测，下批同步后重新核验。
+
+C3 在同一个 enabled 服务端比较无 hint 与四个固定档位。显式服务端消融使用 `layout_profile=disabled|block-only` 并标记 `dynamic_ablation=true`（历史 D 阶段也接受）；客户端消融用 `prepare mount --dynamic-block off`。配置中 hint 留空；不能同时配置 auto 又声明 off。配对结果使用独立实验 ID。
+
+## 3. 生成与启动服务
+
+按 [SSH 运行入口](../../experiments/retest-2026-10-29/runbook/SSH-RUN.zh.md) 确认本批实际资源。填写 [spec 模板](rustfs-smoke.example.json)：私网地址、数据挂载、日志目录和已核验镜像 digest。mode 支持 smoke（1节点1盘）、single-node-four-disk、distributed（4节点各4盘）；四目录不等于四独立设备。实际资源配额按本批设计填写并核验。
+
+凭据放各节点 `/etc/agent-experiment/rustfs.env`，权限0600，键为 `RUSTFS_ACCESS_KEY`、`RUSTFS_SECRET_KEY`。数据与日志目录预先归UID10001，脚本不格式化或修改属主。凭据不进入 spec、日志或 Git。
+
+```bash
+python3 infra/rustfs/generate_rustfs.py rustfs-spec.json generated-rustfs
+# 将每个节点的目录分发到相应节点后，先检查，再单独启动。
+python3 infra/rustfs/rustfs_node.py /opt/agent-experiment/rustfs1
+python3 infra/rustfs/rustfs_node.py /opt/agent-experiment/rustfs1 --start
+```
+
+生成器拒绝占位镜像、重复节点、重叠或非法路径和缺失 digest；节点检查独立挂载、权限与 Compose。每个节点启动后核私网 health、实际运行镜像、四个开关及 EC 拓扑。只输出非密钥字段，不导出完整容器 Env。
+
+## 4. 验收实际布局
+
+用环境提供 S3 凭据，再执行独占临时桶探测：
+
+```bash
+python3 infra/rustfs/s3_probe.py --endpoint "$ENDPOINT"
+```
+
+该探测仅验 API。布局资格另记录最终对象字节数、请求 hint、HEAD 的 `x-rustfs-layout-hint-status`/reason/`x-rustfs-effective-ec-block-size`、每个 shard 的持久化 B/q、inline/external 和完整读回；工具见[布局解析器](../../experiments/retest-2026-10-29/scripts/inspect-layout.py)。客户端配置、hint 接受、布局变化和性能收益分别验收。
+
+EC2+2 下当前 1 MiB 布局的 q 仍为512 KiB，因此 auto 开启不代表读帧缩小。C3 记录各固定档位的实际 B/q，再确定多档策略；重新挂载不会重写旧对象。新条件使用独立对象前缀，保留失败与慢值。默认 enabled 的结果与此前 disabled 结果分开统计。

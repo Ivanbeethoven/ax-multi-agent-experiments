@@ -1,7 +1,10 @@
 {
   "schema": "rustfs-layout-matrix-v2",
   "status": "qualification_and_measurement_design; no accepted performance",
-  "rustfs_source_sha": "a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed",
+  "qualification_source_sha": "a87e8f94a50b9fb6e3da74fed45fe37d4cb969ed",
+  "rustfs_source": {"repository": "https://github.com/Ivanbeethoven/rustfs", "branch": "feat/dynamic-block-size-rebased", "revision_policy": "branch-latest"},
+  "default_profile": "enabled",
+  "automatic_multi_tier_policy": "not implemented in current BrewFS auto; fixed hints remain available",
   "supported_ec_block_bytes": [65536, 262144, 1048576, 4194304],
   "negative_control_unsupported_block_bytes": [524288],
   "new_4096_byte_block_or_forced_read_quantum": false,

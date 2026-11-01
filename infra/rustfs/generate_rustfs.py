@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Generate reviewed per-host Compose files. Never connects, starts, formats or provisions."""
 import argparse
+from copy import deepcopy
 import ipaddress
 import json
 from pathlib import Path, PurePosixPath
@@ -17,6 +18,7 @@ def linux_path(value):
 
 
 def generate(spec, out):
+    spec = deepcopy(spec)
     image = spec["image"]
     if 'REPLACE_WITH' in image or 'REGISTRY/' in image:
         raise ValueError('replace deployment placeholders before generating')
@@ -24,7 +26,18 @@ def generate(spec, out):
         raise ValueError("image must be pinned by sha256 digest")
     mode, nodes = spec["mode"], spec["nodes"]
     experiment = spec.get('experiment')
+    profile = (experiment or {}).get('layout_profile', spec.get('layout_profile', 'enabled'))
+    if profile not in ('disabled', 'block-only', 'enabled'):
+        raise ValueError('unknown dynamic layout profile')
+    if 'layout_profile' in spec and spec['layout_profile'] != profile:
+        raise ValueError('conflicting dynamic layout profiles')
+    ablation = (experiment or {}).get('stage') == 'D' or spec.get('dynamic_ablation') is True
+    ablation = ablation or (experiment or {}).get('dynamic_ablation') is True
+    if profile != 'enabled' and not ablation:
+        raise ValueError('dynamic defaults enabled; disabled/block-only requires an explicit ablation')
+    spec['layout_profile'] = profile
     if experiment is not None:
+        experiment['layout_profile'] = profile
         if not re.fullmatch(r'ax-[a-z0-9-]{3,55}', experiment.get('project_name', '')):
             raise ValueError('unique ax- campaign/node/attempt project_name required')
         protocol = experiment.get('protocol_profile', 'qualification-20261029')
@@ -35,9 +48,6 @@ def generate(spec, out):
             raise ValueError(f'{protocol} backend budget is {cpus} CPU / {memory_gib} GiB')
         if experiment.get('stage') not in ('G','A','P','D','F','M'):
             raise ValueError('explicit experiment stage required')
-        profile = experiment.get('layout_profile')
-        if profile not in ('disabled','block-only','enabled') or (experiment['stage'] != 'D' and profile != 'disabled'):
-            raise ValueError('dynamic layout profiles are exclusive to D')
         if mode != 'single-node-four-disk':
             raise ValueError('current formal experiment requires single-node four-disk EC')
     if mode not in ("smoke", "single-node-four-disk", "distributed"):
@@ -68,6 +78,14 @@ def generate(spec, out):
             "RUSTFS_VOLUMES": {"smoke": "/data/rustfs0", "single-node-four-disk": "/data/rustfs{0...3}",
                                "distributed": "http://rustfs{1...4}:9000/data/rustfs{0...3}"}[mode],
         }
+        enabled = profile != 'disabled'
+        quantum = profile == 'enabled'
+        env.update({
+            'RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE': str(enabled).lower(),
+            'RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED': str(enabled).lower(),
+            'RUSTFS_EC_READ_QUANTUM_ENABLE': str(quantum).lower(),
+            'RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED': str(quantum).lower(),
+        })
         service = {
             "image": image, "network_mode": "host", "restart": "unless-stopped",
             "env_file": [node["credentials_file"]], "environment": env,
@@ -78,14 +96,6 @@ def generate(spec, out):
             ] + [{"type": "bind", "source": node["log_dir"], "target": "/var/log/rustfs", "bind": {"create_host_path": False}}],
         }
         if experiment is not None:
-            enabled = experiment['layout_profile'] != 'disabled'
-            quantum = experiment['layout_profile'] == 'enabled'
-            env.update({
-                'RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE': str(enabled).lower(),
-                'RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED': str(enabled).lower(),
-                'RUSTFS_EC_READ_QUANTUM_ENABLE': str(quantum).lower(),
-                'RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED': str(quantum).lower(),
-            })
             service.update(cpus=experiment['cpus'], mem_limit=experiment['memory_bytes'],
                            memswap_limit=experiment['memory_bytes'], restart='no')
         prepared.append((node, service))

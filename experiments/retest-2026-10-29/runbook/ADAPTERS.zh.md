@@ -25,7 +25,9 @@ container 输入字段：`name=ax-...`、`campaign_id`、`agent_id`、`docker` �
 
 ## 3. 原生挂载
 
-冻结版本的完整 BrewFS JSON 配置（BrewFS YAML parser 可读取 JSON）由执行方准备：C1/C4 Redis；C2 Native 是 flat-v1＋TiKV，Pack 是 packed-metadata-v3。包括真实 S3、metadata、workspace/namespace、native_base（native-v2）、layout、fuse 和 cache。`cache.writeback_mode=upload_before_commit`，显式 TTL/keep_cache；其他缓存、codec、持久性预算沿用科学计划，不由适配器偷偷补默认值。native-v2 异步仍阻塞。
+本批实际版本的完整 BrewFS JSON 配置（BrewFS YAML parser 可读取 JSON）由执行方准备：C1/C4 Redis；C2 Native 是 flat-v1＋TiKV，Pack 是 packed-metadata-v3。包括真实 S3、metadata、workspace/namespace、native_base（native-v2）、layout、fuse 和 cache。`cache.writeback_mode=upload_before_commit`，显式 TTL/keep_cache；其他缓存、codec、持久性预算沿用科学计划，不由适配器偷偷补默认值。native-v2 异步仍阻塞。
+
+挂载默认追加 `--s3-rustfs-ec-block-size-hint auto`，二进制须编译 `rustfs-ec-block-size-hint` feature。配置可显式写 `data.s3.rustfs_ec_block_size_hint=auto`；配置与命令策略冲突时拒绝。固定档位用 `--dynamic-block 65536|262144|1048576|4194304`，显式客户端消融用 `--dynamic-block off` 并清空配置 hint。C1/C2/C4 主组使用 auto，C3直接发送固定对象 hint。lower/Pack 导入的上传者另核策略，只读挂载不会重写已有对象。服务端四个开关、auto局限和布局验收见 [RustFS](../../../infra/rustfs/README.md)。
 
 JuiceFS 配置字段：`metadata_url`（不含密码的 Redis URL）、`cache_dir`、`cache_mib`、`buffer_mib`、`writeback=false`、`attr_cache_seconds`、`entry_cache_seconds`。凭据使用冻结版本原生支持的受保护环境。两臂缓存口径必须配对，不能将产品默认误称为相同配置。
 

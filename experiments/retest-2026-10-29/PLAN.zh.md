@@ -14,9 +14,9 @@ C1 流程试跑4个cohort；正式主线84＋内部36。C2设计144、C3设计18
 ## 配置
 
 - C1/C4 使用 Redis；C2 Native 使用三节点PD/TiKV；C3直接测对象服务。
-- Pack用于C2的只读小文件；动态布局用于C3。C1的BrewFS采用upload_before_commit，JuiceFS客户端writeback关闭。
+- Pack用于C2的只读小文件；各组RustFS默认启用dynamic，BrewFS默认hint=auto；C3单独对比固定档位。C1的BrewFS采用upload_before_commit，JuiceFS客户端writeback关闭。
 - 上传策略消融另立study；native-v2异步能力通过资格后再调度。固定总量0–15秒LLM等待默认关闭，按真实工具/轮次边界单独配对。
-- 同一批冻结源码、产物、输入、服务预算与缓存口径。baseline顺序复用服务池；并行比较需要独立等配置池。
+- 每批先同步指定RustFS分支最新代码并记录版本，同一批保持产物、输入、服务预算与缓存口径一致。baseline顺序复用服务池；并行比较需要独立等配置池。
 
 ## 环境与操作
 

@@ -16,6 +16,9 @@ N=[1,8,16,32,64,128]
 FS=['native-overlay','juicefs']
 LAYOUTS=['default','enabled-64KiB','enabled-256KiB','enabled-1MiB','enabled-4MiB']
 DEPLOYMENT_CAMPAIGN='ecs-20261101'
+BACKEND_POLICY={'repository':'https://github.com/Ivanbeethoven/rustfs',
+                'branch':'feat/dynamic-block-size-rebased','revision_policy':'branch-latest',
+                'layout_profile':'enabled','brewfs_hint':'auto'}
 
 
 def ec22_capacity_floor(logical_bytes,physical_overhead_bytes=0):
@@ -148,7 +151,7 @@ def build(profile='main',isolation='docker',provider='provided',cluster=None,see
         raise ValueError('writeback study is limited to main profile C1/C4; no automatic expanded matrix')
     selected_groups=writeback_groups() if writeback else deployment_groups(profile) if modern else groups()
     protocol=WRITEBACK_PROTOCOL if writeback else PROTOCOL
-    if modern:protocol='C1-C4-20261101-'+study
+    if modern:protocol='C1-C4-20261101-dynamic-on-v2-'+study
     cells=[]
     common=['frozen-code-input-and-placement','all-ready-before-one-barrier','private-agent-workspace-home-xdg',
             'shared-backend-runtime-verified','actual-cgroups-and-cache-accounting','all-agent-result-retention',
@@ -332,6 +335,7 @@ def attach_deployment(result,n):
     result['parallel_reference_compute']={k:sum(node['requirements'][k] for node in nodes) for k in ('vcpus','memory_gib')}
     result['resource_requirements']=nodes
     result['phase']='prepare';result['requires_kubernetes']=False
+    result['backend_policy']=deepcopy(BACKEND_POLICY)
     result['provider_contract']={'service_pool_per_cluster':True,'automatic_replacement':False,
         'business_network':'private','public_entry_count_target':1 if provider=='aliyun' else 0,
         'region':None,'zone':None,'cost_ceiling':None,
@@ -346,7 +350,7 @@ def attach_deployment(result,n):
         {'id':'01-plan','entrypoint':'bench/scale_plan.py','state':'implemented-plan-only'},
         {'id':'02-allocation','entrypoint':'bench/experiment_inventory.py','state':'implemented-template-and-static-check-only'},
         {'id':'03-host','entrypoint':'bench/host_preflight.py','state':'implemented-read-only-host-check'},
-        {'id':'04-pins','entrypoint':'infra/rustfs/freeze_backend.py','state':'implemented-source-and-artifact-check'},
+        {'id':'04-pins','entrypoint':'infra/rustfs/resolve_backend.py','state':'update-specified-branch-then-verify-latest-built-image'},
         {'id':'05-backend','entrypoint':'infra/rustfs/rustfs_node.py','state':'single-node-step-requires-reviewed-config'},
         {'id':'06-input','entrypoint':'experiments/retest-2026-10-29/runbook/DATA.zh.md','state':'download-and-full-validation-before-timing'},
         {'id':'07-mount','entrypoint':'bench/runtime/prepare.py','state':'native-mount-supervisor-implemented-real-service-qualification-required'},
@@ -356,6 +360,18 @@ def attach_deployment(result,n):
         {'id':'09-retention','entrypoint':'bench/experiment_step.py','state':'seal-and-verify-before-manual-cleanup'}]
     for cell in result['cells']:
         cell['study']=result['study']
+        cell['backend_policy']=deepcopy(BACKEND_POLICY)
+        cell['requires']+=['latest-specified-rustfs-branch-at-batch-start','actual-hint-status-and-persisted-B-q']
+        if cell['cluster_id']=='C3':
+            # The no-hint arm keeps the same enabled server as the fixed-hint arms.
+            cell['backend_policy']['brewfs_hint']=None
+            cell['backend_policy']['request_hint_bytes']={'default':None,'enabled-64KiB':65536,
+                'enabled-256KiB':262144,'enabled-1MiB':1048576,'enabled-4MiB':4194304}[cell['method']]
+        elif cell['method'].startswith('juicefs') or cell['method']=='native-full-copy':
+            cell['backend_policy']['brewfs_hint']=None
+        else:
+            cell.setdefault('required_effective_config',{})['data.s3.rustfs_ec_block_size_hint']='auto'
+            cell['requires']+=['brewfs-rustfs-hint-feature-compiled','auto-hint-on-new-data-and-lower-producers']
         cell['requires']+=['provider-allocation-and-role-capacity-qualified','native-cli-and-distributed-adapter-qualified']
         cell['requires']+=['layered-native-metrics-contract','paired-observer-overhead-qualified','complete-raw-telemetry-and-phase-coverage','drain-readback-and-retention-sealed']
         if cell['cluster_id']=='C3':

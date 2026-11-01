@@ -77,7 +77,8 @@ def validate_mount(s):
     if anchor(s['filesystem'],config) != s['anchor']:
         raise ValueError('shared backend identity differs from mount anchor')
     if not s.get('metrics_address') and s.get('purpose')!='observer-calibration-off':raise ValueError('native metrics must be explicitly enabled')
-    expected = native_argv(s['filesystem'],cmd['argv'][0],config_path,config,str(point),s['cluster'],s['metrics_address'])
+    expected = native_argv(s['filesystem'],cmd['argv'][0],config_path,config,str(point),s['cluster'],s['metrics_address'],
+                           s.get('dynamic_block','auto'))
     if cmd['argv'] != expected: raise ValueError('mount argv overrides reviewed native profile')
     cache=Path(config['cache']['cache_root'] if s['filesystem']=='brewfs' else config['cache_dir'])
     if not cache.is_absolute() or cache.is_symlink() or not cache.is_dir() or any(cache.iterdir()):

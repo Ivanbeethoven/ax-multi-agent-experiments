@@ -1,6 +1,8 @@
 # 本轮辅助脚本
 
-当前实验取舍见 [主方案](../../../paper-design/FINAL-PLAN.zh.md)，运行资格见 [本轮记录](../README.zh.md)。这里只放本轮可复用辅助脚本；当前操作顺序见 [分步执行手册](../runbook/RUN.zh.md)；其中会管理完整本地环境的资格脚本只保留作参考。
+当前设计见 [主方案](../PLAN.zh.md)，操作顺序见 [SSH运行入口](../runbook/SSH-RUN.zh.md)。本目录保留可复用工具及历史资格脚本。
+
+`restore-runtime.py`、`local-ml-qualification.py`、`dynamic-probe.py` 绑定旧归档/构建，用于解释历史证据。新批次的RustFS版本通过 [resolve_backend](../../../infra/rustfs/README.md) 跟随指定分支最新代码；不从这些旧脚本恢复后端。默认dynamic开启，BrewFS auto的多档选择限制在同页说明。
 
 | 脚本 | 作用 |
 |---|---|

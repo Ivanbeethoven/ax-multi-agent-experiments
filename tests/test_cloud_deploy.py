@@ -32,15 +32,15 @@ class GeneratorTests(unittest.TestCase):
     def test_scale_budget_does_not_silently_use_old_three_cpu_limit(self):
         spec=rustfs_spec();spec['mode']='single-node-four-disk';spec['nodes']=spec['nodes'][:1]
         spec['experiment']={'protocol_profile':'ecs-20261101','project_name':'ax-c1-scale',
-                            'cpus':56,'memory_bytes':224*1024**3,'stage':'G','layout_profile':'disabled'}
+                            'cpus':56,'memory_bytes':224*1024**3,'stage':'G'}
         with tempfile.TemporaryDirectory() as temp:
             out=Path(temp)/'generated';rustfs.generate(spec,out)
             service=json.loads((out/'rustfs1/compose.json').read_text())['services']['rustfs']
             self.assertEqual(service['cpus'],56)
             self.assertEqual(service['memswap_limit'],224*1024**3)
-            self.assertEqual(service['environment']['RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE'],'false')
+            self.assertEqual(service['environment']['RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE'],'true')
         spec['experiment']['cpus']=3;self.reject(rustfs.generate,spec)
-        spec['experiment']['cpus']=56;spec['experiment']['layout_profile']='enabled';self.reject(rustfs.generate,spec)
+        spec['experiment']['cpus']=56;spec['experiment']['layout_profile']='disabled';self.reject(rustfs.generate,spec)
 
     def test_formal_budget_and_dynamic_feature_controls(self):
         spec = rustfs_spec(); spec['mode']='single-node-four-disk'; spec['nodes']=spec['nodes'][:1]
@@ -51,7 +51,21 @@ class GeneratorTests(unittest.TestCase):
             self.assertEqual(compose['name'],'ax-test-c3-n1'); self.assertEqual(service['mem_limit'],16*1024**3)
             self.assertEqual(service['cpus'],3); self.assertEqual(service['restart'],'no')
             self.assertEqual(service['environment']['RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED'],'true')
-        spec['experiment']['stage']='G'; self.reject(rustfs.generate,spec)
+        spec['experiment']['stage']='G';spec['experiment']['layout_profile']='block-only';self.reject(rustfs.generate,spec)
+
+    def test_dynamic_defaults_on_for_all_modes_and_off_requires_ablation(self):
+        for profile in ('enabled','block-only','disabled'):
+            spec=rustfs_spec()
+            if profile!='enabled':spec.update(layout_profile=profile,dynamic_ablation=True)
+            with tempfile.TemporaryDirectory() as temp:
+                out=Path(temp)/'generated';rustfs.generate(spec,out)
+                if profile=='enabled':self.assertNotIn('layout_profile',spec)
+                for compose in out.glob('rustfs*/compose.json'):
+                    env=json.loads(compose.read_text())['services']['rustfs']['environment']
+                    self.assertEqual(env['RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE'],str(profile!='disabled').lower())
+                    self.assertEqual(env['RUSTFS_EC_READ_QUANTUM_ENABLE'],str(profile=='enabled').lower())
+                    self.assertEqual(env['RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED'],str(profile=='enabled').lower())
+                self.assertEqual(json.loads((out/'deployment.json').read_text())['layout_profile'],profile)
     def test_single_node_four_disks_and_placeholder_rejection(self):
         spec = rustfs_spec()
         spec['mode'] = 'single-node-four-disk'; spec['nodes'] = spec['nodes'][:1]

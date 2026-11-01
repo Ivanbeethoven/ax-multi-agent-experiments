@@ -33,6 +33,24 @@ def allocated(p):
 
 
 class PortableTests(unittest.TestCase):
+    def test_all_providers_follow_branch_and_enable_dynamic(self):
+        for provider in ('aliyun','provided','ssh'):
+            p=plan(provider=provider)
+            self.assertEqual(p['backend_policy']['revision_policy'],'branch-latest')
+            self.assertEqual(p['backend_policy']['branch'],'feat/dynamic-block-size-rebased')
+            for cell in p['cells']:
+                policy=cell['backend_policy']
+                self.assertEqual(policy['layout_profile'],'enabled')
+                if cell['cluster_id']=='C3':
+                    self.assertEqual(policy['request_hint_bytes'],{'default':None,'enabled-64KiB':65536,
+                        'enabled-256KiB':262144,'enabled-1MiB':1048576,'enabled-4MiB':4194304}[cell['method']])
+                    self.assertIsNone(policy['brewfs_hint'])
+                elif cell['method'].startswith('juicefs') or cell['method']=='native-full-copy':
+                    self.assertIsNone(policy['brewfs_hint'])
+                else:
+                    self.assertEqual(policy['brewfs_hint'],'auto')
+                    self.assertEqual(cell['required_effective_config']['data.s3.rustfs_ec_block_size_hint'],'auto')
+
     def test_host_budget_rejects_old_small_shape_and_insufficient_volumes(self):
         node={'requirements':{'vcpus':32,'memory_gib':128,'data_disks_gib':[1024,1024]}}
         volumes=[{'total_bytes':1024**4,'free_bytes':1024**4//2} for _ in range(2)]

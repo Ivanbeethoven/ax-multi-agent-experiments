@@ -6,7 +6,7 @@
 
 ## 设置与边界
 
-固定两个执行节点 E1/E2、一个持久服务节点 S。S 托管本轮隔离的 RustFS 和元数据，始终保持原位置；同一时刻只测一个 filesystem。BrewFS 使用 native lower/upper，不带 Pack/dynamic hint；JuiceFS 使用原目录，目标重新挂载同一 namespace，不要求 clone 或全树拷贝。
+固定两个执行节点 E1/E2、一个持久服务节点 S。S 托管本轮隔离的 RustFS 和元数据，始终保持原位置；同一时刻只测一个 filesystem。BrewFS 使用 native lower/upper，不带 Pack，dynamic 默认开启、hint=auto；JuiceFS 使用原目录，目标重新挂载同一 namespace，不要求 clone 或全树拷贝。
 
 M 中客户端预算 4 CPU/8 GiB 在当前执行节点；元数据仍计入这 8 GiB 总额，须预先拆分并固定（例如客户端 3 CPU/7 GiB＋服务节点元数据 1 CPU/1 GiB），不可双方各拿 8 GiB。RustFS 在 S 为 3 CPU/16 GiB。两臂相同网络、持久性、cache 总额，记录实际跨机 RTT 与资源限额。
 

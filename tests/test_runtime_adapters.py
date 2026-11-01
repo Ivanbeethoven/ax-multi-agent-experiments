@@ -125,7 +125,7 @@ class NativeBoundaries(unittest.TestCase):
         c=self.config()
         for group in ('C1','C4'):
             self.assertEqual(prepare.native_argv('brewfs','/bin/brewfs','/config',c,'/mount',group),
-                             ['/bin/brewfs','mount','--config','/config','/mount'])
+                             ['/bin/brewfs','mount','--config','/config','/mount','--s3-rustfs-ec-block-size-hint','auto'])
         for key, value in [('volume_format','packed-metadata-v3'),('cache',{'writeback_mode':'commit_before_upload'}),
                             ('meta',{'backend':'sqlx'})]:
             bad=copy.deepcopy(c);bad[key]=value
@@ -133,6 +133,21 @@ class NativeBoundaries(unittest.TestCase):
         c.update(volume_format='flat-v1',meta={'backend':'tikv'})
         self.assertIn('mount',prepare.native_argv('brewfs','/b','/c',c,'/m','C2'))
         with self.assertRaises(ValueError):prepare.native_argv('brewfs','/b','/c',c,'/m','C3')
+
+    def test_dynamic_default_and_explicit_client_ablation(self):
+        c=self.config()
+        for cluster,fmt,backend in [('C1','workspace-native-v2','redis'),('C4','workspace-native-v2','redis'),
+                                    ('C2','packed-metadata-v3','tikv')]:
+            c['volume_format']=fmt;c['meta']['backend']=backend
+            self.assertEqual(prepare.native_argv('brewfs','/b','/c',c,'/m',cluster)[-2:],
+                             ['--s3-rustfs-ec-block-size-hint','auto'])
+            self.assertNotIn('--s3-rustfs-ec-block-size-hint',
+                             prepare.native_argv('brewfs','/b','/c',c,'/m',cluster,dynamic_block='off'))
+        c['data']['s3']['rustfs_ec_block_size_hint']=65536
+        with self.assertRaisesRegex(ValueError,'config hint differs'):
+            prepare.native_argv('brewfs','/b','/c',c,'/m','C2')
+        self.assertEqual(prepare.native_argv('brewfs','/b','/c',c,'/m','C2',dynamic_block='65536')[-1],'65536')
+        with self.assertRaises(ValueError):prepare.native_argv('brewfs','/b','/c',c,'/m','C2',dynamic_block='off')
 
     def test_anchor_excludes_local_cache_but_binds_shared_storage(self):
         c=self.config(); expected=prepare.anchor('brewfs',c)

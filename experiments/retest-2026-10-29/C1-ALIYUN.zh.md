@@ -123,7 +123,7 @@ M3预先冻结任务实例、每worker有序队列和路径映射；每worker两
 |---|---|---|
 | 01 冻结计划 | [scale_plan.py](../../bench/scale_plan.py) | campaign=ecs-20261101，profile=pilot-8/c1-8，provider=aliyun/provided；核4/120 cohort、5角色节点与8个环境4+4；不启执行 |
 | 02 资源准备 | [阿里云 provider](../../infra/alicloud/PROVIDER.zh.md)、[inventory](../../bench/experiment_inventory.py)、[host 检查](../../bench/host_preflight.py) | from-plan已生成准确角色模板，host按角色检查；实际ID/host-key/盘/费用/所有权与峰值验收待填写；旧9/3台模板不适用 |
-| 03 冻结与构建 | [freeze_backend.py](../../infra/rustfs/freeze_backend.py)、[build-client.sh](scripts/build-client.sh) | 构建入口先适配冻结源码；每套产物只构建一次，内网分发，核 SHA/镜像来源 |
+| 03 冻结与构建 | [resolve_backend.py](../../infra/rustfs/resolve_backend.py)、[build-client.sh](scripts/build-client.sh) | 构建入口先适配冻结源码；每套产物只构建一次，内网分发，核 SHA/镜像来源 |
 | 04 对象服务 | [RustFS 说明](../../infra/rustfs/README.md)、[配置生成](../../infra/rustfs/generate_rustfs.py)、[单节点检查/启动](../../infra/rustfs/rustfs_node.py) | 明确 single-node-four-disk、实际 EC、禁用 C1 无关 hint；配置生成、检查、启动分别执行 |
 | 05 输入准备 | [下载](../../scenarios/k8s-containers/scripts/download_archives.py)、[归档检查](../../scenarios/k8s-containers/scripts/check_archives.py)、[trace_checks.py](../../bench/trace_checks.py) | 全包与文件级完整性；本次规划没有重新访问 OSS，旧清单不替代开批检查 |
 | 06 元数据与挂载 | [prepare/node](runbook/ADAPTERS.zh.md) | 原生挂载与正常卸载适配已实现；Redis有效配置、非空lower、身份和实际FUSE内容资格仍须本批验证；不启Manager |

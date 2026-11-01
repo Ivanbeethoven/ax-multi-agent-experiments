@@ -116,6 +116,14 @@ class RuntimePin(unittest.TestCase):
     def test_running_image_mismatch_rejected(self):
         with patch.object(suite,'capture',side_effect=self.replies('different')):
             with self.assertRaises(ValueError):suite.runtime_pin(self.pin,'rustfs')
+    def test_current_source_receipt_and_conflicting_legacy_field(self):
+        self.pin['source_commit']=self.pin.pop('frozen_commit')
+        with patch.object(suite,'capture',side_effect=self.replies()):
+            self.assertEqual(suite.runtime_pin(self.pin,'rustfs')['image_id'],'sha256:running')
+        self.pin['frozen_commit']='d'*40
+        with patch.object(suite,'capture') as call, self.assertRaisesRegex(ValueError,'conflicting'):
+            suite.runtime_pin(self.pin,'rustfs')
+        call.assert_not_called()
     def test_short_sha_rejected_before_network(self):
         self.pin['frozen_commit']='abcd123'
         with patch.object(suite,'capture') as c:

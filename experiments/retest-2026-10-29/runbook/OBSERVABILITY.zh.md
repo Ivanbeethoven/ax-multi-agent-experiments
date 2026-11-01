@@ -27,7 +27,7 @@ BrewFS本次源码审阅SHA `918deb90e046889d94eb8ff633822e275792ce28`，需启�
 
 JuiceFS的 `--metrics` 和name以[官方监控说明](https://juicefs.com/docs/community/administration/monitoring/)及[指标表](https://juicefs.com/docs/community/reference/p8s_metrics/)为候选，必须再核冻结版本的实际输出。优先原生FUSE、metadata、对象请求histogram和bytes、blockcache、buffer/staging/uploading；不要要求新版本才出现的name后用空值填老版本。TiKV/PD入口参考[官方监控API](https://tikv.org/docs/6.5/deploy/monitor/api/)。
 
-RustFS使用用户指定 `feat/dynamic-block-size-rebased` 分支，本批fresh pin；不能沿用旧官方image或凭猜测填写metrics URL。EC布局另做实际xl.meta/B/q证据，metrics开关不等于dynamic block已启用。
+RustFS每批同步用户指定 `feat/dynamic-block-size-rebased` 分支最新代码并记录实际版本；metrics URL从当前服务验证。dynamic四个服务端开关默认true，BrewFS默认auto；记录请求hint、HEAD状态、对象大小/inline比例及xl.meta/B/q。auto当前只对>1MiB对象提示1MiB，不能据此报告多档选择或读帧缩小；下批同步后重核规则。
 
 ## 3. 采集器设置和命令
 

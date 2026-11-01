@@ -28,6 +28,6 @@ SSH脚本不调用云API，不创建容器、格式化设备或删除主机。�
 
 ## 版本与历史方案
 
-源码和镜像冻结遵循根目录[AGENTS](../../../AGENTS.md)。RustFS继续使用指定dynamic-block分支；实际功能是否生效由布局证据确认。
+版本准备遵循根目录[AGENTS](../../../AGENTS.md)：每批同步指定RustFS分支最新代码，SHA/digest只记录实际版本。dynamic服务端默认开启、BrewFS默认auto；实际hint与持久化B/q须核验，auto尚不是完整多档自适应。
 
 旧ECS/自备固定角色矩阵由scale_plan的aliyun/provided选项保留复现；[旧C1阿里云预算](../C1-ALIYUN.zh.md)含已暂停的5台168核配置。新的SSH方案只生成工作量矩阵，实际放置来自fleet。

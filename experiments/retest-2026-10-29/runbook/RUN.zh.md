@@ -21,7 +21,7 @@
 |---|---|---|---|
 | 00 机器 | [experiment_inventory.py](../../../bench/experiment_inventory.py)；[host_preflight.py](../../../bench/host_preflight.py) | 填妥 inventory 与每机检查收据 | 节点归属、配对规格、盘/OS 隔离、空闲状态；3 台模式先取得本组独占交接 |
 | 01 计划 | [final_plan.py](../../../bench/final_plan.py) | 任务表 | 池、baseline、区组、周期、机器分配和参数正确 |
-| 02 版本 | [freeze_backend.py](../../../infra/rustfs/freeze_backend.py)；需要新产物时才调用 [build-client.sh](../scripts/build-client.sh) | backend-pin、二进制 SHA、构建记录 | 分支 SHA、OCI revision、运行镜像与二进制一致 |
+| 02 版本 | [resolve_backend.py](../../../infra/rustfs/resolve_backend.py)；需要新产物时才调用 [build-client.sh](../scripts/build-client.sh) | backend-pin、二进制 SHA、构建记录 | 分支 SHA、OCI revision、运行镜像与二进制一致 |
 | 03 配置 | [generate_rustfs.py](../../../infra/rustfs/generate_rustfs.py) | node.json、compose.json | 四个真实盘、限额、目录、凭据文件、D 开关正确 |
 | 04 检查 | [rustfs_node.py](../../../infra/rustfs/rustfs_node.py)，不带 `--start` | 节点检查结果 | 数据盘不是系统盘，各 volume 独立，来源与主机身份吻合 |
 | 05 启动 | 同脚本加 `--start` | 本机后端状态 | 只启动本节点后端；核实际镜像、EC、资源限额和健康状态 |
@@ -36,7 +36,7 @@ python3 bench/final_plan.py --cluster C1 --output "$RUN_DIR/plan.json"
 ```
 
 ```bash
-python3 infra/rustfs/freeze_backend.py \
+python3 infra/rustfs/resolve_backend.py image \
   --rustfs-source "$RUSTFS_SOURCE" --brewfs-source "$BREWFS_SOURCE" \
   --brewfs-binary "$BREWFS" --image "$IMAGE" --output "$RUN_DIR/backend-pin.json"
 ```
@@ -59,7 +59,7 @@ python3 infra/rustfs/rustfs_node.py "$NODE_DIR" --start
 {"experiment":{"project_name":"ax-campaign-c3-n06-attempt1","stage":"D","layout_profile":"enabled","cpus":3,"memory_bytes":17179869184}}
 ```
 
-生成器会写四个功能开关、3 CPU/16 GiB 与禁止自动重启；`layout_profile` 为 disabled/block-only/enabled，G/A/P/F/M 只接受 disabled。兼容旧 spec 的模式只供历史使用，不能省略该字段运行新正式组。容器启动后再核实际 env、CPU/memory/swap 与 OCI revision；配置生成并不证明特性生效。
+此处3 CPU/16 GiB为历史资格预算。当前生成器默认 `layout_profile=enabled`，所有组的服务端四个开关开启；disabled/block-only仅限显式消融。新批次先按 [RustFS准备](../../../infra/rustfs/README.md) 同步指定分支最新代码，再构建与验镜像；容器启动后核实际 env、CPU/memory/swap、OCI revision及持久化B/q。
 
 客户端＋元数据另外放本组专用父 cgroup，总计 4 CPU/8 GiB、禁 swap。AI 在启动任一服务前建立并核该父组，核对所有子 PID 都在其中；不能给客户端、Redis/TiKV 各自重复分配整个预算。初始化 DB/卷、immutable lower、客户端 mount 各自独立调用。前台 mount 用独立、无总时限的 systemd 单元托管，记录 PID/cgroup，后续 AI 单独查就绪；不要让计时包装器等待长期 mount 退出。
 
