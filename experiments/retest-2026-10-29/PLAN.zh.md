@@ -1,77 +1,46 @@
-# 四集群实验总览
+# C1–C4 实验总览
 
-**当前只准备，不购机、不部署、不开始测量。** 主目标已扩大到 64 Agent，128 Agent 为扩展目标；一 Agent 一 Docker 或一 Agent 一独立 VM，两种方式分别报告。C1–C4 是四个实验负责组，不是四种 baseline，也不是四个被测 Agent。
+**已统一准备阿里云 ECS 与自备 Linux 服务器两版；现在不开跑。** C1–C4 是四个实验设置与负责组，每组内部比较多个baseline。无需Kubernetes，默认一Agent一Docker，独立VM单独成批。
 
-## 1. 四组各测什么
+| 组 | 测什么 / baseline | 主规模 | main cohort |
+|---|---|---|---:|
+| C1 | 共享后端Agent trace：BrewFS Overlay/native lower vs JuiceFS，均Redis；flat/Overlay内部对照单列 | 1/8/16/32/64 Agent；固定256任务队列 | 主线132＋内部54；pilot另6 |
+| C2 | 海量只读ML小文件：Pack vs Native flat-v1 + TiKV | 8M×1–64；1M×64；冷/热、stat/固定读集 | 144 |
+| C3 | RustFS默认无hint vs B=64KiB/256KiB/1MiB/4MiB | 1/16/64全局HTTP在途；128GiB对象池；全读/4KiB Range、冷/热 | 180 |
+| C4 | F：fork/clone/全量cp；M：BrewFS/JuiceFS各自stay/move | F到64副本；M到64活跃Agent，迁移既定子集 | F108＋M84 |
 
-| 组 | 场景与 baseline | 规模 | 主指标 |
-|---|---|---|---|
-| C1 | 共享后端下 BrewFS Overlay vs JuiceFS；flat-v1 vs Overlay 单列消融；真实 Agent 另测 | 1/8/16/32/64/128 Agent，弱扩展与固定 256 任务队列；真实任务到 64 Agent | 任务/s、makespan、逐任务尾延迟/慢化、公平性、操作/字节、失败率、资源和后端排队 |
-| C2 | 海量只读 ML 文件：Pack vs Native flat-v1＋TiKV | 1M/8M/32M 独立文件；读取环境 1–128，主目标 64；真实 ML 读集待冻结 | 文件/s、访问延迟、RPC/GET、缓存/空间、发布/导入成本 |
-| C3 | RustFS 默认无 hint vs B=64 KiB/256 KiB/1 MiB/4 MiB | 1/16/64/128 在途请求；128 GiB/1 TiB 对象池，实际外置布局 | p50/p95/p99、服务速率、分层读放大、实际 B/q、设备负载 |
-| C4 | fork/clone/Native 全量 cp；BrewFS/JuiceFS 各自 stay/move 的批量流转 | 1/8/64/128 子副本；1M 小文件与 400 GiB 树；1–128 活跃 Agent、迁移部分或全部 | 创建/首用/空间/隔离；暂停与恢复、未迁移邻居影响、move−stay、会话和内容完整性 |
+三个完整配对区组，主矩阵合计**702**；expanded为**1086**，另含128、C2 32M、C3大对象/1TiB池。计划数不等于已就绪数。Pack只在C2，C3的HTTP并发不是Agent数量，C4保留全量cp对照，不新增共享目录实验。
 
-**Pack 仅用于 C2。** HTTP 并发、扫描进程、回放实例、真实 Agent 分别命名。旧 7 份 trace 可扩增任务实例数量，不能冒充新增独立 benchmark。
+**上传策略独立 study=writeback：C1 186、C4 90。** 它与C1同步baseline的132+54=186无关，不用旧成绩抵扣。默认BrewFS upload_before_commit / JuiceFS客户端writeback关闭；native-v2异步能力仍须完成，不通过则保留阻塞。LLM固定总量0–15s间隔默认关闭，后续按工具/轮次边界独立配对。
 
-**写入主口径**：BrewFS `upload_before_commit` 对齐 JuiceFS 客户端 writeback 关闭。上传策略消融另生成 `--study writeback`，两种模式同时配对，不仅给 BrewFS 加开关。workspace 支持与恢复/远端就绪资格通过后才运行；分别报告应用完成、尾部 drain 和远端完成确认时间。
+## 资源与两版入口
 
-| 场景 | 上传策略消融安排 |
-|---|---|
-| C1 trace / Overlay / 固定队列 | 加；三份 trace 的 1/16/64 六臂同时覆盖产品对比和内部消融，队列限 16/64 |
-| C1 暖只读 | 不加；准备上传完成后测读取 |
-| C1 LLM 等待 / 真实模型 | 合成等待只追加一个 64 Agent 写场景交互；真实模型另做少量代表条件验证 |
-| C2 只读 ML / C3 直接 S3 | 不加；前者固定远端就绪的语料，后者不经过该客户端路径 |
-| C4 跨节点迁移 | 加；两文件系统×两策略×stay/move，drain 纳入暂停且只针对迁移集合 |
-| C4 fork/clone/cp | 不扩增全部规模；补 400 GiB×8、burst 三方法×两策略，覆盖 cp 的异步行为 |
-
-独立消融共 **276 cohort**（C1 186、C4 90），可选等待交互另加 12。已有主矩阵 618/990 与首次 pilot 保持不变。数据选择、配对、完成边界和操作入口统一见 [扩展方案](SCALE.zh.md)，未上传数据时 fork/恢复先做正确性资格，不混入只读基底的创建成绩。
-
-## 2. 机器数
-
-执行预算统一为每 Agent 2 vCPU / 8 GiB。Docker 参考每台 32 vCPU / 128 GiB 承载 8 个 Agent；VM 参考每 Agent 4 vCPU / 16 GiB、工作负载仍限制 2/8。服务端独立且随 Agent 数增加保持预算不变。
-
-| 分组 | 64 Agent Docker | 128 Agent Docker | 64 Agent 独立 VM | 128 Agent 独立 VM |
+| 集群 | 64 Docker | 128 Docker | 64独立VM | 128独立VM |
 |---|---:|---:|---:|---:|
-| C1 | 11 节点 | 19 | 67 | 131 |
-| C2 | 11 | 19 | 67 | 131 |
-| C3（请求节点与服务，不按 Agent 配 VM） | 4 | 4 | 4 | 4 |
-| C4（含另一节点上的备用目标环境） | 19 | 35 | 131 | 259 |
-| 四组并行合计 | **45** | **77** | **269** | **525** |
+| C1 | 11 | 19 | 67 | 131 |
+| C2，含3个PD/TiKV节点 | 13 | 21 | 69 | 133 |
+| C3 | 4 | 4 | 4 | 4 |
+| C4，含另一节点上的目标池 | 19 | 35 | 131 | 259 |
+| **并行总数** | **47** | **79** | **271** | **527** |
 
-C1 的产品对比和消融顺序复用一池；若同时测试须另配一整池。C4 的 fork 和流转也顺序复用。64 Docker 主实验若四组顺序执行，按峰值 **19 节点**复用；原 9 台 / 最低 3 台只用于基础机制和资格验证。以上是 Linux 节点/VM 数，不等于已证实的物理宿主数。
+C1试跑5台、168 vCPU/672GiB。完整64 Docker四组合计1536vCPU/6144GiB。C4的400GiB全量复制需要80/160TiB原始容量目标；C2容量须从真实语料核算，节点数不代表存储足够。具体SKU、盘与进程配额见[部署手册](runbook/DEPLOYMENT.zh.md)。
 
-400 GiB×64/128 子副本的全量复制，仅 EC2+2 数据并保留总容量 25% 空闲就需要约 **67.71/134.38 TiB** 原始容量，元数据/临时占用还需代入预算；默认 4×1 TiB 后端不足。该容量门适用于整组对照，不能悄悄去掉 cp。C2 也须按真实文件大小、Pack/Native+TiKV 的实测空间核算，不能只看文件数。
-
-逐角色 CPU/内存、输入盘/缓存盘、网络、峰值公式和开跑验收统一见 [硬件预算](HARDWARE.zh.md)。首次 C1 建议 **5 节点、120 vCPU/480 GiB** 验证 1→8→16；完整 prompt 见 [C1 试跑](runbook/agents/C1-pilot.prompt.md)。引用配置或基础主机检查通过不等于实际机器已具备容量与性能余量。
-
-## 3. 阿里云与自备服务器
-
-| 项目 | 阿里云 | 自备服务器 |
+| 项目 | 阿里云 ECS | 自备服务器 |
 |---|---|---|
-| 资源 | 后续按数量、规格、地域和费用上限分配 ECS/云盘；当前没有采购 | 使用交付的物理机/VM、盘和目录；按真实宿主关系核容量，不自行租补 |
-| 网络与隔离 | 私网业务、单管理入口；VM ID 不能证明物理跨机 | 提供 SSH/host-key、内网和宿主关系；Docker/KVM 的密度及实际 cgroup 留证 |
-| 磁盘与缓存 | 记录云盘限额、实例抢占和网络限流；独立云盘不自动等于独立物理盘 | 不默认允许格式化、清宿主缓存或停别人服务；不能隐藏同机竞争 |
-| 收尾 | 结果保全核 SHA、进程全部结束后按精确 ID 清理本轮资源 | 只清本轮所属环境/命名空间/目录，保留服务器、提供方数据和已有服务 |
-| 统计 | 独立 campaign，与自备结果分开 | 独立 campaign；不同硬件/隔离密度不合并成配对重复 |
+| 计算 | --provider aliyun；按角色生成ECS候选与待填资源清单 | --provider provided；同一逻辑实验，映射已交付物理机/VM，无云API |
+| 网络 | 私网测量，尽量一个公网管理入口；精确来源与host-key | 已批准内网与可信SSH；核真实宿主/共机竞争 |
+| 存储 | 独立云盘，核实例总IO限额；不是四目录 | 已批准独立设备/目录，不默认允许格式化 |
+| 统计 | 独立campaign与配对结果 | 不与不同云硬件混成同一重复 |
+| 收尾 | 保全后按本轮精确ID释放并查询确认 | 保留主机、原数据和原有服务，只处理本轮所属环境 |
 
-## 4. 默认关闭的 LLM 等待模拟
+## 阅读顺序
 
-只在多 Agent trace 回放中显式开启；在已核验的工具调用/Agent 轮次边界插入等待。指定总预算 T，随机分配各段 0–15 秒，**间隔之和固定为 T**。同一任务两臂使用同一计划，不同 Agent 使用独立种子/ID；缺边界或 T 超出容量就报错。真实 Agent、直接性能、扫描/S3/fork 测量不叠加模拟。
+1. [ECS/自备服务器部署与脚本规划](runbook/DEPLOYMENT.zh.md)：四组硬件、完整步骤、已实现与待补适配。
+2. [C1具体方法](C1-ALIYUN.zh.md)；[C2–C4条件与指标](SCALE.zh.md)。
+3. [27份trace数据交接](runbook/DATA.zh.md)：Drive/OSS、可信摘要、约408MB pilot与9分卷恢复。
+4. [负责人、调度单与四份prompt](runbook/CLUSTERS.zh.md)。
+5. [Manager能力与安全边界](runbook/MANAGER.zh.md)、[跨节点流转](runbook/MIGRATION.zh.md)。
 
-总墙钟仍随文件系统性能变化；计划总等待、实际休眠、调度误差、扣除等待的回放时间分别输出。见 [等待开关与命令](../../tools/full-fuse-replay/THINK-TIME.zh.md)。
+计划入口为[scale_plan.py](../../bench/scale_plan.py)的 **--campaign ecs-20261101**，沿用原生成器而非新增harness。旧legacy-20261029保留历史复现，旧618/990、9/3节点和3CPU后端预算不用于本轮。原始证据、失败记录和本地数据不删。
 
-## 5. 审阅与执行入口
-
-| 入口 | 内容 |
-|---|---|
-| [扩展方案](SCALE.zh.md) | 设置、配置、完整规模矩阵、方法、指标、机器/存储预算与结论边界 |
-| [硬件预算与验收](HARDWARE.zh.md) | 每角色 CPU/内存/磁盘/网络、C2/C4 容量、5 节点首次试跑 |
-| [扩展单步手册](runbook/SCALE-RUN.zh.md) | 准备→资格→屏障→单个 cohort→收集，每步由 AI 监督 |
-| [四组分工与 prompts](runbook/CLUSTERS.zh.md) | 一负责 Agent 管一组，工作 Agent 不得自行换 baseline |
-| [Manager 接入](runbook/MANAGER.zh.md) / [生命周期设计](CONTROL-PLANE.zh.md) | P1 已实现 SQLite workspace-v1 基础 API；C1/C4 逐步调用、重试/删除判据与未实现的共享后端/节点能力 |
-| [规模计划生成器](../../bench/scale_plan.py) | main/expanded、VM/Docker、Aliyun/provided；只生成计划和逻辑 placement |
-| [基础机制方案](../../paper-design/FINAL-PLAN.zh.md) | 原单机配对、布局/内容/会话资格，342 项不是新总体规模上限 |
-| [基础单步工具](runbook/RUN.zh.md) | 复用原子操作，未完成的并发适配明确标注 |
-| [trace 来源](../../paper-design/TRACE-WORKLOADS.zh.md) | 已有输入的来源、完整性与多样性限制 |
-
-主矩阵每种隔离方式 618 个 cohort 单元，expanded 990；不包括可选等待模拟增量。真实任务集、8M/32M 语料、边界映射、分布式屏障/监控、并发 S3/burst fork/批量迁移适配仍需资格验证。计划可审阅不代表可直接开始全规模实验。
+实际非空lower/mount、三节点TiKV、分布式屏障与聚合、并发S3、批量fork/会话交接仍须按步骤补齐并资格验证；文档、生成器和PR完成不等于实验ready。

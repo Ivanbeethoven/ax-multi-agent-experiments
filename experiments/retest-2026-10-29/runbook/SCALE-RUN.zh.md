@@ -1,15 +1,19 @@
 # 扩展实验：逐步准备与监督
 
+**当前完整的四组ECS/自备步骤、角色与能力状态已统一到 [DEPLOYMENT](DEPLOYMENT.zh.md)。新计划显式使用--campaign ecs-20261101，C1无SQLite服务依赖；下文保留legacy通用参考，旧main数量与Manager作为必需步骤的表述不覆盖新版。输入以 [27份trace交接](DATA.zh.md) 为准。**
+
 先读 [64/128 Agent 方案](../SCALE.zh.md) 和 [硬件预算与验收](../HARDWARE.zh.md)。当前只准备，不分配资源或启动 cohort；收到具体试跑调度后按其范围执行，[首次 C1 prompt](agents/C1-pilot.prompt.md) 限定 5 节点、1→8→16。一个负责 Agent 监督本组全体工作 Agent；不能给每个工作 Agent 独立修改 baseline 的权限。
 
-C1/C4 生命周期接入另按 [MANAGER](MANAGER.zh.md) 查询能力、逐项确认与保全。#390 只支持本地 SQLite workspace-v1，不能替代本轮共享服务池；当前仍保留原生准备/挂载/迁移路径及各自待补资格。202/metadata_ready 不等于步骤 7 的挂载就绪；fork 每请求最多 100 项，128 需显式拆批，不能宣称原子操作或已通过规模资格。
+C1/C4 生命周期接入另按 [MANAGER](MANAGER.zh.md) 查询能力、逐项确认与保全。本次基线为 PR #394 合并提交 `cba857b567fa6e94d50edd1d2e1c47c25c7b2e50`：共享 Redis/TiKV 的 workspace-v1 与 native-v2 P1 catalog lower 已支持，实际执行仍冻结 source/features/binary/capability。格式匹配、非空 lower 发布、API→客户端身份映射、RustFS/FUSE 读写与重挂均需独立资格；不能沿用旧 `local_api_only` 结论，也不能直接标 formal ready。Manager 不提供 checkpoint、mount、drain、handoff 或 remote-ready 证明，客户端与迁移适配仍保留待验证项。
+
+202/metadata_ready 不等于步骤 7 的挂载就绪。fork 每请求最多 100 项，128 预先固定 64+64 两份请求、各自 key 与逐项身份，按原请求对账恢复；串行、非原子执行的队列和全部完成边界分别留证，burst 提交不算并行资格。C4 首用计时前不扫描全部内容。native-v2 的异步上传、每 workspace 独立 bucket 和 TiKV TLS 均未由 #394 支持，需要这些能力的条件保持阻塞，不自动换格式或关闭 TLS。
 
 | 步骤 | 入口 / 产物 | 监督检查 |
 |---|---|---|
 | 1 计划 | scale_plan.py 输出 scale-plan.json | C/基准/规模/隔离/provider/种子、预算、有效条件，所有 execution=false |
 | 2 角色和预算 | 填实际 inventory、VM/容器/物理宿主映射、服务端角色 | 不使用旧 9 台模板冒充大规模清单；核峰值、备用节点、网络、费用/所有权；完整保存精确 ID |
 | 3 版本和容量 | 复用 RUN 的固定版本、构建分发、只读主机检查；hardware-readiness.json | 逐角色核 CPU/内存/盘/网络；每卷峰值后 25% 空闲与 inode；C2 两臂真实占用、C4 cp 容量、输入/解析/观测余量；基础主机检查通过不代替本页验收 |
-| 4 输入与环境 | 完整 trace/语料/任务映射、独立 workspace/HOME/XDG、cgroup | 同一服务池，写者/缓存/会话不串；下载/全量核验在计时外 |
+| 4 输入与环境 | 完整 trace/语料/任务映射、独立 workspace/HOME/XDG、cgroup；C1/C4 另存 manager-integration 与完整 operation/资源身份 | 同一服务池，写者/缓存/会话不串；下载/全量核验在计时外；非空受支持 revision 与实际挂载一致，Manager 元数据成功不替代客户端资格 |
 | 5 可选等待 | trace_think_plan.py，一 Agent/任务一计划 | 默认关；只有多 trace 回放可开；明确 T、可信边界、每段≤15 s、总和=T、两臂共用 SHA |
 | 6 单 Agent 资格 | 原 Rust 回放、fs_step/session_check 等单步入口 | 完整性、语义、资源与数据路径；不以吞吐排名作为准入 |
 | 7 cohort 就绪 | 分布式准备收据/屏障/活跃度监测适配（待实现） | N 个环境同时就绪，核实际并发曲线；协调器只在全部通过后一次放行 |

@@ -36,6 +36,21 @@ def distinct_data_disks(root_disks, disk_sets):
         used |= disks
 
 
+def check_role_resources(node, cores, memory, observations):
+    requirements=node.get('requirements')
+    min_cpu=requirements['vcpus'] if requirements else 8
+    min_memory_gib=requirements['memory_gib']*.94 if requirements else 30
+    if cores < min_cpu or memory < min_memory_gib * 1024**3:
+        raise ValueError('CPU/memory below planned role budget')
+    if requirements:
+        if len(observations)!=len(requirements['data_disks_gib']):raise ValueError('wrong role disk count')
+        for observation,capacity in zip(observations,requirements['data_disks_gib']):
+            if observation['total_bytes'] < capacity*1024**3*.95:
+                raise ValueError('data filesystem below planned nominal disk capacity')
+            if observation['free_bytes'] < observation['total_bytes']*.25:
+                raise ValueError('less than 25% capacity free before workload; peak budget remains a separate gate')
+
+
 def inspect(node):
     if platform.system() != 'Linux': raise ValueError('run on the actual Linux test host')
     addresses = json.loads(command(['ip', '-j', 'addr', 'show']))
@@ -59,13 +74,13 @@ def inspect(node):
         if free_bytes < node['min_free_bytes_per_disk'] or stat.f_favail < node['min_free_inodes_per_disk']:
             raise ValueError('insufficient approved data capacity/inodes')
         observations.append({'mount': name, 'filesystem': fs, 'backing_disks': sorted(disks),
-                             'free_bytes': free_bytes, 'free_inodes': stat.f_favail})
+                             'free_bytes': free_bytes, 'free_inodes': stat.f_favail,
+                             'total_bytes':stat.f_blocks*stat.f_frsize})
         disk_sets.append(disks)
     distinct_data_disks(root_disks, disk_sets)
     cores = len(os.sched_getaffinity(0))
     memory = int(next(x.split()[1] for x in Path('/proc/meminfo').read_text().splitlines() if x.startswith('MemTotal:'))) * 1024
-    if cores < 8 or memory < 30 * 1024**3:
-        raise ValueError('requires at least 8 available CPU and nominal 32 GiB RAM')
+    check_role_resources(node,cores,memory,observations)
     work = Path(node['work_root'])
     if not work.is_dir() or str(work.resolve()) != str(work):
         raise ValueError('approved dedicated work root must already exist without symlinks')

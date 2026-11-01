@@ -1,5 +1,7 @@
 # 64 / 128 Agent 扩展实验
 
+**2026-11-01：执行准备统一使用 [ECS/自备部署手册](runbook/DEPLOYMENT.zh.md) 的 `--campaign ecs-20261101`。本页C2/C3/C4条件与写入策略仍作定义；C1同步矩阵以 [C1方案](C1-ALIYUN.zh.md) 为准。下文618/990、旧节点/服务预算属于legacy-20261029，不用于新版；新版main/expanded为702/1086。**
+
 **准备中，未购机、未部署、未开始测量。** 本方案将 64 Agent 设为主目标，128 Agent 为扩展目标。旧 9 台 / 最低 3 台安排保留为单臂资格与机制对照，不再作为整个实验的规模上限。C1–C4 是四个负责组，每组一个监督 Agent；被测的 64/128 个工作 Agent 与这四位负责人分开计数。
 
 ## 1. 场景、baseline、规模与指标
@@ -12,6 +14,14 @@
 | C4 | 批量 fork/clone，及有其他 Agent 持续工作时的跨节点流转 | F：BrewFS fork / JuiceFS clone / Native 全量 cp；M：BrewFS Overlay / JuiceFS，各有 stay/move | F：1/8/64/128 子副本，串行和突发创建分开；1M×4 KiB 与 400 GiB 混合文件树。M：1/16/64/128 活跃 Agent，迁移不同子集 | F：创建/首用延迟、总准备成本、空间、隔离；M：被迁移任务暂停/恢复、未迁移邻居 p99/吞吐变化、丢写/双写/会话完整性、move−stay |
 
 Pack 只进入 C2，不加入 C1 通用读写或 C4 fork/流转。C3 的在途请求数不是 Agent 数；C2 扫描进程也不能直接称作真实 ML Agent。必须分别报告代理负载和真实任务。
+
+### Manager 接入版本与实验边界
+
+接入基线为 [PR #394](https://github.com/brewfs/brewfs/pull/394) 合并提交 `cba857b567fa6e94d50edd1d2e1c47c25c7b2e50`，步骤见 [MANAGER](runbook/MANAGER.zh.md)，当前证据与缺口见 [接入核对](evidence/manager-pr394-integration-review.zh.md)。该版本支持 SQLite/Redis/TiKV 的 `workspace-v1`，以及 Redis/TiKV 的 `workspace-native-v2` P1 catalog lower；正式 C1/C4 继续使用共享后端，不以 SQLite 或格式替换来绕过资格。
+
+这里的 native P1 revision 是带真实 volume/namespace 身份的不可变 catalog revision，不是可写 native head 的快照；初始化根为空，不能作为 1M 文件或 400 GiB 源。非空源准备与精确 revision 的生产路径须先验证。native `PublishedRevision`、frozen metadata、packed catalog binding 与 entity-v1 均不在此 Manager 接口范围内。native 使用共享对象池与隔离对象 key，不支持每 workspace 独立 bucket；native TiKV TLS 也未支持。
+
+Manager 的持久幂等、恢复与逻辑删除能力不提供 mount、drain、checkpoint、handoff、remote-ready 证书或多副本服务。C1 的创建/挂载在负载计时外，全部实际客户端就绪后才放行；C4 F 分开记录接收、逐项元数据完成、首用与远端确认；C4 M 须待原生适配通过两节点资格后才能执行。产品测试通过不能代替这些实验验证，本轮仍保持准备状态。
 
 ### C1：两个回放口径与真实任务
 
@@ -59,7 +69,7 @@ Pack 只进入 C2，不加入 C1 通用读写或 C4 fork/流转。C3 的在途�
 
 这里比较的是数据映射发布与对象上传的先后，不表示每次普通 `write()` 都等待 S3。FUSE kernel writeback-cache 是另一项配置，保持原控制。异步组要求两边在本地暂存后允许提交元数据、后台上传对象；本地盘损坏风险、实际暂存持久性、容量背压与失败恢复分别核验，不凭开关名称假定保证相同。冻结并核实生效配置、上传并发、缓存/暂存预算和 JuiceFS 暂存阈值；read cache 上限不能冒充 dirty staging 上限。
 
-异步功能必须在**每个 BrewFS 方法内部使用相同版本和 volume/workspace 格式**与同步模式配对。制定方案时核查的 `80ddaf7` 中 `workspace-native-v2` 明确拒绝 `commit_before_upload`，正在单独实现；不只删除校验、不把异步臂换成 flat-v1 来代表 workspace，也不因文档列出该组就宣称已支持。主矩阵 618/990 单元及现有运行脚本默认不变；276 单元消融单独生成，不是其乘数，不自动计为已执行或拿旧版本成绩抵扣。
+异步功能必须在**每个 BrewFS 方法内部使用相同版本和 volume/workspace 格式**与同步模式配对。#394 合并版本的 [配置校验](https://github.com/brewfs/brewfs/blob/cba857b567fa6e94d50edd1d2e1c47c25c7b2e50/src/config.rs) 仍明确拒绝 `workspace-native-v2` 的 `commit_before_upload`，因此该格式的异步臂仍被产品能力阻塞；不只删除校验、不把异步臂换成 flat-v1 来代表 workspace，也不因文档列出该组就宣称已支持。主矩阵 618/990 单元及现有运行脚本默认不变；276 单元消融单独生成，不是其乘数，不自动计为已执行或拿旧版本成绩抵扣。
 
 同一协调器记录三段：屏障放行至所有任务按合同完成必要 flush/close 的 **应用完成时间**；此后到全部任务的数据映射与对象上传完成得到确认的 **尾部 drain 时间**；两者之和的 **远端完成确认时间**。另报失败、dirty/staging bytes、待上传与 inflight 随时间曲线、峰值暂存空间及后台排队。确认采用轮询时记录间隔和确认开销，不把确认时刻冒充精确上传完成时刻。不能只用应用吞吐宣称远端持久吞吐提高。
 
@@ -74,7 +84,7 @@ Pack 只进入 C2，不加入 C1 通用读写或 C4 fork/流转。C3 的在途�
 
 - C2 已准备的只是 1,048,576 条记录。8,388,608 / 33,554,432 必须来自有来源清单的真实语料，冻结路径、大小分布、内容摘要和 ML 读集，不能复制同一批文件假称独立样本。固定 64 环境的 8M 条件复用同一实验定义，避免重复计数。先用 CPU 数据流水线，不把 GPU 训练时间混入文件系统指标。
 - C3 先确认四开关和实际 external B/q，再测固定池上的请求并发；已有 s3_requests.py 是串行工具，**并发请求执行器尚待实现和资格验证**。128 GiB / 1 TiB 是应用对象字节，物理占用另外核算。4 KiB 是 Range 请求，不是新增 EC block 档位。
-- C4 的 F 在 64/128 子副本条件增加 burst：单一屏障同时提交创建，资源限额不变；不能把串行创建乘除成并发成绩。400 GiB 树的文件大小/数量分布仍须冻结。F 和 M 不同时占本组服务池。
+- C4 的 F 在 64/128 子副本条件增加 burst：单一屏障提交预先冻结的请求集合，资源限额不变。若选 Manager 路径，64 使用一个 count=64 请求，128 使用两个 count=64 请求及不同固定幂等 key；每请求逐项串行、批次非原子。报告共同开始至全部 item 完成、逐请求/逐项时间与排队，不把突发提交或串行创建换算成并行 fork。Manager 路径与 JuiceFS clone/Native cp 的请求分组、源身份及完成边界在资格阶段一并冻结。400 GiB 树的文件大小/数量分布仍须冻结。F 和 M 不同时占本组服务池。
 - M 冻结 `(活跃, 迁移)`：`(1,1)`、`(16,1/8/16)`、`(64,8/32/64)`、`(128,16/64/128)`。stay 也进行相同 checkpoint、释放写者、冷客户端恢复；同一轮保留相同数量的空闲目标环境，控制资源差异。邻居任务不停；与无迁移基线窗口比较。目的环境必须在另一节点，物理跨机另核宿主身份。
 
 ## 2. 一 Agent 一 VM / Docker
@@ -143,4 +153,5 @@ F 的容量是独立硬条件：400 GiB×64 个全量子副本＋源约 25.39 Ti
 
 - [scale_plan.py](../../bench/scale_plan.py)：默认生成四组规模矩阵；`--study writeback` 单独生成上述 C1/C4 消融及实际模式要求、容量下限、资格门；所有 execution/provisioning 均关闭，不直接修改挂载参数。
 - [扩展单步操作](runbook/SCALE-RUN.zh.md)：先做哪步、产物与监督检查点。已有单机工具继续复用；并发屏障/活跃度采集、并发对象请求、burst fork、批量会话流转仍待实现，不能称代码已能直接跑完 64 Agent。
+- [Manager 单步接入](runbook/MANAGER.zh.md)：使用 #394 的共享 catalog/native P1 生命周期接口，客户端连接与对象存储配置由执行方单独核验；保全请求及 SHA、固定 key、operation 和逐资源回执。共享元数据支持已落地，实验适配和 S3/FUSE、两节点、64/128 资格仍未由本次文档更新完成。
 - [旧机制与资格方案](../../paper-design/FINAL-PLAN.zh.md)；[四位负责人](runbook/CLUSTERS.zh.md)。本方案扩展规模，不覆盖或改写历史结果。

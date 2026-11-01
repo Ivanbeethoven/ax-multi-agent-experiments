@@ -29,6 +29,19 @@ def rustfs_spec():
 
 
 class GeneratorTests(unittest.TestCase):
+    def test_scale_budget_does_not_silently_use_old_three_cpu_limit(self):
+        spec=rustfs_spec();spec['mode']='single-node-four-disk';spec['nodes']=spec['nodes'][:1]
+        spec['experiment']={'protocol_profile':'ecs-20261101','project_name':'ax-c1-scale',
+                            'cpus':56,'memory_bytes':224*1024**3,'stage':'G','layout_profile':'disabled'}
+        with tempfile.TemporaryDirectory() as temp:
+            out=Path(temp)/'generated';rustfs.generate(spec,out)
+            service=json.loads((out/'rustfs1/compose.json').read_text())['services']['rustfs']
+            self.assertEqual(service['cpus'],56)
+            self.assertEqual(service['memswap_limit'],224*1024**3)
+            self.assertEqual(service['environment']['RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE'],'false')
+        spec['experiment']['cpus']=3;self.reject(rustfs.generate,spec)
+        spec['experiment']['cpus']=56;spec['experiment']['layout_profile']='enabled';self.reject(rustfs.generate,spec)
+
     def test_formal_budget_and_dynamic_feature_controls(self):
         spec = rustfs_spec(); spec['mode']='single-node-four-disk'; spec['nodes']=spec['nodes'][:1]
         spec['experiment']={'project_name':'ax-test-c3-n1','cpus':3,'memory_bytes':16*1024**3,'stage':'D','layout_profile':'enabled'}

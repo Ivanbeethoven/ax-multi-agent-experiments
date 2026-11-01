@@ -1,16 +1,24 @@
-# 阿里云资源准备
+# 阿里云 ECS 准备入口
 
-规模更新：主实验按 [64/128 Agent 方案](../../experiments/retest-2026-10-29/SCALE.zh.md) 区分 Docker 节点与一 Agent 一 ECS；下文 experiment_inventory.py 的 9/3 台模板仅用于基础资格。规模资源仍须明确实际清单/费用范围，当前不开跑。
+本轮使用 **ecs-20261101**，四组的实验设置、SKU、角色、容量和操作顺序统一见[部署手册](../../experiments/retest-2026-10-29/runbook/DEPLOYMENT.zh.md)。这是ECS＋Linux上的Docker/独立VM方案，无需ACK/Kubernetes；当前不购机或开跑。
 
-测量方法统一见 [RUN](../../experiments/retest-2026-10-29/runbook/RUN.zh.md)，分工与 9 台/3 台拓扑见 [CLUSTERS](../../experiments/retest-2026-10-29/runbook/CLUSTERS.zh.md)。本文件只规定云资源差异，不再维护第二份测量流程。
+每组单独生成，示例C2：
 
-1. `python3 bench/experiment_inventory.py template --provider aliyun --mode parallel --output "$RUN_DIR/inventory.json"` 生成待填清单；此操作不调用云 API。
-2. 在调度单明确数量、实例规格、地域/可用区、费用上限与执行范围后才分配资源。使用当前价格/库存；旧实验实例 ID、盘、SG 和桶不作为新批次资源。C1 的配对机器使用相同型号与磁盘配置。
-3. 原则上复用一个批准的管理入口，worker 走私网/ProxyJump；SSH 来源精确到批准地址。输入/产物优先同地域 OSS internal 或私网分发。严格核 host-key。
-4. 保存实际 ECS/盘/SG/来源规则/桶/vSwitch/keypair 的精确 ID、归属与预先存在标记；将已部署资源映射到统一 inventory。云清单与实验分组共同确定操作范围，不能仅按名称批量处理。
-5. 在每台执行统一 `host_preflight.py`。四块云盘应呈现不同块设备；这只证明独立云盘，不证明物理主机或物理介质故障域独立。M 若要报告物理跨机迁移，另留置放/宿主证据，否则称“跨实例”。
-6. 后端沿用 [生成器](../rustfs/generate_rustfs.py) 和 [节点检查](../rustfs/rustfs_node.py)，传入统一手册的 `experiment` 字段；先生成、检查，之后单独启动。镜像和客户端实际摘要、四开关、EC 与 cgroup 留运行证据。
+```bash
+python3 bench/scale_plan.py --campaign ecs-20261101 --provider aliyun --isolation docker --profile main --cluster C2 --output "$RUN_DIR/plan.json"
+```
 
-测量不自动重试抢占中断，也不自动补购节点。结果保全并确认进程/FUSE/服务结束后，再按精确清单独立释放本批资源；预先存在或共用资源由主会话处理。查询确认释放后才标记 cleaned。
+```bash
+python3 bench/experiment_inventory.py from-plan --plan "$RUN_DIR/plan.json" --output "$RUN_DIR/inventory.json"
+```
 
-旧 Terraform、parallel 控制器和 dispatcher 已[归档](../../archive/README.md)，不作为当前 AI 分步监督的启动入口。
+计划输出候选ECS规格和逐角色磁盘目标；inventory只含待填身份，不调用阿里云API。旧template的9/3节点仅供历史基础资格，不用于本轮64/128。
+
+1. 执行方填写地域、可用区、实际库存/报价、实例与云盘性能限额、配额、总费用上限及运行范围；先核本轮已有资源清单，避免重复创建。
+2. 将具体资源申请作为独立步骤审阅后执行，保存实例/盘/SG/来源规则/vSwitch/keypair/桶的精确ID、所有权及预先存在标志。四组服务池隔离，同组配对资源相同。
+3. 尽量只有一个获批公网管理入口，其他节点只走私网/ProxyJump；host-key独立核验，来源限定已批准地址，不开宽泛网段。产物/数据只下载一次，经私网或同地域OSS internal分发。
+4. inventory check后，在每个实际节点运行host_preflight，另验网络、空闲状态、峰值容量和真实cgroup。云盘独立不证明物理故障域独立；C4缺宿主证据时只称跨实例。
+5. 后端配置使用[generate_rustfs](../rustfs/generate_rustfs.py)，明确experiment.protocol_profile=ecs-20261101及56CPU/224GiB服务预算；生成、检查、启动分别执行，实际B/q和四开关留证。
+6. 不自动重试抢占中断、不自动补购。保全核SHA、确认本组进程/FUSE/服务结束后，再按精确ID独立释放并查询确认；共用与预先存在资源保留。
+
+没有新建一键Terraform/总dispatcher；测量脚本不包含购买或释放行为。旧控制器继续留在[归档](../../archive/README.md)。

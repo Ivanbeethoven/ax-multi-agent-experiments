@@ -1,0 +1,71 @@
+{
+  "schema": "ecs-provided-preparation-review-v1",
+  "date": "2026-11-01",
+  "campaign": "ecs-20261101",
+  "scope": "offline planning, resource templates, static/host budget validation, RustFS config generation and handoff documentation",
+  "phase": "prepare",
+  "execution_enabled": false,
+  "provisioning_enabled": false,
+  "cloud_calls_performed": false,
+  "remote_host_checks_performed": false,
+  "tests": {
+    "run": 37,
+    "passed": 36,
+    "skipped": 1,
+    "failed": 0,
+    "modules": [
+      "test_deployment_plans",
+      "test_scale_plan",
+      "test_experiment_steps",
+      "test_cloud_deploy"
+    ],
+    "skipped_scope": "Linux-only host test on Windows; no live hardware qualification"
+  },
+  "repository_check": {
+    "passed": true,
+    "documents": 41,
+    "python_sources": 71
+  },
+  "matrix": {
+    "baseline_main": {
+      "C1": 186,
+      "C2": 144,
+      "C3": 180,
+      "C4": 192,
+      "total": 702
+    },
+    "baseline_expanded_total": 1086,
+    "pilot_C1": 6,
+    "writeback_independent": {
+      "C1": 186,
+      "C4": 90
+    }
+  },
+  "resources": {
+    "docker_main_nodes": 47,
+    "docker_expanded_nodes": 79,
+    "vm_main_nodes": 271,
+    "vm_expanded_nodes": 527,
+    "docker_main_vcpus": 1536,
+    "docker_main_memory_gib": 6144
+  },
+  "input_handoff": {
+    "reported_traces": 27,
+    "historical": 7,
+    "expansion": 20,
+    "local_manifest_sha256": "0d6c10fbfc2fddbd98114de1f60d019b829a822ebeabd925fa88bfcbb691f3be",
+    "local_manifest_file_rows": 136,
+    "manifest_itself_independently_pinned": true,
+    "local_helper_sha256": "ee8b3a17d5f0f2d9cc0188e1f5a69553e37bba21840f14f203eb88d938a2e1ef",
+    "drive_all_payloads_reverified_this_turn": false
+  },
+  "remaining_qualification": [
+    "real resource and cost authorization; role hardware, private network, physical capacity peaks",
+    "nonempty native P1 preparation and real Redis/RustFS/FUSE mount integration",
+    "three-node PD/TiKV remote configuration and corpus/readset qualification",
+    "distributed readiness barrier, activity telemetry and complete result collection",
+    "concurrent S3 requester with global concurrency and layered counters",
+    "native batch fork, real checkpoint/session handoff and independent remote-ready evidence",
+    "native-v2 asynchronous upload policy support before writeback study"
+  ]
+}

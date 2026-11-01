@@ -1,10 +1,12 @@
 # BrewFS 无 Kubernetes 生命周期服务设计
 
-状态：**P1 基础接口已由 [PR #390](https://github.com/brewfs/brewfs/pull/390) 合并；P2/P3 仍为设计，不启动实验或分配资源。** #390 仅支持单 Manager、本地 SQLite、`workspace-v1` 的卷初始化/登记、不可变 revision fork 和 lease 检查后的逻辑删除。实际路径、重试与完成判据见 [C1/C4 接入步骤](runbook/MANAGER.zh.md)，审查固定在合并提交 `1e7a95c10cbff8d34faf768ebd621ae8261cbd91`。这不代表当前共享服务池或两节点交接已可用。
+状态：**[PR #394](https://github.com/brewfs/brewfs/pull/394) 已在 #390 基础上合并共享 catalog 与 native P1 生命周期支持；P2/P3 仍为设计，不启动实验或分配资源。** 当前固定合并提交 `cba857b567fa6e94d50edd1d2e1c47c25c7b2e50`。Manager 支持 SQLite/Redis/TiKV 的 `workspace-v1`，以及 Redis/TiKV 的 `workspace-native-v2` P1 catalog lower：初始化/登记、精确 revision fork、身份检查、lease-aware 逻辑删除与持久恢复。它仍是单实例控制服务，没有节点执行、drain、checkpoint、handoff 或 remote-ready 证明。
+
+实际路径、重试与完成判据见 [C1/C4 接入步骤](runbook/MANAGER.zh.md)，本次 [能力/阻塞核对](evidence/manager-pr394-integration-review.zh.md) 与 [#390 历史审查](evidence/manager-pr390-review.zh.md) 分开保存。共享后端元数据 API 的实现缺口已关闭，正式非空语料、客户端挂载适配与两节点资格仍未关闭；当前保持实验未就绪。
 
 下文的原有能力盘点和源码链接保留设计时基线 `80ddaf739e163c8933b0bb84390c4aa559bd2b40`，不作为当前实现清单。规模、baseline、机器预算仍以 [PLAN](PLAN.zh.md)、[HARDWARE](HARDWARE.zh.md) 为准。
 
-## 1. 已有能力与缺口
+## 1. 设计时能力盘点（80ddaf7；不作为当前缺口清单）
 
 | 已有实现 | 实际能力 | 需要补什么 |
 |---|---|---|
@@ -16,7 +18,7 @@
 
 当前 CLI 的 [fork](https://github.com/brewfs/brewfs/blob/80ddaf739e163c8933b0bb84390c4aa559bd2b40/src/config.rs#L492) 从**精确的不可变 revision** 派生，不会自动封存活跃 workspace。新接口不能把“在线任意时刻 fork”作为已有能力。`workspace migrate` 是目录格式迁移，不是 Agent 跨节点交接。
 
-## 2. 分层与部署
+## 2. 目标分层与部署（节点执行器和 Operator→Manager 连线尚未实现）
 
 建议复用现有 Console 的 HTTP/鉴权基础，加入可独立、无前端运行的 **BrewFS Manager**。产品实现放 BrewFS 仓库，实验仓库只放调用与核验脚本。
 
@@ -45,7 +47,7 @@ Kubernetes Operator 本身是基于 K8s 自定义资源和控制循环的扩展�
 
 ## 3. 建议的接口合同
 
-以下 `/api/v1` 路径是**完整目标合同，不是已实现 API 清单**。#390 已实现的子集及路径以 [MANAGER](runbook/MANAGER.zh.md) 为准，例如实际 fork 是 `POST /api/v1/volumes/{id}/forks`；Node、Attachment、checkpoint、drain、handoff 尚未实现。不能把本表直接写入执行 prompt。目标资源为 Volume、Workspace、Revision、Node、Attachment、Operation。卷身份必须包含真实 catalog 身份；Attachment 用全局 ID＋node ID＋boot ID＋写者 generation，不能用 PID 作为跨机身份。
+以下 `/api/v1` 路径是**完整目标合同，不是已实现 API 清单**。#394 已实现的子集及路径以 [MANAGER](runbook/MANAGER.zh.md) 和 [固定版本产品文档](https://github.com/brewfs/brewfs/blob/cba857b567fa6e94d50edd1d2e1c47c25c7b2e50/doc/operations/manager.md) 为准，例如实际 fork 是 `POST /api/v1/volumes/{id}/forks`，workspace inspection/delete 是 `/api/v1/volumes/{id}/workspaces/{workspace_id}`；Node、Attachment、checkpoint、drain、handoff 尚未实现。不能把本表直接写入执行 prompt。目标资源为 Volume、Workspace、Revision、Node、Attachment、Operation。卷身份必须包含真实 catalog 身份；Attachment 用全局 ID＋node ID＋boot ID＋写者 generation，不能用 PID 作为跨机身份。
 
 | 操作 | 建议 API | 完成条件 |
 |---|---|---|
@@ -63,16 +65,18 @@ Kubernetes Operator 本身是基于 K8s 自定义资源和控制循环的扩展�
 
 所有有副作用的请求带作用域内 `Idempotency-Key`；同 key＋同规范化请求返回同 operation，不同请求返回冲突。服务端在副作用前持久化目标资源 ID；失联后核实际状态，不能换 ID 重做。需要并发保护的操作带 `expected_generation`/revision，冲突明确返回。`202 Accepted` 只表示已持久接收，不表示文件系统已就绪。
 
-批量 fork 必须报告逐项结果并支持按原 ID 续作，不能把部分成功冒充原子批次。[当前 fork 循环](https://github.com/brewfs/brewfs/blob/80ddaf739e163c8933b0bb84390c4aa559bd2b40/src/workspace_overlay/lifecycle/mod.rs#L63) 逐次生成随机 ID；不能仅在它外面套 HTTP 重试。需复用 WorkspaceStore 原语，在通用核心增加由操作记录指定 ID 的创建路径。当前 [JobManager](https://github.com/brewfs/brewfs/blob/80ddaf739e163c8933b0bb84390c4aa559bd2b40/src/control/job.rs#L42) 的内存 DashMap 也不能直接承担跨重启操作日志。
+批量 fork 必须报告逐项结果并支持按原 ID 续作，不能把部分成功冒充原子批次。设计时的 [fork 循环](https://github.com/brewfs/brewfs/blob/80ddaf739e163c8933b0bb84390c4aa559bd2b40/src/workspace_overlay/lifecycle/mod.rs#L63) 与内存 [JobManager](https://github.com/brewfs/brewfs/blob/80ddaf739e163c8933b0bb84390c4aa559bd2b40/src/control/job.rs#L42) 不能直接承担持久 HTTP 重试；#394 的 Manager 已使用独立 SQLite journal、预分配 ID、永久 journal owner 与共享后端 session fencing。当前每请求 1–100 子项、逐项串行且非原子；128 固定为两个 64 请求及不同稳定 key。它没有实现多副本 journal 或原生 head 快照，已推进 head 的不确定恢复保持 `recovery_required` 而不回退。
 
-## 4. 完成边界与失效处理
+## 4. 目标完成边界与失效处理（P2/P3 未实现部分）
+
+当前 #394 只提供小写 operation state、volume/operation-item 的 `metadata_ready` 与 `remote_ready:null`，以及 workspace/native 身份和 lease 检查；没有 `mounted` 字段或节点 ACK 协议。下述 mounted、boot ID ACK、drain/交接和节点状态对账是目标设计，不作为当前运行判据；实际合同以 MANAGER 为准。
 
 每个操作暴露阶段和结构化失败原因；区分 `Accepted`、`Running`、`Succeeded`、`Failed`、`RecoveryRequired`。资源另报 `metadata_ready`、`remote_ready`、`mounted`，不能压成一个通用 Ready。fork 成功不代表已挂载；删除成功也需说明是逻辑删除还是对象已回收。
 
 有序交接流程：**应用到工具边界并停写 → 记录 checkpoint/目标写入边界 → drain 至远端可恢复 → 卸载源并释放写者 → 目标获取新 generation 并挂载 → 应用恢复并核对**。Manager 管文件系统阶段；OpenCode session/HOME/XDG 的导出、导入、任务续跑由 [迁移适配器](runbook/MIGRATION.zh.md) 负责，不声称进程内存、打开 FD 或执行中工具能够迁移。
 
 - **异步上传**：`commit_before_upload` 的应用完成不等于远端完成。drain 回执至少绑定 workspace、attachment、head/写入边界、writer generation、策略和持久失败项；对应数据、元数据发布均完成才标 remote-ready。当前 [pending_writeback_bytes](https://github.com/brewfs/brewfs/blob/80ddaf739e163c8933b0bb84390c4aa559bd2b40/src/workspace_overlay/control.rs#L104) 来自最新 seal journal、缺日志时为 0，不能作为实时上传队列或安全交接证明。
-- **能力必须真实**：本次所核对的 [配置校验](https://github.com/brewfs/brewfs/blob/80ddaf739e163c8933b0bb84390c4aa559bd2b40/src/config.rs#L1275) 仍要求 `workspace-native-v2` 使用 `upload_before_commit`。待开发的 writeback 能力不得预先宣称可用；不同格式的 clean-release 证明不能互换。
+- **能力必须真实**：#394 合并版本的 [配置校验](https://github.com/brewfs/brewfs/blob/cba857b567fa6e94d50edd1d2e1c47c25c7b2e50/src/config.rs#L1321) 仍要求 `workspace-native-v2` 使用 `upload_before_commit`。`native_p1_catalog` 不是 mutable native head 的快照；PublishedRevision/frozen metadata/packed binding/entity 不受 Manager 支持。待开发的 writeback 能力不得预先宣称可用；不同格式的 clean-release 证明不能互换。
 - **双写保护**：所有变更继续服从原有 metadata lease/generation 的 fencing。节点心跳丢失或 lease 超时，不等于旧客户端已停止，也不证明本地待上传数据已保全。无法验证时进入 RecoveryRequired；MVP 不提供失联源的自动强制交接。
 - **故障恢复**：Manager 重启后恢复原 operation；节点重启按 boot ID 拒绝旧 ACK。完成状态以实际 catalog/lease、节点回执对账；超时不擅自推断操作没发生。失败保留源 staging 和必要恢复信息，不在通用清理中删掉。
 - **可用性**：Manager 暂停应使新生命周期操作等待/报错，已有 mount 仍直接连接原元数据/S3 并续租；此隔离需要故障测试证明，不能由架构图推断已经做到。
@@ -85,10 +89,12 @@ Kubernetes Operator 本身是基于 K8s 自定义资源和控制循环的扩展�
 | P2 节点管理 | 节点执行器、attachment、目标边界 drain、安全 detach | 两台真实 Linux 节点；mount namespace/进程核对；旧 generation/旧 boot ACK 被拒绝；失败保留 staging；控制服务重启不破坏已有 I/O |
 | P3 交接与规模 | 有序 handoff；Operator 接同一生命周期接口；并发限流与观测 | 先 2 节点 stay/move，再 64/128 个独立 workspace 的创建/挂载突发；部分失败可追踪，无重复资源/双写；另记录管理服务 CPU、内存、排队、p95/p99 |
 
+当前状态：P1 的上述受支持 profile 已有产品实现与真实 Redis/TiKV 契约证据；不代表表中所有目标接口/架构提取均已交付。P2/P3 尚未实现，Operator 测试通过不等于已改为调用 Manager。现有 API 限流也不等于 64/128 负载资格。实验侧下一步先补非空来源准备与 Manager→客户端适配设计，再在独立授权下做 S3/FUSE、真实进程恢复和两节点资格。
+
 **C1** 的生命周期准备与清理放在文件系统负载计时外；固定两臂协调器资源，Manager 作为 BrewFS 产品资源单独核算，不让 JuiceFS 安装无关服务。现有直接 CLI 准备路径可继续做资格，不必等待整个 Manager 完工。性能矩阵、Pack 的只读范围和上传策略配对不改。
 
 **C4 fork** 同时报告 API 接收→元数据创建完成、首次挂载/首用、drain/远端确认，不能拿 BrewFS 的 202 响应与 JuiceFS clone 的完成时刻比较。**C4 handoff** 用同一协调器时钟报告应用停写、排空、释放、目标就绪和首条正确工具的分段 ACK；BrewFS/JuiceFS 均保留 stay/move 配对，写回模式配对，迁移子集之外任务继续运行。
 
 JuiceFS 继续调用其原生 clone/mount/排空机制，由实验仓库提供薄适配；Manager 是 BrewFS 产品组件，不需要让 JuiceFS 伪装成 BrewFS workspace。两种路径采用相同请求发起/完成观测边界、资源核算和验收条件。控制面耗时与文件系统核心耗时分别报告，外部模型/AI 监督等待不混进计时。
 
-已有执行工具见 [SCALE-RUN](runbook/SCALE-RUN.zh.md)、[迁移步骤](runbook/MIGRATION.zh.md)；#390 的独立 API 调用与 C1/C4 接入见 [MANAGER](runbook/MANAGER.zh.md)。**当前正式后端接入与两节点资格仍未通过，不把 planning 状态改成 ready。** 后续只增加每步调用/核对的小脚本，不写自动购机、跑完整矩阵并删除资源的一体脚本。
+已有执行工具见 [SCALE-RUN](runbook/SCALE-RUN.zh.md)、[迁移步骤](runbook/MIGRATION.zh.md)；#394 的独立 API 调用与 C1/C4 接入见 [MANAGER](runbook/MANAGER.zh.md)。**共享/native P1 元数据支持已落地，但真实后端＋对象存储＋挂载接入和两节点资格仍未通过，不把 planning 状态改成 ready。** 后续只增加每步调用/核对的小脚本，不写自动购机、跑完整矩阵并删除资源的一体脚本。

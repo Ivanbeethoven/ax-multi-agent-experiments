@@ -1,5 +1,7 @@
 # 实验分步执行手册
 
+**新版ECS/自备执行准备先读 [DEPLOYMENT](DEPLOYMENT.zh.md)。本页是历史基础资格操作说明；3CPU/16GiB、9/3台、旧final_plan命令不用于ecs-20261101。新角色清单由scale_plan→inventory from-plan生成，RustFS必须显式指定新版protocol_profile。**
+
 **本页是基础机制/资格的单步工具。64/128 Agent 主实验先读 [SCALE-RUN](SCALE-RUN.zh.md)；不得将逐台调用本页命令称作并发 cohort，也不沿用本页单机 4/8＋3/16 预算作为规模组预算。**
 
 参数见 [实验方案](../../../paper-design/FINAL-PLAN.zh.md)。以下命令在 Linux 测试机的实验仓库根目录执行；变量由 AI 从本批 `run-spec.json` 读取。每次只执行一个步骤，读取输出后再决定下一步。
@@ -26,7 +28,8 @@
 | 04 检查 | [rustfs_node.py](../../../infra/rustfs/rustfs_node.py)，不带 `--start` | 节点检查结果 | 数据盘不是系统盘，各 volume 独立，来源与主机身份吻合 |
 | 05 启动 | 同脚本加 `--start` | 本机后端状态 | 只启动本节点后端；核实际镜像、EC、资源限额和健康状态 |
 | 06 数据 | trace 检查或 ML 清单检查，见下文 | 输入摘要和清单 | 目标命名空间专用；数据完整；容量足够 |
-| 07 挂载 | BrewFS/JuiceFS 本版本 CLI；参数参考 [mount_command](../../../bench/reference/aliyun_suite.py#L432) | mount argv、环境、PID、挂载点 | baseline、metadata DB、bucket、缓存目录与配额正确；FUSE 实际参数留证 |
+| 06a C1/C4 生命周期 | [MANAGER](MANAGER.zh.md) 的能力、卷登记/初始化、非空 revision、fork 与逐项检查 | manager-integration、请求/响应、operation、workspace/mount 身份 | PR #394 元数据支持须与实际格式匹配；空 root 不算语料，metadata_ready 不算挂载/远端就绪；此步骤不自动进入 07 |
+| 07 挂载 | 冻结版本 CLI 与已完成资格的 profile 适配；[旧 mount_command](../../../bench/reference/aliyun_suite.py#L422) 仅为历史 Redis/workspace-v1 参考 | mount argv、环境、PID/boot ID、挂载点、实际配置与 Manager 身份映射 | 旧参考硬编码 Redis，不能直接用于 native-v2/TiKV；baseline、namespace、bucket、缓存/配额和 FUSE 实际参数须留证 |
 
 示例分别执行，不串成自动流水线：
 
@@ -242,19 +245,19 @@ python3 bench/s3_requests.py read --plan "$REQUEST_PLAN" --plan-sha256 "$REQUEST
 
 ## 7. F：fork / clone
 
-生命周期 API 的实际范围、固定幂等键重试、逐子项完成与安全删除见 [MANAGER](MANAGER.zh.md)。#390 只支持本地 SQLite workspace-v1；本节正式对照仍使用与冻结格式兼容的原生路径，不能为使用 API 更换元数据后端。初始化卷的空 root revision 不代表已发布本节语料；API 202 不代表 fork 完成。未来兼容 API 路径必须独立冻结测量协议。
+生命周期 API 的实际范围、固定幂等键重试、逐子项完成与安全删除见 [MANAGER](MANAGER.zh.md)。文档以 PR #394 合并提交 `cba857b567fa6e94d50edd1d2e1c47c25c7b2e50` 为基线：Redis/TiKV workspace-v1 与 native-v2 P1 catalog lower 已支持。执行前冻结 Manager API 或原生 CLI 路径、实际版本/features/产物摘要、capability 与格式；未通过真实非空语料、客户端挂载映射及 RustFS/FUSE 资格时保持 blocked，不因合并或元数据测试通过就进入计时。初始化的空 root 不代表本节语料，native P1 也不把可变 head 自动封存为 revision；不接受 PublishedRevision/frozen/packed。API 202、元数据全部完成、首挂载/首用和远端确认必须分别记录。
 
 AI 先准备并核验静止源树，再对一个 baseline 执行一次创建：
 
 | baseline | 创建操作 |
 |---|---|
-| BrewFS | 本版本 `workspace fork REVISION --count N`；具体连接参数参考 [fork 初始化](../../../bench/reference/aliyun_suite.py#L319) |
+| BrewFS | 选定 API 路径时使用 `POST /api/v1/volumes/{volume_id}/forks`，按 MANAGER 保存完整 revision、固定请求/key、operation 及逐项结果；选定原生路径时使用冻结版本 `workspace fork REVISION --count N`，具体 CLI 需重新核验，旧 [fork 初始化](../../../bench/reference/aliyun_suite.py#L319) 仅作参考 |
 | JuiceFS | 已核对 `clone --help` 后执行本版本 `clone -p SRC DST`；8 个副本按预先冻结的顺序逐次创建 |
 | 全量复制 | 在 BrewFS Native flat-v1 挂载内执行 `cp -a --reflink=never --sparse=never SRC DST`，记录实际读写量；不是本地 ext4/XFS 参考 |
 
 创建之后，AI 分别安排挂载、首次读、首次写+fsync、卸载/重挂、隔离检查；各阶段分别计时。8 副本主组均按串行创建和串行首用，报告总 makespan 与逐副本值；并行创建另列。
 
-[现有 fork-base](../../../bench/reference/aliyun_suite.py#L573) 仅供语义实现参考。用 `experiment_step.py run` 包装当前**一条**原生创建命令；八个子副本逐条记录，保留统一协调端总区间，不合并成三个 baseline 的自动循环。
+[现有 fork-base](../../../bench/reference/aliyun_suite.py#L573) 仅供语义实现参考。用 `experiment_step.py run` 包装当前**一条**已审阅命令；API 提交、operation 查询与客户端 mount 各为独立步骤。先冻结请求粒度：八次 count=1 与一次 count=8 不混成同一协议；全部子项逐条留证，保留统一协调端总区间，不合并成三个 baseline 的自动循环。规模 128 预先固定 count=64 的两个请求及独立 key，不减 count 或换 key 修补部分失败；Manager 逐项串行、批次不原子，burst 提交不等于服务并行创建。
 
 8 副本单元内不插入 AI 思考/审批等待；AI 先审阅本单元的固定调用顺序，再执行并验收。若只能人工逐条调用，先报告每次 API 墙钟与其和，包含人工间隙的总区间标为流程时间，不能冒充创建 makespan。
 

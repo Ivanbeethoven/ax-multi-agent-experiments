@@ -3,6 +3,7 @@
 import argparse
 import ipaddress
 import re
+from copy import deepcopy
 from experiment_io import load, linux_path, write_new, digest
 
 POOLS = {'C1-G': ('C1', 2), 'C1-A': ('C1', 2), 'C2-P': ('C2', 1),
@@ -24,6 +25,8 @@ def template(provider, mode):
 
 
 def validate(value):
+    if value.get('schema') == 'experiment-inventory-v2':
+        return validate_scale(value)
     if value.get('schema') != 'experiment-inventory-v1' or value.get('provider') not in ('aliyun', 'provided'):
         raise ValueError('unknown inventory schema/provider')
     if value.get('mode') not in ('parallel', 'sequential'):
@@ -77,16 +80,78 @@ def validate(value):
             'execution_enabled': False}
 
 
+def from_plan(plan, plan_sha256):
+    if plan.get('campaign') != 'ecs-20261101' or not plan.get('resource_requirements'):
+        raise ValueError('ecs-20261101 resource plan required')
+    if plan.get('execution_enabled') is not False or plan.get('provisioning_enabled') is not False:
+        raise ValueError('preparation-only plan required')
+    if not re.fullmatch('[0-9a-f]{64}', plan_sha256):raise ValueError('plan SHA256 required')
+    return {'schema':'experiment-inventory-v2','provider':plan['provider'],'mode':'parallel',
+            'campaign_id':None,'execution_enabled':False,'plan_sha256':plan_sha256,
+            'role_targets':deepcopy(plan['clusters']),
+            'nodes':deepcopy(plan['resource_requirements']),
+            'scope':'dedicated Linux roles; no Kubernetes; template does not allocate resources'}
+
+
+def validate_scale(value):
+    if value.get('provider') not in ('aliyun','provided') or value.get('mode')!='parallel':
+        raise ValueError('dedicated aliyun/provided role allocation required')
+    if value.get('execution_enabled') is not False:raise ValueError('inventory check cannot enable execution')
+    if not re.fullmatch('[0-9a-f]{64}',value.get('plan_sha256','')):raise ValueError('plan SHA256 required')
+    if not re.fullmatch(r'[a-z0-9][a-z0-9-]{2,63}',value.get('campaign_id') or ''):raise ValueError('fill campaign_id')
+    nodes=value.get('nodes',[])
+    if not nodes:raise ValueError('empty nodes')
+    for key in ('id','ssh_alias','private_ip','resource_id'):
+        vals=[n.get(key) for n in nodes]
+        if any(not isinstance(v,str) or not v.strip() for v in vals) or len(vals)!=len(set(vals)):
+            raise ValueError('fill unique '+key)
+    expected={}
+    for cluster,target in value.get('role_targets',{}).items():
+        if cluster not in ('C1','C2','C3','C4'):raise ValueError('unknown cluster')
+        for role in target['roles']:
+            if type(role['count']) is not int or role['count']<1:raise ValueError('invalid role count')
+            for index in range(1,role['count']+1):
+                expected[f'{cluster.lower()}-{role["role"]}-{index:03}']=(cluster,role)
+    if set(expected)!={n['id'] for n in nodes}:raise ValueError('allocation must match exact planned roles')
+    classes={}
+    for node in nodes:
+        cluster,role=expected[node['id']]
+        if node.get('cluster_id')!=cluster or node.get('role')!=role['role'] or node.get('requirements')!=role:
+            raise ValueError('node requirements differ from role plan')
+        if not re.fullmatch(r'[A-Za-z0-9_-]+',node['ssh_alias']):raise ValueError('dedicated SSH alias required')
+        if not ipaddress.ip_address(node['private_ip']).is_private:raise ValueError('private address required')
+        if node.get('host_key_verified') is not True or not node.get('hardware_class'):raise ValueError('verify host key and hardware class')
+        if type(node.get('owned_by_campaign')) is not bool:raise ValueError('record exact ownership; do not infer deletion scope')
+        classes.setdefault((cluster,role['role']),set()).add(node['hardware_class'])
+        paths=[linux_path(p) for p in [node['work_root'],*node['data_mounts']]]
+        if len(node['data_mounts'])!=len(role['data_disks_gib']) or len(set(paths))!=len(paths):
+            raise ValueError('distinct approved mounts must match role disk count')
+        for i,path in enumerate(paths):
+            if any(path in other.parents or other in path.parents for other in paths[i+1:]):
+                raise ValueError('overlapping work/data directories')
+        for key in ('min_free_bytes_per_disk','min_free_inodes_per_disk'):
+            if type(node.get(key)) is not int or node[key]<=0:raise ValueError('positive measured capacity requirement required')
+    if any(len(v)!=1 for v in classes.values()):raise ValueError('hardware must match within each role pool')
+    if ('C4','source') in classes and classes[('C4','source')]!=classes.get(('C4','target')):
+        raise ValueError('C4 source and target hardware must match')
+    return {'passed':True,'nodes':len(nodes),'provider':value['provider'],'mode':'parallel',
+            'scope':'static allocation only; actual role CPU/memory, disk capacity, network, ownership and runtime evidence still required',
+            'execution_enabled':False,'hardware_verified':False}
+
+
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest='action', required=True)
     t = sub.add_parser('template'); t.add_argument('--provider', choices=['aliyun', 'provided'], required=True)
     t.add_argument('--mode', choices=['parallel', 'sequential'], default='parallel')
     t.add_argument('--output', required=True)
+    s = sub.add_parser('from-plan'); s.add_argument('--plan',required=True); s.add_argument('--output',required=True)
     v = sub.add_parser('check'); v.add_argument('--inventory', required=True); v.add_argument('--output', required=True)
     a = p.parse_args()
     if a.action == 'template':
         write_new(a.output, template(a.provider, a.mode))
+    elif a.action == 'from-plan':
+        write_new(a.output, from_plan(load(a.plan),digest(a.plan)))
     else:
         result = validate(load(a.inventory)); result['inventory_sha256'] = digest(a.inventory)
         write_new(a.output, result)

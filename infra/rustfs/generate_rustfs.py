@@ -27,8 +27,12 @@ def generate(spec, out):
     if experiment is not None:
         if not re.fullmatch(r'ax-[a-z0-9-]{3,55}', experiment.get('project_name', '')):
             raise ValueError('unique ax- campaign/node/attempt project_name required')
-        if experiment.get('cpus') != 3 or experiment.get('memory_bytes') != 16 * 1024**3:
-            raise ValueError('formal backend budget is 3 CPU / 16 GiB')
+        protocol = experiment.get('protocol_profile', 'qualification-20261029')
+        if protocol not in ('qualification-20261029', 'ecs-20261101'):
+            raise ValueError('unknown experiment protocol_profile')
+        cpus, memory_gib = (56, 224) if protocol == 'ecs-20261101' else (3, 16)
+        if experiment.get('cpus') != cpus or experiment.get('memory_bytes') != memory_gib * 1024**3:
+            raise ValueError(f'{protocol} backend budget is {cpus} CPU / {memory_gib} GiB')
         if experiment.get('stage') not in ('G','A','P','D','F','M'):
             raise ValueError('explicit experiment stage required')
         profile = experiment.get('layout_profile')

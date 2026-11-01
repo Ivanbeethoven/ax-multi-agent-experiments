@@ -1,5 +1,7 @@
 # 当前实验脚本入口
 
+使用 `scale_plan.py --campaign ecs-20261101`，显式选择C1–C4、aliyun/provided、docker/vm、pilot/main/expanded与baseline/writeback；再用 `experiment_inventory.py from-plan` 生成角色模板。详见 [部署步骤与实现状态](../experiments/retest-2026-10-29/runbook/DEPLOYMENT.zh.md)。两个工具只规划/静态核验，host_preflight只读检查实际主机；不会调用云API或开始回放。
+
 扩展入口：[scale_plan.py](scale_plan.py) 生成 64/128 Agent、VM/Docker、两类服务器矩阵；[trace_think_plan.py](trace_think_plan.py) 生成默认不启用的固定总量随机等待。规模操作见 [SCALE-RUN](../experiments/retest-2026-10-29/runbook/SCALE-RUN.zh.md)。
 
 操作命令和 AI 检查点只维护在 [统一分步手册](../experiments/retest-2026-10-29/runbook/RUN.zh.md)，不在这里再复制参数。

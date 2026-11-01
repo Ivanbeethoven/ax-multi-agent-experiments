@@ -1,92 +1,55 @@
-# 四集群与 Agent 分工
+# 四组负责人和执行交接
 
-**主目标已改为 64 Agent / 扩展 128 Agent，每 Agent 独立 VM 或 Docker。** 先按 [扩展方案](../SCALE.zh.md) 和 [SCALE-RUN](SCALE-RUN.zh.md) 填写调度单的 protocol_profile=scale 或 qualification、isolation=docker/vm。下文 9/3 台与 192/48/60/42 计数只属于基础资格池，不可套用到规模测量。四个 owner 管理工作 Agent，不计入被测并发。
+四组沿用[总览](../PLAN.zh.md)，以[新版部署手册](DEPLOYMENT.zh.md)的ECS/自备两版资源合同执行。一个owner监督本组全部工作Agent，owner不计入被测并发；当前phase=prepare，不部署或开跑。
 
-基础资格参数以 [实验方案](../../../paper-design/FINAL-PLAN.zh.md) 为准，规模组以 [SCALE](../SCALE.zh.md) 与 [硬件预算](../HARDWARE.zh.md) 为准，操作按 [分步手册](RUN.zh.md)。C1–C4 是实验设置与资源分组，baseline 在组内比较。每组由一个 Agent 负责；阿里云与自备服务器使用相同合同。当前只有准备代码，未分配或启动新测试服务器。首次交给一个 Agent 时可使用 [C1 限定试跑 prompt](agents/C1-pilot.prompt.md)。
-
-调度单另填 `study=baseline/writeback`，默认 baseline。writeback 是 SCALE 定义的独立上传策略消融：C1 186 cohort、C4 90；C2/C3 不扩增。C1 可另加 12 项等待交互，不自动扩展全矩阵。该选择只是计划范围，不是运行权限或功能已就绪的证据。
-
-## 1. 固定分工
-
-| 集群 / 唯一负责人 | 实验 | baseline 与并行安排 | 初始 prompt |
+| 唯一负责人 | 负责实验 | 池内安排 | 独立执行方prompt |
 |---|---|---|---|
-| C1 / c1-owner | G 产品比较；A Overlay 消融 | G：Overlay/JuiceFS 两机；A：flat/Overlay 另两机。两个池同时测，池内两周期换位 | [C1](agents/C1.prompt.md) |
-| C2 / c2-owner | P 海量只读 ML 小文件 | Pack vs Native+TiKV。一个完整区组内在同一 worker 交替测两臂；多个完整区组可独立分机 | [C2](agents/C2.prompt.md) |
-| C3 / c3-owner | D RustFS 动态布局 | 无 hint 与四个 B。一个 worker 顺序测完整配对组；不同完整区组可分机 | [C3](agents/C3.prompt.md) |
-| C4 / c4-owner | F fork / clone；M Agent 跨节点流转 | F 三臂同机；M 在固定源/目标执行节点与独立服务节点上比较 BrewFS/JuiceFS，各有 stay/move 对照 | [C4](agents/C4.prompt.md) |
+| c1-owner | Agent trace主对照、BrewFS内部对照、独立上传策略消融 | 同一共享服务池顺序测臂；同步主线和writeback分开 | [C1](agents/C1.prompt.md)；[pilot](agents/C1-pilot.prompt.md) |
+| c2-owner | Pack/Native+TiKV海量只读ML | 同语料/读集；三个PD/TiKV节点属于本组 | [C2](agents/C2.prompt.md) |
+| c3-owner | RustFS布局与并发S3 | 五臂完整区组；两请求节点的全局在途总和为N | [C3](agents/C3.prompt.md) |
+| c4-owner | fork/clone/cp、跨节点stay/move | F/M顺序复用；源目标独立，服务池不跟Agent移动 | [C4](agents/C4.prompt.md) |
 
-基础机制/资格推荐 **9 台 Linux 服务器**；管理由现有工作站承担：
+四组可并行准备；并行测量须使用各自独立可变服务池。共享的只有冻结源码、构建产物与只读输入；构建/分发/哈希扫描在计时外。组内baseline若要并行，再给完整独立等规格池并轮换放置，不隐瞒服务争用。
 
-| 节点 | 用途 | 数据盘 |
-|---|---|---|
-| n01、n02 | C1-G 两机交叉比较 | 每台 4 个独立数据盘 |
-| n03、n04 | C1-A 两机交叉消融 | 每台 4 个独立数据盘 |
-| n05 | C2-P 完整配对区组 | 4 个独立数据盘 |
-| n06 | C3-D 完整配对区组 | 4 个独立数据盘 |
-| n07、n08 | C4-M 源/目标执行节点 | 每台至少 1 个专用本地数据盘/文件系统用于输入、缓存和状态 |
-| n09 | C4-F 单机；完成 F 后作为 M 持久服务节点 | 4 个独立数据盘 |
+## 调度单
 
-最低 **3 台**也可：`mode=sequential`，C1 的 G/A、C2、C3、C4 顺序独占复用；每台准备四个独立数据盘。四个 Agent 可并行准备，计时任务必须由主会话逐组交接。7 台可先跑 G/A/P/D/F，之后将 C1 释放的两台改为 M 执行节点。不能在旧进程/FUSE 未结束或证据未保全时移交。
-
-同一对照硬件、磁盘、网络与系统版本必须相同。自备机实际规格不足时另开规格批次，统一各臂预算，不把不同规格或不同供应商结果混成配对区组。阿里云资源数量/地域/费用范围先写调度单；自备机的机器所有权始终属于提供方。
-
-基础资格池的 C2/C3/C4 扩容只增加执行完整配对区组的 worker；规模组按 SCALE 的共享后端与固定资源预算扩容客户端，不把“方法 X 永远在机器 1、方法 Y 永远在机器 2”当可比结果。机器身份、区组、周期、方法在任务表中明确记录。
-
-## 2. 资源和数据边界
-
-| 对象 | 规则 |
-|---|---|
-| 云资源 | 每个 Agent 只管理自己清单中的实例、盘、SG/来源规则、临时桶和 keypair；以精确 ID 和归属为准，不按宽泛名称批量删除 |
-| 状态 | `runs/<campaign>/<C1..C4>/` 各自保存调度单、配置、事件日志、结果、保全与清理回执；新尝试用新 attempt ID |
-| 后端 | 基础资格 G/A/P/D/F 每个 worker 独占 RustFS/元数据/缓存；规模组的所有 Agent 共享本组服务池，按 SCALE 固定预算；C1 的 G/A 不共享可变服务。M 的源/目标访问同一专用持久服务节点，两种 filesystem 顺序使用隔离的 DB/bucket/卷；不把服务随 Agent 一起搬走 |
-| 版本与资产 | 主会话先统一冻结；同一构建只做一次，所有 Agent 按 SHA/digest 取用；不能各自更新分支造成版本漂移 |
-| OSS 输入 | [7 份 trace 目录](../../../paper-design/TRACE-WORKLOADS.zh.md)只读；新结果不能覆盖输入。公开桶不能直接存私有配置或原始凭据 |
-| 网络 | 优先单一管理入口＋私网 worker；严格 host-key 和既定来源；共享跳板由主会话负责，各 Agent 不删除 |
-
-四集群共享的是固定输入与产物，不共享测量中的可变服务。输入分发、哈希扫描、构建、上传安排在计时之外。
-
-## 3. 发给每个 Agent 的调度单
-
-复制对应 prompt 时附一份调度单。至少填写：
+主会话把对应prompt与以下实际信息一起交接，路径均来自执行方，不猜旧Windows目录、SSH别名或云实例：
 
 ```json
 {
-  "campaign_id": "实际唯一批次 ID",
+  "campaign_id": "由执行方填写",
+  "campaign_profile": "ecs-20261101",
   "cluster_id": "C1",
-  "study": "baseline",
   "owner_agent": "c1-owner",
+  "provider": "aliyun",
+  "isolation": "docker",
+  "profile": "pilot",
+  "study": "baseline",
   "phase": "prepare",
-  "run_dir": "本集群绝对路径",
-  "plan_path": "本集群冻结任务表",
-  "plan_sha256": "实际 SHA256",
-  "shared_asset_manifest": "已核验产物清单及 SHA",
-  "source_pins": "本批 BrewFS / RustFS / JuiceFS 记录",
-  "allocation_manifest": "实例/盘/网络/密钥的精确清单与归属",
-  "provider": "aliyun 或 provided，与 inventory.json 一致",
-  "inventory": "已填实际服务器信息并核验的 inventory.json 及 SHA",
-  "resource_budget": "已确定的数量、规格、地域和费用上限",
-  "execution_authorization": "人类批准的范围或明确仅准备",
-  "result_retention": "本地保全目录及允许的远端输出前缀"
+  "execution_enabled": false,
+  "run_dir": null,
+  "frozen_repo_sha": null,
+  "plan_path": null,
+  "plan_sha256": null,
+  "inventory_path": null,
+  "input_verification": null,
+  "source_and_artifact_pins": null,
+  "budget_and_resource_authorization": null,
+  "result_retention": null
 }
 ```
 
-`phase=prepare` 只核查、补齐单步脚本、生成配置和就绪报告。缺少资源清单时，不自行找历史实例或购机。得到明确执行范围后，Agent 仍先核当前进程和实际资源，不能把旧状态当本轮运行证据。
+provider=provided时不填ECS假ID，使用真实资产编号；C2/C3/C4没有C1 pilot，选择main作为待审计划，资格另记。study=writeback仅C1/C4、main，能力未就绪不得开跑。输入下载权限不授予采购、改盘或运行完整矩阵。
 
-主会话可分别生成四份计划，以下每次调用只写一份文件：
+## 监督合同
 
-```bash
-python3 bench/final_plan.py --cluster C1 --output "$RUN_DIR/C1-plan.json"
-```
+1. 安全同步仓库，记录并冻结实际完整SHA；先读AGENTS、总览、部署、数据与自己prompt。RustFS固定指定分支，构建一次并核源码/镜像/二进制对应。
+2. 生成本组计划和准确节点模板；填真实资源与预算、host-key、独占路径、数据盘和宿主关系。执行已有明确授权的范围，不因为其他会话完成了下载就扩大本组。
+3. 一次完成一个操作：准备步骤spec→执行→保存退出码与输出SHA→检查→下一步。没有包办建机、全矩阵、重试、删机的总脚本。
+4. 计时前核全部worker就绪，计时中不插入监督思考。所有原始结果/慢值/失败/缺测保留；新尝试新attempt，不盲重投、不按结果选重复。
+5. 当前进度记录preparing/ready/running/blocked/collected/cleaned与实际证据。未完成适配如实列缺项，不能以空模板或true字段代替验收。
+6. 完整归档下载核SHA，确认回放/构建/FUSE/服务停止后再按本组精确归属清理。自备保留服务器和原数据，云资源释放以查询确认为准。共用管理入口由主会话收尾。
 
-C2/C3 替换参数；C4 使用 `--cluster C4 --include-migration`，共 42 个单元（F 18＋M 24）。计划写入负责人、baseline、池、区组和周期；所有 `execution_enabled` 初始为 false。M 先过独立会话恢复资格门，再执行 24 项，不阻断其他组。单次 smoke 不并入正式三区组。
+C4 fork重试保持原key/请求/子项ID，不回退已推进head；删除前drain、卸载与lease检查，不能以DELETE代替迁移释放写者。Manager单实例、原journal恢复与namespace所有权规则见[MANAGER](MANAGER.zh.md)，不能跨组共管catalog。C1默认不部署仍用SQLite journal的Manager。
 
-## 4. 每个 Agent 的执行合同
-
-1. 先读 AGENTS、主方案、本文件、自己的 prompt 和分步手册；核调度单与输入/产物摘要，写 `readiness.json`，逐条列出已验证和缺失项。
-2. 按“准备一个步骤→执行→读取输出→AI 判定→下一步骤”推进。旧整套运行器只可参考；不得用一个脚本自动跑完所有 baseline、重试并清理。
-3. `step-events.jsonl` 记录实际命令（脱敏）、时间、退出码、PID/单元、输出文件与 AI 判定。中断先查真实进程并保全结果；状态不明不得重投。
-4. 不为成绩改任务、版本、缓存、重复数或错误规则。失败、未完成、有效慢值都保留；新条件要新批次，不能覆盖原结果。
-5. 汇报 `status.json`：`preparing / ready / running / blocked / collected / cleaned`、当前 cell、证据路径、缺失条件。普通无变化无需反复通知。
-6. 最后校验原始结果/日志完整性，生成 SHA 清单，下载后再次核 SHA；确认本集群进程、构建、FUSE 和服务结束，再按精确清单清理自身资源。只以实际查询确认的释放结果写 `cleaned`。共享资源留给主会话统一收尾。
-
-主会话负责统一版本、调度单、跨集群冲突和最终报告。Agent 可以修复自己负责的单步入口，但测量中不能静默替换二进制或更改冻结合同。配置缺项先形成可审阅改动和阻断说明，不假装门禁已经通过。
+主会话负责统一版本、预算、跨组冲突和结果汇总；各owner负责本组逐步资格与证据。未授权运行时，交付具体配置、脚本适配和缺项即可，不启动任何实验。

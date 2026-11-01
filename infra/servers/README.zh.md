@@ -1,30 +1,27 @@
-# 自备 Linux 服务器
+# 自备 Linux 服务器版本
 
-规模更新：主实验按 [64/128 Agent 方案](../../experiments/retest-2026-10-29/SCALE.zh.md) 交付执行/服务角色；Docker 与独立 VM 分开，宿主容量/密度另核。下文 9/3 台模板只供基础资格，不代表整个规模目标。
+与[ECS版本](../alicloud/PROVIDER.zh.md)使用相同C1–C4输入、baseline、方法、指标和逐步脚本；使用provider=provided，不调用云API，无需Kubernetes。硬件和角色见[部署手册](../../experiments/retest-2026-10-29/runbook/DEPLOYMENT.zh.md)，不能再用旧8核/32GiB、9/3台基础资格配置冒充64/128规模。
 
-实验方案、baseline、输入、指标、脚本与阿里云版本相同，使用 [统一分步手册](../../experiments/retest-2026-10-29/runbook/RUN.zh.md)。推荐 9 台并行；最低 3 台顺序复用，分配见 [四组拓扑](../../experiments/retest-2026-10-29/runbook/CLUSTERS.zh.md)。当前不要求提供地址，不连接或修改任何服务器。
+```bash
+python3 bench/scale_plan.py --campaign ecs-20261101 --provider provided --isolation docker --profile main --cluster C2 --output "$RUN_DIR/plan.json"
+```
 
-## 提供条件
+```bash
+python3 bench/experiment_inventory.py from-plan --plan "$RUN_DIR/plan.json" --output "$RUN_DIR/inventory.json"
+```
 
-| 项目 | 要求 |
+C1/C3/C4替换cluster，128用expanded；独立VM使用vm并记录真实宿主映射。生成器不含ECS候选SKU，但保留同一角色CPU/内存/磁盘要求，输入/工作目录/地址待提供方填写。
+
+| 提供内容 | 验收 |
 |---|---|
-| 计算 | 建议每台至少 8 核 / 32 GiB；同一比较的 CPU 型号、NUMA、系统/kernel、磁盘类型相同；记录 CPU governor、虚拟化与后台负载 |
-| 存储 | RustFS 主机 4 个独立、已挂载的 XFS/ext4 数据设备，每盘名义容量至少 250 GiB；不能用同盘四分区或四目录。n07/n08 仅运行客户端，可只提供专用本地工作盘 |
-| 工作区 | 每机另有本地输入、缓存、元数据与结果空间，建议至少 100 GiB；不写进 RustFS volume。Agent 解包前按实际清单核可用容量/inode |
-| 网络 | 节点私网互通，记录链路速率、RTT；M 的客户端至同一服务节点走相同链路。服务器是否处于不同物理主机另留证 |
-| 运行环境 | Python 3.11+、Docker/Compose v2、FUSE3、fio、Git、util-linux；D 另需 boto3。镜像和二进制统一按 SHA/digest 分发，测量期间不安装/构建 |
-| 权限 | 提供 SSH 别名、可信 host-key、批准的目录/盘与必要的有限 sudo；cgroup v2 可用。不得默认这些机器可以重装或格式化 |
+| 服务器/VM | 真实资产号、CPU/线程/NUMA、内存、虚拟化与宿主关系，禁止隐蔽超卖 |
+| 设备与目录 | 已批准独立数据设备、已挂载XFS/ext4、输入/缓存/结果工作区、所有权与容量；不默认允许格式化 |
+| 网络与身份 | 私网、可信SSH host-key、专用SSH别名、必要有限sudo；严格host-key检查，有现成跳板才用 |
+| 运行环境 | Linux、Python3.11+、FUSE3、cgroupv2；Docker/Compose按隔离选择提供；冻结工具和构建产物 |
+| 空闲与配额 | 本轮独占时间、进程/挂载/服务归属、每角色cgroup与峰值余量，不能仅凭配置文件验收 |
 
-## 准备顺序
+先填inventory并静态检查，再逐机host_preflight；该检查按角色核CPU/内存、盘数与名义容量，网络/峰值/真实空闲状态另留证。机器不足时交付缺项，不自行租补。若合并角色或改变每宿主Agent密度，另立硬件配置及完整配对，不偷偷沿用原结果。
 
-1. 生成未填拓扑：`python3 bench/experiment_inventory.py template --provider provided --mode parallel --output "$RUN_DIR/inventory.json"`。3 台改 `sequential`。此模板不可执行，空字段必须填成实际信息。
-2. 填节点 SSH 别名、私网 IP、资产编号、已核 host-key、硬件类别、挂载点、工作区及容量下限。`resource_id` 是提供方资产号；不填 ECS ID，不复用历史机器清单。
-3. 用管理端专用 SSH 配置连接；设置 `StrictHostKeyChecking=yes`、`UserKnownHostsFile`、`IdentitiesOnly=yes`、`BatchMode=yes`，有跳板再填 ProxyJump。公钥指纹由可信管理渠道核对，不能把首次扫描自动当可信。
-4. `experiment_inventory.py check` 后，在每台运行 `host_preflight.py`。主会话对比实际 CPU/盘/内存/kernel，而非只相信填写的 `hardware_class`。单机检查不证明无人使用，还须查进程、FUSE、容器、端口与已知服务归属。
-5. 按 [统一手册](../../experiments/retest-2026-10-29/runbook/RUN.zh.md) 冻结产物，分别准备资源限额、服务、数据和客户端。完成 1,024 文件/小 trace/布局与会话恢复资格验证后，AI 决定当前单元是否就绪。
+输入下载按[27份trace交接](../../experiments/retest-2026-10-29/runbook/DATA.zh.md)，也可使用同SHA的本地镜像；业务计时不依赖公网。阶段顺序与ECS相同：冻结→主机→服务→输入→原生挂载/资格→一个cohort→保全。
 
-## 收尾与差异
-
-下载并核验结果后，只清理由该 Agent 创建且列在清单中的挂载、进程、容器、数据库命名空间、桶前缀和工作目录。**不删除服务器、不格式化设备、不清其他用户数据、不关闭提供方已有服务。** 不在共享机执行全局 drop_caches；无法隔离冷态时标记未达到冷态条件。
-
-Aliyun 与 provided 使用独立 campaign，硬件/网络不同的数据分别报告；共用相同逻辑输入与方法，不把两类环境的轮次凑成一个配对样本。提供的机器不足以满足拓扑时保留准备状态，不自行租补机器。
+收尾只处理本轮登记的挂载、进程、容器、DB/key前缀和工作目录；**不删除服务器、不格式化、不清他人数据、不停原有服务**。共享机不得全局drop_caches，不能隔离冷态则标记不满足条件。provider之间独立campaign，硬件差异的数据不拼成一个配对区组。

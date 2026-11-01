@@ -16,7 +16,9 @@ M 中客户端预算 4 CPU/8 GiB 在当前执行节点；元数据仍计入这 8
 
 ## 单步执行
 
-Manager #390 的 [实际能力与接入步骤](MANAGER.zh.md) 仅覆盖本地 SQLite catalog 的创建/fork/逻辑删除，未提供 checkpoint、drain、attachment 或 handoff。本页步骤 02–07 仍由原生适配器完成；不调用草案 API，不用 DELETE 代替释放写者，也不因 Manager 已合并而把两节点恢复标为通过。
+Manager [实际能力与接入步骤](MANAGER.zh.md) 已对齐 PR #394 合并提交 `cba857b567fa6e94d50edd1d2e1c47c25c7b2e50`，覆盖共享 Redis/TiKV 的 workspace-v1 与 native-v2 P1 catalog lower 创建/登记、fork、检查和逻辑删除。它仍未提供 checkpoint、mount、drain、attachment、handoff 或 remote-ready 回执。本页步骤 02–07 由原生适配器完成；不调用设计草案 API，不用 DELETE 代替释放写者，不因 Manager 的真实后端测试通过而把两节点恢复标为通过。本次仅更新准备步骤，不启动 M。
+
+交接前后分别保全 Manager workspace 检查中的完整 `mount_identity` 与 native head/domain/generation（适用时），与客户端实际连接配置、volume/workspace/storage namespace 和写者身份对账；响应不包含连接凭据，也不是可直接执行的 mount 命令。Manager journal/session 与客户端 writer lease 是不同边界：关闭 Manager 不排空客户端，session 到期不证明源写者已退出或数据已保全。native P1 的不可变 catalog revision 不冻结当前 mutable head；不能借 fork 或重建 workspace 替代原工作区交接。native-v2 在该版本不支持 `commit_before_upload`，对应异步迁移条件保持能力阻塞。
 
 | 步骤 | 操作 | 必须检查 |
 |---|---|---|
