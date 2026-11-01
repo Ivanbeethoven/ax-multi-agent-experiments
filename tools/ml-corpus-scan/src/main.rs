@@ -39,12 +39,24 @@ fn entry(line: &str) -> Result<Entry, String> {
         path,
     })
 }
-#[derive(Default)]
 struct Counts {
     files: u64,
     bytes: u64,
     errors: u64,
     first_error: Option<String>,
+    // Power-of-two nanosecond buckets: bounded memory even for 32M files.
+    latency_ns_log2: [u64; 64],
+}
+impl Default for Counts {
+    fn default() -> Self {
+        Self {
+            files: 0,
+            bytes: 0,
+            errors: 0,
+            first_error: None,
+            latency_ns_log2: [0; 64],
+        }
+    }
 }
 fn access(root: &Path, e: &Entry, mode: &str) -> Result<u64, Box<dyn std::error::Error>> {
     let path = root.join(&e.path);
@@ -127,6 +139,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 };
                 for e in batch {
                     counts.files += 1;
+                    let access_started = Instant::now();
                     match access(&root, &e, &mode) {
                         Ok(n) => counts.bytes += n,
                         Err(error) => {
@@ -136,6 +149,12 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                             }
                         }
                     }
+                    let nanos = access_started
+                        .elapsed()
+                        .as_nanos()
+                        .max(1)
+                        .min(u64::MAX as u128) as u64;
+                    counts.latency_ns_log2[(63 - nanos.leading_zeros()) as usize] += 1;
                 }
             }
             counts
@@ -178,6 +197,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         total.files += c.files;
         total.bytes += c.bytes;
         total.errors += c.errors;
+        for (bucket, count) in total.latency_ns_log2.iter_mut().zip(c.latency_ns_log2) {
+            *bucket += count;
+        }
         if total.first_error.is_none() {
             total.first_error = c.first_error;
         }
@@ -191,6 +213,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         "manifest_sha256":format!("{:x}",sha.finalize()),"expected_files":expected,"manifest_records":records,
         "attempted_files":total.files,"actual_read_bytes":total.bytes,"expected_payload_bytes":expected_bytes,
         "errors":total.errors,"first_error":total.first_error,"source_error":source_error,
+        "access_latency_ns_log2":total.latency_ns_log2.as_slice(),
+        "latency_scope":"all attempted accesses including errors; bucket k is [2^k,2^(k+1)) ns; includes stat/open/read, not manifest queue wait",
         "wall_seconds":started.elapsed().as_secs_f64(),"content_verified":passed && mode=="verify",
         "scope":"fixed manifest readonly access; includes dispatch and manifest streaming; not live-agent end-to-end",
         "total_timeout_seconds":null,"queue_batches":workers*2,"batch_files":256});

@@ -8,6 +8,21 @@ import scale_plan as scale
 
 
 class ScaleTests(unittest.TestCase):
+    def test_eight_agent_two_executor_revision_both_providers(self):
+        for provider in ('aliyun','provided'):
+            for profile,count in [('pilot-8',4),('c1-8',120)]:
+                p=scale.build(profile,'docker',provider,'C1',campaign='ecs-20261101')
+                self.assertEqual(p['total_cells'],count)
+                self.assertEqual(p['parallel_node_count'],5)
+                self.assertEqual(p['parallel_reference_compute'],{'vcpus':168,'memory_gib':672})
+                rows=p['placement_templates']['C1']
+                self.assertEqual(len(rows),8)
+                self.assertEqual([sum(r['executor_node']==node for r in rows) for node in ['c1-source-001','c1-source-002']],[4,4])
+                self.assertTrue(all(c['params']['agents']<=8 for c in p['cells']))
+                self.assertTrue(all('complete-raw-telemetry-and-phase-coverage' in c['requires'] for c in p['cells']))
+                self.assertFalse(p['execution_enabled'])
+        with self.assertRaises(ValueError):scale.build('c1-8','vm','provided','C1',campaign='ecs-20261101')
+
     def test_counts_roles_no_actions_and_whole_paired_blocks(self):
         for profile,count,nodes in [('main',618,45),('expanded',990,77)]:
             p=scale.build(profile)

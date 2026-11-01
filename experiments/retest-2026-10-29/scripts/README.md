@@ -4,7 +4,7 @@
 
 | 脚本 | 作用 |
 |---|---|
-| [build-client.sh](build-client.sh) | 从冻结 Git 对象导出并构建一次；同版本已验证产物直接复用 |
+| [build-client.sh](build-client.sh) | 固定源码导出并构建一次，包含observability；只复用源码/工具链/features/profile均相同且核SHA的产物。packed fixture仅供独立资格，不能代替C1生产native lower |
 | [capture-build-receipt.py](capture-build-receipt.py) | 逐源文件核 frozen archive，核二进制与构建记录 |
 | [restore-runtime.py](restore-runtime.py) | 从保留包恢复核验过的 RustFS/JuiceFS/回放工具，不复用旧 BrewFS |
 | [prepare-ml-corpus.py](prepare-ml-corpus.py) | 固定 TinyStories 下载、记录拆分、manifest；明确披露任何复制扩展 |

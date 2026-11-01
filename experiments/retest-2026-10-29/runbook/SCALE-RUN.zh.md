@@ -2,7 +2,7 @@
 
 **当前完整的四组ECS/自备步骤、角色与能力状态已统一到 [DEPLOYMENT](DEPLOYMENT.zh.md)。新计划显式使用--campaign ecs-20261101，C1无SQLite服务依赖；下文保留legacy通用参考，旧main数量与Manager作为必需步骤的表述不覆盖新版。输入以 [27份trace交接](DATA.zh.md) 为准。**
 
-先读 [64/128 Agent 方案](../SCALE.zh.md) 和 [硬件预算与验收](../HARDWARE.zh.md)。当前只准备，不分配资源或启动 cohort；收到具体试跑调度后按其范围执行，[首次 C1 prompt](agents/C1-pilot.prompt.md) 限定 5 节点、1→8→16。一个负责 Agent 监督本组全体工作 Agent；不能给每个工作 Agent 独立修改 baseline 的权限。
+最新C1按[专用方案](../C1-ALIYUN.zh.md)缩为8 Agent、两执行节点各4个，pilot-8为1→8，共5节点；c1-8正式120 cohort。先读[适配手册](ADAPTERS.zh.md)和[观测验收](OBSERVABILITY.zh.md)。下文64/128与legacy矩阵仅留扩展参考；一个负责Agent监督整组，工作Agent不能自行修改baseline。
 
 C1/C4 生命周期接入另按 [MANAGER](MANAGER.zh.md) 查询能力、逐项确认与保全。本次基线为 PR #394 合并提交 `cba857b567fa6e94d50edd1d2e1c47c25c7b2e50`：共享 Redis/TiKV 的 workspace-v1 与 native-v2 P1 catalog lower 已支持，实际执行仍冻结 source/features/binary/capability。格式匹配、非空 lower 发布、API→客户端身份映射、RustFS/FUSE 读写与重挂均需独立资格；不能沿用旧 `local_api_only` 结论，也不能直接标 formal ready。Manager 不提供 checkpoint、mount、drain、handoff 或 remote-ready 证明，客户端与迁移适配仍保留待验证项。
 
@@ -16,7 +16,7 @@ C1/C4 生命周期接入另按 [MANAGER](MANAGER.zh.md) 查询能力、逐项确
 | 4 输入与环境 | 完整 trace/语料/任务映射、独立 workspace/HOME/XDG、cgroup；C1/C4 另存 manager-integration 与完整 operation/资源身份 | 同一服务池，写者/缓存/会话不串；下载/全量核验在计时外；非空受支持 revision 与实际挂载一致，Manager 元数据成功不替代客户端资格 |
 | 5 可选等待 | trace_think_plan.py，一 Agent/任务一计划 | 默认关；只有多 trace 回放可开；明确 T、可信边界、每段≤15 s、总和=T、两臂共用 SHA |
 | 6 单 Agent 资格 | 原 Rust 回放、fs_step/session_check 等单步入口 | 完整性、语义、资源与数据路径；不以吞吐排名作为准入 |
-| 7 cohort 就绪 | 分布式准备收据/屏障/活跃度监测适配（待实现） | N 个环境同时就绪，核实际并发曲线；协调器只在全部通过后一次放行 |
+| 7 cohort就绪 | runtime/cohort与observe | 全部worker与原生观测ready、采集开销资格通过后一次放行；内核并发另用CPU/I/O曲线佐证 |
 | 8 一个 cohort | N 个独立进程/容器或 VM 一次执行 | 不在计时路径插入监督 AI 思考；记录每 Agent 生命周期，失败不自动重投 |
 | 9 收集与下个条件 | 每 Agent 输出＋cohort 汇总＋SHA/失败表 | 全体终态、原值和保全；再重建初态换臂/升档，禁止按有利结果选子集 |
 
@@ -44,4 +44,4 @@ C1 输出 186 个 cohort；改为 C4 输出 90 个。C2/C3 不适用，传入会
 
 旧 final_plan.py / experiment_inventory.py 对应基础资格组；规模矩阵使用 scale_plan.py，输出中的 placement_templates 只是逻辑位置，actual_host_id 尚空，不是可部署清单。主会话必须另行批准实际资源映射。
 
-现有 experiment_step.py 一次只执行一个已审阅命令；不能用它把 N 个实例顺序启动就算同时并发。尚缺的 cohort 屏障/观测、并发 S3、burst fork、批量迁移适配必须先补齐并小规模验证。不会用 sleep 伪造就绪或结果。工具入口和未完成项按 [RUN](RUN.zh.md) 保留。
+experiment_step一次执行一个已审阅命令；runtime/cohort统一屏障释放一个批次，s3_requests分摊全局在途，handoff执行一次clean交接。原生fork/clone/burst和多迁移Agent的真实资格仍需现场验证；Manager的串行处理不能包装成并行完成。执行步骤以ADAPTERS和OBSERVABILITY为准。

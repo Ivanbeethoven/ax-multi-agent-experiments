@@ -130,8 +130,12 @@ def placement(agents,isolation,migration=False):
 def build(profile='main',isolation='docker',provider='provided',cluster=None,seed=42,include_llm_simulation=False,study='baseline',campaign='legacy-20261029'):
     if campaign not in ('legacy-20261029',DEPLOYMENT_CAMPAIGN):raise ValueError('unknown campaign')
     modern=campaign==DEPLOYMENT_CAMPAIGN
-    if profile not in ('main','expanded','pilot') or isolation not in ('docker','vm') or provider not in ('provided','aliyun'):
+    if profile not in ('main','expanded','pilot','c1-8','pilot-8') or isolation not in ('docker','vm') or provider not in ('provided','aliyun'):
         raise ValueError('invalid profile/isolation/provider')
+    small=profile in ('c1-8','pilot-8')
+    pilot=profile in ('pilot','pilot-8')
+    if small and (not modern or cluster!='C1' or study!='baseline' or isolation!='docker'):
+        raise ValueError('eight-Agent campaign requires ECS campaign, C1 baseline and Docker on two executors')
     if profile=='pilot' and (not modern or cluster!='C1' or study!='baseline'):
         raise ValueError('pilot requires ecs-20261101, C1, baseline')
     if modern and include_llm_simulation:
@@ -165,7 +169,7 @@ def build(profile='main',isolation='docker',provider='provided',cluster=None,see
                 identity=[protocol,provider,isolation,g['name'],condition]
                 if modern:identity.append(profile)  # expanded C2/C4 storage budgets differ
                 key=hashlib.sha256(json.dumps(identity,sort_keys=True).encode()).hexdigest()[:16]
-                for block in ((1,) if profile=='pilot' else (1,2,3)):
+                for block in ((1,) if pilot else (1,2,3)):
                     methods=FS if writeback and simulate else g['methods']
                     arms=list(itertools.product(methods,WRITE_POLICIES if writeback else [None]))
                     random.Random(f'{seed}:{key}:{block}').shuffle(arms)
@@ -193,7 +197,7 @@ def build(profile='main',isolation='docker',provider='provided',cluster=None,see
                               'load_kind':g['kind'],'method':method,'order_in_block':order,'params':deepcopy(condition),
                               'tier':'extension' if extension else 'primary','requires':gates,
                               'status':'not_run','execution_enabled':False,
-                              'runner_status':'planning only; distributed barrier, telemetry and real service qualification pending'}
+                              'runner_status':'runtime adapters implemented; real service and telemetry qualification required before release'}
                         if writeback:
                             cell['params']['write_policy']=policy
                             cell['writeback_qualification_verified']=False
@@ -213,14 +217,14 @@ def build(profile='main',isolation='docker',provider='provided',cluster=None,see
                                 'complete_budget_verified':False,
                                 'applies_to_all_paired_arms':True,'measured_metadata_and_temporary_bytes_additional':True}
                         cells.append(cell)
-    clusters=sorted({c['cluster_id'] for c in cells}); n=16 if profile=='pilot' else 64 if profile=='main' else 128
+    clusters=sorted({c['cluster_id'] for c in cells}); n=8 if small else 16 if pilot else 64 if profile=='main' else 128
     topologies={c:topology(c,n,isolation) for c in clusters}
     result={'protocol':protocol,'profile':profile,'provider':provider,'isolation':isolation,'seed':seed,
             'campaign':campaign,
             'study':study,
             'execution_enabled':False,'provisioning_enabled':False,'agent_count_is_not_physical_host_count':True,
             'include_llm_simulation':include_llm_simulation,'simulation_default':False,
-            'paired_blocks':1 if profile=='pilot' else 3,'total_cells':len(cells),'clusters':topologies,
+            'paired_blocks':1 if pilot else 3,'total_cells':len(cells),'clusters':topologies,
             'parallel_node_count':sum(t['node_count'] for t in topologies.values()),
             'parallel_reference_compute':reference_compute(topologies),
             'placement_templates':{c:placement(n,isolation,c=='C4') for c in clusters if c!='C3'},
@@ -234,9 +238,15 @@ def deployment_groups(profile):
     """Use the existing C2-C4 design; specialize only the reviewed C1 matrix."""
     def group(name,methods,axes):
         return dict(cluster='C1',name=name,methods=methods,axes=axes,kind='trace',extension_only=False)
-    if profile=='pilot':
-        return [group('pilot',FS,{'trace_case':['pytest-full-02'],'agents':[1,8,16],'tasks_per_agent':[1]})]
+    if profile in ('pilot','pilot-8'):
+        return [group('pilot',FS,{'trace_case':['pytest-full-02'],'agents':[1,8] if profile=='pilot-8' else [1,8,16],'tasks_per_agent':[1]})]
     traces=['django','ripgrep-20261026','archive-io-20261026']
+    if profile=='c1-8':
+        return [
+            group('trace-weak',FS,{'trace_case':traces,'agents':[1,4,8],'tasks_per_agent':[1]}),
+            group('trace-coverage',FS,{'trace_case':['sklearn','sympy','pytest-full-02','pytest-20261026'],'agents':[1],'tasks_per_agent':[1]}),
+            group('trace-fixed-queue',FS,{'agents':[8],'total_tasks':[256],'queue_recipe':['alternate-ripgrep-archive-128-each']}),
+            group('overlay-scale-ablation',['native','native-overlay'],{'trace_case':traces,'agents':[1,8],'tasks_per_agent':[1]})]
     return [
         group('trace-weak',FS,{'trace_case':traces,'agents':N,'tasks_per_agent':[1]}),
         group('trace-coverage',FS,{'trace_case':['sklearn','sympy','pytest-full-02','pytest-20261026'],'agents':[1],'tasks_per_agent':[1]}),
@@ -279,6 +289,10 @@ def attach_deployment(result,n):
     for cluster in result['clusters']:
         cells=[c for c in result['cells'] if c['cluster_id']==cluster]
         roles=deployment_roles(cluster,n,isolation,provider,cells)
+        if result['profile'] in ('c1-8','pilot-8'):
+            source=next(r for r in roles if r['role']=='source')
+            source['count']=2
+            source['max_agents']=4
         topologies[cluster]={'roles':roles,'node_count':sum(r['count'] for r in roles),
             'hardware_verified':False,'physical_host_count':None,'minimum_free_fraction':.25,
             'active_agents':0 if cluster=='C3' else n,'standby_environments':n if cluster=='C4' else 0,
@@ -306,7 +320,8 @@ def attach_deployment(result,n):
     for cluster,rows in result['placement_templates'].items():
         for row in rows:
             index=int(row['logical_agent_id'][1:])-1
-            row['executor_node']=f'{cluster.lower()}-{row["pool"]}-{index//8+1 if isolation=="docker" else index+1:03}'
+            capacity=4 if result['profile'] in ('c1-8','pilot-8') else 8
+            row['executor_node']=f'{cluster.lower()}-{row["pool"]}-{index//capacity+1 if isolation=="docker" else index+1:03}'
     result['steps']=[
         {'id':'01-plan','entrypoint':'bench/scale_plan.py','state':'implemented-plan-only'},
         {'id':'02-allocation','entrypoint':'bench/experiment_inventory.py','state':'implemented-template-and-static-check-only'},
@@ -314,12 +329,15 @@ def attach_deployment(result,n):
         {'id':'04-pins','entrypoint':'infra/rustfs/freeze_backend.py','state':'implemented-source-and-artifact-check'},
         {'id':'05-backend','entrypoint':'infra/rustfs/rustfs_node.py','state':'single-node-step-requires-reviewed-config'},
         {'id':'06-input','entrypoint':'experiments/retest-2026-10-29/runbook/DATA.zh.md','state':'download-and-full-validation-before-timing'},
-        {'id':'07-metadata-mount','entrypoint':'experiments/retest-2026-10-29/runbook/DEPLOYMENT.zh.md','state':'native-cli-adapters-and-runtime-qualification-pending'},
-        {'id':'08-cohort','entrypoint':'bench/experiment_step.py','state':'single-command-evidence-only-distributed-adapters-pending'},
+        {'id':'07-mount','entrypoint':'bench/runtime/prepare.py','state':'native-mount-supervisor-implemented-real-service-qualification-required'},
+        {'id':'08-observe','entrypoint':'bench/runtime/observe.py','state':'raw-sampling-and-audit-implemented-native-metrics-and-overhead-qualification-required'},
+        {'id':'08-cohort','entrypoint':'bench/runtime/cohort.py','state':'one-reviewed-cohort-no-auto-dispatch'},
+        {'id':'08-handoff','entrypoint':'bench/runtime/handoff.py','state':'one-reviewed-checkpoint-native-two-node-qualification-required'},
         {'id':'09-retention','entrypoint':'bench/experiment_step.py','state':'seal-and-verify-before-manual-cleanup'}]
     for cell in result['cells']:
         cell['study']=result['study']
         cell['requires']+=['provider-allocation-and-role-capacity-qualified','native-cli-and-distributed-adapter-qualified']
+        cell['requires']+=['layered-native-metrics-contract','paired-observer-overhead-qualified','complete-raw-telemetry-and-phase-coverage','drain-readback-and-retention-sealed']
         if cell['cluster_id']=='C3':
             cell['requires']=[r for r in cell['requires'] if r not in ('private-agent-workspace-home-xdg','all-agent-result-retention')]
             cell['requires']+=['requester-result-retention','global-not-per-requester-concurrency-limit']
@@ -332,7 +350,7 @@ def attach_deployment(result,n):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--campaign',choices=['legacy-20261029',DEPLOYMENT_CAMPAIGN],default='legacy-20261029')
-    p.add_argument('--profile',choices=['pilot','main','expanded'],default='main')
+    p.add_argument('--profile',choices=['pilot-8','c1-8','pilot','main','expanded'],default='main')
     p.add_argument('--isolation',choices=['docker','vm'],required=True)
     p.add_argument('--provider',choices=['provided','aliyun'],required=True)
     p.add_argument('--cluster',choices=['C1','C2','C3','C4']);p.add_argument('--seed',type=int,default=42)

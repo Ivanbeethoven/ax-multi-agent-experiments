@@ -1,6 +1,8 @@
 # C1–C4：阿里云 ECS 与自备 Linux 服务器
 
-**当前阶段：规划、配置生成与离线检查；不创建资源、不连接服务器、不启动实验。** 四组沿用既定科学问题，使用同一套实验步骤；provider 仅改变资源取得、身份、网络与收尾。无需 Kubernetes，也不要求 ACK。默认每 Agent 一个 Docker；独立 VM 使用另一份计划，不与 Docker 成绩合并。
+**当前阶段：适配代码与离线检查完成后，逐组做实际资格；尚未启动正式实验。** 四组共用[挂载/并发/迁移入口](ADAPTERS.zh.md)和[观测验收](OBSERVABILITY.zh.md)，provider只改变资源取得、身份、网络与收尾。无需Kubernetes。默认一Agent一Docker；独立VM另立计划，不合并成绩。
+
+**本次C1按最新要求改为8 Agent、两个执行节点各4个**，另加RustFS、Redis、协调节点，共5台168vCPU/672GiB。使用 `c1-8`（120 cohort）和 `pilot-8`（4 cohort）；两provider均支持。下表main/expanded保留原扩展设计，不代表本轮运行范围。C2–C4规模暂不变。
 
 ## 1. 四组设置、baseline 与主矩阵
 
@@ -51,16 +53,16 @@ C4容量保留全量cp对照：400 GiB源＋64/128副本，EC2+2并留25%空闲�
 阿里云ECS版本，示例C1；C2/C3/C4仅替换cluster与输出文件名：
 
 ```bash
-python3 bench/scale_plan.py --campaign ecs-20261101 --provider aliyun --isolation docker --profile main --cluster C1 --output "$RUN_DIR/plan.json"
+python3 bench/scale_plan.py --campaign ecs-20261101 --provider aliyun --isolation docker --profile c1-8 --cluster C1 --output "$RUN_DIR/plan.json"
 ```
 
 纯服务器版本：
 
 ```bash
-python3 bench/scale_plan.py --campaign ecs-20261101 --provider provided --isolation docker --profile main --cluster C1 --output "$RUN_DIR/plan.json"
+python3 bench/scale_plan.py --campaign ecs-20261101 --provider provided --isolation docker --profile c1-8 --cluster C1 --output "$RUN_DIR/plan.json"
 ```
 
-C1首次试跑用 `--profile pilot --cluster C1`；128等扩展用expanded；独立VM用vm。C1/C4上传消融另指定 `--study writeback --profile main`，绝不与baseline混报。省略cluster只生成四组计划，不自动调度四个Agent。
+C1首次流程资格用 `--profile pilot-8 --cluster C1`，正式用c1-8；两个执行节点不使用vm profile。C2/C3/C4用main；保留64/128设计的main/expanded仅另行调度。独立VM用vm。C1/C4上传消融另指定 `--study writeback --profile main`，本轮不运行。省略cluster仅生成四组原扩展计划。
 
 从新计划生成准确节点模板：
 
@@ -87,12 +89,13 @@ python3 bench/host_preflight.py --inventory "$INVENTORY" --node "$NODE_ID" --out
 | 资源取得 | [ECS准备](../../../infra/alicloud/PROVIDER.zh.md) / [自备准备](../../../infra/servers/README.zh.md) | ECS报价/配额/创建、格式化、释放由明确调度独立执行；自备只映射交付资产，不包含云API |
 | 固定产物 | [freeze_backend](../../../infra/rustfs/freeze_backend.py)、[构建](../scripts/build-client.sh) | 真实SHA/OCI/digest一致，一套构建经私网分发；不逐worker编译 |
 | RustFS配置 | [generate_rustfs](../../../infra/rustfs/generate_rustfs.py) → [rustfs_node](../../../infra/rustfs/rustfs_node.py) | 生成、只检查、启动分别调用；配置中必须选新版protocol；生成器不部署ECS |
-| Redis / TiKV / mount | 冻结版本原生CLI，执行前另交步骤spec | **尚缺正式远端适配**；C2本地资格脚本不能替代三节点生产配置；C1原生命令非空lower/mount仍待资格 |
+| Redis / TiKV / mount | 原生服务CLI；[prepare/node](ADAPTERS.zh.md) | SSH与前台mount监督已实现；服务有效配置、真实非空lower和三节点TiKV仍需现场资格 |
 | 输入 | [数据交接](DATA.zh.md)、[trace检查](../../../bench/trace_checks.py)、[ML清单](../../../bench/ml_corpus_inventory.py) | 全包下载和完整内容/来源检查在计时外 |
-| C1负载 | [Rust回放器](../../../tools/full-fuse-replay/README.md) | 全量回放可用；分布式屏障/实际活跃度/结果聚合仍待适配 |
-| C2负载 | [ml_import](../../../bench/ml_import.py)、[fs_step](../../../bench/fs_step.py)、[热读](../../../bench/warm_same_files.py)、[辅助脚本](../scripts/README.md) | 单步导入/扫描/资格可用；真实ML任务读集、8M/32M来源、并发与延迟直方图待资格 |
-| C3负载 | [s3_requests](../../../bench/s3_requests.py)、[布局核验](../scripts/inspect-layout.py) | 串行读写/布局可用；并发cohort与在途/分层计数待适配；全局64不得在两requester各开64 |
-| C4负载 | [Manager](MANAGER.zh.md)、[迁移步骤](MIGRATION.zh.md)、[session_check](../../../bench/session_check.py) | API产品能力与实际FUSE/非空源/批量fork/真实checkpoint迁移资格分开 |
+| C1负载 | [Rust回放器](../../../tools/full-fuse-replay/README.md)、[cohort](../../../bench/runtime/cohort.py) | 全量任务/固定队列、全体ready后一次释放、每任务结果与ACK时间；内核I/O并发由观测证实 |
+| C2负载 | [ml_import](../../../bench/ml_import.py)、[ml-corpus-scan](../../../tools/ml-corpus-scan/src/main.rs)、[热读](../../../bench/warm_same_files.py) | 并发cohort和逐访问延迟桶已实现；真实ML读集、8M/32M来源及实际服务资格仍必需 |
+| C3负载 | [s3_requests](../../../bench/s3_requests.py)、[布局核验](../scripts/inspect-layout.py) | 有界并发、请求分片、完整逐请求记录；两requester份额之和等于全局目标；布局和原生分层指标现场验收 |
+| C4负载 | [Manager](MANAGER.zh.md)、[handoff](../../../bench/runtime/handoff.py)、[迁移步骤](MIGRATION.zh.md) | clean stay/move适配已实现，源卸载/lease失败不启动目标；原生非空fork、真实会话及邻居持续负载须现场验证 |
+| 可观测性 | [observe](OBSERVABILITY.zh.md) | 全角色原始指标、阶段采样/断档/SHA检查、至少三对on/off开销资格；未验收不能进正式测量 |
 | 单步证据、保全 | [experiment_step](../../../bench/experiment_step.py) | 一条命令、原始输出、seal/verify；不是全实验runner，也不清云资源 |
 
 新版RustFS experiment字段示例，仅展示协议部分，节点、镜像、盘和凭据路径仍需真实配置：

@@ -1,8 +1,8 @@
-# C1 阿里云重测方案：Redis 元数据，64 Agent 主规模
+# C1 重测方案：Redis 元数据，8 Agent、两个执行节点
 
-更新：2026-11-01。**当前只供审阅，不购机、不部署、不启动回放。**
+更新：2026-11-01，按用户最新范围缩减。**适配和离线验证先完成；实际资源、数据路径与可观测性验收通过后，才启动性能测量。** 阿里云和自备服务器使用同一方法。
 
-本页已接入四组统一的 [ECS/自备服务器脚本规划](runbook/DEPLOYMENT.zh.md)。`scale_plan.py --campaign ecs-20261101` 已能生成本文精确矩阵和角色清单；提供方不同只切换 provider。主组132＋内部54与独立 `study=writeback` 的186是不同计划，不混用ID或结果。
+本页接入 [部署手册](runbook/DEPLOYMENT.zh.md)、[执行适配](runbook/ADAPTERS.zh.md)和[观测验收](runbook/OBSERVABILITY.zh.md)。本轮正式用 `--profile c1-8`，流程资格用 `--profile pilot-8`；均为两个执行节点各4个Agent，另加独立RustFS、Redis、协调节点，共5台。旧main/expanded仅保留复现和将来扩展，不默认运行。新profile使用独立ID，不与旧数据拼接。
 
 本页是本轮 **C1 / Aliyun / Docker** 的具体方案，覆盖旧 C1 入口中的元数据选择、硬件、矩阵和生命周期准备方式。C2/C3/C4 与自备服务器方案不变。C1 测共享后端上的 Agent 文件访问性能；fork/clone 耗时、跨节点流转另属 C4。
 
@@ -43,15 +43,15 @@ Redis 采用直接连接单数据节点；本组研究共享服务争用，不�
 
 同地域、同可用区、私网互通；只协调节点保留公网入口。正式测量选按量实例，避免抢占回收干扰完整区组。具体地域、库存、配额与费用上限在采购前填入调度单。
 
-| 角色 | 试跑 / 64 Agent / 128 Agent | 单机目标与候选 SKU | 数据盘，不含系统盘 |
+| 角色 | 本轮台数 | 单机目标与候选 SKU | 数据盘，不含系统盘 |
 |---|---:|---|---|
-| Docker 执行节点 | 2 / 8 / 16 | 32 vCPU / 128 GiB，`ecs.g8ine.8xlarge`；最多 8 Agent/节点 | 输入 1 TiB PL2 + 缓存/临时 1 TiB PL2 |
-| RustFS | 1 / 1 / 1 | **64 vCPU / 256 GiB**，`ecs.g8i.16xlarge` | **4 × 1 TiB PL2 独立设备**，不以目录模拟四盘 |
-| Redis | 1 / 1 / 1 | **32 vCPU / 128 GiB**，`ecs.g8ine.8xlarge` | 1 TiB PL2，AOF 与重写空间单独核算 |
-| 协调、跳板与结果 | 1 / 1 / 1 | 8 vCPU / 32 GiB，`ecs.g8i.2xlarge` | 2 TiB PL1 |
-| **合计** | **5 / 11 / 19 台** | **168 / 360 / 616 vCPU；672 / 1440 / 2464 GiB RAM** | 每台另配至少 100 GiB 系统盘 |
+| Docker 执行节点 | 2 | 32 vCPU / 128 GiB，`ecs.g8ine.8xlarge`；本轮最多4 Agent/节点 | 输入 1 TiB PL2 + 缓存/临时 1 TiB PL2 |
+| RustFS | 1 | **64 vCPU / 256 GiB**，`ecs.g8i.16xlarge` | **4 × 1 TiB PL2 独立设备**，不以目录模拟四盘 |
+| Redis | 1 | **32 vCPU / 128 GiB**，`ecs.g8ine.8xlarge` | 1 TiB PL2，AOF 与重写空间单独核算 |
+| 协调、跳板与结果 | 1 | 8 vCPU / 32 GiB，`ecs.g8i.2xlarge` | 2 TiB PL1 |
+| **合计** | **5 台** | **168 vCPU / 672 GiB RAM** | 每台另配至少100 GiB系统盘 |
 
-这次调大共享服务节点，替代旧 C1 的 312 vCPU / 1248 GiB 合计。Agent 配额仍为 2/8；执行节点只分给 8 个任务 16 vCPU / 64 GiB，余量用于宿主、缓存和观测。N≤8 使用一个执行节点，N=16/32/64/128 使用 2/4/8/16 个，配对时位置完全一致。
+Agent配额仍为2/8；每执行节点4个任务合计8 vCPU/32 GiB，宿主余量用于解析、缓存、采集和验证发压能力。最大8个环境明确映射为4+4；N=4时选2+2，N=1按区组轮换节点，两臂位置一致。机器与共享服务预算在不同N保持不变。自备版交付相同角色预算和独立设备，额外记录物理宿主、NUMA与超卖，不执行云API。
 
 选型依据：g8ine.8xlarge 标称基线网络 44 Gbit/s；g8i.16xlarge 为 32 Gbit/s 网络、20 Gbit/s 云盘带宽。旧 g8i.8xlarge 的 25G 是突发上限，基线为 20G，因此不能当作持续 25G 使用。以上来自[阿里云实例规格](https://help.aliyun.com/en/ecs/user-guide/general-purpose-instance-families)，仍须核目标地域可购性与实际性能。1 TiB PL2 按当前公式为 53,000 IOPS、632 MB/s；实际还受实例总云盘限额约束，不能把四盘标称相加当作实测。见[ESSD 规格与实例限制](https://www.alibabacloud.com/help/en/ecs/user-guide/essds)。
 
@@ -74,23 +74,22 @@ Redis 采用直接连接单数据节点；本组研究共享服务争用，不�
 
 | 阶段 | 输入与并发 | 对照与次数 | cohort 数 |
 |---|---|---|---:|
-| P：流程试跑 | 完整 pytest-full-02；N=1/8/16 | Overlay / JuiceFS；各 1 个配对区组 | 6，仅资格 |
-| M1：弱扩展，主线 | 三份扩展负载分别测；N=1/8/16/32/64；每 Agent 1 个完整任务 | Overlay / JuiceFS × 3 区组 | 90 |
+| P：流程试跑 | 完整 pytest-full-02；N=1/8 | Overlay / JuiceFS；各1个配对区组 | 4，仅资格 |
+| M1：弱扩展，主线 | 三份扩展负载分别测；N=1/4/8；每Agent 1个完整任务 | Overlay / JuiceFS × 3区组 | 54 |
 | M2：输入覆盖，主线 | sklearn、sympy、pytest-full-02、pytest-20261026；N=1 | Overlay / JuiceFS × 3 区组 | 24 |
-| M3：固定总工作量，主线 | 256 个完整任务实例：ripgrep 128 + archive-I/O 128；N=16/32/64 | Overlay / JuiceFS × 3 区组 | 18 |
-| A：BrewFS 内部对照 | 三份扩展负载；N=1/32/64 | flat-v1 / Overlay × 3 区组，单独完整配对 | 54 |
-| X：128 扩展，另选 | 三份弱扩展 N=128；固定队列 N=128 | Overlay / JuiceFS × 3 区组 | 24 |
+| M3：持续队列 | 256个完整任务：ripgrep 128 + archive-I/O 128；N=8，每Agent 32任务 | Overlay / JuiceFS × 3区组 | 6 |
+| A：BrewFS内部对照 | 三份扩展负载；N=1/8 | flat-v1 / Overlay × 3区组，独立配对 | 36 |
 
-**先完成 P，再做主线 132 cohort 和内部对照 54 cohort；X 不默认执行。** P 的结果不充作正式重复；A 不从别轮抽取一个 Overlay 成绩拼成配对。以上数量与旧通用生成器的 618/990 等总数不同，不直接运行其全部输出。
+**先完成P和观测资格，再做主线84＋内部36，共120 cohort。** P不充作正式重复；A不借用主线的Overlay成绩。64/128规模与异步writeback是将来独立调度，不属于这次8 Agent范围。
 
-M3 预先冻结任务实例、每个 worker 的有序队列和路径映射；各 worker 均衡分配两类任务，两臂复用同一分配。不按运行速度动态换题或重分队列。每个任务从独立相同初态开始，任务环境预先准备，计时内只含固定的启动/调度与执行。必须保留实际活跃数曲线；256 次完成不代表始终 64 个活跃 Agent。
+M3预先冻结任务实例、每worker有序队列和路径映射；每worker两类任务各16个，两臂复用分配。不按运行速度动态换题。每任务从独立相同初态开始，环境提前准备；计时包含固定启动/调度和执行。保存实际活跃曲线，256次完成不代表始终8个Agent活跃。
 
 可选项单独列计划，不乘到全部主矩阵：
 
 | 项目 | 最小范围 | 前提 |
 |---|---|---|
-| 初态预热客户端 | 三份扩展负载、N=64、两臂、3 区组，共 18 cohort | 相同初态只读预热协议；不可重放一次有写任务后把修改后的树当热初态 |
-| 模拟 LLM 等待 | archive-I/O、N=64；新建“关闭/开启等待 × 两臂 × 3 区组”，共 12 cohort | 默认关闭；真实工具/轮次边界；每任务固定总等待 T、每段 0–15s、配对计划同 SHA。不逐文件操作等待 |
+| 初态预热客户端 | 后续独立计划，本轮不追加 | 相同初态只读预热；不可用有写任务修改后的树当热初态 |
+| 模拟LLM等待 | 后续独立计划，本轮关闭 | 真实工具/轮次边界；每任务固定总等待T、每段0–15s、两臂同SHA；不逐文件操作等待 |
 | TiKV、上传策略、真实模型 | 独立补充方案 | 能力/拓扑/任务与预算先冻结；不以本轮完成代表这些项目完成 |
 
 ## 5. 实验方法
@@ -110,9 +109,9 @@ M3 预先冻结任务实例、每个 worker 的有序队列和路径映射；各
 
 | 层次 | 必报指标 |
 |---|---|
-| 整组主指标 | 应用完成 makespan、全部远端确认 makespan、成功任务/s、完成/失败/缺测数；弱扩展相对 N=1 吞吐与效率；固定队列相对 N=16 的加速比 |
+| 整组主指标 | 应用与远端确认makespan、成功任务/s、完成/失败/缺测数；弱扩展相对N=1吞吐与效率；固定256队列的绝对完成时间和两臂配对比值 |
 | 单 Agent | 完成时间分布、相对同 trace 单 Agent 的慢化、每 worker 完成任务数、实际活跃数随时间变化；按任务种类分别统计 |
-| 文件系统 | ops、读/写字节、errno 差异、handles、最终内容/应用状态；若采集调用延迟直方图，先验证采样开销与覆盖范围 |
+| 文件系统 | ops、读/写字节、errno差异、handles、最终内容/应用状态；原生FUSE/metadata计数与延迟直方图，先验采集开销和覆盖 |
 | 持久性 | 应用完成到 drain/确认的间隔、待提交/待上传/inflight/重试队列、dirty/staging 峰值、独立读回结果 |
 | 客户端及宿主 | CPU/RSS、cgroup 峰值/OOM/节流/PSI、输入解析与输入盘 I/O、缓存命中、网络、磁盘与宿主 steal |
 | Redis / RustFS | CPU/RSS、请求量与延迟、EVALSHA/RPC、AOF/重写、GET/PUT/请求字节、EC 布局、云盘/网络限速和排队 |
@@ -126,14 +125,14 @@ M3 预先冻结任务实例、每个 worker 的有序队列和路径映射；各
 
 | 步骤 | 已有入口 | 本轮必须检查 / 尚缺内容 |
 |---|---|---|
-| 01 冻结本轮计划 | [scale_plan.py](../../bench/scale_plan.py)、[新版部署](runbook/DEPLOYMENT.zh.md) | 使用 --campaign ecs-20261101，pilot/main/expanded已编码本页矩阵与角色；核6/132/54/24及execution=false；固定队列任务实例、真实版本/输入仍需冻结 |
+| 01 冻结计划 | [scale_plan.py](../../bench/scale_plan.py) | campaign=ecs-20261101，profile=pilot-8/c1-8，provider=aliyun/provided；核4/120 cohort、5角色节点与8个环境4+4；不启执行 |
 | 02 资源准备 | [阿里云 provider](../../infra/alicloud/PROVIDER.zh.md)、[inventory](../../bench/experiment_inventory.py)、[host 检查](../../bench/host_preflight.py) | from-plan已生成准确角色模板，host按角色检查；实际ID/host-key/盘/费用/所有权与峰值验收待填写；旧9/3台模板不适用 |
 | 03 冻结与构建 | [freeze_backend.py](../../infra/rustfs/freeze_backend.py)、[build-client.sh](scripts/build-client.sh) | 构建入口先适配冻结源码；每套产物只构建一次，内网分发，核 SHA/镜像来源 |
 | 04 对象服务 | [RustFS 说明](../../infra/rustfs/README.md)、[配置生成](../../infra/rustfs/generate_rustfs.py)、[单节点检查/启动](../../infra/rustfs/rustfs_node.py) | 明确 single-node-four-disk、实际 EC、禁用 C1 无关 hint；配置生成、检查、启动分别执行 |
 | 05 输入准备 | [下载](../../scenarios/k8s-containers/scripts/download_archives.py)、[归档检查](../../scenarios/k8s-containers/scripts/check_archives.py)、[trace_checks.py](../../bench/trace_checks.py) | 全包与文件级完整性；本次规划没有重新访问 OSS，旧清单不替代开批检查 |
-| 06 元数据与挂载 | 冻结 BrewFS/JuiceFS 原生 CLI；[现有挂载注意事项](runbook/RUN.zh.md) | 需补 Redis 配置检查、非空 native P1 准备/身份回执/挂载适配；旧 Redis/workspace-v1 mount_command 不直接复用；Manager 本轮不启用 |
+| 06 元数据与挂载 | [prepare/node](runbook/ADAPTERS.zh.md) | 原生挂载与正常卸载适配已实现；Redis有效配置、非空lower、身份和实际FUSE内容资格仍须本批验证；不启Manager |
 | 07 可选等待 | [trace_think_plan.py](../../bench/trace_think_plan.py)、[等待合同](../../tools/full-fuse-replay/THINK-TIME.zh.md) | 默认关；边界可信且 0≤T≤15×间隔数；总量精确、配对复用 |
-| 08 一个 cohort | [full-fuse-replay](../../tools/full-fuse-replay/README.md)、[单步留证](../../bench/experiment_step.py) | 并发屏障、一次放行、活跃度与聚合适配仍需补齐，并验证缺 worker、重复放行、失败和结果丢失 |
+| 08 观测和一个cohort | [cohort](../../bench/runtime/cohort.py)、[observe](runbook/OBSERVABILITY.zh.md) | 原始采样→开销配对资格→全体ready→一次放行→应用完成→drain/读回→停止采集并audit；每任务/失败/部分结果全部保留 |
 | 09 收集与收尾 | [通用逐步手册](runbook/RUN.zh.md)及本轮精确资源清单 | 全体终态与完整归档核 SHA 后，再按归属清理；不由回放脚本删除资源 |
 
-C1 负责人先交付：实际配置与精确计划、无 SQLite 检查结果、全量 trace 校验、非空 lower/FUSE 资格、硬件验收和上述适配的测试。当前不能将 Manager PR 合并、旧二进制可用或计划文件生成，记为实验 ready。**本轮到规划为止，后续实现与正式执行分别调度。**
+C1负责人先交付实际配置、无SQLite检查、完整trace核验、非空lower/FUSE资格、资源验收和观测资格。软件测试通过与实际实验ready分开记录。地域/报价/费用上限/保留时长未落实前不采购；没有原生指标、等工作量和内容资格就不进入正式排名。

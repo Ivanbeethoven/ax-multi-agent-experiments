@@ -1,0 +1,126 @@
+"""Generate reviewable native mount specs and per-Agent isolation commands.
+
+No service, mount, container or cloud API is started by this module.
+"""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import re
+from urllib.parse import urlsplit
+
+from .common import digest, load, pinned, private_dir, write_new
+
+AGENT_BUDGET = {'cpus':2.0,'memory_bytes':8*1024**3,'swap_bytes':0}
+
+
+def anchor(filesystem, config):
+    if filesystem == 'brewfs':
+        stable = {'meta':config['meta'], 'data':config['data'],
+                  'volume_format':config['volume_format'],
+                  'workspace':config.get('workspace'), 'namespace':config.get('workspace_namespace'),
+                  'packed_manifest_key':config.get('packed_manifest_key')}
+    else: stable = {'metadata_url':config['metadata_url']}
+    # Opaque metadata/config identity keeps credentials out of mount receipts.
+    return {'filesystem':filesystem,'workspace':config.get('workspace'),
+            'namespace':config.get('workspace_namespace'),
+            'storage_identity_sha256':hashlib.sha256(json.dumps(stable,sort_keys=True).encode()).hexdigest()}
+
+
+def native_argv(filesystem, binary, config_path, config, point, cluster, metrics_address=None):
+    if cluster not in ('C1','C2','C4'): raise ValueError('C3 has no filesystem mount')
+    if filesystem == 'brewfs':
+        fmt = config['volume_format']; backend = config['meta']['backend']
+        if backend != ('tikv' if cluster == 'C2' else 'redis'): raise ValueError('wrong baseline metadata backend')
+        if fmt.startswith('packed-') and cluster != 'C2': raise ValueError('Pack belongs only to C2')
+        if fmt not in ('flat-v1','workspace-v1','workspace-native-v2','packed-metadata-v3'):
+            raise ValueError('unqualified volume format')
+        if fmt.startswith('workspace-') and (not config.get('workspace') or not config.get('workspace_namespace')):
+            raise ValueError('workspace and namespace identities required')
+        if config['data']['backend'] != 's3': raise ValueError('shared object backend required')
+        if 'mount_point' in config and config['mount_point'] != point: raise ValueError('mount path mismatch')
+        cache = config['cache']
+        if cache.get('writeback_mode') != 'upload_before_commit':
+            raise ValueError('baseline mount adapter requires explicit upload_before_commit; async is a separate qualification')
+        if fmt == 'workspace-native-v2' and 'native_base' not in config: raise ValueError('native P1 config missing')
+        if config['data']['s3'].get('rustfs_ec_block_size_hint') is not None:
+            raise ValueError('C1/C2/C4 do not enable C3 dynamic block treatment')
+        if not isinstance(config.get('fuse',{}).get('cache_ttl_ms'),int) or not isinstance(config['fuse'].get('keep_cache'),bool):
+            raise ValueError('freeze cache TTL and keep_cache explicitly')
+        argv=[binary,'mount','--config',config_path,point]
+        if metrics_address:argv+=['--metrics','--metrics-addr',metrics_address]
+        return argv
+    if filesystem != 'juicefs' or cluster == 'C2': raise ValueError('unsupported baseline')
+    url = urlsplit(config['metadata_url'])
+    if url.scheme != 'redis' or url.username or url.password or url.query or url.fragment:
+        raise ValueError('plain Redis metadata URL; credentials via native supported environment')
+    if config.get('writeback') is not False: raise ValueError('baseline JuiceFS writeback must be explicitly false')
+    argv=[binary,'mount',config['metadata_url'],point,'--cache-dir',config['cache_dir'],
+            '--cache-size',str(config['cache_mib']),'--buffer-size',str(config['buffer_mib']),
+            '--enable-xattr','--enable-cap','--attr-cache',str(config['attr_cache_seconds']),
+            '--entry-cache',str(config['entry_cache_seconds']),'--dir-entry-cache',str(config['entry_cache_seconds'])]
+    if metrics_address:argv+=['--metrics',metrics_address]
+    return argv
+
+
+def mount(config_ref, binary_ref, filesystem, cluster, point, cwd, output, environment, fstypes, metrics_address,purpose='experiment'):
+    config_path = str(pinned(config_ref)); binary = str(pinned(binary_ref)); config = load(config_path)
+    if purpose=='observer-calibration-off':metrics_address=None
+    elif not re.fullmatch(r'127\.0\.0\.1:[0-9]{4,5}',metrics_address or ''):raise ValueError('dedicated loopback metrics port required')
+    argv = native_argv(filesystem,binary,config_path,config,point,cluster,metrics_address)
+    output = private_dir(output)
+    step = {'schema':'experiment-step-v1','reviewed':False,'cell_id':output.name,'stage':'mount',
+            'argv':argv,'cwd':cwd,'executable_sha256':binary_ref['sha256'],
+            'inputs':[config_ref],'inherit_environment':environment}
+    write_new(output/'command.json',step)
+    value = {'schema':'experiment-mount-v1','reviewed':False,'cluster':cluster,'filesystem':filesystem,
+             'config':config_ref,
+             'metrics_address':metrics_address,
+             'purpose':purpose,
+             'mount_point':point,'anchor':anchor(filesystem,config), 'allowed_fstypes':fstypes,
+             'budget':AGENT_BUDGET,'command':{'path':str(output/'command.json'),'sha256':digest(output/'command.json')},
+             'ready_timeout_seconds':60}
+    write_new(output/'mount.json',value)
+    return value
+
+
+def container_argv(s):
+    """Create only. Pinned image must already be distributed; never pull latest."""
+    if not re.fullmatch(r'ax-[a-z0-9-]+',s['name']): raise ValueError('dedicated ax container name')
+    if not re.fullmatch(r'.+@sha256:[a-f0-9]{64}',s['image']): raise ValueError('image digest required')
+    args=[s['docker'],'create','--pull=never','--name',s['name'],
+          '--label','ax.campaign='+s['campaign_id'],'--label','ax.agent='+s['agent_id'],
+          '--cpus','2','--memory','8589934592','--memory-swap','8589934592','--pids-limit','4096',
+          '--network','host','--device','/dev/fuse','--cap-add','SYS_ADMIN','--security-opt','apparmor=unconfined']
+    destinations=set()
+    for binding in s['binds']:
+        source=Path(binding['source']); target=Path(binding['target'])
+        if not source.is_absolute() or not source.exists() or source.is_symlink() or str(source) == '/' or ',' in str(source):
+            raise ValueError('existing dedicated bind source required')
+        if not target.is_absolute() or str(target) == '/' or ',' in str(target) or str(target) in destinations:
+            raise ValueError('distinct non-root container target required')
+        destinations.add(str(target))
+        args+=['--mount',f'type=bind,source={source},target={target}'+(',readonly' if binding['readonly'] else '')]
+    if s.get('environment_file'): args+=['--env-file',str(pinned(s['environment_file']))]
+    args += [s['image'],'/bin/sleep','infinity']
+    return args
+
+
+if __name__=='__main__':
+    p=argparse.ArgumentParser(description=__doc__);sub=p.add_subparsers(dest='action',required=True)
+    m=sub.add_parser('mount')
+    for key in ('config','config-sha256','binary','binary-sha256','filesystem','cluster','mount-point','cwd','output'):
+        m.add_argument('--'+key,required=True)
+    m.add_argument('--metrics-address');m.add_argument('--purpose',choices=['experiment','observer-calibration-off'],default='experiment')
+    m.add_argument('--inherit-environment',nargs='*',default=[]);m.add_argument('--fstypes',nargs='+',required=True)
+    c=sub.add_parser('container');c.add_argument('--spec',required=True);c.add_argument('--output',required=True)
+    a=p.parse_args()
+    if a.action=='mount':
+        mount({'path':a.config,'sha256':a.config_sha256},{'path':a.binary,'sha256':a.binary_sha256},
+              a.filesystem,a.cluster,a.mount_point,a.cwd,a.output,a.inherit_environment,a.fstypes,a.metrics_address,a.purpose)
+    else:
+        s=load(a.spec)
+        write_new(a.output,{'schema':'experiment-step-v1','reviewed':False,'cell_id':s['agent_id'],'stage':'container-create',
+                           'argv':container_argv(s),'cwd':s['cwd'],'executable_sha256':digest(s['docker']),
+                           'inputs':[{'path':str(Path(a.spec).resolve()),'sha256':digest(a.spec)}]
+                                    +([s['environment_file']] if s.get('environment_file') else [])})

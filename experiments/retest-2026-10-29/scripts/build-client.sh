@@ -17,9 +17,9 @@ export CARGO_TARGET_DIR="$build_root/brewfs-target" CARGO_BUILD_JOBS=1
 export CARGO_INCREMENTAL=0 CARGO_PROFILE_RELEASE_DEBUG=0
 rustc -Vv > "$build_root/rustc.txt"
 cargo -V > "$build_root/cargo.txt"
-printf '%s\n' '--no-default-features fuse-io-uring-runtime,workspace-overlay,native-packed-base,rustfs-ec-block-size-hint' > "$build_root/features.txt"
+printf '%s\n' '--no-default-features fuse-io-uring-runtime,workspace-overlay,native-packed-base,rustfs-ec-block-size-hint,observability' > "$build_root/features.txt"
 cargo build --locked --release --no-default-features --bin brewfs --bin packed_v3_snapshot_fixture \
-  --features fuse-io-uring-runtime,workspace-overlay,native-packed-base,rustfs-ec-block-size-hint \
+  --features fuse-io-uring-runtime,workspace-overlay,native-packed-base,rustfs-ec-block-size-hint,observability \
   > "$build_root/brewfs-build.log" 2>&1
 sha256sum "$CARGO_TARGET_DIR/release/brewfs" "$CARGO_TARGET_DIR/release/packed_v3_snapshot_fixture" \
   > "$build_root/brewfs-binaries.sha256"

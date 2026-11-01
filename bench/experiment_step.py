@@ -14,7 +14,8 @@ import time
 from experiment_io import load, digest, write_new, contained
 
 
-def execute(spec_path, expected_sha, output):
+def prepare(spec_path, expected_sha):
+    """Validate without executing; shared by single-step and cohort adapters."""
     if digest(spec_path) != expected_sha:
         raise ValueError('step spec changed after review')
     s = load(spec_path)
@@ -43,6 +44,12 @@ def execute(spec_path, expected_sha, output):
         if key not in os.environ:
             raise ValueError('required environment variable missing: ' + key)
         env[key] = os.environ[key]
+    return s, env
+
+
+def execute(spec_path, expected_sha, output):
+    s, env = prepare(spec_path, expected_sha)
+    argv = s['argv']
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
     if os.name != 'nt': output.chmod(0o700)
     write_new(output/'spec.json', s)
