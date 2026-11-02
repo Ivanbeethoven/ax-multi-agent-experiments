@@ -11,7 +11,10 @@ from pathlib import Path
 import re
 import subprocess
 import time
-from experiment_io import load, digest, write_new, contained
+try:
+    from .experiment_io import load, digest, write_new, contained
+except ImportError:  # Historical direct-script entry point.
+    from experiment_io import load, digest, write_new, contained
 
 
 def prepare(spec_path, expected_sha):

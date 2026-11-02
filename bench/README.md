@@ -1,9 +1,12 @@
 # 实验脚本
 
-Agent操作入口：[SSH-RUN](../experiments/retest-2026-10-29/runbook/SSH-RUN.zh.md)。从已有SSH环境开始，节点数量与配置来自实际清单。
+Agent操作入口：[统一C1–C4](../experiments/unified-suite/README.md)。从已有SSH环境开始，节点数量与配置来自实际清单；旧profile保留历史含义。
 
 | 职责 | 入口 |
 |---|---|
+| 统一计划/单步占用 | [suite.py](suite.py)、[suite_catalog.py](suite_catalog.py)、[suite_state.py](suite_state.py)，复用experiment_step与runtime |
+| 新工作量 | [fio_workload.py](fio_workload.py)、[smallfiles](../tools/fs-probe/src/bin/smallfiles.rs)、[fork_burst.py](fork_burst.py) |
+| 证据与报告 | [suite_support.py](suite_support.py)、[suite_validate.py](suite_validate.py)、[archive_check.py](archive_check.py)、[suite_report.py](suite_report.py) |
 | 方法矩阵 | [scale_plan.py](scale_plan.py)：C1–C4、配对区组、baseline/writeback；provider=ssh分离机器预算 |
 | SSH节点与运行 | [runtime](runtime/README.md)：接入、挂载、worker、cohort、流转和观测 |
 | 清单 | [ssh_inventory.py](ssh_inventory.py)：现有SSH环境；[experiment_inventory.py](experiment_inventory.py)：兼容旧角色清单 |
@@ -15,4 +18,4 @@ Agent操作入口：[SSH-RUN](../experiments/retest-2026-10-29/runbook/SSH-RUN.z
 | 可选等待 | [trace_think_plan.py](trace_think_plan.py)：固定总等待、0–15秒工具间隔，默认关闭 |
 | 辅助与复现 | [host_preflight.py](host_preflight.py)、[final_plan.py](final_plan.py)、[warm_same_files.py](warm_same_files.py)、[reference](reference/README.md) |
 
-C1当前profile为pilot-8/c1-8；main/expanded保留C2–C4设计与大规模扩展。实际运行按交接条件选择一个cohort。infra负责环境，runtime负责执行，tools负责测量，结果集中到runs/<campaign>。
+新协议使用 `suite template --profile pilot|main --study systems|ablations`，资源池与workload编号独立。旧pilot-8/c1-8/main/expanded仅用于旧campaign复现。infra负责环境，runtime负责执行，tools负责测量，结果集中到runs/<campaign>或实际独立数据盘。

@@ -37,21 +37,23 @@ def first_read(root, relative, expected_sha):
     return {'passed': True, 'seconds': elapsed, 'bytes': len(data), 'scope': 'open/read/close; hash comparison outside timer'}
 
 
-def mutate(root):
+def mutate(root, tag=None):
     """Fixed child-only isolation challenge on fixture >= 5 files."""
     root = Path(root).resolve(strict=True)
     names = [f'd000000/f{i:08}' for i in range(5)]
+    if tag is not None and (not tag or len(tag)>128 or not tag.isascii()):raise ValueError('short ASCII child identity required')
+    change=tag.encode('ascii') if tag else b'child-change'
     if (root/'new-child-file').exists() or (root/'renamed-child-file').exists():
         raise ValueError('challenge already applied; use a fresh child')
     paths = [contained(root, name) for name in names]
     for file, mode, action in ((paths[0],'r+b','overwrite'),(paths[1],'ab','append'),(paths[2],'r+b','truncate')):
         with file.open(mode) as out:
             if action == 'truncate': out.truncate(7)
-            else: out.write(b'child-change')
+            else: out.write(change)
             out.flush(); os.fsync(out.fileno())
     paths[3].unlink(); paths[4].rename(root/'renamed-child-file')
     with (root/'new-child-file').open('xb') as out:
-        out.write(b'new-child'); out.flush(); os.fsync(out.fileno())
+        out.write(b'new-child:'+change if tag else b'new-child'); out.flush(); os.fsync(out.fileno())
     for directory in (root/'d000000', root):
         fd = os.open(directory, os.O_RDONLY | os.O_DIRECTORY)
         try: os.fsync(fd)
@@ -83,6 +85,7 @@ if __name__ == '__main__':
         if name in ('first-read','durable-write'): q.add_argument('--file', required=True)
         if name == 'first-read': q.add_argument('--sha256', required=True)
         if name == 'durable-write': q.add_argument('--payload', required=True)
+        if name == 'mutate':q.add_argument('--tag',help='unique child/workspace identity for isolation validation')
     a = p.parse_args()
     if a.output.exists(): raise ValueError('new output path required before any mutation')
     if a.output.resolve().is_relative_to(a.root.resolve()): raise ValueError('evidence output must be outside the tested tree')
@@ -93,6 +96,6 @@ if __name__ == '__main__':
         result = {'passed': tree(a.root.resolve(strict=True)) == load(a.expected), 'expected_sha256': a.expected_sha256}
     elif a.action == 'first-read': result = first_read(a.root,a.file,a.sha256)
     elif a.action == 'durable-write': result = durable_write(a.root,a.file,a.payload)
-    else: result = mutate(a.root)
+    else: result = mutate(a.root,a.tag)
     write_new(a.output,result)
     if result.get('passed') is False: raise SystemExit(1)

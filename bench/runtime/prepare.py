@@ -20,6 +20,8 @@ def anchor(filesystem, config):
                   'volume_format':config['volume_format'],
                   'workspace':config.get('workspace'), 'namespace':config.get('workspace_namespace'),
                   'packed_manifest_key':config.get('packed_manifest_key')}
+        if config.get('entity_native_manifest_key'):stable['entity_native_manifest_key']=config['entity_native_manifest_key']
+        if config.get('entity_volume_id'):stable['entity_volume_id']=config['entity_volume_id']
     else: stable = {'metadata_url':config['metadata_url']}
     # Opaque metadata/config identity keeps credentials out of mount receipts.
     return {'filesystem':filesystem,'workspace':config.get('workspace'),
@@ -27,13 +29,15 @@ def anchor(filesystem, config):
             'storage_identity_sha256':hashlib.sha256(json.dumps(stable,sort_keys=True).encode()).hexdigest()}
 
 
-def native_argv(filesystem, binary, config_path, config, point, cluster, metrics_address=None, dynamic_block='auto'):
-    if cluster not in ('C1','C2','C4'): raise ValueError('C3 has no filesystem mount')
+def native_argv(filesystem, binary, config_path, config, point, cluster, metrics_address=None, dynamic_block='auto', metadata_backend=None):
+    unified = metadata_backend is not None
+    if unified and metadata_backend not in ('redis','tikv'): raise ValueError('explicit Redis or TiKV backend required')
+    if not unified and cluster not in ('C1','C2','C4'): raise ValueError('C3 has no filesystem mount in the legacy protocol')
     if filesystem == 'brewfs':
         fmt = config['volume_format']; backend = config['meta']['backend']
-        if backend != ('tikv' if cluster == 'C2' else 'redis'): raise ValueError('wrong baseline metadata backend')
-        if fmt.startswith('packed-') and cluster != 'C2': raise ValueError('Pack belongs only to C2')
-        if fmt not in ('flat-v1','workspace-v1','workspace-native-v2','packed-metadata-v3'):
+        if backend != (metadata_backend if unified else 'tikv' if cluster == 'C2' else 'redis'): raise ValueError('wrong baseline metadata backend')
+        if not unified and fmt.startswith('packed-') and cluster != 'C2': raise ValueError('Pack belongs only to legacy C2')
+        if fmt not in ('flat-v1','workspace-v1','workspace-native-v2','packed-metadata-v3') and not (unified and fmt=='workspace-entity-v1'):
             raise ValueError('unqualified volume format')
         if fmt.startswith('workspace-') and (not config.get('workspace') or not config.get('workspace_namespace')):
             raise ValueError('workspace and namespace identities required')
@@ -51,13 +55,27 @@ def native_argv(filesystem, binary, config_path, config, point, cluster, metrics
         if not isinstance(config.get('fuse',{}).get('cache_ttl_ms'),int) or not isinstance(config['fuse'].get('keep_cache'),bool):
             raise ValueError('freeze cache TTL and keep_cache explicitly')
         argv=[binary,'mount','--config',config_path,point]
+        if fmt == 'workspace-entity-v1':
+            import uuid
+            if not uuid.UUID(config['entity_volume_id']).int or not uuid.UUID(config['workspace']).int:raise ValueError('non-nil entity identities required')
+            packed=config.get('packed_manifest_key'); native=config.get('entity_native_manifest_key')
+            if bool(packed)==bool(native) or config['fuse']['keep_cache']:
+                raise ValueError('fresh entity requires exactly one frozen packed/native lower and direct IO')
+            budget = config.get('entity_read_cache_bytes')
+            if type(budget) is not int or budget < 0: raise ValueError('explicit entity cache byte budget required')
+            if native and budget:raise ValueError('current entity payload cache supports packed lower only')
+            argv += ['--volume-format',fmt,'--experimental-entity-mount',
+                     '--entity-volume-id',config['entity_volume_id'],'--workspace',config['workspace'],
+                     '--workspace-namespace',config['workspace_namespace'],
+                     '--packed-manifest-key' if packed else '--entity-native-manifest-key',packed or native,
+                     '--entity-read-cache-bytes',str(budget)]
         if dynamic_block != 'off': argv+=['--s3-rustfs-ec-block-size-hint',dynamic_block]
         if metrics_address:argv+=['--metrics','--metrics-addr',metrics_address]
         return argv
-    if filesystem != 'juicefs' or cluster == 'C2': raise ValueError('unsupported baseline')
+    if filesystem != 'juicefs' or (not unified and cluster == 'C2'): raise ValueError('unsupported baseline')
     url = urlsplit(config['metadata_url'])
-    if url.scheme != 'redis' or url.username or url.password or url.query or url.fragment:
-        raise ValueError('plain Redis metadata URL; credentials via native supported environment')
+    if url.scheme != (metadata_backend if unified else 'redis') or url.username or url.password or url.query or url.fragment:
+        raise ValueError('matching plain metadata URL; credentials via native supported environment')
     if config.get('writeback') is not False: raise ValueError('baseline JuiceFS writeback must be explicitly false')
     argv=[binary,'mount',config['metadata_url'],point,'--cache-dir',config['cache_dir'],
             '--cache-size',str(config['cache_mib']),'--buffer-size',str(config['buffer_mib']),
@@ -67,11 +85,11 @@ def native_argv(filesystem, binary, config_path, config, point, cluster, metrics
     return argv
 
 
-def mount(config_ref, binary_ref, filesystem, cluster, point, cwd, output, environment, fstypes, metrics_address,purpose='experiment',dynamic_block='auto'):
+def mount(config_ref, binary_ref, filesystem, cluster, point, cwd, output, environment, fstypes, metrics_address,purpose='experiment',dynamic_block='auto',metadata_backend=None):
     config_path = str(pinned(config_ref)); binary = str(pinned(binary_ref)); config = load(config_path)
     if purpose=='observer-calibration-off':metrics_address=None
     elif not re.fullmatch(r'127\.0\.0\.1:[0-9]{4,5}',metrics_address or ''):raise ValueError('dedicated loopback metrics port required')
-    argv = native_argv(filesystem,binary,config_path,config,point,cluster,metrics_address,dynamic_block)
+    argv = native_argv(filesystem,binary,config_path,config,point,cluster,metrics_address,dynamic_block,metadata_backend)
     output = private_dir(output)
     step = {'schema':'experiment-step-v1','reviewed':False,'cell_id':output.name,'stage':'mount',
             'argv':argv,'cwd':cwd,'executable_sha256':binary_ref['sha256'],
@@ -82,6 +100,7 @@ def mount(config_ref, binary_ref, filesystem, cluster, point, cwd, output, envir
              'metrics_address':metrics_address,
              'dynamic_block':dynamic_block if filesystem=='brewfs' else None,
              'purpose':purpose,
+             'metadata_backend':metadata_backend,
              'mount_point':point,'anchor':anchor(filesystem,config), 'allowed_fstypes':fstypes,
              'budget':AGENT_BUDGET,'command':{'path':str(output/'command.json'),'sha256':digest(output/'command.json')},
              'ready_timeout_seconds':60}
@@ -161,6 +180,7 @@ if __name__=='__main__':
     for key in ('config','config-sha256','binary','binary-sha256','filesystem','cluster','mount-point','cwd','output'):
         m.add_argument('--'+key,required=True)
     m.add_argument('--metrics-address');m.add_argument('--purpose',choices=['experiment','observer-calibration-off'],default='experiment')
+    m.add_argument('--metadata-backend',choices=['redis','tikv'],help='unified suite: decouple filesystem/backend from legacy C1-C4 cluster IDs')
     m.add_argument('--dynamic-block',choices=['auto','off','65536','262144','1048576','4194304'],default='auto',
                    help='BrewFS object hint policy; off is an explicit client ablation')
     m.add_argument('--inherit-environment',nargs='*',default=[]);m.add_argument('--fstypes',nargs='+',required=True)
@@ -169,7 +189,7 @@ if __name__=='__main__':
     a=p.parse_args()
     if a.action=='mount':
         mount({'path':a.config,'sha256':a.config_sha256},{'path':a.binary,'sha256':a.binary_sha256},
-              a.filesystem,a.cluster,a.mount_point,a.cwd,a.output,a.inherit_environment,a.fstypes,a.metrics_address,a.purpose,a.dynamic_block)
+              a.filesystem,a.cluster,a.mount_point,a.cwd,a.output,a.inherit_environment,a.fstypes,a.metrics_address,a.purpose,a.dynamic_block,a.metadata_backend)
     elif a.action=='trace-worker':trace_worker(a.request,a.output)
     else:
         s=load(a.spec)

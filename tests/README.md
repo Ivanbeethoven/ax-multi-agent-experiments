@@ -12,6 +12,7 @@ python3 -m unittest discover -s tests -v
 
 | 测试 | 内容 |
 |---|---|
+| `test_unified_suite.py` | 新C1–C4计划/native消融、原子共享资源占用、禁止重放、失败归档/关闭、恢复与gap排除、真实本地fork子进程；可选fio/小文件原生验证 |
 | `test_ssh_fleet.py` | 任意 SSH 节点/端口与槽位、代码摘要、宿主观测映射、同 cgroup 拒绝放行、trace 配置；可选真实 SSH 集成 |
 | `test_experiment_steps.py`、`test_scale_plan.py` | 配对/资源隔离、8/64/128 规模、单步失败与保全 |
 | `test_runtime_adapters.py` | 64真实本地worker屏障、失败不重投、原进程正常退出与活跃保护、分片并发、迁移lease门、真实/proc和HTTP采集、缺项/断档/重置/篡改拒绝、开销配对 |
@@ -24,6 +25,18 @@ python3 -m unittest discover -s tests -v
 `test_fs_trace_capture.py` 按 Linux strace/POSIX 路径构造输入，不适用于原生 Windows；在 WSL 中验证。旧调度器、Ceph 和磁盘换挂的专属测试与被移除代码一起保存在 [历史归档](../archive/README.md)，未把它们计入当前测试通过数。
 
 runtime的mountinfo/API失败边界使用受控替身；通过不代表真实BrewFS/JuiceFS挂载、跨节点原生会话或采集开销已验收。正式性能结果必须另附本批原生服务、内容及观测资格。
+
+新统一实验的原生本地验证（小输入、真实fio与Rust文件IO；不启动云或FUSE）：
+
+```bash
+cargo test --manifest-path tools/fs-probe/Cargo.toml --bin smallfiles
+cargo clippy --manifest-path tools/fs-probe/Cargo.toml --bin smallfiles -- -D warnings
+cargo build --manifest-path tools/fs-probe/Cargo.toml --bin smallfiles
+UNIFIED_NATIVE_TESTS=1 SMALLFILES_BINARY="$PWD/tools/fs-probe/target/debug/smallfiles" \
+  python3 -m unittest discover -s tests -p test_unified_suite.py -v
+```
+
+Linux需要`/usr/bin/fio`真实工具；设置了上述变量却缺工具视为失败，不默默skip。Rust工具需支持`as_chunks`的工具链（Rust≥1.88）。验证包含字节损坏必须失败、父子隔离、全部原始阶段与重复输出拒绝。细节见 [系列文档](../experiments/unified-suite/README.md)。
 
 真实 SSH 集成使用已有 OpenSSH server，只在 loopback 临时端口启动测试专用 sshd，随后回收。本例以 root 运行；测试覆盖固定 host key、远端代码摘要、observer 启停及被改动 host-key 文件的拒绝：
 

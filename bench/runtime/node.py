@@ -78,7 +78,7 @@ def validate_mount(s):
         raise ValueError('shared backend identity differs from mount anchor')
     if not s.get('metrics_address') and s.get('purpose')!='observer-calibration-off':raise ValueError('native metrics must be explicitly enabled')
     expected = native_argv(s['filesystem'],cmd['argv'][0],config_path,config,str(point),s['cluster'],s['metrics_address'],
-                           s.get('dynamic_block','auto'))
+                           s.get('dynamic_block','auto'),s.get('metadata_backend'))
     if cmd['argv'] != expected: raise ValueError('mount argv overrides reviewed native profile')
     cache=Path(config['cache']['cache_root'] if s['filesystem']=='brewfs' else config['cache_dir'])
     if not cache.is_absolute() or cache.is_symlink() or not cache.is_dir() or any(cache.iterdir()):
@@ -233,17 +233,21 @@ def worker(ref, directory):
         prepared_jobs.append(prepare(job['step']['path'], job['step']['sha256']))
         if job.get('result') and Path(job['result']['path']).exists(): raise ValueError('stale result before barrier')
     if s.get('purpose')!='adapter-test':
-        if s['kind'] not in ('trace','ml','s3','control'):raise ValueError('explicit workload kind required')
-        if s['kind'] in ('trace','ml') and not s.get('mount'):raise ValueError('filesystem workload requires supervised mount')
+        if s['kind'] not in ('trace','ml','s3','control','fio','smallfiles'):raise ValueError('explicit workload kind required')
+        if s['kind'] in ('trace','ml','fio','smallfiles') and not s.get('mount'):raise ValueError('filesystem workload requires supervised mount')
         for job in jobs:
             if not job.get('workload_id'):raise ValueError('explicit workload identity required for per-task statistics')
             expected=job.get('result',{}).get('equals',{})
             keys={'trace':{'completed','mode','valid','operations','actual_read_bytes','actual_write_bytes','remaining_handles'},
                   'ml':{'completed','attempted_files','actual_read_bytes','errors'},
-                  's3':{'passed','requests','application_bytes','global_concurrency','shard'},'control':set()}[s['kind']]
+                  's3':{'passed','requests','application_bytes','global_concurrency','shard'},'control':set(),
+                  'fio':{'completed','passed','jobs','application_bytes','phase'},
+                  'smallfiles':{'completed','passed','files','verified_reads','writes','actual_read_bytes','actual_write_bytes'}}[s['kind']]
             if not keys.issubset(expected):raise ValueError('workload result predicates incomplete')
             if s['kind']=='trace' and (expected['completed'] is not True or expected['remaining_handles']!=0 or expected['operations']<=0):
                 raise ValueError('incomplete trace acceptance')
+            if s['kind'] in ('fio','smallfiles') and (expected['completed'] is not True or expected['passed'] is not True):
+                raise ValueError('complete successful native workload required')
     mount = s.get('mount')
     if mount:
         expected_mount = spec(mount['spec'], 'experiment-mount-v1')

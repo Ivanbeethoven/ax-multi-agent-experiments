@@ -1,0 +1,9 @@
+{
+  "kind":"smallfiles", "worker_id":"a01", "workload_id":"C3-million-hot-1024-w1",
+  "root":"/mnt/experiment/workspace", "cwd":"/opt/ax-experiments", "seed":9173,"workspace":1,
+  "binary":{"path":"/opt/ax/bin/smallfiles","sha256":"FILL_BINARY_SHA"},
+  "mount":{"spec":{"path":"/srv/ax/specs/mount.json","sha256":"FILL_MOUNT_SHA"},"directory":"/srv/ax/mount-state"},
+  "params":{"agents":1,"files":1000000,"file_bytes":4096,"directories":1024,"hot_files":1024,
+    "workers":8,"workspaces":4,"read_ops":65536,"cow_files":256,"write_ops":2048,"mixed_ops":8192,
+    "prewarm_passes":2,"mixed_read_fraction":0.75,"fsync_every_write":true}
+}
