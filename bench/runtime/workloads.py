@@ -33,6 +33,12 @@ def worker(request, output):
     if output==point or point in output.parents:raise ValueError('evidence must be outside mount')
     if not s.get('worker_id') or not s.get('workload_id'):raise ValueError('worker and workload identity required')
     params=s['params']; request_ref={'path':str(Path(request).resolve()),'sha256':digest(request)}
+    if mount.get('suite_binding'):
+        from ..suite_mount import cell_of
+        plan=load(pinned(mount['suite_binding']['plan']))
+        cell=cell_of(plan,mount['suite_binding']['cell_id'])
+        if cell['workload']!=kind or cell['params']!=params or plan['config']['seed']!=s['seed']:
+            raise ValueError('worker workload/params/seed differ from mounted suite cell')
     inputs=[request_ref,s['binary']]; result_path=output/'workload'/'result.json'
     if kind=='smallfiles':
         if type(s.get('workspace')) is not int or s['workspace']<=0:raise ValueError('distinct positive child tag required')

@@ -13,6 +13,7 @@ python3 -m unittest discover -s tests -v
 | 测试 | 内容 |
 |---|---|
 | `test_unified_suite.py` | 新C1–C4计划/native消融、baseline跨池并行/独立领取关闭/跨池配对、旧同池模式、原子共享资源占用、禁止重放、失败归档/关闭、恢复与gap排除；可选fio/小文件原生验证 |
+| `test_suite_defaults.py` | 默认工作量/容量、非法参数提前拒绝、冻结缓存与pool绑定、memory store挂载参数复核、fio同字节错误参数拒绝 |
 | `test_ssh_fleet.py` | 任意 SSH 节点/端口与槽位、代码摘要、宿主观测映射、同 cgroup 拒绝放行、trace 配置；可选真实 SSH 集成 |
 | `test_experiment_steps.py`、`test_scale_plan.py` | 配对/资源隔离、8/64/128 规模、单步失败与保全 |
 | `test_runtime_adapters.py` | 64真实本地worker屏障、失败不重投、原进程正常退出与活跃保护、分片并发、迁移lease门、真实/proc和HTTP采集、缺项/断档/重置/篡改拒绝、开销配对 |

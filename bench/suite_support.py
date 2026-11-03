@@ -32,6 +32,8 @@ def drafts(plan, output):
         pool=next(p for p in plan['config']['clusters'] if p['id']==cell['pool'])
         folder=out/cell['id'];folder.mkdir()
         write_new(folder/'cell.json',cell)
+        if plan['config'].get('client_profile'):
+            write_new(folder/'client-settings.json',cell['client_settings'])
         write_new(folder/'qualification.draft.json',{'schema':'suite-qualification-v1',
             'plan_sha256':plan['plan_sha256'],'cell_id':cell['id'],
             'checks':[{'gate':g,'evidence':None,'equals':None} for g in cell['required_gates']]})
@@ -62,6 +64,37 @@ def drafts(plan, output):
         write_new(out/('asset-'+asset['id']+'.draft.json'),{'schema':'suite-asset-v1',
             'plan_sha256':plan['plan_sha256'],'asset_id':asset['id'],'native_binding':None,
             'timings_seconds':{},'stages':{s:{'evidence':None,'equals':None} for s in asset['required_stages']}})
+
+
+def sizing(plan):
+    """Declared application work and reserved slots; never a runtime estimate."""
+    check_plan(plan);rows=[]
+    for cell in plan['cells']:
+        p=cell['params'];kind=cell['workload'];agents=p['agents']
+        row={'cell_id':cell['id'],'pool':cell['pool'],'workload':kind,'agent_slots':agents}
+        if kind=='fio':
+            total=p['numjobs']*p['io_bytes_per_job']*agents
+            row.update(measure_bytes=total,measure_io_operations=total//p['block_bytes'],
+                       fixture_bytes=p['numjobs']*p['file_bytes_per_job']*agents,
+                       full_verify_bytes=p['numjobs']*p['file_bytes_per_job']*agents)
+        elif kind=='smallfiles':
+            from .runtime.workloads import counts
+            n=counts(p);factor=agents*p['workspaces']
+            row.update(source_logical_bytes=p['files']*p['file_bytes'],workspaces=factor,
+                       read_operations=n['verified_reads']*factor,write_operations=n['writes']*factor)
+        elif kind=='fork':
+            row.update(children=p['children'],source_logical_bytes=1000000*4096,
+                       eager_base_plus_children_logical_bytes=(1+p['children'])*1000000*4096)
+        elif kind=='handoff' and cell['arm']['handoff_mode']=='move':
+            row['agent_slots']=agents+p['moved_agents']  # Source + reserved target.
+        row.update(reserved_cpus=row['agent_slots']*2,reserved_memory_bytes=row['agent_slots']*8*1024**3)
+        rows.append(row)
+    pools=[{'pool':p['id'],'peak_reserved_cpus':max(r['reserved_cpus'] for r in rows if r['pool']==p['id']),
+            'peak_reserved_memory_bytes':max(r['reserved_memory_bytes'] for r in rows if r['pool']==p['id'])}
+           for p in plan['config']['clusters'] if any(r['pool']==p['id'] for r in rows)]
+    return {'schema':'suite-sizing-v1','plan_sha256':plan['plan_sha256'],'cells':rows,'pools':pools,
+            'scope':'application/slot accounting only; add OS/services/metadata/logs/failures/archive copies and disk amplification; '
+                    'fixture preparation is charged once per actual asset, full verify per required phase; no duration prediction'}
 
 
 def review(path, reviewer, note):
@@ -116,6 +149,7 @@ def main():
     a=sub.add_parser('pin');a.add_argument('--file',required=True)
     a=sub.add_parser('manifest');a.add_argument('--files',nargs='+',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('drafts');a.add_argument('--plan',required=True);a.add_argument('--output',required=True)
+    a=sub.add_parser('sizing');a.add_argument('--plan',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('review');a.add_argument('--spec',required=True);a.add_argument('--reviewer',required=True);a.add_argument('--note',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('closure');a.add_argument('--request',required=True);a.add_argument('--output',required=True)
     a=p.parse_args()
@@ -123,6 +157,7 @@ def main():
         import json
         print(json.dumps(reference(a.file)));return
     if a.action=='drafts':drafts(load(a.plan),a.output);return
+    if a.action=='sizing':write_new(a.output,sizing(load(a.plan)));return
     result=manifest(a.files) if a.action=='manifest' else review(a.spec,a.reviewer,a.note) if a.action=='review' else closure(a.request)
     write_new(a.output,result)
     if a.action=='review' and result['schema']=='experiment-step-v1':prepare(a.output,digest(a.output))

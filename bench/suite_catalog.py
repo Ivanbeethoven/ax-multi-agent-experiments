@@ -6,6 +6,9 @@ BACKEND = {'repository': 'https://github.com/Ivanbeethoven/rustfs',
            'branch': 'feat/dynamic-block-size-rebased', 'revision_policy': 'branch-latest',
            'layout_profile': 'enabled', 'brewfs_hint': 'auto'}
 
+# Versioned settings for NEW campaigns. Old frozen configs/plans are unchanged.
+CLIENT_PROFILE = 'bounded-memory-v1'
+
 # These are routes, not assertions that a selected build supports every route.
 ARMS = {
     'juicefs': dict(product='juicefs', role='external-baseline', engine='juicefs',
@@ -41,7 +44,7 @@ def cases(profile, study):
             case('C3', 'packed-format-native-control', 'smallfiles', small_params(tiny), {
                  'entity-native':arm('entity-native'), 'packed-cache-off':arm('packed',payload_cache_bytes=0)},
                  claim='lower-format-system-control',gates=['entity-native-lower-adapter','equal-source-view','equal-cache-policy']),
-            case('C4', 'delta', 'fork', {'agents': 8, 'children': 8,
+            case('C4', 'delta', 'fork', {'agents': 1 if tiny else 8, 'children': 1 if tiny else 8,
                  'dataset': 'fork-fixture-million-4k', 'creation': 'burst'}, {
                  'delta-on': arm('native-workspace'),
                  'delta-eager': arm('native-workspace', delta=False, materialization='eager-private-copy')},
@@ -106,7 +109,7 @@ def fio_params(mode, tiny):
     sequential = mode in ('read', 'write')
     return {'agents': 1, 'rw': mode, 'block_bytes': 1048576 if sequential else 4096,
             'file_bytes_per_job': 67108864 if tiny else 4294967296,
-            'io_bytes_per_job': 67108864 if tiny else 4294967296,
+            'io_bytes_per_job': 67108864 if tiny else 4294967296 if sequential else 268435456,
             'numjobs': 1 if tiny else 8, 'ioengine': 'psync', 'iodepth': 1,
             'direct': False, 'fsync_every_write': True, 'rwmixread': 75,
             'cache_state': 'client-cold', 'time_based': False}
@@ -129,6 +132,7 @@ def template(profile='pilot', study='systems'):
         if study=='ablations' else {})
     return {'schema': PROTOCOL, 'campaign_id': 'unified-20261103', 'profile': profile,
             'study': study, 'seed': 9173, 'repetitions': 1 if profile == 'pilot' else 3,
+            'client_profile': CLIENT_PROFILE,
             'placement':{'mode':'baseline-parallel','product_pools':{'brewfs':['pool-a'],'juicefs':['pool-b']},'arm_pools':overrides},
             'external_baselines': ['juicefs'], 'backend_policy': deepcopy(BACKEND),
             'cache_budget_bytes_per_client': 536870912, 'ssd_clean_cache_bytes': 0,

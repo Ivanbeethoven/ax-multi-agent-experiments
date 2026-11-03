@@ -4,7 +4,7 @@ import json
 import re
 from copy import deepcopy
 
-from .suite_catalog import PROTOCOL, BACKEND
+from .suite_catalog import PROTOCOL, BACKEND, CLIENT_PROFILE
 
 STAGES = ['observe-start', 'create', 'mount', 'measure', 'drain', 'unmount',
           'verify', 'observe-stop', 'archive']
@@ -41,6 +41,13 @@ def parallel(config):
     return config.get('placement',{}).get('mode','paired-pool')=='baseline-parallel'
 
 
+def slots_for(config, case, arm=None):
+    slots=case['params']['agents']
+    if config.get('client_profile') and case['workload']=='handoff' and (arm is None or arm['handoff_mode']=='move'):
+        slots+=case['params']['moved_agents']
+    return slots
+
+
 def assigned_pools(config, case, name):
     placement=config['placement']
     ids=placement.get('arm_pools',{}).get(name)
@@ -48,7 +55,7 @@ def assigned_pools(config, case, name):
     if not ids:raise ValueError('explicit pool assignment required for arm: '+name)
     by_id={p['id']:p for p in config['clusters']}
     eligible=[by_id[x] for x in ids if case['suite'] in by_id[x]['supported_suites']
-              and by_id[x]['agent_slots']>=case['params']['agents']]
+              and by_id[x]['agent_slots']>=slots_for(config,case,case['arms'][name])]
     if not eligible:raise ValueError('assigned pools lack capacity for arm: '+case['name']+'/'+name)
     return eligible
 
@@ -66,6 +73,11 @@ def validate(config):
         raise ValueError('do not mix writeback policy into these comparisons')
     if config.get('metadata_backend') not in ('redis', 'tikv'):
         raise ValueError('explicit shared metadata backend required')
+    if 'client_profile' in config and config['client_profile']!=CLIENT_PROFILE:
+        raise ValueError('unknown client profile')
+    budget=config.get('cache_budget_bytes_per_client')
+    if type(budget) is not int or not 0<=budget<=536870912 or type(config.get('ssd_clean_cache_bytes')) is not int or config['ssd_clean_cache_bytes']!=0:
+        raise ValueError('explicit payload budget <=512 MiB and no clean SSD cache required')
     telemetry=config.get('telemetry',{})
     if telemetry!={'interval_seconds':5,'max_gap_seconds':30,'max_relative_overhead':0.05}:
         raise ValueError('freeze 5s sampling, <=30s gaps and <=5% observer overhead in this protocol')
@@ -93,11 +105,41 @@ def validate(config):
             raise ValueError('suite and case identity required')
         if c['workload'] not in ('fio','trace','smallfiles','fork','handoff') or len(c['arms']) < 2:
             raise ValueError('supported workload and at least two paired arms required')
+        if c['suite']!={'fio':'C1','trace':'C2','smallfiles':'C3','fork':'C4','handoff':'C4'}[c['workload']]:
+            raise ValueError('suite/workload mismatch')
         if type(c['params'].get('agents')) is not int or c['params']['agents'] < 1:
             raise ValueError('positive Agent/client count required')
         for name, arm in c['arms'].items():
             if not ident(name) or arm['product'] not in ('brewfs','juicefs'):
                 raise ValueError('only BrewFS and JuiceFS routes are configured')
+            cache=arm.get('payload_cache_bytes')
+            if type(cache) is not int or not 0<=cache<=budget:
+                raise ValueError('arm payload cache exceeds campaign budget')
+            if arm['product']=='juicefs':
+                if arm.get('engine')!='juicefs' or arm.get('packed') is not False or cache%1048576:
+                    raise ValueError('JuiceFS engine and whole-MiB read cache required')
+            elif arm.get('engine') not in ('flat-v1','workspace-native-v2','workspace-entity-v1'):
+                raise ValueError('unsupported unified BrewFS engine')
+            elif (arm['engine']!='workspace-entity-v1' and arm.get('packed')) or (
+                    arm['engine']=='workspace-entity-v1' and not arm.get('packed') and cache):
+                raise ValueError('packed cache is available only on a packed entity lower')
+            if arm['product']=='brewfs' and arm.get('hint') not in ('auto','off','65536','262144','1048576','4194304'):
+                raise ValueError('unsupported BrewFS object hint')
+            if 'object_bytes' in arm and (type(arm['object_bytes']) is not int or arm['object_bytes'] not in (262144,1048576,4194304)):
+                raise ValueError('supported explicit native object size required')
+            if c['workload']=='handoff' and (arm.get('handoff_mode') not in ('stay','move') or
+                    arm['engine'] not in ('workspace-native-v2','juicefs')):
+                raise ValueError('native session-capable stay/move route required')
+        if c['workload']=='fio':
+            from .fio_workload import validate_params
+            validate_params(c['params'])
+            if config['seed']>2**64-c['params']['numjobs']:raise ValueError('per-job seed overflows uint64')
+        if c['workload']=='trace' and (c['params'].get('tasks_per_agent')!=1 or
+                c['params'].get('pacing')!='off' or c['params'].get('replay')!='complete' or not ident(c['params'].get('trace'))):
+            raise ValueError('one complete unpaced trace per Agent required')
+        if c['workload']=='handoff' and (type(c['params'].get('moved_agents')) is not int or
+                not 1<=c['params']['moved_agents']<=c['params']['agents'] or not ident(c['params'].get('trace'))):
+            raise ValueError('moved Agent count and complete handoff trace required')
         if c['workload'] == 'smallfiles' and (c['params']['files'] != 1000000 or c['params']['file_bytes'] != 4096):
             raise ValueError('C3 remains exactly 1,000,000 x 4 KiB; local tool tests are separate')
         if c['workload']=='smallfiles':
@@ -107,6 +149,8 @@ def validate(config):
                 raise ValueError('positive explicit workspace count required')
         if c['workload']=='fork' and (type(c['params'].get('children')) is not int or not 1<=c['params']['children']<=c['params']['agents']):
             raise ValueError('reserve one actual agent slot per concurrent child')
+        if c['workload']=='fork' and (c['params'].get('dataset')!='fork-fixture-million-4k' or c['params'].get('creation')!='burst'):
+            raise ValueError('million-file fixture and burst fork required')
     placement=config.get('placement',{'mode':'paired-pool'})
     if not isinstance(placement,dict) or placement.get('mode') not in ('paired-pool','baseline-parallel'):
         raise ValueError('placement mode must be paired-pool or baseline-parallel')
@@ -135,7 +179,7 @@ def build(config):
     pools = sorted(config['clusters'], key=lambda p: p['id'])
     rows, assets, blocks = [], {}, []
     for index, case in enumerate(config['cases']):
-        eligible = [p for p in pools if case['suite'] in p['supported_suites'] and p['agent_slots'] >= case['params']['agents']]
+        eligible = [p for p in pools if case['suite'] in p['supported_suites'] and p['agent_slots'] >= slots_for(config,case)]
         if not eligible:
             raise ValueError('no pool has capacity for complete paired case: '+case['name'])
         if not split and len({p['hardware_class'] for p in eligible}) != 1:
@@ -183,6 +227,9 @@ def build(config):
                     'claim':case['claim'], 'params':deepcopy(case['params']), 'arm_id':name,
                     'arm':deepcopy(route), 'asset_id':asset, 'required_gates':gates,
                     'stages':stages_for(case), 'observation_marks':marks_for(case), 'execution_enabled':False})
+                if config.get('client_profile'):
+                    from .suite_mount import settings
+                    rows[-1]['client_settings']=settings(config,route)
                 if split:rows[-1]['resource_ids']=list(pool['resource_ids'])
             if split:
                 blocks.append({'id':block,'pool':None,'pools':sorted(set(cell_pools.values())),

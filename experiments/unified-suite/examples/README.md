@@ -14,4 +14,6 @@
 
 BrewFS原生配置须明确 `volume_format`、meta.backend（TiKV/Redis实际字段）、data.s3、同步cache.writeback_mode、cache_root、fuse.cache_ttl_ms/keep_cache。entity另用真实entity_volume_id/workspace UUID、workspace_namespace及恰好一个packed_manifest_key/entity_native_manifest_key；配置中的entity字段由生成器转为CLI显式参数。packed payload cache=536870912，entity-native=0，entity keep_cache=false。
 
-JuiceFS配置使用 `metadata_url`、`cache_dir`、`cache_mib:0`（clean SSD）、`buffer_mib:512`、`writeback:false`、`attr_cache_seconds`、`entry_cache_seconds`，实际FUSE/page-cache与buffer驻留另验证。512MiB buffer参数不等于512MiB可驻留读缓存；预算、实际占用和缓存实现都要披露，不能当作与BrewFS payload结构完全等价。
+native-workspace还必须提供真实、通过本批BrewFS原生验证的`native_base`完整配置及`volume.chunk_size/block_size`；生成器固定`volume.format/schema_version/native_control_version`与所选引擎一致。native_base的P1合同预算/禁用预取声明不等于native VFS实际缓存实现，不用这些声明替代有效缓存计数。切换到flat/entity时不能残留native workspace控制字段；对象粒度消融同时固定layout与volume的block_size。
+
+使用`bench.suite_mount`从本cell plan生成[完整显式设置](../13-defaults.zh.md)，保留实际metadata_url/endpoint/namespace。JuiceFS新默认`cache_dir:memory`、`cache_mib:512`、`buffer_mib:512`、`writeback:false`；前者是内存读缓存，后者是读写缓冲。BrewFS native读内存512MiB、clean SSD=0，entity使用独立CLI预算；不得继承未声明的生产缓存值。prepare必须携带suite-plan/suite-cell，node会再次核对。实际FUSE/page-cache/缓存生效与RSS仍要原生验证。

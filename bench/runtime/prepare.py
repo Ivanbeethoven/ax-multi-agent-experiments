@@ -77,23 +77,39 @@ def native_argv(filesystem, binary, config_path, config, point, cluster, metrics
     if url.scheme != (metadata_backend if unified else 'redis') or url.username or url.password or url.query or url.fragment:
         raise ValueError('matching plain metadata URL; credentials via native supported environment')
     if config.get('writeback') is not False: raise ValueError('baseline JuiceFS writeback must be explicitly false')
+    for key in (('cache_mib','buffer_mib','attr_cache_seconds','entry_cache_seconds') if unified else ()):
+        if type(config.get(key)) is not int or config[key] < (1 if key=='buffer_mib' else 0):
+            raise ValueError('explicit nonnegative JuiceFS cache settings required: '+key)
     argv=[binary,'mount',config['metadata_url'],point,'--cache-dir',config['cache_dir'],
             '--cache-size',str(config['cache_mib']),'--buffer-size',str(config['buffer_mib']),
             '--enable-xattr','--enable-cap','--attr-cache',str(config['attr_cache_seconds']),
             '--entry-cache',str(config['entry_cache_seconds']),'--dir-entry-cache',str(config['entry_cache_seconds'])]
+    for key,flag in (('open_cache_seconds','open-cache'),('prefetch','prefetch'),
+                     ('max_readahead_mib','max-readahead'),('backup_meta','backup-meta'),
+                     ('verify_cache_checksum','verify-cache-checksum')):
+        if key in config:argv+=['--'+flag,str(config[key])]
+    for key in ('cache_large_write','no_usage_report'):
+        if key in config:
+            if type(config[key]) is not bool:raise ValueError('explicit boolean required: '+key)
+            argv+=['--'+key.replace('_','-')+'='+str(config[key]).lower()]
     if metrics_address:argv+=['--metrics',metrics_address]
     return argv
 
 
-def mount(config_ref, binary_ref, filesystem, cluster, point, cwd, output, environment, fstypes, metrics_address,purpose='experiment',dynamic_block='auto',metadata_backend=None):
+def mount(config_ref, binary_ref, filesystem, cluster, point, cwd, output, environment, fstypes, metrics_address,purpose='experiment',dynamic_block='auto',metadata_backend=None,suite_binding=None):
     config_path = str(pinned(config_ref)); binary = str(pinned(binary_ref)); config = load(config_path)
+    if metadata_backend is not None:
+        if not suite_binding:raise ValueError('unified mount requires --suite-plan and --suite-cell')
+        from ..suite_mount import validate_binding
+        validate_binding(suite_binding,config,filesystem,cluster,metadata_backend,dynamic_block)
+    elif suite_binding:raise ValueError('suite binding requires explicit metadata backend')
     if purpose=='observer-calibration-off':metrics_address=None
     elif not re.fullmatch(r'127\.0\.0\.1:[0-9]{4,5}',metrics_address or ''):raise ValueError('dedicated loopback metrics port required')
     argv = native_argv(filesystem,binary,config_path,config,point,cluster,metrics_address,dynamic_block,metadata_backend)
     output = private_dir(output)
     step = {'schema':'experiment-step-v1','reviewed':False,'cell_id':output.name,'stage':'mount',
             'argv':argv,'cwd':cwd,'executable_sha256':binary_ref['sha256'],
-            'inputs':[config_ref],'inherit_environment':environment}
+            'inputs':[config_ref]+([suite_binding['plan']] if suite_binding else []),'inherit_environment':environment}
     write_new(output/'command.json',step)
     value = {'schema':'experiment-mount-v1','reviewed':False,'cluster':cluster,'filesystem':filesystem,
              'config':config_ref,
@@ -104,6 +120,7 @@ def mount(config_ref, binary_ref, filesystem, cluster, point, cwd, output, envir
              'mount_point':point,'anchor':anchor(filesystem,config), 'allowed_fstypes':fstypes,
              'budget':AGENT_BUDGET,'command':{'path':str(output/'command.json'),'sha256':digest(output/'command.json')},
              'ready_timeout_seconds':60}
+    if suite_binding:value['suite_binding']=suite_binding
     write_new(output/'mount.json',value)
     return value
 
@@ -181,6 +198,7 @@ if __name__=='__main__':
         m.add_argument('--'+key,required=True)
     m.add_argument('--metrics-address');m.add_argument('--purpose',choices=['experiment','observer-calibration-off'],default='experiment')
     m.add_argument('--metadata-backend',choices=['redis','tikv'],help='unified suite: decouple filesystem/backend from legacy C1-C4 cluster IDs')
+    m.add_argument('--suite-plan');m.add_argument('--suite-cell')
     m.add_argument('--dynamic-block',choices=['auto','off','65536','262144','1048576','4194304'],default='auto',
                    help='BrewFS object hint policy; off is an explicit client ablation')
     m.add_argument('--inherit-environment',nargs='*',default=[]);m.add_argument('--fstypes',nargs='+',required=True)
@@ -188,8 +206,11 @@ if __name__=='__main__':
     t=sub.add_parser('trace-worker');t.add_argument('--request',required=True);t.add_argument('--output',required=True)
     a=p.parse_args()
     if a.action=='mount':
+        if bool(a.suite_plan)!=bool(a.suite_cell):p.error('--suite-plan and --suite-cell must be used together')
+        binding=({'plan':{'path':str(Path(a.suite_plan).resolve()),'sha256':digest(a.suite_plan)},
+                  'cell_id':a.suite_cell} if a.suite_plan else None)
         mount({'path':a.config,'sha256':a.config_sha256},{'path':a.binary,'sha256':a.binary_sha256},
-              a.filesystem,a.cluster,a.mount_point,a.cwd,a.output,a.inherit_environment,a.fstypes,a.metrics_address,a.purpose,a.dynamic_block,a.metadata_backend)
+              a.filesystem,a.cluster,a.mount_point,a.cwd,a.output,a.inherit_environment,a.fstypes,a.metrics_address,a.purpose,a.dynamic_block,a.metadata_backend,binding)
     elif a.action=='trace-worker':trace_worker(a.request,a.output)
     else:
         s=load(a.spec)

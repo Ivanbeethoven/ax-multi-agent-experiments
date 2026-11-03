@@ -74,10 +74,12 @@ def work(plan, cell_id, packet):
             totals.update(actual)
         elif kind=='fio':
             predicates(v,{'completed':True,'passed':True,'phase':'measure','jobs':params['numjobs'],
-                          'application_bytes':params['numjobs']*params['io_bytes_per_job']})
+                          'application_bytes':params['numjobs']*params['io_bytes_per_job'],
+                          'params':params,'seed':plan['config']['seed'],'raw_sha256':item['raw']['sha256']})
             raw=evidence(item['raw'])
-            from .fio_workload import summarize
+            from .fio_workload import summarize, validate_raw
             summarize(raw,params['numjobs'],v['application_bytes'],0,v['wrapper_wall_seconds'])
+            validate_raw(raw,params,plan['config']['seed'],'measure')
             totals['application_bytes']+=v['application_bytes']
         elif kind=='trace':
             source=evidence(item['source_metrics'])
