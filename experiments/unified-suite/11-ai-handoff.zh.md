@@ -6,7 +6,7 @@
 
 ## pool执行者任务单
 
-> 接收固定pool、owner和lease路径，读cell和qualification。只执行原身份对应的单步命令，使用新结果路径并绑定精确SHA。严格按cell.stages，C3每个workspace有独立创建/挂载/测量/排空/退出/校验，全部留原始回执。普通卸载/退出、父兄弟隔离与冷读回均核。中断先读原远端PID/boot/starttick、租约和日志，未知不重跑。原阶段全完成才报告complete，接管或gap保留failed/recovered。不修改冻结输入、运行时、验证器或已执行spec。
+> 接收固定pool、owner和lease路径，读cell和qualification，并从baselines/README.md选择与精确arm匹配的独立执行入口。同池只有一个owner；混合队列逐cell切换路径文档，不为每条路径复制DB或启动第二个owner。只执行原身份对应的单步命令，使用新结果路径并绑定精确SHA。严格按cell.stages，C3每个workspace有独立创建/挂载/测量/排空/退出/校验，全部留原始回执。普通卸载/退出、父兄弟隔离与冷读回均核。中断先读原远端PID/boot/starttick、租约和日志，未知不重跑。原阶段全完成才报告complete，接管或gap保留failed/recovered。不修改冻结输入、运行时、验证器或已执行spec。
 
 ## 审查者任务单
 

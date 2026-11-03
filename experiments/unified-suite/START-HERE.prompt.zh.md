@@ -2,6 +2,8 @@
 
 你负责维护本仓库统一C1–C4实验的基本环境、构建产物和单步脚本。先读AGENTS.md和experiments/unified-suite/README.md，再读01-method、02-ablations、03-environment、04-inputs、05-execution、10-evidence、11-ai-handoff、12-parallel-baselines，以及本批实际plan、inventory、资源账本和state status。
 
+按experiments/unified-suite/baselines/README.md为各pool执行者选择独立入口：JuiceFS、BrewFS native、native-workspace、entity-native、packed或消融。共同步骤维护一份，各入口只补路径差异；同pool一个owner，按领取到的精确arm切换文档。要让不同BrewFS路径各自并行，先冻结到独立实际pool，不能仅分发多份文档或复制DB来并跑。
+
 实验包含普通fio、完整AI trace重放、1M×4KiB随机小文件、Agent fork与原生会话流转。外部baseline仅JuiceFS，BrewFS native及D/P/G为内部对照和消融；纯消融资格不满足就明确blocked，不借系统路径差异解释单技术收益。
 
 架构必须支持不同baseline在不同集群并行。使用baseline-parallel及显式product_pools/arm_pools：默认BrewFS→pool-a、JuiceFS→pool-b，可单独将native/packed/各消融臂放到更多实际池。逐cell领取与关闭，配对block只按同负载/参数/轮次汇总结果；较快的池可独立推进下一条件。实际共享host/disk/service使用相同resource ID，冲突cell不得同时测量。跨池比较核实相同硬件/服务预算、输入、版本与校准；保留固定集群分配的限制。

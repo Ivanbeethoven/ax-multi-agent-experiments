@@ -2,6 +2,21 @@
 
 协议 `unified-c1-c4-v1`。外部 baseline 只保留 **JuiceFS**；BrewFS native、workspace native、entity native 和 packed 是内部路径对照。方法、准备、运行、校验分开：AI 维护环境并调用单步工具，每一步都有固定输入和保留结果。
 
+## 按路径交给集群执行者
+
+| 路径 / 精确arm | 独立执行入口 | 默认systems pool |
+|---|---|---|
+| `juicefs`、`juicefs-stay`、`juicefs-move` | [JuiceFS](baselines/juicefs.zh.md) | pool-b |
+| `native` | [BrewFS native flat](baselines/brewfs-native.zh.md) | pool-a |
+| `native-workspace`、`native-workspace-stay`、`native-workspace-move` | [BrewFS native workspace](baselines/brewfs-native-workspace.zh.md) | pool-a |
+| `entity-native` | [BrewFS entity native lower](baselines/brewfs-entity-native.zh.md) | pool-a |
+| `packed` | [BrewFS packed](baselines/brewfs-packed.zh.md) | pool-a |
+| D/P/G、缓存及D×P的精确arm | [BrewFS消融](baselines/brewfs-ablations.zh.md) | 独立ablations计划按arm映射 |
+
+协调者读全局协议与[初始prompt](START-HERE.prompt.zh.md)，执行者接收本池plan/队列/lease，读[共同执行步骤](baselines/README.md)及对应路径入口。四条BrewFS路径默认共用一个pool-a owner；需要各自同时执行时先按[集群映射](12-parallel-baselines.zh.md)拆池，不各造一份DB。领取到哪条arm就用哪份入口，不在执行者文档里重新生成实验矩阵。
+
+## 按工作负载执行
+
 | 主线 | 要回答的问题 | 执行文档 |
 |---|---|---|
 | C1 普通 fio | 固定工作量的顺序/随机读写和同步写代价 | [fio](06-fio.zh.md) |

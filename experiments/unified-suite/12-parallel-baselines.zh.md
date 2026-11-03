@@ -8,6 +8,8 @@
 | pool-b | JuiceFS，包括stay/move条件 | 与pool-a/pool-c并行 |
 | pool-c | BrewFS native | 与其他独立池并行 |
 
+配置后按[路径入口目录](baselines/README.md)交付各池任务：JuiceFS、BrewFS四条系统路径及消融各有独立文档。同池多条路径仍由一个owner按队列执行；入口文件不替代实际pool/inventory/resource隔离。
+
 ## 1. 显式映射
 
 `suite template`的新systems模板默认BrewFS→pool-a、JuiceFS→pool-b。要拆出native，在config添加实际pool-c（完整字段同其他clusters项，须换成自己的host/disk/service/observer IDs及inventory摘要），并配置：
