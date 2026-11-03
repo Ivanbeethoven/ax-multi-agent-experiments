@@ -4,6 +4,8 @@
 
 在 [入口](README.md) 生成 config，填入本批 `build_manifest_sha256`、`input_manifest_sha256`、各 pool 的 `inventory_sha256`。摘要由下列命令读取，不能填占位字符：
 
+新模板默认baseline-parallel；先按 [映射说明](12-parallel-baselines.zh.md) 填product_pools及可选arm_pools。计划中每个cell有实际pool与resource_ids，block列全部cell_pools。drafts同时输出queues.json供各池执行者查看。映射改变须新plan/新状态库，不能改已领取的cell。
+
 ```bash
 python3 -m bench.suite_support pin --file "$RUN/build-manifest.json"
 python3 -m bench.suite_support pin --file "$RUN/input-manifest.json"
@@ -48,16 +50,17 @@ python3 -m bench.suite qualify --db "$RUN/state.sqlite" --receipt "$RUN/qualifie
 python3 -m bench.suite asset --db "$RUN/state.sqlite" --receipt "$RUN/asset-verified.json"
 ```
 
-一个block全部arms的资格及资产齐备才会领取；领取时重核嵌套证据hash。准备期的写入由协调者控制，不能与本池正在测量的block混跑。
+baseline-parallel只要求本cell资格及本池asset齐备；领取时重核嵌套证据hash。多池配对另核cross-pool-hardware-equivalence，资格应引用本block全部实际pool的库存、配置和校准结果。另一baseline自己的native资格/导入未完成不阻止已准备好的池推进。准备期的写入由协调者控制，不能与本池或实际共享资源的测量混跑。旧paired-pool模式仍要求整组资格/资产齐备。
 
 ## 4. 领取一个单元
 
 ```bash
 python3 -m bench.suite claim --db "$RUN/state.sqlite" --pool pool-a --owner ai-pool-a --output "$RUN/lease-a-001.json"
+python3 -m bench.suite claim --db "$RUN/state.sqlite" --pool pool-b --owner ai-pool-b --output "$RUN/lease-b-001.json"
 python3 -m bench.suite status --db "$RUN/state.sqlite"
 ```
 
-`cell:null` 表示没有满足条件的可领block，读原因，不自动减少规模。`already_claimed:true` 是原身份，先检查原stage记录，不能开始第二次。另一个AI可以领取pool-b；共享resource ID会阻止冲突block。保留整个block到所有arms关闭，保证配对顺序。
+两条claim都在同一控制机操作同一个本地DB；随后各自远程运行本池stage，可同时持有同一配对block的不同cell。不要把DB拷贝到不同集群独立领取，也不要放共享盘。`cell:null` 表示本池没有满足条件的cell，读原因，不自动减少规模。`already_claimed:true`是原身份，先检查原stage记录，不能开始第二次。一个pool只有一个活跃cell，另一owner不能接管；共享resource ID阻止冲突cell。finish核本cell证据/真实关闭后即释放本池，另一baseline的原锁仍保留。block只在全部arms关闭后标done；done不代表性能验收成功。
 
 ## 5. 一个stage一次命令
 

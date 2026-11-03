@@ -37,6 +37,22 @@ def sha(value):
     return isinstance(value, str) and re.fullmatch('[0-9a-f]{64}', value)
 
 
+def parallel(config):
+    return config.get('placement',{}).get('mode','paired-pool')=='baseline-parallel'
+
+
+def assigned_pools(config, case, name):
+    placement=config['placement']
+    ids=placement.get('arm_pools',{}).get(name)
+    if ids is None:ids=placement.get('product_pools',{}).get(case['arms'][name]['product'])
+    if not ids:raise ValueError('explicit pool assignment required for arm: '+name)
+    by_id={p['id']:p for p in config['clusters']}
+    eligible=[by_id[x] for x in ids if case['suite'] in by_id[x]['supported_suites']
+              and by_id[x]['agent_slots']>=case['params']['agents']]
+    if not eligible:raise ValueError('assigned pools lack capacity for arm: '+case['name']+'/'+name)
+    return eligible
+
+
 def validate(config):
     if config.get('schema') != PROTOCOL or not ident(config.get('campaign_id')):
         raise ValueError('versioned campaign and simple campaign ID required')
@@ -91,33 +107,55 @@ def validate(config):
                 raise ValueError('positive explicit workspace count required')
         if c['workload']=='fork' and (type(c['params'].get('children')) is not int or not 1<=c['params']['children']<=c['params']['agents']):
             raise ValueError('reserve one actual agent slot per concurrent child')
+    placement=config.get('placement',{'mode':'paired-pool'})
+    if not isinstance(placement,dict) or placement.get('mode') not in ('paired-pool','baseline-parallel'):
+        raise ValueError('placement mode must be paired-pool or baseline-parallel')
+    if set(placement)-{'mode','product_pools','arm_pools'}:
+        raise ValueError('unknown placement setting')
+    if not parallel(config) and set(placement)!={'mode'}:
+        raise ValueError('pool mappings require baseline-parallel placement')
+    if parallel(config):
+        pool_ids={p['id'] for p in pools};arm_names={name for c in rows for name in c['arms']}
+        for key,allowed in (('product_pools',{'brewfs','juicefs'}),('arm_pools',arm_names)):
+            mappings=placement.get(key,{})
+            if not isinstance(mappings,dict) or set(mappings)-allowed:raise ValueError('unknown '+key+' selector')
+            for ids in mappings.values():
+                if not isinstance(ids,list) or not ids or not all(isinstance(x,str) for x in ids) or len(set(ids))!=len(ids) or set(ids)-pool_ids:
+                    raise ValueError('unique existing pool IDs required in '+key)
+        for c in rows:
+            assigned=[p for name in c['arms'] for p in assigned_pools(config,c,name)]
+            if len({p['hardware_class'] for p in assigned})!=1:
+                raise ValueError('cross-pool hardware must match for paired case: '+c['name'])
     return True
 
 
 def build(config):
     validate(config)
+    split=parallel(config)
     pools = sorted(config['clusters'], key=lambda p: p['id'])
     rows, assets, blocks = [], {}, []
     for index, case in enumerate(config['cases']):
         eligible = [p for p in pools if case['suite'] in p['supported_suites'] and p['agent_slots'] >= case['params']['agents']]
         if not eligible:
             raise ValueError('no pool has capacity for complete paired case: '+case['name'])
-        if len({p['hardware_class'] for p in eligible}) != 1:
+        if not split and len({p['hardware_class'] for p in eligible}) != 1:
             raise ValueError('split heterogeneous hardware into separate campaigns: '+case['name'])
         condition = fingerprint([case, config['seed'], config['metadata_backend']])[:16]
         names = sorted(case['arms'])
-        # Reproducible cyclic orders balance positions over a full cycle and
-        # rotate pools independently of the product. Three repeats cannot
-        # perfectly balance five arms: retain the schedule instead of claiming it.
+        # Reproducible cyclic orders balance positions on a pool over a full
+        # cycle. In parallel mode these are local queue positions, not barriers
+        # or simultaneous-start promises across clusters.
         offset = int(fingerprint([condition, config['seed']])[:8], 16) % len(names)
         for repeat in range(config['repetitions']):
-            pool = eligible[(index + repeat) % len(eligible)]
+            paired_pool = eligible[(index + repeat) % len(eligible)]
             block = f'{condition}-r{repeat+1}'
             ordered = names[offset:] + names[:offset]
             shift = repeat % len(ordered); ordered = ordered[shift:] + ordered[:shift]
-            ids = []
+            ids = [];cell_pools={};resources=set()
             for order, name in enumerate(ordered):
                 route = case['arms'][name]
+                choices=assigned_pools(config,case,name) if split else [paired_pool]
+                pool=choices[repeat%len(choices)]
                 # One preparation per pool / dataset / representation/layout.
                 # Cache toggles do not duplicate immutable import artifacts.
                 formation = {k:v for k,v in route.items() if k not in ('payload_cache_bytes','role','handoff_mode')}
@@ -134,16 +172,24 @@ def build(config):
                     'required_stages':['source-verify','import','full-base-verify','cache-reset'],
                     'scope':'all preparation/validation/temporary bytes charged once per actual asset'})
                 cell_id = block+'-'+name; ids.append(cell_id)
+                cell_pools[cell_id]=pool['id'];resources.update(pool['resource_ids'])
                 gates = ['exact-build-input-inventory', 'native-route-and-metadata',
                          'effective-cache-and-durability', 'host-capacity-and-maintenance',
                          'complete-telemetry-and-overhead', *case.get('extra_gates', [])]
+                if split and len({p['id'] for n in case['arms'] for p in assigned_pools(config,case,n)})>1:
+                    gates.append('cross-pool-hardware-equivalence')
                 rows.append({'id':cell_id, 'paired_block':block, 'order':order, 'pool':pool['id'],
                     'suite':case['suite'], 'case':case['name'], 'workload':case['workload'],
                     'claim':case['claim'], 'params':deepcopy(case['params']), 'arm_id':name,
                     'arm':deepcopy(route), 'asset_id':asset, 'required_gates':gates,
                     'stages':stages_for(case), 'observation_marks':marks_for(case), 'execution_enabled':False})
-            blocks.append({'id':block, 'pool':pool['id'], 'cells':ids,
-                           'resource_ids':pool['resource_ids'], 'condition':condition})
+                if split:rows[-1]['resource_ids']=list(pool['resource_ids'])
+            if split:
+                blocks.append({'id':block,'pool':None,'pools':sorted(set(cell_pools.values())),
+                    'cell_pools':cell_pools,'cells':ids,'resource_ids':sorted(resources),'condition':condition})
+            else:
+                blocks.append({'id':block, 'pool':pool['id'], 'cells':ids,
+                               'resource_ids':pool['resource_ids'], 'condition':condition})
     ready = all(sha(config.get(k)) for k in ('input_manifest_sha256','build_manifest_sha256')) and all(sha(p.get('inventory_sha256')) for p in pools)
     result = {'schema':PROTOCOL+'-plan', 'campaign_id':config['campaign_id'],
               'config_sha256':fingerprint(config), 'config':deepcopy(config),
@@ -152,6 +198,8 @@ def build(config):
               'counts':{'cells':len(rows),'paired_blocks':len(blocks),'onboarding_assets':len(assets)},
               'parallelism':'independent complete blocks; one active cell per pool; shared resource IDs serialize pools',
               'repeat_scope':'operation blocks; independent deployment repetitions require new campaign identities'}
+    if split:
+        result['parallelism']='baseline arms split across assigned pools; per-cell leases; one active cell per pool; shared resource IDs serialize conflicting cells'
     result['plan_sha256'] = fingerprint(result)
     return result
 

@@ -19,17 +19,22 @@ from bench import suite_state as state
 from bench.experiment_io import write_new, digest
 from bench.fio_workload import arguments, run as fio_run
 from bench.runtime.workloads import counts
-from bench.suite_report import costs, report
+from bench.suite_report import costs, report, paired_blocks
 from bench import archive_check
 from bench.runtime.prepare import native_argv, anchor
 
 
-def configured(shared=False):
+def configured_parallel(shared=False):
     s=template();s['cases']=s['cases'][:2]
     s['input_manifest_sha256']='a'*64;s['build_manifest_sha256']='b'*64
     for pool in s['clusters']:
         pool['inventory_sha256']='c'*64
         if shared:pool['resource_ids']+=['service:shared-objects']
+    return s
+
+
+def configured(shared=False):
+    s=configured_parallel(shared);s.pop('placement')
     return s
 
 
@@ -44,7 +49,11 @@ class PlanTests(unittest.TestCase):
                 for c in a['cells']:
                     if c['workload']=='smallfiles':self.assertEqual(c['params']['files'],1000000)
                 for b in a['blocks']:
-                    self.assertEqual({c['pool'] for c in a['cells'] if c['id'] in b['cells']},{b['pool']})
+                    members={c['id']:c['pool'] for c in a['cells'] if c['id'] in b['cells']}
+                    self.assertEqual(members,b['cell_pools'])
+                    self.assertEqual(set(members.values()),set(b['pools']))
+                    self.assertIsNone(b['pool'])
+                    self.assertEqual(b['pools'],['pool-a','pool-b'])
 
     def test_pool_rotation_and_tamper(self):
         c=configured();c['repetitions']=3;p=build(c)
@@ -61,7 +70,7 @@ class PlanTests(unittest.TestCase):
             with self.assertRaises(ValueError):build(c)
 
     def test_cache_ablation_reuses_asset_but_layout_does_not(self):
-        c=template(study='ablations');c['clusters']=c['clusters'][:1]
+        c=template(study='ablations');c.pop('placement');c['clusters']=c['clusters'][:1]
         p=build(c);cache=[x for x in p['cells'] if x['case']=='payload-cache']
         self.assertEqual(len({x['asset_id'] for x in cache}),1)
         layout=[x for x in p['cells'] if x['case']=='backend-layout']
@@ -95,13 +104,15 @@ class StateTests(unittest.TestCase):
     def tearDown(self):self.tmp.cleanup()
     def put(self,name,value):
         path=self.root/name;write_new(path,value);return state.reference(path)
-    def ready(self):
-        proof=self.put('test-only-proof.json',{'passed':True,'purpose':'unit-test'})
-        for c in self.p['cells']:
+    def ready(self,cells=None):
+        proof=self.put('test-only-proof-'+str(len(list(self.root.glob('test-only-proof-*.json'))))+'.json',{'passed':True,'purpose':'unit-test'})
+        cells=self.p['cells'] if cells is None else cells
+        for c in cells:
             r=self.put('q-'+c['id']+'.json',{'schema':'suite-qualification-v1','plan_sha256':self.p['plan_sha256'],
                 'cell_id':c['id'],'checks':[{'gate':g,'evidence':proof,'equals':{'passed':True}} for g in c['required_gates']]})
             state.qualify(self.db,r)
         for a in self.p['assets']:
+            if a['id'] not in {c['asset_id'] for c in cells}:continue
             r=self.put('a-'+a['id']+'.json',{'schema':'suite-asset-v1','plan_sha256':self.p['plan_sha256'],'asset_id':a['id'],
                 'native_binding':'unit-test-only','timings_seconds':{'import':0.01},
                 'stages':{s:{'evidence':proof,'equals':{'passed':True}} for s in a['required_stages']}})
@@ -166,6 +177,137 @@ class StateTests(unittest.TestCase):
         self.close_failed(second,'second');self.assertEqual(state.status(self.db)['reserved_resources'],[])
         self.assertIsNotNone(state.claim(self.db,'pool-b','other')['cell'])
         self.assertEqual(report(self.db)['accepted_blocks'],0)
+
+
+class ParallelPlanTests(unittest.TestCase):
+    def test_drafts_expose_each_pool_queue(self):
+        from bench.suite_support import drafts
+        p=build(configured_parallel())
+        with tempfile.TemporaryDirectory() as t:
+            folder=Path(t)/'drafts';drafts(p,folder)
+            queues=json.loads((folder/'queues.json').read_text())
+            self.assertEqual(queues['plan_sha256'],p['plan_sha256'])
+            for q in queues['pools']:
+                self.assertEqual(q['cells'],[c['id'] for c in p['cells'] if c['pool']==q['pool']])
+                self.assertEqual(q['assets'],[a['id'] for a in p['assets'] if a['pool']==q['pool']])
+    def test_product_mapping_and_exact_arm_override(self):
+        cfg=configured_parallel();cfg['cases']=[next(c for c in template()['cases'] if c['workload']=='trace')]
+        third=deepcopy(cfg['clusters'][0]);third.update(id='pool-c',resource_ids=['host:third'],observer_ids=['third'])
+        cfg['clusters'].append(third);cfg['placement']['arm_pools']={'native':['pool-c'],'packed':['pool-a']}
+        plan=build(cfg)
+        for c in plan['cells']:
+            expected='pool-b' if c['arm_id']=='juicefs' else 'pool-c' if c['arm_id']=='native' else 'pool-a'
+            self.assertEqual(c['pool'],expected)
+            self.assertEqual(c['resource_ids'],next(p['resource_ids'] for p in cfg['clusters'] if p['id']==expected))
+            self.assertIn('cross-pool-hardware-equivalence',c['required_gates'])
+        self.assertEqual(plan['blocks'][0]['pools'],['pool-a','pool-b','pool-c'])
+    def test_explicit_repeat_rotation_and_pool_local_asset_reuse(self):
+        cfg=configured_parallel();cfg['repetitions']=3
+        cfg['placement']['product_pools']={'brewfs':['pool-a','pool-b'],'juicefs':['pool-b','pool-a']}
+        p=build(cfg)
+        first=[c for c in p['cells'] if c['case']==cfg['cases'][0]['name'] and c['arm_id']=='native']
+        self.assertEqual([c['pool'] for c in first],['pool-a','pool-b','pool-a'])
+        self.assertEqual(first[0]['asset_id'],first[2]['asset_id']);self.assertNotEqual(first[0]['asset_id'],first[1]['asset_id'])
+    def test_mapping_capacity_hardware_and_typo_are_not_silently_ignored(self):
+        for mutate in (lambda c:c['placement']['product_pools'].pop('juicefs'),
+                       lambda c:c['placement']['product_pools'].update(juicefs=['missing']),
+                       lambda c:c['placement']['product_pools'].update(juicefs=['pool-b','pool-b']),
+                       lambda c:c['placement']['arm_pools'].update(typo=['pool-a']),
+                       lambda c:c['clusters'][1].update(supported_suites=['C3']),
+                       lambda c:c['clusters'][1].update(hardware_class='different'),
+                       lambda c:c.update(placement=None)):
+            cfg=configured_parallel();mutate(cfg)
+            with self.assertRaises(ValueError):build(cfg)
+    def test_legacy_mode_remains_opt_in_and_rebuilds(self):
+        cfg=configured();legacy=build(cfg);check_plan(legacy)
+        self.assertNotIn('cell_pools',legacy['blocks'][0]);self.assertEqual(legacy['blocks'][0]['pool'],'pool-a')
+        cfg['placement']={'mode':'paired-pool'}
+        explicit=build(cfg)
+        self.assertEqual(legacy['cells'],explicit['cells']);self.assertEqual(legacy['blocks'],explicit['blocks'])
+
+
+class ParallelStateTests(unittest.TestCase):
+    put=StateTests.put
+    ready=StateTests.ready
+    close_failed=StateTests.close_failed
+    tearDown=StateTests.tearDown
+    test_started_stage_is_not_replayed=StateTests.test_started_stage_is_not_replayed
+    test_tampered_nested_evidence_rolls_back_claim=StateTests.test_tampered_nested_evidence_rolls_back_claim
+    test_weak_closure_cannot_release=StateTests.test_weak_closure_cannot_release
+    def setUp(self):
+        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.db=self.root/'state.sqlite'
+        self.p=build(configured_parallel());state.initialize(self.db,self.p)
+    def test_same_pair_is_claimed_concurrently_and_identity_is_cell_bound(self):
+        self.ready()
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            a,b=list(executor.map(lambda pool:state.claim(self.db,pool,pool),('pool-a','pool-b')))
+        self.assertEqual(a['cell']['paired_block'],b['cell']['paired_block'])
+        self.assertEqual({a['cell']['arm']['product'],b['cell']['arm']['product']},{'brewfs','juicefs'})
+        self.assertNotEqual(a['token'],b['token'])
+        self.assertEqual(state.claim(self.db,'pool-a','pool-a')['token'],a['token'])
+        with self.assertRaises(ValueError):state.claim(self.db,'pool-a','stranger')
+        for wrong in (dict(a,cell=b['cell']),dict(a,owner='stranger'),dict(a,token=b['token'])):
+            with state.transaction(self.db) as db:
+                with self.assertRaises(ValueError):state.admitted(db,wrong)
+        status=state.status(self.db)
+        self.assertEqual(len(status['active_leases']),2);self.assertIsNone(status['lease_expiry'])
+        self.assertTrue(all('token' not in x for x in status['active_leases']))
+    def test_missing_counterpart_readiness_does_not_block_own_pool(self):
+        self.ready([c for c in self.p['cells'] if c['pool']=='pool-a'])
+        self.assertIsNotNone(state.claim(self.db,'pool-a','a')['cell'])
+        self.assertIsNone(state.claim(self.db,'pool-b','b')['cell'])
+    def test_actual_stages_on_different_pools_overlap(self):
+        self.ready();leases=[state.claim(self.db,pool,pool) for pool in ('pool-a','pool-b')]
+        source=self.put('parallel-stage-source.json',{'purpose':'unit-test only'})
+        ready=[str(self.root/'ready-a'),str(self.root/'ready-b')];steps=[]
+        for n,lease in enumerate(leases):
+            # Each real child can succeed only while its counterpart is alive.
+            code=('from pathlib import Path\nimport time\n'
+                  f'Path({ready[n]!r}).write_text("ready")\n'
+                  'deadline=time.monotonic()+5\n'
+                  f'while not all(Path(p).is_file() for p in {ready!r}):\n'
+                  ' if time.monotonic()>deadline:raise SystemExit(42)\n time.sleep(.01)\n')
+            steps.append(self.put(f'parallel-{n}.json',{'schema':'experiment-step-v1','reviewed':True,
+                'cell_id':lease['cell']['id'],'stage':lease['cell']['stages'][0],
+                'argv':[str(Path(sys.executable).resolve()),'-c',code],'cwd':str(self.root),
+                'executable_sha256':digest(Path(sys.executable).resolve()),'inputs':[source]}))
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            results=list(executor.map(lambda n:state.run_stage(self.db,leases[n],leases[n]['cell']['stages'][0],
+                steps[n],self.root/f'parallel-output-{n}'),range(2)))
+        self.assertEqual(results,[0,0]);self.assertEqual(len(state.status(self.db)['stages']),2)
+    def test_shared_service_serializes_cells_even_in_different_clusters(self):
+        self.db=self.root/'shared.sqlite';self.p=build(configured_parallel(True));state.initialize(self.db,self.p)
+        self.ready()
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            leases=list(executor.map(lambda pool:state.claim(self.db,pool,pool),('pool-a','pool-b')))
+        self.assertEqual(sum(x['cell'] is not None for x in leases),1)
+        active=next(x for x in leases if x['cell']);self.close_failed(active,'shared-first')
+        other='pool-b' if active['cell']['pool']=='pool-a' else 'pool-a'
+        self.assertIsNotNone(state.claim(self.db,other,other)['cell'])
+    def test_fast_pool_moves_ahead_without_releasing_slow_counterpart(self):
+        self.ready();a=state.claim(self.db,'pool-a','a');b=state.claim(self.db,'pool-b','b')
+        self.close_failed(a,'fast');next_a=state.claim(self.db,'pool-a','a')
+        self.assertNotEqual(next_a['cell']['paired_block'],a['cell']['paired_block'])
+        self.assertEqual(state.claim(self.db,'pool-b','b')['token'],b['token'])
+        with state.transaction(self.db) as db:
+            with self.assertRaises(ValueError):state.admitted(db,a)
+        self.close_failed(b,'slow')
+        status=state.status(self.db)
+        self.assertEqual(status['blocks'][0]['status'],'done')
+        self.assertEqual({r['cell_id'] for r in status['reserved_resources']},{next_a['cell']['id']})
+        self.assertEqual(report(self.db)['accepted_blocks'],0)
+    def test_cross_pool_report_joins_condition_repeat_and_preserves_incomplete(self):
+        samples=[{'id':c['id'],'arm':c['arm_id'],'accepted':True,'metrics':{
+            'duration':{'value':2 if c['arm_id']=='native' else 10,'unit':'s','direction':'lower'}}} for c in self.p['cells']]
+        pairs=paired_blocks(self.p,list(reversed(samples)))
+        self.assertTrue(all(x['complete_accepted_block'] for x in pairs))
+        self.assertEqual(pairs[0]['comparisons'][0]['advantage_ratio'],5)
+        self.assertEqual(pairs[0]['pools'],['pool-a','pool-b'])
+        self.assertEqual(pairs[0]['cell_pools'],self.p['blocks'][0]['cell_pools'])
+        samples[0]['accepted']=False
+        incomplete=paired_blocks(self.p,samples)
+        self.assertFalse(incomplete[0]['complete_accepted_block']);self.assertEqual(incomplete[0]['comparisons'],[])
+        self.assertTrue(incomplete[1]['complete_accepted_block'])
 
 
 class WorkloadTests(unittest.TestCase):

@@ -4,7 +4,7 @@
 
 `plan.assets` 给出实际 pool/dataset/representation/layout 的 asset ID。相同不可变 asset 跨重复/冷热/缓存开关复用；不同对象布局使用新前缀，不能靠重新挂载改写旧布局。每个 cell / workspace 创建新 upper 与私有缓存；写过的 workspace 不回到待测队列。
 
-准备期由一个协调者逐池分配写权限，记录正在执行的 prepare/import PID；同池不并发准备和测量。只有准备完成、进程/挂载已核对后才注册 asset 并领取 block。状态库的测量锁不追踪在库外手动执行的 import，不得另开第二个 AI 重复导入。
+准备期由一个协调者逐池分配写权限，记录正在执行的prepare/import PID；同池不并发准备和测量，实际共享资源的池也不能混跑。独立池可各自准备本池baseline资产。只有本cell资产准备完成、进程/挂载已核对且资格齐备才注册并领取该cell，不等另一baseline导入完成。状态库的测量锁不追踪在库外手动执行的import，不得另开第二个AI重复导入。轮换到新pool需要该pool实际asset及一次准备账本，不能冒用原pool的base身份。
 
 所有导入包含：原始输入验证、准备与导入 wall、逻辑字节/文件数、实际对象/元数据量、producer 临时盘峰值、排空、原始退出、首次全量校验、随后缓存重置。`timings_seconds` 保留各段，等待/失败写在事件时间线。
 

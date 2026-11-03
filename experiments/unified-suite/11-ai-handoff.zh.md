@@ -2,7 +2,7 @@
 
 ## 协调者任务单
 
-> 先读本目录README、方法、baseline/消融、环境、输入、执行和证据文档，再读本批plan、资源账本、state status和最近原始日志。外部baseline仅JuiceFS，BrewFS native为内部对照。核build/input/inventory及真实容量，逐池安排准备，禁止与同池测量重叠。维持一个本地状态库，通过claim分配完整block。共享host/disk/backend使用相同resource ID。每步核原started/PID/输出，不重放已开始的导入/clone/测量。不因慢/断联杀任务、改默认语义、跳校验或新开资源。无变化保持安静，仅通知实质进展、失败、完成或需要人类决定。
+> 先读本目录README、方法、baseline/消融、环境、输入、执行、12-parallel-baselines和证据文档，再读本批plan、资源账本、state status和最近原始日志。外部baseline仅JuiceFS，BrewFS native为内部对照。按product_pools/arm_pools把不同baseline拆到不同集群并行，各池领取单cell，跨池按同条件/轮次汇总block；核cross-pool-hardware-equivalence。核build/input/inventory及真实容量，逐池安排准备，禁止与同池或共享资源测量重叠。只在一个协调者本地DB领取，不复制DB绕锁。共享host/disk/backend使用相同resource ID。每步核原started/PID/输出，不重放已开始的导入/clone/测量。不因慢/断联杀任务、改默认语义、跳校验或新开资源。无变化保持安静，仅通知实质进展、失败、完成或需要人类决定。
 
 ## pool执行者任务单
 
@@ -20,8 +20,8 @@
   "plan": {"path": "/srv/control/plan.json", "sha256": "actual sha256"},
   "state_db": "/srv/control/state.sqlite",
   "resource_ledger": "/srv/control/resources.json",
-  "active_leases": ["/srv/control/lease-a-001.json"],
-  "active_stage": "measure",
+  "active_leases": ["/srv/control/lease-a-001.json", "/srv/control/lease-b-001.json"],
+  "active_stages": {"pool-a": "measure", "pool-b": "create"},
   "original_process_receipts": ["/srv/control/cell/process.json"],
   "latest_evidence": ["/srv/control/cell/started.json"],
   "unresolved": [],

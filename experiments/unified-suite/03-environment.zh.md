@@ -34,6 +34,8 @@ python3 -m bench.runtime.fleet probe --inventory "$RUN/fleet-a.json" \
 
 为每个实际执行 slot、服务、宿主观测端分别 probe，保留生成的 peer。`owned_by_campaign=false` 的共享资源不得随实验删除。pool 的 `observer_ids` 必须包含本池全部宿主/客户端/服务观测者；`resource_ids` 包含共享盘和端点，别靠 SSH alias 判断独立性。
 
+按 [baseline→集群映射](12-parallel-baselines.zh.md) 为pool-b及其他池各建独立inventory；BrewFS/JuiceFS各自占有client、metadata与objects服务。若共用TiKV/RustFS或物理宿主，必须登记同一resource ID，此时测量被串行以保留隔离。各池核相同硬件/服务预算及实际校准，保存跨池等价资格。构建产物可共享一份并经私网分发，运行数据、namespace、缓存与observer目录独立。
+
 ## 版本与依赖
 
 1. 保留 Git SHA、dirty diff、工具链、构建参数、OS/kernel、FUSE、fio `--version`、JuiceFS版本、TiKV/Redis版本及镜像 digest。确认 `/usr/bin/fio` 是真实 Flexible I/O Tester。

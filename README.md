@@ -1,6 +1,6 @@
 # BrewFS 实验仓库
 
-执行 Agent 从 **[统一 C1–C4 操作手册](experiments/unified-suite/README.md)** 开始：fio、完整 AI trace、百万小文件、fork/流转；外部 baseline 仅 JuiceFS，内部设计 native 与 D/P/G 消融。按实际清单在独立资源池并行完成配对区组。
+执行 Agent 从 **[统一 C1–C4 操作手册](experiments/unified-suite/README.md)** 开始：fio、完整 AI trace、百万小文件、fork/流转；外部 baseline 仅 JuiceFS，内部设计 native 与 D/P/G 消融。按 [baseline→集群映射](experiments/unified-suite/12-parallel-baselines.zh.md) 拆分并行运行，跨集群按相同条件/轮次汇总配对。
 
 | 任务 | 入口 |
 |---|---|
