@@ -16,11 +16,13 @@
 
 ## 配对单位与并行
 
-一个 block 包含同一条件的全部 arms，在**同一资源池顺序运行**。不同 block 可以在独立池上并行；下一个重复轮换池和 arm 位置。这样不同 baseline 可同时在不同池执行，但不会永久把 JuiceFS 绑在一组机器、BrewFS 绑在另一组机器。每个池的 CPU/内存/盘型/IOPS/带宽/服务拓扑和 metadata backend 必须匹配；异构硬件另建 campaign。
+一个 block 包含同一条件、同一重复轮次的全部 arms，作为**跨集群结果分组**。默认 `baseline-parallel` 按product/arm显式映射集群：BrewFS在pool-a、JuiceFS在pool-b并行运行；内部native/packed/消融可再拆池。各池独立领取单个cell，较快的池可先进入后续条件，不等另一池关闭整组。不同集群不要求同一时刻启动；需要同一时间窗口时另冻结窗口策略，不能从同轮ID推断同步屏障。
 
-`resource_ids` 列出实际共享主机、盘、RustFS/TiKV/Redis endpoint。相同服务即使有不同 DNS/SSH 别名也用同一 ID；冲突 block 串行。跨云不自动视为匹配硬件。元数据默认 TiKV，可在独立配置选择 Redis，但同一配对保持一致。
+每个池的 CPU/内存/盘型/IOPS/带宽/服务拓扑和 metadata backend 必须匹配。跨池条件增加 `cross-pool-hardware-equivalence` 资格，引用各池实际inventory和校准证据；同名hardware_class不足以证明机器等价。固定方法→集群映射保留可能的集群差异，报告标明。需要轮换时显式给出相反顺序的pool列表，按轮次轮换并保留每池准备成本；不自动迁移base。详见 [配置与并行例子](12-parallel-baselines.zh.md)。
 
-main 的三个 block 是**操作重复**，不是三次独立部署。重复部署必须新 campaign、重新记录导入/准备。多 arm 条件做循环顺序轮换；三轮无法完全平衡五个 arm 的位置，保留实际顺序，在报告说明。不要把 4 个 workspace 或数万次 IO 当成独立实验重复。
+`resource_ids` 列出实际共享主机、盘、RustFS/TiKV/Redis endpoint。相同服务即使有不同 DNS/SSH 别名也用同一 ID；冲突cell串行。真正同时测量的集群须有独立服务和盘。跨云不自动视为匹配硬件。元数据默认 TiKV，可在独立配置选择 Redis，但同一配对保持一致。
+
+main 的三个 block 是**操作重复**，不是三次独立部署。重复部署必须新 campaign、重新记录导入/准备。多arm在同池队列中的位置做循环轮换；跨池完成先后不改变配对身份。三轮无法完全平衡五个arm的位置，保留实际顺序，在报告说明。不要把4个workspace或数万次IO当成独立实验重复。历史无placement配置保持原同池整组顺序模式，冻结plan不重写；新配置如需此模式须显式选择paired-pool。
 
 比较只用完整、无中断、通过校验和观测的 block。失败、慢值、中断恢复数据逐项保留；不足三轮就报告实际完整轮数。不要为了补齐三轮重放已开始单元。吞吐按总字节/共同 wall 计算；不要平均 p99 得到总体 p99，原始操作按实际分组计算。
 

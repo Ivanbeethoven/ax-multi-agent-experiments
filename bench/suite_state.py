@@ -14,7 +14,7 @@ import secrets
 import sqlite3
 
 from .experiment_io import digest, load
-from .suite_plan import check_plan, fingerprint
+from .suite_plan import check_plan, fingerprint, parallel
 
 
 def utc():
@@ -57,6 +57,8 @@ def initialize(path, plan):
         CREATE TABLE blocks(id TEXT PRIMARY KEY, pool TEXT, status TEXT, owner TEXT, token TEXT);
         CREATE TABLE cells(id TEXT PRIMARY KEY, block_id TEXT, position INTEGER, status TEXT, result TEXT);
         CREATE TABLE resources(id TEXT PRIMARY KEY, block_id TEXT);
+        CREATE TABLE cell_leases(cell_id TEXT PRIMARY KEY, pool TEXT UNIQUE, owner TEXT, token TEXT);
+        CREATE TABLE cell_resources(id TEXT PRIMARY KEY, cell_id TEXT);
         CREATE TABLE stages(cell_id TEXT, name TEXT, status TEXT, spec_sha TEXT, output TEXT,
                             evidence TEXT, PRIMARY KEY(cell_id,name));
         CREATE TABLE qualifications(cell_id TEXT PRIMARY KEY, receipt TEXT);
@@ -135,6 +137,7 @@ def claim(path, pool, owner):
         plan = plan_of(db)
         if not plan['provenance_bound']:
             raise ValueError('bind build, input and actual inventory digests before initializing an executable campaign')
+        if parallel(plan['config']):return claim_cell(db,plan,pool,owner)
         candidates = [b for b in plan['blocks'] if b['pool'] == pool]
         if not candidates: raise ValueError('unknown pool')
         occupied = db.execute("SELECT * FROM blocks WHERE pool=? AND status='claimed'", (pool,)).fetchone()
@@ -174,12 +177,54 @@ def claim(path, pool, owner):
         return {'cell':None,'reason':'no qualified, prepared, unreserved complete block fits this pool'}
 
 
+def claim_cell(db, plan, pool, owner):
+    """A paired block groups results; only the admitted cell owns resources.
+
+    Called inside the same BEGIN IMMEDIATE transaction as legacy claims. There
+    is no remote/expiring lease and no wait for another baseline's qualification.
+    """
+    candidates=[c for c in plan['cells'] if c['pool']==pool]
+    if not candidates:raise ValueError('unknown or unassigned pool')
+    occupied=db.execute('SELECT * FROM cell_leases WHERE pool=?',(pool,)).fetchone()
+    if occupied:
+        if occupied['owner']!=owner:raise ValueError('pool reserved by another operator; no automatic lease expiry')
+        cell=next(c for c in candidates if c['id']==occupied['cell_id'])
+        return {'cell':cell,'owner':owner,'token':occupied['token'],'already_claimed':True,
+                'instruction':'inspect original stage receipts; never re-execute a started stage'}
+    for cell in candidates:
+        row=db.execute('SELECT status FROM cells WHERE id=?',(cell['id'],)).fetchone()
+        if row[0]!='pending':continue
+        qref=db.execute('SELECT receipt FROM qualifications WHERE cell_id=?',(cell['id'],)).fetchone()
+        aref=db.execute('SELECT receipt FROM assets WHERE id=?',(cell['asset_id'],)).fetchone()
+        if not qref or not aref:continue
+        if any(db.execute('SELECT 1 FROM cell_resources WHERE id=?',(res,)).fetchone() for res in cell['resource_ids']):continue
+        # Rehash before reserving; a rejected proof leaves no pool/resource lock.
+        q=evidence(json.loads(qref[0]))
+        for item in q['checks']:predicates(evidence(item['evidence']),item['equals'])
+        a=evidence(json.loads(aref[0]))
+        for stage in a['stages'].values():predicates(evidence(stage['evidence']),stage['equals'])
+        token=secrets.token_hex(24)
+        db.execute('INSERT INTO cell_leases VALUES (?,?,?,?)',(cell['id'],pool,owner,token))
+        for res in cell['resource_ids']:db.execute('INSERT INTO cell_resources VALUES (?,?)',(res,cell['id']))
+        db.execute("UPDATE cells SET status='claimed' WHERE id=?",(cell['id'],))
+        db.execute("UPDATE blocks SET status='claimed' WHERE id=?",(cell['paired_block'],))
+        event(db,'claimed',{'cell':cell['id'],'owner':owner,'pool':pool})
+        return {'cell':cell,'owner':owner,'token':token,'already_claimed':False}
+    return {'cell':None,'reason':'no qualified, prepared, unreserved cell assigned to this pool'}
+
+
 def admitted(db, lease):
     cell = lease['cell']
-    row = db.execute('SELECT * FROM blocks WHERE id=?',(cell['paired_block'],)).fetchone()
-    if not row or row['status']!='claimed' or row['token']!=lease['token'] or row['owner']!=lease['owner']:
+    plan=plan_of(db)
+    if parallel(plan['config']):
+        row=db.execute('SELECT * FROM cell_leases WHERE cell_id=?',(cell['id'],)).fetchone()
+        active=row and row['pool']==cell['pool']
+    else:
+        row=db.execute('SELECT * FROM blocks WHERE id=?',(cell['paired_block'],)).fetchone()
+        active=row and row['status']=='claimed'
+    if not active or row['token']!=lease['token'] or row['owner']!=lease['owner']:
         raise ValueError('reservation identity differs')
-    current = next(c for c in plan_of(db)['cells'] if c['id']==cell['id'])
+    current = next(c for c in plan['cells'] if c['id']==cell['id'])
     if current != cell or db.execute('SELECT status FROM cells WHERE id=?',(cell['id'],)).fetchone()[0]!='claimed':
         raise ValueError('cell no longer reserved or changed')
     return cell
@@ -247,6 +292,9 @@ def finish(path, lease, ref):
         if result['outcome']=='failed' and not result.get('failure_reason'):
             raise ValueError('retain failure/interruption explanation')
         db.execute('UPDATE cells SET status=?,result=? WHERE id=?',(result['outcome'],json.dumps(ref),cell['id']))
+        if parallel(plan_of(db)['config']):
+            db.execute('DELETE FROM cell_resources WHERE cell_id=?',(cell['id'],))
+            db.execute('DELETE FROM cell_leases WHERE cell_id=?',(cell['id'],))
         if not db.execute("SELECT 1 FROM cells WHERE block_id=? AND status NOT IN ('complete','failed')",(cell['paired_block'],)).fetchone():
             db.execute("UPDATE blocks SET status='done' WHERE id=?",(cell['paired_block'],))
             db.execute('DELETE FROM resources WHERE block_id=?',(cell['paired_block'],))
@@ -256,12 +304,17 @@ def finish(path, lease, ref):
 def status(path):
     with transaction(path) as db:
         plan = plan_of(db)
-        return {'plan_sha256':plan['plan_sha256'], 'campaign_id':plan['campaign_id'],
+        split=parallel(plan['config'])
+        result={'plan_sha256':plan['plan_sha256'], 'campaign_id':plan['campaign_id'],
                 'counts':plan['counts'], 'assets_ready':db.execute('SELECT count(*) FROM assets').fetchone()[0],
                 'qualified_cells':db.execute('SELECT count(*) FROM qualifications').fetchone()[0],
                 'blocks':[dict(r) for r in db.execute('SELECT id,pool,status,owner FROM blocks')],
                 'cells':[dict(r) for r in db.execute('SELECT * FROM cells')],
                 'stages':[dict(r) for r in db.execute('SELECT * FROM stages')],
-                'reserved_resources':[dict(r) for r in db.execute('SELECT * FROM resources')],
+                'reserved_resources':[dict(r) for r in db.execute('SELECT * FROM '+('cell_resources' if split else 'resources'))],
                 'events':[dict(r) for r in db.execute('SELECT * FROM events ORDER BY sequence')],
                 'automatic_retry':False, 'lease_expiry':None}
+        if split:
+            result['placement_mode']='baseline-parallel'
+            result['active_leases']=[dict(r) for r in db.execute('SELECT cell_id,pool,owner FROM cell_leases ORDER BY pool')]
+        return result

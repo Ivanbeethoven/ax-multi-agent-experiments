@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .experiment_io import digest, load, write_new
 from .experiment_step import prepare
-from .suite_plan import check_plan
+from .suite_plan import check_plan, parallel
 from .suite_state import reference, evidence, predicates
 
 
@@ -23,6 +23,11 @@ def manifest(files):
 
 def drafts(plan, output):
     check_plan(plan);out=Path(output);out.mkdir(parents=True,exist_ok=False)
+    write_new(out/'queues.json',{'plan_sha256':plan['plan_sha256'],
+        'placement_mode':'baseline-parallel' if parallel(plan['config']) else 'paired-pool',
+        'pools':[{'pool':p['id'],'cells':[c['id'] for c in plan['cells'] if c['pool']==p['id']],
+                  'assets':[a['id'] for a in plan['assets'] if a['pool']==p['id']]} for p in plan['config']['clusters']],
+        'instruction':'queue is a preview; claim the original shared controller database before executing a cell'})
     for cell in plan['cells']:
         pool=next(p for p in plan['config']['clusters'] if p['id']==cell['pool'])
         folder=out/cell['id'];folder.mkdir()

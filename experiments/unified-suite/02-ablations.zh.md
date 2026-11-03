@@ -10,6 +10,8 @@
 | entity-native | workspace-entity-v1 + 冻结 native lower | 与 entity packed 共用执行引擎的格式路径对照 |
 | packed | workspace-entity-v1 + authenticated packed lower | packed 主候选，payload cache 默认 512 MiB |
 
+执行者按[路径入口目录](baselines/README.md)分别接入；[消融执行入口](baselines/brewfs-ablations.zh.md)列每个case的精确arm及与系统路径入口的对应关系。全局矩阵在本页和方法目录维护，路径入口不追加未冻结的实验。
+
 C1 用 native/JuiceFS；C2 用全部五条路径；C3 用 native/entity-native/packed/JuiceFS；C4 fork 用五条路径；handoff 只用具有原生重开能力的 native-workspace/JuiceFS，各做 stay/move。entity 的 fresh-only 挂载不能冒充现有 namespace 的跨机恢复。
 
 设计时核对的 BrewFS CLI 已有 `--entity-native-source` 与 `--entity-native-manifest-key`；native lower 不是一个虚构开关。导入阶段使用 source，后续使用已保存 manifest。当前 `entity_read_cache_bytes` 只支持 packed lower，native lower 必须 0。正式批次仍需对本批二进制实际功能做资格检查。

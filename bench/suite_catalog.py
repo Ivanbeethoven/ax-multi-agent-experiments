@@ -121,8 +121,15 @@ def small_params(tiny):
 
 
 def template(profile='pilot', study='systems'):
-    return {'schema': PROTOCOL, 'campaign_id': 'unified-20261102', 'profile': profile,
+    rows=cases(profile,study)
+    # Exact arm overrides can split internal native/ablation methods as well as
+    # external products. Product mappings are the fallback for all other arms.
+    overrides=({name:['pool-'+('a' if n%2==0 else 'b')]
+        for c in rows for n,name in enumerate(sorted(c['arms']))}
+        if study=='ablations' else {})
+    return {'schema': PROTOCOL, 'campaign_id': 'unified-20261103', 'profile': profile,
             'study': study, 'seed': 9173, 'repetitions': 1 if profile == 'pilot' else 3,
+            'placement':{'mode':'baseline-parallel','product_pools':{'brewfs':['pool-a'],'juicefs':['pool-b']},'arm_pools':overrides},
             'external_baselines': ['juicefs'], 'backend_policy': deepcopy(BACKEND),
             'cache_budget_bytes_per_client': 536870912, 'ssd_clean_cache_bytes': 0,
             'durability': 'upload_before_commit+fsync+remote-drain',
@@ -135,4 +142,4 @@ def template(profile='pilot', study='systems'):
                                            f'host:pool-{i}-metadata', f'host:pool-{i}-objects'],
                           'observer_ids':[f'pool-{i}-client',f'pool-{i}-target',f'pool-{i}-metadata',f'pool-{i}-objects'],
                           'inventory_sha256': None} for i in ('a', 'b')],
-            'cases': cases(profile, study)}
+            'cases': rows}

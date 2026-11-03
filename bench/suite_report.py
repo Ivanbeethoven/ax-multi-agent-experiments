@@ -1,12 +1,13 @@
 """Offline complete-block reporting. Failed/recovered samples remain visible."""
 import argparse
 from datetime import datetime
+import json
 import math
 from pathlib import Path
 
 from .experiment_io import load, write_new
 from .suite_state import transaction, plan_of, evidence, predicates
-from .suite_plan import fingerprint
+from .suite_plan import fingerprint, parallel
 from .runtime.observe import audit
 
 CHECKS=('work','correctness','isolation','remote_readback','drain','real_exit','cache_policy','observer_overhead')
@@ -63,7 +64,7 @@ def sample(ref, plan, cell):
             if m['direction'] not in ('lower','higher'):raise ValueError('metric direction required')
         except (ValueError,KeyError,TypeError,OSError) as e:reasons.append('metric '+name+': '+str(e))
     if not metrics:reasons.append('no measured metrics')
-    return {'id':cell['id'],'arm':cell['arm_id'],'metrics':metrics,
+    return {'id':cell['id'],'arm':cell['arm_id'],'pool':cell['pool'],'metrics':metrics,
             'timings_seconds':{k:number(v) for k,v in s.get('timings_seconds',{}).items()},
             'accepted':not reasons,'reasons':reasons,'limitations':s.get('limitations',[]),'sample':ref}
 
@@ -93,30 +94,8 @@ def costs(path):
             'all_resources_released':all(r['released'] for r in rows) if rows else False}
 
 
-def report(db_path, cost_path=None):
-    with transaction(db_path) as db:
-        plan=plan_of(db)
-        states={r['id']:dict(r) for r in db.execute('SELECT * FROM cells')}
-        assets=[dict(r) for r in db.execute('SELECT * FROM assets')]
-        stages=[dict(r) for r in db.execute('SELECT * FROM stages')]
-    import json
-    samples=[]
-    for cell in plan['cells']:
-        state=states[cell['id']]
-        try:
-            if not state['result']:raise ValueError('cell not closed: '+state['status'])
-            closing=evidence(json.loads(state['result']))
-            from .experiment_step import verify
-            retained=closing['retention']
-            verify(retained['root'],retained['manifest']['path'],retained['manifest']['sha256'])
-            from .archive_check import verify as verify_archive
-            for archive in closing['archives']:
-                if verify_archive(archive['path'],archive['sha256'])['cell_id']!=cell['id']:raise ValueError('archive identity differs')
-            value=sample(closing['sample'],plan,cell)
-            if state['status']!='complete':value['reasons'].append('cell closed as '+state['status']);value['accepted']=False
-        except (ValueError,KeyError,TypeError,OSError) as e:
-            value={'id':cell['id'],'arm':cell['arm_id'],'accepted':False,'reasons':[str(e)],'metrics':{}}
-        value['operation_status']=state['status'];samples.append(value)
+def paired_blocks(plan, samples):
+    """Join frozen condition/repeat identities, irrespective of finish order."""
     by_id={s['id']:s for s in samples};pairs=[]
     for block in plan['blocks']:
         members=[by_id[c] for c in block['cells']]
@@ -135,6 +114,45 @@ def report(db_path, cost_path=None):
                                 'advantage_ratio':b['value']/a['value'] if a['direction']=='lower' else a['value']/b['value']})
         pairs.append({'id':block['id'],'pool':block['pool'],'complete_accepted_block':complete,
                       'cells':block['cells'],'comparisons':comparisons})
+        if parallel(plan['config']):
+            pairs[-1].update(pools=block['pools'],cell_pools=block['cell_pools'],
+                placement_mode='baseline-parallel',comparison_scope=(
+                    'matched cross-pool operation block; fixed pool assignment does not separate method and cluster effects'
+                    if len(block['pools'])>1 else 'matched operation block within one pool'))
+    return pairs
+
+
+def report(db_path, cost_path=None):
+    with transaction(db_path) as db:
+        plan=plan_of(db)
+        states={r['id']:dict(r) for r in db.execute('SELECT * FROM cells')}
+        assets=[dict(r) for r in db.execute('SELECT * FROM assets')]
+        stages=[dict(r) for r in db.execute('SELECT * FROM stages')]
+        qualifications={r['cell_id']:r['receipt'] for r in db.execute('SELECT * FROM qualifications')}
+    samples=[]
+    for cell in plan['cells']:
+        state=states[cell['id']]
+        try:
+            if not state['result']:raise ValueError('cell not closed: '+state['status'])
+            closing=evidence(json.loads(state['result']))
+            from .experiment_step import verify
+            retained=closing['retention']
+            verify(retained['root'],retained['manifest']['path'],retained['manifest']['sha256'])
+            from .archive_check import verify as verify_archive
+            for archive in closing['archives']:
+                if verify_archive(archive['path'],archive['sha256'])['cell_id']!=cell['id']:raise ValueError('archive identity differs')
+            value=sample(closing['sample'],plan,cell)
+            if state['status']!='complete':value['reasons'].append('cell closed as '+state['status']);value['accepted']=False
+            if parallel(plan['config']):
+                try:
+                    q=evidence(json.loads(qualifications[cell['id']]))
+                    for item in q['checks']:predicates(evidence(item['evidence']),item['equals'])
+                except (ValueError,KeyError,TypeError,OSError) as e:
+                    value['reasons'].append('qualification: '+str(e));value['accepted']=False
+        except (ValueError,KeyError,TypeError,OSError) as e:
+            value={'id':cell['id'],'arm':cell['arm_id'],'accepted':False,'reasons':[str(e)],'metrics':{}}
+        value['pool']=cell['pool'];value['operation_status']=state['status'];samples.append(value)
+    pairs=paired_blocks(plan,samples)
     preparation=[]
     for asset in assets:
         ref=json.loads(asset['receipt']);v=evidence(ref)

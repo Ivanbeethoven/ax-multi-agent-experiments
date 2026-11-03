@@ -85,6 +85,8 @@ python3 -m bench.suite_report --db "$RUN/state.sqlite" --costs "$RUN/costs.json"
 
 报告重核证据、raw观测及完整block；未完成、失败、恢复samples都有行，只有完整accepted block产生对比。性能比值>1表示该指标相对JuiceFS更好，不跨指标/成本/完整校验泛化。消融列全部arms原值与限制，按预声明方向解释，不择优删慢条件。
 
+跨集群按冻结的condition/轮次身份汇总，完成先后或不同池的队列位置不作为join键。每个sample保留pool，block保留pools/cell_pools及comparison_scope，并重新核各cell资格原始证据；一侧缺结果/失败时不产生整组性能比值。固定baseline→集群的系统差异须披露，不能宣称已经做了换机交叉对照。并行部署的费用按实际唯一资源累加，campaign wall按时间轴核对，不相加两个pool的运行wall冒充总耗时。
+
 ## 释放
 
 证据完整校验和真实进程/挂载/债务关闭后，按已有授权及时显式释放账本自有VM、保留数据盘、独占SG，逐项核owner/tags/id并查询不存在，不等报告/PR/CI。共享VPC/vSwitch/keypair/服务保留。当前工具不调用provider删除API；维护者使用审读过的provider步骤并保留返回与后查。
