@@ -103,7 +103,7 @@ def main():
     sub = p.add_subparsers(dest='action', required=True)
     t = sub.add_parser('template')
     t.add_argument('--executors', nargs='+', required=True); t.add_argument('--services', nargs='*', default=[])
-    t.add_argument('--hosts', nargs='*', default=[]); t.add_argument('--cluster', choices=['C1','C2','C3','C4'], default='C1')
+    t.add_argument('--hosts', nargs='*', default=[]); t.add_argument('--cluster', default='C1', help='resource pool ID; new suites use pool-a/pool-b independently of C1-C4 workloads')
     t.add_argument('--output', required=True)
     c = sub.add_parser('check'); c.add_argument('--inventory', required=True); c.add_argument('--output', required=True)
     d = sub.add_parser('cohort'); d.add_argument('--request', required=True); d.add_argument('--output', required=True)

@@ -15,6 +15,7 @@ def check():
         docs.extend((ROOT/directory).rglob('*.md'))
     docs.extend((ROOT/'scripts').glob('*.md'))
     docs.extend(EXPERIMENT.glob('*.md'))
+    docs.extend((ROOT/'experiments/unified-suite').rglob('*.md'))
     docs.extend((EXPERIMENT/'runbook').rglob('*.md'))
     docs.extend((EXPERIMENT/'scripts').glob('*.md'))
     docs.extend((ROOT/'tools').glob('*/README.md'))

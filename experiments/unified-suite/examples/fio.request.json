@@ -1,0 +1,12 @@
+{
+  "kind":"fio", "worker_id":"a01", "workload_id":"C1-randrw",
+  "root":"/mnt/experiment/fio", "cwd":"/opt/ax-experiments", "seed":9173,
+  "binary":{"path":"/usr/bin/fio","sha256":"FILL_FIO_SHA"},
+  "python":{"path":"/usr/bin/python3.12","sha256":"FILL_PYTHON_SHA"},
+  "helper":{"path":"/opt/ax-experiments/bench/fio_workload.py","sha256":"FILL_HELPER_SHA"},
+  "io_helper":{"path":"/opt/ax-experiments/bench/experiment_io.py","sha256":"FILL_IO_SHA"},
+  "mount":{"spec":{"path":"/srv/ax/specs/mount.json","sha256":"FILL_MOUNT_SHA"},"directory":"/srv/ax/mount-state"},
+  "params":{"agents":1,"rw":"randrw","block_bytes":4096,"file_bytes_per_job":67108864,
+    "io_bytes_per_job":67108864,"numjobs":1,"ioengine":"psync","iodepth":1,"direct":false,
+    "fsync_every_write":true,"rwmixread":75,"cache_state":"client-cold","time_based":false}
+}

@@ -387,12 +387,23 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--campaign',choices=['legacy-20261029',DEPLOYMENT_CAMPAIGN],default='legacy-20261029')
     p.add_argument('--profile',choices=['pilot-8','c1-8','pilot','main','expanded'],default='main')
-    p.add_argument('--isolation',choices=['docker','vm'],required=True)
-    p.add_argument('--provider',choices=['provided','aliyun','ssh'],required=True)
+    p.add_argument('--isolation',choices=['docker','vm'])
+    p.add_argument('--provider',choices=['provided','aliyun','ssh'])
+    p.add_argument('--suite-config',help='unified-c1-c4-v1 JSON; existing campaigns retain their original meaning')
     p.add_argument('--cluster',choices=['C1','C2','C3','C4']);p.add_argument('--seed',type=int,default=42)
     p.add_argument('--study',choices=['baseline','writeback'],default='baseline',help='writeback plans a separate bounded C1/C4 policy ablation; never enables a mount or executes it')
     p.add_argument('--include-llm-simulation',action='store_true',help='also plan paired paced multi-trace conditions; fixed budget/boundary qualification still required')
     p.add_argument('--output',required=True);a=p.parse_args()
+    if a.suite_config:
+        import sys
+        from pathlib import Path
+        sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+        from bench.suite_plan import build as suite_build
+        result=suite_build(json.loads(Path(a.suite_config).read_text(encoding='utf-8')))
+        write_new(a.output,result)
+        print(json.dumps(result['counts']))
+        raise SystemExit(0)
+    if not a.isolation or not a.provider:p.error('legacy plans require --isolation and --provider')
     result=build(a.profile,a.isolation,a.provider,a.cluster,a.seed,a.include_llm_simulation,a.study,a.campaign)
     write_new(a.output,result)
     print(json.dumps({'cells':result['total_cells'],'nodes':result['parallel_node_count'],'execution_enabled':False}))

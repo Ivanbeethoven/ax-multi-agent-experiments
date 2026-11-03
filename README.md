@@ -1,12 +1,12 @@
 # BrewFS 实验仓库
 
-执行 Agent 从 **[SSH 操作手册](experiments/retest-2026-10-29/runbook/SSH-RUN.zh.md)** 开始。环境可以是已配置 SSH 的容器、虚拟机或服务器；当前只准备脚本，运行时按实际清单分配资源。
+执行 Agent 从 **[统一 C1–C4 操作手册](experiments/unified-suite/README.md)** 开始：fio、完整 AI trace、百万小文件、fork/流转；外部 baseline 仅 JuiceFS，内部设计 native 与 D/P/G 消融。按实际清单在独立资源池并行完成配对区组。
 
 | 任务 | 入口 |
 |---|---|
-| 看实验设置、baseline 和指标 | [C1–C4 总览](experiments/retest-2026-10-29/PLAN.zh.md) |
-| 交给实验 Agent | [分工与调度单](experiments/retest-2026-10-29/runbook/CLUSTERS.zh.md) |
-| 连接节点并逐步执行 | [SSH-RUN](experiments/retest-2026-10-29/runbook/SSH-RUN.zh.md) |
+| 看实验设置、baseline 和指标 | [统一方法](experiments/unified-suite/01-method.zh.md) · [消融](experiments/unified-suite/02-ablations.zh.md) |
+| 交给实验 Agent | [AI 任务与交接](experiments/unified-suite/11-ai-handoff.zh.md) |
+| 连接节点并逐步执行 | [环境](experiments/unified-suite/03-environment.zh.md) · [单步执行](experiments/unified-suite/05-execution.zh.md) |
 | 准备输入与核对来源 | [数据交接](experiments/retest-2026-10-29/runbook/DATA.zh.md) · [Trace 来源](paper-design/TRACE-WORKLOADS.zh.md) |
 | 查看性能记录要求 | [可观测性](experiments/retest-2026-10-29/runbook/OBSERVABILITY.zh.md) |
 | 找代码或运行测试 | [bench](bench/README.md) · [runtime](bench/runtime/README.md) · [tests](tests/README.md) |
@@ -16,6 +16,7 @@
 
 ```text
 experiments/retest-2026-10-29/   实验方法、Agent 交接、运行手册与证据
+experiments/unified-suite/      新 C1–C4 协议、系列文档和配置样例
 bench/                         方法矩阵、输入/结果核验、单步工具
   runtime/                     SSH 接入、挂载、并发、流转与观测
   reference/                   仍用于既有资格/结果校验的实现

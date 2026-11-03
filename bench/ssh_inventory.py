@@ -9,7 +9,7 @@ def name(value):
 
 def template(executors, services, hosts, cluster='C1'):
     aliases = executors + services + hosts
-    if cluster not in ('C1', 'C2', 'C3', 'C4') or not executors:
+    if not name(cluster) or not executors:
         raise ValueError('cluster and at least one executor required')
     if len(set(aliases)) != len(aliases) or not all(name(a) for a in aliases):
         raise ValueError('unique simple SSH aliases required')
@@ -50,7 +50,7 @@ def validate(value):
     for n in nodes:
         if not name(n['id']) or not name(n['ssh_alias']):
             raise ValueError('simple node IDs and SSH aliases required')
-        if n.get('cluster_id') not in ('C1', 'C2', 'C3', 'C4'):
+        if not name(n.get('cluster_id')):
             raise ValueError('explicit cluster required')
         if n.get('kind') not in ('host', 'container') or not n.get('host_id'):
             raise ValueError('record environment kind and shared host identity')
