@@ -93,7 +93,7 @@ class PlanTests(unittest.TestCase):
             self.assertEqual(packet['results'][0]['workspace_index'],0)
             self.assertEqual(len(packet['results'][0]['raw_logs']),8)
             self.assertIsNone(packet['results'][0]['evidence']['sha256'])
-        cfg=template(study='ablations');cfg['clusters'][0]['agent_slots']=1;cfg['clusters'][1]['agent_slots']=1
+        cfg=template('main',study='ablations');cfg['clusters'][0]['agent_slots']=1;cfg['clusters'][1]['agent_slots']=1
         with self.assertRaises(ValueError):build(cfg)
 
 
@@ -443,16 +443,23 @@ class EvidenceTests(unittest.TestCase):
 
 @unittest.skipUnless(os.environ.get('UNIFIED_NATIVE_TESTS')=='1','explicit local native-adapter test enabled with UNIFIED_NATIVE_TESTS=1')
 class NativeTests(unittest.TestCase):
-    def test_fio_three_modes_and_corruption(self):
+    def test_fio_five_modes_partial_random_work_and_corruption(self):
         binary=Path('/usr/bin/fio');self.assertTrue(binary.is_file())
         with tempfile.TemporaryDirectory(prefix='ax-unified-fio-') as t:
             out=Path(t)
-            for mode in ('read','randwrite','randrw'):
+            for mode in ('read','write','randread','randwrite','randrw'):
                 root=out/mode;root.mkdir();p=fio_params(mode,True)
-                p.update(file_bytes_per_job=262144,io_bytes_per_job=262144,block_bytes=4096,numjobs=2)
+                p.update(file_bytes_per_job=262144,io_bytes_per_job=131072,block_bytes=4096,numjobs=2)
                 r={'root':str(root),'binary':state.reference(binary),'seed':9173,'params':p}
                 for phase in ('prepare','measure','verify'):
                     result=fio_run(r,phase,out/(mode+'-'+phase));self.assertTrue(result['passed'])
+                    if phase=='measure':
+                        from bench.suite_validate import work
+                        cfg=template();cfg['cases']=[next(c for c in cfg['cases'] if c['name']=='fio-'+mode)]
+                        cfg['cases'][0]['params']=p;plan=build(cfg);cell=plan['cells'][0]
+                        packet={'results':[{'evidence':state.reference(out/(mode+'-'+phase)/'result.json'),
+                                            'raw':state.reference(out/(mode+'-'+phase)/'fio.json')}]}
+                        self.assertTrue(work(plan,cell['id'],packet)['passed'])
             with (root/'fio-0000.dat').open('r+b') as f:f.write(b'broken')
             with self.assertRaises(ValueError):fio_run(r,'verify',out/'corrupt-verify')
     def test_smallfiles_local_clone_raw_counts_and_isolation(self):

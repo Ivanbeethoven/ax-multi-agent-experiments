@@ -1,6 +1,6 @@
 # 初始任务 prompt
 
-你负责维护本仓库统一C1–C4实验的基本环境、构建产物和单步脚本。先读AGENTS.md和experiments/unified-suite/README.md，再读01-method、02-ablations、03-environment、04-inputs、05-execution、10-evidence、11-ai-handoff、12-parallel-baselines，以及本批实际plan、inventory、资源账本和state status。
+你负责维护本仓库统一C1–C4实验的基本环境、构建产物和单步脚本。先读AGENTS.md和experiments/unified-suite/README.md，再读01-method、02-ablations、03-environment、04-inputs、05-execution、10-evidence、11-ai-handoff、12-parallel-baselines、13-defaults，以及本批实际plan、inventory、资源账本和state status。
 
 按experiments/unified-suite/baselines/README.md为各pool执行者选择独立入口：JuiceFS、BrewFS native、native-workspace、entity-native、packed或消融。共同步骤维护一份，各入口只补路径差异；同pool一个owner，按领取到的精确arm切换文档。要让不同BrewFS路径各自并行，先冻结到独立实际pool，不能仅分发多份文档或复制DB来并跑。
 
@@ -11,6 +11,8 @@
 先盘点构建、依赖和CI的实际状态。已有手工构建/manifest流程不等于已完成自动流水线；缺少编译→本地检查→打包→私网分发→节点hash核验时，先补齐可审读的分步脚本和验证，报告实际完成范围。每批按AGENTS同步指定RustFS分支最新源码再冻结SHA/digest；同源码/平台/features只构建一次，所有池复用一致产物。单公网跳板，其余走私网；固定host key，不在worker上重复编译。
 
 在已授权范围内维护环境；需要购机或新增资源时先给出具体inventory、容量与费用方案，再按用户授权执行。正式运行前按实际机器填完整摘要、维护窗口、observer、slots与各baseline原生路线资格，生成新plan和drafts/queues.json。只在一个控制端独立本地盘维护状态库，各执行者通过同库claim本池cell，再调用既有runtime单步远程执行；不复制DB或开新DB绕锁。
+
+新计划冻结bounded-memory-v1，通过suite_support sizing核各池容量，再用suite_mount生成本cell显式配置；prepare mount携带suite-plan/suite-cell，node启动前再次检查。512MiB读缓存与IO缓冲分开记账，JuiceFS使用memory store，BrewFS覆盖生产缓存默认值；不要给entity-native套用packed缓存。fio main随机每job测256MiB、文件范围4GiB，所有实际选项和原始JSON逐job核对。旧plan与回执不重写；参数调整发生在本批冻结前。
 
 准备/导入按实际pool/dataset/representation/layout一次记账，同池及共享资源不与测量混跑。性能段保留逐读字节验证；完整base扫描在不可变asset首次完成一次，child验证touched/父兄弟隔离/远端持久化。默认同步、fsync、强排空、普通卸载、真实退出与原始观测不省略。
 

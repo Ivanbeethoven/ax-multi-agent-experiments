@@ -5,6 +5,7 @@
 | 任务 | 入口 |
 |---|---|
 | 看实验设置、baseline 和指标 | [统一方法](experiments/unified-suite/01-method.zh.md) · [消融](experiments/unified-suite/02-ablations.zh.md) |
+| 核默认缓存、IO量和机器容量 | [默认配置与启动前核对](experiments/unified-suite/13-defaults.zh.md) |
 | 交给实验 Agent | [AI 任务与交接](experiments/unified-suite/11-ai-handoff.zh.md) |
 | 连接节点并逐步执行 | [环境](experiments/unified-suite/03-environment.zh.md) · [单步执行](experiments/unified-suite/05-execution.zh.md) |
 | 准备输入与核对来源 | [数据交接](experiments/retest-2026-10-29/runbook/DATA.zh.md) · [Trace 来源](paper-design/TRACE-WORKLOADS.zh.md) |

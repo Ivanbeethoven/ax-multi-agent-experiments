@@ -2,6 +2,8 @@
 
 固定工作量psync/depth=1，顺序1MiB、随机4KiB，read/write/randread/randwrite/randrw(75/25)。每个job一个文件；不time_based、不碰裸设备、不自动扩大数据集。主表同步write每次fsync，保留fio原始JSON+与wrapper wall。应用direct=0，实际FUSE direct-I/O/内核缓存路径需独立验收。
 
+新main模板每job文件4GiB；顺序测量4GiB、随机测量256MiB，8 jobs。随机共524,288次IO，地址范围仍是32GiB；完整初始化与CRC读回仍覆盖32GiB，另计准备和校验。旧配置的4GiB随机测量量保持原值。容量和选值说明见[默认配置](13-defaults.zh.md)。显式invalidate=1只声明fio请求失效页缓存，不证明服务端或其他缓存已冷。
+
 [fio原生文档](https://fio.readthedocs.io/en/latest/fio_doc.html)说明了fsync、randseed、verify等参数。这里固定seed与CRC校验，测量结束后的drain和冷读回仍单独执行，不能仅凭fio退出0证明远端持久化。
 
 1. 从plan中的C1 params创建 [fio request](examples/fio.request.json)，填actualroot、fioSHA、Python和helper SHA、监督mount绑定。root是新专用workspace中的预建目录。
@@ -22,5 +24,7 @@ python3 -m bench.runtime.workloads --request "$REQUEST" --output "$OUT/fio-worke
 `measure` phase也可用单步executor调用，但正式多Agent使用既有cohort屏障。`verify`读取全部文件，发生错误保留fio.json/stderr/exit.json，不重新初始化文件把错误抹掉。
 
 原始分布见 `workload/fio.json` 的每job数据。读与写分开提取IOPS/带宽/latency，fsync统计独立列；报告总应用字节必须等于numjobs×io_bytes。fio的读写比例是原生混合调度行为，记录实际read/write counts，不声称精确每4次必3读1写（C3才使用精确3:1）。
+
+工作量核对同时检查summary的params/seed/raw SHA与fio JSON中的实际rw/bs/seed/size/io_size/fsync/engine及逐job字节；同字节数的错误负载也会被拒绝。旧缺少这些绑定字段的回执不补造字段或升级为通过。
 
 fio准备和验证也有wall，按asset/verification收费。数据文件crc格式依赖block size，因此不复用不兼容fixture。布局G消融保持最终对象、读范围、seed与并发一致，每个新布局重新导入/持久化，检实际B/q后才能进入测量。

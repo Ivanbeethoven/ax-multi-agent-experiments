@@ -5,6 +5,7 @@ Agent操作入口：[统一C1–C4](../experiments/unified-suite/README.md)。�
 | 职责 | 入口 |
 |---|---|
 | 统一计划/单步占用 | [suite.py](suite.py)、[suite_catalog.py](suite_catalog.py)、[suite_state.py](suite_state.py)，复用experiment_step与runtime |
+| 冻结客户端与容量 | [suite_mount.py](suite_mount.py)生成cell绑定的显式缓存配置；suite_support sizing列工作量与各池预算 |
 | 新工作量 | [fio_workload.py](fio_workload.py)、[smallfiles](../tools/fs-probe/src/bin/smallfiles.rs)、[fork_burst.py](fork_burst.py) |
 | 证据与报告 | [suite_support.py](suite_support.py)、[suite_validate.py](suite_validate.py)、[archive_check.py](archive_check.py)、[suite_report.py](suite_report.py) |
 | 方法矩阵 | [scale_plan.py](scale_plan.py)：C1–C4、配对区组、baseline/writeback；provider=ssh分离机器预算 |

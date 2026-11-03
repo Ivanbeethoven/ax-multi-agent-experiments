@@ -19,7 +19,7 @@
 
 ## 配置核对
 
-原生JSON字段见[配置约定](../examples/README.md)：`metadata_url`对应实际TiKV/Redis，`writeback=false`、`cache_mib=0`、`buffer_mib=512`，私有`cache_dir`，显式`attr_cache_seconds`和`entry_cache_seconds`。FUSE类型、metrics端口和凭据环境名按本批原生资格记录。512MiB buffer不等于512MiB可驻留读缓存，实际buffer/page-cache命中与内存占用单列。
+原生JSON字段见[配置约定](../examples/README.md)：`metadata_url`对应实际TiKV/Redis；从plan生成`bounded-memory-v1`设置，`writeback=false`、`cache_dir=memory`、`cache_mib=512`、`buffer_mib=512`。独立512MiB读缓存与读写缓冲分别记录，clean SSD为0；其余TTL/预取/后台任务参数见[默认配置](../13-defaults.zh.md)。FUSE类型、metrics端口和凭据环境名按本批原生资格记录。memory store须由冻结binary真实支持，不能退回禁用读缓存的配置。
 
 RustFS服务保持本批统一版本与默认enabled布局；JuiceFS请求没有BrewFS hint，不为了让hint“生效”改JuiceFS arm或服务默认值。实际对象布局/读取字节照实记录。
 

@@ -76,10 +76,20 @@ def validate_mount(s):
         config = load(pinned(s['config']))
     if anchor(s['filesystem'],config) != s['anchor']:
         raise ValueError('shared backend identity differs from mount anchor')
+    if s.get('metadata_backend') is not None:
+        from ..suite_mount import validate_binding
+        if not s.get('suite_binding'):raise ValueError('unified mount lacks frozen suite binding')
+        validate_binding(s['suite_binding'],config,s['filesystem'],s['cluster'],
+                         s['metadata_backend'],s.get('dynamic_block','auto'))
+        if s['suite_binding']['plan'] not in cmd['inputs']:
+            raise ValueError('frozen suite plan must be pinned by mount command')
     if not s.get('metrics_address') and s.get('purpose')!='observer-calibration-off':raise ValueError('native metrics must be explicitly enabled')
     expected = native_argv(s['filesystem'],cmd['argv'][0],config_path,config,str(point),s['cluster'],s['metrics_address'],
                            s.get('dynamic_block','auto'),s.get('metadata_backend'))
     if cmd['argv'] != expected: raise ValueError('mount argv overrides reviewed native profile')
+    # JuiceFS's native memory store is private to this new foreground process;
+    # the literal "memory" is not a filesystem directory.
+    if s['filesystem']=='juicefs' and config['cache_dir']=='memory':return cmd,env
     cache=Path(config['cache']['cache_root'] if s['filesystem']=='brewfs' else config['cache_dir'])
     if not cache.is_absolute() or cache.is_symlink() or not cache.is_dir() or any(cache.iterdir()):
         raise ValueError('fresh existing private cache directory required')

@@ -21,15 +21,22 @@ python3 -m bench.suite init --plan "$RUN/plan.json" --db "$RUN/state.sqlite"
 
 每个节点先填入本批已核实的原生 JSON 配置（BrewFS也可读取JSON配置），证据/缓存/挂载目录分离。基线参数见 [样例](examples/README.md)。先生成 mount command 草稿，再人工或执行 AI 审读 exact argv、路径、凭据来源和 backend。
 
+新计划的client_profile固定[显式缓存设置](13-defaults.zh.md)。`drafts/<cell>/client-settings.json`列本cell期望值；将实际endpoint/namespace配置与该设置合并到新文件，核对后计算CONFIG_SHA。生成器保留实际连接字段、不启动服务，挂载前仍逐项核资格。
+
 ```bash
+python3 -m bench.suite_mount --plan "$RUN/plan.json" --cell "$CELL" \
+  --config "$NATIVE_CONFIG" --output "$CONFIG"
+python3 -m bench.suite_support pin --file "$CONFIG"
+
 python3 -m bench.runtime.prepare mount --filesystem brewfs --cluster pool-a \
+  --suite-plan "$RUN/plan.json" --suite-cell "$CELL" \
   --metadata-backend tikv --config "$CONFIG" --config-sha256 "$CONFIG_SHA" \
   --binary "$BIN/brewfs" --binary-sha256 "$BREWFS_SHA" --mount-point "$MOUNT" \
   --cwd "$REPO" --output "$OUT/mount-spec-draft" --metrics-address 127.0.0.1:8910 \
   --fstypes fuse.brewfs --inherit-environment AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
 ```
 
-实际 FUSE类型、端口、credentials环境名按native资格记录填，不照搬。JuiceFS用自己的binary/config/filesystem。`--metadata-backend` 将资源池和C1–C4旧硬编码解耦。每个workspace分配唯一volume/workspace/namespace，缓存目录必须新且空。
+实际 FUSE类型、端口、credentials环境名按native资格记录填，不照搬。JuiceFS用自己的binary/config/filesystem。`--metadata-backend` 将资源池和C1–C4旧硬编码解耦。每个workspace分配唯一volume/workspace/namespace，BrewFS缓存目录必须新且空；JuiceFS的memory cache在新前台进程中私有，不创建名为memory的目录。hint消融须把`--dynamic-block`设为cell.arm.hint。prepare和node都重核plan绑定与缓存设置；不能手改argv绕过。旧无client_profile的计划保留原证据与版本，不自动升级到新设置。
 
 审读后调用 review，输出新文件，不改旧草稿：
 

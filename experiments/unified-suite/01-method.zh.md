@@ -4,7 +4,7 @@
 
 | 主线 | pilot | main | 主要观测 |
 |---|---|---|---|
-| C1 | 5 种模式，1 job，每 job 64 MiB | 5 种模式，8 jobs，每 job 4 GiB；顺序 1 MiB、随机 4 KiB | 全体完成 wall、IOPS、带宽、原始延迟分布、fsync、后续排空 |
+| C1 | 5 种模式，1 job，每 job 64 MiB | 5 种模式，8 jobs，每 job 4 GiB文件；顺序测4GiB/1MiB块，随机测256MiB/4KiB块 | 全体完成 wall、IOPS、带宽、原始延迟分布、fsync、后续排空 |
 | C2 | pytest-full-02，N=1 | 四份完整 trace，N=1/4/8 | 每任务/全体完成时间、完成率、每层读写放大 |
 | C3 | 1M×4 KiB，1 个新工作区，热集 1024 文件 | 1M×4 KiB，每单元 4 个新工作区；热集 1024/16384 文件 | 8 个读写阶段、创建、排空、退出、字节正确性 |
 | C4 fork | 1 child | 1/8/32/64 children | 批量创建、每 child 完成、首次可用、隔离、物理增长 |
@@ -13,6 +13,8 @@
 每个 Agent 默认独立 2 CPU、8 GiB、swap=0；主机为 OS/服务/观测留空间。同一 worker 的线程数不等于 Agent 数：C1 的 8 个 fio jobs 在一个 client 内，C3 的 8 个读写线程也是如此。不能把 `agent_slots=64` 模板值当成已提供 64 份资源。
 
 默认同步上传语义、每次变更 fsync、强排空后普通卸载和真实进程退出；clean SSD cache=0。客户端 payload 预算上限 512 MiB，实际命中率、有效预算、元数据缓存及 kernel page cache 分开记录。entity-native 当前没有 packed payload cache，使用 0；默认系统路径比较保留这个差异，纯缓存/格式消融按专门条件对齐。
+
+新计划使用`bounded-memory-v1`，明确区分512MiB读缓存与IO缓冲；JuiceFS memory cache、BrewFS native budgets及TTL/预取均显式生成。参数表和容量计算见[默认配置核对](13-defaults.zh.md)，旧冻结计划不变。
 
 ## 配对单位与并行
 

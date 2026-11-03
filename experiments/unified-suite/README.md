@@ -24,7 +24,7 @@
 | C3 百万小文件 | 创建、冷读、热 lower 读、首次 COW、热 upper 读写 | [百万文件](08-smallfiles.zh.md) |
 | C4 fork / 流转 | 批量派生、隔离、首次可用、原生会话跨机继续 | [fork / 流转](09-fork-handoff.zh.md) |
 
-先读 [方法与统计单位](01-method.zh.md) 和 [baseline / 三技术点消融](02-ablations.zh.md)，再按顺序完成：
+先读 [方法与统计单位](01-method.zh.md)、[默认配置与容量](13-defaults.zh.md) 和 [baseline / 三技术点消融](02-ablations.zh.md)，再按顺序完成：
 
 1. [环境与构建](03-environment.zh.md)：机器、磁盘、维护窗口、版本、SSH 和隔离。
 2. [输入与一次导入](04-inputs.zh.md)：实际 trace / 固定小文件输入、不可变 base 和完整验证。
@@ -40,10 +40,13 @@
 # 在仓库根目录；RUN 是已有本轮控制目录的绝对路径，放在独立本地盘。
 python3 -m bench.suite template --profile pilot --study systems --output "$RUN/config.json"
 python3 bench/scale_plan.py --suite-config "$RUN/config.json" --output "$RUN/plan.json"
+python3 -m bench.suite_support sizing --plan "$RUN/plan.json" --output "$RUN/sizing.json"
 python3 -m bench.suite_support drafts --plan "$RUN/plan.json" --output "$RUN/drafts"
 ```
 
 编辑 config 中实际资源、输入和构建摘要后重新生成最终 plan，随后才初始化状态库；规划草稿不能直接领取执行。消融使用独立 campaign/config，`--study ablations`。
+
+新模板冻结`bounded-memory-v1`客户端配置：有读缓存的路径上限512MiB，JuiceFS明确使用memory cache，buffer另记；挂载与cell绑定。fio main随机测量每job256MiB、文件范围仍4GiB，顺序测量仍4GiB，均8 jobs、同步fsync。详细参数、原始默认值风险和实际资格要求见[默认配置](13-defaults.zh.md)。
 
 本次 C1–C4 是**新编号**。旧 [2026-10-29 方案](../retest-2026-10-29/PLAN.zh.md) 中的 C1 trace、C2 只读语料、C3 直接对象布局、C4 fork/流转保留原意。旧语料与直接对象脚本仍用于专项资格/辅助诊断，不混入本协议主表。资源池用 `pool-a`、`pool-b` 命名，与 C1–C4 无关。
 
