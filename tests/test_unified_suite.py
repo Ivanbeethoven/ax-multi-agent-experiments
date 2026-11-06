@@ -334,6 +334,8 @@ class WorkloadTests(unittest.TestCase):
         r={'root':'/mnt/data/dataset','binary':{'path':'/usr/bin/fio'},'seed':2,'params':fio_params('randrw',True)}
         args=arguments(r,'measure','/tmp/fio.json')
         self.assertIn('--fsync=1',args);self.assertIn('--allow_file_create=0',args)
+        prepare=arguments(r,'prepare','/tmp/fio.json')
+        self.assertIn('--fsync=0',prepare);self.assertIn('--allow_file_create=1',prepare)
         self.assertFalse(any('time_based' in a for a in args))
         r['params']['direct']=True
         with self.assertRaises(ValueError):arguments(r,'measure','/tmp/fio.json')
