@@ -1,6 +1,6 @@
 # BrewFS 统一实验 C1 动态块大小（G）消融实验完整报告
 
-- **生成时间（UTC）**：`2026-11-08T15:27:49+00:00`
+- **生成时间（UTC）**：`2026-11-08T15:30:24+00:00`
 - **执行环境**：Google Cloud `c2d-standard-8`（8 vCPU AMD EPYC 7B13 Milan / 32 GiB RAM）+ **4 × 375 GiB Local NVMe SSD**（`/dev/nvme0n1`..`nvme0n4` 独立挂载于 `/data/rustfs0`..`/data/rustfs3`），区域 `asia-east2-c`（香港）
 - **冻结二进制产物**：
   - `brewfs`：SHA256 `f0331698935a289e6f7655ba541416c021ebd55b94bfaef957e35ec8e0283b64`（特性：`fuse-io-uring-runtime,workspace-overlay,native-packed-base,rustfs-ec-block-size-hint,observability`）
@@ -46,6 +46,16 @@
 | `checksum-quantum` | `block-only (diag B=262144)` | 4194304 | `262144` | `block-only` | 262144 | None | `False` | **51.61** | **13212.9** | 74.2 | 79.4 | `PASS` |
 | `checksum-quantum` | `block-and-quantum (diag B=4194304)` | 4194304 | `4194304` | `enabled` | 4194304 | 1048576 | `True` | **49.81** | **12750.2** | 76.8 | 89.6 | `PASS` |
 | `checksum-quantum` | `block-only (diag B=4194304)` | 4194304 | `4194304` | `block-only` | 4194304 | None | `False` | **51.49** | **13181.0** | 74.4 | 84.5 | `PASS` |
+
+---
+
+## 三、主实验 32 GiB 数据集（8 并发线程 × 4 GiB）纯净冷读对比（关闭 `range_background_prefetch`）
+
+> 说明：为消除 `range_background_prefetch=true` 在 32 GiB（大于 512 MiB 内存缓存 64 倍）下引发的 2,968.5 倍全块预取颠簸，本组在 32 GiB 真实数据集（8 并发线程 × 4 GiB 文件范围）上将 `range_background_prefetch` 与 `prefetch_enabled` 设为 `false`，直接测量 BrewFS 64 KiB 范围读在 RustFS 不同纠删码块大小 $B$ 与读取子帧 $q$ 下的三轮配对（`r1, r2, r3`）冷读性能。
+
+| 实验组 (`case`) | 条件 (`arm`) | 轮次 (`reps`) | 持久化 $B$ (B) | 持久化 $q$ (B) | 子帧激活 | 平均吞吐 (MiB/s) | 平均 IOPS | 读均值延迟 (us) | 读 P99 (us) | 校验通过 |
+|---|---|---:|---:|---:|---|---:|---:|---:|---:|---|
+| `backend-layout` | `B-off` | 3 | 1048576 | None | `False` | **1.82** | **465.7** | 17175.2 | 411740.8 | `PASS` |
 
 ---
 
