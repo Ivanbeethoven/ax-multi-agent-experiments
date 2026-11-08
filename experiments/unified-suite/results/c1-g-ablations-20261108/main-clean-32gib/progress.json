@@ -1,6 +1,6 @@
 {
   "profile": "main-clean-32gib",
-  "completed_cells": 9,
+  "completed_cells": 12,
   "total_cells": 21,
   "results": [
     {
@@ -454,6 +454,153 @@
       "gate_notes": [
         "At B=1048576 (2x 512KiB data shards), select_ec_read_quantum selects 512KiB == shard_size, so persisted read_quantum_bytes is null in both block-only and enabled profiles (fixed-B-distinct-q is no-effect at B=1MiB)."
       ],
+      "passed": true
+    },
+    {
+      "cell_id": "a6ee7bfab9d2b4ea-r1-B-1048576",
+      "paired_block": "a6ee7bfab9d2b4ea-r1",
+      "case": "backend-layout",
+      "arm_id": "B-1048576",
+      "diagnostic_override_hint": null,
+      "client_object_bytes": 4194304,
+      "requested_hint": "1048576",
+      "layout_profile": "enabled",
+      "persisted_ec_block_bytes": 1048576,
+      "persisted_read_quantum_bytes": null,
+      "smaller_read_frames_active": false,
+      "persisted_objects_count": 8192,
+      "workload_rw": "randread",
+      "numjobs": 8,
+      "file_bytes_per_job": 4294967296,
+      "io_bytes_per_job": 8388608,
+      "timings_seconds": {
+        "import": 195.23383154099974,
+        "import_drain": 1.3153223720000824,
+        "measure_wall": 120.28072755299945,
+        "measure_drain": 0.1135616689989547,
+        "cold_verify": 52.380228873000306,
+        "verify_drain": 0.06347624900081428
+      },
+      "metrics": {
+        "total_bw_mib_s": 0.5359039306640625,
+        "read_bw_mib_s": 0.5359039306640625,
+        "write_bw_mib_s": 0.0,
+        "total_iops": 137.192442,
+        "read_iops": 137.192442,
+        "write_iops": 0.0,
+        "read_clat_mean_us": 58300.53064880362,
+        "write_clat_mean_us": 0.0,
+        "read_clat_p99_us": 438304.768,
+        "write_clat_p99_us": 0.0,
+        "max_job_runtime_ms": 119637.0
+      },
+      "checks": {
+        "import": true,
+        "persisted_layout": true,
+        "measure": true,
+        "unmount_measure": true,
+        "cold_verify": true,
+        "telemetry": true
+      },
+      "gate_notes": [],
+      "passed": true
+    },
+    {
+      "cell_id": "a6ee7bfab9d2b4ea-r2-B-1048576",
+      "paired_block": "a6ee7bfab9d2b4ea-r2",
+      "case": "backend-layout",
+      "arm_id": "B-1048576",
+      "diagnostic_override_hint": null,
+      "client_object_bytes": 4194304,
+      "requested_hint": "1048576",
+      "layout_profile": "enabled",
+      "persisted_ec_block_bytes": 1048576,
+      "persisted_read_quantum_bytes": null,
+      "smaller_read_frames_active": false,
+      "persisted_objects_count": 8192,
+      "workload_rw": "randread",
+      "numjobs": 8,
+      "file_bytes_per_job": 4294967296,
+      "io_bytes_per_job": 8388608,
+      "timings_seconds": {
+        "import": 195.23383154099974,
+        "import_drain": 1.3153223720000824,
+        "measure_wall": 114.78655423599957,
+        "measure_drain": 0.11359459900086222,
+        "cold_verify": 52.380228873000306,
+        "verify_drain": 0.06347624900081428
+      },
+      "metrics": {
+        "total_bw_mib_s": 0.5606679916381836,
+        "read_bw_mib_s": 0.5606679916381836,
+        "write_bw_mib_s": 0.0,
+        "total_iops": 143.532006,
+        "read_iops": 143.532006,
+        "write_iops": 0.0,
+        "read_clat_mean_us": 55724.26624182137,
+        "write_clat_mean_us": 0.0,
+        "read_clat_p99_us": 438304.768,
+        "write_clat_p99_us": 0.0,
+        "max_job_runtime_ms": 114338.0
+      },
+      "checks": {
+        "import": true,
+        "persisted_layout": true,
+        "measure": true,
+        "unmount_measure": true,
+        "cold_verify": true,
+        "telemetry": true
+      },
+      "gate_notes": [],
+      "passed": true
+    },
+    {
+      "cell_id": "a6ee7bfab9d2b4ea-r3-B-1048576",
+      "paired_block": "a6ee7bfab9d2b4ea-r3",
+      "case": "backend-layout",
+      "arm_id": "B-1048576",
+      "diagnostic_override_hint": null,
+      "client_object_bytes": 4194304,
+      "requested_hint": "1048576",
+      "layout_profile": "enabled",
+      "persisted_ec_block_bytes": 1048576,
+      "persisted_read_quantum_bytes": null,
+      "smaller_read_frames_active": false,
+      "persisted_objects_count": 8192,
+      "workload_rw": "randread",
+      "numjobs": 8,
+      "file_bytes_per_job": 4294967296,
+      "io_bytes_per_job": 8388608,
+      "timings_seconds": {
+        "import": 195.23383154099974,
+        "import_drain": 1.3153223720000824,
+        "measure_wall": 116.2832734750009,
+        "measure_drain": 0.11355942899899674,
+        "cold_verify": 52.380228873000306,
+        "verify_drain": 0.06347624900081428
+      },
+      "metrics": {
+        "total_bw_mib_s": 0.5535078048706055,
+        "read_bw_mib_s": 0.5535078048706055,
+        "write_bw_mib_s": 0.0,
+        "total_iops": 141.698882,
+        "read_iops": 141.698882,
+        "write_iops": 0.0,
+        "read_clat_mean_us": 56446.18133612063,
+        "write_clat_mean_us": 0.0,
+        "read_clat_p99_us": 442499.072,
+        "write_clat_p99_us": 0.0,
+        "max_job_runtime_ms": 115783.0
+      },
+      "checks": {
+        "import": true,
+        "persisted_layout": true,
+        "measure": true,
+        "unmount_measure": true,
+        "cold_verify": true,
+        "telemetry": true
+      },
+      "gate_notes": [],
       "passed": true
     }
   ],
