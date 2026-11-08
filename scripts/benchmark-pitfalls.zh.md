@@ -14,6 +14,24 @@
 | [`check_trace_xattr.py`](check_trace_xattr.py) | 回放前置检查：trace 是否含 xattr 事件 |
 | [`bench_redis_meta.py`](bench_redis_meta.py) | Redis 元数据后端的写入吞吐与元数据内存 |
 
+## 与统一实验指导文档的对应关系
+
+每条坑都落到统一 C1–C4 协议（`experiments/unified-suite/`）的具体章节，方便按阶段反查：
+
+| 坑 | 对应指导文档 | 一句话 |
+|---|---|---|
+| 1 新建 vs 覆盖写 | [01-method.zh.md](../experiments/unified-suite/01-method.zh.md)、[06-fio.zh.md](../experiments/unified-suite/06-fio.zh.md) | write 数字必须声明 create-new 还是 overwrite |
+| 2 percentile 冒号 | [06-fio.zh.md](../experiments/unified-suite/06-fio.zh.md) | fio 3.36 只认 `50:95:99` |
+| 3 冷读重启对象存储 | [03-environment.zh.md](../experiments/unified-suite/03-environment.zh.md) | `drop_caches` 清不掉对象存储页缓存 |
+| 4 `pkill -x` | [03-environment.zh.md](../experiments/unified-suite/03-environment.zh.md) | `pkill -f` 会杀掉命令自身 |
+| 5 串行 | [01-method.zh.md](../experiments/unified-suite/01-method.zh.md)、[05-execution.zh.md](../experiments/unified-suite/05-execution.zh.md) | 单节点并行 lane 会打崩吞吐 |
+| 6 对象盘写满 | [13-defaults.zh.md](../experiments/unified-suite/13-defaults.zh.md) | 磁盘护栏 + JuiceFS TrashDays |
+| 7 优雅 umount | [03-environment.zh.md](../experiments/unified-suite/03-environment.zh.md) | 强杀丢写缓存 → 读 EIO |
+| 8 trace 回放被 xattr 卡 | [07-trace.zh.md](../experiments/unified-suite/07-trace.zh.md) | TiKV MetaStore 无 xattr，ENOTSUP ≠ ENODATA |
+| 9 fork revision 三元组 | [09-fork-handoff.zh.md](../experiments/unified-suite/09-fork-handoff.zh.md) | `layer:sealed_version:root_hash` 未文档化 |
+| 10 Redis 元数据三坑 | [08-smallfiles.zh.md](../experiments/unified-suite/08-smallfiles.zh.md) | 安全组、`--s3-force-path-style` 要带值、EIO 先查对象存储 |
+| 11 编译 `strings` 校验 | [03-environment.zh.md](../experiments/unified-suite/03-environment.zh.md) | cargo 抢锁会静默编出旧代码 |
+
 ---
 
 ## 1. fio：新建文件与覆盖写的带宽差 2× 以上
