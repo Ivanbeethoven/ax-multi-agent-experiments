@@ -18,5 +18,6 @@ Agent操作入口：[统一C1–C4](../experiments/unified-suite/README.md)。�
 | 派生与会话 | [fs_step.py](fs_step.py)、[session_check.py](session_check.py) |
 | 可选等待 | [trace_think_plan.py](trace_think_plan.py)：固定总等待、0–15秒工具间隔，默认关闭 |
 | 辅助与复现 | [host_preflight.py](host_preflight.py)、[final_plan.py](final_plan.py)、[warm_same_files.py](warm_same_files.py)、[reference](reference/README.md) |
+| 踩坑与旁路复现 | [scripts/benchmark-pitfalls.zh.md](../scripts/benchmark-pitfalls.zh.md)：11 条实测坑；[scripts/README.md](../scripts/README.md) 里的 `bench_*` standalone harness 是旁路复现（不入 suite 调度） |
 
 新协议使用 `suite template --profile pilot|main --study systems|ablations`，资源池与workload编号独立。旧pilot-8/c1-8/main/expanded仅用于旧campaign复现。infra负责环境，runtime负责执行，tools负责测量，结果集中到runs/<campaign>或实际独立数据盘。
