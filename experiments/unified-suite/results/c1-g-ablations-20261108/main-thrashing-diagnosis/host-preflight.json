@@ -1,0 +1,91 @@
+{
+  "timestamp_utc": "2026-11-08T12:45:02.921222+00:00",
+  "hostname": "bfp-20261108-195750-d5fc.asia-east2-c.c.brewfs.internal",
+  "kernel": "7.0.0-1017-gcp",
+  "available_cpu_count": 8,
+  "memory_bytes": 33645977600,
+  "root_disks": [
+    "8:0"
+  ],
+  "data_mounts": [
+    {
+      "mount": "/data/rustfs0",
+      "filesystem": {
+        "target": "/data/rustfs0",
+        "source": "/dev/nvme0n1",
+        "fstype": "ext4",
+        "options": "rw,noatime",
+        "maj:min": "259:0"
+      },
+      "backing_disks": [
+        "259:0"
+      ],
+      "free_bytes": 374662914048,
+      "total_bytes": 395188764672,
+      "uid": 10001
+    },
+    {
+      "mount": "/data/rustfs1",
+      "filesystem": {
+        "target": "/data/rustfs1",
+        "source": "/dev/nvme0n2",
+        "fstype": "ext4",
+        "options": "rw,noatime",
+        "maj:min": "259:1"
+      },
+      "backing_disks": [
+        "259:1"
+      ],
+      "free_bytes": 374662914048,
+      "total_bytes": 395188764672,
+      "uid": 10001
+    },
+    {
+      "mount": "/data/rustfs2",
+      "filesystem": {
+        "target": "/data/rustfs2",
+        "source": "/dev/nvme0n3",
+        "fstype": "ext4",
+        "options": "rw,noatime",
+        "maj:min": "259:2"
+      },
+      "backing_disks": [
+        "259:2"
+      ],
+      "free_bytes": 374662914048,
+      "total_bytes": 395188764672,
+      "uid": 10001
+    },
+    {
+      "mount": "/data/rustfs3",
+      "filesystem": {
+        "target": "/data/rustfs3",
+        "source": "/dev/nvme0n4",
+        "fstype": "ext4",
+        "options": "rw,noatime",
+        "maj:min": "259:3"
+      },
+      "backing_disks": [
+        "259:3"
+      ],
+      "free_bytes": 374662914048,
+      "total_bytes": 395188764672,
+      "uid": 10001
+    }
+  ],
+  "binaries": {
+    "brewfs": {
+      "path": "/mnt/slayerfs/bin/brewfs",
+      "sha256": "f0331698935a289e6f7655ba541416c021ebd55b94bfaef957e35ec8e0283b64"
+    },
+    "rustfs": {
+      "path": "/mnt/slayerfs/bin/rustfs",
+      "sha256": "2bfb34a3177a109074799af863877bdfc1f8d6c63a7ece6eeb08a15377830e15"
+    },
+    "fio": {
+      "path": "/usr/bin/fio",
+      "sha256": "ffa69ecdc28c2780348af1e5285178b4bc5388ee0655f326a8298c480d4d03a2"
+    }
+  },
+  "passed": true
+}
