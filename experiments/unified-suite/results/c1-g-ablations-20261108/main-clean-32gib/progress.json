@@ -1,6 +1,6 @@
 {
   "profile": "main-clean-32gib",
-  "completed_cells": 3,
+  "completed_cells": 6,
   "total_cells": 21,
   "results": [
     {
@@ -148,6 +148,159 @@
         "telemetry": true
       },
       "gate_notes": [],
+      "passed": true
+    },
+    {
+      "cell_id": "9e4be1029df82430-r1-block-only",
+      "paired_block": "9e4be1029df82430-r1",
+      "case": "checksum-quantum",
+      "arm_id": "block-only",
+      "diagnostic_override_hint": null,
+      "client_object_bytes": 4194304,
+      "requested_hint": "1048576",
+      "layout_profile": "block-only",
+      "persisted_ec_block_bytes": 1048576,
+      "persisted_read_quantum_bytes": null,
+      "smaller_read_frames_active": false,
+      "persisted_objects_count": 16400,
+      "workload_rw": "randread",
+      "numjobs": 8,
+      "file_bytes_per_job": 4294967296,
+      "io_bytes_per_job": 8388608,
+      "timings_seconds": {
+        "import": 195.5410194570013,
+        "import_drain": 1.5659140909992857,
+        "measure_wall": 98.5324510040009,
+        "measure_drain": 0.1135406490011519,
+        "cold_verify": 39.86968096899909,
+        "verify_drain": 0.06342225899970799
+      },
+      "metrics": {
+        "total_bw_mib_s": 0.6546077728271484,
+        "read_bw_mib_s": 0.6546077728271484,
+        "write_bw_mib_s": 0.0,
+        "total_iops": 167.580532,
+        "read_iops": 167.580532,
+        "write_iops": 0.0,
+        "read_clat_mean_us": 47726.87910394275,
+        "write_clat_mean_us": 0.0,
+        "read_clat_p99_us": 438304.768,
+        "write_clat_p99_us": 0.0,
+        "max_job_runtime_ms": 97899.0
+      },
+      "checks": {
+        "import": true,
+        "persisted_layout": true,
+        "measure": true,
+        "unmount_measure": true,
+        "cold_verify": true,
+        "telemetry": true
+      },
+      "gate_notes": [
+        "At B=1048576 (2x 512KiB data shards), select_ec_read_quantum selects 512KiB == shard_size, so persisted read_quantum_bytes is null in both block-only and enabled profiles (fixed-B-distinct-q is no-effect at B=1MiB)."
+      ],
+      "passed": true
+    },
+    {
+      "cell_id": "9e4be1029df82430-r2-block-only",
+      "paired_block": "9e4be1029df82430-r2",
+      "case": "checksum-quantum",
+      "arm_id": "block-only",
+      "diagnostic_override_hint": null,
+      "client_object_bytes": 4194304,
+      "requested_hint": "1048576",
+      "layout_profile": "block-only",
+      "persisted_ec_block_bytes": 1048576,
+      "persisted_read_quantum_bytes": null,
+      "smaller_read_frames_active": false,
+      "persisted_objects_count": 16400,
+      "workload_rw": "randread",
+      "numjobs": 8,
+      "file_bytes_per_job": 4294967296,
+      "io_bytes_per_job": 8388608,
+      "timings_seconds": {
+        "import": 195.5410194570013,
+        "import_drain": 1.5659140909992857,
+        "measure_wall": 96.78480693399979,
+        "measure_drain": 0.11352042900034576,
+        "cold_verify": 39.86968096899909,
+        "verify_drain": 0.06342225899970799
+      },
+      "metrics": {
+        "total_bw_mib_s": 0.666691780090332,
+        "read_bw_mib_s": 0.666691780090332,
+        "write_bw_mib_s": 0.0,
+        "total_iops": 170.674142,
+        "read_iops": 170.674142,
+        "write_iops": 0.0,
+        "read_clat_mean_us": 46862.38965295425,
+        "write_clat_mean_us": 0.0,
+        "read_clat_p99_us": 429916.16,
+        "write_clat_p99_us": 0.0,
+        "max_job_runtime_ms": 96129.0
+      },
+      "checks": {
+        "import": true,
+        "persisted_layout": true,
+        "measure": true,
+        "unmount_measure": true,
+        "cold_verify": true,
+        "telemetry": true
+      },
+      "gate_notes": [
+        "At B=1048576 (2x 512KiB data shards), select_ec_read_quantum selects 512KiB == shard_size, so persisted read_quantum_bytes is null in both block-only and enabled profiles (fixed-B-distinct-q is no-effect at B=1MiB)."
+      ],
+      "passed": true
+    },
+    {
+      "cell_id": "9e4be1029df82430-r3-block-only",
+      "paired_block": "9e4be1029df82430-r3",
+      "case": "checksum-quantum",
+      "arm_id": "block-only",
+      "diagnostic_override_hint": null,
+      "client_object_bytes": 4194304,
+      "requested_hint": "1048576",
+      "layout_profile": "block-only",
+      "persisted_ec_block_bytes": 1048576,
+      "persisted_read_quantum_bytes": null,
+      "smaller_read_frames_active": false,
+      "persisted_objects_count": 16400,
+      "workload_rw": "randread",
+      "numjobs": 8,
+      "file_bytes_per_job": 4294967296,
+      "io_bytes_per_job": 8388608,
+      "timings_seconds": {
+        "import": 195.5410194570013,
+        "import_drain": 1.5659140909992857,
+        "measure_wall": 101.5306347959995,
+        "measure_drain": 0.11356490900107019,
+        "cold_verify": 39.86968096899909,
+        "verify_drain": 0.06342225899970799
+      },
+      "metrics": {
+        "total_bw_mib_s": 0.6343994140625,
+        "read_bw_mib_s": 0.6343994140625,
+        "write_bw_mib_s": 0.0,
+        "total_iops": 162.40686300000002,
+        "read_iops": 162.40686300000002,
+        "write_iops": 0.0,
+        "read_clat_mean_us": 49247.853543518,
+        "write_clat_mean_us": 0.0,
+        "read_clat_p99_us": 429916.16,
+        "write_clat_p99_us": 0.0,
+        "max_job_runtime_ms": 101114.0
+      },
+      "checks": {
+        "import": true,
+        "persisted_layout": true,
+        "measure": true,
+        "unmount_measure": true,
+        "cold_verify": true,
+        "telemetry": true
+      },
+      "gate_notes": [
+        "At B=1048576 (2x 512KiB data shards), select_ec_read_quantum selects 512KiB == shard_size, so persisted read_quantum_bytes is null in both block-only and enabled profiles (fixed-B-distinct-q is no-effect at B=1MiB)."
+      ],
       "passed": true
     }
   ],
