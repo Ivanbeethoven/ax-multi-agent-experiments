@@ -1,6 +1,6 @@
 # BrewFS 统一实验 C1 动态块大小（G）消融实验完整报告
 
-- **生成时间（UTC）**：`2026-11-08T15:39:44+00:00`
+- **生成时间（UTC）**：`2026-11-08T15:50:06+00:00`
 - **执行环境**：Google Cloud `c2d-standard-8`（8 vCPU AMD EPYC 7B13 Milan / 32 GiB RAM）+ **4 × 375 GiB Local NVMe SSD**（`/dev/nvme0n1`..`nvme0n4` 独立挂载于 `/data/rustfs0`..`/data/rustfs3`），区域 `asia-east2-c`（香港）
 - **冻结二进制产物**：
   - `brewfs`：SHA256 `f0331698935a289e6f7655ba541416c021ebd55b94bfaef957e35ec8e0283b64`（特性：`fuse-io-uring-runtime,workspace-overlay,native-packed-base,rustfs-ec-block-size-hint,observability`）
@@ -57,6 +57,7 @@
 |---|---|---:|---:|---:|---|---:|---:|---:|---:|---|
 | `backend-layout` | `B-off` | 3 | 1048576 | None | `False` | **1.82** | **465.7** | 17175.2 | 411740.8 | `PASS` |
 | `checksum-quantum` | `block-only` | 3 | 1048576 | None | `False` | **0.65** | **166.9** | 47945.7 | 432712.4 | `PASS` |
+| `checksum-quantum` | `block-and-quantum` | 3 | 1048576 | None | `False` | **0.56** | **143.3** | 55849.6 | 438304.8 | `PASS` |
 
 ---
 
