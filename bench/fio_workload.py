@@ -37,7 +37,11 @@ def arguments(request, phase, output):
     args = [request['binary']['path'],'--output-format=json+','--output='+str(output),
             '--ioengine=psync','--iodepth=1','--direct=0','--thread=1','--fallocate=none',
             '--randrepeat=1','--refill_buffers=1','--verify=crc32c',
-            '--verify_fatal=1','--verify_state_save=0','--end_fsync=1','--fsync=1','--group_reporting=0',
+            '--verify_fatal=1','--verify_state_save=0','--end_fsync=1',
+            # Fixture preparation is not a performance phase; avoid one fsync per
+            # write while materializing a 4 KiB 32 GiB base. Measurement keeps the
+            # protocol's every-write fsync.
+            '--fsync='+('0' if phase=='prepare' else '1'),'--group_reporting=0',
             '--unlink=0','--invalidate=1','--allow_file_create='+('1' if phase=='prepare' else '0')]
     for index in range(p['numjobs']):
         mode = 'write' if phase=='prepare' else 'read' if phase=='verify' else p['rw']
@@ -61,7 +65,7 @@ def validate_raw(raw, params, seed, phase):
     size=params['io_bytes_per_job'] if phase=='measure' else params['file_bytes_per_job']
     expected={'ioengine':'psync','iodepth':'1','direct':'0','thread':'1','fallocate':'none',
               'randrepeat':'1','refill_buffers':'1','verify':'crc32c','verify_fatal':'1',
-              'verify_state_save':'0','end_fsync':'1','fsync':'1','group_reporting':'0','unlink':'0',
+              'verify_state_save':'0','end_fsync':'1','fsync':'0' if phase=='prepare' else '1','group_reporting':'0','unlink':'0',
               'invalidate':'1','allow_file_create':'1' if phase=='prepare' else '0',
               'rw':mode,'bs':str(params['block_bytes']),'size':str(params['file_bytes_per_job']),
               'io_size':str(size),'rwmixread':'75','do_verify':'1' if phase=='verify' else '0'}
