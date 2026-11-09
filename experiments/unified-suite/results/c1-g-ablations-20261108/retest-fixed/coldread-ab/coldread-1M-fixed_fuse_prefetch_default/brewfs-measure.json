@@ -1,0 +1,36 @@
+{
+  "mount_point": "/mnt/slayerfs/mount",
+  "meta": {
+    "backend": "redis",
+    "redis": {
+      "url": "redis://127.0.0.1:6379/1"
+    }
+  },
+  "data": {
+    "backend": "s3",
+    "s3": {
+      "bucket": "coldread-4gib",
+      "endpoint": "http://127.0.0.1:9000",
+      "region": "us-east-1",
+      "force_path_style": true,
+      "disable_payload_checksum": true
+    }
+  },
+  "cache": {
+    "cache_root": "/mnt/slayerfs/results/retest-fixed/coldread-ab/coldread-1M-fixed_fuse_prefetch_default/cache-measure",
+    "read_memory_bytes": 536870912,
+    "read_ssd_bytes": 0,
+    "write_memory_bytes": 67108864,
+    "write_ssd_bytes": 268435456,
+    "prefetch_enabled": true,
+    "prefetch_concurrency": 4,
+    "prefetch_max_bytes": 16777216,
+    "range_background_prefetch": true,
+    "read_fetch_policy": "backend-default",
+    "compression": "none",
+    "writeback_mode": "upload_before_commit"
+  },
+  "fuse": {
+    "privileged": true
+  }
+}

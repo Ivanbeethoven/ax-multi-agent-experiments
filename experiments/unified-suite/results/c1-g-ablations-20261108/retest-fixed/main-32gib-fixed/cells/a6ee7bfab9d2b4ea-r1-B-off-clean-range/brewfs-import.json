@@ -1,0 +1,51 @@
+{
+  "mount_point": "/mnt/slayerfs/mount",
+  "meta": {
+    "backend": "redis",
+    "redis": {
+      "url": "redis://127.0.0.1:6379/1"
+    }
+  },
+  "data": {
+    "backend": "s3",
+    "s3": {
+      "bucket": "asset-01-off",
+      "endpoint": "http://127.0.0.1:9000",
+      "region": "us-east-1",
+      "force_path_style": true,
+      "disable_payload_checksum": true,
+      "rustfs_ec_block_size_hint": "off"
+    }
+  },
+  "cache": {
+    "cache_root": "/mnt/slayerfs/results/retest-fixed/main-32gib-fixed/cells/a6ee7bfab9d2b4ea-r1-B-off-clean-range/cache-import",
+    "read_memory_bytes": 536870912,
+    "read_ssd_bytes": 0,
+    "write_memory_bytes": 536870912,
+    "write_ssd_bytes": 1073741824,
+    "memory_budget_bytes": 536870912,
+    "writeback_mode": "upload_before_commit",
+    "compression": "none",
+    "verify_cache_checksum": "full",
+    "prefetch_enabled": false,
+    "prefetch_max_bytes": 134217728,
+    "prefetch_concurrency": 64,
+    "range_background_prefetch": false,
+    "read_fetch_policy": "backend-default",
+    "populate_write_cache_after_upload": true,
+    "persist_write_cache_after_upload": false
+  },
+  "fuse": {
+    "privileged": true,
+    "cache_ttl_ms": 0,
+    "keep_cache": false
+  },
+  "volume_format": "flat-v1",
+  "volume": {
+    "format": "flat-v1",
+    "block_size": 4194304
+  },
+  "layout": {
+    "block_size": 4194304
+  }
+}

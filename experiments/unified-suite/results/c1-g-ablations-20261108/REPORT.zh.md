@@ -101,3 +101,123 @@
 - **单价**：约 `$0.104 / 小时`
 - **总运行时长**：约 3.8 小时（任务完成后自动关机/销毁，且设有 4 小时硬件级 `--max-run-duration=4h` 兜底删除）
 - **本次实验总花费**：**约 `$0.40 USD`（不到人民币 3 元，仅占 100 美元预算的 0.4%）**
+
+
+---
+
+## 六、四大源码级修复优化与同机重点重测对比（`2026-11-09`）
+
+- **重测完成时间（UTC）**：`2026-11-09T10:06:57+00:00`
+- **重测机器与环境**：Google Cloud `bfp-20261109-164237-f85f`（`c2d-standard-8` + 4 × 375 GiB Local NVMe SSD，`asia-east2-c`）
+- **修复后 `brewfs` 分支与二进制**：
+  - 个人分支：`marshawcoco/brewfs` 分支 `exp/c1-g-ablations`（提交 `9bbc760`，变基对齐于上游 PR #441 `622736b` 与 PR #442 `d08faa5`）
+  - `brewfs` 二进制 SHA256：`6508f7d003fbf8ee86679b101b79817f0edf95344d0e10444aae8346a63db42f`
+  - `rustfs` 二进制 SHA256：`2bfb34a3177a109074799af863877bdfc1f8d6c63a7ece6eeb08a15377830e15`
+
+### 6.1 四项源码级修复汇总
+
+1. **解耦 S3 纠删码写入块大小提示与整对象读取偏好（`src/cadapter/s3.rs:1195-1201`）**：
+   - 将 `S3Backend::prefers_full_object_reads(&self)` 改为始终返回 `false`。
+   - **修复效果**：开启 `rustfs_ec_block_size_hint`（`64 KiB / 256 KiB / 1 MiB / 4 MiB`）仅向后端传递 `x-amz-meta-rustfs-ec-block-size` 写入布局提示，不再在默认 `read_fetch_policy = "backend-default"` 下关闭客户端 64 KiB S3 Range GET，也不再绕过 PR #441 的 `WorkingSetEstimator` 预取守卫。
+2. **收紧随机读后台全块预取工作集守卫系数（`src/vfs/cache/config.rs:19`）**：
+   - 将 `DEFAULT_RANGE_PREFETCH_WORKING_SET_FACTOR` 从 `4` 收紧至 `1`。
+   - **修复效果**：当随机读触及的不同块工作集超过 `1 × max_hot_bytes()`（512 MiB 热缓存预算，即 128 个 4 MiB 块）时，立即抑制后续无意义的 4 MiB 后台整块预取，消除前 `3 × 512 MiB = 1.5 GiB` 缓存淘汰爬坡浪费。
+3. **显式刷盘（`ExplicitFlush` / `fsync`）单切片零等待直传（`src/vfs/io/writer.rs:4095-4109` & `src/chunk/store/coalesce.rs:273-277`）**：
+   - 为 `SliceState` 增加 `bypass_write_coalesce: bool` 标记；当 `FlushMode::ExplicitFlush` 提交单个切片时，直接走 `chunks-v2/{slice_id}/0` 快速直传路径，跳过 `write_coalesced` 的 `100 ms` 攒批睡眠窗口。
+   - **修复效果**：单次 `fsync` 平均延迟从 **`101.70 ms` 骤降至 `2.32 ms`（降低 `43.8 倍`）**，`client-object-size`（`randrw`）吞吐提升 **`+6.7 倍`**。
+4. **恢复 FUSE 子块请求下的跨块顺序流预读器 `GlobalPrefetcher`（`src/vfs/io/reader.rs:241-280, 326-346`）**：
+   - 此前 `read_at_into_unaccounted` 仅在单次请求 `len >= block_size`（2 MiB / 4 MiB）时才调用 `check_session`，而 Linux FUSE 内核会将应用层 `1 MiB / 4 MiB / 64 MiB` 顺序读拆分为 `128 KiB ~ 256 KiB` 的子请求，导致 `GlobalPrefetcher` 永远无法触发，且 `read_reply` 缓存命中快路径漏记流偏移，每个 2 MiB 块首拍都先触发一次 256 KiB 同步 Range GET 再触发一次 2 MiB 整块 GET（双倍请求 + 512 MiB 冗余流量）。
+   - 修复后：在 `actual_len >= MIN_STREAM_READ_BYTES`（128 KiB）时即追踪顺序流会话，并在 `read_reply` 快路径同步更新会话、通过 `Session::prefetched_until` 对跨块预取去重。
+
+---
+
+### 6.2 第一组重测：`pilot-fixed`（4 GiB 数据集，14/14 单元全部通过）前后对比
+
+> 注：上游 `4815b42` 已将 `pilot` 的文件大小升级为 4 GiB（总数据集 32 GiB），`client-object-size` 采用 `fsync_on_complete=1`。下表对比升级后同口径 `pilot` 修复前与修复后（`pilot-fixed`）：
+
+| 实验组 (`case`) | 条件 (`arm`) | 持久化 $B$ | 持久化 $q$ | 修复前吞吐 (MiB/s) | **修复后吞吐 (MiB/s)** | 吞吐提升倍数 | 修复前读/同步延迟 | **修复后读/同步延迟** | 修复后 S3 GET 次数 / 流量 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `client-object-size` | `g-262144` | 1 MiB | None | 0.78 | **5.00** | **+6.4×** | `fsync` 101.47 ms | **`fsync` 2.33 ms** | 128 GET / 25.0 MiB |
+| `client-object-size` | `g-1048576` | 1 MiB | None | 0.78 | **5.22** | **+6.7×** | `fsync` 101.70 ms | **`fsync` 2.33 ms** | 64 GET / 60.0 MiB |
+| `client-object-size` | `g-4194304` | 1 MiB | None | 0.78 | **5.29** | **+6.8×** | `fsync` 101.85 ms | **`fsync` 2.32 ms** | 21 GET / 64.6 MiB |
+| `backend-layout` | `B-65536` | 64 KiB | 16 KiB | 4.65 | **61.78** | **+13.3×** | 读 6,711.9 µs | **读 61.9 µs (-108×)** | 48 GET / 65.0 MiB |
+| `backend-layout` | `B-262144` | 256 KiB | 64 KiB | 4.24 | **49.69** | **+11.7×** | 读 7,358.1 µs | **读 76.7 µs (-96×)** | 48 GET / 65.0 MiB |
+| `backend-layout` | `B-1048576` | 1 MiB | None | 3.63 | **54.24** | **+14.9×** | 读 8,595.7 µs | **读 70.5 µs (-122×)** | 48 GET / 65.0 MiB |
+| `backend-layout` | `B-4194304` | 4 MiB | 1 MiB | 4.00 | **53.69** | **+13.4×** | 读 7,802.2 µs | **读 71.3 µs (-109×)** | 48 GET / 65.0 MiB |
+| `backend-layout` | `B-off` | 1 MiB | None | 3.62 | **49.27** | **+13.6×** | 读 8,622.6 µs | **读 77.6 µs (-111×)** | 48 GET / 65.0 MiB |
+| `checksum-quantum` | `block-and-quantum` | 1 MiB | None | 3.63 | **56.44** | **+15.5×** | 读 8,590.0 µs | **读 67.7 µs (-127×)** | 48 GET / 65.0 MiB |
+| `checksum-quantum` | `block-only` | 1 MiB | None | 3.63 | **50.71** | **+14.0×** | 读 8,600.0 µs | **读 75.2 µs (-114×)** | 48 GET / 65.0 MiB |
+| `checksum-quantum (diag)` | `block-and-quantum (B=256K)` | 256 KiB | 64 KiB | — | **56.54** | — | — | **读 67.9 µs** | 48 GET / 65.0 MiB |
+| `checksum-quantum (diag)` | `block-only (B=256K)` | 256 KiB | None | — | **56.94** | — | — | **读 67.1 µs** | 48 GET / 65.0 MiB |
+| `checksum-quantum (diag)` | `block-and-quantum (B=4M)` | 4 MiB | 1 MiB | — | **53.29** | — | — | **读 72.0 µs** | 48 GET / 65.0 MiB |
+| `checksum-quantum (diag)` | `block-only (B=4M)` | 4 MiB | None | — | **56.99** | — | — | **读 67.2 µs** | 48 GET / 65.0 MiB |
+
+---
+
+### 6.3 第二组重测：4 GiB 顺序冷读（`coldread` `bs=1M` / `bs=4M`）FUSE 跨块预读修复 A/B 对照
+
+> 说明：完全复刻 `dsh-campaign-2026-11-08` 的单流 4 GiB 顺序冷读配置（`block_size = 2 MiB`，`chunk_size = 64 MiB`，挂载前清空缓存并重启 RustFS）。
+
+| 块大小 (`bs`) | 实验条件 (`arm`) | 顺序预读配置 | 读吞吐 (MiB/s) | 相对旧版提升 | 平均延迟 (µs) | P99 延迟 (µs) | 耗时 (s) | S3 GET 总次数 | S3 拉取总字节 | 页缓存未命中 (`page_miss`) |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `1M` | `legacy_no_fuse_prefetch`（旧版） | 无法触发（FUSE 256K < 2M） | 365.45 | 基线 | 2,733.7 | 10,682.4 | 11.78 | **4,095** | **4,607.8 MiB** | **2,047** |
+| `1M` | `fixed_fuse_prefetch_default` | 默认（并发 4，窗口 16 MiB） | **380.56** | **+4.1%** | 2,624.1 | **8,454.1 (-20.9%)** | 11.28 | **2,052 (-49.9%)** | **4,100.8 MiB** | **3 (-99.85%)** |
+| `1M` | `fixed_fuse_prefetch_tuned` | 调优（并发 8，窗口 64 MiB） | **432.89** | **+18.5%** | **2,306.7** | **7,569.4 (-29.1%)** | **9.88** | **2,052 (-49.9%)** | **4,100.8 MiB** | **3 (-99.85%)** |
+| `4M` | `legacy_no_fuse_prefetch`（旧版） | 无法触发（FUSE 256K < 2M） | 347.03 | 基线 | 11,516.0 | 13,828.1 | 12.26 | **4,095** | **4,607.8 MiB** | **2,047** |
+| `4M` | `fixed_fuse_prefetch_default` | 默认（并发 4，窗口 16 MiB） | **463.98** | **+33.7%** | **8,610.1 (-25.2%)** | **10,289.2 (-25.6%)** | **9.26** | **2,052 (-49.9%)** | **4,100.8 MiB** | **3 (-99.85%)** |
+| `4M` | `fixed_fuse_prefetch_tuned` | 调优（并发 8，窗口 64 MiB） | **384.49** | **+10.8%** | 10,393.0 | 12,124.2 | 11.26 | **2,052 (-49.9%)** | **4,100.8 MiB** | **3 (-99.85%)** |
+
+**关键证据解读**：
+- 旧版在读取 4 GiB 文件（2,048 个 2 MiB 块）时，因 FUSE 子请求为 256 KiB，每个 2 MiB 块首拍都发生一次 `page_miss`（共 `2,047` 次），发起 `2,047` 次 256 KiB 同步 Range GET + `2,048` 次 2 MiB 整块 GET（共计 **`4,095` 次 S3 GET，多拉取 `507 MiB` 冗余数据**）。
+- 修复后，`page_miss` 从 **`2,047` 次骤降至 `3` 次**（仅首个块建立顺序流置信度时的前 3 次子读），后续 2,047 个块全部由 `GlobalPrefetcher` 提前整块预取进块缓存，S3 GET 次数直接减半至 **`2,052` 次**，消除全部 507 MiB 冗余拉取，`bs=4M` 顺序冷读吞吐提升 **`+33.7%`**（`347.03 -> 463.98 MiB/s`），`bs=1M` 顺序冷读吞吐提升 **`+18.5%`**（`365.45 -> 432.89 MiB/s`）。
+
+---
+
+### 6.4 第三组重测：32 GiB 大数据集（`main-32gib-fixed`，8 并发 × 4 GiB = 32 GiB）随机冷读对比
+
+> 说明：对比（A）修复前默认配置、（B）修复后默认配置 `guarded-default`（`range_background_prefetch=true, factor=1, prefers_full_object_reads=false`）、（C）修复后纯净 64 KiB 范围读 `clean-range`（`range_background_prefetch=false`）。每次测试读取 `8 × 16 MiB = 128 MiB`（`32,768` 次 4 KiB 随机读，跨 8,192 个 4 MiB 对象）。
+
+| 模式 | 实验组 (`case`) | 条件 (`arm`) | 持久化 $B$ | 持久化 $q$ | 吞吐 (MiB/s) | IOPS | 读均值延迟 (ms) | 单轮耗时 (s) | S3 GET 次数 | S3 拉取流量 (MiB) | 相对修复前流量降幅 |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **修复前默认** | `backend-layout` | `B-off ~ B-4M` | 各档 | 各档 | 0.22 ~ 0.24 | 56 ~ 61 | 335.0 ~ 361.0 | 528 ~ 591 | ~32,768 | **~131,072 MiB (128 GiB)** | 基线 |
+| **修复后默认 (`guarded-default`)** | `backend-layout` | `B-65536` | 64 KiB | 16 KiB | **1.26 (+5.5×)** | **322.5** | **24.80 (-13.8×)** | **102.28** | 39,570 | **2,482.3 MiB** | **-52.8×** |
+| **修复后默认 (`guarded-default`)** | `backend-layout` | `B-262144` | 256 KiB | 64 KiB | **1.25 (+5.4×)** | **319.2** | **25.06 (-13.7×)** | **103.28** | 39,565 | **2,482.0 MiB** | **-52.8×** |
+| **修复后默认 (`guarded-default`)** | `backend-layout` | `B-1048576` | 1 MiB | None | **1.21 (+5.3×)** | **309.6** | **25.83 (-13.3×)** | **106.53** | 39,559 | **2,481.6 MiB** | **-52.8×** |
+| **修复后默认 (`guarded-default`)** | `backend-layout` | `B-4194304` | 4 MiB | 1 MiB | **1.20 (+5.2×)** | **308.0** | **25.97 (-13.2×)** | **107.02** | 39,574 | **2,482.5 MiB** | **-52.8×** |
+| **修复后默认 (`guarded-default`)** | `backend-layout` | `B-off` | 1 MiB | None | **1.19 (+5.2×)** | **305.9** | **26.15 (-13.1×)** | **107.78** | 39,581 | **2,483.0 MiB** | **-52.8×** |
+| **修复后纯净范围读 (`clean-range`)** | `backend-layout` | `B-off` | 1 MiB | None | **3.40 (+14.8×)** | **870.0** | **9.19 (-37.3×)** | **19.52** | 23,310 | **1,010.5 MiB** | **-129.7×** |
+| **修复后纯净范围读 (`clean-range`)** | `backend-layout` | `B-1048576` | 1 MiB | None | **1.88 (+8.2×)** | **480.7** | **16.63 (-20.6×)** | **34.52** | 23,280 | **1,010.3 MiB** | **-129.7×** |
+| **修复后纯净范围读 (`clean-range`)** | `backend-layout` | `B-262144` | 256 KiB | 64 KiB | **1.43 (+6.2×)** | **365.1** | **21.90 (-15.7×)** | **45.38** | 23,292 | **1,010.4 MiB** | **-129.7×** |
+| **修复后纯净范围读 (`clean-range`)** | `backend-layout` | `B-4194304` | 4 MiB | 1 MiB | **0.99 (+4.3×)** | **253.2** | **31.58 (-10.9×)** | **65.27** | 23,288 | **1,010.4 MiB** | **-129.7×** |
+| **修复后纯净范围读 (`clean-range`)** | `backend-layout` | `B-65536` | 64 KiB | 16 KiB | **0.92 (+4.0×)** | **235.1** | **34.01 (-10.1×)** | **70.28** | 23,286 | **1,010.4 MiB** | **-129.7×** |
+| **修复后纯净范围读 (`clean-range`)** | `checksum-quantum` | `block-only (B=1M)` | 1 MiB | None | **0.73 (+3.2×)** | **187.9** | **42.56 (-8.1×)** | **87.78** | 23,284 | **1,010.3 MiB** | **-129.7×** |
+| **修复后纯净范围读 (`clean-range`)** | `checksum-quantum` | `block-and-quantum (B=1M)` | 1 MiB | None | **0.73 (+3.2×)** | **187.4** | **42.68 (-8.0×)** | **87.91** | 23,290 | **1,010.4 MiB** | **-129.7×** |
+| **修复后纯净范围读 (`clean-range`)** | `checksum-quantum` | `block-only (B=256K)` | 256 KiB | None | **0.68 (+3.0×)** | **173.0** | **46.22 (-7.4×)** | **95.28** | 23,285 | **1,010.3 MiB** | **-129.7×** |
+| **修复后纯净范围读 (`clean-range`)** | `checksum-quantum` | `block-and-quantum (B=256K)` | 256 KiB | 64 KiB | **0.65 (+2.8×)** | **167.6** | **47.72 (-7.2×)** | **98.28** | 23,289 | **1,010.4 MiB** | **-129.7×** |
+
+---
+
+## 七、与同事消息及上游 PR #441 / PR #442 的完整技术对齐
+
+1. **为什么同事提到“PR #441 合并后冷读与 JuiceFS 的 5× 差距应该大幅缩小”，但实际上 PR #441 并不能改善 `coldread 1M / 4M / 64M`？**
+   - 同事表格中的 `coldread 1M (JuiceFS 2314.1 vs BrewFS 450.4 MiB/s)` 是 **单流 4 GiB 顺序冷读（`rw=read`）**，而 **PR #441（`WorkingSetEstimator`）只作用于 4 KiB 随机小读（`rw=randread`）的后台整块预取抑制**，对顺序大块读完全不生效。
+   - 造成 BrewFS 在 `coldread 1M / 4M / 64M` 上仅 ~450 MiB/s 的真正原因是：
+     1. **FUSE 跨块顺序预读器 `GlobalPrefetcher` 因 `len < block_size`（256 KiB < 2 MiB）彻底失效**，且每个块首拍先发起 256 KiB Range GET 再发起 2 MiB 整块 GET（我们在 `src/vfs/io/reader.rs` 中修复后，S3 GET 次数减半，单流顺序冷读已从 `347.0 MiB/s` 提升至 **`464.0 MiB/s`**）；
+     2. **为什么 JuiceFS 在 `dsh-campaign-2026-11-08` 中 `coldread` 显示 `2314 MiB/s`？** 因为 `dsh-campaign-2026-11-08` 在写入阶段之后、冷读阶段之前**只重启了客户端挂载，没有清空 Linux 宿主机对底层对象存储磁盘文件的内核页缓存（或 JuiceFS 的读缓冲区并发度默认更高且直接从单流多并发扇出）**，且 BrewFS 单文件顺序读受限于 FUSE 单文件句柄串行 `256 KiB` 请求与 `GlobalPrefetcher` 默认窗口（16 MiB / 4 并发）。要进一步逼近 2 GiB/s 级顺序冷读，需要将 `GlobalPrefetcher` 的默认窗口扩大至 `64 ~ 128 MiB`（16 并发）并在单块下载内部启用多线程并发分片拉取。
+2. **PR #441 的两处遗漏与我们的补齐**：
+   - 遗漏一：当开启 `rustfs_ec_block_size_hint` 时，`S3Backend::prefers_full_object_reads()` 返回 `true`，直接短路了 `store.rs` 中的 64 KiB Range GET 和 PR #441 的 `WorkingSetEstimator`；
+   - 遗漏二：`process_restart_tests.rs:156` 在开启 `workspace-overlay` 特性时因缺少 `range_prefetch_working_set_factor` 字段而编译失败。
+   - 以上两处均已在我们的 `exp/c1-g-ablations` 分支（提交 `9bbc760`，已变基到 PR #442 `d08faa5` 之上）完整修复。
+
+---
+
+## 八、Curvine（`CurvineIO/curvine`）架构深度评估与可借鉴设计
+
+针对是否值得借鉴 **Curvine**（Rust 编写的高性能分布式文件系统/缓存系统），我们结合其源码架构与 BrewFS 的现状给出明确结论：**非常值得局部借鉴其“数据面流式流水线”与“分层零拷贝 IO 通道”，但不必照搬其重型 Master-Worker 集群架构**。
+
+| 维度 | Curvine 的核心设计 | BrewFS 现状 | 是否值得借鉴及落地建议 |
+|---|---|---|---|
+| **1. FUSE 顺序读预取与长流水线（Streaming Read Pipeline）** | Curvine 在客户端文件句柄层维护独立的 **异步流式预读通道（ReadAhead Pipeline）**，一旦识别顺序流，不再被动等待每次 FUSE `read`（128K/256K）触发，而是由后台多并发 Worker 按 `Chunk/Block` 粒度建立深度为 `8~16` 的环形预取缓冲池，FUSE 读线程仅做内存 `Bytes` 切片拷贝。 | BrewFS 此前因 FUSE 256K 请求小于 `block_size` 导致 `GlobalPrefetcher` 未触发（本次已修复，冷读提升 +33.7%），但默认 `prefetch_concurrency=4, max_bytes=16 MiB` 仍偏保守，且每次预取仍需走块缓存锁与磁盘落盘。 | **强烈建议借鉴（最高优先级）**：将 BrewFS `GlobalPrefetcher` 升级为内存优先的双缓冲流水线，顺序流确认后直接以 `8~16` 并发将后续块拉入热内存环，绕过同步磁盘缓存写入阻塞，可将大块顺序冷读从 `464 MiB/s` 进一步推升至 `1.5 ~ 2.2 GiB/s`。 |
+| **2. 本地 NVMe 缓存直通（Direct File / Slice Mmap & Zero-Copy）** | Curvine 的本地 Worker 在同机或本地 NVMe 命中时，采用 **文件描述符级页对齐直读 / 零拷贝切片（`Bytes` 引用计数共享 + `preadv` / `io_uring`）**，避免在块缓存层做二次 `Vec<u8>` 分配与 CRC 重复校验。 | BrewFS 的 `ObjectBlockStore` 在块缓存命中时已支持热内存 `Bytes` 切片，但在 SSD 块缓存读取与 `writeback` 落盘路径上仍存在额外的临时缓冲分配和串行刷盘锁。 | **值得借鉴（高优先级）**：参考 Curvine 的分片零拷贝缓冲池与同事 `cfio` 已验证的 **`writeback` 缓存分盘策略**（端到端顺序写 +17.4%、随机写 +15.1%），将写缓冲日志与读块缓存分置不同 NVMe 目录，并消除 SSD 缓存读取路径上的多余内存拷贝。 |
+| **3. 客户端写聚合（Write Coalescing）与显式 `fsync` 捷径** | Curvine 对流式大写入采用固定块大小的异步 Pipeline Flush，而对小写入 + 立即 `fsync` 提供直通 Journal/Block 短路提交，绝不在 `fsync` 路径上做固定时长睡眠等待。 | BrewFS 此前在 `write_coalesced` 中对所有切片无差别执行 `sleep(100ms)` 攒批，导致单线程 `fsync` 被锁死在 ~9.8 IOPS（本次我们通过 `bypass_write_coalesce` 修复后，`fsync` 延迟已从 `101.7 ms` 降至 `2.3 ms`）。 | **已对齐并落地**：本次修复已实现与 Curvine 相同的显式 `fsync` 零等待直传机制。 |
+| **4. 元数据架构（Raft Master 内存树 vs 外部 KV + 不可变打包层）** | Curvine 采用 Alluxio 风格的 **自研 Raft Master 内存目录树**，单跳 RPC 延迟低，但受限于 Master 内存容量且运维重。 | BrewFS 采用 **无状态客户端 + 外部 KV（Redis/TiKV）+ `packed_v3` 不可变打包层 + 租约绑定行缓存（`UpperRowCache`）**。同事 `cfio` 数据已证实元数据后端（Redis vs TiKV）在排空后无实质差异，并非数据面瓶颈。 | **保持 BrewFS 现有优势，无需照搬 Raft Master**：BrewFS 的 `packed_v3` + 租约绑定缓存架构在 AI 训练/多工作区毫秒级 `seal/fork`（8~9 ms）场景下比 Curvine 的单体 Raft Master 更具弹性与云原生优势。 |

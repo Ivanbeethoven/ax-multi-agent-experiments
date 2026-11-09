@@ -1,0 +1,72 @@
+{
+  "cell_id": "9e4be1029df82430-r1-block-only-clean-range",
+  "paired_block": "9e4be1029df82430-r1",
+  "case": "checksum-quantum",
+  "arm_id": "block-only",
+  "diagnostic_override_hint": null,
+  "client_object_bytes": 4194304,
+  "requested_hint": "1048576",
+  "layout_profile": "block-only",
+  "persisted_ec_block_bytes": 1048576,
+  "persisted_read_quantum_bytes": null,
+  "smaller_read_frames_active": false,
+  "persisted_objects_count": 8192,
+  "workload_rw": "randread",
+  "numjobs": 8,
+  "file_bytes_per_job": 4294967296,
+  "io_bytes_per_job": 8388608,
+  "timings_seconds": {
+    "import": 195.9370928620001,
+    "import_drain": 1.6158973310002693,
+    "measure_wall": 87.77916371200035,
+    "measure_drain": 0.11354780199962988,
+    "cold_verify": 76.57640888700007,
+    "verify_drain": 0.03140793100010342
+  },
+  "metrics": {
+    "total_bw_mib_s": 0.7340373992919922,
+    "read_bw_mib_s": 0.7340373992919922,
+    "write_bw_mib_s": 0.0,
+    "total_iops": 187.914721,
+    "read_iops": 187.914721,
+    "write_iops": 0.0,
+    "read_clat_mean_us": 42563.89911425775,
+    "write_clat_mean_us": 0.0,
+    "read_clat_p99_us": 425721.856,
+    "write_clat_p99_us": 0.0,
+    "max_job_runtime_ms": 87219.0,
+    "sync_iops": 0.0,
+    "sync_lat_mean_ms": 0.0,
+    "sync_lat_p99_ms": 0.0
+  },
+  "checks": {
+    "import": true,
+    "persisted_layout": true,
+    "measure": true,
+    "unmount_measure": true,
+    "cold_verify": true,
+    "telemetry": true
+  },
+  "gate_notes": [
+    "At B=1048576 (2x 512KiB data shards), select_ec_read_quantum selects 512KiB == shard_size, so persisted read_quantum_bytes is null in both block-only and enabled profiles (fixed-B-distinct-q is no-effect at B=1MiB)."
+  ],
+  "passed": true,
+  "prometheus": {
+    "object_get_total": 23296,
+    "object_get_bytes_total": 1060269880,
+    "object_get_latency_sum_s": 687.311967,
+    "object_put_total": 0,
+    "object_put_bytes_total": 0,
+    "object_put_latency_sum_s": 0.0,
+    "block_cache_hits": 0,
+    "block_cache_misses": 16384,
+    "page_cache_hits": 206,
+    "page_cache_misses": 16178,
+    "meta_cache_hits": 592,
+    "meta_cache_misses": 529,
+    "fuse_read_ops": 16384,
+    "fuse_write_ops": 0,
+    "fuse_fsync_ops": 0,
+    "fuse_fsync_latency_sum_s": 0.0
+  }
+}
