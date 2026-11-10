@@ -1,0 +1,106 @@
+{
+  "passed": true,
+  "scope": "local CLI export/import/resume under empty HOME; no filesystem performance or cross-machine result",
+  "opencode_binary_sha256": "025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233",
+  "model": "deepseek-v4-flash",
+  "session_id": "ses_e398265f8ffeijX9yFxeGeu54i",
+  "validation": {
+    "passed": true,
+    "session_id": "ses_e398265f8ffeijX9yFxeGeu54i",
+    "prefix_messages": 3,
+    "new_completed_tools": 1,
+    "scope": "history and tool continuation; external side-effect duplication, task grading and file content require independent evidence"
+  },
+  "workspace_only_state": true,
+  "separate_empty_homes": true,
+  "separate_target_database": true,
+  "token_recovered": true,
+  "completed_native_tool_events": 1,
+  "session_export_sha256": "0292a724bfb858cc34c3ec8276cc1e41aad62e8c0f8b538eb0e430ff09efe676",
+  "opencode_version": "1.2.26",
+  "relay_calls": [
+    {
+      "status": 200,
+      "seconds": 1.120401469990611,
+      "request_bytes": 2701
+    },
+    {
+      "status": 200,
+      "seconds": 1.1622662869049236,
+      "request_bytes": 40624
+    },
+    {
+      "status": 200,
+      "seconds": 0.674002432031557,
+      "request_bytes": 41429
+    },
+    {
+      "status": 200,
+      "seconds": 2.0088349810102955,
+      "request_bytes": 41709
+    },
+    {
+      "status": 200,
+      "seconds": 0.9813864099560305,
+      "request_bytes": 42982
+    }
+  ],
+  "native_usage": [
+    {
+      "tokens": {
+        "total": 9613,
+        "input": 9448,
+        "output": 165,
+        "reasoning": 81,
+        "cache": {
+          "read": 0,
+          "write": 0
+        }
+      },
+      "cost": 0,
+      "reason": "tool-calls"
+    },
+    {
+      "tokens": {
+        "total": 9636,
+        "input": 157,
+        "output": 7,
+        "reasoning": 0,
+        "cache": {
+          "read": 9472,
+          "write": 0
+        }
+      },
+      "cost": 0,
+      "reason": "stop"
+    },
+    {
+      "tokens": {
+        "total": 9945,
+        "input": 207,
+        "output": 266,
+        "reasoning": 171,
+        "cache": {
+          "read": 9472,
+          "write": 0
+        }
+      },
+      "cost": 0,
+      "reason": "tool-calls"
+    },
+    {
+      "tokens": {
+        "total": 9967,
+        "input": 233,
+        "output": 6,
+        "reasoning": 0,
+        "cache": {
+          "read": 9728,
+          "write": 0
+        }
+      },
+      "cost": 0,
+      "reason": "stop"
+    }
+  ]
+}

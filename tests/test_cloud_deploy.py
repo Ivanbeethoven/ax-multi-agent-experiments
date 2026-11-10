@@ -29,6 +29,24 @@ def rustfs_spec():
 
 
 class GeneratorTests(unittest.TestCase):
+    def test_unified_pilot_requires_observation_and_reserves_host_capacity(self):
+        spec=rustfs_spec();spec['mode']='single-node-four-disk';spec['nodes']=spec['nodes'][:1]
+        spec['experiment']={'protocol_profile':'unified-pilot-20261111','project_name':'ax-pilot-objects',
+                            'cpus':6,'memory_bytes':24*1024**3,'stage':'C1-C4'}
+        self.reject(rustfs.generate,spec)
+        spec['observability']={'cluster_id':'ax-pilot-objects','meter_interval_seconds':1}
+        with tempfile.TemporaryDirectory() as temp:
+            out=Path(temp)/'generated';rustfs.generate(spec,out)
+            service=json.loads((out/'rustfs1/compose.json').read_text())['services']['rustfs']
+            self.assertEqual((service['cpus'],service['mem_limit'],service['restart']),(6,24*1024**3,'no'))
+            env=service['environment']
+            self.assertEqual(env['RUSTFS_OBS_METRIC_ENDPOINT'],'http://127.0.0.1:4318/v1/metrics')
+            self.assertEqual(env['RUSTFS_OBS_METER_INTERVAL'],'1')
+            self.assertEqual(env['OTEL_RESOURCE_ATTRIBUTES'],'rustfs.cluster.id=ax-pilot-objects')
+            self.assertNotIn('RUSTFS_UNSAFE_BYPASS_DISK_CHECK',env)
+        spec['experiment']['cpus']=8;self.reject(rustfs.generate,spec)
+        spec['experiment']['cpus']=6;spec['observability']['meter_interval_seconds']=60;self.reject(rustfs.generate,spec)
+
     def test_scale_budget_does_not_silently_use_old_three_cpu_limit(self):
         spec=rustfs_spec();spec['mode']='single-node-four-disk';spec['nodes']=spec['nodes'][:1]
         spec['experiment']={'protocol_profile':'ecs-20261101','project_name':'ax-c1-scale',

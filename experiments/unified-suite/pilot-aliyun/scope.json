@@ -1,0 +1,21 @@
+{
+  "suite": "unified-c1-c4-v1",
+  "scope": "All four pilot workloads; qualify every system path and retain actual failures",
+  "planned_system_cells": 28,
+  "metadata_backend": "redis",
+  "placement": {"mode": "baseline-parallel", "product_pools": {"brewfs": ["pool-a"], "juicefs": ["pool-a"]}},
+  "placement_note": "Both products use the SAME hardware pool and run sequentially. Cell admission avoids the legacy all-arms qualification barrier; unqualified cells retain failure evidence and are never reported as accepted.",
+  "budget_limit_cny": null,
+  "budget_note": "The user removed the earlier CNY35 hard cap; minimize idle time and record actual unique resources, storage and transfer costs.",
+  "start_cloud_after": ["latest BrewFS and RustFS build", "binary hashes and dependencies", "RustFS image revision and digest", "local route feasibility"],
+  "preserve_oss_data": true,
+  "reuse_jump_instance": "i-bp1cp8ccqor34u2bo5os",
+  "region": "cn-hangzhou",
+  "zone": "cn-hangzhou-j",
+  "vpc_id": "vpc-bp1cvvscvaviao4vzi6co",
+  "vswitch_id": "vsw-bp1x2zf92629hnyormlcp",
+  "security_group_id": "sg-bp1dj06kwe2uow3nlwsx",
+  "key_pair_name": "ax-c1-20261106",
+  "public_entrypoints": 1,
+  "known_route_limits": "See ../PILOT-REVIEW.zh.md; do not substitute smaller inputs or another route for blocked cells."
+}

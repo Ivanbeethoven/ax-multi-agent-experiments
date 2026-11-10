@@ -1,0 +1,135 @@
+{
+  "schema": "experiment-observer-overhead-v1",
+  "passed": true,
+  "relative_changes": {
+    "makespan": 0.00016183538422120947,
+    "task_p99": 0.00014957730868259134
+  },
+  "paired_relative_changes": {
+    "makespan": [
+      0.15181943155023858,
+      -0.007205401119412591,
+      0.00016183538422120947
+    ],
+    "task_p99": [
+      0.15172516072254205,
+      -0.007524804629065129,
+      -0.00014957730868259134
+    ]
+  },
+  "pairs": [
+    {
+      "on": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/on-04/cohort/result.json",
+        "sha256": "56daa4c2195775e913d54123d89cb4c12f1bb5686559a015629825c21f34f6ad"
+      },
+      "off": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/off-02/cohort/result.json",
+        "sha256": "2b6a10c7ab1a7e2ef15c8c05d7ae85c3c4bfa00d6d3b14223e965764cdee6de9"
+      }
+    },
+    {
+      "on": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/on-05/cohort/result.json",
+        "sha256": "2a271aeff9dca7af7370de46773a56cae3d9b5a1c79dd87ab7e66c15e870989a"
+      },
+      "off": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/off-03/cohort/result.json",
+        "sha256": "fc3d84c83291c33545f9b5c5c4ea08fc298ff109e148131128fbfe4c5e6525cf"
+      }
+    },
+    {
+      "on": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/on-06/cohort/result.json",
+        "sha256": "a90e10ff98458ce295ac0162b6b138dbabaeca84cbe8870094b9fc8575b430f2"
+      },
+      "off": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/off-04/cohort/result.json",
+        "sha256": "ce8cf1b4fedd7ab327206098a32d5bd5df4320cb39bb746fff1e1aaadbdce26d"
+      }
+    }
+  ],
+  "max_relative_change": 0.05,
+  "metric_contract_sha256": "d1681209905d877039003c3d379c63fc1ee6a049fe14dcf3090508dbdbcd9d74",
+  "workload_contract_sha256": "498330771e92247598c93d1f004b0bc2bb1742931494283a45ec0e23dec79301",
+  "scope": "three or more paired fresh mounts; no same-process causal claim; rerun if binary, sampler interval or target density changes",
+  "trial_details": [
+    {
+      "mode": "on",
+      "root": "/srv/ax-pilot-control/c123-control-01/calibration/native/on-04",
+      "finished": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/on-04/finished.json",
+        "sha256": "d1c2fc9cc78b874bbce6b3b4d5611d402710787442f196ccc33799facb00f2c3"
+      },
+      "makespan_seconds": 1.600362642,
+      "task_seconds": [
+        1.596777148
+      ]
+    },
+    {
+      "mode": "off",
+      "root": "/srv/ax-pilot-control/c123-control-01/calibration/native/off-02",
+      "finished": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/off-02/finished.json",
+        "sha256": "a042c0e7e0653eb528b5cd6dd2fe44e7a71f60de4aaccd09bd508e9a2b06b6ae"
+      },
+      "makespan_seconds": 1.389421465,
+      "task_seconds": [
+        1.386422041
+      ]
+    },
+    {
+      "mode": "on",
+      "root": "/srv/ax-pilot-control/c123-control-01/calibration/native/on-05",
+      "finished": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/on-05/finished.json",
+        "sha256": "8b813449008f71f5f4e3af0549748f89fe674f78910cc584b8955f1fa6dcbeac"
+      },
+      "makespan_seconds": 1.389049552,
+      "task_seconds": [
+        1.385616021
+      ]
+    },
+    {
+      "mode": "off",
+      "root": "/srv/ax-pilot-control/c123-control-01/calibration/native/off-03",
+      "finished": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/off-03/finished.json",
+        "sha256": "fc8d7bde99ade059cfdf2a38d535870354fcdfdfc8a96eb4e04b9d954bc38133"
+      },
+      "makespan_seconds": 1.399130851,
+      "task_seconds": [
+        1.396121563
+      ]
+    },
+    {
+      "mode": "on",
+      "root": "/srv/ax-pilot-control/c123-control-01/calibration/native/on-06",
+      "finished": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/on-06/finished.json",
+        "sha256": "5c15735654623a3a7dffefd0c1c70af67a22de1d58e1c9c366a88b165cc6e58c"
+      },
+      "makespan_seconds": 1.399117004,
+      "task_seconds": [
+        1.395444111
+      ]
+    },
+    {
+      "mode": "off",
+      "root": "/srv/ax-pilot-control/c123-control-01/calibration/native/off-04",
+      "finished": {
+        "path": "/srv/ax-pilot-control/c123-control-01/calibration/native/off-04/finished.json",
+        "sha256": "b3f86008194fe7cbf519fb03d3621f2efb642544f83729f64c30d3f7096dd769"
+      },
+      "makespan_seconds": 1.398890614,
+      "task_seconds": [
+        1.395652869
+      ]
+    }
+  ],
+  "pair_selection": {
+    "path": "/srv/ax-pilot-control/c123-control-01/calibration/native-pairs-01.json",
+    "sha256": "c77cac92d4c3025cdedea3de523b8ecf6d5f2a413bc0a5ea851292d15bd44755"
+  },
+  "limitation": "Small pilot. Native built-in counters stay enabled in both arms. This checks external collectors on the listed workload, not every workload or concurrency."
+}

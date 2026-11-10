@@ -1,0 +1,620 @@
+{
+  "schema": "suite-report-v1",
+  "plan_sha256": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e",
+  "samples": [
+    {
+      "id": "34d56abaf85454a2-r1-native",
+      "arm": "native",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "34d56abaf85454a2-r1-juicefs",
+      "arm": "juicefs",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "5ca7353ba24b2a18-r1-native",
+      "arm": "native",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "5ca7353ba24b2a18-r1-juicefs",
+      "arm": "juicefs",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "451ef1d28b5d875c-r1-native",
+      "arm": "native",
+      "pool": "pool-a",
+      "metrics": {
+        "read_bw_bytes": {
+          "value": 54917237,
+          "unit": "bytes/second",
+          "direction": "higher"
+        },
+        "read_iops": {
+          "value": 13407.528642,
+          "unit": "operations/second",
+          "direction": "higher"
+        },
+        "read_p99_ns": {
+          "value": 70144,
+          "unit": "nanoseconds",
+          "direction": "lower"
+        },
+        "write_bw_bytes": {
+          "value": 0,
+          "unit": "bytes/second",
+          "direction": "higher"
+        },
+        "write_iops": {
+          "value": 0.0,
+          "unit": "operations/second",
+          "direction": "higher"
+        },
+        "task_wall": {
+          "value": 1.549461834,
+          "unit": "seconds",
+          "direction": "lower"
+        }
+      },
+      "timings_seconds": {
+        "native_measure": 1.4938836399996944
+      },
+      "accepted": false,
+      "reasons": [
+        "interrupted/recovered; excluded from uninterrupted performance pairs",
+        "cell closed as failed"
+      ],
+      "limitations": [
+        "One agent, one pilot repetition; no scaling or stable speedup conclusion.",
+        "Fresh client caches; shared backend/page caches remain observed."
+      ],
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/sample.json",
+        "sha256": "74f1d614f8323b02df4840757008b55cd7bcfeb34559639d9d3053c7afcba62c"
+      },
+      "operation_status": "failed"
+    },
+    {
+      "id": "451ef1d28b5d875c-r1-juicefs",
+      "arm": "juicefs",
+      "pool": "pool-a",
+      "metrics": {
+        "read_bw_bytes": {
+          "value": 15520088,
+          "unit": "bytes/second",
+          "direction": "higher"
+        },
+        "read_iops": {
+          "value": 3789.084181,
+          "unit": "operations/second",
+          "direction": "higher"
+        },
+        "read_p99_ns": {
+          "value": 1105920,
+          "unit": "nanoseconds",
+          "direction": "lower"
+        },
+        "write_bw_bytes": {
+          "value": 0,
+          "unit": "bytes/second",
+          "direction": "higher"
+        },
+        "write_iops": {
+          "value": 0.0,
+          "unit": "operations/second",
+          "direction": "higher"
+        },
+        "task_wall": {
+          "value": 4.657939207,
+          "unit": "seconds",
+          "direction": "lower"
+        }
+      },
+      "timings_seconds": {
+        "native_measure": 4.59835524600021
+      },
+      "accepted": true,
+      "reasons": [],
+      "limitations": [
+        "One agent, one pilot repetition; no scaling or stable speedup conclusion.",
+        "Fresh client caches; shared backend/page caches remain observed."
+      ],
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/sample.json",
+        "sha256": "4415be9d386cfa5d4110bd8deab0f66b284090fdcba3b041a90a8dfe1aa2f54a"
+      },
+      "operation_status": "complete"
+    },
+    {
+      "id": "7084af367e0bcfad-r1-juicefs",
+      "arm": "juicefs",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "7084af367e0bcfad-r1-native",
+      "arm": "native",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "8e3d340ff23c3ece-r1-native",
+      "arm": "native",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "8e3d340ff23c3ece-r1-juicefs",
+      "arm": "juicefs",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "05357b5089cd679c-r1-entity-native",
+      "arm": "entity-native",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "05357b5089cd679c-r1-juicefs",
+      "arm": "juicefs",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "05357b5089cd679c-r1-native",
+      "arm": "native",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "05357b5089cd679c-r1-native-workspace",
+      "arm": "native-workspace",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "05357b5089cd679c-r1-packed",
+      "arm": "packed",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "b770794ae2ac6982-r1-entity-native",
+      "arm": "entity-native",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "b770794ae2ac6982-r1-juicefs",
+      "arm": "juicefs",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "b770794ae2ac6982-r1-native",
+      "arm": "native",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    },
+    {
+      "id": "b770794ae2ac6982-r1-packed",
+      "arm": "packed",
+      "accepted": false,
+      "reasons": [
+        "cell not closed: pending"
+      ],
+      "metrics": {},
+      "pool": "pool-a",
+      "operation_status": "pending"
+    }
+  ],
+  "blocks": [
+    {
+      "id": "34d56abaf85454a2-r1",
+      "pool": null,
+      "complete_accepted_block": false,
+      "cells": [
+        "34d56abaf85454a2-r1-native",
+        "34d56abaf85454a2-r1-juicefs"
+      ],
+      "comparisons": [],
+      "pools": [
+        "pool-a"
+      ],
+      "cell_pools": {
+        "34d56abaf85454a2-r1-native": "pool-a",
+        "34d56abaf85454a2-r1-juicefs": "pool-a"
+      },
+      "placement_mode": "baseline-parallel",
+      "comparison_scope": "matched operation block within one pool"
+    },
+    {
+      "id": "5ca7353ba24b2a18-r1",
+      "pool": null,
+      "complete_accepted_block": false,
+      "cells": [
+        "5ca7353ba24b2a18-r1-native",
+        "5ca7353ba24b2a18-r1-juicefs"
+      ],
+      "comparisons": [],
+      "pools": [
+        "pool-a"
+      ],
+      "cell_pools": {
+        "5ca7353ba24b2a18-r1-native": "pool-a",
+        "5ca7353ba24b2a18-r1-juicefs": "pool-a"
+      },
+      "placement_mode": "baseline-parallel",
+      "comparison_scope": "matched operation block within one pool"
+    },
+    {
+      "id": "451ef1d28b5d875c-r1",
+      "pool": null,
+      "complete_accepted_block": false,
+      "cells": [
+        "451ef1d28b5d875c-r1-native",
+        "451ef1d28b5d875c-r1-juicefs"
+      ],
+      "comparisons": [],
+      "pools": [
+        "pool-a"
+      ],
+      "cell_pools": {
+        "451ef1d28b5d875c-r1-native": "pool-a",
+        "451ef1d28b5d875c-r1-juicefs": "pool-a"
+      },
+      "placement_mode": "baseline-parallel",
+      "comparison_scope": "matched operation block within one pool"
+    },
+    {
+      "id": "7084af367e0bcfad-r1",
+      "pool": null,
+      "complete_accepted_block": false,
+      "cells": [
+        "7084af367e0bcfad-r1-juicefs",
+        "7084af367e0bcfad-r1-native"
+      ],
+      "comparisons": [],
+      "pools": [
+        "pool-a"
+      ],
+      "cell_pools": {
+        "7084af367e0bcfad-r1-juicefs": "pool-a",
+        "7084af367e0bcfad-r1-native": "pool-a"
+      },
+      "placement_mode": "baseline-parallel",
+      "comparison_scope": "matched operation block within one pool"
+    },
+    {
+      "id": "8e3d340ff23c3ece-r1",
+      "pool": null,
+      "complete_accepted_block": false,
+      "cells": [
+        "8e3d340ff23c3ece-r1-native",
+        "8e3d340ff23c3ece-r1-juicefs"
+      ],
+      "comparisons": [],
+      "pools": [
+        "pool-a"
+      ],
+      "cell_pools": {
+        "8e3d340ff23c3ece-r1-native": "pool-a",
+        "8e3d340ff23c3ece-r1-juicefs": "pool-a"
+      },
+      "placement_mode": "baseline-parallel",
+      "comparison_scope": "matched operation block within one pool"
+    },
+    {
+      "id": "05357b5089cd679c-r1",
+      "pool": null,
+      "complete_accepted_block": false,
+      "cells": [
+        "05357b5089cd679c-r1-entity-native",
+        "05357b5089cd679c-r1-juicefs",
+        "05357b5089cd679c-r1-native",
+        "05357b5089cd679c-r1-native-workspace",
+        "05357b5089cd679c-r1-packed"
+      ],
+      "comparisons": [],
+      "pools": [
+        "pool-a"
+      ],
+      "cell_pools": {
+        "05357b5089cd679c-r1-entity-native": "pool-a",
+        "05357b5089cd679c-r1-juicefs": "pool-a",
+        "05357b5089cd679c-r1-native": "pool-a",
+        "05357b5089cd679c-r1-native-workspace": "pool-a",
+        "05357b5089cd679c-r1-packed": "pool-a"
+      },
+      "placement_mode": "baseline-parallel",
+      "comparison_scope": "matched operation block within one pool"
+    },
+    {
+      "id": "b770794ae2ac6982-r1",
+      "pool": null,
+      "complete_accepted_block": false,
+      "cells": [
+        "b770794ae2ac6982-r1-entity-native",
+        "b770794ae2ac6982-r1-juicefs",
+        "b770794ae2ac6982-r1-native",
+        "b770794ae2ac6982-r1-packed"
+      ],
+      "comparisons": [],
+      "pools": [
+        "pool-a"
+      ],
+      "cell_pools": {
+        "b770794ae2ac6982-r1-entity-native": "pool-a",
+        "b770794ae2ac6982-r1-juicefs": "pool-a",
+        "b770794ae2ac6982-r1-native": "pool-a",
+        "b770794ae2ac6982-r1-packed": "pool-a"
+      },
+      "placement_mode": "baseline-parallel",
+      "comparison_scope": "matched operation block within one pool"
+    }
+  ],
+  "accepted_blocks": 0,
+  "preparation_once_per_asset": [
+    {
+      "asset": "48f01e16556a87ade22c6269",
+      "receipt": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/asset.json",
+        "sha256": "8f7da78777128eb6d30bb9a71c18ea9bb9d93e968b85e587e73e1d3c37de6055"
+      },
+      "timings_seconds": {
+        "prepare": 4.346067113000117,
+        "full_verify": 0.32818971300002886,
+        "cold_full_verify": 0.5383875499996975
+      }
+    },
+    {
+      "asset": "bdaa32d7845154a6798a634a",
+      "receipt": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/asset.json",
+        "sha256": "22ddd1ca391f9c3968eba5b4a1b5b6211e776bc7986d68161b68239de1fc4678"
+      },
+      "timings_seconds": {
+        "prepare": 3.252523477000068,
+        "full_verify": 2.5543367650000164,
+        "cold_full_verify": 2.555136599999969
+      }
+    }
+  ],
+  "original_stages": [
+    {
+      "cell_id": "451ef1d28b5d875c-r1-native",
+      "name": "observe-start",
+      "status": "complete",
+      "spec_sha": "a48ec59f92d166627533d0d62a7f8d4d9b68b77211741df7022cecf161ce01b3",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/observe-start",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/observe-start/finished.json\", \"sha256\": \"bcf3a109abc74a28d40b844f0edc1be3b109372151fd182721bc93ea4c16a6a9\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-native",
+      "name": "create",
+      "status": "complete",
+      "spec_sha": "8b22904ea19f646e191bb75bab1dacb54d40cd4a8300297e8d6c4e7b0f29cb6b",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/create",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/create/finished.json\", \"sha256\": \"f3ce7396930c01a5420867e5cec13b21e5c252b53153198f488c34379d06890e\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-native",
+      "name": "mount",
+      "status": "complete",
+      "spec_sha": "e50d446ac0d247c85e70d5a0ac303680c706f66d9d9de4f517263e71437fbc7e",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/mount",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/mount/finished.json\", \"sha256\": \"10f81a0f6d6c7fc516c81e3f17fe15b57aa65fccf6d5d0451c04b299cc71549a\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-native",
+      "name": "measure",
+      "status": "complete",
+      "spec_sha": "6a4640d49499203b8f79265135079ef53254fe46ce94f4b46a850aad874eec00",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/measure",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/measure/finished.json\", \"sha256\": \"14a162f0de81d545c4b7b46aa4cd9a61ff142b125262c969d98e75e7e07d52e2\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-native",
+      "name": "drain",
+      "status": "complete",
+      "spec_sha": "3f7d75d9412831c913b56e451f09470f1c5181549eabae8f6b743a459dbf7661",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/drain",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/drain/finished.json\", \"sha256\": \"25a28146340a6bb14effaf941353be882992bac3cddd6c1593d4b64a94b9386f\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-native",
+      "name": "unmount",
+      "status": "complete",
+      "spec_sha": "eb9ccd976360800c56b363df94055b2971cf09c53b149c1480a42fe0bf07b8eb",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/unmount",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/unmount/finished.json\", \"sha256\": \"1298cae054608bfa5d8cda84019daa499210eea2b60bb717cfb73e6bf28c6758\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-native",
+      "name": "verify",
+      "status": "complete",
+      "spec_sha": "21c2ec1357acb3d06355eec5a2517cb1f151c1e5fed90317ad7431a2fb211f23",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/verify",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/verify/finished.json\", \"sha256\": \"ad72202e4504b7b4f5a52b2c94a219fdb8a832eaafe5ae6a26b41e39ebf3a9aa\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-native",
+      "name": "observe-stop",
+      "status": "complete",
+      "spec_sha": "4e09627ef2651e5490e94637097e11980c7dc6f59a579d843d344bcac5d40a96",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/observe-stop",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/observe-stop/finished.json\", \"sha256\": \"3c4aa9042dd5819643e89541b64b70698a0b601ae72055d500957be8399d3b08\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-native",
+      "name": "archive",
+      "status": "failed",
+      "spec_sha": "3fdefbd4a2ddee671286b0bf1270458d8eebf24a7a5f51df1493554c4a58c31d",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/archive",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native/stages/archive/finished.json\", \"sha256\": \"3e3614686efd1c0874c928b1d8b3733161614c6bd9e85fcb9afbb1e95f49a093\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-juicefs",
+      "name": "observe-start",
+      "status": "complete",
+      "spec_sha": "067a1abf83031cbc7d79b92321b9e0fa2cbcbb887086fd95b1ece0f43b9d5001",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/observe-start",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/observe-start/finished.json\", \"sha256\": \"86220b50121f34c077050f7f6cea50f7e5ab95e3b989ab46aca2e080048773ea\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-juicefs",
+      "name": "create",
+      "status": "complete",
+      "spec_sha": "0a46943f908afef360d4cf2a3a2bee99034ccce5151ab0bee60bc36c73ba4ec7",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/create",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/create/finished.json\", \"sha256\": \"c1229186b4680d3f4f2216b6319ce08675102152d81a72277726188aadbb330c\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-juicefs",
+      "name": "mount",
+      "status": "complete",
+      "spec_sha": "d62b3857bf2bad9ef5173b9ec6a5c25ad6a392da29d70f672fa619951f49ee02",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/mount",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/mount/finished.json\", \"sha256\": \"36498db8796cda53dd014369d675de53f464eeeae7f9e0779fb28deced923b81\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-juicefs",
+      "name": "measure",
+      "status": "complete",
+      "spec_sha": "995909734afa29f6ed0b6868e8d5465b50a0e682abcde89245242e455b504fe9",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/measure",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/measure/finished.json\", \"sha256\": \"6d310542b6bc8f82a6aea9f545226818d2503c50428f09641093126c187fe720\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-juicefs",
+      "name": "drain",
+      "status": "complete",
+      "spec_sha": "fa18c9a6dd73935a64b3823b8f27ce2a41357f843d974c7c4308808520bb6fcb",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/drain",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/drain/finished.json\", \"sha256\": \"6de84a8ff0d7f0400880301c75f4adc14c5a54f0e185902dd0014901486537fe\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-juicefs",
+      "name": "unmount",
+      "status": "complete",
+      "spec_sha": "16f1da80ecabfd8c7aa39d71c0c0d0f80da4087cd6a90181d17b73356d69cf51",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/unmount",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/unmount/finished.json\", \"sha256\": \"4f515d12dc3e8c1ab5eb83efb96e2fef98aa6b6f41725d0afcb06de1bfcfbb42\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-juicefs",
+      "name": "verify",
+      "status": "complete",
+      "spec_sha": "65e12acc1c78a4f594901945c7ddfe00378da77110b512ff0df153721c62d9b6",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/verify",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/verify/finished.json\", \"sha256\": \"7223e5937a5fba3535b66fbbd9411faf75d962377de9e865817894503b31732e\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-juicefs",
+      "name": "observe-stop",
+      "status": "complete",
+      "spec_sha": "ebf4a4f82abeb134e25f7a20ccc037ddb994bbde1adad68109e5648265ead228",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/observe-stop",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/observe-stop/finished.json\", \"sha256\": \"f94609821cc732a3e41eebba9a88951e207357ff6321f0094b24e70279388ed8\"}"
+    },
+    {
+      "cell_id": "451ef1d28b5d875c-r1-juicefs",
+      "name": "archive",
+      "status": "complete",
+      "spec_sha": "44df54b1ccc296abb8cfb5e12fbbbef906a9c4e8b502138685a799f88834a808",
+      "output": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/archive",
+      "evidence": "{\"path\": \"/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/stages/archive/finished.json\", \"sha256\": \"36f2a5974a7dfbfe411ba62700edcd8700049c9a5451fd57f89b50fffefc6550\"}"
+    }
+  ],
+  "costs": {
+    "status": "not supplied; not zero cost"
+  },
+  "policy": "never pool interrupted samples, partial blocks, native paths as pure ablations, or sum parallel wall intervals; retain raw phase distributions"
+}

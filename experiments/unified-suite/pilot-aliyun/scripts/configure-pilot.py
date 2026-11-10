@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""Prepare one phase's actual suite config, or a clearly non-executable draft."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import sys
+
+REPO = Path(__file__).resolve().parents[4]
+sys.path.insert(0, str(REPO))
+from bench.suite_catalog import template
+from bench.suite_plan import build
+
+
+def digest(path):
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--phase', choices=['c123','fork','handoff'], required=True)
+    parser.add_argument('--campaign', required=True)
+    parser.add_argument('--inventory', type=Path, help='Actual phase inventory with roles, instance IDs and disk IDs')
+    parser.add_argument('--build-manifest', type=Path)
+    parser.add_argument('--input-manifest', type=Path)
+    parser.add_argument('--out', type=Path, required=True)
+    args = parser.parse_args()
+    if any((args.inventory, args.build_manifest, args.input_manifest)) and not all((args.inventory, args.build_manifest, args.input_manifest)):
+        parser.error('Provide all three actual inventory/build/input documents, or none for a draft')
+    config = template()
+    config['campaign_id'] = args.campaign
+    config['placement'] = json.loads((REPO/'experiments/unified-suite/pilot-aliyun/scope.json').read_text())['placement']
+    config['metadata_backend'] = 'redis'
+    config['cases'] = [c for c in config['cases'] if (c['suite'] in ('C1','C2','C3') if args.phase=='c123'
+                       else c['workload']==args.phase)]
+    roles = ['client','metadata','objects'] + (['target'] if args.phase=='handoff' else [])
+    pool = config['clusters'][0]
+    pool.update(metadata_backend='redis', agent_slots=2 if args.phase=='handoff' else 1,
+                supported_suites=['C1','C2','C3'] if args.phase=='c123' else ['C4'],
+                observer_ids=['pool-a-'+role for role in roles])
+    if args.inventory:
+        inventory = json.loads(args.inventory.read_text())
+        if inventory['pool_id'] != 'pool-a' or set(inventory['roles']) != set(roles):
+            raise ValueError('Phase inventory must contain exactly its actual roles')
+        resources = []
+        for role in roles:
+            node = inventory['roles'][role]
+            if not node['instance_id'].startswith('i-') or not node['data_disk_ids']:
+                raise ValueError('Real instance and data disk IDs required')
+            if any(not disk.startswith('d-') for disk in node['data_disk_ids']):
+                raise ValueError('Real data disk IDs required')
+            resources += ['host:'+node['instance_id']] + ['disk:'+d for d in node['data_disk_ids']]
+        if len(resources) != len(set(resources)):
+            raise ValueError('Distinct physical role resources required in this pilot inventory')
+        pool.update(resource_ids=resources, inventory_sha256=digest(args.inventory))
+        config['build_manifest_sha256'] = digest(args.build_manifest)
+        config['input_manifest_sha256'] = digest(args.input_manifest)
+    else:
+        pool['resource_ids'] = ['host:unresolved-'+role for role in roles]
+    config['clusters'] = [pool]
+    plan = build(config)
+    expected = {'c123':19, 'fork':5, 'handoff':4}[args.phase]
+    if len(plan['cells']) != expected:
+        raise ValueError('Unexpected pilot matrix; inspect catalog before changing scope')
+    args.out.mkdir(parents=True, exist_ok=False)
+    for name, value in [('config.json',config),('plan.json',plan)]:
+        (args.out/name).write_text(json.dumps(value, indent=2)+'\n')
+    print(json.dumps(dict(phase=args.phase, cells=len(plan['cells']),
+                          provenance_bound=plan['provenance_bound'], observers=pool['observer_ids'],
+                          note='Drafts cannot be claimed. Actual provenance binding does not replace per-cell qualification.')))
+
+
+if __name__ == '__main__':
+    main()

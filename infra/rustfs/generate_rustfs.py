@@ -41,12 +41,15 @@ def generate(spec, out):
         if not re.fullmatch(r'ax-[a-z0-9-]{3,55}', experiment.get('project_name', '')):
             raise ValueError('unique ax- campaign/node/attempt project_name required')
         protocol = experiment.get('protocol_profile', 'qualification-20261029')
-        if protocol not in ('qualification-20261029', 'ecs-20261101'):
+        budgets = {'qualification-20261029': (3, 16), 'ecs-20261101': (56, 224),
+                   'unified-pilot-20261111': (6, 24)}
+        if protocol not in budgets:
             raise ValueError('unknown experiment protocol_profile')
-        cpus, memory_gib = (56, 224) if protocol == 'ecs-20261101' else (3, 16)
+        cpus, memory_gib = budgets[protocol]
         if experiment.get('cpus') != cpus or experiment.get('memory_bytes') != memory_gib * 1024**3:
             raise ValueError(f'{protocol} backend budget is {cpus} CPU / {memory_gib} GiB')
-        if experiment.get('stage') not in ('G','A','P','D','F','M'):
+        stages = ('C1-C4',) if protocol == 'unified-pilot-20261111' else ('G','A','P','D','F','M')
+        if experiment.get('stage') not in stages:
             raise ValueError('explicit experiment stage required')
         if mode != 'single-node-four-disk':
             raise ValueError('current formal experiment requires single-node four-disk EC')
@@ -58,6 +61,14 @@ def generate(spec, out):
     ips = [str(ipaddress.IPv4Address(n["private_ip"])) for n in nodes]
     if len(set(ips)) != count or not all(ipaddress.ip_address(ip).is_private for ip in ips):
         raise ValueError("use distinct private IPv4 addresses")
+    observation = spec.get('observability')
+    if experiment and experiment.get('protocol_profile') == 'unified-pilot-20261111' and not observation:
+        raise ValueError('unified pilot requires its native metrics collection configuration')
+    if observation is not None:
+        if not isinstance(observation, dict) or set(observation) != {'cluster_id', 'meter_interval_seconds'} or \
+                not re.fullmatch(r'ax-[a-z0-9-]{3,55}', observation.get('cluster_id', '')) or \
+                type(observation.get('meter_interval_seconds')) is not int or observation['meter_interval_seconds'] != 1:
+            raise ValueError('explicit unique cluster identity and one-second metric export required')
     extra_hosts = {f"rustfs{i + 1}": ip for i, ip in enumerate(ips)}
     prepared = []
     for i, node in enumerate(nodes):
@@ -86,6 +97,12 @@ def generate(spec, out):
             'RUSTFS_EC_READ_QUANTUM_ENABLE': str(quantum).lower(),
             'RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED': str(quantum).lower(),
         })
+        if observation is not None:
+            env.update(RUSTFS_OBS_METRIC_ENDPOINT='http://127.0.0.1:4318/v1/metrics',
+                       RUSTFS_OBS_METRICS_EXPORT_ENABLED='true', RUSTFS_OBS_METER_INTERVAL='1',
+                       RUSTFS_OBS_TRACES_EXPORT_ENABLED='false', RUSTFS_OBS_LOGS_EXPORT_ENABLED='false',
+                       RUSTFS_OBS_PROFILING_EXPORT_ENABLED='false', RUSTFS_OBS_USE_STDOUT='false',
+                       OTEL_RESOURCE_ATTRIBUTES='rustfs.cluster.id=' + observation['cluster_id'])
         service = {
             "image": image, "network_mode": "host", "restart": "unless-stopped",
             "env_file": [node["credentials_file"]], "environment": env,

@@ -1,0 +1,67 @@
+{
+  "release_profile": "p1-retained-trial",
+  "format_version": 3,
+  "namespace_mode": "kv",
+  "packing": {
+    "payload_format": "native-block-v1",
+    "pack_target_bytes": 67108864,
+    "codec": "none",
+    "multipart_part_target_bytes": 16777216,
+    "retention_grouping": "required"
+  },
+  "reader": {
+    "capture_protocol": "single-writer-bounded-capture",
+    "ordered_inode_commits": true,
+    "capture_deadline_ms": 2000,
+    "capture_max_retries": 4,
+    "max_read_capture_bytes": 67108864,
+    "max_plan_segments": 64,
+    "max_plan_bytes": 134217728,
+    "demand_get_concurrency": 8,
+    "request_deadline_ms": 30000,
+    "inflight_encoded_bytes": 268435456,
+    "inflight_decoded_bytes": 536870912,
+    "physical_coalescing": false,
+    "exact_range_response_required": true
+  },
+  "cache": {
+    "scope": "per-mount",
+    "shared_service": false,
+    "metadata_ram_bytes": 536870912,
+    "decoded_data_bytes": 536870912,
+    "encoded_disk_bytes": 1,
+    "trust_domain_isolation": true
+  },
+  "prefetch": {"enabled": false, "get_concurrency": 0, "metadata_only_ops_fetch_data": false},
+  "commit": {"max_receipts": 1024, "max_payload_bytes": 67108864},
+  "durability": {
+    "write_mode": "upload-before-commit",
+    "remote_verification": "exact-readback",
+    "require_atomic_create_only": true,
+    "coordinator_profile": "ax-unified-pilot"
+  },
+  "retention": {
+    "published": "forever",
+    "published_gc": false,
+    "read_retention_leases": false,
+    "promotion": "exact-object-retain-batches",
+    "private_write_domain": "workspace-lifetime"
+  },
+  "cleanup": {
+    "mode": "disabled",
+    "closed_private_domains_only": true,
+    "require_close_certificate": true,
+    "backend_mode": "unversioned-only",
+    "allow_legacy_slice_gc": false,
+    "unknown_upload_policy": "quarantine",
+    "count_delete_markers_as_freed_bytes": false
+  },
+  "repack": {"automatic": false, "reclaim_published": false, "require_explicit_extra_bytes_budget": true},
+  "limits": {
+    "namespace_hard_bytes": 1099511627776,
+    "private_domain_soft_bytes": 536870912,
+    "private_domain_hard_bytes": 1073741824,
+    "completion_reserve_bytes": 134217728,
+    "on_hard_limit": "reject-new-admissions-not-accepted-drain"
+  }
+}
