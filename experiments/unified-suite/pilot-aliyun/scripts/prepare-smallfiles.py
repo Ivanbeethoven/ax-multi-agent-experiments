@@ -4,9 +4,7 @@
 No workload cell, retry, downsampling or cloud resource creation.
 """
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime,timezone
-from itertools import islice
 import json
 import os
 from pathlib import Path
@@ -18,32 +16,10 @@ import time
 REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
 from bench.runtime.common import digest,load,write_new
+from pilot_io import fsync_import
 
 
 def ref(p):return dict(path=str(p),sha256=digest(p))
-
-
-def fsync_import(root):
-    # Same eight preparation workers for both products, bounded to 1024 queued
-    # files. The measured C3 workload and its per-write fsync are unchanged.
-    directories=[root]
-    def files():
-        for p in root.rglob('*'):
-            if p.is_symlink():raise ValueError('Synthetic C3 source has no symlinks')
-            if p.is_dir():directories.append(p)
-            elif p.is_file():yield p
-            else:raise ValueError('Unexpected imported inode')
-    def one(p):
-        with p.open('rb') as f:os.fsync(f.fileno())
-    iterator=files();count=0
-    with ThreadPoolExecutor(max_workers=8) as pool:
-        while batch:=list(islice(iterator,1024)):
-            list(pool.map(one,batch));count+=len(batch)
-    for p in sorted(directories,key=lambda x:len(x.parts),reverse=True):
-        fd=os.open(p,os.O_RDONLY|os.O_DIRECTORY)
-        try:os.fsync(fd)
-        finally:os.close(fd)
-    return count
 
 
 def main():

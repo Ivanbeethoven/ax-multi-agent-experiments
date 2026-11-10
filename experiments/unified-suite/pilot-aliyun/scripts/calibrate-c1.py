@@ -31,6 +31,8 @@ def main():
     p.add_argument('--new-collector-name')
     p.add_argument('--node-tool',required=True)
     p.add_argument('--node-tool-sha256',required=True)
+    p.add_argument('--observer-tool-name',default='make-observer.py')
+    p.add_argument('--observer-tool-sha256',required=True)
     p.add_argument('--out',type=Path,required=True)
     a=p.parse_args()
     if not re.fullmatch(r'cal-[a-z0-9-]{3,28}',a.attempt):raise ValueError('Short, unique calibration attempt required')
@@ -102,7 +104,8 @@ def main():
     if a.mode=='on':
         for role,root in roots.items():
             specdir=root+'/q/'+a.attempt+'-observer';state=root+'/o/'+a.attempt
-            tool=root+'/code-01/experiments/unified-suite/pilot-aliyun/scripts/make-observer-cloud-03.py'
+            tool=root+'/code-01/experiments/unified-suite/pilot-aliyun/scripts/'+a.observer_tool_name
+            if remote(role,['sha256sum',tool]).split()[0]!=a.observer_tool_sha256:raise ValueError('Observer builder changed')
             args=['python3',tool,'--role',role,'--product',a.product,'--metric-contract-sha256',metric_ref['sha256'],
                 '--collector-name',collector_name,'--out',specdir]
             if role=='client':args+=['--mount-directory',mainstate,'--extra-mount-directory',prepstate,

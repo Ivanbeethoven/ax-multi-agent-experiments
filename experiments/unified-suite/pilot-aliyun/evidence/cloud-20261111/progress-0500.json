@@ -1,0 +1,22 @@
+{
+  "at": "2026-11-10T21:00:35.126763+00:00",
+  "goal_complete": false,
+  "controller_cell_statuses": {"complete": 1, "failed": 1, "pending": 17},
+  "active_formal_leases": 0,
+  "c2_current": {
+    "unit": "ax-pilot-c2-juicefs-qualification-02.service",
+    "main_pid": 41137,
+    "active_state": "active",
+    "sub_state": "running",
+    "output": "/srv/ax-client/qualification/c2-juicefs-full-02",
+    "has_result": false,
+    "has_failure": false,
+    "last_reported_progress": {"operations": 393216, "read_bytes": 60045270, "seconds": 1464.429434922, "write_bytes": 131774320}
+  },
+  "notes": [
+    "No C3 filesystem cell or C4 cloud handoff has run yet.",
+    "Current JuiceFS job is original strict qualification, not a formal performance comparison.",
+    "No concurrent workload may start on pool-a. Inspect the original qualification result before the next command.",
+    "Cloud resources remain billing. Migration target has not been created."
+  ]
+}

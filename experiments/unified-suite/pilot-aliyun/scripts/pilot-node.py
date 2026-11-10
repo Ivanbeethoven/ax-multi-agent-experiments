@@ -44,7 +44,7 @@ def request(asset,cell,root):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('action',choices=['asset-init','draft-mount','start','stop','fio-base','fio-base-check','copy-fio','fio','debt','worker'])
+    p.add_argument('action',choices=['asset-init','draft-mount','start','stop','fio-base','fio-base-check','copy-fio','copy-smallfiles','fio','debt','worker'])
     p.add_argument('--asset',type=Path,required=True)
     p.add_argument('--out',type=Path,required=True)
     p.add_argument('--plan',type=Path)
@@ -58,6 +58,8 @@ def main():
     p.add_argument('--purpose',choices=['experiment','observer-calibration-on','observer-calibration-off'],default='experiment')
     p.add_argument('--join-slot',action='store_true')
     p.add_argument('--child-name',help='Separate fresh children for calibration; workload identity still comes from the frozen cell')
+    p.add_argument('--workspace',type=int,help='Exact positive synthetic small-file child tag')
+    p.add_argument('--root-at-mount',action='store_true',help='Entity smallfiles: the fresh namespace is the private child root')
     a=p.parse_args()
     environment(Path('/srv/ax-client/private/rustfs.env'))
     if a.join_slot:
@@ -139,20 +141,31 @@ def main():
     if not re.fullmatch(r'[A-Za-z0-9_.-]{1,96}',child_name) or child_name in ('.','..'):
         raise ValueError('Simple dedicated child name required')
     root=Path(asset['mount_point'])/child_name
-    if a.action=='copy-fio':
+    if a.root_at_mount:
+        if cell['workload']!='smallfiles' or cell['arm_id'] not in ('packed','entity-native'):
+            raise ValueError('Only fresh entity small-file namespaces use the mount root')
+        root=Path(asset['mount_point'])
+    if a.action in ('copy-fio','copy-smallfiles'):
         if root.exists():raise ValueError('Fresh private child required')
-        source=Path(asset['mount_point'])/('base-'+str(cell['params']['block_bytes']))
+        if a.action=='copy-smallfiles' and (cell['workload']!='smallfiles' or cell['arm_id'] not in ('native','juicefs')):
+            raise ValueError('Copy/clone a C3 flat native or JuiceFS base only')
+        source=Path(asset['mount_point'])/('base' if a.action=='copy-smallfiles' else 'base-'+str(cell['params']['block_bytes']))
         a.out.mkdir(parents=True,exist_ok=False);begin=time.monotonic()
         argv=(['/srv/ax-client/assets/bin/juicefs','clone','-p',str(source),str(root)] if asset['product']=='juicefs'
               else ['/usr/bin/cp','-a','--reflink=never','--',str(source),str(root)])
         with (a.out/'stdout.log').open('xb') as out,(a.out/'stderr.log').open('xb') as err:
             result=subprocess.run(argv,stdout=out,stderr=err)
         if result.returncode==0:
-            for path in sorted(root.iterdir()):
-                with path.open('rb') as f:os.fsync(f.fileno())
-            fd=os.open(root,os.O_DIRECTORY|os.O_RDONLY)
-            try:os.fsync(fd)
-            finally:os.close(fd)
+            if a.action=='copy-smallfiles':
+                from pilot_io import fsync_import
+                count=fsync_import(root)
+                if count!=cell['params']['files']:raise ValueError('Copied child file count differs')
+            else:
+                for path in sorted(root.iterdir()):
+                    with path.open('rb') as f:os.fsync(f.fileno())
+                fd=os.open(root,os.O_DIRECTORY|os.O_RDONLY)
+                try:os.fsync(fd)
+                finally:os.close(fd)
         write_new(a.out/'result.json',dict(passed=result.returncode==0,argv=argv,exit_code=result.returncode,wall_seconds=time.monotonic()-begin,
             source=str(source),child=str(root),method='native-clone' if asset['product']=='juicefs' else 'full-independent-copy'))
         result.check_returncode();return
@@ -162,18 +175,23 @@ def main():
     if a.action=='worker':
         from bench.runtime.workloads import worker
         a.out.mkdir(parents=True,exist_ok=False)
-        s=request(asset,cell,root)
+        if cell['workload']=='smallfiles':
+            if a.workspace is None or a.workspace<=0:raise ValueError('Explicit positive small-file workspace required')
+            s=dict(kind='smallfiles',binary=ref('/srv/ax-client/assets/bin/smallfiles'),root=str(root),
+                   params=cell['params'],seed=asset['seed'],workspace=a.workspace)
+        elif cell['workload']=='fio':s=request(asset,cell,root)
+        else:raise ValueError('This worker adapter accepts fio or smallfiles only')
         s.update(worker_id='a01',workload_id=cell['case'],cwd=str(REPO),purpose=a.purpose,
             python=ref(sys.executable),helper=ref(REPO/'bench/fio_workload.py'),io_helper=ref(REPO/'bench/experiment_io.py'),
             mount=dict(spec=ref(a.spec),directory=str(a.mount_run)))
         write_new(a.out/'request.json',s)
         value=worker(a.out/'request.json',a.out/'draft')
-        command=review(a.out/'draft/step.json','pilot-operator','Exact fixed-work fio request bound to this mount, native helper and suite workload parameters.')
+        command=review(a.out/'draft/step.json','pilot-operator','Exact fixed-work '+cell['workload']+' request bound to this mount, native helper and suite workload parameters.')
         write_new(a.out/'step.reviewed.json',command)
         value['jobs'][0]['step']=ref(a.out/'step.reviewed.json')
         write_new(a.out/'worker.bound.draft.json',value)
         write_new(a.out/'worker.reviewed.json',review(a.out/'worker.bound.draft.json','pilot-operator',
-            'One actual cgroup-isolated worker, pinned fixed-work fio and original supervised mount; no replay retry or deadline.'))
+            'One actual cgroup-isolated worker, pinned fixed work and original supervised mount; no replay retry or deadline.'))
         print(json.dumps(ref(a.out/'worker.reviewed.json')));return
     if a.action=='debt':
         a.out.mkdir(parents=True,exist_ok=False)

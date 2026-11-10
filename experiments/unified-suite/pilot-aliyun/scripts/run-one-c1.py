@@ -57,6 +57,7 @@ def main():
             args=['python3',pinned(s['tools']['calibrate']),'--control',control,'--qualification',q,
                 '--case',cell['case'],'--product',product,'--mode',t['mode'],'--attempt',t['attempt'],
                 '--collector-name',t['collector_name'],'--collector-out',t['collector_out'],
+                '--observer-tool-name',s['observer_tool']['name'],'--observer-tool-sha256',s['observer_tool']['sha256'],
                 '--node-tool',s['node_tool']['path'],'--node-tool-sha256',s['node_tool']['sha256'],'--out',t['out']]
             if t.get('new_collector_name'):args+=['--new-collector-name',t['new_collector_name']]
             run('trial-'+str(i+1),args)
