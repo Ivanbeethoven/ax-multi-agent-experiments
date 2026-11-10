@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "at": "2026-11-10T22:30:57.210095+00:00",
+  "product": "brewfs",
+  "cell_id": "05357b5089cd679c-r1-native",
+  "strict": {
+    "path": "/srv/ax-client/qualification/c2-native-full-02/strict-proof/verification.json",
+    "sha256": "529067b2490b13267ad8fbfeb2b3a2122d13ef6164b845f05dc8fd05035a2d9a"
+  },
+  "cold_readback": {
+    "path": "/srv/ax-client/qualification/c2-native-full-02/cold-proof/verification.json",
+    "sha256": "827f9513a7ec68d146bd95c40c2c4dbc421ddda449c887b8cb8306da3f5df628"
+  },
+  "base": {
+    "path": "/srv/ax-client/qualification/c2-native-full-02/base-check.json",
+    "sha256": "102a8783691dbecd38a7f02d0bde96026383f3ba1febc3125631d46cc7cf5cc2"
+  },
+  "normal_exits": [
+    {
+      "path": "/srv/ax-client/qualification/c2-native-full-02/normal-stop.json",
+      "sha256": "2f091750772fa9bb017dde5c18f6c44bd3dfc4d5841736d4c2f0d58fd86271e0"
+    },
+    {
+      "path": "/srv/ax-client/qualification/c2-native-full-02/cold-stop.json",
+      "sha256": "2f091750772fa9bb017dde5c18f6c44bd3dfc4d5841736d4c2f0d58fd86271e0"
+    }
+  ],
+  "asset": {
+    "path": "/srv/ax-client/a/c2-native-02/asset.json",
+    "sha256": "33b3a64e91bb064ce26eda378b84fe908aeeb35399cb8ae01d41e6c2cb5a7570"
+  },
+  "scope": "Complete strict trace on the actual filesystem, isolated initial child and original backend cold readback; no performance acceptance"
+}

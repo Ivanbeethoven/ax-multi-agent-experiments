@@ -1,0 +1,65 @@
+{
+  "passed": true,
+  "command_exit_code": 0,
+  "archives": [
+    {
+      "path": "/srv/ax-pilot-control/c123-control-01/observed-preparation/c2-native-cache-qual-01/archives/client.tar.gz",
+      "sha256": "3cf6cade39664643bc64d0f7f74a89b79a6fc33c2652f7827b6f9424f03711f0"
+    },
+    {
+      "path": "/srv/ax-pilot-control/c123-control-01/observed-preparation/c2-native-cache-qual-01/archives/metadata.tar.gz",
+      "sha256": "2a475704dfbe7f2e59325696b95881e2a4af81c4afc61832a2f7b96620ca3083"
+    },
+    {
+      "path": "/srv/ax-pilot-control/c123-control-01/observed-preparation/c2-native-cache-qual-01/archives/objects.tar.gz",
+      "sha256": "c5bd3f4169842f9eea007b05ec906118cc45c0d4239f9c8cde249dd6dcca8958"
+    }
+  ],
+  "audits": [
+    {
+      "role": "client",
+      "passed": true,
+      "samples": 31,
+      "max_gap_seconds": 30,
+      "marks": [
+        "command-start",
+        "command-end"
+      ],
+      "finished_sha256": "23302ed12d54daa17691e5f42ca34d2bb98791fbb6269c308c53637fe6993c39",
+      "metric_contract_sha256": "d1681209905d877039003c3d379c63fc1ee6a049fe14dcf3090508dbdbcd9d74",
+      "scope": "recorded coverage/hashes only; metric semantics, overhead and independent remote readback are separate gates"
+    },
+    {
+      "role": "metadata",
+      "passed": true,
+      "samples": 109,
+      "max_gap_seconds": 30,
+      "marks": [
+        "command-start",
+        "command-end"
+      ],
+      "finished_sha256": "207bdb2aef3ee0015823cdc068a4ae399137fb467ed2242a46689dc643c21a4d",
+      "metric_contract_sha256": "d1681209905d877039003c3d379c63fc1ee6a049fe14dcf3090508dbdbcd9d74",
+      "scope": "recorded coverage/hashes only; metric semantics, overhead and independent remote readback are separate gates"
+    },
+    {
+      "role": "objects",
+      "passed": true,
+      "samples": 107,
+      "max_gap_seconds": 30,
+      "marks": [
+        "command-start",
+        "command-end"
+      ],
+      "finished_sha256": "5328753661e74509c3f8f0b1c39fcd62c95cda0ce9fb554a1ad838abc02fb107",
+      "metric_contract_sha256": "d1681209905d877039003c3d379c63fc1ee6a049fe14dcf3090508dbdbcd9d74",
+      "scope": "recorded coverage/hashes only; metric semantics, overhead and independent remote readback are separate gates"
+    }
+  ],
+  "closure_recovered": true,
+  "workload_reexecuted": false,
+  "performance_accepted": false,
+  "purpose": "diagnostic",
+  "automatic_retry": false,
+  "scope": "One observed command and complete raw observer archives; workload-specific data proofs and formal calibration are separate"
+}

@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "at": "2026-11-10T22:27:26.225325+00:00",
+  "product": "juicefs",
+  "cell_id": "05357b5089cd679c-r1-juicefs",
+  "strict": {
+    "path": "/srv/ax-client/qualification/c2-juicefs-full-02/strict-proof/verification.json",
+    "sha256": "aee78c8cf57d6c2e1db48e048c797ab13615c20111c35ea3cbf409f62ec64c92"
+  },
+  "cold_readback": {
+    "path": "/srv/ax-client/qualification/c2-juicefs-full-02/cold-proof/verification.json",
+    "sha256": "361382dfe6a94121059d97b9af9372735d4ad1fb60669ed5026119fdcfe38826"
+  },
+  "base": {
+    "path": "/srv/ax-client/qualification/c2-juicefs-full-02/base-check.json",
+    "sha256": "e5b7c4f49ad1b9e24d1b3e9b4deda2a141cf8caf18823eeef2f47c8908e59d04"
+  },
+  "normal_exits": [
+    {
+      "path": "/srv/ax-client/qualification/c2-juicefs-full-02/normal-stop.json",
+      "sha256": "2de8beca627ac5e6862ccc6f254851928057ac07b71b84090c398c65c517d502"
+    },
+    {
+      "path": "/srv/ax-client/qualification/c2-juicefs-full-02/cold-stop.json",
+      "sha256": "1f7b5580c78aa6e14eb5c394caf5503845bda1df5c15eab845c8de4413fea23d"
+    }
+  ],
+  "asset": {
+    "path": "/srv/ax-client/a/c2-juicefs-02/asset.json",
+    "sha256": "d00c1973e01464ace7291c96359f9b88b6dc640c7a41c73ac6b2e846186dccde"
+  },
+  "scope": "Complete strict trace on the actual filesystem, isolated initial child and original backend cold readback; no performance acceptance"
+}
