@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "at": "2026-11-10T22:54:34.274010+00:00",
+  "nodes": [
+    {
+      "role": "client",
+      "passed": true,
+      "members": 120,
+      "archive_sha256": "bbbed88dbfbee9af0e4c23c885517b3c6953b61cd0bd58eaa6ca2f25706aaf97",
+      "manifest_sha256": "81a8a58fdadbc0f7af333fe8c31e10354943c7fff4903f34d5cd385b54f5e556",
+      "destination": "/srv/ax-client/code-05",
+      "tools": [
+        {
+          "path": "/srv/ax-client/assets/bin/smallfiles-verify-c3-01",
+          "sha256": "843e4137ed6692f7b7ca9ee7961964733cfd5ebca7f75aff6d70486c646ecf95",
+          "bytes": 4715216
+        },
+        {
+          "path": "/srv/ax-client/assets/bin/smallfiles-copy-c3-01",
+          "sha256": "865fd2e3da836fa8d1eb775d89597ad78bce96cf05cd7e88d5999a7e21d6bcb7",
+          "bytes": 4713952
+        }
+      ]
+    },
+    {
+      "role": "metadata",
+      "passed": true,
+      "members": 120,
+      "archive_sha256": "bbbed88dbfbee9af0e4c23c885517b3c6953b61cd0bd58eaa6ca2f25706aaf97",
+      "manifest_sha256": "81a8a58fdadbc0f7af333fe8c31e10354943c7fff4903f34d5cd385b54f5e556",
+      "destination": "/srv/ax-metadata/code-05"
+    },
+    {
+      "role": "objects",
+      "passed": true,
+      "members": 120,
+      "archive_sha256": "bbbed88dbfbee9af0e4c23c885517b3c6953b61cd0bd58eaa6ca2f25706aaf97",
+      "manifest_sha256": "81a8a58fdadbc0f7af333fe8c31e10354943c7fff4903f34d5cd385b54f5e556",
+      "destination": "/srv/ax-objects-0/code-05"
+    },
+    {
+      "role": "coordinator",
+      "passed": true,
+      "members": 120,
+      "archive_sha256": "bbbed88dbfbee9af0e4c23c885517b3c6953b61cd0bd58eaa6ca2f25706aaf97",
+      "manifest_sha256": "81a8a58fdadbc0f7af333fe8c31e10354943c7fff4903f34d5cd385b54f5e556",
+      "destination": "/srv/ax-pilot-control/code-05"
+    }
+  ],
+  "artifacts": {
+    "runner.tar.gz": "bbbed88dbfbee9af0e4c23c885517b3c6953b61cd0bd58eaa6ca2f25706aaf97",
+    "manifest.json": "81a8a58fdadbc0f7af333fe8c31e10354943c7fff4903f34d5cd385b54f5e556"
+  },
+  "scope": "New immutable runner tree and C3 auxiliary binaries; original workload, clients and object-service processes unchanged"
+}

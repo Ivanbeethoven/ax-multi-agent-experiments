@@ -1,10 +1,11 @@
 # 阿里云 C1–C4 小规模试跑
 
-最新版本核对：北京时间2026-11-11 06:25，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-05.json)。06:31，BrewFS使用目录句柄复用选项的完整trace验证通过；JuiceFS同选项验证已启动。C1–C4全轮尚未完成。
+最新版本核对：北京时间2026-11-11 07:18，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-07.json)。两种文件系统均通过目录句柄复用选项的完整trace验证和冷重挂读回。C1顺序读的BrewFS、JuiceFS单元均已完成六次校准、正式测量、读回与归档；顺序写正在执行。C1–C4全轮尚未完成。
 
 
 05:55–05:56另核了[运行中的RustFS程序](evidence/preparation/cloud-runtime-progress-04.json)与[已部署BrewFS程序](evidence/preparation/cloud-brewfs-progress-04.json)，SHA256均与本批构建一致。执行脚本[code-02已在四个角色部署并逐文件核验](evidence/preparation/runner-code-02-deployment.json)；旧任务仍使用原脚本，不热替换。
 [code-03](evidence/preparation/runner-code-03-deployment.json)加入会话迁移准备工具；[code-04](evidence/preparation/runner-code-04-deployment.json)加入容量检查、可选完整物化工具及采集收尾修复。四个角色均逐成员核验，BrewFS/RustFS二进制未变。
+[code-05](evidence/preparation/runner-code-05-deployment.json)部署C3完整读回及单工作区执行流程，并固定导入器、只读核验器的实际二进制摘要。
 本轮已于2026-11-11启动3台私网节点，并复用原跳板和一块独立协调盘；迁移目标机尚未创建。四盘RustFS、Redis、BrewFS和JuiceFS已完成接入及小文件写入/正常卸载/重挂读回检查，C1输入也已完成完整CRC与冷重挂校验。C1两项随机读已关闭：JuiceFS全部阶段通过；BrewFS测量及数据检查通过，归档阶段失败后补收证据，仍记失败，不输出该配对的加速比。设置见[scope.json](scope.json)，路线限制见[审查记录](../PILOT-REVIEW.zh.md)。系统计划有28个单元；未通过资格的路线保留实际失败。C3仍为百万文件，C4恢复仍使用真实OpenCode原生会话。
 
 本轮构建使用BrewFS `main` 的 `622736b0a31caaa9007445886e626a2458bc316a`、RustFS `feat/dynamic-block-size-rebased` 的 `f4ed202508f2153afb7956bae6f7799b60eccd00`。二者均从指定分支构建，准备期间再次核对远端最新提交；运行镜像内RustFS二进制SHA256与本机产物相同。`scripts/verify-latest.py`在新批次计时前再核一次，分支推进则先重建；开始计时的配对批次固定版本。
@@ -36,6 +37,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/prepare-dependencies.py` | 核JuiceFS官方发布摘要，固定OpenCode二进制 |
 | `scripts/prepare-inputs.sh`、`qualify-trace.py` | 准备百万文件和完整trace，严格核回放次数、字节、目录树、硬链接与数据库副本 |
 | `scripts/session-worker.py` | 单个会话阶段使用空HOME、工作区内XDG；原生export/import及历史一致性[已实测](evidence/preparation/opencode-phase-wrapper.json)，resume和跨机还待云上执行 |
+| `scripts/prepare-session-input.py` | 将固定检查点放入已挂载的工作区，核完整输入、内部链接、配置替换与fsync；只调用原生export。[本机真实OpenCode导出通过](evidence/preparation/session-input-local.json)，没有模型调用；挂载控制在该项本机检查中为模拟，云上验证另做 |
 | `scripts/session-relay.py` | C4私网模型转发，主密钥仅在工作区外的私有配置，工作区使用独立转发凭据；不记录请求/响应正文，不自动重试；[云上健康检查通过](evidence/preparation/c4-relay-health.json)，尚无模型调用；本地5项验证通过 |
 | `scripts/qualify-opencode-session.py`、`package-session-runtime.py` | 两轮真实会话验证export/import/resume，打包已安装依赖，密钥留在工作区外 |
 | `scripts/link-brewfs-tool.py`、`verify-entity-remote.rs` | 复用本轮BrewFS库构建只读核验器；检查原namespace的远端字节、目录、硬链接、ownership及核验前后状态 |
@@ -62,6 +64,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `tools/fs-probe/src/bin/smallfiles-verify.rs`、`scripts/check-smallfiles-verifier.py` | 8线程只读核验全部文件、目录名、模式、owner和硬链接数；根据原始file/version/workspace状态计算修改后的内容；[原负载交叉检查及损坏/权限/链接/状态反例通过](evidence/preparation/smallfiles-verifier-functional.json)，尚无云上百万读回结果 |
 | `scripts/prepare-c3-controller.py` | 收集实际百万文件导入、冷读回、正常退出和容量证据，生成匹配的C3合同；没有容量余量或完整原始验证便拒绝准入 |
 | `scripts/probe-small-object.py` | 在独立新桶写24个4KiB对象，核四份XL2、inline数据、实际分配字节和inode；为百万文件准备容量依据 |
+| `scripts/inspect-bucket-layout.py` | 在写者退出后抽查实际任务桶的持久化B/q、inline和分片大小，核四盘格式校验和与来源版本；不把前缀样本当作全桶分布 |
 | `scripts/capacity-check.py` | 导入前后取四盘空间/inode及Redis内存/AOF快照，按剩余完整副本数和20%余量核容量；换盘、重启或后台回收导致分配量下降时拒绝沿用预测 |
 | `scripts/smallfiles-oracle.py` | 从不可变源和file/version/workspace状态独立计算预期树，供原namespace只读验证；不读取被测输出作为预期 |
 | `scripts/observe-command.py` | 为单次准备/诊断命令采集三角色原始指标并逐成员核归档；不充当正式性能验收 |
@@ -72,15 +75,18 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 
 新云节点和跳板启动都要求本地产物、镜像、依赖、功能资格完成。现成脚本不等于已通过路线资格，失败记录保留。
 
-目录句柄复用选项已完成[本机174.7万次完整回放](evidence/preparation/replay-parent-fd-local.json)，读写字节、最终树、硬链接和SQLite一致；[计数](evidence/preparation/replay-parent-fd-local-counts.json)记录最多255个缓存句柄。云上[BrewFS同选项完整验证](evidence/preparation/c2-native-parent-fd/result.json)通过：1,747,109次操作、读281,774,624B、写194,706,661B，最终树、硬链接、SQLite及冷重挂读回均通过。1,048次终端属性探测的拒绝码不同，单独记录；中间读字节检查保持开启。回放88.236秒只是资格验证时间，尚无配对性能结论。采集归档路径错误已修复，原始三角色数据[补收并核验](evidence/preparation/c2-native-parent-fd/observer-closure-recovery.json)，没有重跑负载。JuiceFS同选项验证通过后，两边各做匹配的观测开销校准。
+目录句柄复用选项已完成[本机174.7万次完整回放](evidence/preparation/replay-parent-fd-local.json)，读写字节、最终树、硬链接和SQLite一致；[计数](evidence/preparation/replay-parent-fd-local-counts.json)记录最多255个缓存句柄。云上[BrewFS同选项完整验证](evidence/preparation/c2-native-parent-fd/result.json)通过：1,747,109次操作、读281,774,624B、写194,706,661B，最终树、硬链接、SQLite及冷重挂读回均通过。1,048次终端属性探测的拒绝码不同，单独记录；中间读字节检查保持开启。回放88.236秒只是资格验证时间，尚无配对性能结论。采集归档路径错误已修复，原始三角色数据[补收并核验](evidence/preparation/c2-native-parent-fd/observer-closure-recovery.json)，没有重跑负载。JuiceFS相同选项的[完整验证](evidence/preparation/c2-juicefs-parent-fd/result.json)也通过，回放1,257.738秒、探测码差异为0；[三角色原始监控包](evidence/preparation/c2-juicefs-parent-fd/observer-closure.json)已独立下载并核全部成员。两边正式C2前仍各需匹配的三对观测开销校准。
 
 JuiceFS原工具、完整路径解析的[严格验证](evidence/preparation/c2-juicefs-original-strict/result.json)已于06:27完成：1,747,109次操作，回放6,425.173秒，完整字节和冷重挂校验通过；[95成员原始包已独立核验](evidence/preparation/c2-juicefs-original-strict/archive-check.json)。原验证未中途换工具，其时间不能与BrewFS新工具的验证时间直接相除。性能回放的冷读回使用 `qualify-trace.py --verify-only --performance-readback`，明确记录只校验最终数据，不把 `valid=false` 的性能报告改称严格通过。
 
 C3的[独立初始清单](evidence/preparation/c3-independent-base-oracle.json)已覆盖100万文件、4,096,000,000B；[生成器交叉检查](evidence/preparation/c3-oracle-generator-check.json)核对了实际Rust修改后的全部64个文件。完整预期树和输入清单留在数据盘，Git只保存回执。05:26的[新增资源估算](evidence/preparation/cost-progress-02.json)约¥12.06，当前新增资源¥4.671/小时；原跳板、网络和OSS另计。
 
 C3的flat native/JuiceFS流程已接入现有单元执行器：独立child、8个固定负载阶段、原始8条CSV、原工作区完整冷读回、完整父目录检查、`-w01`阶段及观测标记。各自仍需三对观测开销校准；本适配明确只接受1个Agent、1个工作区，不代替扩展规模实验。[本机27项相关检查通过](evidence/preparation/c3-harness-local.json)，云上完整C3尚未执行。正式负载仍使用本批原始`smallfiles`二进制；新工具只做完整导入和只读核验。
+[新核验器已在本机完整读取100万文件、4,096,000,000B](evidence/preparation/smallfiles-verifier-million-local.json)，并核全部名称、模式和链接数；用户命名空间只映射测试源的owner，没有改源文件ownership。这仍不是云上读回或性能结果。
 
 C3有一项容量前置条件：[云上四独立盘24对象探针](evidence/preparation/small-object-footprint-cloud.json)确认，4KiB数据在每盘占8KiB分配空间和2个inode；三个hint设置均如此。若每文件对应一个对象，百万文件的base、六个校准child和一个正式child合计每盘65,536,000,000B，已超过60GiB，尚未计共享目录、元数据和旧数据。C3前仍须用首份完整base的空间、inode和Redis增量重新核算。容量不足时先扩容并重建C3的实际inventory/资格记录，或在核归档及回收完成后释放已结束的副本；不靠删除目录便假定物理空间已回收。
+
+C1实际应用桶的[BrewFS样本](evidence/preparation/c1-native-application-layout.json)与[JuiceFS样本](evidence/preparation/c1-juicefs-application-layout.json)各32个对象，四盘均通过格式校验，样本B=1MiB、q=256KiB、external；两边采样布局相同，不能据此宣称B选择带来性能差异。这是混合C1资产桶的确定性前缀样本，不是完整分布，也不是请求hint的直接记录。
 
 已关闭C1随机读的[检查报告](evidence/cloud-20261111/c1-randread-report.json)保留两项各自状态。两份完整原始包已另存本地并核全部成员，未把二进制、密钥或完整数据包提交Git。C2探测差异的[原始失败](evidence/cloud-20261111/c2-native-strict-failure.json)和[正常退出](evidence/cloud-20261111/c2-native-strict-closure.json)也已保留。新增回放选项的[本机完整验证](evidence/preparation/replay-portable-terminal-local.json)只证明工具与输入接通，尚不代表云上路线通过。
 
@@ -92,3 +98,4 @@ C1随机读的三对观测开销结果：[BrewFS](evidence/preparation/cloud-nat
 
 06:02的[新增资源估算](evidence/preparation/cost-progress-03.json)为¥14.84，新增资源仍为¥4.671/小时；该数不含原跳板、网络和OSS，不是最终账单。
 06:40的[新增资源估算](evidence/preparation/cost-progress-04.json)为¥17.83，小时费用未变；尚未新增迁移目标机或扩盘。
+07:25的[新增资源估算](evidence/preparation/cost-progress-05.json)为¥21.28，小时费用未变；原跳板、网络和OSS另计。
