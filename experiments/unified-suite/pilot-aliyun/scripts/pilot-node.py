@@ -51,6 +51,7 @@ def main():
     p.add_argument('--cell')
     p.add_argument('--product',choices=['brewfs','juicefs'])
     p.add_argument('--database',type=int)
+    p.add_argument('--mount-point',type=Path,help='Explicit canonical C4 session mount; asset initialization only')
     p.add_argument('--mount-run',type=Path)
     p.add_argument('--spec',type=Path)
     p.add_argument('--block-bytes',type=int,choices=[4096,1048576])
@@ -80,8 +81,12 @@ def main():
             raise ValueError('Never overwrite metadata')
         plan=load(a.plan)
         cell=cell_of(plan,a.cell) if a.cell else next(c for c in plan['cells'] if c['workload']=='fio' and c['arm']['product']==a.product)
-        if cell['arm']['product']!=a.product or cell['arm_id'] not in ('native','juicefs'):
-            raise ValueError('This asset initializer supports only flat native and JuiceFS')
+        workspace_handoff=(cell['workload']=='handoff' and cell['arm']['engine']=='workspace-native-v2')
+        if cell['arm']['product']!=a.product or (cell['arm_id'] not in ('native','juicefs') and
+                not workspace_handoff and not (cell['workload']=='handoff' and a.product=='juicefs')):
+            raise ValueError('Only flat routes and live C4 handoff workspace initialization are supported')
+        if a.mount_point and (cell['workload']!='handoff' or not a.mount_point.is_absolute()):
+            raise ValueError('Explicit canonical mount point is for C4 handoff only')
         bucket='axp-'+uuid.uuid4().hex[:16]
         import boto3
         from botocore.config import Config
@@ -91,13 +96,32 @@ def main():
         config=overlay(dict(meta={'backend':'redis','redis':{'url':redis}},
             data={'backend':'s3','s3':dict(bucket=bucket,endpoint='http://10.20.2.163:9000',region='us-east-1',force_path_style=True)},
             layout={'chunk_size':67108864,'block_size':4194304},fuse={'workers':4,'max_background':512}),cell['client_settings'])
+        if workspace_handoff:
+            catalog='ax-pilot-session-'+uuid.uuid4().hex
+            data_config=a.asset/'data-config.json';write_new(data_config,dict(data=config['data']))
+            prefix=['/srv/ax-client/assets/bin/brewfs','workspace','--meta-backend','redis',
+                    '--meta-url',redis,'--workspace-namespace',catalog]
+            initialized=None
+            for label,argv in [('init-volume',prefix+['init-volume','--data-config',str(data_config)]),
+                               ('init-native',prefix+['init-native'])]:
+                with (a.asset/(label+'.stdout')).open('xb') as out,(a.asset/(label+'.stderr')).open('xb') as err:
+                    result=subprocess.run(argv,stdout=out,stderr=err)
+                write_new(a.asset/(label+'.exit.json'),dict(exit_code=result.returncode,automatic_retry=False))
+                result.check_returncode()
+                if label=='init-volume':initialized=load(a.asset/(label+'.stdout'))
+            config.update(workspace=initialized['workspace_id'],workspace_namespace=catalog,
+                native_base=load(Path(__file__).resolve().parents[1]/'profiles/native-base-p1.json'))
+            config['volume'].update(chunk_size=67108864,block_size=4194304)
         if a.product=='juicefs':
             config=dict(cell['client_settings'],metadata_url=redis)
             with (a.asset/'format.stdout').open('xb') as out,(a.asset/'format.stderr').open('xb') as err:
                 r=subprocess.run(['/srv/ax-client/assets/bin/juicefs','format','--storage','s3','--bucket',
                     'http://10.20.2.163:9000/'+bucket,'--block-size','4M','--compress','none','--trash-days','0',redis,'ax-pilot-'+uuid.uuid4().hex[:12]],stdout=out,stderr=err)
             write_new(a.asset/'format-exit.json',dict(exit_code=r.returncode));r.check_returncode()
-        point=a.asset/'mnt';point.mkdir()
+        point=a.mount_point or a.asset/'mnt'
+        point.mkdir(parents=True,exist_ok=a.mount_point is not None)
+        if point.is_symlink() or point.resolve()!=point or os.path.ismount(point) or any(point.iterdir()):
+            raise ValueError('Canonical unmounted empty directory required')
         value=dict(product=a.product,bucket=bucket,database=a.database,seed=plan['config']['seed'],
             config=config,mount_point=str(point),plan=ref(a.plan),source=cell['workload']+' base on original shared filesystem',
             created_at=datetime.now(timezone.utc).isoformat())

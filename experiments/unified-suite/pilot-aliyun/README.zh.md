@@ -34,7 +34,8 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/build-rustfs-image.py` | 从本轮二进制制作镜像，核镜像内二进制、OCI提交号和registry digest，导出内网分发包 |
 | `scripts/prepare-dependencies.py` | 核JuiceFS官方发布摘要，固定OpenCode二进制 |
 | `scripts/prepare-inputs.sh`、`qualify-trace.py` | 准备百万文件和完整trace，严格核回放次数、字节、目录树、硬链接与数据库副本 |
-| `scripts/session-relay.py` | C4私网模型转发，主密钥仅在工作区外的私有配置，工作区使用独立转发凭据；不记录请求/响应正文，不自动重试；本地5项验证通过，云上待部署 |
+| `scripts/session-worker.py` | 单个会话阶段使用空HOME、工作区内XDG；原生export/import及历史一致性[已实测](evidence/preparation/opencode-phase-wrapper.json)，resume和跨机还待云上执行 |
+| `scripts/session-relay.py` | C4私网模型转发，主密钥仅在工作区外的私有配置，工作区使用独立转发凭据；不记录请求/响应正文，不自动重试；[云上健康检查通过](evidence/preparation/c4-relay-health.json)，尚无模型调用；本地5项验证通过 |
 | `scripts/qualify-opencode-session.py`、`package-session-runtime.py` | 两轮真实会话验证export/import/resume，打包已安装依赖，密钥留在工作区外 |
 | `scripts/link-brewfs-tool.py`、`verify-entity-remote.rs` | 复用本轮BrewFS库构建只读核验器；检查原namespace的远端字节、目录、硬链接、ownership及核验前后状态 |
 | `scripts/local-services.py` | 本机功能验证服务；四个目录共用一块盘，不能作为云上四独立盘的性能证据 |
@@ -79,3 +80,5 @@ C1随机读的三对观测开销结果：[BrewFS](evidence/preparation/cloud-nat
 已完成的本机检查见[evidence/preparation](evidence/preparation)：pytest完整trace为1,747,109次操作，实际读281,774,624B、写194,706,661B，严格回放及最终状态一致；OpenCode 1.2.26在两个空HOME、独立数据库之间导入原会话并继续完成新工具。上述检查均不是云性能结果。版本快照见[source-versions.json](evidence/preparation/source-versions.json)，部署前还会重新核对。
 
 历史输入恢复使用[restore_historical_oss.ps1](../../drive-backup-2026-10-29/restore_historical_oss.ps1)。该脚本逐项校验原始SHA256，再上传到原路径并比较本地/服务端CRC64与大小；不删除源数据。
+
+06:02的[新增资源估算](evidence/preparation/cost-progress-03.json)为¥14.84，新增资源仍为¥4.671/小时；该数不含原跳板、网络和OSS，不是最终账单。
