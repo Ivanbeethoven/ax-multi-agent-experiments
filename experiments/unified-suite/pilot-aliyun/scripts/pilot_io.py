@@ -4,11 +4,13 @@ from itertools import islice
 import os
 
 
-def fsync_import(root):
+def fsync_import(root, *, allow_symlinks=False):
     directories=[root]
     def files():
         for p in root.rglob('*'):
-            if p.is_symlink():raise ValueError('Synthetic C3 source has no symlinks')
+            if p.is_symlink():
+                if allow_symlinks:continue  # Persist the link through its parent; never open its target.
+                raise ValueError('Synthetic C3 source has no symlinks')
             if p.is_dir():directories.append(p)
             elif p.is_file():yield p
             else:raise ValueError('Unexpected imported inode')

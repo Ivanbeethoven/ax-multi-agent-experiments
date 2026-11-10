@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run one qualified C1 cell, recording each original stage in SQLite first.
+"""Run one qualified flat C1/C2 cell, recording original stages in SQLite first.
 
 No next cell, deadline, automatic retry, forced unmount or resource deletion.
 Failures preserve the reservation and live state for an explicit inspection.
@@ -35,13 +35,23 @@ class Cell:
         self.control = Path(self.s['control'])
         self.plan = load(self.control/'suite/plan.json')
         self.cell = next(c for c in self.plan['cells'] if c['id'] == self.s['cell_id'])
-        self.id = self.cell['id']; self.tag = 'c1-'+self.id
+        self.kind=self.cell['workload']
+        if self.kind not in ('fio','trace') or self.cell['arm_id'] not in ('native','juicefs'):
+            raise ValueError('Qualified flat C1/C2 cell required')
+        self.id = self.cell['id']; self.tag = ('c1-' if self.kind=='fio' else 'c2-')+self.id
         self.arm = self.cell['arm_id']; self.product = self.cell['arm']['product']
         self.base = ROOTS['client']+'/q/'+self.tag
         self.main = ROOTS['client']+'/m/'+self.tag
         self.prep = self.main+'-p'; self.verify = self.main+'-v'
-        self.asset = ROOTS['client']+'/a/c1-'+self.arm
+        self.asset = self.s.get('asset',ROOTS['client']+'/a/c1-'+self.arm)
+        if self.kind=='trace' and not self.s.get('trace'):raise ValueError('Full trace bindings required')
+        if self.kind=='trace' and self.cell['params']['agents']!=1:raise ValueError('This pilot runner supports exactly one trace worker')
         self.qualification = Path(self.s['qualification'])/self.arm
+
+    def trace_fields(self):
+        t=self.s['trace']
+        return dict(trace_case=t['case'],trace_manifest=t['manifest']['path'],replay_binary=t['binary']['path'],
+                    trace_verifier=t['verifier']['path'],trace_verifier_sha256=t['verifier']['sha256'],cache_parent_fds=t.get('cache_parent_fds',False))
 
     def remote(self, role, argv):
         directory = self.out/'commands'
@@ -74,7 +84,7 @@ class Cell:
         argv = ['python3', self.s['node_tool']['path'], action, '--asset', self.asset]
         for key, value in fields.items():
             if value is True: argv += ['--'+key.replace('_', '-')]
-            elif value is not None: argv += ['--'+key.replace('_', '-'), str(value)]
+            elif value is not None and value is not False: argv += ['--'+key.replace('_', '-'), str(value)]
         return self.remote('client', argv)
 
     def observers(self):
@@ -108,14 +118,15 @@ class Cell:
         elif stage == 'create':
             self.helper('draft-mount', cell=self.id, out=self.base+'/prep')
             self.helper('start', join_slot=True, spec=self.base+'/prep/mount.reviewed.json', out=self.prep)
-            self.helper('copy-fio', join_slot=True, cell=self.id, out=self.base+'/copy')
+            self.helper('copy-fio' if self.kind=='fio' else 'copy-trace', join_slot=True, cell=self.id, out=self.base+'/copy')
             self.helper('debt', cell=self.id, out=self.base+'/copy-debt')
             self.helper('stop', mount_run=self.prep, out=self.base+'/copy-exit.json')
         elif stage == 'mount':
             self.helper('draft-mount', cell=self.id, out=self.base+'/main')
             self.helper('start', join_slot=True, spec=self.base+'/main/mount.reviewed.json', out=self.main)
             self.helper('worker', cell=self.id, spec=self.base+'/main/mount.reviewed.json',
-                        mount_run=self.main, out=ROOTS['client']+'/w/'+self.tag)
+                        mount_run=self.main, out=ROOTS['client']+'/w/'+self.tag,
+                        **(self.trace_fields() if self.kind=='trace' else {}))
         elif stage == 'measure':
             worker_path = ROOTS['client']+'/w/'+self.tag+'/worker.reviewed.json'
             worker_sha = self.remote('client', ['sha256sum', worker_path]).split()[0]
@@ -137,6 +148,8 @@ class Cell:
             if not result['passed']: raise ValueError('Workload or live telemetry failed; retain state')
             self.mark('measure-end')
         elif stage == 'drain':
+            if self.kind=='trace':
+                self.helper('trace-sync',join_slot=True,cell=self.id,out=self.base+'/post-replay-sync')
             self.helper('debt', cell=self.id, out=self.base+'/debt')
             self.mark('drain-end')
         elif stage == 'unmount':
@@ -144,8 +157,14 @@ class Cell:
         elif stage == 'verify':
             self.helper('draft-mount', cell=self.id, out=self.base+'/verify-mount')
             self.helper('start', join_slot=True, spec=self.base+'/verify-mount/mount.reviewed.json', out=self.verify)
-            self.helper('fio', join_slot=True, cell=self.id, phase='verify', out=self.base+'/verify')
-            self.helper('fio-base-check', join_slot=True, block_bytes=c['params']['block_bytes'], out=self.base+'/parent-verify')
+            if self.kind=='fio':
+                self.helper('fio', join_slot=True, cell=self.id, phase='verify', out=self.base+'/verify')
+                self.helper('fio-base-check', join_slot=True, block_bytes=c['params']['block_bytes'], out=self.base+'/parent-verify')
+            else:
+                self.helper('verify-trace',join_slot=True,cell=self.id,out=self.base+'/verify',
+                    replay_result=ROOTS['client']+'/w/'+self.tag+'/draft/replay.json',**self.trace_fields())
+                self.helper('trace-base-check',join_slot=True,cell=self.id,out=self.base+'/parent-verify',
+                    trace_case=self.s['trace']['case'])
             self.helper('stop', mount_run=self.verify, out=self.base+'/verify-exit.json')
             self.mark('verify-end')
         elif stage == 'observe-stop':
@@ -217,7 +236,7 @@ out=root/'archives';out.mkdir(exist_ok=True)
 checked=pack(staging,files,out/(tag+'-'+ROLE+'.tar.gz'),cell,ROLE)
 write_new(q/'archive.json',checked);print(json.dumps(dict(closure=result,archive=checked)))
 '''
-            variables=dict(ROOT=root,TAG=self.tag,CELL=self.id,DIRS=dirs,ROLE=role,ASSET='c1-'+self.arm)
+            variables=dict(ROOT=root,TAG=self.tag,CELL=self.id,DIRS=dirs,ROLE=role,ASSET=Path(self.asset).name)
             response=json.loads(self.python(role,'\n'.join(k+'='+repr(v) for k,v in variables.items())+'\n'+script))
             closures.append(response['closure'])
             archive=self.get(role,response['archive']['archive'],'archives/'+role+'.tar.gz')
@@ -237,8 +256,13 @@ write_new(q/'archive.json',checked);print(json.dumps(dict(closure=result,archive
             audit(observer,30,self.cell['observation_marks'])
             observers.append(dict(id='pool-a-'+role,directory=str(observer),max_gap_seconds=30,marks=self.cell['observation_marks']))
         client=self.out/'raw/client';q=client/'q'/self.tag
-        work=client/'w'/self.tag/'draft/workload'
-        write_new(self.out/'work-packet.json',dict(cell_id=self.id,results=[dict(agent_index=0,evidence=ref(work/'result.json'),raw=ref(work/'fio.json'))]))
+        draft=client/'w'/self.tag/'draft'
+        work=draft/'workload'
+        if self.kind=='fio':packet=dict(agent_index=0,evidence=ref(work/'result.json'),raw=ref(work/'fio.json'))
+        else:
+            source=self.get('client',self.s['trace']['case']+'/metrics.json','source-metrics.json')
+            packet=dict(agent_index=0,evidence=ref(draft/'replay.json'),source_metrics=ref(source))
+        write_new(self.out/'work-packet.json',dict(cell_id=self.id,results=[packet]))
         checked=suite_validate.work(self.plan,self.id,load(self.out/'work-packet.json'))
         write_new(self.out/'work-check.json',checked)
         full=load(q/'verify/result.json');parent=load(q/'parent-verify/result.json')
@@ -251,19 +275,29 @@ write_new(q/'archive.json',checked);print(json.dumps(dict(closure=result,archive
                      all_unmounted=all(c['all_unmounted'] for c in closures),pending_upload_bytes=0,pending_upload_operations=0,nodes=closures)
         write_new(self.out/'closure.json',closure)
         co=load(self.out/'cohort/result.json')
-        native=co['jobs'][0]['result']['native_jobs']
-        if len(native)!=1:raise ValueError('Pilot percentile adapter requires one native fio job')
         io_metrics={};metrics={}
-        for direction in ('read','write','sync'):
-            v=native[0][direction]
-            for name,unit,preference in [('bw_bytes','bytes/second','higher'),('iops','operations/second','higher')]:
-                if name in v:io_metrics[direction+'_'+name]=dict(value=v[name],unit=unit,direction=preference)
-            percentiles=v.get('clat_ns' if direction!='sync' else 'lat_ns',{}).get('percentile',{})
-            if '99.000000' in percentiles:
-                io_metrics[direction+'_p99_ns']=dict(value=percentiles['99.000000'],unit='nanoseconds',direction='lower')
+        if self.kind=='fio':
+            native=co['jobs'][0]['result']['native_jobs']
+            if len(native)!=1:raise ValueError('Pilot percentile adapter requires one native fio job')
+            for direction in ('read','write','sync'):
+                v=native[0][direction]
+                for name,unit,preference in [('bw_bytes','bytes/second','higher'),('iops','operations/second','higher')]:
+                    if name in v:io_metrics[direction+'_'+name]=dict(value=v[name],unit=unit,direction=preference)
+                percentiles=v.get('clat_ns' if direction!='sync' else 'lat_ns',{}).get('percentile',{})
+                if '99.000000' in percentiles:
+                    io_metrics[direction+'_p99_ns']=dict(value=percentiles['99.000000'],unit='nanoseconds',direction='lower')
+            metric_source=ref(work/'fio.json');metric_scope='One native fio job; operation p99 is distinct from task p99.'
+        else:
+            replay=load(draft/'replay.json')
+            for name in ('actual_read_bytes','actual_write_bytes','operations'):
+                io_metrics[name]=dict(value=replay[name],unit='operations' if name=='operations' else 'bytes',direction='coverage')
+            io_metrics['replay_seconds']=dict(value=replay['execution_seconds'],unit='seconds',direction='lower')
+            io_metrics['captured_repeated_read_ratio']=dict(value=load(source)['repeated_read_ratio'],unit='fraction',direction='descriptive')
+            metric_source=ref(draft/'replay.json');metric_scope='Logical trace work; actual FUSE, S3, Redis and physical I/O are separate raw observer counters. Repeated-read ratio describes the captured input.'
         write_new(self.out/'io-metrics.json',dict(passed=True,cell_id=self.id,metrics=io_metrics,
-                  source=ref(work/'fio.json'),scope='One native fio job; operation p99 is distinct from task p99.'))
+                  source=metric_source,scope=metric_scope))
         for name,v in io_metrics.items():
+            if v['direction'] not in ('lower','higher'):continue
             metrics[name]=dict(evidence=ref(self.out/'io-metrics.json'),field='metrics.'+name+'.value',unit=v['unit'],direction=v['direction'])
         metrics['task_wall']=dict(evidence=ref(self.out/'cohort/result.json'),field='coordinator_makespan_seconds',unit='seconds',direction='lower')
         checks={k:dict(evidence=ref(self.out/'verification.json'),equals={'passed':True,'cell_id':self.id})
@@ -275,7 +309,7 @@ write_new(q/'archive.json',checked);print(json.dumps(dict(closure=result,archive
                     uninterrupted=not self.s.get('recovery',False),recovered=self.s.get('recovery',False),checks=checks,required_observer_ids=[o['id'] for o in observers],
                     required_marks=self.cell['observation_marks'],observers=observers,
                     metrics=metrics,
-                    timings_seconds={'native_measure':co['jobs'][0]['result']['wrapper_wall_seconds']},
+                    timings_seconds={'native_measure':co['jobs'][0]['result']['wrapper_wall_seconds' if self.kind=='fio' else 'execution_seconds']},
                     limitations=['One agent, one pilot repetition; no scaling or stable speedup conclusion.',
                                  'Fresh client caches; shared backend/page caches remain observed.'])
         write_new(self.out/'sample.json',sample);write_new(self.out/'archives.json',archives)
@@ -325,6 +359,11 @@ def main():
         expected='6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc'
     if c.remote('client',['sha256sum',binary]).split()[0]!=expected:
         raise ValueError('Deployed client binary differs from this batch')
+    if c.kind=='trace':
+        for name in ('manifest','binary','verifier'):
+            binding=c.s['trace'][name]
+            if c.remote('client',['sha256sum',binding['path']]).split()[0]!=binding['sha256']:
+                raise ValueError('Trace binding changed: '+name)
     for stage in c.cell['stages']:
         step=dict(schema='experiment-step-v1',reviewed=True,cell_id=c.id,stage=stage,
                   argv=[sys.executable,str(Path(__file__).resolve()),'--context',str(a.context),'--stage',stage],

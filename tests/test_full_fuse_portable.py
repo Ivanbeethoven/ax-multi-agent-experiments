@@ -46,5 +46,13 @@ class PortableReplay(unittest.TestCase):
         self.assertEqual(process.returncode,0,process.stderr)
         self.assertEqual(report['mode'],'strict')
 
+    def test_directory_fd_cache_keeps_strict_byte_check(self):
+        for actual,expected_code in [(b'right',0),(b'wrong',1)]:
+            process,report=self.replay(actual,b'right',options=('--portable-terminal-probe','--cache-parent-fds'))
+            self.assertEqual(process.returncode,expected_code,process.stderr)
+            if not expected_code:
+                self.assertEqual(report['path_resolution'],'parent-fd-cache')
+                self.assertLessEqual(report['parent_fds']['peak'],report['parent_fds']['capacity'])
+
 
 if __name__=='__main__':unittest.main()

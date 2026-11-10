@@ -44,7 +44,7 @@ def request(asset,cell,root):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('action',choices=['asset-init','draft-mount','start','stop','fio-base','fio-base-check','copy-fio','copy-smallfiles','fio','debt','worker'])
+    p.add_argument('action',choices=['asset-init','draft-mount','start','stop','fio-base','fio-base-check','copy-fio','copy-smallfiles','copy-trace','trace-sync','verify-trace','trace-base-check','fio','debt','worker'])
     p.add_argument('--asset',type=Path,required=True)
     p.add_argument('--out',type=Path,required=True)
     p.add_argument('--plan',type=Path)
@@ -60,6 +60,13 @@ def main():
     p.add_argument('--child-name',help='Separate fresh children for calibration; workload identity still comes from the frozen cell')
     p.add_argument('--workspace',type=int,help='Exact positive synthetic small-file child tag')
     p.add_argument('--root-at-mount',action='store_true',help='Entity smallfiles: the fresh namespace is the private child root')
+    p.add_argument('--trace-case',type=Path)
+    p.add_argument('--trace-manifest',type=Path)
+    p.add_argument('--replay-binary',type=Path)
+    p.add_argument('--replay-result',type=Path)
+    p.add_argument('--trace-verifier',type=Path)
+    p.add_argument('--trace-verifier-sha256')
+    p.add_argument('--cache-parent-fds',action='store_true')
     a=p.parse_args()
     environment(Path('/srv/ax-client/private/rustfs.env'))
     if a.join_slot:
@@ -145,21 +152,23 @@ def main():
         if cell['workload']!='smallfiles' or cell['arm_id'] not in ('packed','entity-native'):
             raise ValueError('Only fresh entity small-file namespaces use the mount root')
         root=Path(asset['mount_point'])
-    if a.action in ('copy-fio','copy-smallfiles'):
+    if a.action in ('copy-fio','copy-smallfiles','copy-trace'):
         if root.exists():raise ValueError('Fresh private child required')
         if a.action=='copy-smallfiles' and (cell['workload']!='smallfiles' or cell['arm_id'] not in ('native','juicefs')):
             raise ValueError('Copy/clone a C3 flat native or JuiceFS base only')
-        source=Path(asset['mount_point'])/('base' if a.action=='copy-smallfiles' else 'base-'+str(cell['params']['block_bytes']))
+        if a.action=='copy-trace' and (cell['workload']!='trace' or cell['arm_id'] not in ('native','juicefs')):
+            raise ValueError('Copy/clone a qualified flat C2 base only')
+        source=Path(asset['mount_point'])/('base' if a.action in ('copy-smallfiles','copy-trace') else 'base-'+str(cell['params']['block_bytes']))
         a.out.mkdir(parents=True,exist_ok=False);begin=time.monotonic()
         argv=(['/srv/ax-client/assets/bin/juicefs','clone','-p',str(source),str(root)] if asset['product']=='juicefs'
               else ['/usr/bin/cp','-a','--reflink=never','--',str(source),str(root)])
         with (a.out/'stdout.log').open('xb') as out,(a.out/'stderr.log').open('xb') as err:
             result=subprocess.run(argv,stdout=out,stderr=err)
         if result.returncode==0:
-            if a.action=='copy-smallfiles':
+            if a.action in ('copy-smallfiles','copy-trace'):
                 from pilot_io import fsync_import
-                count=fsync_import(root)
-                if count!=cell['params']['files']:raise ValueError('Copied child file count differs')
+                count=fsync_import(root,allow_symlinks=a.action=='copy-trace')
+                if a.action=='copy-smallfiles' and count!=cell['params']['files']:raise ValueError('Copied child file count differs')
             else:
                 for path in sorted(root.iterdir()):
                     with path.open('rb') as f:os.fsync(f.fileno())
@@ -169,6 +178,32 @@ def main():
         write_new(a.out/'result.json',dict(passed=result.returncode==0,argv=argv,exit_code=result.returncode,wall_seconds=time.monotonic()-begin,
             source=str(source),child=str(root),method='native-clone' if asset['product']=='juicefs' else 'full-independent-copy'))
         result.check_returncode();return
+    if a.action in ('trace-sync','verify-trace','trace-base-check'):
+        if cell['workload']!='trace' or cell['arm_id'] not in ('native','juicefs'):
+            raise ValueError('Flat C2 route required')
+        if a.action=='trace-sync':
+            from pilot_io import fsync_import
+            a.out.mkdir(parents=True,exist_ok=False);begin=time.monotonic()
+            files=fsync_import(root,allow_symlinks=True)
+            write_new(a.out/'result.json',dict(passed=True,files=files,wall_seconds=time.monotonic()-begin,
+                scope='Extra final-file durability barrier outside replay timing'));return
+        if not a.trace_case:raise ValueError('Exact trace case required')
+        if a.action=='trace-base-check':
+            sys.path.insert(0,str(REPO/'scripts'))
+            from full_trace_common import tree
+            if tree(Path(asset['mount_point'])/'base')!=load(a.trace_case/'initial-tree.json'):
+                raise ValueError('Immutable trace parent changed')
+            a.out.mkdir(parents=True,exist_ok=False)
+            write_new(a.out/'result.json',dict(passed=True,expected=ref(a.trace_case/'initial-tree.json')));return
+        if not a.trace_verifier or digest(a.trace_verifier)!=a.trace_verifier_sha256:
+            raise ValueError('Pinned trace verifier required')
+        if not a.replay_binary or not a.replay_result:raise ValueError('Original performance report and binary required')
+        subprocess.run([sys.executable,str(a.trace_verifier),'--case',str(a.trace_case),'--binary',str(a.replay_binary),
+            '--root',str(root),'--out',str(a.out),'--verify-only','--performance-readback',
+            '--replay-result',str(a.replay_result),*(['--cache-parent-fds'] if a.cache_parent_fds else [])],check=True)
+        verified=load(a.out/'verification.json')
+        verified['verification_source']=ref(a.out/'verification.json')
+        write_new(a.out/'result.json',verified);return
     if a.action=='fio':
         value=fio(request(asset,cell,root),a.phase,a.out)
         print(json.dumps(dict(passed=value['passed'],phase=a.phase,application_bytes=value['application_bytes'])));return
@@ -180,12 +215,21 @@ def main():
             s=dict(kind='smallfiles',binary=ref('/srv/ax-client/assets/bin/smallfiles'),root=str(root),
                    params=cell['params'],seed=asset['seed'],workspace=a.workspace)
         elif cell['workload']=='fio':s=request(asset,cell,root)
-        else:raise ValueError('This worker adapter accepts fio or smallfiles only')
+        elif cell['workload']=='trace':
+            if not all((a.trace_case,a.trace_manifest,a.replay_binary)):raise ValueError('Pinned full trace, manifest and replay binary required')
+            if a.trace_case.name!=cell['params']['trace'] or cell['params']['agents']!=1 or cell['params']['tasks_per_agent']!=1 or cell['params']['pacing']!='off' or cell['params']['replay']!='complete':
+                raise ValueError('This pilot adapter uses one complete, unpaced trace from the frozen case')
+            s=dict(kind='trace',binary=ref(a.replay_binary),root=str(root),case=str(a.trace_case),manifest=ref(a.trace_manifest),
+                   params=cell['params'],seed=asset['seed'],cache_parent_fds=a.cache_parent_fds)
+        else:raise ValueError('This worker adapter accepts fio, smallfiles or trace only')
         s.update(worker_id='a01',workload_id=cell['case'],cwd=str(REPO),purpose=a.purpose,
             python=ref(sys.executable),helper=ref(REPO/'bench/fio_workload.py'),io_helper=ref(REPO/'bench/experiment_io.py'),
             mount=dict(spec=ref(a.spec),directory=str(a.mount_run)))
         write_new(a.out/'request.json',s)
-        value=worker(a.out/'request.json',a.out/'draft')
+        if cell['workload']=='trace':
+            from bench.runtime.prepare import trace_worker
+            value=trace_worker(a.out/'request.json',a.out/'draft')
+        else:value=worker(a.out/'request.json',a.out/'draft')
         command=review(a.out/'draft/step.json','pilot-operator','Exact fixed-work '+cell['workload']+' request bound to this mount, native helper and suite workload parameters.')
         write_new(a.out/'step.reviewed.json',command)
         value['jobs'][0]['step']=ref(a.out/'step.reviewed.json')

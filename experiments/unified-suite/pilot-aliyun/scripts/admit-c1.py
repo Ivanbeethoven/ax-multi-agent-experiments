@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Admit one explicit C1 cell from actual preparation and calibration receipts."""
+"""Admit one explicit flat C1/C2 cell from actual preparation and calibration."""
 import argparse
 import json
 from pathlib import Path
@@ -27,11 +27,14 @@ def main():
     p.add_argument('--observer-tool-name',default='make-observer-cloud-03.py')
     p.add_argument('--observer-tool-sha256',required=True)
     p.add_argument('--collector-name',required=True)
+    p.add_argument('--latest-check',type=Path,help='Required explicit branch receipt for a new C2 batch')
     p.add_argument('--out',type=Path,required=True)
     a=p.parse_args()
     plan=load(a.control/'suite/plan.json');cell=next(c for c in plan['cells'] if c['id']==a.cell)
-    if cell['workload']!='fio' or cell['arm_id'] not in ('native','juicefs'):
-        raise ValueError('This adapter only admits its two C1 routes')
+    if cell['workload'] not in ('fio','trace') or cell['arm_id'] not in ('native','juicefs'):
+        raise ValueError('This adapter only admits flat C1/C2 routes')
+    is_trace=cell['workload']=='trace'
+    if is_trace and not a.latest_check:raise ValueError('Explicit latest-branch check required for C2')
     q=a.qualification/cell['arm_id'];work=load(q/'workload.json');overhead=load(a.overhead)
     if work['params']!=cell['params']:
         raise ValueError('Calibration workload differs; provide a matching qualification')
@@ -44,7 +47,8 @@ def main():
     if load(a.control/'allocation.json')['passed'] is not True:raise ValueError('Allocation failed')
     if plan['config']['build_manifest_sha256']!=digest(a.control/'provenance/build-manifest.json') or plan['config']['input_manifest_sha256']!=digest(a.control/'provenance/input-manifest.json'):
         raise ValueError('Frozen provenance differs')
-    latest=load(a.control/'provenance/latest-before-formal-c1-01.json')
+    latest_path=a.latest_check or a.control/'provenance/latest-before-formal-c1-01.json'
+    latest=load(latest_path)
     if latest['passed'] is not True or latest['build_manifest_sha256']!=plan['config']['build_manifest_sha256']:
         raise ValueError('Latest-branch check missing or changed')
     inventory=load(a.control/'fleet.json')
@@ -64,7 +68,7 @@ def main():
     proof=dict(passed=True,plan_sha256=plan['plan_sha256'],cell_id=cell['id'],
                provenance=[ref(a.control/'provenance'/n) for n in ('build-manifest.json','input-manifest.json','inventory.json')],
                actual_allocation=ref(a.control/'allocation.json'),actual_asset=ref(assetdir/'asset.json'),
-               cache_checked=cache_ok,latest_branch_check=ref(a.control/'provenance/latest-before-formal-c1-01.json'),
+               cache_checked=cache_ok,latest_branch_check=ref(latest_path),
                source_roles=[n['id'] for n in inventory['nodes']])
     write_new(a.out/'provenance-cache.json',proof)
     gates={
@@ -73,22 +77,36 @@ def main():
         'effective-cache-and-durability':a.out/'provenance-cache.json',
         'host-capacity-and-maintenance':a.qualification/'hardware.json',
         'complete-telemetry-and-overhead':a.overhead}
+    if is_trace:
+        gates.update({'complete-trace-qualification':q/'filesystem.json','fresh-initial-tree':q/'input.json',
+                      'repo-home-xdg-on-mount':q/'input.json'})
     if set(gates)!=set(cell['required_gates']):raise ValueError('Unexpected additional gate')
     qualification=dict(schema='suite-qualification-v1',plan_sha256=plan['plan_sha256'],cell_id=cell['id'],
                        checks=[dict(gate=g,evidence=ref(gates[g]),equals={'passed':True}) for g in cell['required_gates']])
     write_new(a.out/'qualification.json',qualification)
-    geometry='seq' if cell['params']['block_bytes']==1048576 else 'random'
-    prepared=assetdir/('base-'+geometry+'-prepare/result.json')
-    verified=assetdir/('base-'+geometry+'-verify/result.json')
-    cold=assetdir/('cold-base-verify-'+str(cell['params']['block_bytes'])+'/result.json')
-    for path in (prepared,verified,cold):
-        value=load(path)
-        if not value['passed'] or value['application_bytes']!=cell['params']['file_bytes_per_job']:
-            raise ValueError('Exact full base preparation/CRC check required')
+    if not is_trace:
+        geometry='seq' if cell['params']['block_bytes']==1048576 else 'random'
+        prepared=assetdir/('base-'+geometry+'-prepare/result.json')
+        verified=assetdir/('base-'+geometry+'-verify/result.json')
+        cold=assetdir/('cold-base-verify-'+str(cell['params']['block_bytes'])+'/result.json')
+        for path in (prepared,verified,cold):
+            value=load(path)
+            if not value['passed'] or value['application_bytes']!=cell['params']['file_bytes_per_job']:
+                raise ValueError('Exact full base preparation/CRC check required')
+        base_path=asset['mount_point']+'/base-'+str(cell['params']['block_bytes'])
+        timings={name:load(path)['wrapper_wall_seconds'] for name,path in [('prepare',prepared),('full_verify',verified),('cold_full_verify',cold)]}
+    else:
+        raw=a.qualification/'route';binding=load(q/'binding.json')
+        prepared=q/'input.json';verified=raw/'strict-proof/verification.json';cold=raw/'cold-proof/verification.json'
+        if any(load(p)['passed'] is not True for p in (prepared,verified,cold)) or load(raw/'import/exit.json')['exit_code']!=0:
+            raise ValueError('Full initial import, strict qualification and original cold readback required')
+        base_path=asset['mount_point']+'/base'
+        timings=dict(import_seconds=load(raw/'import/exit.json')['wall_seconds'],
+            strict_replay=load(raw/'strict/exit.json')['wall_seconds'],cold_readback=load(raw/'cold-readback/exit.json')['wall_seconds'])
     receipt=dict(schema='suite-asset-v1',plan_sha256=plan['plan_sha256'],asset_id=cell['asset_id'],
-                 native_binding=dict(asset=ref(assetdir/'asset.json'),base_path=asset['mount_point']+'/base-'+str(cell['params']['block_bytes']),
+                 native_binding=dict(asset=ref(assetdir/'asset.json'),base_path=base_path,
                                      bucket=asset['bucket'],database=asset['database']),
-                 timings_seconds={name:load(path)['wrapper_wall_seconds'] for name,path in [('prepare',prepared),('full_verify',verified),('cold_full_verify',cold)]},
+                 timings_seconds=timings,
                  stages={name:dict(evidence=ref(path),equals={'passed':True}) for name,path in {
                      'source-verify':q/'input.json','import':prepared,'full-base-verify':verified,'cache-reset':cold}.items()})
     write_new(a.out/'asset.json',receipt)
@@ -104,6 +122,7 @@ def main():
                  overhead=ref(a.overhead),node_tool=dict(path=a.node_tool,sha256=a.node_tool_sha256),
                  observer_tool_name=a.observer_tool_name,observer_tool_sha256=a.observer_tool_sha256,
                  collector_name=a.collector_name)
+    if is_trace:context.update(asset=binding['asset'],trace=binding['trace'])
     write_new(a.out/'context.json',context)
     print(json.dumps(dict(passed=True,cell_id=cell['id'],context=ref(a.out/'context.json'))))
 

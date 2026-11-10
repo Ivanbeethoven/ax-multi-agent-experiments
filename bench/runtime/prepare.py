@@ -152,6 +152,7 @@ def trace_worker(request, output):
     from ..trace_checks import inputs
     from ..experiment_io import linux_path
     s = load(request)
+    if type(s.get('cache_parent_fds',False)) is not bool:raise ValueError('cache_parent_fds must be an explicit boolean')
     if not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9_-]*',s['worker_id']): raise ValueError('worker ID required')
     case = Path(s['case']).resolve(strict=True)
     manifest = pinned(s['manifest'])
@@ -178,6 +179,8 @@ def trace_worker(request, output):
                     str(output/'replay.json'),'--performance'],
             'cwd':str(cwd),'executable_sha256':s['binary']['sha256'],'inputs':[s['manifest'],*refs],
             'inherit_environment':[]}
+    if s.get('cache_parent_fds'):
+        step['argv'].append('--cache-parent-fds')
     write_new(output/'step.json', step)
     value = {'schema':'experiment-worker-v1','reviewed':False,'worker_id':s['worker_id'],
              'purpose':purpose,'kind':'trace','budget':AGENT_BUDGET,'requires_mount':True,'mount':s['mount'],
@@ -187,6 +190,7 @@ def trace_worker(request, output):
                           'completed':True,'mode':'performance','valid':False,'operations':metrics['callbacks'],
                           'actual_read_bytes':metrics['actual_read_bytes'],
                           'actual_write_bytes':metrics['actual_write_bytes'],'remaining_handles':0}}}]}
+    if s.get('cache_parent_fds'):value['jobs'][0]['result']['equals']['path_resolution']='parent-fd-cache'
     write_new(output/'worker.json', value)
     return value
 

@@ -45,6 +45,7 @@ def main():
     p.add_argument('--qualifier-sha256',required=True)
     p.add_argument('--attempt',default='qual-01')
     p.add_argument('--portable-terminal-probe',action='store_true')
+    p.add_argument('--cache-parent-fds',action='store_true')
     p.add_argument('--replay-binary',type=Path,default=Path('/srv/ax-client/assets/bin/full-fuse-replay'))
     a=p.parse_args()
     if not re.fullmatch(r'[a-z0-9-]{3,32}',a.attempt):raise ValueError('Short explicit attempt required')
@@ -95,6 +96,7 @@ def main():
               else ['cp','-a','--reflink=never','--',base,child])
         run('create-strict-child',argv);sync_tree(child)
         portability=['--portable-terminal-probe'] if a.portable_terminal_probe else []
+        if a.cache_parent_fds:portability+=['--cache-parent-fds']
         run('strict',['python3',a.qualifier,'--case',a.case,'--binary',a.replay_binary,
                       '--root',child,'--out',a.out/'strict-proof','--prepared-root',*portability])
         begin=time.monotonic();sync_tree(child)

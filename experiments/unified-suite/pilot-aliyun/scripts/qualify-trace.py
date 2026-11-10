@@ -46,14 +46,18 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--prepared-root', action='store_true', help='Use an already imported/isolated initial tree')
     parser.add_argument('--verify-only', action='store_true', help='Check a cold reopened final tree without replaying operations')
-    parser.add_argument('--replay-result', type=Path, help='Original strict replay report for verify-only')
+    parser.add_argument('--replay-result', type=Path, help='Original replay report for verify-only')
     parser.add_argument('--portable-terminal-probe',action='store_true',help='Only allow TCGETS ENOTTY to EOPNOTSUPP; retain all byte checks')
+    parser.add_argument('--performance-readback',action='store_true',help='Verify final content after a performance replay; does not validate intermediate read bytes')
+    parser.add_argument('--cache-parent-fds',action='store_true',help='Reuse bounded directory FDs; invalidate around namespace and permission changes')
     args = parser.parse_args()
     case = args.case.resolve(strict=True)
     root = args.root.absolute()
     out = args.out.absolute()
     if args.verify_only != bool(args.replay_result):
         raise ValueError('verify-only requires its original strict replay result')
+    if args.performance_readback and (not args.verify_only or args.portable_terminal_probe):
+        raise ValueError('performance-readback requires verify-only and excludes strict replay options')
     for p in (root, out):
         existing_root=p==root and (args.prepared_root or args.verify_only) and p.is_dir()
         if (p.exists() and not existing_root) or p.is_symlink() or p.is_relative_to(case) or case.is_relative_to(p):
@@ -75,6 +79,7 @@ def main():
     command = [str(args.binary.resolve()), str(case/'capture/events.jsonl'),
                str(case/'capture/blobs'), str(root), str(out/'replay.json')]
     if args.portable_terminal_probe:command.append('--portable-terminal-probe')
+    if args.cache_parent_fds:command.append('--cache-parent-fds')
     if args.verify_only:
         save(out/'replay-source.json',dict(path=str(args.replay_result),sha256=digest(args.replay_result),replayed=False))
         report=json.loads(args.replay_result.read_text())
@@ -91,10 +96,15 @@ def main():
             raise RuntimeError('Strict replay failed; original output retained')
         report = json.loads((out/'replay.json').read_text())
     metrics = json.loads((case/'metrics.json').read_text())
-    if not report['valid'] or not report['completed'] or report['remaining_handles']:
-        raise ValueError('Incomplete strict replay')
-    if report['mode']!=('strict-portable-terminal-probe' if args.portable_terminal_probe else 'strict'):
+    if not report['completed'] or report['remaining_handles']:
+        raise ValueError('Incomplete replay')
+    if report['valid'] is not (not args.performance_readback):
+        raise ValueError('Unexpected intermediate-byte validation status')
+    mode='performance' if args.performance_readback else 'strict-portable-terminal-probe' if args.portable_terminal_probe else 'strict'
+    if report['mode']!=mode:
         raise ValueError('Unexpected replay validation mode')
+    resolution='parent-fd-cache' if args.cache_parent_fds else 'full-path'
+    if report.get('path_resolution','full-path')!=resolution:raise ValueError('Unexpected path resolution policy')
     for actual, expected in [('operations','callbacks'), ('actual_read_bytes','actual_read_bytes'),
                              ('actual_write_bytes','actual_write_bytes')]:
         if report[actual] != metrics[expected]:
@@ -125,14 +135,15 @@ def main():
         if digest(db) != before:
             raise ValueError('DB verifier changed replay data')
         databases.append(dict(path=db.relative_to(root).as_posix(), sha256=before, quick_check='ok', rows=counts))
-    save(out/'verification.json', dict(passed=True, strict=not args.portable_terminal_probe,byte_validation=True,
+    save(out/'verification.json', dict(passed=True, strict=not args.portable_terminal_probe and not args.performance_readback,
+         byte_validation=not args.performance_readback,final_byte_validation=True,replay_mode=mode,path_resolution=resolution,
          portable_terminal_probe=args.portable_terminal_probe,probe_errno_differences=report.get('probe_errno_differences',0),
          initial_tree_equal=None if args.verify_only else True, final_tree_equal=True,
          hardlink_topology_equal=True, databases=databases, callbacks=report['operations'],
          actual_read_bytes=report['actual_read_bytes'], actual_write_bytes=report['actual_write_bytes'],
          captured_repeated_read_ratio=metrics['repeated_read_ratio'],
          purpose=purpose,replayed=not args.verify_only,
-         scope='Callback counts, file bytes, modes, links and copied SQLite integrity; explicit terminal-probe policy; no Agent resume or performance acceptance claim'))
+         scope='Exact callback/byte counts and final file bytes, modes, links and copied SQLite integrity. Intermediate reads are byte-checked only in strict replay modes; no Agent resume or performance acceptance claim'))
     print((out/'verification.json').read_text())
 
 

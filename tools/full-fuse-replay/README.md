@@ -2,6 +2,8 @@
 
 云上不同FUSE实现的终端探测可使用 `--portable-terminal-probe`：仅当原记录的 `ioctl(TCGETS)` 返回 `ENOTTY=25`、实际返回 `EOPNOTSUPP=95` 时接受差异。每次差异的序号写入stderr，数量写入报告。读内容SHA256、写入载荷、目录/属性和其他错误码仍按严格模式检查。报告明确标为 `mode=strict-portable-terminal-probe`，不能称为错误码完全一致；不能与 `--performance` 同用。默认严格模式保持原样。实验还需独立核最终树和数据库。
 
+可选 `--cache-parent-fds` 复用最多256个父目录句柄，减少路径回放额外产生的逐层目录查询。重命名、创建、删除、链接和权限修改前后清空这些句柄；严格模式仍核读取SHA256、写入载荷、返回结果及路径范围。可与严格、终端探测兼容或性能模式组合，报告单独记录 `path_resolution=parent-fd-cache` 和命中/打开/失效/峰值数量。默认保持 `full-path`。两种被测文件系统必须使用相同选项，并先完成该选项下的全量字节与冷读回验证；实际FUSE请求数须从客户端计数器读取，不能用输入回调数替代。
+
 可选 [LLM 等待模拟](THINK-TIME.zh.md)：默认关闭，只在多 Agent 回放显式使用 --simulate-llm PLAN.json；工具/轮次边界每段 0–15 秒，计划总等待固定，直接性能命令保持无等待。
 
 这个 Rust 入口读取 `full_fuse_record.py` 产生的高层 FUSE 回调记录。它是完整任务试跑的扩展入口；原独立 `fuse-workload-replay` 的 v1 输入格式和 27 次操作记录保持原样。

@@ -1,5 +1,7 @@
 use serde_json::{json, Value};
 mod pacing;
+mod parent_paths;
+use std::cell::RefCell;
 use sha2::{Digest, Sha256};
 use std::{
     collections::HashMap,
@@ -41,6 +43,7 @@ struct Replay {
     read: u64,
     write: u64,
     performance: bool,
+    parent_paths:Option<RefCell<parent_paths::ParentPaths>>,
 }
 impl Replay {
     fn path(&self, v: &Value, follow: bool) -> io::Result<PathBuf> {
@@ -49,6 +52,9 @@ impl Replay {
             return Err(invalid("unsafe path"));
         }
         let p = self.root.join(s.trim_start_matches('/'));
+        if let Some(cache)=&self.parent_paths {
+            return cache.borrow_mut().resolve(&self.root,&p,follow,self.performance);
+        }
         // Performance mode accepts only a trusted, preflighted capture in a private root.
         // Avoid extra exists/canonicalize syscalls that are absent from the trace.
         if self.performance {
@@ -90,6 +96,7 @@ impl Replay {
     fn operation(&mut self, e: &Value) -> io::Result<Value> {
         let a = e["args"].as_array().unwrap();
         let op = string(&e["op"]);
+        if let Some(cache)=&self.parent_paths {cache.borrow_mut().before(op)}
         match op {
             "init" | "destroy" => Ok(Value::Null),
             "open" | "create" | "opendir" => {
@@ -352,12 +359,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let mut performance = false;
     let mut portable_probe = false;
+    let mut cache_parent_fds=false;
     let mut think_path = None;
     let mut option = 4;
     while option < a.len() {
         match a[option].as_str() {
             "--performance" if !performance => performance = true,
             "--portable-terminal-probe" if !portable_probe => portable_probe = true,
+            "--cache-parent-fds" if !cache_parent_fds=>cache_parent_fds=true,
             "--simulate-llm" if think_path.is_none() && option + 1 < a.len() => {
                 option += 1;
                 think_path = Some(Path::new(&a[option]));
@@ -385,6 +394,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         read: 0,
         write: 0,
         performance,
+        parent_paths:cache_parent_fds.then(||RefCell::new(parent_paths::ParentPaths::new())),
     };
     let mut count = 0;
     let mut expected_errors = 0;
@@ -448,6 +458,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     serde_json::to_writer_pretty(
         output,
         &json!({"valid":!performance,"completed":true,"mode":if performance {"performance"} else if portable_probe {"strict-portable-terminal-probe"} else {"strict"},"probe_errno_differences":probe_errno_differences,"operations":count,"expected_errors":expected_errors,"actual_read_bytes":r.read,"actual_write_bytes":r.write,"execution_seconds":execution.as_secs_f64(),
+                "path_resolution":if cache_parent_fds {"parent-fd-cache"} else {"full-path"},
+                "parent_fds":r.parent_paths.as_ref().map(|c|{let c=c.borrow();json!({"hits":c.hits,"misses":c.misses,"invalidations":c.invalidations,"peak":c.peak,"capacity":parent_paths::ParentPaths::capacity()})}),
                 "active_replay_seconds":execution.saturating_sub(slept).as_secs_f64(),
                 "think_time":pacer.as_ref().map(|p|p.report()).unwrap_or(json!({"enabled":false,"planned_total_ms":0,"actual_sleep_seconds":0.0})),
                 "remaining_handles":r.handles.len(),"scope":"serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay"}),

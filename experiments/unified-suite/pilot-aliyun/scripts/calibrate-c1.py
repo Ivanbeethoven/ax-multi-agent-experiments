@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run one explicitly selected fresh-mount C1 observer calibration trial."""
+"""Run one explicitly selected fresh-mount flat C1/C2 observer calibration trial."""
 import argparse
 from datetime import datetime,timezone
 import json
@@ -23,7 +23,7 @@ def main():
     p.add_argument('--control',type=Path,required=True)
     p.add_argument('--qualification',type=Path,required=True)
     p.add_argument('--product',choices=['brewfs','juicefs'],required=True)
-    p.add_argument('--case',choices=['fio-read','fio-write','fio-randread','fio-randwrite','fio-randrw'],default='fio-randread')
+    p.add_argument('--case',default='fio-randread')
     p.add_argument('--mode',choices=['on','off'],required=True)
     p.add_argument('--attempt',required=True)
     p.add_argument('--collector-name',required=True)
@@ -42,6 +42,13 @@ def main():
     arm='native' if a.product=='brewfs' else 'juicefs'
     plan=load(a.control/'suite/plan.json')
     cell=next(c for c in plan['cells'] if c['case']==a.case and c['arm_id']==arm)
+    if cell['workload'] not in ('fio','trace'):raise ValueError('Flat C1/C2 calibration only')
+    trace=load(a.qualification/arm/'binding.json') if cell['workload']=='trace' else None
+    asset=trace['asset'] if trace else '/srv/ax-client/a/c1-'+arm
+    def trace_fields():
+        t=trace['trace']
+        return dict(trace_case=t['case'],trace_manifest=t['manifest']['path'],replay_binary=t['binary']['path'],
+                    trace_verifier=t['verifier']['path'],trace_verifier_sha256=t['verifier']['sha256'],cache_parent_fds=t.get('cache_parent_fds',False))
     config=a.control/'ssh.conf';sequence=0
     def remote(role,argv):
         nonlocal sequence
@@ -59,16 +66,21 @@ def main():
         if digest(target)!=wanted:raise ValueError('Changed transfer')
         return target
     def helper(action,**fields):
-        argv=['python3',a.node_tool,action,'--asset','/srv/ax-client/a/c1-'+arm]
+        argv=['python3',a.node_tool,action,'--asset',asset]
         for key,value in fields.items():
             if value is True:argv+=['--'+key.replace('_','-')]
-            elif value is not None:argv+=['--'+key.replace('_','-'),str(value)]
+            elif value is not None and value is not False:argv+=['--'+key.replace('_','-'),str(value)]
         return remote('client',argv)
     # All source preparation shares this data disk. Do not time against a live
     # million-file generator or trace unpacker.
     remote('client',['test','-f','/srv/ax-client/inputs/receipts/result.json'])
     if remote('client',['sha256sum',a.node_tool]).split()[0]!=a.node_tool_sha256:
         raise ValueError('Node preparation tool changed')
+    if trace:
+        for name in ('manifest','binary','verifier'):
+            binding=trace['trace'][name]
+            if remote('client',['sha256sum',binding['path']]).split()[0]!=binding['sha256']:
+                raise ValueError('Trace binding changed: '+name)
     write_new(a.out/'started.json',dict(at=datetime.now(timezone.utc).isoformat(),purpose='observer-calibration-'+a.mode,
         product=a.product,cell_id=cell['id'],node_tool_sha256=a.node_tool_sha256,automatic_retry=False))
     running=remote('objects',['docker','inspect','--format','{{.State.Running}}',a.collector_name]).strip()=='true'
@@ -89,14 +101,14 @@ def main():
     purpose='observer-calibration-'+a.mode
     helper('draft-mount',cell=cell['id'],purpose=purpose,out=base+'/prep')
     helper('start',join_slot=True,spec=base+'/prep/mount.reviewed.json',out=prepstate)
-    helper('copy-fio',join_slot=True,cell=cell['id'],child_name=a.attempt,out=base+'/copy')
+    helper('copy-fio' if not trace else 'copy-trace',join_slot=True,cell=cell['id'],child_name=a.attempt,out=base+'/copy')
     helper('debt',cell=cell['id'],out=base+'/copy-debt')
     helper('stop',mount_run=prepstate,out=base+'/copy-exit.json')
     helper('draft-mount',cell=cell['id'],purpose=purpose,out=base+'/main')
     helper('start',join_slot=True,spec=base+'/main/mount.reviewed.json',out=mainstate)
     workerbase='/srv/ax-client/w/'+a.attempt
     helper('worker',cell=cell['id'],child_name=a.attempt,purpose=purpose,
-        spec=base+'/main/mount.reviewed.json',mount_run=mainstate,out=workerbase)
+        spec=base+'/main/mount.reviewed.json',mount_run=mainstate,out=workerbase,**(trace_fields() if trace else {}))
     worker_ref=json.loads(remote('client',['python3','-c',
         "import hashlib,json,pathlib;p=pathlib.Path("+repr(workerbase+'/worker.reviewed.json')+");print(json.dumps({'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}))"]))
     qualification=a.qualification/arm;metric_ref=ref(qualification/'metrics.json')
@@ -132,12 +144,17 @@ def main():
     result=cohort.run(ref(a.out/'cohort.json'),a.out/'cohort')
     if not result['passed']:raise ValueError('Calibration workload/telemetry failed; preserve original state')
     mark('measure-end')
+    if trace:helper('trace-sync',join_slot=True,cell=cell['id'],child_name=a.attempt,out=base+'/post-replay-sync')
     helper('debt',cell=cell['id'],out=base+'/debt')
     mark('drain-end')
     helper('stop',mount_run=mainstate,out=base+'/exit.json')
     helper('draft-mount',cell=cell['id'],purpose=purpose,out=base+'/verify-mount')
     helper('start',join_slot=True,spec=base+'/verify-mount/mount.reviewed.json',out=verifystate)
-    helper('fio',join_slot=True,cell=cell['id'],child_name=a.attempt,phase='verify',out=base+'/verify')
+    if not trace:helper('fio',join_slot=True,cell=cell['id'],child_name=a.attempt,phase='verify',out=base+'/verify')
+    else:
+        helper('verify-trace',join_slot=True,cell=cell['id'],child_name=a.attempt,out=base+'/verify',
+               replay_result=workerbase+'/draft/replay.json',**trace_fields())
+        helper('trace-base-check',join_slot=True,cell=cell['id'],out=base+'/parent-verify',trace_case=trace['trace']['case'])
     helper('stop',mount_run=verifystate,out=base+'/verify-exit.json')
     mark('verify-end')
     for o in observers:

@@ -1,6 +1,6 @@
 # 阿里云 C1–C4 小规模试跑
 
-最新核对：北京时间2026-11-11 05:01，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-02.json)。[05:00执行快照](evidence/cloud-20261111/progress-0500.json)记录当前仍在运行的JuiceFS完整trace验证；C1–C4全轮尚未完成。
+最新核对：北京时间2026-11-11 05:12，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-03.json)。[05:00执行快照](evidence/cloud-20261111/progress-0500.json)记录当前仍在运行的JuiceFS完整trace验证；C1–C4全轮尚未完成。
 
 本轮已于2026-11-11启动3台私网节点，并复用原跳板和一块独立协调盘；迁移目标机尚未创建。四盘RustFS、Redis、BrewFS和JuiceFS已完成接入及小文件写入/正常卸载/重挂读回检查，C1输入也已完成完整CRC与冷重挂校验。C1两项随机读已关闭：JuiceFS全部阶段通过；BrewFS测量及数据检查通过，归档阶段失败后补收证据，仍记失败，不输出该配对的加速比。设置见[scope.json](scope.json)，路线限制见[审查记录](../PILOT-REVIEW.zh.md)。系统计划有28个单元；未通过资格的路线保留实际失败。C3仍为百万文件，C4恢复仍使用真实OpenCode原生会话。
 
@@ -38,6 +38,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/qualify-rustfs-local.py`、`metric-collector.py` | 核实际B/q、完整与Range读、已知请求数和原生计数；[采集部署](OBSERVABILITY.zh.md) |
 | `scripts/qualify-entity-local.py` | 实际挂载、hardlink/COW/空洞/重命名修改、正常卸载，再以只读Redis账号核原namespace |
 | `scripts/package-deployment.py` | 打包本轮二进制、运行依赖、镜像和执行代码，逐成员核SHA256，供私网分发 |
+| `scripts/package-code.py`、`install-code.py` | 单独冻结执行代码并安装到新的 `code-NN`，核所有成员；旧版本和正在运行的进程保持原路径 |
 | `scripts/configure-pilot.py` | 按三阶段生成计划；实际inventory、build、input摘要齐全后才可冻结执行 |
 | `scripts/cloud.py` | 盘点、询价、逐台购机、独立协调盘、释放与后查；创建前核最新分支，不自动重购 |
 | `scripts/provision-node.py` | 核实际ECS身份与磁盘序列号，只格式化本轮新建的空数据盘；分开安装依赖 |
@@ -48,17 +49,25 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/pilot-node.py`、`make-observer.py`、`prepare-c1-controller.py`、`calibrate-c1.py` | 一次执行一个准备/挂载/负载步骤，或一次明确指定的观测开销试验；不重试正式负载 |
 | `scripts/check-calibration.py` | 检查明确列出的三对结果、原始观测审计、冷读回和退出；不自动挑选试验 |
 | `scripts/derive-c1-qualification.py` | 复用已校验的两种CRC base，另建精确负载合同；其他fio模式仍各自校准 |
-| `scripts/admit-c1.py`、`run-c1.py` | 对一项匹配资格的C1单元准入；每阶段先写SQLite，再执行一次，核三角色原始归档后关闭 |
+| `scripts/admit-c1.py`、`run-c1.py` | 对一项匹配资格的flat C1/C2单元准入；每阶段先写SQLite，再执行一次，核三角色原始归档后关闭；新增C2分支待云上验证 |
 | `scripts/prepare-c2.py` | 独立导入完整初始树，创建私有child，回放并核字节/链接/数据库，再从原后端空缓存重挂核最终树和父目录 |
+| `scripts/trace-manifest.py`、`prepare-c2-controller.py` | 固定完整回放所需文件；只收集已通过的实际路线，生成精确的C2输入、指标和观测开销合同 |
 | `scripts/prepare-smallfiles.py`、`prepare-packed.py` | 分别准备完整百万文件的native/JuiceFS与packed base；当前新增入口尚待云上执行验证 |
+| `scripts/probe-small-object.py` | 在独立新桶写24个4KiB对象，核四份XL2、inline数据、实际分配字节和inode；为百万文件准备容量依据 |
 | `scripts/smallfiles-oracle.py` | 从不可变源和file/version/workspace状态独立计算预期树，供原namespace只读验证；不读取被测输出作为预期 |
 | `scripts/observe-command.py` | 为单次准备/诊断命令采集三角色原始指标并逐成员核归档；不充当正式性能验收 |
-| `scripts/run-one-c1.py` | 只执行明确指定的一个C1单元：六次预先列出的观测开关试验、准入和原有阶段执行；任一步失败便停止 |
+| `scripts/draft-one-c1.py`、`run-one-c1.py` | 先生成可查看的请求，再执行明确指定的一个flat C1/C2单元：六次预先列出的观测开关试验、准入和原有阶段执行；任一步失败便停止 |
 | `scripts/retain-cell.py` | 仅打包已关闭单元，核封存文件集合及全部成员摘要，供独立下载；不启动负载 |
 | `scripts/record-cost.py` | 按真实创建时间与报价保存新增资源的费用估算，列清未包含的项目 |
 | `scripts/verify-latest.py` | 将本轮构建提交与指定远端分支最新提交逐一比较，保留带时间的结果 |
 
 新云节点和跳板启动都要求本地产物、镜像、依赖、功能资格完成。现成脚本不等于已通过路线资格，失败记录保留。
+
+目录句柄复用选项已完成[本机174.7万次完整回放](evidence/preparation/replay-parent-fd-local.json)，读写字节、最终树、硬链接和SQLite一致；[计数](evidence/preparation/replay-parent-fd-local-counts.json)记录最多255个缓存句柄。当前云上JuiceFS原验证仍使用旧工具，未中途替换。后续两种文件系统使用该选项前，须分别通过同选项的云上完整验证。性能回放的冷读回使用 `qualify-trace.py --verify-only --performance-readback`，明确记录只校验最终数据，不把 `valid=false` 的性能报告改称严格通过。
+
+C3的[独立初始清单](evidence/preparation/c3-independent-base-oracle.json)已覆盖100万文件、4,096,000,000B；[生成器交叉检查](evidence/preparation/c3-oracle-generator-check.json)核对了实际Rust修改后的全部64个文件。完整预期树和输入清单留在数据盘，Git只保存回执。05:26的[新增资源估算](evidence/preparation/cost-progress-02.json)约¥12.06，当前新增资源¥4.671/小时；原跳板、网络和OSS另计。
+
+C3有一项容量前置条件：[本机24对象探针](evidence/preparation/small-object-footprint-local.json)中，4KiB数据在每个RustFS槽位占4KiB文件分配和4KiB目录分配；三个hint设置均如此。若每文件对应一个对象，百万文件的base、六个校准child和一个正式child合计每盘65,536,000,000B，已超过60GiB，尚未计共享目录、元数据和旧数据。该探针四目录共盘，只用于布局检查；C3前须在实际四盘复核，并用首份完整base的空间、inode和Redis增量重新核算。容量不足时先扩容并重建C3的实际inventory/资格记录，或在核归档及回收完成后释放已结束的副本；不靠删除目录便假定物理空间已回收。
 
 已关闭C1随机读的[检查报告](evidence/cloud-20261111/c1-randread-report.json)保留两项各自状态。两份完整原始包已另存本地并核全部成员，未把二进制、密钥或完整数据包提交Git。C2探测差异的[原始失败](evidence/cloud-20261111/c2-native-strict-failure.json)和[正常退出](evidence/cloud-20261111/c2-native-strict-closure.json)也已保留。新增回放选项的[本机完整验证](evidence/preparation/replay-portable-terminal-local.json)只证明工具与输入接通，尚不代表云上路线通过。
 

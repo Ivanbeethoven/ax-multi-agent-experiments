@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "strict": false,
+  "byte_validation": false,
+  "final_byte_validation": true,
+  "replay_mode": "performance",
+  "path_resolution": "parent-fd-cache",
+  "portable_terminal_probe": false,
+  "probe_errno_differences": 0,
+  "initial_tree_equal": null,
+  "final_tree_equal": true,
+  "hardlink_topology_equal": true,
+  "databases": [
+    {
+      "path": "state/data/opencode/opencode.db",
+      "sha256": "4064e23efd0f27dc2feaeebe632e3112f8d1a32264827e3dad8af65e40e97a2d",
+      "quick_check": "ok",
+      "rows": {
+        "session": 1,
+        "message": 26,
+        "part": 109
+      }
+    }
+  ],
+  "callbacks": 1747109,
+  "actual_read_bytes": 281774624,
+  "actual_write_bytes": 194706661,
+  "captured_repeated_read_ratio": 0.8974283468478694,
+  "purpose": "cold-readback",
+  "replayed": false,
+  "scope": "Exact callback/byte counts and final file bytes, modes, links and copied SQLite integrity. Intermediate reads are byte-checked only in strict replay modes; no Agent resume or performance acceptance claim"
+}
