@@ -1,0 +1,59 @@
+{
+  "passed": true,
+  "at": "2026-11-10T22:16:37.989500+00:00",
+  "checks": [
+    {
+      "name": "prepare",
+      "exit_code": 0,
+      "expected_success": true
+    },
+    {
+      "name": "copy",
+      "exit_code": 0,
+      "expected_success": true
+    },
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "expected_success": true
+    },
+    {
+      "name": "reject-existing",
+      "exit_code": 1,
+      "expected_success": false
+    },
+    {
+      "name": "reject-corrupt",
+      "exit_code": 1,
+      "expected_success": false
+    },
+    {
+      "name": "reject-extra",
+      "exit_code": 1,
+      "expected_success": false
+    }
+  ],
+  "verifier": {
+    "path": "/home/hxy/ax-unified-pilot-prep/bin/smallfiles",
+    "sha256": "8c45bca1348e936e0b8e5d01e7e8ee11f1db72120dc8aa7800aa72e1e0bcde96"
+  },
+  "copier": {
+    "path": "/home/hxy/ax-unified-pilot-prep/tools/smallfiles-copy-02/smallfiles-copy",
+    "sha256": "865fd2e3da836fa8d1eb775d89597ad78bce96cf05cd7e88d5999a7e21d6bcb7"
+  },
+  "helper": {
+    "path": "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-multi-agent-experiments/experiments/unified-suite/pilot-aliyun/scripts/check-smallfiles-copy.py",
+    "sha256": "12c5bd97acb023b7dcefcd238c43b3e74cfd84a84a45379da0fabc0ab601b150"
+  },
+  "original_full_readback": {
+    "completed": true,
+    "passed": true,
+    "files": 128,
+    "bytes_checked": 524288,
+    "wall_seconds": 0.000999507
+  },
+  "independent_inodes": true,
+  "source_unchanged_by_child": true,
+  "failed_copy_retained": true,
+  "scope": "128-file functional check against original Rust verifier; no cloud capacity or performance result"
+}

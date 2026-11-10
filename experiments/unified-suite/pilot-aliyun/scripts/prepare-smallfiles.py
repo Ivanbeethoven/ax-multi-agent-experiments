@@ -29,7 +29,11 @@ def main():
     p.add_argument('--node-tool-sha256',required=True)
     p.add_argument('--database',type=int,required=True)
     p.add_argument('--attempt',required=True)
+    p.add_argument('--copier',type=Path,help='Pinned eight-thread native C3 materializer; not used for JuiceFS')
+    p.add_argument('--copier-sha256')
     a=p.parse_args()
+    if a.copier and (a.product!='brewfs' or digest(a.copier)!=a.copier_sha256):
+        raise ValueError('Pinned native C3 materializer only')
     if not re.fullmatch(r'[a-z0-9-]{3,32}',a.attempt):raise ValueError('Short explicit attempt required')
     if digest(a.node_tool)!=a.node_tool_sha256:raise ValueError('Helper changed')
     if a.asset.exists() or a.out.exists():raise ValueError('Fresh base and output required')
@@ -66,9 +70,18 @@ def main():
         helper('start','mount-start',spec=a.out/'mount/mount.reviewed.json',out=state,join_slot=True);active=state
         argv=(['/srv/ax-client/assets/bin/juicefs','sync','--dirs','--perms','--links',str(a.source)+'/',str(base)+'/']
               if a.product=='juicefs' else ['cp','-a','--reflink=never','--',a.source,base])
+        if a.copier:
+            argv=[a.copier,a.source,base,a.out/'materialize.json','1000000','8']
         run('import',argv)
-        begin=time.monotonic();files=fsync_import(base)
-        write_new(a.out/'import-fsync.json',dict(passed=files==1000000,files=files,wall_seconds=time.monotonic()-begin,workers=8))
+        begin=time.monotonic()
+        if a.copier:
+            copied=load(a.out/'materialize.json');files=copied['files']
+            if not copied['passed'] or copied['workers']!=8 or not copied['fsync_each_file'] or copied['actual_read_bytes']!=4096000000 or copied['actual_write_bytes']!=4096000000:
+                raise ValueError('Incomplete native import')
+        else:files=fsync_import(base)
+        write_new(a.out/'import-fsync.json',dict(passed=files==1000000,files=files,
+            wall_seconds=None if a.copier else time.monotonic()-begin,workers=8,included_in_import=bool(a.copier),
+            copier=ref(a.copier) if a.copier else None))
         if files!=1000000:raise ValueError('Imported file count differs')
         helper('debt','debt',cell=cell['id'],out=a.out/'debt-proof')
         helper('stop','normal-stop',mount_run=active,out=a.out/'normal-stop.json');active=None

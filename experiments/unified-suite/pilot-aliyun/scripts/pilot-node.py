@@ -60,6 +60,8 @@ def main():
     p.add_argument('--join-slot',action='store_true')
     p.add_argument('--child-name',help='Separate fresh children for calibration; workload identity still comes from the frozen cell')
     p.add_argument('--workspace',type=int,help='Exact positive synthetic small-file child tag')
+    p.add_argument('--smallfiles-copier',type=Path,help='Optional byte-checking eight-thread C3 materializer')
+    p.add_argument('--smallfiles-copier-sha256')
     p.add_argument('--root-at-mount',action='store_true',help='Entity smallfiles: the fresh namespace is the private child root')
     p.add_argument('--trace-case',type=Path)
     p.add_argument('--trace-manifest',type=Path)
@@ -186,10 +188,20 @@ def main():
         a.out.mkdir(parents=True,exist_ok=False);begin=time.monotonic()
         argv=(['/srv/ax-client/assets/bin/juicefs','clone','-p',str(source),str(root)] if asset['product']=='juicefs'
               else ['/usr/bin/cp','-a','--reflink=never','--',str(source),str(root)])
+        copier=None
+        if a.smallfiles_copier:
+            if a.action!='copy-smallfiles' or asset['product']!='brewfs' or digest(a.smallfiles_copier)!=a.smallfiles_copier_sha256:
+                raise ValueError('Pinned native C3 materializer only')
+            copier=ref(a.smallfiles_copier)
+            argv=[str(a.smallfiles_copier),str(source),str(root),str(a.out/'materialize.json'),str(cell['params']['files']),'8']
         with (a.out/'stdout.log').open('xb') as out,(a.out/'stderr.log').open('xb') as err:
             result=subprocess.run(argv,stdout=out,stderr=err)
         if result.returncode==0:
-            if a.action in ('copy-smallfiles','copy-trace'):
+            if copier:
+                proof=load(a.out/'materialize.json')
+                if not proof['passed'] or proof['files']!=cell['params']['files'] or not proof['fsync_each_file'] or proof['workers']!=8:
+                    raise ValueError('Incomplete C3 materialization')
+            elif a.action in ('copy-smallfiles','copy-trace'):
                 from pilot_io import fsync_import
                 count=fsync_import(root,allow_symlinks=a.action=='copy-trace')
                 if a.action=='copy-smallfiles' and count!=cell['params']['files']:raise ValueError('Copied child file count differs')
@@ -200,7 +212,7 @@ def main():
                 try:os.fsync(fd)
                 finally:os.close(fd)
         write_new(a.out/'result.json',dict(passed=result.returncode==0,argv=argv,exit_code=result.returncode,wall_seconds=time.monotonic()-begin,
-            source=str(source),child=str(root),method='native-clone' if asset['product']=='juicefs' else 'full-independent-copy'))
+            source=str(source),child=str(root),copier=copier,method='native-clone' if asset['product']=='juicefs' else 'full-independent-copy'))
         result.check_returncode();return
     if a.action in ('trace-sync','verify-trace','trace-base-check'):
         if cell['workload']!='trace' or cell['arm_id'] not in ('native','juicefs'):

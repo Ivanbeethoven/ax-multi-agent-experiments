@@ -56,6 +56,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/admit-c1.py`、`run-c1.py` | 对一项匹配资格的flat C1/C2单元准入；每阶段先写SQLite，再执行一次，核三角色原始归档后关闭；新增C2分支待云上验证 |
 | `scripts/prepare-c2.py` | 独立导入完整初始树，创建私有child，回放并核字节/链接/数据库，再从原后端空缓存重挂核最终树和父目录 |
 | `scripts/trace-manifest.py`、`prepare-c2-controller.py` | 固定完整回放所需文件；只收集已通过的实际路线，生成精确的C2输入、指标和观测开销合同 |
+| `tools/fs-probe/src/bin/smallfiles-copy.rs`、`scripts/check-smallfiles-copy.py` | 可选8线程完整物化，逐文件核4KiB内容并fsync；[128文件交叉校验、独立inode与坏输入拒绝通过](evidence/preparation/smallfiles-copy-functional.json)。实际百万导入和冷读回尚待云上运行 |
 | `scripts/prepare-smallfiles.py`、`prepare-packed.py` | 分别准备完整百万文件的native/JuiceFS与packed base；当前新增入口尚待云上执行验证 |
 | `scripts/probe-small-object.py` | 在独立新桶写24个4KiB对象，核四份XL2、inline数据、实际分配字节和inode；为百万文件准备容量依据 |
 | `scripts/smallfiles-oracle.py` | 从不可变源和file/version/workspace状态独立计算预期树，供原namespace只读验证；不读取被测输出作为预期 |
