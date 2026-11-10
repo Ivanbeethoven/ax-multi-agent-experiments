@@ -59,6 +59,8 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/trace-manifest.py`、`prepare-c2-controller.py` | 固定完整回放所需文件；只收集已通过的实际路线，生成精确的C2输入、指标和观测开销合同 |
 | `tools/fs-probe/src/bin/smallfiles-copy.rs`、`scripts/check-smallfiles-copy.py` | 可选8线程完整物化，逐文件核4KiB内容并fsync；[128文件交叉校验、独立inode与坏输入拒绝通过](evidence/preparation/smallfiles-copy-functional.json)。实际百万导入和冷读回尚待云上运行 |
 | `scripts/prepare-smallfiles.py`、`prepare-packed.py` | 分别准备完整百万文件的native/JuiceFS与packed base；当前新增入口尚待云上执行验证 |
+| `tools/fs-probe/src/bin/smallfiles-verify.rs`、`scripts/check-smallfiles-verifier.py` | 8线程只读核验全部文件、目录名、模式、owner和硬链接数；根据原始file/version/workspace状态计算修改后的内容；[原负载交叉检查及损坏/权限/链接/状态反例通过](evidence/preparation/smallfiles-verifier-functional.json)，尚无云上百万读回结果 |
+| `scripts/prepare-c3-controller.py` | 收集实际百万文件导入、冷读回、正常退出和容量证据，生成匹配的C3合同；没有容量余量或完整原始验证便拒绝准入 |
 | `scripts/probe-small-object.py` | 在独立新桶写24个4KiB对象，核四份XL2、inline数据、实际分配字节和inode；为百万文件准备容量依据 |
 | `scripts/capacity-check.py` | 导入前后取四盘空间/inode及Redis内存/AOF快照，按剩余完整副本数和20%余量核容量；换盘、重启或后台回收导致分配量下降时拒绝沿用预测 |
 | `scripts/smallfiles-oracle.py` | 从不可变源和file/version/workspace状态独立计算预期树，供原namespace只读验证；不读取被测输出作为预期 |
@@ -75,6 +77,8 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 JuiceFS原工具、完整路径解析的[严格验证](evidence/preparation/c2-juicefs-original-strict/result.json)已于06:27完成：1,747,109次操作，回放6,425.173秒，完整字节和冷重挂校验通过；[95成员原始包已独立核验](evidence/preparation/c2-juicefs-original-strict/archive-check.json)。原验证未中途换工具，其时间不能与BrewFS新工具的验证时间直接相除。性能回放的冷读回使用 `qualify-trace.py --verify-only --performance-readback`，明确记录只校验最终数据，不把 `valid=false` 的性能报告改称严格通过。
 
 C3的[独立初始清单](evidence/preparation/c3-independent-base-oracle.json)已覆盖100万文件、4,096,000,000B；[生成器交叉检查](evidence/preparation/c3-oracle-generator-check.json)核对了实际Rust修改后的全部64个文件。完整预期树和输入清单留在数据盘，Git只保存回执。05:26的[新增资源估算](evidence/preparation/cost-progress-02.json)约¥12.06，当前新增资源¥4.671/小时；原跳板、网络和OSS另计。
+
+C3的flat native/JuiceFS流程已接入现有单元执行器：独立child、8个固定负载阶段、原始8条CSV、原工作区完整冷读回、完整父目录检查、`-w01`阶段及观测标记。各自仍需三对观测开销校准；本适配明确只接受1个Agent、1个工作区，不代替扩展规模实验。[本机27项相关检查通过](evidence/preparation/c3-harness-local.json)，云上完整C3尚未执行。正式负载仍使用本批原始`smallfiles`二进制；新工具只做完整导入和只读核验。
 
 C3有一项容量前置条件：[云上四独立盘24对象探针](evidence/preparation/small-object-footprint-cloud.json)确认，4KiB数据在每盘占8KiB分配空间和2个inode；三个hint设置均如此。若每文件对应一个对象，百万文件的base、六个校准child和一个正式child合计每盘65,536,000,000B，已超过60GiB，尚未计共享目录、元数据和旧数据。C3前仍须用首份完整base的空间、inode和Redis增量重新核算。容量不足时先扩容并重建C3的实际inventory/资格记录，或在核归档及回收完成后释放已结束的副本；不靠删除目录便假定物理空间已回收。
 

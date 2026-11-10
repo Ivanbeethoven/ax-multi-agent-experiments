@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run six predeclared observer trials and one explicit flat C1/C2 cell.
+"""Run six predeclared observer trials and one explicit flat C1/C2/C3 cell.
 
 Never selects another cell, retries a trial, releases cloud resources or repairs
 a failure. Each underlying formal stage is recorded by the existing SQLite runner.
@@ -26,9 +26,9 @@ def main():
     if s.get('reviewed') is not True:raise ValueError('Reviewed one-cell request required')
     control=Path(s['control']);plan=load(control/'suite/plan.json')
     cell=next(c for c in plan['cells'] if c['id']==s['cell_id'])
-    if cell['workload'] not in ('fio','trace') or cell['arm_id'] not in ('native','juicefs'):raise ValueError('Flat C1/C2 only')
+    if cell['workload'] not in ('fio','trace','smallfiles') or cell['arm_id'] not in ('native','juicefs'):raise ValueError('Flat C1/C2/C3 only')
     latest=pinned(s['latest_check']) if s.get('latest_check') else None
-    if cell['workload']=='trace' and not latest:raise ValueError('Explicit latest-branch receipt required for C2')
+    if cell['workload']!='fio' and not latest:raise ValueError('Explicit latest-branch receipt required for C2/C3')
     product=cell['arm']['product'];q=Path(s['qualification'])
     contract=load(q/cell['arm_id']/'workload.json')
     if contract['params']!=cell['params']:raise ValueError('Exact workload qualification required')

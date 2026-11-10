@@ -1,0 +1,86 @@
+{
+  "passed": true,
+  "at": "2026-11-10T22:45:21.257660+00:00",
+  "checks": [
+    {
+      "name": "prepare",
+      "exit_code": 0,
+      "expected_success": true
+    },
+    {
+      "name": "base",
+      "exit_code": 0,
+      "expected_success": true
+    },
+    {
+      "name": "mutate",
+      "exit_code": 0,
+      "expected_success": true
+    },
+    {
+      "name": "changed",
+      "exit_code": 0,
+      "expected_success": true
+    },
+    {
+      "name": "wrong-workspace",
+      "exit_code": 1,
+      "expected_success": false
+    },
+    {
+      "name": "untouched-corrupt",
+      "exit_code": 1,
+      "expected_success": false
+    },
+    {
+      "name": "wrong-mode",
+      "exit_code": 1,
+      "expected_success": false
+    },
+    {
+      "name": "extra-entry",
+      "exit_code": 1,
+      "expected_success": false
+    },
+    {
+      "name": "hardlink",
+      "exit_code": 1,
+      "expected_success": false
+    },
+    {
+      "name": "duplicate-state",
+      "exit_code": 1,
+      "expected_success": false
+    },
+    {
+      "name": "final",
+      "exit_code": 0,
+      "expected_success": true
+    }
+  ],
+  "verifier": {
+    "path": "/home/hxy/ax-unified-pilot-prep/tools/smallfiles-verify-01/smallfiles-verify",
+    "sha256": "843e4137ed6692f7b7ca9ee7961964733cfd5ebca7f75aff6d70486c646ecf95"
+  },
+  "original_workload": {
+    "path": "/home/hxy/ax-unified-pilot-prep/bin/smallfiles",
+    "sha256": "8c45bca1348e936e0b8e5d01e7e8ee11f1db72120dc8aa7800aa72e1e0bcde96"
+  },
+  "helper": {
+    "path": "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-multi-agent-experiments/experiments/unified-suite/pilot-aliyun/scripts/check-smallfiles-verifier.py",
+    "sha256": "7bb249774d9c6ac97cfa5f32273e7f44fa3f94f4c00424f900988f9cb39c4d1c"
+  },
+  "complete_changed_readback": {
+    "passed": true,
+    "completed": true,
+    "files": 128,
+    "bytes_checked": 524288,
+    "touched_files": 8,
+    "workspace": 7,
+    "workers": 8,
+    "full_namespace": true,
+    "modes_owners_links": true,
+    "wall_seconds": 0.00071055
+  },
+  "scope": "128-file functional cross-check against the unchanged workload and negative cases; no cloud performance claim"
+}

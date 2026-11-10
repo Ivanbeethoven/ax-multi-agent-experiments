@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Admit one explicit flat C1/C2 cell from actual preparation and calibration."""
+"""Admit one explicit flat C1/C2/C3 cell from actual preparation and calibration."""
 import argparse
 import json
 from pathlib import Path
@@ -27,14 +27,16 @@ def main():
     p.add_argument('--observer-tool-name',default='make-observer-cloud-03.py')
     p.add_argument('--observer-tool-sha256',required=True)
     p.add_argument('--collector-name',required=True)
-    p.add_argument('--latest-check',type=Path,help='Required explicit branch receipt for a new C2 batch')
+    p.add_argument('--latest-check',type=Path,help='Required explicit branch receipt for a new C2/C3 batch')
     p.add_argument('--out',type=Path,required=True)
     a=p.parse_args()
     plan=load(a.control/'suite/plan.json');cell=next(c for c in plan['cells'] if c['id']==a.cell)
-    if cell['workload'] not in ('fio','trace') or cell['arm_id'] not in ('native','juicefs'):
-        raise ValueError('This adapter only admits flat C1/C2 routes')
+    if cell['workload'] not in ('fio','trace','smallfiles') or cell['arm_id'] not in ('native','juicefs'):
+        raise ValueError('This adapter only admits flat C1/C2/C3 routes')
     is_trace=cell['workload']=='trace'
-    if is_trace and not a.latest_check:raise ValueError('Explicit latest-branch check required for C2')
+    is_small=cell['workload']=='smallfiles'
+    if is_small and (cell['params']['agents']!=1 or cell['params']['workspaces']!=1):raise ValueError('One C3 workspace only')
+    if (is_trace or is_small) and not a.latest_check:raise ValueError('Explicit latest-branch check required for C2/C3')
     q=a.qualification/cell['arm_id'];work=load(q/'workload.json');overhead=load(a.overhead)
     if work['params']!=cell['params']:
         raise ValueError('Calibration workload differs; provide a matching qualification')
@@ -80,11 +82,20 @@ def main():
     if is_trace:
         gates.update({'complete-trace-qualification':q/'filesystem.json','fresh-initial-tree':q/'input.json',
                       'repo-home-xdg-on-mount':q/'input.json'})
+    if is_small:gates.update({'full-base-validation-once':q/'filesystem.json','client-cache-evidence':a.out/'provenance-cache.json'})
     if set(gates)!=set(cell['required_gates']):raise ValueError('Unexpected additional gate')
     qualification=dict(schema='suite-qualification-v1',plan_sha256=plan['plan_sha256'],cell_id=cell['id'],
                        checks=[dict(gate=g,evidence=ref(gates[g]),equals={'passed':True}) for g in cell['required_gates']])
     write_new(a.out/'qualification.json',qualification)
-    if not is_trace:
+    if is_small:
+        raw=a.qualification/'route';binding=load(q/'binding.json')
+        prepared=q/'input.json';verified=raw/'base-check/result.json';cold=verified
+        if any(load(p)['passed'] is not True for p in (prepared,verified)) or load(raw/'import/exit.json')['exit_code']!=0:
+            raise ValueError('Full million-file import and original cold readback required')
+        base_path=asset['mount_point']+'/base'
+        timings=dict(import_seconds=load(raw/'import/exit.json')['wall_seconds'],
+                     cold_full_verify=load(raw/'full-base-check/exit.json')['wall_seconds'])
+    elif not is_trace:
         geometry='seq' if cell['params']['block_bytes']==1048576 else 'random'
         prepared=assetdir/('base-'+geometry+'-prepare/result.json')
         verified=assetdir/('base-'+geometry+'-verify/result.json')
@@ -123,6 +134,7 @@ def main():
                  observer_tool_name=a.observer_tool_name,observer_tool_sha256=a.observer_tool_sha256,
                  collector_name=a.collector_name)
     if is_trace:context.update(asset=binding['asset'],trace=binding['trace'])
+    if is_small:context.update(asset=binding['asset'],smallfiles=binding['smallfiles'])
     write_new(a.out/'context.json',context)
     print(json.dumps(dict(passed=True,cell_id=cell['id'],context=ref(a.out/'context.json'))))
 

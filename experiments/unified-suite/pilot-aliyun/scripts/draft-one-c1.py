@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write one exact flat C1/C2 request and six fixed trials; never executes it."""
+"""Write one exact flat C1/C2/C3 request and six fixed trials; never executes it."""
 import argparse
 import json
 from pathlib import Path
@@ -21,11 +21,11 @@ def main():
         p.add_argument('--'+name,required=True)
     p.add_argument('--latest-check',type=Path)
     a=p.parse_args();plan=load(a.control/'suite/plan.json');cell=next(c for c in plan['cells'] if c['id']==a.cell)
-    if cell['workload'] not in ('fio','trace') or cell['arm_id'] not in ('native','juicefs'):raise ValueError('Flat C1/C2 native or JuiceFS only')
-    if cell['workload']=='trace' and not a.latest_check:raise ValueError('Explicit latest-branch receipt required for C2')
+    if cell['workload'] not in ('fio','trace','smallfiles') or cell['arm_id'] not in ('native','juicefs'):raise ValueError('Flat C1/C2/C3 native or JuiceFS only')
+    if cell['workload']!='fio' and not a.latest_check:raise ValueError('Explicit latest-branch receipt required for C2/C3')
     q=a.qualification/cell['arm_id']
     if load(q/'workload.json')['params']!=cell['params']:raise ValueError('Exact workload contract required')
-    case='tr' if cell['workload']=='trace' else {'fio-read':'rd','fio-write':'wr','fio-randread':'rr','fio-randwrite':'rw','fio-randrw':'mx'}[cell['case']]
+    case={'trace':'tr','smallfiles':'sf'}.get(cell['workload']) or {'fio-read':'rd','fio-write':'wr','fio-randread':'rr','fio-randwrite':'rw','fio-randrw':'mx'}[cell['case']]
     tag=('n-' if cell['arm_id']=='native' else 'j-')+case
     prefix='cal-'+tag;name1='ax-pilot-'+prefix+'-on1-collector';name3='ax-pilot-'+prefix+'-on3-collector'
     out1='/srv/ax-objects-0/q/'+prefix+'-on1-collector'
@@ -44,7 +44,7 @@ def main():
         tools={name:ref(path) for name,path in [('calibrate',a.calibrator),('check',a.checker),('admit',a.admitter),('run',a.runner)]},
         trials=trials,final_collector_name=name3,
         final_collector_out='/srv/ax-objects-0/q/'+prefix+'-on3-collector',
-        review=dict(reviewer='pilot-operator',note='One explicit frozen C1 cell, three predeclared off/on pairs in order off-on/on-off/off-on; no trial reuse, next cell or automatic retry.'))
+        review=dict(reviewer='pilot-operator',note='One explicit frozen flat cell, three predeclared off/on pairs in order off-on/on-off/off-on; no trial reuse, next cell or automatic retry.'))
     if a.latest_check:request['latest_check']=ref(a.latest_check)
     a.out.parent.mkdir(parents=True,exist_ok=True);write_new(a.out,request)
     print(json.dumps(dict(cell_id=cell['id'],request=ref(a.out),final_collector_name=name3,final_collector_out=request['final_collector_out'])))

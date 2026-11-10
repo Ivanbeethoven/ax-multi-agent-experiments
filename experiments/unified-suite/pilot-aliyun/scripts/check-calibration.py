@@ -45,6 +45,10 @@ def check(pairs, metric, workload):
                     raise ValueError('Changed trial evidence')
                 if load(evidence['path'])['passed'] is not True:
                     raise ValueError('Trial closure or verification failed')
+            if finished.get('parent_verify'):
+                evidence=finished['parent_verify']
+                if digest(evidence['path'])!=evidence['sha256'] or load(evidence['path'])['passed'] is not True:
+                    raise ValueError('Original parent verification changed or failed')
             if mode == 'on':
                 for role in ('client', 'metadata', 'objects'):
                     audit = root/'observer-stop'/('pool-a-'+role)/'raw-audit.json'

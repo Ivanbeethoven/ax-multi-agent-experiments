@@ -31,9 +31,12 @@ def main():
     p.add_argument('--attempt',required=True)
     p.add_argument('--copier',type=Path,help='Pinned eight-thread native C3 materializer; not used for JuiceFS')
     p.add_argument('--copier-sha256')
+    p.add_argument('--verifier',type=Path,help='Pinned parallel full namespace and byte verifier')
+    p.add_argument('--verifier-sha256')
     a=p.parse_args()
     if a.copier and (a.product!='brewfs' or digest(a.copier)!=a.copier_sha256):
         raise ValueError('Pinned native C3 materializer only')
+    if a.verifier and digest(a.verifier)!=a.verifier_sha256:raise ValueError('Full verifier changed')
     if not re.fullmatch(r'[a-z0-9-]{3,32}',a.attempt):raise ValueError('Short explicit attempt required')
     if digest(a.node_tool)!=a.node_tool_sha256:raise ValueError('Helper changed')
     if a.asset.exists() or a.out.exists():raise ValueError('Fresh base and output required')
@@ -46,6 +49,8 @@ def main():
     write_new(a.out/'started.json',dict(at=datetime.now(timezone.utc).isoformat(),cell_id=cell['id'],
               source=str(a.source),source_proof=ref(a.source_proof),node_tool=ref(a.node_tool),
               purpose='asset-preparation',fsync_preparation_workers=8,automatic_retry=False))
+    write_new(a.out/'optional-tools.json',dict(copier=ref(a.copier) if a.copier else None,
+        verifier=ref(a.verifier) if a.verifier else None))
     Path('/sys/fs/cgroup/ax-slot-1/cgroup.procs').write_text(str(os.getpid()))
     active=None;failure=None
     def run(name,argv):
@@ -88,8 +93,12 @@ def main():
         helper('draft-mount','cold-draft',cell=cell['id'],out=a.out/'cold-mount')
         cold=Path(str(state)+'-cold')
         helper('start','cold-start',spec=a.out/'cold-mount/mount.reviewed.json',out=cold,join_slot=True);active=cold
-        run('full-base-check',['/srv/ax-client/assets/bin/smallfiles','verify-base','--root',base,
-                             '--output',a.out/'base-check','--files','1000000'])
+        if a.verifier:
+            (a.out/'base-check').mkdir()
+            run('full-base-check',[a.verifier,base,'base',a.out/'base-check/result.json','1000000','8','1'])
+        else:
+            run('full-base-check',['/srv/ax-client/assets/bin/smallfiles','verify-base','--root',base,
+                                 '--output',a.out/'base-check','--files','1000000'])
         checked=load(a.out/'base-check/result.json')
         if checked.get('passed') is not True or checked.get('files')!=1000000 or checked.get('bytes_checked')!=4096000000:
             raise ValueError('Full original cold base differs')

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run one qualified flat C1/C2 cell, recording original stages in SQLite first.
+"""Run one qualified flat C1/C2/C3 cell, recording original stages in SQLite first.
 
 No next cell, deadline, automatic retry, forced unmount or resource deletion.
 Failures preserve the reservation and live state for an explicit inspection.
@@ -36,9 +36,9 @@ class Cell:
         self.plan = load(self.control/'suite/plan.json')
         self.cell = next(c for c in self.plan['cells'] if c['id'] == self.s['cell_id'])
         self.kind=self.cell['workload']
-        if self.kind not in ('fio','trace') or self.cell['arm_id'] not in ('native','juicefs'):
-            raise ValueError('Qualified flat C1/C2 cell required')
-        self.id = self.cell['id']; self.tag = ('c1-' if self.kind=='fio' else 'c2-')+self.id
+        if self.kind not in ('fio','trace','smallfiles') or self.cell['arm_id'] not in ('native','juicefs'):
+            raise ValueError('Qualified flat C1/C2/C3 cell required')
+        self.id = self.cell['id']; self.tag = {'fio':'c1-','trace':'c2-','smallfiles':'c3-'}[self.kind]+self.id
         self.arm = self.cell['arm_id']; self.product = self.cell['arm']['product']
         self.base = ROOTS['client']+'/q/'+self.tag
         self.main = ROOTS['client']+'/m/'+self.tag
@@ -46,7 +46,15 @@ class Cell:
         self.asset = self.s.get('asset',ROOTS['client']+'/a/c1-'+self.arm)
         if self.kind=='trace' and not self.s.get('trace'):raise ValueError('Full trace bindings required')
         if self.kind=='trace' and self.cell['params']['agents']!=1:raise ValueError('This pilot runner supports exactly one trace worker')
+        if self.kind=='smallfiles' and (not self.s.get('smallfiles') or self.cell['params']['agents']!=1 or self.cell['params']['workspaces']!=1):
+            raise ValueError('Full bindings and exactly one C3 workspace required')
         self.qualification = Path(self.s['qualification'])/self.arm
+
+    def small_fields(self,copy=False):
+        b=self.s['smallfiles'];v=b['verifier']
+        fields=dict(workspace=1,smallfiles_verifier=v['path'],smallfiles_verifier_sha256=v['sha256'])
+        if copy and b.get('copier'):fields.update(smallfiles_copier=b['copier']['path'],smallfiles_copier_sha256=b['copier']['sha256'])
+        return fields
 
     def trace_fields(self):
         t=self.s['trace']
@@ -91,12 +99,14 @@ class Cell:
         return load(self.out/'observers.json')
 
     def mark(self, label):
+        if self.kind=='smallfiles':label+='-w01'
         for o in self.observers():
             peer = ref(self.control/'probes'/o['id']/'peer.json')
             fleet.call(peer, 'observe-mark', o['directory'], self.out/'marks'/label/o['id'], label=label)
 
     def execute(self, stage):
         c = self.cell
+        if self.kind=='smallfiles' and stage.endswith('-w01'):stage=stage[:-4]
         if stage == 'observe-start':
             observers = []
             for role, root in ROOTS.items():
@@ -118,7 +128,7 @@ class Cell:
         elif stage == 'create':
             self.helper('draft-mount', cell=self.id, out=self.base+'/prep')
             self.helper('start', join_slot=True, spec=self.base+'/prep/mount.reviewed.json', out=self.prep)
-            self.helper('copy-fio' if self.kind=='fio' else 'copy-trace', join_slot=True, cell=self.id, out=self.base+'/copy')
+            self.helper({'fio':'copy-fio','trace':'copy-trace','smallfiles':'copy-smallfiles'}[self.kind], join_slot=True, cell=self.id, out=self.base+'/copy',**(self.small_fields(True) if self.kind=='smallfiles' else {}))
             self.helper('debt', cell=self.id, out=self.base+'/copy-debt')
             self.helper('stop', mount_run=self.prep, out=self.base+'/copy-exit.json')
         elif stage == 'mount':
@@ -126,7 +136,7 @@ class Cell:
             self.helper('start', join_slot=True, spec=self.base+'/main/mount.reviewed.json', out=self.main)
             self.helper('worker', cell=self.id, spec=self.base+'/main/mount.reviewed.json',
                         mount_run=self.main, out=ROOTS['client']+'/w/'+self.tag,
-                        **(self.trace_fields() if self.kind=='trace' else {}))
+                        **(self.trace_fields() if self.kind=='trace' else self.small_fields() if self.kind=='smallfiles' else {}))
         elif stage == 'measure':
             worker_path = ROOTS['client']+'/w/'+self.tag+'/worker.reviewed.json'
             worker_sha = self.remote('client', ['sha256sum', worker_path]).split()[0]
@@ -141,7 +151,7 @@ class Cell:
                     peer=load(self.control/'probes/pool-a-client-slot/peer.json'),
                     spec=dict(path=worker_path,sha256=worker_sha),output=ROOTS['client']+'/j/'+self.tag)],
                 observers=self.observers(), ready_timeout_seconds=120,
-                review=dict(reviewer='pilot-operator',note='One frozen C1 cell; fixed work and all three roles observed.'))
+                review=dict(reviewer='pilot-operator',note='One frozen flat cell; fixed work and all three roles observed.'))
             write_new(self.out/'cohort.json', s)
             self.mark('measure-start')
             result = cohort.run(ref(self.out/'cohort.json'), self.out/'cohort')
@@ -160,6 +170,10 @@ class Cell:
             if self.kind=='fio':
                 self.helper('fio', join_slot=True, cell=self.id, phase='verify', out=self.base+'/verify')
                 self.helper('fio-base-check', join_slot=True, block_bytes=c['params']['block_bytes'], out=self.base+'/parent-verify')
+            elif self.kind=='smallfiles':
+                self.helper('verify-smallfiles',join_slot=True,cell=self.id,out=self.base+'/verify',
+                    smallfiles_state=ROOTS['client']+'/w/'+self.tag+'/draft/workload/expected-touched.tsv',**self.small_fields())
+                self.helper('smallfiles-base-check',join_slot=True,cell=self.id,out=self.base+'/parent-verify',**self.small_fields())
             else:
                 self.helper('verify-trace',join_slot=True,cell=self.id,out=self.base+'/verify',
                     replay_result=ROOTS['client']+'/w/'+self.tag+'/draft/replay.json',**self.trace_fields())
@@ -259,6 +273,9 @@ write_new(q/'archive.json',checked);print(json.dumps(dict(closure=result,archive
         draft=client/'w'/self.tag/'draft'
         work=draft/'workload'
         if self.kind=='fio':packet=dict(agent_index=0,evidence=ref(work/'result.json'),raw=ref(work/'fio.json'))
+        elif self.kind=='smallfiles':
+            packet=dict(agent_index=0,workspace_index=0,evidence=ref(work/'result.json'),
+                raw_logs=[ref(work/f'worker-{i}.csv') for i in range(self.cell['params']['workers'])])
         else:
             source=self.get('client',self.s['trace']['case']+'/metrics.json','source-metrics.json')
             packet=dict(agent_index=0,evidence=ref(draft/'replay.json'),source_metrics=ref(source))
@@ -287,6 +304,15 @@ write_new(q/'archive.json',checked);print(json.dumps(dict(closure=result,archive
                 if '99.000000' in percentiles:
                     io_metrics[direction+'_p99_ns']=dict(value=percentiles['99.000000'],unit='nanoseconds',direction='lower')
             metric_source=ref(work/'fio.json');metric_scope='One native fio job; operation p99 is distinct from task p99.'
+        elif self.kind=='smallfiles':
+            values=load(work/'result.json')
+            for phase in values['phases']:
+                for name,unit in [('wall_seconds','seconds'),('io_p99_ns','nanoseconds'),('application_p99_ns','nanoseconds')]:
+                    io_metrics[phase['phase']+'_'+name]=dict(value=phase[name],unit=unit,direction='lower')
+            for name in ('actual_read_bytes','actual_write_bytes','verified_reads','writes'):
+                io_metrics[name]=dict(value=values[name],unit='bytes' if name.endswith('bytes') else 'operations',direction='coverage')
+            io_metrics['create_and_fsync_seconds']=dict(value=load(q/'copy/result.json')['wall_seconds'],unit='seconds',direction='lower')
+            metric_source=ref(work/'result.json');metric_scope='Eight native fixed-work phases with verified raw worker streams. Full cold child and parent checks are outside measurement.'
         else:
             replay=load(draft/'replay.json')
             for name in ('actual_read_bytes','actual_write_bytes','operations'):
@@ -309,7 +335,7 @@ write_new(q/'archive.json',checked);print(json.dumps(dict(closure=result,archive
                     uninterrupted=not self.s.get('recovery',False),recovered=self.s.get('recovery',False),checks=checks,required_observer_ids=[o['id'] for o in observers],
                     required_marks=self.cell['observation_marks'],observers=observers,
                     metrics=metrics,
-                    timings_seconds={'native_measure':co['jobs'][0]['result']['wrapper_wall_seconds' if self.kind=='fio' else 'execution_seconds']},
+                    timings_seconds={'native_measure':co['jobs'][0]['result'][{'fio':'wrapper_wall_seconds','trace':'execution_seconds','smallfiles':'wall_seconds'}[self.kind]]},
                     limitations=['One agent, one pilot repetition; no scaling or stable speedup conclusion.',
                                  'Fresh client caches; shared backend/page caches remain observed.'])
         write_new(self.out/'sample.json',sample);write_new(self.out/'archives.json',archives)
@@ -364,6 +390,10 @@ def main():
             binding=c.s['trace'][name]
             if c.remote('client',['sha256sum',binding['path']]).split()[0]!=binding['sha256']:
                 raise ValueError('Trace binding changed: '+name)
+    if c.kind=='smallfiles':
+        for binding in c.s['smallfiles'].values():
+            if binding and c.remote('client',['sha256sum',binding['path']]).split()[0]!=binding['sha256']:
+                raise ValueError('Small-file binding changed')
     for stage in c.cell['stages']:
         step=dict(schema='experiment-step-v1',reviewed=True,cell_id=c.id,stage=stage,
                   argv=[sys.executable,str(Path(__file__).resolve()),'--context',str(a.context),'--stage',stage],

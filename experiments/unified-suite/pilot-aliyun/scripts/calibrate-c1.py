@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run one explicitly selected fresh-mount flat C1/C2 observer calibration trial."""
+"""Run one explicitly selected fresh-mount flat C1/C2/C3 observer calibration trial."""
 import argparse
 from datetime import datetime,timezone
 import json
@@ -42,9 +42,16 @@ def main():
     arm='native' if a.product=='brewfs' else 'juicefs'
     plan=load(a.control/'suite/plan.json')
     cell=next(c for c in plan['cells'] if c['case']==a.case and c['arm_id']==arm)
-    if cell['workload'] not in ('fio','trace'):raise ValueError('Flat C1/C2 calibration only')
+    if cell['workload'] not in ('fio','trace','smallfiles'):raise ValueError('Flat C1/C2/C3 calibration only')
+    small=load(a.qualification/arm/'binding.json') if cell['workload']=='smallfiles' else None
+    if small and (cell['params']['agents']!=1 or cell['params']['workspaces']!=1):raise ValueError('Exactly one C3 workspace required')
     trace=load(a.qualification/arm/'binding.json') if cell['workload']=='trace' else None
-    asset=trace['asset'] if trace else '/srv/ax-client/a/c1-'+arm
+    asset=(trace or small)['asset'] if trace or small else '/srv/ax-client/a/c1-'+arm
+    def small_fields(copy=False):
+        b=small['smallfiles'];v=b['verifier']
+        fields=dict(workspace=1,smallfiles_verifier=v['path'],smallfiles_verifier_sha256=v['sha256'])
+        if copy and b.get('copier'):fields.update(smallfiles_copier=b['copier']['path'],smallfiles_copier_sha256=b['copier']['sha256'])
+        return fields
     def trace_fields():
         t=trace['trace']
         return dict(trace_case=t['case'],trace_manifest=t['manifest']['path'],replay_binary=t['binary']['path'],
@@ -81,6 +88,10 @@ def main():
             binding=trace['trace'][name]
             if remote('client',['sha256sum',binding['path']]).split()[0]!=binding['sha256']:
                 raise ValueError('Trace binding changed: '+name)
+    if small:
+        for binding in small['smallfiles'].values():
+            if binding and remote('client',['sha256sum',binding['path']]).split()[0]!=binding['sha256']:
+                raise ValueError('Small-file tool changed')
     write_new(a.out/'started.json',dict(at=datetime.now(timezone.utc).isoformat(),purpose='observer-calibration-'+a.mode,
         product=a.product,cell_id=cell['id'],node_tool_sha256=a.node_tool_sha256,automatic_retry=False))
     running=remote('objects',['docker','inspect','--format','{{.State.Running}}',a.collector_name]).strip()=='true'
@@ -101,14 +112,14 @@ def main():
     purpose='observer-calibration-'+a.mode
     helper('draft-mount',cell=cell['id'],purpose=purpose,out=base+'/prep')
     helper('start',join_slot=True,spec=base+'/prep/mount.reviewed.json',out=prepstate)
-    helper('copy-fio' if not trace else 'copy-trace',join_slot=True,cell=cell['id'],child_name=a.attempt,out=base+'/copy')
+    helper('copy-smallfiles' if small else ('copy-trace' if trace else 'copy-fio'),join_slot=True,cell=cell['id'],child_name=a.attempt,out=base+'/copy',**(small_fields(True) if small else {}))
     helper('debt',cell=cell['id'],out=base+'/copy-debt')
     helper('stop',mount_run=prepstate,out=base+'/copy-exit.json')
     helper('draft-mount',cell=cell['id'],purpose=purpose,out=base+'/main')
     helper('start',join_slot=True,spec=base+'/main/mount.reviewed.json',out=mainstate)
     workerbase='/srv/ax-client/w/'+a.attempt
     helper('worker',cell=cell['id'],child_name=a.attempt,purpose=purpose,
-        spec=base+'/main/mount.reviewed.json',mount_run=mainstate,out=workerbase,**(trace_fields() if trace else {}))
+        spec=base+'/main/mount.reviewed.json',mount_run=mainstate,out=workerbase,**(trace_fields() if trace else small_fields() if small else {}))
     worker_ref=json.loads(remote('client',['python3','-c',
         "import hashlib,json,pathlib;p=pathlib.Path("+repr(workerbase+'/worker.reviewed.json')+");print(json.dumps({'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}))"]))
     qualification=a.qualification/arm;metric_ref=ref(qualification/'metrics.json')
@@ -137,6 +148,7 @@ def main():
                 review=dict(reviewer='pilot-operator',note='One fixed-work '+a.case+' worker, fresh cache, original backend and reviewed metrics; no next cell or automatic retry.'))
     write_new(a.out/'cohort.json',s)
     def mark(label):
+        if small:label+='-w01'
         for o in observers:
             peer_ref=ref(a.control/'probes'/o['id']/'peer.json')
             fleet.call(peer_ref,'observe-mark',o['directory'],a.out/'marks'/label/o['id'],label=label)
@@ -150,7 +162,11 @@ def main():
     helper('stop',mount_run=mainstate,out=base+'/exit.json')
     helper('draft-mount',cell=cell['id'],purpose=purpose,out=base+'/verify-mount')
     helper('start',join_slot=True,spec=base+'/verify-mount/mount.reviewed.json',out=verifystate)
-    if not trace:helper('fio',join_slot=True,cell=cell['id'],child_name=a.attempt,phase='verify',out=base+'/verify')
+    if small:
+        helper('verify-smallfiles',join_slot=True,cell=cell['id'],child_name=a.attempt,out=base+'/verify',
+               smallfiles_state=workerbase+'/draft/workload/expected-touched.tsv',**small_fields())
+        helper('smallfiles-base-check',join_slot=True,cell=cell['id'],out=base+'/parent-verify',**small_fields())
+    elif not trace:helper('fio',join_slot=True,cell=cell['id'],child_name=a.attempt,phase='verify',out=base+'/verify')
     else:
         helper('verify-trace',join_slot=True,cell=cell['id'],child_name=a.attempt,out=base+'/verify',
                replay_result=workerbase+'/draft/replay.json',**trace_fields())
@@ -161,14 +177,16 @@ def main():
         peer_ref=ref(a.control/'probes'/o['id']/'peer.json')
         fleet.call(peer_ref,'observe-stop',o['directory'],a.out/'observer-stop'/o['id'])
         role=o['id'].removeprefix('pool-a-')
-        code="import sys,json;sys.path.insert(0,"+repr(roots[role]+'/code-01')+");from bench.runtime.observe import audit;print(json.dumps(audit("+repr(o['directory'])+",30,['measure-start','measure-end','drain-end','verify-end'])))"
+        code="import sys,json;sys.path.insert(0,"+repr(roots[role]+'/code-01')+");from bench.runtime.observe import audit;print(json.dumps(audit("+repr(o['directory'])+",30,"+repr(cell['observation_marks'])+")))"
         checked=json.loads(remote(role,['python3','-c',code]))
         if not checked['passed']:raise ValueError('Raw observer audit failed')
         write_new(a.out/'observer-stop'/o['id']/'raw-audit.json',checked)
     for path in ('copy/result.json','debt/result.json','exit.json','verify/result.json','verify-exit.json'):
         get('client',base+'/'+path,'client/'+path)
+    if small:get('client',base+'/parent-verify/result.json','client/parent-verify/result.json')
     write_new(a.out/'finished.json',dict(passed=True,at=datetime.now(timezone.utc).isoformat(),
         cohort=ref(a.out/'cohort/result.json'),client_verify=ref(a.out/'client/verify/result.json'),
+        parent_verify=ref(a.out/'client/parent-verify/result.json') if small else None,
         native_exit=ref(a.out/'client/exit.json'),verify_exit=ref(a.out/'client/verify-exit.json'),
         collector=ref(a.out/'collector.json'),scope='One calibration trial; relative overhead requires three explicit pairs and complete raw archive audits'))
     print(json.dumps(dict(passed=True,product=a.product,mode=a.mode,makespan_seconds=result['coordinator_makespan_seconds'],

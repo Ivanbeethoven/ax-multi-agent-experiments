@@ -44,7 +44,7 @@ def request(asset,cell,root):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('action',choices=['asset-init','draft-mount','start','stop','fio-base','fio-base-check','copy-fio','copy-smallfiles','copy-trace','trace-sync','verify-trace','trace-base-check','fio','debt','worker'])
+    p.add_argument('action',choices=['asset-init','draft-mount','start','stop','fio-base','fio-base-check','copy-fio','copy-smallfiles','copy-trace','verify-smallfiles','smallfiles-base-check','trace-sync','verify-trace','trace-base-check','fio','debt','worker'])
     p.add_argument('--asset',type=Path,required=True)
     p.add_argument('--out',type=Path,required=True)
     p.add_argument('--plan',type=Path)
@@ -62,6 +62,9 @@ def main():
     p.add_argument('--workspace',type=int,help='Exact positive synthetic small-file child tag')
     p.add_argument('--smallfiles-copier',type=Path,help='Optional byte-checking eight-thread C3 materializer')
     p.add_argument('--smallfiles-copier-sha256')
+    p.add_argument('--smallfiles-verifier',type=Path)
+    p.add_argument('--smallfiles-verifier-sha256')
+    p.add_argument('--smallfiles-state',type=Path)
     p.add_argument('--root-at-mount',action='store_true',help='Entity smallfiles: the fresh namespace is the private child root')
     p.add_argument('--trace-case',type=Path)
     p.add_argument('--trace-manifest',type=Path)
@@ -214,6 +217,20 @@ def main():
         write_new(a.out/'result.json',dict(passed=result.returncode==0,argv=argv,exit_code=result.returncode,wall_seconds=time.monotonic()-begin,
             source=str(source),child=str(root),copier=copier,method='native-clone' if asset['product']=='juicefs' else 'full-independent-copy'))
         result.check_returncode();return
+    if a.action in ('verify-smallfiles','smallfiles-base-check'):
+        if cell['workload']!='smallfiles' or not a.smallfiles_verifier or digest(a.smallfiles_verifier)!=a.smallfiles_verifier_sha256:
+            raise ValueError('Pinned complete C3 verifier required')
+        if a.workspace is None or a.workspace<=0:raise ValueError('Explicit small-file workspace required')
+        state='base' if a.action=='smallfiles-base-check' else a.smallfiles_state
+        if state is None:raise ValueError('Original small-file touched state required')
+        checked_root=Path(asset['mount_point'])/'base' if a.action=='smallfiles-base-check' else root
+        a.out.mkdir(parents=True,exist_ok=False)
+        subprocess.run([str(a.smallfiles_verifier),str(checked_root),str(state),str(a.out/'result.json'),
+            str(cell['params']['files']),'8',str(a.workspace)],check=True)
+        value=load(a.out/'result.json')
+        if not value['passed'] or value['files']!=cell['params']['files'] or value['bytes_checked']!=cell['params']['files']*4096:
+            raise ValueError('Incomplete original C3 cold readback')
+        return
     if a.action in ('trace-sync','verify-trace','trace-base-check'):
         if cell['workload']!='trace' or cell['arm_id'] not in ('native','juicefs'):
             raise ValueError('Flat C2 route required')

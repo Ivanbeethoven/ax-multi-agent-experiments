@@ -84,7 +84,7 @@ def budget(args):
                 observed_allocation_decrease=node['redis']['used_memory']<old['redis']['used_memory'],
                 passed=node['redis']['used_memory']>=old['redis']['used_memory'] and projected<=node['redis']['maxmemory']*(1-args.reserve)))
     result=dict(passed=all(row['passed'] for row in rows),before=ref(args.before),after=ref(args.after),
-        reserve_fraction=args.reserve,rows=rows,scope='Forecast from one measured full base; clone sharing and GC require separate actual proof')
+        reserve_fraction=args.reserve,extra_full_copies=args.extra_full_copies,rows=rows,scope='Forecast from one measured full base; clone sharing and GC require separate actual proof')
     write(args.out,result);print(json.dumps(result))
     if not result['passed']:raise SystemExit(2)
 
