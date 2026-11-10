@@ -1,0 +1,16 @@
+
+running 11 tests
+test vfs::io::reader::tests::test_first_nonzero_read_does_not_start_readahead ... ok
+test vfs::io::reader::tests::test_demand_read_does_not_double_fetch_current_slice ... ok
+test vfs::io::reader::tests::test_reader_invalidate_refresh ... ok
+test vfs::io::reader::tests::test_file_reader_cross_chunks ... ok
+test vfs::io::reader::tests::cached_reply_keeps_slice_offsets_and_isolates_overlay_mutation ... ok
+test vfs::io::reader::tests::test_repeated_slice_read_goes_through_block_store ... ok
+test vfs::io::reader::tests::test_read_while_write_eventually_sees_data ... ok
+test vfs::io::reader::tests::test_readahead_starts_after_current_read ... ok
+test vfs::io::reader::tests::test_cross_chunk_read_fetches_chunks_concurrently ... ok
+test vfs::io::reader::tests::test_slice_read_retries_transient_failures ... ok
+test vfs::io::reader::tests::test_submit_prefetch_requires_confirmed_stream_and_aligns_to_next_block ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 1570 filtered out; finished in 0.09s
+

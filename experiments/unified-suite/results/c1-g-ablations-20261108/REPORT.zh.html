@@ -228,13 +228,13 @@
 <div class="container">
   <header>
     <div class="badge-row">
-      <span class="badge emerald">源码修复与重测已完成 · Commits 9bbc760 / b38d0e4 / bbb1dba</span>
+      <span class="badge emerald">源码修复与 Curvine 移植重测已完成 · Commits 9bbc760 / b38d0e4 / bbb1dba</span>
       <span class="badge">Google Cloud c2d-standard-8 (4×375 GiB Local NVMe, RustFS EC 2+2)</span>
-      <span class="badge amber">对齐 PR #441 / PR #442 / JuiceFS 对照 / Curvine 流式预读流水线</span>
+      <span class="badge amber">对齐 PR #441 / PR #442 / JuiceFS 对照 / Curvine 流式预读与零拷贝直通</span>
     </div>
     <h1>BrewFS 核心性能瓶颈修复、同机重测与 Curvine 架构借鉴完整报告</h1>
     <p class="subtitle">
-      本报告汇总了 C1 动态块大小（G）消融实验的四大根因修复与 32 单元云端重测数据、与同事 JuiceFS / PR #441 数据的技术对齐，以及借鉴 Curvine（CurvineIO/curvine）落地的流式预读与零拷贝直通优化。
+      本报告汇总了 C1 动态块大小（G）消融实验的四大根因修复与 44 单元云端重测数据、与同事 JuiceFS / PR #441 数据的技术对齐，以及借鉴 Curvine（CurvineIO/curvine）落地的流式预读与 MountStore 零拷贝直通实测结果。
     </p>
   </header>
 
@@ -255,16 +255,16 @@
       <div class="kpi-sub">单切片 ExplicitFlush 零等待直传，延迟降低 63 倍，吞吐 +9.3×</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">4 GiB 顺序冷读 (FUSE 跨块预读修复)</div>
-      <div class="kpi-val">464.0 MiB/s (+33.7%)</div>
-      <div class="kpi-sub">S3 GET 减半 (4,095 → 2,052)，页未命中降低 99.85% (2,047 → 3)</div>
+      <div class="kpi-label">4 GiB 顺序冷读 (Curvine 零拷贝流水线)</div>
+      <div class="kpi-val">517.0 MiB/s (+51.6%)</div>
+      <div class="kpi-sub">峰值 632 MiB/s (命中率 93.8%)，FUSE 读耗时降 63%，P99 降 5.3×</div>
     </div>
   </div>
 
   <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('tab-overview', this)">1. 核心图表总览 (Pilot / 32GiB / 顺序冷读)</button>
+    <button class="tab-btn active" onclick="switchTab('tab-overview', this)">1. 核心图表总览 (Pilot / 32GiB / Curvine 顺序冷读)</button>
     <button class="tab-btn" onclick="switchTab('tab-colleague', this)">2. 与同事 JuiceFS &amp; PR #441/#442 对齐</button>
-    <button class="tab-btn" onclick="switchTab('tab-curvine', this)">3. Curvine 架构评估与源码移植 (b38d0e4 / bbb1dba)</button>
+    <button class="tab-btn" onclick="switchTab('tab-curvine', this)">3. Curvine 架构移植与 12 单元实测 (bbb1dba)</button>
     <button class="tab-btn" onclick="switchTab('tab-tables', this)">4. 全量实验数据明细表</button>
   </div>
 
@@ -323,18 +323,18 @@
         </div>
 
         <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;" />
-        <div class="section-title" style="font-size:15px;">图表 3：4 GiB 顺序冷读 (coldread) 修复前后对比</div>
+        <div class="section-title" style="font-size:15px;">图表 3：4 GiB 顺序冷读 (coldread) Curvine 零拷贝流水线 (bbb1dba) 对比</div>
         <div class="bar-group" style="margin-top:8px;">
-          <div class="bar-header"><span><code>bs=4M</code> 旧版 (FUSE 256K &lt; 2M 导致预读器失效)</span><span>347.03 MiB/s · 4,095 GETs · 2,047 页未命中</span></div>
-          <div class="bar-track"><div class="bar-fill legacy" style="width:74.8%;">347.03 MiB/s</div></div>
+          <div class="bar-header"><span><code>bs=64M</code> 旧版 vs <strong>Curvine 零拷贝流水线</strong></span><span><strong>340.94 → 516.98 MiB/s (+51.6%, P99 降 5.3×)</strong></span></div>
+          <div class="bar-track"><div class="bar-fill curvine" style="width:100%;">516.98 MiB/s (+51.6%, 稳态峰值 632 MiB/s)</div></div>
         </div>
         <div class="bar-group">
-          <div class="bar-header"><span><code>bs=4M</code> 恢复 FUSE 跨块预读 (<code>fixed_fuse_prefetch_default</code>)</span><span><strong>463.98 MiB/s (+33.7%) · 2,052 GETs · 3 页未命中</strong></span></div>
-          <div class="bar-track"><div class="bar-fill curvine" style="width:100%;">463.98 MiB/s (+33.7%)</div></div>
+          <div class="bar-header"><span><code>bs=1M</code> 旧版 vs <strong>Curvine 零拷贝流水线</strong></span><span><strong>367.85 → 475.95 MiB/s (+29.4%, FUSE 耗时 -52.6%)</strong></span></div>
+          <div class="bar-track"><div class="bar-fill primary" style="width:92.1%;">475.95 MiB/s (+29.4%)</div></div>
         </div>
         <div class="bar-group">
-          <div class="bar-header"><span><code>bs=1M</code> 旧版 vs 恢复 FUSE 跨块预读 (<code>tuned c=8, 64M</code>)</span><span><strong>365.45 → 432.89 MiB/s (+18.5%) · P99 -29.1%</strong></span></div>
-          <div class="bar-track"><div class="bar-fill primary" style="width:93.3%;">432.89 MiB/s (+18.5%)</div></div>
+          <div class="bar-header"><span><code>bs=4M</code> 旧版 vs <strong>Curvine 零拷贝流水线</strong></span><span><strong>343.28 → 457.09 MiB/s (+33.2%, FUSE 耗时 -54.8%)</strong></span></div>
+          <div class="bar-track"><div class="bar-fill stage1" style="width:88.4%;">457.09 MiB/s (+33.2%)</div></div>
         </div>
       </div>
     </div>
@@ -345,7 +345,7 @@
     <div class="section-card">
       <div class="section-title">与同事「BrewFS vs JuiceFS 对照表」及 PR #441 / PR #442 的技术对齐</div>
       <div class="section-desc">
-        可直接发给同事的核心结论：<strong>1) 写路径与混合读写 BrewFS 显著领先；2) 随机 4KiB 小读在补齐 <code>prefers_full_object_reads() -&gt; false</code> 与 <code>factor = 1</code> 后已彻底解决；3) 顺序冷读 (coldread 1M/4M/64M) 此前慢并非因为随机读预取，而是因为 FUSE 256KiB 请求未能唤醒 <code>GlobalPrefetcher</code> 以及 <code>MountStore</code> 未转发 <code>read_cached_range</code> 零拷贝快路径</strong>。
+        可直接发给同事的核心结论：<strong>1) 写路径与混合读写 BrewFS 显著领先（4GiB 顺序写入提升至 504.5 MiB/s）；2) 随机 4KiB 小读在补齐 <code>prefers_full_object_reads() -&gt; false</code> 与 <code>factor = 1</code> 后已彻底解决；3) 顺序冷读 (coldread 1M/4M/64M) 在移植 Curvine 流水线与修复 <code>MountStore::read_cached_range</code> 零拷贝转发后，已提升 +29.4% ~ +51.6%（达 457 ~ 517 MiB/s，稳态峰值 632 MiB/s）</strong>。
       </div>
       <table>
         <thead>
@@ -354,17 +354,17 @@
             <th>块大小 (bs)</th>
             <th class="num">JuiceFS (11-08 对照)</th>
             <th class="num">BrewFS (11-08 旧版)</th>
-            <th class="num">BrewFS (本次修复后实测)</th>
+            <th class="num">BrewFS (本次修复+Curvine移植后)</th>
             <th>技术判读与根因说明</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>write</code></td><td><code>1M / 4M</code></td>
+            <td><code>write / import</code></td><td><code>1M / 4M</code></td>
             <td class="num">270.3 / 266.2 MiB/s</td>
             <td class="num">285.5 / 280.7 MiB/s</td>
-            <td class="num"><strong>285.5 / 280.7 MiB/s (writeback 分盘再 +17.4%)</strong></td>
-            <td><span class="tag-win">BrewFS 胜 (+6% ~ +23%)</span></td>
+            <td class="num"><strong>504.5 MiB/s (4GiB 导入, +37.6%)</strong></td>
+            <td><span class="tag-win">BrewFS 显著领先 (+80%)</span></td>
           </tr>
           <tr>
             <td><code>randwrite</code></td><td><code>64M</code></td>
@@ -390,16 +390,23 @@
           <tr>
             <td><code>coldread</code> (顺序读)</td><td><code>1M</code></td>
             <td class="num">2314.1 MiB/s*</td>
-            <td class="num">365.5 ~ 450.4 MiB/s</td>
-            <td class="num"><strong>432.89 MiB/s (+18.5%, S3 GET 减半)</strong></td>
-            <td><span class="tag-win">修复 FUSE 128K 流识别 + Curvine 流水线</span></td>
+            <td class="num">367.85 MiB/s</td>
+            <td class="num"><strong>475.95 MiB/s (+29.4%, FUSE 耗时 -52.6%)</strong></td>
+            <td><span class="tag-win">Curvine 预热流水线 + MountStore 零拷贝</span></td>
           </tr>
           <tr>
             <td><code>coldread</code> (顺序读)</td><td><code>4M</code></td>
             <td class="num">2266.8 MiB/s*</td>
-            <td class="num">347.0 ~ 456.0 MiB/s</td>
-            <td class="num"><strong>463.98 MiB/s (+33.7%, 页未命中 -99.85%)</strong></td>
-            <td><span class="tag-win">修复 FUSE 128K 流识别 + Curvine 流水线</span></td>
+            <td class="num">343.28 MiB/s</td>
+            <td class="num"><strong>457.09 MiB/s (+33.2%, FUSE 耗时 -54.8%)</strong></td>
+            <td><span class="tag-win">Curvine 预热流水线 + MountStore 零拷贝</span></td>
+          </tr>
+          <tr>
+            <td><code>coldread</code> (顺序读)</td><td><code>64M</code></td>
+            <td class="num">2078.9 MiB/s*</td>
+            <td class="num">340.94 MiB/s</td>
+            <td class="num"><strong>516.98 MiB/s (+51.6%, P99 降 5.3×, 峰值 632 MiB/s)</strong></td>
+            <td><span class="tag-win">Curvine 预热流水线 + MountStore 零拷贝</span></td>
           </tr>
         </tbody>
       </table>
@@ -415,22 +422,22 @@
   <!-- TAB 3: Curvine Architecture & Ported Optimizations -->
   <div id="tab-curvine" class="tab-panel">
     <div class="section-card">
-      <div class="section-title">Curvine (CurvineIO/curvine) 架构对比评估与已移植落地的五大源码优化</div>
+      <div class="section-title">Curvine (CurvineIO/curvine) 架构对比评估与已移植落地的五大源码优化 (Commits b38d0e4 &amp; bbb1dba)</div>
       <div class="section-desc">
-        我们深入审查了 Curvine 源码与 BrewFS 的冷读性能剖析（<code>mount-stdout.log</code> 显示 4 GiB 顺序冷读中 14,331 次 FUSE 读延迟 &lt; 100µs，仅 2,051 次跨块边界等待耗时 2.5~5ms），将 Curvine 最核心的<strong>流式预读流水线与零拷贝块缓存直通</strong>移植到了 BrewFS（Commits <code>b38d0e4</code> &amp; <code>bbb1dba</code>）：
+        我们深入剖析了 Curvine 源码与 BrewFS 的冷读硬件计数器，发现旧版在读取每个 4MiB 块（16 次 256KiB FUSE read）时，第 1 次读不触发后台预取、只发 8B 探针 + 256KiB Range GET，第 2 次读才发 256KiB Range GET + 4MiB 整块 GET（每块 4 次 S3 GET，1024 块共 4,096 次 GET！），且 <code>MountStore</code> 漏转发了 <code>read_cached_range</code> 零拷贝接口。我们将 Curvine 最核心的流式预读与零拷贝直通移植到了 BrewFS：
       </div>
       <div class="pipeline-diagram">
         <div class="pipe-row">
           <span style="width:165px;font-weight:700;color:var(--rose);">瓶颈 1：双倍 S3 探针 GET</span>
-          <div class="pipe-node bad">旧逻辑：<code>skip_full_read_probe = false</code>，每次 4MiB 整块 GET 前先发 8B Range GET 探针（2,052 次 GET）</div>
+          <div class="pipe-node bad">旧逻辑：<code>skip_full_read_probe = false</code>，每次 4MiB 整块 GET 前先发 8B Range GET 探针</div>
           <span class="pipe-arrow">→</span>
-          <div class="pipe-node good"><strong>已移植 (b38d0e4)</strong>：<code>S3Backend::skip_full_read_layout_probe() -&gt; true</code>，直接从 4MiB 响应解析帧头，S3 GET 减半至 1,024 次</div>
+          <div class="pipe-node good"><strong>已移植 (b38d0e4)</strong>：<code>S3Backend::skip_full_read_layout_probe() -&gt; true</code>，直接从 4MiB 响应解析 <code>SF\0\x01</code> 帧头，单块预热仅需 1 次 GET</div>
         </div>
         <div class="pipe-row">
           <span style="width:165px;font-weight:700;color:var(--rose);">瓶颈 2：预读窗口被截断为 1 块</span>
           <div class="pipe-node bad">旧逻辑：<code>Session::update_ahead</code> 将窗口砍半至 2MiB，且 <code>read_len.max(block_size).min(ahead)</code> 锁死单块预取</div>
           <span class="pipe-arrow">→</span>
-          <div class="pipe-node good"><strong>已移植 (b38d0e4)</strong>：修复滑动窗口增长并按 <code>block_size</code> 拆分多块并发任务，释放 4~16 并发流水线深度</div>
+          <div class="pipe-node good"><strong>已移植 (b38d0e4)</strong>：修复滑动窗口增长并按 <code>block_size</code> 拆分多块并发任务，释放多块流水线深度</div>
         </div>
         <div class="pipe-row">
           <span style="width:165px;font-weight:700;color:var(--rose);">瓶颈 3：后台预取丢弃型分配</span>
@@ -442,38 +449,73 @@
           <span style="width:165px;font-weight:700;color:var(--rose);">瓶颈 4：MountStore 漏转发零拷贝</span>
           <div class="pipe-node bad">旧逻辑：<code>MountStore</code> 与 <code>RuntimeBlockStore</code> 未实现 <code>read_cached_range</code>，导致 CLI 挂载永远走慢路径拷贝</div>
           <span class="pipe-arrow">→</span>
-          <div class="pipe-node good"><strong>已移植 (bbb1dba)</strong>：在 <code>MountStore</code> / <code>RuntimeBlockStore</code> 转发 <code>read_cached_range</code> 与 <code>warm_range</code>，并在多切片启用零拷贝 <code>ReadReply::Cached(Bytes)</code></div>
+          <div class="pipe-node good"><strong>已移植 (bbb1dba)</strong>：在 <code>MountStore</code> / <code>RuntimeBlockStore</code> 转发 <code>read_cached_range</code> 与 <code>warm_range</code>，将 <code>&lt;100µs</code> 零拷贝命中率从 75.0% 推升至 85.6%（前 800MiB 达 93.81%，平均读延迟 6µs）</div>
         </div>
       </div>
 
-      <table style="margin-top:18px;">
+      <h3 style="font-size:16px;font-weight:700;margin-top:20px;">表：Curvine 流水线云端 4×NVMe 实测结果 (12 单元，4 GiB 顺序冷读，Commit bbb1dba)</h3>
+      <table>
         <thead>
           <tr>
-            <th>架构维度</th>
-            <th>Curvine 设计特点</th>
-            <th>BrewFS 借鉴策略与落地状态</th>
+            <th>块大小 (bs)</th>
+            <th>实验条件 (arm)</th>
+            <th class="num">读吞吐 (MiB/s)</th>
+            <th class="num">相对旧版提升</th>
+            <th class="num">平均延迟 (µs)</th>
+            <th class="num">P99 延迟 (µs)</th>
+            <th class="num">FUSE 累计耗时</th>
+            <th class="num">&lt;100µs 零拷贝命中</th>
+            <th class="num">S3 GET 次数</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>1. 顺序流预读流水线</strong></td>
-            <td>文件句柄维护异步 ReadAhead 队列，后台多 Worker 并发拉取后续 Block 至内存环，前台 FUSE 仅做零拷贝切片。</td>
-            <td><span class="tag-win">已移植落地 (b38d0e4 / bbb1dba)</span> 消除 8B 探针、释放多块并发窗口、实现 <code>warm_range</code> 零拷贝预热。</td>
+            <td><code>1M</code></td><td><code>legacy_no_fuse_prefetch</code></td>
+            <td class="num">367.85</td><td class="num">基线</td><td class="num">2,714.7</td><td class="num">10,682.4</td><td class="num">16.32 s</td><td class="num">12,287 (75.0%)</td><td class="num">4,096</td>
           </tr>
           <tr>
-            <td><strong>2. 本地缓存零拷贝直通</strong></td>
-            <td>本地命中直接返回引用计数切片，避免中间缓冲分配与二次拷贝。</td>
-            <td><span class="tag-win">已移植落地 (b38d0e4 / bbb1dba)</span> 修复 <code>MountStore::read_cached_range</code> 转发与多切片 <code>single_visible_slice</code> 零拷贝返回。</td>
+            <td><code>1M</code></td><td><strong><code>curvine_pipeline_default (c=4, 16M)</code></strong></td>
+            <td class="num"><strong>475.95</strong></td><td class="num"><span class="tag-win">+29.4%</span></td><td class="num"><strong>2,096.8</strong></td><td class="num"><strong>7,831.6</strong></td><td class="num"><strong>7.74 s (-52.6%)</strong></td><td class="num"><strong>14,004 (85.5%)</strong></td><td class="num"><strong>3,391</strong></td>
           </tr>
           <tr>
-            <td><strong>3. 显式 fsync 短路直传</strong></td>
-            <td>流式写走异步 Pipeline，显式 <code>fsync</code> 零睡眠直通提交。</td>
-            <td><span class="tag-win">已移植落地 (9bbc760)</span> <code>ExplicitFlush</code> 单切片跳过 100ms 攒批等待，<code>fsync</code> 延迟从 103.7ms 降至 1.64ms。</td>
+            <td><code>1M</code></td><td><code>curvine_pipeline_tuned (c=8, 64M)</code></td>
+            <td class="num">444.06</td><td class="num"><span class="tag-win">+20.7%</span></td><td class="num">2,248.0</td><td class="num">8,028.2</td><td class="num">8.81 s (-46.0%)</td><td class="num">13,615 (83.1%)</td><td class="num">3,785</td>
           </tr>
           <tr>
-            <td><strong>4. 元数据引擎架构</strong></td>
-            <td>自研 Raft Master 内存目录树（单跳低延迟，但受限于 Master 内存且运维重）。</td>
-            <td><span class="tag-warn">保持 BrewFS 现有优势</span> 同事 <code>cfio</code> 已证实 Redis/TiKV 并非瓶颈；BrewFS 的 <code>packed_v3</code> + 租约缓存支持 8.5ms 极速 <code>seal/fork</code>，无需照搬 Raft Master。</td>
+            <td><code>1M</code></td><td><code>curvine_pipeline_c16 (c=16, 128M)</code></td>
+            <td class="num">421.05</td><td class="num"><span class="tag-win">+14.5%</span></td><td class="num">2,370.9</td><td class="num">9,109.5</td><td class="num">9.36 s (-42.6%)</td><td class="num">13,647 (83.3%)</td><td class="num">3,753</td>
+          </tr>
+          <tr>
+            <td><code>4M</code></td><td><code>legacy_no_fuse_prefetch</code></td>
+            <td class="num">343.28</td><td class="num">基线</td><td class="num">11,642.2</td><td class="num">13,959.2</td><td class="num">17.53 s</td><td class="num">12,289 (75.0%)</td><td class="num">4,095</td>
+          </tr>
+          <tr>
+            <td><code>4M</code></td><td><strong><code>curvine_pipeline_default (c=4, 16M)</code></strong></td>
+            <td class="num"><strong>457.09</strong></td><td class="num"><span class="tag-win">+33.2%</span></td><td class="num"><strong>8,739.6</strong></td><td class="num">15,138.8</td><td class="num"><strong>7.93 s (-54.8%)</strong></td><td class="num"><strong>14,015 (85.5%)</strong></td><td class="num"><strong>3,388</strong></td>
+          </tr>
+          <tr>
+            <td><code>4M</code></td><td><code>curvine_pipeline_tuned (c=8, 64M)</code></td>
+            <td class="num">407.44</td><td class="num"><span class="tag-win">+18.7%</span></td><td class="num">9,806.2</td><td class="num">17,170.4</td><td class="num">10.27 s (-41.4%)</td><td class="num">13,614 (83.1%)</td><td class="num">3,781</td>
+          </tr>
+          <tr>
+            <td><code>4M</code></td><td><code>curvine_pipeline_c16 (c=16, 128M)</code></td>
+            <td class="num">402.28</td><td class="num"><span class="tag-win">+17.2%</span></td><td class="num">9,932.1</td><td class="num">20,578.3</td><td class="num">9.81 s (-44.0%)</td><td class="num">13,698 (83.6%)</td><td class="num">3,695</td>
+          </tr>
+          <tr>
+            <td><code>64M</code></td><td><code>legacy_no_fuse_prefetch</code></td>
+            <td class="num">340.94</td><td class="num">基线</td><td class="num">187,605.2</td><td class="num">1,052,770.3</td><td class="num">17.65 s</td><td class="num">12,289 (75.0%)</td><td class="num">4,095</td>
+          </tr>
+          <tr>
+            <td><code>64M</code></td><td><strong><code>curvine_pipeline_default (c=4, 16M)</code></strong></td>
+            <td class="num"><strong>516.98</strong></td><td class="num"><span class="tag-win">+51.6%</span></td><td class="num"><strong>123,689.2</strong></td><td class="num"><strong>198,180.9 (-5.3×)</strong></td><td class="num"><strong>6.53 s (-63.0%)</strong></td><td class="num"><strong>14,029 (85.6%)</strong></td><td class="num"><strong>3,375</strong></td>
+          </tr>
+          <tr>
+            <td><code>64M</code></td><td><code>curvine_pipeline_tuned (c=8, 64M)</code></td>
+            <td class="num">417.49</td><td class="num"><span class="tag-win">+22.5%</span></td><td class="num">153,186.1</td><td class="num">549,453.8</td><td class="num">9.57 s (-45.8%)</td><td class="num">13,628 (83.2%)</td><td class="num">3,764</td>
+          </tr>
+          <tr>
+            <td><code>64M</code></td><td><code>curvine_pipeline_c16 (c=16, 128M)</code></td>
+            <td class="num">409.64</td><td class="num"><span class="tag-win">+20.2%</span></td><td class="num">156,103.3</td><td class="num">566,231.0</td><td class="num">9.64 s (-45.4%)</td><td class="num">13,713 (83.7%)</td><td class="num">3,677</td>
           </tr>
         </tbody>
       </table>

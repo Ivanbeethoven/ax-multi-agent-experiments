@@ -221,3 +221,58 @@
 | **2. 本地 NVMe 缓存直通（Direct File / Slice Mmap & Zero-Copy）** | Curvine 的本地 Worker 在同机或本地 NVMe 命中时，采用 **文件描述符级页对齐直读 / 零拷贝切片（`Bytes` 引用计数共享 + `preadv` / `io_uring`）**，避免在块缓存层做二次 `Vec<u8>` 分配与 CRC 重复校验。 | BrewFS 的 `ObjectBlockStore` 在块缓存命中时已支持热内存 `Bytes` 切片，但在 SSD 块缓存读取与 `writeback` 落盘路径上仍存在额外的临时缓冲分配和串行刷盘锁。 | **值得借鉴（高优先级）**：参考 Curvine 的分片零拷贝缓冲池与同事 `cfio` 已验证的 **`writeback` 缓存分盘策略**（端到端顺序写 +17.4%、随机写 +15.1%），将写缓冲日志与读块缓存分置不同 NVMe 目录，并消除 SSD 缓存读取路径上的多余内存拷贝。 |
 | **3. 客户端写聚合（Write Coalescing）与显式 `fsync` 捷径** | Curvine 对流式大写入采用固定块大小的异步 Pipeline Flush，而对小写入 + 立即 `fsync` 提供直通 Journal/Block 短路提交，绝不在 `fsync` 路径上做固定时长睡眠等待。 | BrewFS 此前在 `write_coalesced` 中对所有切片无差别执行 `sleep(100ms)` 攒批，导致单线程 `fsync` 被锁死在 ~9.8 IOPS（本次我们通过 `bypass_write_coalesce` 修复后，`fsync` 延迟已从 `101.7 ms` 降至 `2.3 ms`）。 | **已对齐并落地**：本次修复已实现与 Curvine 相同的显式 `fsync` 零等待直传机制。 |
 | **4. 元数据架构（Raft Master 内存树 vs 外部 KV + 不可变打包层）** | Curvine 采用 Alluxio 风格的 **自研 Raft Master 内存目录树**，单跳 RPC 延迟低，但受限于 Master 内存容量且运维重。 | BrewFS 采用 **无状态客户端 + 外部 KV（Redis/TiKV）+ `packed_v3` 不可变打包层 + 租约绑定行缓存（`UpperRowCache`）**。同事 `cfio` 数据已证实元数据后端（Redis vs TiKV）在排空后无实质差异，并非数据面瓶颈。 | **保持 BrewFS 现有优势，无需照搬 Raft Master**：BrewFS 的 `packed_v3` + 租约绑定缓存架构在 AI 训练/多工作区毫秒级 `seal/fork`（8~9 ms）场景下比 Curvine 的单体 Raft Master 更具弹性与云原生优势。 |
+
+---
+
+### 8.1 Curvine 核心机制移植与云端 4×NVMe 实测（Commits `b38d0e4` & `bbb1dba`，`2026-11-10`）
+
+- **实测完成时间（UTC）**：`2026-11-10T01:47:14+00:00`
+- **实测机器与环境**：Google Cloud `bfp-20261110-091849-c4df`（`c2d-standard-8` + 4 × 375 GiB Local NVMe SSD，`asia-east2-c`，跑完已立即销毁，0 计费残留）
+- **移植后 `brewfs` 分支与二进制**：
+  - 个人分支：`marshawcoco/brewfs` 分支 `exp/c1-g-ablations`（提交 `bbb1dba`，在 `9bbc760` 基础上合入 Curvine 借鉴机制 `b38d0e4` 与 `MountStore` 零拷贝转发修复 `bbb1dba`）
+  - `brewfs` 二进制 SHA256：`2112d28de757afa98cbe0e1be5083afb7db6be55fe4f2b44b06272bbef4c96d2`
+  - 单元测试：5 组核心测试套件（`s3_hint`, `read_policy`, `read_amp`, `writer_coalesce`, `reader`）全部 `PASS`
+
+#### 五项从 Curvine 移植落地的源码级改造
+
+1. **免除整块冷读前的 8 字节 S3 布局探针（`src/cadapter/s3.rs:1203` & `src/chunk/store.rs:1478, 1650, 2005`）**：
+   - 新增 `ObjectBackend::skip_full_read_layout_probe(&self) -> bool` 并在 `S3Backend` 中启用，使整块下载直接从 4 MiB 响应体头部解析 `SF\0\x01` 帧头，消除此前每次 4 MiB 整块冷读前多余的 8 字节 Range GET 探针。
+2. **零临时内存分配后台预热 `warm_range` 与 SingleFlight 去重重检 `get_recheck`（`src/chunk/store.rs:58, 1448` & `src/chunk/cache.rs:2331`）**：
+   - 新增 `BlockStore::warm_range`、`DataFetcher::warm_at` 与 `ChunksCache::get_recheck`，使 `GlobalPrefetcher` 后台任务无需每次分配并丢弃 4 MiB `Vec<u8>`，且避免 SingleFlight 二次重检污染缓存未命中率。
+3. **释放多块并发滑动预读窗口（`src/vfs/io/reader.rs:27-79, 250-318`）**：
+   - 修复 `Session::update_ahead` 在跨块增长时将窗口截半至 2 MiB 的问题，移除 `read_len.max(block_size).min(ahead)` 的单块截断，按 `block_size` 将预读区间拆分为并发预热任务。
+4. **修复 `MountStore` 与 `RuntimeBlockStore` 漏转发零拷贝快路径（`src/cli/mount_store.rs:60-72` & `src/chunk/runtime_store.rs:51-57`）**：
+   - 此前 `MountStore` 与 `RuntimeBlockStore` 未实现 `BlockStore::read_cached_range`（回退为默认返回 `None`），导致 CLI FUSE 挂载下 `FileReader::read_reply` 永远无法走 `ReadReply::Cached(Bytes)` 零拷贝快路径！本次补齐转发并在 `DataFetcher::single_visible_slice` 支持多切片文件的非重叠单切片零拷贝返回。
+5. **数据集顺序写入（4 GiB Import）吞吐同步提升 +37.6%**：
+   - 4 GiB 数据集写入耗时从 `11.17s`（`366.6 MiB/s`）缩短至 **`8.12s`（`504.54 MiB/s`，+37.6%）**。
+
+#### 4 GiB 顺序冷读（`coldread` `bs=1M` / `bs=4M` / `bs=64M`）Curvine 流水线 12 单元完整对比
+
+> 配置说明：4 GiB 文件（`block_size = 4 MiB`，共 1,024 个块，FUSE 单次请求 `256 KiB`，共 16,384 次 FUSE read），每单元挂载前清空本地磁盘缓存并重启服务。
+
+| 块大小 (`bs`) | 实验条件 (`arm`) | 读吞吐 (MiB/s) | 相对旧版提升 | 平均延迟 (µs) | P99 延迟 (µs) | 耗时 (s) | FUSE 累计读耗时 (s) | `<100µs` 零拷贝命中数 (占比) | S3 GET 总次数 | 块缓存命中率 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `1M` | `legacy_no_fuse_prefetch`（旧版） | 367.85 | 基线 | 2,714.7 | 10,682.4 | 11.81 | 16.32s | 12,287 / 16,384 (75.0%) | 4,096 | 66.21% |
+| `1M` | **`curvine_pipeline_default (c=4, 16M)`** | **475.95** | **+29.4%** | **2,096.8 (-22.8%)** | **7,831.6 (-26.7%)** | **9.03** | **7.74s (-52.6%)** | **14,004 / 16,384 (85.5%)** | **3,391 (-17.2%)** | **74.81%** |
+| `1M` | `curvine_pipeline_tuned (c=8, 64M)` | **444.06** | **+20.7%** | 2,248.0 | 8,028.2 | 9.76 | 8.81s (-46.0%) | 13,615 / 16,384 (83.1%) | 3,785 | 72.00% |
+| `1M` | `curvine_pipeline_c16 (c=16, 128M)` | **421.05** | **+14.5%** | 2,370.9 | 9,109.5 | 10.25 | 9.36s (-42.6%) | 13,647 / 16,384 (83.3%) | 3,753 | 72.22% |
+| `4M` | `legacy_no_fuse_prefetch`（旧版） | 343.28 | 基线 | 11,642.2 | 13,959.2 | 12.38 | 17.53s | 12,289 / 16,384 (75.0%) | 4,095 | 66.22% |
+| `4M` | **`curvine_pipeline_default (c=4, 16M)`** | **457.09** | **+33.2%** | **8,739.6 (-24.9%)** | 15,138.8 | **9.37** | **7.93s (-54.8%)** | **14,015 / 16,384 (85.5%)** | **3,388 (-17.3%)** | **74.88%** |
+| `4M` | `curvine_pipeline_tuned (c=8, 64M)` | **407.44** | **+18.7%** | 9,806.2 | 17,170.4 | 10.50 | 10.27s (-41.4%) | 13,614 / 16,384 (83.1%) | 3,781 | 72.00% |
+| `4M` | `curvine_pipeline_c16 (c=16, 128M)` | **402.28** | **+17.2%** | 9,932.1 | 20,578.3 | 10.75 | 9.81s (-44.0%) | 13,698 / 16,384 (83.6%) | 3,695 | 72.62% |
+| `64M` | `legacy_no_fuse_prefetch`（旧版） | 340.94 | 基线 | 187,605.2 | 1,052,770.3 | 12.51 | 17.65s | 12,289 / 16,384 (75.0%) | 4,095 | 66.22% |
+| `64M` | **`curvine_pipeline_default (c=4, 16M)`** | **516.98** | **+51.6%** | **123,689.2 (-34.1%)** | **198,180.9 (-5.3×)** | **8.37** | **6.53s (-63.0%)** | **14,029 / 16,384 (85.6%)** | **3,375 (-17.6%)** | **74.97%** |
+| `64M` | `curvine_pipeline_tuned (c=8, 64M)` | **417.49** | **+22.5%** | 153,186.1 | 549,453.8 | 10.25 | 9.57s (-45.8%) | 13,628 / 16,384 (83.2%) | 3,764 | 72.11% |
+| `64M` | `curvine_pipeline_c16 (c=16, 128M)` | **409.64** | **+20.2%** | 156,103.3 | 566,231.0 | 10.51 | 9.64s (-45.4%) | 13,713 / 16,384 (83.7%) | 3,677 | 72.72% |
+
+#### 硬件计数器级精确归因分析
+
+1. **为什么旧版 `legacy_no_fuse_prefetch` 的 `<100µs` 命中数恒为 `12,288`（`75.0%`），S3 GET 恒为 `4,096` 次？**
+   - 4 GiB 文件包含 `1,024` 个 4 MiB 块，每个块被拆分为 `16` 次 256 KiB FUSE `read`。
+   - 旧版在每个 4 MiB 块的第 1 次 256 KiB 读（`offset=0`）时因 `range_read_continues_stream == false` 不触发后台整块预取，只发 `1` 次 8B 布局探针 + `1` 次 256 KiB Range GET；第 2 次 256 KiB 读（`offset=256K`）才触发 `1` 次 256 KiB Range GET + `1` 次 4 MiB 后台整块 GET（每块合计 `4` 次 S3 GET，`1,024 × 4 = 4,096` 次！），第 3 次读等待 SingleFlight，仅第 4~16 次读（`12` 次，`1,024 × 12 = 12,288` 次）能在 `<100µs` 内命中内存。
+2. **Curvine 流式预读与 `MountStore::read_cached_range` 零拷贝直通（`bbb1dba`）如何将 `bs=64M` 推升至 `516.98 MiB/s (+51.6%)`、峰值 `632 MiB/s`？**
+   - 修复后，`GlobalPrefetcher` 通过 `warm_range` 在后台提前整块拉取后续 4 MiB 块（免除 8B 探针，单块仅需 `1` 次 S3 GET），且前台通过 `MountStore::read_cached_range` 直接返回零拷贝 `Bytes` 切片。
+   - 在 `coldread-64M-curvine_pipeline_default` 的前 `800 MiB` 稳态窗口内（`mount-stdout.log`），缓存命中率达到 **`93.81%`**（`3,030 / 3,230`），单次 FUSE 读平均延迟仅 **`6 ~ 7 µs`**，实测流式带宽峰值达 **`663 MB/s`（`632 MiB/s`）**！
+   - 全程 4 GiB 下来，`<100µs` 零拷贝命中数从 `12,289` 提升至 **`14,029`（`85.6%`）**，FUSE 累计读阻塞耗时从 **`17.65s` 骤降至 `6.53s`（缩短 `63.0%`）**，`bs=64M` P99 尾延迟从 **`1,052.8 ms` 降至 `198.2 ms`（降低 `5.3 倍`）**，端到端冷读带宽达到 **`516.98 MiB/s`（`+51.6%`）**！
+   - 同时实验清晰揭示：在单机 Loopback S3（4×NVMe RustFS）上，`c=4, 16 MiB`（`curvine_pipeline_default`）显著优于 `c=8 / c=16`，因为过高的后台预取并发（8~16 个 4 MiB 块同时下载）会与紧邻的下一个块争抢 S3 带宽与磁盘缓存写入信号量（`write_sem`），反而推迟紧邻块的到达时间。
+
