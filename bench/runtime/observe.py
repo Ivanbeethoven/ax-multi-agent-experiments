@@ -100,8 +100,12 @@ def mount_lifecycle(target):
             stopped.get('anchor')!=ready['anchor'] or stopped.get('original_mount')!=ready['mount'] or
             process['spec']!=ready['spec'] or any(process['process'][k]!=ready['process'][k]
                 for k in ('pid','boot_id','start_ticks')) or
-            alive(process['process']) or ready['mount'] in mounts(ready['mount']['point'])):
+            alive(process['process'])):
         raise ValueError('Original mount stop evidence differs or original writer is still live')
+    # Linux may reuse a mount ID at the same point immediately. The successful
+    # original supervisor receipt observed mount absence before its new mount;
+    # use that receipt plus the original PID/boot/start identity, not a later
+    # mount-table entry that could belong to a replacement instance.
     return {'state':'cleanly-stopped','receipt_sha256':digest(root/'stopped.json')}
 
 

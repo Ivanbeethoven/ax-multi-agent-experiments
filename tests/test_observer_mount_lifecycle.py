@@ -61,8 +61,8 @@ class MountLifecycle(unittest.TestCase):
             with patch.object(observe,'alive',return_value=True),self.assertRaises(ValueError):
                 observe.mount_lifecycle(target)
 
-    def test_old_mount_can_be_stopped_after_a_different_mount_reuses_the_point(self):
+    def test_old_mount_can_be_stopped_after_kernel_reuses_its_id_and_point(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);target,_,stop,mount=self.fixture(root);stop()
-            with patch.object(observe,'alive',return_value=False),patch.object(observe,'mounts',return_value=[{**mount,'mount_id':456}]):
+            with patch.object(observe,'alive',return_value=False),patch.object(observe,'mounts',return_value=[mount]):
                 self.assertEqual(observe.mount_lifecycle(target)['state'],'cleanly-stopped')
