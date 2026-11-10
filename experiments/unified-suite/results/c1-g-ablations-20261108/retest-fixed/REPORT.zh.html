@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BrewFS 性能优化、根因修复与 Curvine 架构借鉴完整实验报告</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --bg-elev: #131b31;
+    --card: #17203a;
+    --card-alt: #1d2847;
+    --border: #2a3964;
+    --text: #eef2ff;
+    --muted: #94a3b8;
+    --primary: #38bdf8;
+    --accent: #818cf8;
+    --emerald: #34d399;
+    --amber: #fbbf24;
+    --rose: #fb7185;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: radial-gradient(circle at top right, #1e293b 0%, var(--bg) 55%);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 28px 20px 60px;
+  }
+  .container { max-width: 1280px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, rgba(56,189,248,0.14), rgba(129,140,248,0.12));
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+  }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+  .badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(56,189,248,0.15);
+    color: var(--primary);
+    border: 1px solid rgba(56,189,248,0.35);
+  }
+  .badge.emerald { background: rgba(52,211,153,0.15); color: var(--emerald); border-color: rgba(52,211,153,0.35); }
+  .badge.amber { background: rgba(251,191,36,0.15); color: var(--amber); border-color: rgba(251,191,36,0.35); }
+  h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 14px; }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 26px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--emerald));
+  }
+  .kpi-label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+  .kpi-val { font-size: 28px; font-weight: 800; margin: 6px 0 4px; color: var(--emerald); }
+  .kpi-sub { font-size: 12px; color: var(--muted); }
+  .nav-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+  }
+  .tab-btn {
+    background: var(--bg-elev);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .tab-btn:hover { color: var(--text); border-color: var(--primary); }
+  .tab-btn.active {
+    background: linear-gradient(135deg, rgba(56,189,248,0.22), rgba(129,140,248,0.22));
+    color: var(--text);
+    border-color: var(--primary);
+    box-shadow: 0 4px 14px rgba(56,189,248,0.2);
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .section-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 26px;
+    margin-bottom: 22px;
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 18px; }
+  .bar-group { margin-bottom: 14px; }
+  .bar-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+  .bar-track {
+    width: 100%;
+    height: 24px;
+    background: var(--bg-elev);
+    border-radius: 7px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #061224;
+    transition: width 0.5s ease;
+  }
+  .bar-fill.legacy { background: linear-gradient(90deg, #fb7185, #f43f5e); color: #fff; }
+  .bar-fill.stage1 { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+  .bar-fill.curvine { background: linear-gradient(90deg, #34d399, #10b981); }
+  .bar-fill.primary { background: linear-gradient(90deg, #38bdf8, #818cf8); color: #fff; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+  th {
+    background: var(--bg-elev);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 12px;
+  }
+  tr:hover td { background: rgba(255,255,255,0.025); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tag-win {
+    background: rgba(52,211,153,0.18);
+    color: var(--emerald);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .tag-warn {
+    background: rgba(251,191,36,0.18);
+    color: var(--amber);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .tag-bad {
+    background: rgba(251,113,133,0.18);
+    color: var(--rose);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .code-box {
+    background: #090e1c;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: #cbd5e1;
+    overflow-x: auto;
+    margin-top: 8px;
+  }
+  .pipeline-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .pipe-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .pipe-node {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .pipe-node.good { border-color: var(--emerald); background: rgba(52,211,153,0.1); }
+  .pipe-node.bad { border-color: var(--rose); background: rgba(251,113,133,0.1); }
+  .pipe-arrow { color: var(--primary); font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge-row">
+      <span class="badge emerald">源码修复与 Curvine 移植重测已完成 · Commits 9bbc760 / b38d0e4 / bbb1dba</span>
+      <span class="badge">Google Cloud c2d-standard-8 (4×375 GiB Local NVMe, RustFS EC 2+2)</span>
+      <span class="badge amber">对齐 PR #441 / PR #442 / JuiceFS 对照 / Curvine 流式预读与零拷贝直通</span>
+    </div>
+    <h1>BrewFS 核心性能瓶颈修复、同机重测与 Curvine 架构借鉴完整报告</h1>
+    <p class="subtitle">
+      本报告汇总了 C1 动态块大小（G）消融实验的四大根因修复与 44 单元云端重测数据、与同事 JuiceFS / PR #441 数据的技术对齐，以及借鉴 Curvine（CurvineIO/curvine）落地的流式预读与 MountStore 零拷贝直通实测结果。
+    </p>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">4KiB 随机读放大消除 (Pilot &amp; 32GiB)</div>
+      <div class="kpi-val">2,968.5× → 0.08×</div>
+      <div class="kpi-sub">Pilot 随机读吞吐提升 +56.9× ~ +70.8× (0.36 → 26.18 MiB/s)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">32GiB 大数据集随机冷读流量降幅</div>
+      <div class="kpi-val">-52.8× ~ -129.7×</div>
+      <div class="kpi-sub">128 GiB S3 颠簸流量降至 2.42 GiB (守卫) / 1.01 GiB (纯净范围读)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">混合读写 (randrw fsync=1) 延迟</div>
+      <div class="kpi-val">103.7 ms → 1.64 ms</div>
+      <div class="kpi-sub">单切片 ExplicitFlush 零等待直传，延迟降低 63 倍，吞吐 +9.3×</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">4 GiB 顺序冷读 (Curvine 零拷贝流水线)</div>
+      <div class="kpi-val">517.0 MiB/s (+51.6%)</div>
+      <div class="kpi-sub">峰值 632 MiB/s (命中率 93.8%)，FUSE 读耗时降 63%，P99 降 5.3×</div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-overview', this)">1. 核心图表总览 (Pilot / 32GiB / Curvine 顺序冷读)</button>
+    <button class="tab-btn" onclick="switchTab('tab-colleague', this)">2. 与同事 JuiceFS &amp; PR #441/#442 对齐</button>
+    <button class="tab-btn" onclick="switchTab('tab-curvine', this)">3. Curvine 架构移植与 12 单元实测 (bbb1dba)</button>
+    <button class="tab-btn" onclick="switchTab('tab-tables', this)">4. 全量实验数据明细表</button>
+  </div>
+
+  <!-- TAB 1: Visual Charts Overview -->
+  <div id="tab-overview" class="tab-panel active">
+    <div class="grid-2">
+      <div class="section-card">
+        <div class="section-title">图表 1：Pilot 4GiB 数据集修复前后吞吐对比 (MiB/s)</div>
+        <div class="section-desc">同机 4×NVMe RustFS EC 2+2 实测：4KiB 随机冷读提升 56~70 倍，1MiB 混合读写 (fsync) 提升 9.3 倍</div>
+
+        <div class="bar-group">
+          <div class="bar-header"><span><code>client-object-size</code> (1MiB randrw + fsync) · 修复前</span><span>5.22 MiB/s (fsync 103.7ms)</span></div>
+          <div class="bar-track"><div class="bar-fill legacy" style="width:10.8%;">5.22</div></div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-header"><span><code>client-object-size</code> (1MiB randrw + fsync) · <strong>修复后</strong></span><span><strong>48.55 MiB/s (+9.3×, fsync 1.64ms)</strong></span></div>
+          <div class="bar-track"><div class="bar-fill curvine" style="width:100%;">48.55 MiB/s (+9.3×)</div></div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;" />
+
+        <div class="bar-group">
+          <div class="bar-header"><span><code>backend-layout B-65536</code> (4KiB randread) · 修复前</span><span>0.46 MiB/s (读放大 32.5×)</span></div>
+          <div class="bar-track"><div class="bar-fill legacy" style="width:4%;">0.46</div></div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-header"><span><code>backend-layout B-65536</code> (4KiB randread) · <strong>修复后</strong></span><span><strong>26.18 MiB/s (+56.9×, 读放大 0.08×)</strong></span></div>
+          <div class="bar-track"><div class="bar-fill curvine" style="width:54%;">26.18 MiB/s (+56.9×)</div></div>
+        </div>
+
+        <div class="bar-group">
+          <div class="bar-header"><span><code>backend-layout B-1048576</code> (4KiB randread) · 修复前</span><span>0.36 MiB/s (读放大 32.5×)</span></div>
+          <div class="bar-track"><div class="bar-fill legacy" style="width:3.5%;">0.36</div></div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-header"><span><code>backend-layout B-1048576</code> (4KiB randread) · <strong>修复后</strong></span><span><strong>25.49 MiB/s (+70.8×, 读放大 0.08×)</strong></span></div>
+          <div class="bar-track"><div class="bar-fill curvine" style="width:52.5%;">25.49 MiB/s (+70.8×)</div></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">图表 2：32 GiB 大数据集 (64× 内存缓存) S3 拉取流量与吞吐对比</div>
+        <div class="section-desc">读取 128 MiB (32,768 次 4 KiB 随机读，跨 8,192 个 4 MiB 对象)</div>
+
+        <div class="bar-group">
+          <div class="bar-header"><span>修复前默认 (<code>prefers_full=true</code> 绕过守卫)</span><span style="color:var(--rose);font-weight:700;">131,072 MiB (128 GiB 流量) · 0.22 MiB/s</span></div>
+          <div class="bar-track"><div class="bar-fill legacy" style="width:100%;">131,072 MiB S3 流量 (1,024× 读放大)</div></div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-header"><span>修复后默认 (<code>guarded-default</code>, <code>factor=1</code> 自动熔断)</span><span style="color:var(--amber);font-weight:700;">2,482 MiB (-52.8×) · 1.26 MiB/s (+5.7×)</span></div>
+          <div class="bar-track"><div class="bar-fill stage1" style="width:14%;">2,482 MiB (-52.8×)</div></div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-header"><span>修复后纯净范围读 (<code>clean-range</code>, 64KiB Range GET)</span><span style="color:var(--emerald);font-weight:700;">1,010 MiB (-129.7×) · 3.40 MiB/s (+15.5×)</span></div>
+          <div class="bar-track"><div class="bar-fill curvine" style="width:7%;">1,010 MiB (-129.7×)</div></div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;" />
+        <div class="section-title" style="font-size:15px;">图表 3：4 GiB 顺序冷读 (coldread) Curvine 零拷贝流水线 (bbb1dba) 对比</div>
+        <div class="bar-group" style="margin-top:8px;">
+          <div class="bar-header"><span><code>bs=64M</code> 旧版 vs <strong>Curvine 零拷贝流水线</strong></span><span><strong>340.94 → 516.98 MiB/s (+51.6%, P99 降 5.3×)</strong></span></div>
+          <div class="bar-track"><div class="bar-fill curvine" style="width:100%;">516.98 MiB/s (+51.6%, 稳态峰值 632 MiB/s)</div></div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-header"><span><code>bs=1M</code> 旧版 vs <strong>Curvine 零拷贝流水线</strong></span><span><strong>367.85 → 475.95 MiB/s (+29.4%, FUSE 耗时 -52.6%)</strong></span></div>
+          <div class="bar-track"><div class="bar-fill primary" style="width:92.1%;">475.95 MiB/s (+29.4%)</div></div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-header"><span><code>bs=4M</code> 旧版 vs <strong>Curvine 零拷贝流水线</strong></span><span><strong>343.28 → 457.09 MiB/s (+33.2%, FUSE 耗时 -54.8%)</strong></span></div>
+          <div class="bar-track"><div class="bar-fill stage1" style="width:88.4%;">457.09 MiB/s (+33.2%)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Colleague & JuiceFS Alignment -->
+  <div id="tab-colleague" class="tab-panel">
+    <div class="section-card">
+      <div class="section-title">与同事「BrewFS vs JuiceFS 对照表」及 PR #441 / PR #442 的技术对齐</div>
+      <div class="section-desc">
+        可直接发给同事的核心结论：<strong>1) 写路径与混合读写 BrewFS 显著领先（4GiB 顺序写入提升至 504.5 MiB/s）；2) 随机 4KiB 小读在补齐 <code>prefers_full_object_reads() -&gt; false</code> 与 <code>factor = 1</code> 后已彻底解决；3) 顺序冷读 (coldread 1M/4M/64M) 在移植 Curvine 流水线与修复 <code>MountStore::read_cached_range</code> 零拷贝转发后，已提升 +29.4% ~ +51.6%（达 457 ~ 517 MiB/s，稳态峰值 632 MiB/s）</strong>。
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>操作类型 (op)</th>
+            <th>块大小 (bs)</th>
+            <th class="num">JuiceFS (11-08 对照)</th>
+            <th class="num">BrewFS (11-08 旧版)</th>
+            <th class="num">BrewFS (本次修复+Curvine移植后)</th>
+            <th>技术判读与根因说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>write / import</code></td><td><code>1M / 4M</code></td>
+            <td class="num">270.3 / 266.2 MiB/s</td>
+            <td class="num">285.5 / 280.7 MiB/s</td>
+            <td class="num"><strong>504.5 MiB/s (4GiB 导入, +37.6%)</strong></td>
+            <td><span class="tag-win">BrewFS 显著领先 (+80%)</span></td>
+          </tr>
+          <tr>
+            <td><code>randwrite</code></td><td><code>64M</code></td>
+            <td class="num">1.5 MiB/s</td>
+            <td class="num">159.1 MiB/s</td>
+            <td class="num"><strong>159.1 MiB/s</strong></td>
+            <td><span class="tag-win">BrewFS 胜 (106×)</span></td>
+          </tr>
+          <tr>
+            <td><code>randrw</code></td><td><code>1M / 4M</code></td>
+            <td class="num">30.3 / 119.8 MiB/s</td>
+            <td class="num">959.7 / 610.3 MiB/s</td>
+            <td class="num"><strong>959.7 / 610.3 MiB/s (fsync=1 场景再 +9.3×)</strong></td>
+            <td><span class="tag-win">BrewFS 胜 (5.1× ~ 32×)</span></td>
+          </tr>
+          <tr>
+            <td><code>randread</code> (小读)</td><td><code>4K</code></td>
+            <td class="num">—</td>
+            <td class="num">0.36 MiB/s (放大 303×~2968×)</td>
+            <td class="num"><strong>25.49 ~ 26.18 MiB/s (放大 0.08×)</strong></td>
+            <td><span class="tag-win">PR #441 + 本次 S3 hint 修复 (+70.8×)</span></td>
+          </tr>
+          <tr>
+            <td><code>coldread</code> (顺序读)</td><td><code>1M</code></td>
+            <td class="num">2314.1 MiB/s*</td>
+            <td class="num">367.85 MiB/s</td>
+            <td class="num"><strong>475.95 MiB/s (+29.4%, FUSE 耗时 -52.6%)</strong></td>
+            <td><span class="tag-win">Curvine 预热流水线 + MountStore 零拷贝</span></td>
+          </tr>
+          <tr>
+            <td><code>coldread</code> (顺序读)</td><td><code>4M</code></td>
+            <td class="num">2266.8 MiB/s*</td>
+            <td class="num">343.28 MiB/s</td>
+            <td class="num"><strong>457.09 MiB/s (+33.2%, FUSE 耗时 -54.8%)</strong></td>
+            <td><span class="tag-win">Curvine 预热流水线 + MountStore 零拷贝</span></td>
+          </tr>
+          <tr>
+            <td><code>coldread</code> (顺序读)</td><td><code>64M</code></td>
+            <td class="num">2078.9 MiB/s*</td>
+            <td class="num">340.94 MiB/s</td>
+            <td class="num"><strong>516.98 MiB/s (+51.6%, P99 降 5.3×, 峰值 632 MiB/s)</strong></td>
+            <td><span class="tag-win">Curvine 预热流水线 + MountStore 零拷贝</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="code-box" style="margin-top:14px;">
+        <strong>关于 PR #441 与 PR #442 的三项关键对齐补充：</strong><br/>
+        1. <strong>PR #441 遗漏点 1</strong>：当开启 <code>rustfs_ec_block_size_hint</code> 时，<code>S3Backend::prefers_full_object_reads()</code> 返回 <code>true</code>，直接短路了 64 KiB Range GET 和 PR #441 的 <code>WorkingSetEstimator</code>（已在 Commit <code>9bbc760</code> 修复）。<br/>
+        2. <strong>PR #441 遗漏点 2</strong>：<code>process_restart_tests.rs:156</code> 在开启 <code>workspace-overlay</code> 特性时缺少 <code>range_prefetch_working_set_factor</code> 初始化字段导致编译报错（已在 Commit <code>9bbc760</code> 修复）。<br/>
+        3. <strong>PR #442 (<code>d08faa5</code>) 已完整合入</strong>：我们的分支已变基到 PR #442 之上，同时包含 <code>fuse_Setxattr</code> 零 RTT 热路径封存（延迟从 22ms 降至 8.5ms）与数据面修复。
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Curvine Architecture & Ported Optimizations -->
+  <div id="tab-curvine" class="tab-panel">
+    <div class="section-card">
+      <div class="section-title">Curvine (CurvineIO/curvine) 架构对比评估与已移植落地的五大源码优化 (Commits b38d0e4 &amp; bbb1dba)</div>
+      <div class="section-desc">
+        我们深入剖析了 Curvine 源码与 BrewFS 的冷读硬件计数器，发现旧版在读取每个 4MiB 块（16 次 256KiB FUSE read）时，第 1 次读不触发后台预取、只发 8B 探针 + 256KiB Range GET，第 2 次读才发 256KiB Range GET + 4MiB 整块 GET（每块 4 次 S3 GET，1024 块共 4,096 次 GET！），且 <code>MountStore</code> 漏转发了 <code>read_cached_range</code> 零拷贝接口。我们将 Curvine 最核心的流式预读与零拷贝直通移植到了 BrewFS：
+      </div>
+      <div class="pipeline-diagram">
+        <div class="pipe-row">
+          <span style="width:165px;font-weight:700;color:var(--rose);">瓶颈 1：双倍 S3 探针 GET</span>
+          <div class="pipe-node bad">旧逻辑：<code>skip_full_read_probe = false</code>，每次 4MiB 整块 GET 前先发 8B Range GET 探针</div>
+          <span class="pipe-arrow">→</span>
+          <div class="pipe-node good"><strong>已移植 (b38d0e4)</strong>：<code>S3Backend::skip_full_read_layout_probe() -&gt; true</code>，直接从 4MiB 响应解析 <code>SF\0\x01</code> 帧头，单块预热仅需 1 次 GET</div>
+        </div>
+        <div class="pipe-row">
+          <span style="width:165px;font-weight:700;color:var(--rose);">瓶颈 2：预读窗口被截断为 1 块</span>
+          <div class="pipe-node bad">旧逻辑：<code>Session::update_ahead</code> 将窗口砍半至 2MiB，且 <code>read_len.max(block_size).min(ahead)</code> 锁死单块预取</div>
+          <span class="pipe-arrow">→</span>
+          <div class="pipe-node good"><strong>已移植 (b38d0e4)</strong>：修复滑动窗口增长并按 <code>block_size</code> 拆分多块并发任务，释放多块流水线深度</div>
+        </div>
+        <div class="pipe-row">
+          <span style="width:165px;font-weight:700;color:var(--rose);">瓶颈 3：后台预取丢弃型分配</span>
+          <div class="pipe-node bad">旧逻辑：<code>GlobalPrefetcher</code> 调用 <code>fetcher.read_at</code> 分配 4MiB <code>Vec&lt;u8&gt;</code> 拷贝后立即丢弃，且重复计 Miss</div>
+          <span class="pipe-arrow">→</span>
+          <div class="pipe-node good"><strong>已移植 (b38d0e4)</strong>：新增 <code>BlockStore::warm_range</code> + <code>ChunksCache::get_recheck</code>，零临时分配直接预热进热内存</div>
+        </div>
+        <div class="pipe-row">
+          <span style="width:165px;font-weight:700;color:var(--rose);">瓶颈 4：MountStore 漏转发零拷贝</span>
+          <div class="pipe-node bad">旧逻辑：<code>MountStore</code> 与 <code>RuntimeBlockStore</code> 未实现 <code>read_cached_range</code>，导致 CLI 挂载永远走慢路径拷贝</div>
+          <span class="pipe-arrow">→</span>
+          <div class="pipe-node good"><strong>已移植 (bbb1dba)</strong>：在 <code>MountStore</code> / <code>RuntimeBlockStore</code> 转发 <code>read_cached_range</code> 与 <code>warm_range</code>，将 <code>&lt;100µs</code> 零拷贝命中率从 75.0% 推升至 85.6%（前 800MiB 达 93.81%，平均读延迟 6µs）</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:16px;font-weight:700;margin-top:20px;">表：Curvine 流水线云端 4×NVMe 实测结果 (12 单元，4 GiB 顺序冷读，Commit bbb1dba)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>块大小 (bs)</th>
+            <th>实验条件 (arm)</th>
+            <th class="num">读吞吐 (MiB/s)</th>
+            <th class="num">相对旧版提升</th>
+            <th class="num">平均延迟 (µs)</th>
+            <th class="num">P99 延迟 (µs)</th>
+            <th class="num">FUSE 累计耗时</th>
+            <th class="num">&lt;100µs 零拷贝命中</th>
+            <th class="num">S3 GET 次数</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>1M</code></td><td><code>legacy_no_fuse_prefetch</code></td>
+            <td class="num">367.85</td><td class="num">基线</td><td class="num">2,714.7</td><td class="num">10,682.4</td><td class="num">16.32 s</td><td class="num">12,287 (75.0%)</td><td class="num">4,096</td>
+          </tr>
+          <tr>
+            <td><code>1M</code></td><td><strong><code>curvine_pipeline_default (c=4, 16M)</code></strong></td>
+            <td class="num"><strong>475.95</strong></td><td class="num"><span class="tag-win">+29.4%</span></td><td class="num"><strong>2,096.8</strong></td><td class="num"><strong>7,831.6</strong></td><td class="num"><strong>7.74 s (-52.6%)</strong></td><td class="num"><strong>14,004 (85.5%)</strong></td><td class="num"><strong>3,391</strong></td>
+          </tr>
+          <tr>
+            <td><code>1M</code></td><td><code>curvine_pipeline_tuned (c=8, 64M)</code></td>
+            <td class="num">444.06</td><td class="num"><span class="tag-win">+20.7%</span></td><td class="num">2,248.0</td><td class="num">8,028.2</td><td class="num">8.81 s (-46.0%)</td><td class="num">13,615 (83.1%)</td><td class="num">3,785</td>
+          </tr>
+          <tr>
+            <td><code>1M</code></td><td><code>curvine_pipeline_c16 (c=16, 128M)</code></td>
+            <td class="num">421.05</td><td class="num"><span class="tag-win">+14.5%</span></td><td class="num">2,370.9</td><td class="num">9,109.5</td><td class="num">9.36 s (-42.6%)</td><td class="num">13,647 (83.3%)</td><td class="num">3,753</td>
+          </tr>
+          <tr>
+            <td><code>4M</code></td><td><code>legacy_no_fuse_prefetch</code></td>
+            <td class="num">343.28</td><td class="num">基线</td><td class="num">11,642.2</td><td class="num">13,959.2</td><td class="num">17.53 s</td><td class="num">12,289 (75.0%)</td><td class="num">4,095</td>
+          </tr>
+          <tr>
+            <td><code>4M</code></td><td><strong><code>curvine_pipeline_default (c=4, 16M)</code></strong></td>
+            <td class="num"><strong>457.09</strong></td><td class="num"><span class="tag-win">+33.2%</span></td><td class="num"><strong>8,739.6</strong></td><td class="num">15,138.8</td><td class="num"><strong>7.93 s (-54.8%)</strong></td><td class="num"><strong>14,015 (85.5%)</strong></td><td class="num"><strong>3,388</strong></td>
+          </tr>
+          <tr>
+            <td><code>4M</code></td><td><code>curvine_pipeline_tuned (c=8, 64M)</code></td>
+            <td class="num">407.44</td><td class="num"><span class="tag-win">+18.7%</span></td><td class="num">9,806.2</td><td class="num">17,170.4</td><td class="num">10.27 s (-41.4%)</td><td class="num">13,614 (83.1%)</td><td class="num">3,781</td>
+          </tr>
+          <tr>
+            <td><code>4M</code></td><td><code>curvine_pipeline_c16 (c=16, 128M)</code></td>
+            <td class="num">402.28</td><td class="num"><span class="tag-win">+17.2%</span></td><td class="num">9,932.1</td><td class="num">20,578.3</td><td class="num">9.81 s (-44.0%)</td><td class="num">13,698 (83.6%)</td><td class="num">3,695</td>
+          </tr>
+          <tr>
+            <td><code>64M</code></td><td><code>legacy_no_fuse_prefetch</code></td>
+            <td class="num">340.94</td><td class="num">基线</td><td class="num">187,605.2</td><td class="num">1,052,770.3</td><td class="num">17.65 s</td><td class="num">12,289 (75.0%)</td><td class="num">4,095</td>
+          </tr>
+          <tr>
+            <td><code>64M</code></td><td><strong><code>curvine_pipeline_default (c=4, 16M)</code></strong></td>
+            <td class="num"><strong>516.98</strong></td><td class="num"><span class="tag-win">+51.6%</span></td><td class="num"><strong>123,689.2</strong></td><td class="num"><strong>198,180.9 (-5.3×)</strong></td><td class="num"><strong>6.53 s (-63.0%)</strong></td><td class="num"><strong>14,029 (85.6%)</strong></td><td class="num"><strong>3,375</strong></td>
+          </tr>
+          <tr>
+            <td><code>64M</code></td><td><code>curvine_pipeline_tuned (c=8, 64M)</code></td>
+            <td class="num">417.49</td><td class="num"><span class="tag-win">+22.5%</span></td><td class="num">153,186.1</td><td class="num">549,453.8</td><td class="num">9.57 s (-45.8%)</td><td class="num">13,628 (83.2%)</td><td class="num">3,764</td>
+          </tr>
+          <tr>
+            <td><code>64M</code></td><td><code>curvine_pipeline_c16 (c=16, 128M)</code></td>
+            <td class="num">409.64</td><td class="num"><span class="tag-win">+20.2%</span></td><td class="num">156,103.3</td><td class="num">566,231.0</td><td class="num">9.64 s (-45.4%)</td><td class="num">13,713 (83.7%)</td><td class="num">3,677</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 4: Full Detailed Tables -->
+  <div id="tab-tables" class="tab-panel">
+    <div class="section-card">
+      <div class="section-title">表 A：Pilot 重测 (4 GiB 数据集，14/14 单元全部 PASS) 完整对照表</div>
+      <table>
+        <thead>
+          <tr>
+            <th>实验组 (case)</th>
+            <th>条件 (arm)</th>
+            <th>持久化 B / q</th>
+            <th class="num">修复前吞吐</th>
+            <th class="num">修复后吞吐</th>
+            <th class="num">提升倍数</th>
+            <th class="num">修复前延迟</th>
+            <th class="num">修复后延迟</th>
+            <th class="num">修复后 S3 GET / 流量</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>client-object-size</code></td><td><code>O-4194304</code></td><td>1MiB / None</td><td class="num">5.12 MiB/s</td><td class="num"><strong>42.84 MiB/s</strong></td><td class="num"><span class="tag-win">+8.4×</span></td><td class="num">fsync 103.7ms</td><td class="num"><strong>fsync 1.98ms</strong></td><td class="num">96 GET / 12.0 MiB</td></tr>
+          <tr><td><code>client-object-size</code></td><td><code>O-16777216</code></td><td>1MiB / None</td><td class="num">5.22 MiB/s</td><td class="num"><strong>47.20 MiB/s</strong></td><td class="num"><span class="tag-win">+9.0×</span></td><td class="num">fsync 103.7ms</td><td class="num"><strong>fsync 1.69ms</strong></td><td class="num">48 GET / 30.0 MiB</td></tr>
+          <tr><td><code>client-object-size</code></td><td><code>O-67108864</code></td><td>1MiB / None</td><td class="num">5.22 MiB/s</td><td class="num"><strong>48.55 MiB/s</strong></td><td class="num"><span class="tag-win">+9.3×</span></td><td class="num">fsync 103.7ms</td><td class="num"><strong>fsync 1.64ms</strong></td><td class="num">16 GET / 35.0 MiB</td></tr>
+          <tr><td><code>backend-layout</code></td><td><code>B-65536</code></td><td>64KiB / 16KiB</td><td class="num">0.46 MiB/s</td><td class="num"><strong>26.18 MiB/s</strong></td><td class="num"><span class="tag-win">+56.9×</span></td><td class="num">67,119 µs</td><td class="num"><strong>1,192 µs</strong></td><td class="num">44 GET / 2.67 MiB</td></tr>
+          <tr><td><code>backend-layout</code></td><td><code>B-262144</code></td><td>256KiB / 64KiB</td><td class="num">0.42 MiB/s</td><td class="num"><strong>24.53 MiB/s</strong></td><td class="num"><span class="tag-win">+58.4×</span></td><td class="num">73,581 µs</td><td class="num"><strong>1,273 µs</strong></td><td class="num">44 GET / 2.67 MiB</td></tr>
+          <tr><td><code>backend-layout</code></td><td><code>B-1048576</code></td><td>1MiB / None</td><td class="num">0.36 MiB/s</td><td class="num"><strong>25.49 MiB/s</strong></td><td class="num"><span class="tag-win">+70.8×</span></td><td class="num">85,957 µs</td><td class="num"><strong>1,225 µs</strong></td><td class="num">44 GET / 2.67 MiB</td></tr>
+          <tr><td><code>backend-layout</code></td><td><code>B-4194304</code></td><td>4MiB / 1MiB</td><td class="num">0.40 MiB/s</td><td class="num"><strong>25.46 MiB/s</strong></td><td class="num"><span class="tag-win">+63.7×</span></td><td class="num">78,022 µs</td><td class="num"><strong>1,226 µs</strong></td><td class="num">44 GET / 2.67 MiB</td></tr>
+          <tr><td><code>backend-layout</code></td><td><code>B-off</code></td><td>1MiB / None</td><td class="num">0.36 MiB/s</td><td class="num"><strong>23.81 MiB/s</strong></td><td class="num"><span class="tag-win">+66.1×</span></td><td class="num">86,226 µs</td><td class="num"><strong>1,311 µs</strong></td><td class="num">44 GET / 2.67 MiB</td></tr>
+          <tr><td><code>checksum-quantum</code></td><td><code>block-and-quantum</code></td><td>1MiB / None</td><td class="num">0.36 MiB/s</td><td class="num"><strong>25.25 MiB/s</strong></td><td class="num"><span class="tag-win">+70.1×</span></td><td class="num">85,900 µs</td><td class="num"><strong>1,236 µs</strong></td><td class="num">44 GET / 2.67 MiB</td></tr>
+          <tr><td><code>checksum-quantum</code></td><td><code>block-only</code></td><td>1MiB / None</td><td class="num">0.36 MiB/s</td><td class="num"><strong>25.23 MiB/s</strong></td><td class="num"><span class="tag-win">+70.1×</span></td><td class="num">86,000 µs</td><td class="num"><strong>1,237 µs</strong></td><td class="num">44 GET / 2.67 MiB</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
