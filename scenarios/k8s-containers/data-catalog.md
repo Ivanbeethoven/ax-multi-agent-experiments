@@ -41,7 +41,7 @@ Pytest是同一道题的两次独立运行。I/O归档在Drive中分成9个连�
 | Spider2-DBT | 2 | `dbt-retail-01`, `dbt-divvy-01` |
 | Terminal-Bench | 2 | `tb-access-logs-01`, `tb-csv-parquet-01` |
 
-每份扩展负载位于 `traces/expansion-20261029/<case>/<case>.tar.gz`。完整Drive路径、文件大小和SHA256见[扩展负载清单](../../experiments/trace-expansion-2026-10-29/drive-catalog.json)；按题下载脚本见[trace扩展实验目录](../../experiments/trace-expansion-2026-10-29/README.md)。
+每份扩展负载位于 `traces/expansion-20261029/<case>/<case>.tar.gz`。完整Drive路径、文件大小和SHA256见[扩展负载清单](../../experiments/trace-expansion-2026-10-29/drive-catalog.json)；按题下载脚本为[download_from_drive.py](../../experiments/trace-expansion-2026-10-29/download_from_drive.py)，使用方法见下方。
 
 ## 下载
 
