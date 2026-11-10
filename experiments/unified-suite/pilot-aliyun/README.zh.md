@@ -59,6 +59,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `tools/fs-probe/src/bin/smallfiles-copy.rs`、`scripts/check-smallfiles-copy.py` | 可选8线程完整物化，逐文件核4KiB内容并fsync；[128文件交叉校验、独立inode与坏输入拒绝通过](evidence/preparation/smallfiles-copy-functional.json)。实际百万导入和冷读回尚待云上运行 |
 | `scripts/prepare-smallfiles.py`、`prepare-packed.py` | 分别准备完整百万文件的native/JuiceFS与packed base；当前新增入口尚待云上执行验证 |
 | `scripts/probe-small-object.py` | 在独立新桶写24个4KiB对象，核四份XL2、inline数据、实际分配字节和inode；为百万文件准备容量依据 |
+| `scripts/capacity-check.py` | 导入前后取四盘空间/inode及Redis内存/AOF快照，按剩余完整副本数和20%余量核容量；换盘、重启或后台回收导致分配量下降时拒绝沿用预测 |
 | `scripts/smallfiles-oracle.py` | 从不可变源和file/version/workspace状态独立计算预期树，供原namespace只读验证；不读取被测输出作为预期 |
 | `scripts/observe-command.py` | 为单次准备/诊断命令采集三角色原始指标并逐成员核归档；不充当正式性能验收 |
 | `scripts/draft-one-c1.py`、`run-one-c1.py` | 先生成可查看的请求，再执行明确指定的一个flat C1/C2单元：六次预先列出的观测开关试验、准入和原有阶段执行；任一步失败便停止 |
