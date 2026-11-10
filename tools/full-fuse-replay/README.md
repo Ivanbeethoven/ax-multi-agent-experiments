@@ -1,5 +1,7 @@
 # 完整任务的挂载请求回放
 
+云上不同FUSE实现的终端探测可使用 `--portable-terminal-probe`：仅当原记录的 `ioctl(TCGETS)` 返回 `ENOTTY=25`、实际返回 `EOPNOTSUPP=95` 时接受差异。每次差异的序号写入stderr，数量写入报告。读内容SHA256、写入载荷、目录/属性和其他错误码仍按严格模式检查。报告明确标为 `mode=strict-portable-terminal-probe`，不能称为错误码完全一致；不能与 `--performance` 同用。默认严格模式保持原样。实验还需独立核最终树和数据库。
+
 可选 [LLM 等待模拟](THINK-TIME.zh.md)：默认关闭，只在多 Agent 回放显式使用 --simulate-llm PLAN.json；工具/轮次边界每段 0–15 秒，计划总等待固定，直接性能命令保持无等待。
 
 这个 Rust 入口读取 `full_fuse_record.py` 产生的高层 FUSE 回调记录。它是完整任务试跑的扩展入口；原独立 `fuse-workload-replay` 的 v1 输入格式和 27 次操作记录保持原样。

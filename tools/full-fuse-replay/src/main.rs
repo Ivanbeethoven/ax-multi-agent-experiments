@@ -335,17 +335,29 @@ impl Replay {
     }
 }
 
+// A terminal capability probe on a regular file may be rejected by the FUSE
+// transport (EOPNOTSUPP) or the filesystem (ENOTTY). Neither returns data or
+// changes the file. Keep every data operation and other errno comparison exact.
+fn portable_terminal_probe(event: &Value, actual: &io::Error) -> bool {
+    event["op"] == "ioctl"
+        && event["args"][1].as_i64() == Some(libc::TCGETS as i64)
+        && event["errno"].as_i64() == Some(libc::ENOTTY as i64)
+        && actual.raw_os_error() == Some(libc::EOPNOTSUPP)
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let a = std::env::args().skip(1).collect::<Vec<_>>();
     if a.len() < 4 {
-        return Err("usage: full-fuse-replay EVENTS BLOBS DEDICATED_ROOT OUTPUT [--performance] [--simulate-llm THINK_PLAN.json]".into());
+        return Err("usage: full-fuse-replay EVENTS BLOBS DEDICATED_ROOT OUTPUT [--performance | --portable-terminal-probe] [--simulate-llm THINK_PLAN.json]".into());
     }
     let mut performance = false;
+    let mut portable_probe = false;
     let mut think_path = None;
     let mut option = 4;
     while option < a.len() {
         match a[option].as_str() {
             "--performance" if !performance => performance = true,
+            "--portable-terminal-probe" if !portable_probe => portable_probe = true,
             "--simulate-llm" if think_path.is_none() && option + 1 < a.len() => {
                 option += 1;
                 think_path = Some(Path::new(&a[option]));
@@ -353,6 +365,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             _ => return Err("unknown/duplicate option or missing think plan".into()),
         }
         option += 1;
+    }
+    if performance && portable_probe {
+        return Err("portable-terminal-probe is a byte-validating mode, separate from performance".into());
     }
     let mut pacer = think_path.map(|path| pacing::Pacer::load(path, Path::new(&a[0]))).transpose()?;
     let root = PathBuf::from(&a[2]).canonicalize()?;
@@ -390,6 +405,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let actual = r.operation(&e);
         let expected = num(&e["errno"]);
         let good = match &actual {
+            Err(err) if portable_probe && portable_terminal_probe(&e, err) => {
+                probe_errno_differences += 1;
+                eprintln!("{}", json!({"probe_errno_difference":true,"seq":count,
+                    "op":"ioctl","request":libc::TCGETS,"expected_errno":libc::ENOTTY,
+                    "actual_errno":libc::EOPNOTSUPP}));
+                true
+            },
             Ok(v) if performance => expected == 0 && match last_op.as_str() {
                 "read" => v["len"] == e["result"]["len"],
                 "write" => v == &e["result"],
@@ -425,7 +447,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let slept = pacer.as_ref().map(|p|p.slept()).unwrap_or(std::time::Duration::ZERO);
     serde_json::to_writer_pretty(
         output,
-        &json!({"valid":!performance,"completed":true,"mode":if performance {"performance"} else {"strict"},"probe_errno_differences":probe_errno_differences,"operations":count,"expected_errors":expected_errors,"actual_read_bytes":r.read,"actual_write_bytes":r.write,"execution_seconds":execution.as_secs_f64(),
+        &json!({"valid":!performance,"completed":true,"mode":if performance {"performance"} else if portable_probe {"strict-portable-terminal-probe"} else {"strict"},"probe_errno_differences":probe_errno_differences,"operations":count,"expected_errors":expected_errors,"actual_read_bytes":r.read,"actual_write_bytes":r.write,"execution_seconds":execution.as_secs_f64(),
                 "active_replay_seconds":execution.saturating_sub(slept).as_secs_f64(),
                 "think_time":pacer.as_ref().map(|p|p.report()).unwrap_or(json!({"enabled":false,"planned_total_ms":0,"actual_sleep_seconds":0.0})),
                 "remaining_handles":r.handles.len(),"scope":"serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay"}),
@@ -435,4 +457,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         r.read, r.write
     );
     Ok(())
+}
+
+#[cfg(test)]
+mod probe_tests {
+    use super::*;
+    #[test]
+    fn only_the_nonmutating_terminal_probe_is_portable() {
+        let event=json!({"op":"ioctl","args":["file",libc::TCGETS,0,7,0,null],"errno":libc::ENOTTY});
+        assert!(portable_terminal_probe(&event,&io::Error::from_raw_os_error(libc::EOPNOTSUPP)));
+        for code in [libc::ENOENT,libc::EIO,libc::EBADF,libc::EACCES] {
+            assert!(!portable_terminal_probe(&event,&io::Error::from_raw_os_error(code)));
+        }
+        for (field,value) in [("op",json!("read")),("errno",json!(0)),("args",json!(["file",0,0,7,0,null]))] {
+            let mut changed=event.clone();changed[field]=value;
+            assert!(!portable_terminal_probe(&changed,&io::Error::from_raw_os_error(libc::EOPNOTSUPP)));
+        }
+    }
 }
