@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify complete downloaded OSS archives against the checked-in receipt."""
+"""Verify complete downloaded trace archives against the checked-in receipt."""
 import argparse
 import hashlib
 import json

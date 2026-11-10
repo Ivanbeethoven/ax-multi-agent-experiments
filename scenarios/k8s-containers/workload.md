@@ -2,7 +2,7 @@
 
 ## 1. 工具位置
 
-实验仓库：`https://github.com/Ivanbeethoven/ax-multi-agent-experiments`，公开克隆；OSS原始数据已公开只读，支持匿名HTTPS下载。
+实验仓库：`https://github.com/Ivanbeethoven/ax-multi-agent-experiments`，公开克隆。7份历史trace默认从公开OSS下载；20份扩展trace可从Drive下载，也可用授权Aliyun CLI从保留的私有OSS前缀下载。下载命令和校验值见[数据清单](data-catalog.md)。历史OSS前缀已恢复28个对象并验证匿名读取；扩展trace OSS前缀的88个对象保留。
 
 **本批完整trace使用本仓库的 `tools/full-fuse-replay`**。独立仓库`fuse-workload-replay`的早期v1输入和27次操作样例不是本批格式。部署脚本位于本仓库的`scenarios/k8s-containers`；克隆仓库后，记录`git rev-parse HEAD`。不能访问GitHub的容器使用下面的代码包。
 
@@ -32,47 +32,20 @@ sha256sum /opt/ax-bin/full-fuse-replay
 
 ## 2. 负载位置
 
-**最新清单为两批共7份**，见[数据位置、下载与回放](data-catalog.md)。下面保留原4份的执行示例；新增3份位于deepseek-opencode-20261026子目录，统一下载脚本见新清单。
+K8s回放计划使用的历史输入为两批共7份。完整Drive备份另含20份扩展trace；两类数据的清单和下载命令见[数据位置、下载与回放](data-catalog.md)。Drive文件夹需要有权限的Google账号，不能匿名下载。
 
-公开只读的实验桶：`brewfs-agent-traces-20261023-4ccdae73`，杭州。
-
-前缀：`oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023/`。
-
-| 归档 | 压缩字节 | 回调数 | 实际读/写字节 |
-|---|---:|---:|---:|
-| django.tar.gz | 2,302,532,371 | 57,787,980 | 2,292,334,532 / 284,748,789 |
-| sklearn.tar.gz | 842,598,913 | 9,233,326 | 1,753,942,573 / 305,043,902 |
-| sympy.tar.gz | 590,808,335 | 7,265,338 | 1,124,648,770 / 232,052,204 |
-| pytest-full-02.tar.gz | 407,606,955 | 1,747,109 | 281,774,624 / 194,706,661 |
-
-文件大小、完整URI、HTTPS地址和SHA256已固定在 [archives.json](archives.json)，无需访问本机被Git忽略的runs目录。推荐使用[匿名HTTPS下载器](data-catalog.md)；下面保留ossutil 2示例，使用Anonymous模式，不使用RustFS账号下载OSS。
-
-先下pytest：
+先在协调容器从公开OSS下载pytest输入并校验SHA256：
 
 ```bash
 export K=/opt/ax/scenarios/k8s-containers
-export BASE=oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023
-export OSS_ENDPOINT=https://oss-cn-hangzhou.aliyuncs.com
 mkdir -p /input/archives /input/cases
-aliyun ossutil cp "$BASE/pytest-full-02.tar.gz" /input/archives/pytest-full-02.tar.gz \
-  --endpoint "$OSS_ENDPOINT" --region cn-hangzhou --mode Anonymous || exit 1
+python3 "$K/scripts/download_archives.py" --out /input/archives --cases pytest-full-02 || exit 1
 python3 "$K/scripts/check_archives.py" /input/archives --cases pytest-full-02 || exit 1
 test ! -e /input/cases/pytest-full-02 || exit 1
 tar --no-same-owner --same-permissions -xzf /input/archives/pytest-full-02.tar.gz -C /input/cases
 ```
 
-确认成功后，同样下载另三份：
-
-```bash
-for name in django sklearn sympy; do
-  aliyun ossutil cp "$BASE/$name.tar.gz" "/input/archives/$name.tar.gz" --endpoint "$OSS_ENDPOINT" --region cn-hangzhou --mode Anonymous || exit 1
-  python3 "$K/scripts/check_archives.py" /input/archives --cases "$name" || exit 1
-  test ! -e "/input/cases/$name" || exit 1
-  tar --no-same-owner --same-permissions -xzf "/input/archives/$name.tar.gz" -C /input/cases || exit 1
-done
-```
-
-仅阿里云杭州内网可达时可把endpoint换成`https://oss-cn-hangzhou-internal.aliyuncs.com`；其他平台使用公网地址。输入下载、解压、校验均在计时前完成，所有系统使用同一份输入存放方式。29 GB左右的JSON trace要顺序读，不将整份装入内存。
+完整的rclone配置、全量下载、分卷恢复和校验步骤见[data-catalog.md](data-catalog.md)。输入下载、解压、校验均在计时前完成；所有系统使用同一份输入存放方式。29 GB左右的JSON trace要顺序读，不将整份装入内存。
 
 ## 3. 解压后的格式
 

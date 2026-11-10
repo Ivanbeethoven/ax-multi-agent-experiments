@@ -4,7 +4,8 @@
   "snapshot_note": "Includes current working-copy filesystem-only and trace-summary changes; source hashes identify exact files, not all are in the base commit.",
   "adaptations": [
     "full_trace_common.py: binary and FUSE helper directory use environment variables",
-    "run_opencode_full_trace.py: dataset/binary paths use environment variables; cache seed is optional"
+    "run_opencode_full_trace.py: dataset/binary paths use environment variables; cache seed is optional",
+    "Historical OSS restored; archive downloader defaults to verified anonymous HTTPS, Drive backup remains available"
   ],
   "files": [
     {
@@ -74,8 +75,8 @@
     },
     {
       "path": "scenarios/k8s-containers/archives.json",
-      "source_sha256": "a8033c638d6011f5edc514142bc67f6a4232f93888b3220ac9ba31d4d4af120f",
-      "packaged_sha256": "a8033c638d6011f5edc514142bc67f6a4232f93888b3220ac9ba31d4d4af120f"
+      "source_sha256": "b184097e6d8b1b04c54671654eaae48ce1d16c4c4d5b004d2e5487280174de54",
+      "packaged_sha256": "b184097e6d8b1b04c54671654eaae48ce1d16c4c4d5b004d2e5487280174de54"
     },
     {
       "path": "scenarios/k8s-containers/scripts/check_archives.py",
@@ -106,6 +107,17 @@
       "path": "scripts/fs_trace_capture.py",
       "source_sha256": "6514bff324e9bdaf458a4458f1d5e080ee7e0225c85b2ec7f99d4cb08561567f",
       "packaged_sha256": "6514bff324e9bdaf458a4458f1d5e080ee7e0225c85b2ec7f99d4cb08561567f"
+    },
+    {
+      "path": "scenarios/k8s-containers/scripts/download_archives.py",
+      "source_sha256": "da94a3eae3ca7528061fc309564f98c0b423fd5ecc1506868724502bd1031600",
+      "packaged_sha256": "da94a3eae3ca7528061fc309564f98c0b423fd5ecc1506868724502bd1031600"
+    },
+    {
+      "path": "scenarios/k8s-containers/scripts/restore_parts.py",
+      "source_sha256": "6e9ddfae9bfa241519b72e118fab695c28ed7358476b5d965ba2e7b6b395e110",
+      "packaged_sha256": "6e9ddfae9bfa241519b72e118fab695c28ed7358476b5d965ba2e7b6b395e110"
     }
-  ]
+  ],
+  "data_access_updated_on": "2026-11-11"
 }

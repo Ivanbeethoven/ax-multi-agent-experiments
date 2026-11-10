@@ -15,7 +15,7 @@
 | OTel Collector | [otelcol-contrib 0.163.2](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.163.2)，必须是contrib版，包含Prometheus exporter | monitor |
 | redis_exporter | [1.96.0发布包](https://github.com/oliver006/redis_exporter/releases/tag/v1.96.0) | redis |
 | Python/Rust工具 | Python≥3.10；回放器构建见[负载使用](workload.md) | 全部/Python；worker/Rust回放 |
-| 传输工具 | 输入使用Python标准库匿名HTTPS下载；上传需已授权Aliyun CLI；S3建桶使用AWS CLI或Python boto3 | 下载入口；worker |
+| 传输工具 | 历史输入默认公开OSS HTTPS，扩展输入用授权OSS或Drive；结果对象上传需已授权Aliyun CLI；S3建桶使用AWS CLI或Python boto3 | 下载入口；worker |
 
 不能联网的容器提前拷贝二进制。每个角色保存`--version`与`sha256sum`，跨批次不换版本。RustFS、Redis、JuiceFS和监控均只绑定分配的私网IP；以下明文HTTP用于隔离的实验私网。
 
@@ -158,7 +158,7 @@ juicefs format --no-update --storage s3 \
 ```bash
 export META_PASSWORD="$(cat /secrets/redis.password)"
 mkdir -p /workspace/jfs /cache/juicefs/$CAMPAIGN /measure/$CAMPAIGN
-nohup juicefs mount --metrics "$SELF_IP:9567" \
+nohup juicefs mount --enable-xattr --enable-cap --metrics "$SELF_IP:9567" \
   --cache-dir "/cache/juicefs/$CAMPAIGN" --cache-size 1024 --buffer-size 256 \
   "redis://$REDIS_IP:6379/0" /workspace/jfs \
   > /measure/$CAMPAIGN/juicefs.log 2>&1 &
@@ -167,7 +167,7 @@ curl --fail "http://$SELF_IP:9567/metrics" > /measure/$CAMPAIGN/juicefs-before.p
 mkdir -p /workspace/jfs/runs/$WORKER_ID
 ```
 
-不加`--writeback`。每个worker缓存上限1 GiB、读写buffer 256 MiB，其余参数按固定版本默认值保存；BrewFS比较时对齐总缓存预算。实际挂载、chown/链接/SQLite语义和跨客户端读回都通过后才跑完整轨迹。JuiceFS指标由客户端直接提供。[监控说明](https://juicefs.com/docs/community/administration/monitoring/)
+不加`--writeback`。开启 xattr 和 capability 查询：现有 trace 包含 `getxattr(..., security.capability)`，默认关闭时会返回 ENOTSUP，不能替代记录中的 ENODATA。每个worker缓存上限1 GiB、读写buffer 256 MiB，其余参数按固定版本默认值保存；BrewFS比较时对齐总缓存预算。实际挂载、chown/链接/SQLite语义和跨客户端读回都通过后才跑完整轨迹。JuiceFS指标由客户端直接提供。[监控说明](https://juicefs.com/docs/community/administration/monitoring/)
 
 ## 6. 全部容器启动资源采集与结果发送
 

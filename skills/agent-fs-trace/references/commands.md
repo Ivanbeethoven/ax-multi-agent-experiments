@@ -164,27 +164,25 @@ git -C "$LAB/experiments" checkout dc48db5b4978aeffac7b33eb0386b27e95fe8f4e
   --output "$LAB/runs/portable-replay-01" --binary "$AX_TRACE_BINARY"
 ```
 
-该步骤检查每卷/整体摘要、安全解压、初始树、Rust回放、最终树及字节/操作数。仓库已公开，无需GitHub身份；不需要Docker或模型。OSS完整归档也支持匿名下载。
+该步骤检查每卷/整体摘要、安全解压、初始树、Rust回放、最终树及字节/操作数。仓库已公开，无需GitHub身份；不需要Docker或模型。历史OSS归档已恢复，默认匿名HTTPS下载；Drive备份需要有权限的Google账号。
 
-### OSS四份完整归档
+### OSS历史归档与Drive备份
 
-推荐使用实验仓库的匿名HTTPS下载器，详见最新data-catalog.md。下面保留ossutil 2示例，使用Anonymous模式，不使用实验RustFS账号。
+先按最新[data-catalog.md](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/blob/main/scenarios/k8s-containers/data-catalog.md)配置rclone只读remote `axdata`，再用统一下载器取文件。历史7份trace默认从公开OSS下载，`--source drive`改用Drive备份；20份扩展trace可以从Drive下载，也可用授权Aliyun CLI配合`download_from_drive.py --source oss`从保留的私有OSS副本下载。两种方式都会校验大小和SHA256。
 
 ```bash
 export K="$RUNTIME/scenarios/k8s-containers"
-export BASE=oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023
 mkdir -p "$LAB/archives" "$LAB/cases" "$LAB/workspaces"
-aliyun ossutil cp "$BASE/pytest-full-02.tar.gz" "$LAB/archives/pytest-full-02.tar.gz" \
-  --endpoint https://oss-cn-hangzhou.aliyuncs.com --region cn-hangzhou --mode Anonymous
+python3 "$K/scripts/download_archives.py" --out "$LAB/archives" --cases pytest-full-02
 python3 "$K/scripts/check_archives.py" "$LAB/archives" --cases pytest-full-02
 test ! -e "$LAB/cases/pytest-full-02" || exit 1
 tar --no-same-owner --same-permissions -xzf "$LAB/archives/pytest-full-02.tar.gz" -C "$LAB/cases"
 python3 "$K/scripts/run_case.py" --case "$LAB/cases/pytest-full-02" \
-  --workspace-parent "$LAB/workspaces" --out "$LAB/runs/oss-replay-01" \
-  --binary "$AX_TRACE_BINARY" --run-id oss-replay-01 --worker-id local
+  --workspace-parent "$LAB/workspaces" --out "$LAB/runs/drive-replay-01" \
+  --binary "$AX_TRACE_BINARY" --run-id drive-replay-01 --worker-id local
 ```
 
-先确认下载和SHA检查成功再解压。另三题下载文件名为django.tar.gz、sklearn.tar.gz、sympy.tar.gz，解压顶层目录同名；校验命令的cases参数与目录名一致。全部压缩约3.86 GiB；完整解压含日志、初始/最终/回放副本，建议至少80 GiB可用空间。逐题重放为串行文件负载，chown等需原操作所需权限。
+全部7份和分卷恢复命令也在data-catalog.md。先核对SHA再解压；完整解压还会产生初始/最终/回放副本，按实验计划留出空间。逐题重放为串行文件负载，chown等需原操作所需权限。
 
 ### 回放自己刚采集的完整任务
 
@@ -212,7 +210,7 @@ sha256sum "$LAB/exports/pytest-01/"*.tar.gz
 
 check_trace写skill-check.json，并核对操作/读写字节、硬链接拓扑和SQLite副本。package_trace保留整个已停止目录，用pigz压缩，生成逐文件清单与SHA256。credential-config是完整OpenCode配置，不是单独provider对象；Windows配置可使用/mnt/c/Users/HXY/.config/opencode/opencode.json路径。已知key扫描失败即停止，不替换真实字节。
 
-上传应在用户指定目标后执行。本实验数据桶已全部公开只读，上传到其中的数据会允许匿名下载；上传、覆盖和删除本身仍需授权身份。先核对manifest与SHA256，再上传并回读核验；采集器不自动上传。本包没有运行任何新模型任务或新OSS上传。
+上传应使用用户指定的目标。本实验历史OSS桶已恢复28个对象并允许匿名读取，新的公开结果使用独立前缀。上传、覆盖和删除需要授权身份。先核对manifest与SHA256，再上传并回读核验；采集器不自动上传。本包没有运行新模型任务或新OSS上传。
 
 ## 8. 换成其他Agent或自己的任务
 

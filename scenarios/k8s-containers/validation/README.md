@@ -1,8 +1,10 @@
 # 2026-10-24 验证记录
 
-2026-10-26公开后：[28个对象匿名读取与列表验证](oss-public-access-check.json)通过；默认HTTPS下载器实际下载元数据并核对SHA256通过，[7项下载测试](public-download-tests.txt)通过。下方403记录属于公开前状态。
+历史记录：2026-10-26曾通过[28个对象匿名读取与列表验证](oss-public-access-check.json)，当时的默认HTTPS下载器及[7项下载测试](public-download-tests.txt)也通过。该验证只说明当时OSS可公开读取，不代表现在仍可用。
 
 2026-10-26补充：[7份OSS对象核查](oss-catalog-check.json)验证远端大小/SHA256元信息；公网带身份访问成功，匿名HEAD返回403。新增下载/校验脚本的[5项测试](archive-catalog-tests.txt)通过。本次未重放新增的大归档。
+
+2026-11-10：Drive备份清单记录137个文件、13,654,428,716字节。历史OSS前缀的28个对象在用户要求保留数据前已逐项核对并删除。扩展trace前缀有88个对象、2,945,879,903字节；10个未匹配Drive原始清单的小文件已备份到本地并尝试上传，Google API限额导致远端核验未完成。按最新决定暂停删除，88个对象保留。状态和文件摘要见[清理记录](../../../experiments/drive-backup-2026-10-29/handoff/aliyun-legacy-expansion-2026-11-10/retirement-status.json)。2026-11-11历史前缀已恢复28个对象，逐项核验大小/CRC64和匿名Range访问，见[恢复回执](historical-oss-restored/restoration.json)；当前历史7份可匿名下载。扩展OSS与Drive仍需授权。
 
 状态：唯一外部对照为JuiceFS。部署、采集与传输脚本已准备；正式规模计划扩至128个客户端、512个并发工作区。真实平台和多容器协调尚未接通。没有申请云资源、调用模型或上传新数据。
 

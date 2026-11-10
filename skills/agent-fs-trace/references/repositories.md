@@ -31,8 +31,6 @@ Python环境实测：3.12、fusepy 3.0.1、Docker SDK 7.2.0、pyarrow 26.0.0。R
 
 GitHub较小分卷：实验仓库的`results/opencode-full-fuse-pytest-10356-20261023/`，bundle.json＋7个20 MiB以内分卷，原压缩总量127,774,151字节。
 
-OSS完整归档：公开只读桶`brewfs-agent-traces-20261023-4ccdae73`，cn-hangzhou，前缀`full-fuse/20261023/`。原四个文件为django.tar.gz、sklearn.tar.gz、sympy.tar.gz、pytest-full-02.tar.gz；URI、大小和完整SHA256已带在`assets/runtime/scenarios/k8s-containers/archives.json`。
+历史7份trace和配套元数据已恢复到公开OSS，默认可匿名HTTPS下载；[Google Drive](https://drive.google.com/drive/folders/1TsB-GoxNHMhdn-IWTE5S0nQCMeJwro9X)保留备份，需要有权限的Google账号。原OSS桶 `brewfs-agent-traces-20261023-4ccdae73` 的28个对象于2026-11-11恢复到原URI，大小、CRC64和匿名Range访问均逐项通过。路径与SHA256见[数据清单](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/blob/main/scenarios/k8s-containers/data-catalog.md)，恢复证据见 `scenarios/k8s-containers/validation/historical-oss-restored/`。本包不含GitHub凭据、模型密钥、OSS凭据或原始大负载。
 
-OSS数据已开放匿名HTTPS下载，无需凭据；上传和删除仍需授权。本包不含GitHub凭据、模型密钥、OSS凭据或原始大负载。
-
-2026-10-26新增3份：deepseek-opencode-20261026/pytest.tar.gz、rust.tar.gz、io-compatible.tar.gz，以及该批metadata.tar.gz。[最新7份清单与下载命令](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/blob/main/scenarios/k8s-containers/data-catalog.md)。本skill内assets/runtime保留原工具快照，新增数据使用仓库根scenarios/k8s-containers的最新清单与下载器。
+Drive中的主文件名为`django.tar.gz`、`sklearn.tar.gz`、`sympy.tar.gz`、`pytest-full-02.tar.gz`、新增`pytest.tar.gz`和`rust.tar.gz`。`io-compatible.tar.gz`由9个无损分卷组成；下载器会校验分卷并还原原包。本包下载器也已同步恢复后的OSS地址；后续更新以仓库根 `scenarios/k8s-containers` 为准。
