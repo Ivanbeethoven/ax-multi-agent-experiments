@@ -13,6 +13,7 @@ REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
 from bench.runtime.common import digest,load,write_new
 from bench.runtime import cohort,fleet
+from bench.runtime import pilot_context as pilot_runtime
 
 
 def ref(path):return dict(path=str(path),sha256=digest(path))
@@ -21,6 +22,7 @@ def ref(path):return dict(path=str(path),sha256=digest(path))
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--control',type=Path,required=True)
+    pilot_runtime.arguments(p)
     p.add_argument('--qualification',type=Path,required=True)
     p.add_argument('--product',choices=['brewfs','juicefs'],required=True)
     p.add_argument('--case',default='fio-randread')
@@ -35,6 +37,7 @@ def main():
     p.add_argument('--observer-tool-sha256',required=True)
     p.add_argument('--out',type=Path,required=True)
     a=p.parse_args()
+    runtime=pilot_runtime.select(a.control,pilot_runtime.reference(a))
     if not re.fullmatch(r'cal-[a-z0-9-]{3,28}',a.attempt):raise ValueError('Short, unique calibration attempt required')
     if not all(re.fullmatch(r'ax-pilot-[a-z0-9-]+',n) for n in [a.collector_name]+([a.new_collector_name] if a.new_collector_name else [])):
         raise ValueError('Owned collector name required')
@@ -56,7 +59,7 @@ def main():
         t=trace['trace']
         return dict(trace_case=t['case'],trace_manifest=t['manifest']['path'],replay_binary=t['binary']['path'],
                     trace_verifier=t['verifier']['path'],trace_verifier_sha256=t['verifier']['sha256'],cache_parent_fds=t.get('cache_parent_fds',False))
-    config=a.control/'ssh.conf';sequence=0
+    config=runtime/'ssh.conf';sequence=0
     def remote(role,argv):
         nonlocal sequence
         directory=a.out/'commands'/f'{sequence:03}';sequence+=1;directory.mkdir(parents=True)
@@ -134,23 +137,23 @@ def main():
             if role=='client':args+=['--mount-directory',mainstate,'--extra-mount-directory',prepstate,
                                     '--extra-mount-directory',verifystate]
             spec_ref=json.loads(remote(role,args))
-            peer_ref=ref(a.control/'probes'/('pool-a-'+role)/'peer.json')
+            peer_ref=ref(runtime/'probes'/('pool-a-'+role)/'peer.json')
             fleet.call(peer_ref,'observe-start',state,a.out/'observer-start'/role,spec_ref)
             observers.append(dict(id='pool-a-'+role,node_id='pool-a-'+role,peer=load(peer_ref['path']),
                 directory=state,spec=spec_ref,required_live_targets={'client':['filesystem'],'metadata':['redis'],'objects':['rustfs','collector']}[role]))
     s=dict(schema='experiment-cohort-v1',reviewed=True,purpose=purpose,provider='ssh',agents=1,
-        inventory=ref(a.control/'fleet.json'),metric_contract=metric_ref,workload_contract=ref(qualification/'workload.json'),
-        allocation_qualification=ref(a.control/'allocation.json'),hardware_qualification=ref(a.qualification/'hardware.json'),
+        inventory=ref(runtime/'fleet.json'),metric_contract=metric_ref,workload_contract=ref(qualification/'workload.json'),
+        allocation_qualification=ref(runtime/'allocation.json'),hardware_qualification=ref(a.qualification/'hardware.json'),
         input_qualification=ref(qualification/'input.json'),filesystem_qualification=ref(qualification/'filesystem.json'),
         workers=[dict(id='a01',node_id='pool-a-client',slot_id='pool-a-client',
-            peer=load(a.control/'probes/pool-a-client-slot/peer.json'),spec=worker_ref,output='/srv/ax-client/j/'+a.attempt)],
+            peer=load(runtime/'probes/pool-a-client-slot/peer.json'),spec=worker_ref,output='/srv/ax-client/j/'+a.attempt)],
         observers=observers,ready_timeout_seconds=120,
                 review=dict(reviewer='pilot-operator',note='One fixed-work '+a.case+' worker, fresh cache, original backend and reviewed metrics; no next cell or automatic retry.'))
     write_new(a.out/'cohort.json',s)
     def mark(label):
         if small:label+='-w01'
         for o in observers:
-            peer_ref=ref(a.control/'probes'/o['id']/'peer.json')
+            peer_ref=ref(runtime/'probes'/o['id']/'peer.json')
             fleet.call(peer_ref,'observe-mark',o['directory'],a.out/'marks'/label/o['id'],label=label)
     mark('measure-start')
     result=cohort.run(ref(a.out/'cohort.json'),a.out/'cohort')
@@ -174,7 +177,7 @@ def main():
     helper('stop',mount_run=verifystate,out=base+'/verify-exit.json')
     mark('verify-end')
     for o in observers:
-        peer_ref=ref(a.control/'probes'/o['id']/'peer.json')
+        peer_ref=ref(runtime/'probes'/o['id']/'peer.json')
         fleet.call(peer_ref,'observe-stop',o['directory'],a.out/'observer-stop'/o['id'])
         role=o['id'].removeprefix('pool-a-')
         code="import sys,json;sys.path.insert(0,"+repr(roots[role]+'/code-01')+");from bench.runtime.observe import audit;print(json.dumps(audit("+repr(o['directory'])+",30,"+repr(cell['observation_marks'])+")))"

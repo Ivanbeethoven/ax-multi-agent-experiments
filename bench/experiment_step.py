@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import stat
 import time
 try:
     from .experiment_io import load, digest, write_new, contained
@@ -43,10 +44,24 @@ def prepare(spec_path, expected_sha):
     # Clean environment avoids silently inheriting layout/cache controls. Names
     # are reviewed in the spec; values (including credentials) are never saved.
     env = {k: os.environ[k] for k in ('PATH', 'HOME', 'LANG', 'SYSTEMROOT', 'TEMP', 'TMP') if k in os.environ}
+    protected = {}
+    if s.get('protected_environment'):
+        ref = s['protected_environment']; path = Path(ref['path'])
+        if ref not in s['inputs'] or path.is_symlink() or digest(path) != ref['sha256']:
+            raise ValueError('protected environment must be a pinned step input')
+        if os.name != 'nt' and stat.S_IMODE(path.stat().st_mode) != 0o600:
+            raise ValueError('protected environment must have mode 0600')
+        protected = load(path)
+        allowed = {'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN',
+                   'AWS_REGION', 'AWS_EC2_METADATA_DISABLED'}
+        if (not isinstance(protected, dict) or not protected or set(protected)-allowed or
+                set(protected)-set(s.get('inherit_environment', [])) or
+                any(not isinstance(v, str) or not v or '\0' in v for v in protected.values())):
+            raise ValueError('protected environment accepts only explicitly inherited AWS credential fields')
     for key in s.get('inherit_environment', []):
-        if key not in os.environ:
+        if key not in protected and key not in os.environ:
             raise ValueError('required environment variable missing: ' + key)
-        env[key] = os.environ[key]
+        env[key] = protected[key] if key in protected else os.environ[key]
     return s, env
 
 

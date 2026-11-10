@@ -16,7 +16,7 @@ import time
 
 REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
-from bench.runtime.common import digest,load,pinned,write_new
+from bench.runtime.common import alive,digest,load,mounts,pinned,write_new
 
 
 def environment(request, output):
@@ -55,8 +55,24 @@ def environment(request, output):
 def run(request, output):
     output=Path(output);output.mkdir(parents=True,exist_ok=False,mode=0o700)
     action=request['action']
-    if action not in ('export','import','resume','inspect-writer'):
+    if action not in ('export','import','resume','inspect-writer','verify-stopped'):
         raise ValueError('One supported native phase required')
+    if action=='verify-stopped':
+        mount=request['mount'];config=load(pinned(mount['spec']))
+        directory=Path(mount['directory']);ready=load(directory/'ready.json')
+        stopped=load(directory/'stopped.json');process=load(directory/'process.json')
+        if (ready['spec']!=mount['spec'] or process['spec']!=mount['spec'] or
+                ready['anchor']!=config['anchor'] or stopped['anchor']!=config['anchor'] or
+                stopped['original_mount']!=ready['mount'] or stopped['passed'] is not True or
+                stopped['exit_code']!=0 or stopped['mount_absent'] is not True or
+                stopped['active_workers'] or mounts(config['mount_point']) or
+                alive(process['process']) or alive(process['supervisor'])):
+            raise ValueError('Original supervised mount/process has not stopped normally')
+        result=dict(passed=True,original_mount_stopped=True,all_exited=True,mount_absent=True,
+            anchor=config['anchor'],mount=request['mount'],automatic_retry=False,
+            scope='Original supervisor/process exit and mount absence; no distributed writer fencing claim')
+        write_new(output/'result.json',result)
+        return result
     binary=str(pinned(request['binary']))
     if action=='inspect-writer':
         config=load(pinned(request['mount_config']))

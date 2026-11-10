@@ -15,6 +15,7 @@ REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
 from bench.runtime.common import digest,load,pinned,write_new
 from bench import suite_state
+from bench.runtime import pilot_context as pilot_runtime
 
 
 def main():
@@ -25,6 +26,7 @@ def main():
     s=load(pinned(dict(path=str(a.request),sha256=a.sha256)))
     if s.get('reviewed') is not True:raise ValueError('Reviewed one-cell request required')
     control=Path(s['control']);plan=load(control/'suite/plan.json')
+    runtime=pilot_runtime.select(control,s.get('runtime_control'))
     cell=next(c for c in plan['cells'] if c['id']==s['cell_id'])
     if cell['workload'] not in ('fio','trace','smallfiles') or cell['arm_id'] not in ('native','juicefs'):raise ValueError('Flat C1/C2/C3 only')
     latest=pinned(s['latest_check']) if s.get('latest_check') else None
@@ -42,7 +44,7 @@ def main():
         if db.execute('SELECT COUNT(*) FROM cell_leases').fetchone()[0]:raise ValueError('Another cell remains reserved')
         row=db.execute('SELECT status FROM cells WHERE id=?',(cell['id'],)).fetchone()
         if not row or row[0]!='pending':raise ValueError('Only an unstarted explicit cell may run')
-    subprocess.run(['ssh','-F',str(control/'ssh.conf'),'pool-a-client',
+    subprocess.run(['ssh','-F',str(runtime/'ssh.conf'),'pool-a-client',
         "test -z \"$(cat /sys/fs/cgroup/ax-slot-1/cgroup.procs)\""],check=True)
     out=Path(s['out']);out.mkdir(parents=True,exist_ok=False)
     write_new(out/'started.json',dict(cell_id=cell['id'],at=datetime.now(timezone.utc).isoformat(),
@@ -62,6 +64,8 @@ def main():
                 '--observer-tool-name',s['observer_tool']['name'],'--observer-tool-sha256',s['observer_tool']['sha256'],
                 '--node-tool',s['node_tool']['path'],'--node-tool-sha256',s['node_tool']['sha256'],'--out',t['out']]
             if t.get('new_collector_name'):args+=['--new-collector-name',t['new_collector_name']]
+            if s.get('runtime_control'):args+=['--runtime-control',s['runtime_control']['path'],
+                '--runtime-control-sha256',s['runtime_control']['sha256']]
             run('trial-'+str(i+1),args)
         pairs=[dict(off=trials[i]['out'],on=trials[j]['out']) for i,j in [(0,1),(3,2),(4,5)]]
         write_new(out/'pairs.json',pairs)
@@ -74,6 +78,8 @@ def main():
                     '--observer-tool-name',s['observer_tool']['name'],'--observer-tool-sha256',s['observer_tool']['sha256'],
                     '--collector-name',s['final_collector_name'],'--out',control/'cells'/cell['id']]
         if latest:admit+=['--latest-check',latest]
+        if s.get('runtime_control'):admit+=['--runtime-control',s['runtime_control']['path'],
+                '--runtime-control-sha256',s['runtime_control']['sha256']]
         run('admit',admit)
         run('formal',['python3',pinned(s['tools']['run']),'--context',control/'cells'/cell['id']/'context.json'])
         closing=control/'cells'/(cell['id']+'.close.json')

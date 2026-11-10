@@ -2,6 +2,7 @@
 """Bind existing private ECS hosts and probe the pinned measurement runtime."""
 import argparse
 import json
+import re
 from pathlib import Path
 import sys
 
@@ -15,7 +16,9 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--inventory',type=Path,required=True)
     p.add_argument('--out',type=Path,required=True)
+    p.add_argument('--code-directory',default='code-01')
     a=p.parse_args();a.out.mkdir(parents=True,exist_ok=False)
+    if not re.fullmatch('code-[0-9]{2}',a.code_directory):raise ValueError('Explicit frozen code-NN required')
     cloud=json.loads(a.inventory.read_text())
     roles=cloud['roles']
     if cloud['pool_id']!='pool-a' or set(roles) not in ({'client','metadata','objects'},{'client','metadata','objects','target'}):
@@ -27,7 +30,7 @@ def main():
     for n in inv['nodes']:
         role=n['id'].removeprefix('pool-a-');c=roles[role];root=roots[role]
         n.update(kind='host',environment_id=c['instance_id'],host_id=c['instance_id'],host_observer_node=n['id'],
-            host_key_verified=True,owned_by_campaign=True,repo=root+'/code-01',python='/usr/bin/python3',work_root=root,
+            host_key_verified=True,owned_by_campaign=True,repo=root+'/'+a.code_directory,python='/usr/bin/python3',work_root=root,
             data_paths=[dict(path=root,min_free_bytes=10*1024**3,min_free_inodes=1200000)],
             data_disk_ids=c['data_disk_ids'],private_ip=c['private_ip'])
         if role in ('client','target'):n['slots'][0]['cgroup']='/sys/fs/cgroup/ax-slot-1'

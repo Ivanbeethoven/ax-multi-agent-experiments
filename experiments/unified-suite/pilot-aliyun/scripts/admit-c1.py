@@ -8,6 +8,7 @@ import sys
 REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
 from bench.runtime.common import digest,load,write_new
+from bench.runtime import pilot_context as pilot_runtime
 from bench import suite_state as state
 
 
@@ -19,6 +20,7 @@ def ref(path):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--control',type=Path,required=True)
+    pilot_runtime.arguments(p)
     p.add_argument('--qualification',type=Path,required=True)
     p.add_argument('--overhead',type=Path,required=True)
     p.add_argument('--cell',required=True)
@@ -30,6 +32,7 @@ def main():
     p.add_argument('--latest-check',type=Path,help='Required explicit branch receipt for a new C2/C3 batch')
     p.add_argument('--out',type=Path,required=True)
     a=p.parse_args()
+    runtime_ref=pilot_runtime.reference(a);runtime=pilot_runtime.select(a.control,runtime_ref)
     plan=load(a.control/'suite/plan.json');cell=next(c for c in plan['cells'] if c['id']==a.cell)
     if cell['workload'] not in ('fio','trace','smallfiles') or cell['arm_id'] not in ('native','juicefs'):
         raise ValueError('This adapter only admits flat C1/C2/C3 routes')
@@ -46,15 +49,15 @@ def main():
     for name in ('input.json','filesystem.json'):
         if load(q/name)['passed'] is not True:raise ValueError('Preparation failed: '+name)
     if load(a.qualification/'hardware.json')['passed'] is not True:raise ValueError('Hardware failed')
-    if load(a.control/'allocation.json')['passed'] is not True:raise ValueError('Allocation failed')
+    if load(runtime/'allocation.json')['passed'] is not True:raise ValueError('Allocation failed')
     if plan['config']['build_manifest_sha256']!=digest(a.control/'provenance/build-manifest.json') or plan['config']['input_manifest_sha256']!=digest(a.control/'provenance/input-manifest.json'):
         raise ValueError('Frozen provenance differs')
     latest_path=a.latest_check or a.control/'provenance/latest-before-formal-c1-01.json'
     latest=load(latest_path)
     if latest['passed'] is not True or latest['build_manifest_sha256']!=plan['config']['build_manifest_sha256']:
         raise ValueError('Latest-branch check missing or changed')
-    inventory=load(a.control/'fleet.json')
-    if load(a.control/'allocation.json')['inventory_sha256']!=digest(a.control/'fleet.json'):
+    inventory=load(runtime/'fleet.json')
+    if load(runtime/'allocation.json')['inventory_sha256']!=digest(runtime/'fleet.json'):
         raise ValueError('Actual fleet differs from allocation')
     assetdir=a.qualification/'assets'/cell['arm_id'];asset=load(assetdir/'asset.json')
     if asset['plan']['sha256']!=digest(a.control/'suite/plan.json'):
@@ -69,7 +72,7 @@ def main():
     a.out.mkdir(parents=True,exist_ok=False)
     proof=dict(passed=True,plan_sha256=plan['plan_sha256'],cell_id=cell['id'],
                provenance=[ref(a.control/'provenance'/n) for n in ('build-manifest.json','input-manifest.json','inventory.json')],
-               actual_allocation=ref(a.control/'allocation.json'),actual_asset=ref(assetdir/'asset.json'),
+               actual_allocation=ref(runtime/'allocation.json'),actual_asset=ref(assetdir/'asset.json'),
                cache_checked=cache_ok,latest_branch_check=ref(latest_path),
                source_roles=[n['id'] for n in inventory['nodes']])
     write_new(a.out/'provenance-cache.json',proof)
@@ -133,6 +136,7 @@ def main():
                  overhead=ref(a.overhead),node_tool=dict(path=a.node_tool,sha256=a.node_tool_sha256),
                  observer_tool_name=a.observer_tool_name,observer_tool_sha256=a.observer_tool_sha256,
                  collector_name=a.collector_name)
+    if runtime_ref:context['runtime_control']=runtime_ref
     if is_trace:context.update(asset=binding['asset'],trace=binding['trace'])
     if is_small:context.update(asset=binding['asset'],smallfiles=binding['smallfiles'])
     write_new(a.out/'context.json',context)

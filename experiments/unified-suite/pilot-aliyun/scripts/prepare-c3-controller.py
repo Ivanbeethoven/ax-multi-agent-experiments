@@ -10,6 +10,7 @@ import sys
 REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
 from bench.runtime.common import digest,load,pinned,write_new
+from bench.runtime import pilot_context as pilot_runtime
 
 
 def ref(path):return dict(path=str(path),sha256=digest(path))
@@ -19,25 +20,27 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('control','shared-qualification','capacity-check','out'):p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--product',choices=['brewfs','juicefs'],required=True)
+    pilot_runtime.arguments(p)
     for name in ('route','asset','binary','verifier'):p.add_argument('--'+name,required=True)
     p.add_argument('--copier')
     a=p.parse_args();arm='native' if a.product=='brewfs' else 'juicefs'
+    runtime=pilot_runtime.select(a.control,pilot_runtime.reference(a))
     plan=load(a.control/'suite/plan.json')
     cell=next(c for c in plan['cells'] if c['workload']=='smallfiles' and c['arm_id']==arm)
     if cell['params']['agents']!=1 or cell['params']['workspaces']!=1:raise ValueError('Exactly one complete C3 workspace required')
     capacity=load(a.capacity_check)
     if not capacity['passed'] or capacity['reserve_fraction']<.2:raise ValueError('Actual storage/RAM capacity with 20% reserve required')
     snapshot=load(pinned(capacity['after']))
-    if snapshot['inventory']!=ref(a.control/'fleet.json'):raise ValueError('Capacity belongs to another actual inventory')
+    if snapshot['inventory']!=ref(runtime/'fleet.json'):raise ValueError('Capacity belongs to another actual inventory')
     if capacity.get('extra_full_copies',0)<7:
         raise ValueError('Budget six calibration children and one formal child')
     a.out.mkdir(parents=True,exist_ok=False);transfers=[]
     def remote(argv):
-        return subprocess.check_output(['ssh','-F',str(a.control/'ssh.conf'),'pool-a-client',shlex.join(list(map(str,argv)))],text=True)
+        return subprocess.check_output(['ssh','-F',str(runtime/'ssh.conf'),'pool-a-client',shlex.join(list(map(str,argv)))],text=True)
     def get(source,name):
         target=a.out/name;target.parent.mkdir(parents=True,exist_ok=True)
         wanted=remote(['sha256sum',source]).split()[0]
-        subprocess.run(['scp','-F',str(a.control/'ssh.conf'),'pool-a-client:'+source,str(target)],check=True)
+        subprocess.run(['scp','-F',str(runtime/'ssh.conf'),'pool-a-client:'+source,str(target)],check=True)
         if digest(target)!=wanted:raise ValueError('Transferred evidence changed')
         transfers.append(dict(source=source,**ref(target)));return target
     for name in ('result.json','started.json','optional-tools.json','import/exit.json','import-fsync.json',
@@ -68,7 +71,7 @@ def main():
         raise ValueError('Original full input proof changed')
     if load(asset)['plan']['sha256']!=digest(a.control/'suite/plan.json'):raise ValueError('Asset prepared under another plan')
     hardware=load(a.shared_qualification/'hardware.json')
-    if not hardware['passed'] or hardware['inventory_sha256']!=digest(a.control/'fleet.json'):raise ValueError('Current matching hardware qualification required')
+    if not hardware['passed'] or hardware['inventory_sha256']!=digest(runtime/'fleet.json'):raise ValueError('Current matching hardware qualification required')
     write_new(a.out/'hardware.json',hardware)
     folder=a.out/arm;folder.mkdir()
     small=dict(binary=sources['binary'],verifier=sources['verifier'],copier=sources.get('copier'))

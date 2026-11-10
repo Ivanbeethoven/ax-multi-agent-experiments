@@ -10,6 +10,7 @@ import sys
 REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
 from bench.runtime.common import digest,load,write_new
+from bench.runtime import pilot_context as pilot_runtime
 
 
 def ref(p):return dict(path=str(p),sha256=digest(p))
@@ -20,19 +21,21 @@ def main():
     for name in ('control','shared-qualification','out'):
         p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--product',choices=['brewfs','juicefs'],required=True)
+    pilot_runtime.arguments(p)
     p.add_argument('--cache-parent-fds',action='store_true')
     for name in ('route','asset','case','manifest','binary','verifier'):
         p.add_argument('--'+name,required=True,help='Actual absolute path on the client')
     a=p.parse_args();arm='native' if a.product=='brewfs' else 'juicefs'
+    runtime=pilot_runtime.select(a.control,pilot_runtime.reference(a))
     plan=load(a.control/'suite/plan.json');cell=next(c for c in plan['cells'] if c['workload']=='trace' and c['arm_id']==arm)
     if Path(a.case).name!=cell['params']['trace']:raise ValueError('Wrong complete trace')
     a.out.mkdir(parents=True,exist_ok=False);transfers=[]
     def remote(argv):
-        return subprocess.check_output(['ssh','-F',str(a.control/'ssh.conf'),'pool-a-client',shlex.join(list(map(str,argv)))],text=True)
+        return subprocess.check_output(['ssh','-F',str(runtime/'ssh.conf'),'pool-a-client',shlex.join(list(map(str,argv)))],text=True)
     def get(source,relative):
         target=a.out/relative;target.parent.mkdir(parents=True,exist_ok=True)
         wanted=remote(['sha256sum',source]).split()[0]
-        subprocess.run(['scp','-F',str(a.control/'ssh.conf'),'pool-a-client:'+source,str(target)],check=True)
+        subprocess.run(['scp','-F',str(runtime/'ssh.conf'),'pool-a-client:'+source,str(target)],check=True)
         if digest(target)!=wanted:raise ValueError('Changed evidence transfer')
         transfers.append(dict(source=source,**ref(target)));return target
     raw=a.out/'route';raw.mkdir()
@@ -75,7 +78,7 @@ def main():
         if not s['passed'] or s['exit_code']!=0 or not s['mount_absent']:raise ValueError('Original route is not normally closed')
     if load(asset)['plan']['sha256']!=digest(a.control/'suite/plan.json'):raise ValueError('Asset uses another frozen plan')
     hardware=load(a.shared_qualification/'hardware.json')
-    if not hardware['passed'] or hardware['inventory_sha256']!=digest(a.control/'fleet.json'):raise ValueError('Actual matching hardware required')
+    if not hardware['passed'] or hardware['inventory_sha256']!=digest(runtime/'fleet.json'):raise ValueError('Actual matching hardware required')
     write_new(a.out/'hardware.json',hardware)
     folder=a.out/arm;folder.mkdir()
     binding=dict(asset=a.asset,route=ref(raw/'result.json'),trace=dict(case=a.case,

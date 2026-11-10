@@ -2,6 +2,8 @@
 
 最新版本核对：北京时间2026-11-11 07:18，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-07.json)。两种文件系统均通过目录句柄复用选项的完整trace验证和冷重挂读回。C1顺序读的BrewFS、JuiceFS单元均已完成六次校准、正式测量、读回与归档；顺序写正在执行。C1–C4全轮尚未完成。
 
+顺序写的BrewFS单元已通过；JuiceFS第3次校准在验证挂载退出时遇到采集接口关闭，[原失败和完整归档](evidence/preparation/c1-juicefs-write-calibration-failure/diagnosis.json)保留。该次负载和冷CRC检查通过，正式单元尚未启动。采集器增加正常退出回执复核；运行中断连、HTTP错误、解析错误和计数回退仍判失败。[54项本机检查通过](evidence/preparation/runtime-refresh-local.json)。修订后使用新的完整六次校准，不复用此前结果。
+
 
 05:55–05:56另核了[运行中的RustFS程序](evidence/preparation/cloud-runtime-progress-04.json)与[已部署BrewFS程序](evidence/preparation/cloud-brewfs-progress-04.json)，SHA256均与本批构建一致。执行脚本[code-02已在四个角色部署并逐文件核验](evidence/preparation/runner-code-02-deployment.json)；旧任务仍使用原脚本，不热替换。
 [code-03](evidence/preparation/runner-code-03-deployment.json)加入会话迁移准备工具；[code-04](evidence/preparation/runner-code-04-deployment.json)加入容量检查、可选完整物化工具及采集收尾修复。四个角色均逐成员核验，BrewFS/RustFS二进制未变。
@@ -46,6 +48,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/qualify-entity-local.py` | 实际挂载、hardlink/COW/空洞/重命名修改、正常卸载，再以只读Redis账号核原namespace |
 | `scripts/package-deployment.py` | 打包本轮二进制、运行依赖、镜像和执行代码，逐成员核SHA256，供私网分发 |
 | `scripts/package-code.py`、`install-code.py` | 单独冻结执行代码并安装到新的 `code-NN`，核所有成员；旧版本和正在运行的进程保持原路径 |
+| `scripts/setup-controller.py --code-directory code-NN`、`bench/runtime/pilot_context.py` | 为新执行代码重新探测；只允许代码目录不同，主机、磁盘、启动身份和Agent配额必须一致。状态库仍留在原协调目录，旧文件不覆盖 |
 | `scripts/configure-pilot.py` | 按三阶段生成计划；实际inventory、build、input摘要齐全后才可冻结执行 |
 | `scripts/cloud.py` | 盘点、询价、逐台购机、独立协调盘、释放与后查；创建前核最新分支，不自动重购 |
 | `scripts/provision-node.py` | 核实际ECS身份与磁盘序列号，只格式化本轮新建的空数据盘；分开安装依赖 |
@@ -69,6 +72,8 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/smallfiles-oracle.py` | 从不可变源和file/version/workspace状态独立计算预期树，供原namespace只读验证；不读取被测输出作为预期 |
 | `scripts/observe-command.py` | 为单次准备/诊断命令采集三角色原始指标并逐成员核归档；不充当正式性能验收 |
 | `scripts/draft-one-c1.py`、`run-one-c1.py` | 先生成可查看的请求，再执行明确指定的一个flat C1/C2单元：六次预先列出的观测开关试验、准入和原有阶段执行；任一步失败便停止 |
+| `scripts/launch-one.py` | 启动明确指定的一项；先核前项关闭、归档全部成员、无上传债务、空槽位和采集器衔接，不选择下一项、不重试 |
+| `scripts/draft-session-phase.py` | 固定单个export/import/resume或退出检查的命令、输入摘要和结果条件；resume只转发实际工具完成事件 |
 | `scripts/retain-cell.py` | 仅打包已关闭单元，核封存文件集合及全部成员摘要，供独立下载；不启动负载 |
 | `scripts/record-cost.py` | 按真实创建时间与报价保存新增资源的费用估算，列清未包含的项目 |
 | `scripts/verify-latest.py` | 将本轮构建提交与指定远端分支最新提交逐一比较，保留带时间的结果 |

@@ -19,6 +19,7 @@ from bench.runtime.common import digest, load, write_new
 from bench.runtime import cohort, fleet
 from bench import suite_state as state
 from bench import archive_check, experiment_step, suite_validate
+from bench.runtime import pilot_context as pilot_runtime
 
 ROOTS = dict(client='/srv/ax-client', metadata='/srv/ax-metadata', objects='/srv/ax-objects-0')
 
@@ -33,6 +34,7 @@ class Cell:
         self.s = load(context)
         self.out = Path(self.s['out'])
         self.control = Path(self.s['control'])
+        self.runtime = pilot_runtime.select(self.control,self.s.get('runtime_control'))
         self.plan = load(self.control/'suite/plan.json')
         self.cell = next(c for c in self.plan['cells'] if c['id'] == self.s['cell_id'])
         self.kind=self.cell['workload']
@@ -69,7 +71,7 @@ class Cell:
         write_new(attempt/'intent.json', dict(role=role, argv=argv,
                   at=datetime.now(timezone.utc).isoformat(), automatic_retry=False))
         with (attempt/'stdout').open('xb') as out, (attempt/'stderr').open('xb') as err:
-            result = subprocess.run(['ssh', '-F', str(self.control/'ssh.conf'), 'pool-a-'+role,
+            result = subprocess.run(['ssh', '-F', str(self.runtime/'ssh.conf'), 'pool-a-'+role,
                                      shlex.join(list(map(str, argv)))], stdout=out, stderr=err)
         write_new(attempt/'exit.json', dict(exit_code=result.returncode))
         if result.returncode:
@@ -83,7 +85,7 @@ class Cell:
         target = self.out/relative; target.parent.mkdir(parents=True, exist_ok=True)
         if target.exists(): raise ValueError('Never replace collected evidence')
         wanted = self.remote(role, ['sha256sum', source]).split()[0]
-        subprocess.run(['scp', '-F', str(self.control/'ssh.conf'),
+        subprocess.run(['scp', '-F', str(self.runtime/'ssh.conf'),
                         'pool-a-'+role+':'+source, str(target)], check=True)
         if digest(target) != wanted: raise ValueError('Changed evidence transfer')
         return target
@@ -101,7 +103,7 @@ class Cell:
     def mark(self, label):
         if self.kind=='smallfiles':label+='-w01'
         for o in self.observers():
-            peer = ref(self.control/'probes'/o['id']/'peer.json')
+            peer = ref(self.runtime/'probes'/o['id']/'peer.json')
             fleet.call(peer, 'observe-mark', o['directory'], self.out/'marks'/label/o['id'], label=label)
 
     def execute(self, stage):
@@ -118,7 +120,7 @@ class Cell:
                     args += ['--mount-directory', self.main, '--extra-mount-directory', self.prep,
                              '--extra-mount-directory', self.verify]
                 spec = json.loads(self.remote(role, args))
-                peer = ref(self.control/'probes'/('pool-a-'+role)/'peer.json')
+                peer = ref(self.runtime/'probes'/('pool-a-'+role)/'peer.json')
                 directory = root+'/o/'+self.tag
                 fleet.call(peer, 'observe-start', directory, self.out/'observer-start'/role, spec)
                 observers.append(dict(id='pool-a-'+role, node_id='pool-a-'+role, peer=load(peer['path']),
@@ -141,14 +143,14 @@ class Cell:
             worker_path = ROOTS['client']+'/w/'+self.tag+'/worker.reviewed.json'
             worker_sha = self.remote('client', ['sha256sum', worker_path]).split()[0]
             s = dict(schema='experiment-cohort-v1', reviewed=True, purpose='experiment', provider='ssh', agents=1,
-                inventory=ref(self.control/'fleet.json'), metric_contract=ref(self.qualification/'metrics.json'),
+                inventory=ref(self.runtime/'fleet.json'), metric_contract=ref(self.qualification/'metrics.json'),
                 workload_contract=ref(self.qualification/'workload.json'),
-                allocation_qualification=ref(self.control/'allocation.json'),
+                allocation_qualification=ref(self.runtime/'allocation.json'),
                 hardware_qualification=ref(Path(self.s['qualification'])/'hardware.json'),
                 input_qualification=ref(self.qualification/'input.json'),
                 filesystem_qualification=ref(self.qualification/'filesystem.json'), observer_overhead=self.s['overhead'],
                 workers=[dict(id='a01',node_id='pool-a-client',slot_id='pool-a-client',
-                    peer=load(self.control/'probes/pool-a-client-slot/peer.json'),
+                    peer=load(self.runtime/'probes/pool-a-client-slot/peer.json'),
                     spec=dict(path=worker_path,sha256=worker_sha),output=ROOTS['client']+'/j/'+self.tag)],
                 observers=self.observers(), ready_timeout_seconds=120,
                 review=dict(reviewer='pilot-operator',note='One frozen flat cell; fixed work and all three roles observed.'))
@@ -183,7 +185,7 @@ class Cell:
             self.mark('verify-end')
         elif stage == 'observe-stop':
             for o in self.observers():
-                peer = ref(self.control/'probes'/o['id']/'peer.json')
+                peer = ref(self.runtime/'probes'/o['id']/'peer.json')
                 fleet.call(peer,'observe-stop',o['directory'],self.out/'observer-stop'/o['id'])
                 role = o['id'].removeprefix('pool-a-')
                 code = ('import sys,json;sys.path.insert(0,'+repr(ROOTS[role]+'/code-01')+');'

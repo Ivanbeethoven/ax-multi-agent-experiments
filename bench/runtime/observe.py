@@ -20,9 +20,10 @@ import sys
 import time
 import threading
 from urllib.parse import urlsplit
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, build_opener, ProxyHandler, HTTPSHandler, HTTPRedirectHandler
 
-from .common import alive, digest, identity, load, pinned, prepare, private_dir, spec, write_new
+from .common import alive, digest, identity, load, mounts, pinned, prepare, private_dir, spec, write_new
 
 HOST_FILES = ['stat','meminfo','vmstat','diskstats','net/dev','net/snmp','net/netstat',
               'pressure/cpu','pressure/memory','pressure/io']
@@ -87,6 +88,23 @@ def collect_target(t):
     return raw,required_values(t,raw)
 
 
+def mount_lifecycle(target):
+    directory=target.get('mount_directory')
+    if not directory:return None
+    root=Path(directory)
+    if not (root/'ready.json').exists():return {'state':'not-started'}
+    if not (root/'stopped.json').exists():return None
+    ready=load(root/'ready.json');stopped=load(root/'stopped.json');process=load(root/'process.json')
+    if (stopped.get('passed') is not True or stopped.get('mount_absent') is not True or
+            stopped.get('exit_code')!=0 or stopped.get('active_workers')!=[] or
+            stopped.get('anchor')!=ready['anchor'] or stopped.get('original_mount')!=ready['mount'] or
+            process['spec']!=ready['spec'] or any(process['process'][k]!=ready['process'][k]
+                for k in ('pid','boot_id','start_ticks')) or
+            alive(process['process']) or ready['mount'] in mounts(ready['mount']['point'])):
+        raise ValueError('Original mount stop evidence differs or original writer is still live')
+    return {'state':'cleanly-stopped','receipt_sha256':digest(root/'stopped.json')}
+
+
 def snapshot(s,directory,index,previous=None):
     begin=time.monotonic_ns();directory=private_dir(Path(directory)/f'sample-{index:06}')
     errors=[]; files={}; counters={}; target_states={}
@@ -120,13 +138,13 @@ def snapshot(s,directory,index,previous=None):
         for t in s['targets']:
             # Lifecycle gaps must have actual native mount evidence. This is
             # recorded as stopped/not-started, never as a zero-valued metric.
-            mount=t.get('mount_directory')
-            if mount and not (Path(mount)/'ready.json').exists():
-                target_states[t['id']]={'state':'not-started'};continue
-            if mount and (Path(mount)/'stopped.json').exists():
-                stopped=load(Path(mount)/'stopped.json')
-                if stopped.get('passed') and stopped.get('mount_absent') and stopped.get('exit_code')==0:
-                    target_states[t['id']]={'state':'cleanly-stopped','receipt_sha256':digest(Path(mount)/'stopped.json')};continue
+            try:
+                lifecycle=mount_lifecycle(t)
+            except Exception as error:
+                target_states[t['id']]={'state':'failed'}
+                errors.append({'source':t['id'],'error':type(error).__name__});continue
+            if lifecycle:
+                target_states[t['id']]=lifecycle;continue
             pending.append((t,pool.submit(collect_target,t)))
         for target,future in pending:
             try:
@@ -139,6 +157,17 @@ def snapshot(s,directory,index,previous=None):
                     if key in old and float(value)<float(old[key]):raise ValueError('counter reset')
                 counters[target['id']]=selected
             except Exception as error:
+                # The foreground client can finish between the lifecycle check
+                # and HTTP read. Recheck its actual exit receipt; do not retry
+                # HTTP, fill in counters, or hide live endpoint/parse failures.
+                if isinstance(error,(OSError,URLError)) and not isinstance(error,HTTPError):
+                    try:
+                        stopped=mount_lifecycle(target)
+                        if stopped and stopped['state']=='cleanly-stopped':
+                            target_states[target['id']]={**stopped,'stopped_during_collection':True,
+                                'collection_error':type(error).__name__};continue
+                    except Exception:
+                        pass
                 target_states[target['id']]={'state':'failed'}
                 errors.append({'source':target['id'],'error':type(error).__name__})
     result={'index':index,'monotonic_start_ns':begin,'monotonic_end_ns':time.monotonic_ns(),
