@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "at": "2026-11-10T21:43:56.992285+00:00",
+  "artifacts": {
+    "runner.tar.gz": "4f1ffbb83e353fc9f4e84697a17a3bb9e8a84d28e269771beb3aed25f4edb59e",
+    "manifest.json": "402f08a9de57a5a4ec1e418dc6048e96fc91a704974b515d2897eff284cd2c43",
+    "full-fuse-replay-parent-fd-01": "35c45abd910d826ea17b5d6dfc750c7083cda5e8ce8f3bbe5ef77a78ffbea1aa",
+    "trace-manifest.json": "71a0661b82a433e9d14da29287a2bc1860460015d4887031f90a03ff5451a021",
+    "install-code.py": "e7cef14f2aaee887c0d0bca6cb418e6790b44ad0638218607d15ebe42b75f9c7"
+  },
+  "nodes": [
+    {
+      "passed": true,
+      "role": "client",
+      "destination": "/srv/ax-client/code-02",
+      "archive_sha256": "4f1ffbb83e353fc9f4e84697a17a3bb9e8a84d28e269771beb3aed25f4edb59e",
+      "manifest_sha256": "402f08a9de57a5a4ec1e418dc6048e96fc91a704974b515d2897eff284cd2c43",
+      "extra_artifacts": {
+        "full-fuse-replay-parent-fd-01": "35c45abd910d826ea17b5d6dfc750c7083cda5e8ce8f3bbe5ef77a78ffbea1aa",
+        "trace-manifest.json": "71a0661b82a433e9d14da29287a2bc1860460015d4887031f90a03ff5451a021"
+      },
+      "active_processes_restarted": false
+    },
+    {
+      "passed": true,
+      "role": "metadata",
+      "destination": "/srv/ax-metadata/code-02",
+      "archive_sha256": "4f1ffbb83e353fc9f4e84697a17a3bb9e8a84d28e269771beb3aed25f4edb59e",
+      "manifest_sha256": "402f08a9de57a5a4ec1e418dc6048e96fc91a704974b515d2897eff284cd2c43",
+      "extra_artifacts": {},
+      "active_processes_restarted": false
+    },
+    {
+      "passed": true,
+      "role": "objects",
+      "destination": "/srv/ax-objects-0/code-02",
+      "archive_sha256": "4f1ffbb83e353fc9f4e84697a17a3bb9e8a84d28e269771beb3aed25f4edb59e",
+      "manifest_sha256": "402f08a9de57a5a4ec1e418dc6048e96fc91a704974b515d2897eff284cd2c43",
+      "extra_artifacts": {},
+      "active_processes_restarted": false
+    }
+  ],
+  "controller_destination": "/srv/ax-pilot-control/code-02",
+  "controller_install": "/srv/ax-pilot-control/preparation/runner-04/controller-install.stdout",
+  "active_services_restarted": false,
+  "scope": "New immutable code trees and additional replay inputs only; original code-01, binaries and running qualification remain unchanged"
+}

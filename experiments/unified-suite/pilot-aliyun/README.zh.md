@@ -1,7 +1,9 @@
 # 阿里云 C1–C4 小规模试跑
 
-最新核对：北京时间2026-11-11 05:12，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-03.json)。[05:00执行快照](evidence/cloud-20261111/progress-0500.json)记录当前仍在运行的JuiceFS完整trace验证；C1–C4全轮尚未完成。
+最新核对：北京时间2026-11-11 05:54，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-04.json)。[05:00执行快照](evidence/cloud-20261111/progress-0500.json)记录当前仍在运行的JuiceFS完整trace验证；C1–C4全轮尚未完成。
 
+
+05:55–05:56另核了[运行中的RustFS程序](evidence/preparation/cloud-runtime-progress-04.json)与[已部署BrewFS程序](evidence/preparation/cloud-brewfs-progress-04.json)，SHA256均与本批构建一致。执行脚本[code-02已在四个角色部署并逐文件核验](evidence/preparation/runner-code-02-deployment.json)；旧任务仍使用原脚本，不热替换。
 本轮已于2026-11-11启动3台私网节点，并复用原跳板和一块独立协调盘；迁移目标机尚未创建。四盘RustFS、Redis、BrewFS和JuiceFS已完成接入及小文件写入/正常卸载/重挂读回检查，C1输入也已完成完整CRC与冷重挂校验。C1两项随机读已关闭：JuiceFS全部阶段通过；BrewFS测量及数据检查通过，归档阶段失败后补收证据，仍记失败，不输出该配对的加速比。设置见[scope.json](scope.json)，路线限制见[审查记录](../PILOT-REVIEW.zh.md)。系统计划有28个单元；未通过资格的路线保留实际失败。C3仍为百万文件，C4恢复仍使用真实OpenCode原生会话。
 
 本轮构建使用BrewFS `main` 的 `622736b0a31caaa9007445886e626a2458bc316a`、RustFS `feat/dynamic-block-size-rebased` 的 `f4ed202508f2153afb7956bae6f7799b60eccd00`。二者均从指定分支构建，准备期间再次核对远端最新提交；运行镜像内RustFS二进制SHA256与本机产物相同。`scripts/verify-latest.py`在新批次计时前再核一次，分支推进则先重建；开始计时的配对批次固定版本。
@@ -32,6 +34,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/build-rustfs-image.py` | 从本轮二进制制作镜像，核镜像内二进制、OCI提交号和registry digest，导出内网分发包 |
 | `scripts/prepare-dependencies.py` | 核JuiceFS官方发布摘要，固定OpenCode二进制 |
 | `scripts/prepare-inputs.sh`、`qualify-trace.py` | 准备百万文件和完整trace，严格核回放次数、字节、目录树、硬链接与数据库副本 |
+| `scripts/session-relay.py` | C4私网模型转发，主密钥仅在工作区外的私有配置，工作区使用独立转发凭据；不记录请求/响应正文，不自动重试；本地5项验证通过，云上待部署 |
 | `scripts/qualify-opencode-session.py`、`package-session-runtime.py` | 两轮真实会话验证export/import/resume，打包已安装依赖，密钥留在工作区外 |
 | `scripts/link-brewfs-tool.py`、`verify-entity-remote.rs` | 复用本轮BrewFS库构建只读核验器；检查原namespace的远端字节、目录、硬链接、ownership及核验前后状态 |
 | `scripts/local-services.py` | 本机功能验证服务；四个目录共用一块盘，不能作为云上四独立盘的性能证据 |
