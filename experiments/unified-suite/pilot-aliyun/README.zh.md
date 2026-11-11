@@ -2,14 +2,14 @@
 
 本轮在阿里云按量实例上试跑。C3和C4派生使用[10万文件](PILOT-100K.zh.md)，每文件4KiB。C1、C2完整trace和C4会话流转保持原负载。实验输入、原始数据和 SHA256 见[归档下载](OSS-ARCHIVE.zh.md)及[trace目录](../../../scenarios/k8s-containers/data-catalog.md)。
 
-截至北京时间2026-11-11 16:13，**系统实验验收11/28，剩17项；22项消融另计**。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。复用一台跳板，两个私网组各三台；16:08的[新增资源费用估算](evidence/progress/parallel-20261111-1608-01/cost-total.json)为¥78.27（约¥9.24/小时），原跳板、网络与OSS另计。
+截至北京时间2026-11-11 16:23，**系统实验验收11/28，剩17项；22项消融另计**。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。复用一台跳板，两个私网组各三台；[新增资源费用估算](evidence/progress/parallel-20261111-1624-01/cost-total.json)为¥80.64（约¥9.24/小时），原跳板、网络与OSS另计。
 
 | 实验 | 正式完成/计划 | 当前情况 |
 |---|---:|---|
 | C1 fio | 9/10 | 双方顺序读、顺序写、随机写、随机读及[BrewFS混合读写](evidence/c1-native-randrw-01/)已验收；余JuiceFS混合读写 |
 | C2 完整trace | 1/5 | [flat BrewFS](evidence/cloud-20261111/05357b5089cd679c-r1-native/)已验收，回放1,747,109次操作；同份输入已校验并传到B组，待C4之后运行JuiceFS |
-| C3 小文件（10万） | 1/4 | [JuiceFS](evidence/c3-jfs-01/)已验收；A组已开始准备[BrewFS flat基线](evidence/preparation/c3-flat-native-01/)；Packed完整资格通过，观测开关差约5.98%，正式样本未启动 |
-| C4 派生（10万） | 0/5 | B组正在运行JuiceFS批次；BrewFS各路线仍待正式测量 |
+| C3 小文件（10万） | 1/4 | [JuiceFS](evidence/c3-jfs-01/)已验收；[BrewFS flat基线](evidence/preparation/c3-flat-native-01/)冷读及容量核验通过，正在校准；Packed完整资格通过，观测开关差约5.98%，正式样本未启动 |
+| C4 派生（10万） | 0/5 | B组JuiceFS首轮校准完成，原始归档已补收；余五轮及正式样本待跑 |
 | C4 流转 | 0/4 | 本机JuiceFS原会话数据库冷重开通过；BrewFS工作区重挂后写入EIO。云上跨机和真实继续任务未完成，模型调用暂停 |
 
 11:07查到[BrewFS分支推进到ca07159](evidence/preparation/latest-progress-15.json)，RustFS未变。[11:47独立重建完成](evidence/preparation/brewfs-ca07159-build/README.zh.md)，两份源码均干净、旧产物保留。[新版本10万文件Packed本机检查通过](evidence/preparation/c3-packed-ca07159-100k/README.zh.md)。已结束的云上随机写配对固定622736b；下一批重新核分支并绑定新版本。`configure-pilot.py --phase c1`或`--phase c2`可单独生成新阶段，旧状态库保留。

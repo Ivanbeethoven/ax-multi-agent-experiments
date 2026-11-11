@@ -1,18 +1,20 @@
 # C4：先跑100k派生基线
 
-本页是后续准备，尚未执行C4云端实验。只复用现有机器，不调用模型。
+截至 11 月 11 日 16:22，B 组已在阿里云完成 JuiceFS 的 10 万文件基线导入、完整冷读和第一轮校准的负载与核验。第一次归档遇到挂载进程退出竞态；进程和挂载退出后补收了原档，没有重跑负载。正式 C4 仍为 0/9。全程复用原有机器，没有调用模型。
 
-完整正式入口现为[run-c4-batch.py](scripts/run-c4-batch.py)，包含一次base准备、六次校准及一个正式child，参数和收尾见[C4-OBSERVE.zh.md](C4-OBSERVE.zh.md)。下文的code14/draft-02保留为历史功能预演记录；新版工具须另冻结、另建请求后部署，不能把该draft直接用作formal。此次23项小回归通过，仅使用五文件fixture，真实C4仍为0。
+完整入口为[run-c4-batch.py](scripts/run-c4-batch.py)，包含一次基线准备、六次校准及一个正式派生，参数和收尾见[C4-OBSERVE.zh.md](C4-OBSERVE.zh.md)。下文的code14/draft-02是历史功能预演，用五文件检查了23个场景。
 
 | 路线 | 当前能做什么 | 未完成条件 |
 |---|---|---|
-| JuiceFS `clone -p` | 新入口可执行100k父目录→一个私有子目录、修改、原卷冷验 | 本池原任务正常结束、空DB；首次完整运行及C4观测开销资格 |
+| JuiceFS `clone -p` | 十万文件基线及第一轮校准已验收 | 剩余校准、观测开销检查及正式派生 |
 | BrewFS `flat-v1`完整拷贝 | 同一入口，明确禁用reflink；原生小规模重开后写入已通过 | 同上；这是完整拷贝对照，不能作为共享基线优势 |
 | BrewFS `workspace-native-v2`派生 | 仅空revision派生与父子独立写入/冷读通过 | 非空100k发布→派生缺实验适配；dirty reopen后写/fsync仍EIO |
 | `entity-native` | 尚不能执行100k | native lower的32768行上限未解决 |
 | `packed` | 已有100k fresh namespace读写/远端只读验证 | 缺C4父子基线绑定、隔离及完整生命周期入口；不能把C3结果改名 |
 | JuiceFS handoff | 原共享会话冷读、空HOME恢复状态已有证明 | 真实resume尚无新tool完成；多池源准备、目标节点映射缺适配 |
 | BrewFS handoff | 暂不执行 | workspace-native-v2 dirty reopen写入EIO |
+
+另有[JuiceFS 无模型跨机检查草稿](evidence/c4-state-reopen-draft-01/)，复用 A/B 两台已有客户端。它验证空 HOME 能否从同一工作区重开原 OpenCode 状态，须等两个组都交接后再跑。它不验证模型继续生成工具调用，也不把实验协调器拒绝旧授权写成 JuiceFS 自身的写入隔离。
 
 ## 已冻结的后续计划
 
