@@ -60,10 +60,10 @@ mod tests {
     }}
     impl Drop for Tree {fn drop(&mut self){fs::remove_dir_all(&self.0).unwrap()}}
     #[test] fn reuses_directory_and_releases_on_mutation() {
-        let t=Tree::new();fs::write(t.0.join("file"),b"right").unwrap();let mut c=ParentPaths::new();
-        c.before("getattr");let first=c.resolve(&t.0,&t.0.join("file"),false,false).unwrap();
-        c.before("getattr");assert_eq!(fs::read(c.resolve(&t.0,&t.0.join("file"),false,false).unwrap()).unwrap(),b"right");
-        assert_eq!((c.hits,c.misses),(1,1));c.before("rename");assert!(fs::metadata(first).is_err());
+        let t=Tree::new();fs::write(t.0.join("unique-release-probe"),b"right").unwrap();let mut c=ParentPaths::new();
+        c.before("getattr");let first=c.resolve(&t.0,&t.0.join("unique-release-probe"),false,false).unwrap();
+        c.before("getattr");assert_eq!(fs::read(c.resolve(&t.0,&t.0.join("unique-release-probe"),false,false).unwrap()).unwrap(),b"right");
+        assert_eq!((c.hits,c.misses),(1,1));c.before("rename");assert!(c.directories.is_empty() && fs::metadata(first).is_err());
     }
     #[test] fn replacement_parent_does_not_keep_old_directory() {
         let t=Tree::new();let mut c=ParentPaths::new();fs::create_dir(t.0.join("dir")).unwrap();fs::write(t.0.join("dir/file"),b"old").unwrap();

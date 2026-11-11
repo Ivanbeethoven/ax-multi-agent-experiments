@@ -12,13 +12,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'scripts'))
 from full_trace_common import tree
 
 
+def _chmod_dir(path):
+    if os.name == 'posix': os.chmod(path, 0o755)
+
+
+def _fchmod_file(fd):
+    if os.name == 'posix': os.fchmod(fd, 0o644)
+
+
 def fixture(root, files, size):
     if files < 1 or size < 1: raise ValueError('positive fixture dimensions required')
-    root = Path(root); root.mkdir(exist_ok=False)
+    root = Path(root); root.mkdir(exist_ok=False); _chmod_dir(root)
     for i in range(files):
         file = root/f'd{i//1000:06}'/f'f{i:08}'
-        file.parent.mkdir(exist_ok=True)
+        if not file.parent.exists():
+            file.parent.mkdir(exist_ok=False); _chmod_dir(file.parent)
         with file.open('xb') as out:
+            _fchmod_file(out.fileno())
             out.write(hashlib.shake_256(f'ax-F-v1:{i}'.encode()).digest(size))
             out.flush(); os.fsync(out.fileno())
     return {'files': files, 'bytes': files*size, 'scope': 'fixture preparation; fsync and filesystem drain still checked separately'}
@@ -53,6 +63,7 @@ def mutate(root, tag=None):
             out.flush(); os.fsync(out.fileno())
     paths[3].unlink(); paths[4].rename(root/'renamed-child-file')
     with (root/'new-child-file').open('xb') as out:
+        _fchmod_file(out.fileno())
         out.write(b'new-child:'+change if tag else b'new-child'); out.flush(); os.fsync(out.fileno())
     for directory in (root/'d000000', root):
         fd = os.open(directory, os.O_RDONLY | os.O_DIRECTORY)
@@ -68,6 +79,7 @@ def durable_write(root, relative, payload_file):
     if not target.parent.resolve(strict=True).is_relative_to(root): raise ValueError('write escapes approved root')
     data = Path(payload_file).read_bytes(); started = time.monotonic_ns()
     with target.open('xb') as out:
+        _fchmod_file(out.fileno())
         out.write(data); out.flush(); os.fsync(out.fileno())
     fd = os.open(target.parent, os.O_RDONLY | os.O_DIRECTORY)
     try: os.fsync(fd)
