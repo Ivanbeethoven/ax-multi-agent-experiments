@@ -1,0 +1,278 @@
+{
+  "schema": "c1-sync-delay-coalescing-fingerprint-v1",
+  "source_commit": "622736b0a31caaa9007445886e626a2458bc316a",
+  "source_locations": {
+    "fuse_fsync": "src/fuse/mod.rs:2011–2026; src/vfs/fs/mod.rs:6904–6968",
+    "flush_waits_for_commit": "src/vfs/io/writer.rs:4025–4130",
+    "small_slice_route": "src/vfs/io/writer.rs:4328–4389",
+    "redis_eligibility": "src/meta/stores/redis/mod.rs:2884–2886",
+    "default_bytes_and_timer_setting": "src/chunk/store.rs:597–604",
+    "first_member_queue_timer": "src/chunk/store/coalesce.rs:256–286",
+    "key_magic_and_frame": "src/chunk/store/coalesce.rs:10–15,31–33,86–114; src/chunk/compress.rs:295–314",
+    "put_after_registration": "src/chunk/store/coalesce.rs:320–345",
+    "publish_after_put": "src/vfs/io/writer.rs:1243–1268,4377–4382",
+    "other_conditional_timeout": "src/vfs/io/writer.rs:51,5177–5223,5325–5342",
+    "runner_allowlist": "ax-multi-agent-experiments:bench/experiment_step.py:44–65; bench/runtime/node.py:51,108"
+  },
+  "metric_selectors": {
+    "fsync_count": "brewfs_fuse_op_total{op=\"fsync\"}",
+    "fsync_le_100ms": "brewfs_fuse_op_latency_seconds_bucket{op=\"fsync\",le=\"0.1\"}",
+    "fsync_seconds_sum": "brewfs_fuse_op_latency_seconds_sum{op=\"fsync\"}",
+    "put_count": "brewfs_object_put_total",
+    "put_bytes": "brewfs_object_put_bytes_total",
+    "put_le_5ms": "brewfs_object_op_latency_seconds_bucket{op=\"put\",le=\"0.005\"}",
+    "put_seconds_sum": "brewfs_object_op_latency_seconds_sum{op=\"put\"}"
+  },
+  "random_write": {
+    "cell_id": "7084af367e0bcfad-r1-native",
+    "archive": {
+      "cache_relative_path": "retained-native-randwrite-01/formal/cell.tar.gz",
+      "sha256": "9fb25f4ca713878fb94bcb33fe898f254601ca6c1ca6e48ab8ef71a8969d9ae8"
+    },
+    "role": "pool-a-client",
+    "measure_start": {
+      "source": {
+        "member": "raw/client/o/c1-7084af367e0bcfad-r1-native/mark-0002.json",
+        "sha256": "e21b63d1108917557447c8b41f1d7c2b0bce8f142b351c5667b8a0b19b974a98"
+      },
+      "label": "measurement-start",
+      "monotonic_ns": 28963641191931
+    },
+    "application_finished": {
+      "source": {
+        "member": "raw/client/o/c1-7084af367e0bcfad-r1-native/mark-0003.json",
+        "sha256": "31abbf4968a0dc7fc33b38ec518a1064c3edb6dc99b491bd793907e5f1c243db"
+      },
+      "label": "application-finished",
+      "monotonic_ns": 30744858687764
+    },
+    "samples": [
+      {
+        "index": 30,
+        "sample": {
+          "member": "raw/client/o/c1-7084af367e0bcfad-r1-native/sample-000030/sample.json",
+          "sha256": "f22fbd523bd2db08ccce3e5f06ae3fe0872e761807486f902ec7bdf97ab41a85"
+        },
+        "prometheus": {
+          "member": "raw/client/o/c1-7084af367e0bcfad-r1-native/sample-000030/filesystem.txt",
+          "sha256": "91847db9d6b4b8820b82633e55d92f8bd403885860e038f9fd5536aacc40fec4"
+        },
+        "monotonic_start_ns": 29084439437293,
+        "monotonic_end_ns": 29084468298545,
+        "utc_ns": 1794365806478560526,
+        "after_measurement_start_ns": 120798245362,
+        "before_application_finished_ns": 1660390389219,
+        "counters": {
+          "fsync_count": 1107,
+          "fsync_le_100ms": 0,
+          "fsync_seconds_sum": 119.737221201,
+          "put_count": 1123,
+          "put_bytes": 71771612,
+          "put_le_5ms": 1104,
+          "put_seconds_sum": 4.221145453
+        }
+      },
+      {
+        "index": 355,
+        "sample": {
+          "member": "raw/client/o/c1-7084af367e0bcfad-r1-native/sample-000355/sample.json",
+          "sha256": "747d446cdae54549113001eb921720508bcedced426792aec1804b41324eca58"
+        },
+        "prometheus": {
+          "member": "raw/client/o/c1-7084af367e0bcfad-r1-native/sample-000355/filesystem.txt",
+          "sha256": "88ec3fc07edf508577bed9f8ebd1a1b1558e7d2676f2b74b4a8cd0f03422fb86"
+        },
+        "monotonic_start_ns": 30720554350654,
+        "monotonic_end_ns": 30720583152338,
+        "utc_ns": 1794367442593414171,
+        "after_measurement_start_ns": 1756913158723,
+        "before_application_finished_ns": 24275535426,
+        "counters": {
+          "fsync_count": 16167,
+          "fsync_le_100ms": 0,
+          "fsync_seconds_sum": 1749.078772693,
+          "put_count": 16215,
+          "put_bytes": 269422188,
+          "put_le_5ms": 16042,
+          "put_seconds_sum": 59.437800887
+        }
+      }
+    ],
+    "mount": {
+      "reviewed_mount": {
+        "member": "raw/client/q/c1-7084af367e0bcfad-r1-native/main/mount.reviewed.json",
+        "sha256": "2a963fd6291b09aa9d04c8dd3d5b70c80b995f6ce54f9dab8de2960caceda7a7"
+      },
+      "reviewed_command": {
+        "member": "raw/client/q/c1-7084af367e0bcfad-r1-native/main/command.reviewed.json",
+        "sha256": "70755bc9974d6dc50d2a3215e2b62f77c0e86fdc9fc6fe4bc4deb1209849efd9"
+      },
+      "config": {
+        "member": "raw/client/q/c1-7084af367e0bcfad-r1-native/main/native-config.json",
+        "sha256": "21d392bb14cf5789210f08502e2b98395f8bdb096de8f5dce83ce39913940a62"
+      },
+      "inherit_environment": [
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_REGION",
+        "AWS_EC2_METADATA_DISABLED",
+        "RUST_LOG",
+        "NO_COLOR",
+        "NO_PROXY",
+        "no_proxy"
+      ],
+      "volume_format": "flat-v1",
+      "metadata_backend": "redis",
+      "writeback_mode": "upload_before_commit",
+      "compression": "none",
+      "chunk_bytes": 67108864,
+      "block_bytes": 4194304
+    },
+    "fio": {
+      "raw": {
+        "member": "raw/client/w/c1-7084af367e0bcfad-r1-native/draft/workload/fio.json",
+        "sha256": "4c0001f5eeb80cef37ee0a60fee07644317e38ee6c92716a1b6a40cb5be2b22f"
+      },
+      "rw": "randwrite",
+      "block_bytes": 4096,
+      "write_io_bytes": 67108864,
+      "sync_count": 16383,
+      "sync_min_ns": 106487729,
+      "sync_median_ns": 108527616,
+      "sync_p99_ns": 109576192
+    }
+  },
+  "sequential_write_reference": {
+    "cell_id": "5ca7353ba24b2a18-r1-native",
+    "archive": {
+      "cache_relative_path": "retained-c1-progress-02/5ca7353ba24b2a18-r1-native/cell.tar.gz",
+      "sha256": "7bec2d8c8218e83a7867898aed492bbbde2a7e69b3c6ad6a458b681c724259f6"
+    },
+    "role": "pool-a-client",
+    "measure_start": {
+      "source": {
+        "member": "raw/client/o/c1-5ca7353ba24b2a18-r1-native/mark-0002.json",
+        "sha256": "c5b66ff4fe6e7d70cccadd37480a248b876147d4d9168d642f40e5dee2fd266d"
+      },
+      "label": "measurement-start",
+      "monotonic_ns": 16555248088043
+    },
+    "application_finished": {
+      "source": {
+        "member": "raw/client/o/c1-5ca7353ba24b2a18-r1-native/mark-0003.json",
+        "sha256": "7a9e81edeb97381e16455e26fa4891a9a22c52756ec3ce217fd769bef7413063"
+      },
+      "label": "application-finished",
+      "monotonic_ns": 16557033259809
+    },
+    "samples": [
+      {
+        "index": 7,
+        "sample": {
+          "member": "raw/client/o/c1-5ca7353ba24b2a18-r1-native/sample-000007/sample.json",
+          "sha256": "02a80d65be7d83f261fc7bdf20d39f535df68d100e61cea8f1c84dfc1751e416"
+        },
+        "prometheus": {
+          "member": "raw/client/o/c1-5ca7353ba24b2a18-r1-native/sample-000007/filesystem.txt",
+          "sha256": "a7b3d4998f785ad600e28381b49a3bfe2b5df3d37f9e420a3b7ee688a7e47850"
+        },
+        "monotonic_start_ns": 16557003660965,
+        "monotonic_end_ns": 16557032726019,
+        "utc_ns": 1794353279042987830,
+        "after_measurement_start_ns": 1755572922,
+        "before_application_finished_ns": 533790,
+        "counters": {
+          "fsync_count": 64,
+          "fsync_le_100ms": 64,
+          "fsync_seconds_sum": 0.706191808,
+          "put_count": 64,
+          "put_bytes": 67109120,
+          "put_le_5ms": 0,
+          "put_seconds_sum": 0.518604009
+        }
+      }
+    ],
+    "mount": {
+      "reviewed_mount": {
+        "member": "raw/client/q/c1-5ca7353ba24b2a18-r1-native/main/mount.reviewed.json",
+        "sha256": "d7afffafc48c422ac0d6e7fdf2128c3c0f613be4b64cdd898d1b0677cdcd43a2"
+      },
+      "reviewed_command": {
+        "member": "raw/client/q/c1-5ca7353ba24b2a18-r1-native/main/command.reviewed.json",
+        "sha256": "14ed9b4d3bc331303e3f79cc71d8a8b4695f6940a8762fef87d859120c17d82c"
+      },
+      "config": {
+        "member": "raw/client/q/c1-5ca7353ba24b2a18-r1-native/main/native-config.json",
+        "sha256": "8765a2ae6bf9e242222e70067c7289da6544406eb874dbea86f8ed6b8509fa38"
+      },
+      "inherit_environment": [
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_REGION",
+        "AWS_EC2_METADATA_DISABLED",
+        "RUST_LOG",
+        "NO_COLOR",
+        "NO_PROXY",
+        "no_proxy"
+      ],
+      "volume_format": "flat-v1",
+      "metadata_backend": "redis",
+      "writeback_mode": "upload_before_commit",
+      "compression": "none",
+      "chunk_bytes": 67108864,
+      "block_bytes": 4194304
+    },
+    "fio": {
+      "raw": {
+        "member": "raw/client/w/c1-5ca7353ba24b2a18-r1-native/draft/workload/fio.json",
+        "sha256": "f0f320e7e8ec3aad2c7b8937c0dce0e7c12491df00a10a7dc1f915a9f494a578"
+      },
+      "rw": "write",
+      "block_bytes": 1048576,
+      "write_io_bytes": 67108864,
+      "sync_count": 63,
+      "sync_min_ns": 10273188,
+      "sync_median_ns": 10944512,
+      "sync_p99_ns": 14221312
+    }
+  },
+  "random_write_delta": {
+    "clock_domain": "Pool A client host monotonic clock, same filesystem exporter and scrape files for both counter families",
+    "cross_role_matching_used": false,
+    "endpoint_elapsed_lower_ns": 1636086052109,
+    "endpoint_elapsed_upper_ns": 1636143715045,
+    "counters": {
+      "fsync_count": 15060,
+      "fsync_le_100ms": 0,
+      "fsync_seconds_sum": 1629.341551492,
+      "put_count": 15092,
+      "put_bytes": 197650576,
+      "put_le_5ms": 14938,
+      "put_seconds_sum": 55.216655434
+    },
+    "fsync_mean_ms": 108.190010,
+    "put_mean_ms": 3.658671,
+    "put_bytes_identity": {
+      "singleton_payload_bytes": 4096,
+      "persisted_frame_overhead_bytes": 4,
+      "group_header_bytes": 64,
+      "group_index_entry_bytes": 48,
+      "singleton_candidate_bytes": 4212,
+      "singleton_candidate_count": 15060,
+      "ordinary_candidate_payload_bytes": 4194304,
+      "ordinary_candidate_bytes": 4194308,
+      "ordinary_candidate_count": 32,
+      "computed_bytes": 197650576,
+      "observed_bytes": 197650576,
+      "computed_count": 15092,
+      "observed_count": 15092
+    }
+  },
+  "interpretation": "Counters exactly fit one 4 KiB singleton coalesced object per fsync and 32 additional ordinary 4 MiB objects. Reviewed flat-v1 mount with allowlisted environment uses the frozen code defaults: target 65536 bytes, first-member wait 100 ms. A single synchronous fio job cannot contribute another write before its fsync completes; 1 MiB sequential slices exceed the target. The timing and byte fingerprint support the queue deadline as the leading explanation.",
+  "limitations": [
+    "Counters are aggregated within a bounded subwindow of one run, not per-operation joins, Redis timings, or S3 object-key traces. No object roles or clocks are matched.",
+    "Sequential reference is a cumulative scrape within its own run, not a cross-run aligned window. Raw fio latency statistics are independent full-job totals.",
+    "The 32 additional PUTs are consistent with ordinary 4 MiB frames; their cause is not established. The conditional 100 ms notification timeout is a separate path; no per-request trace isolates it.",
+    "A future fixed-durability test changing only the queue deadline or disabling new coalesced groups, or key/magic and per-request timing evidence, can falsify this attribution. No new run was made."
+  ]
+}
