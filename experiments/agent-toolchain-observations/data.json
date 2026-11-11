@@ -1,0 +1,381 @@
+{
+  "source": {
+    "repository": "https://github.com/Ivanbeethoven/scorpiofs-agent-fs-telemetry",
+    "commit": "74e36ba70172cc31d896452e45cfef7642ce1bbf",
+    "summary_generated_at": "2026-09-12T11:00:48+08:00",
+    "files": {
+      "summary.json": {
+        "sha256": "14ee8cb0b30bfd740bf6d70b774b8d71df88d5311be9ec57c1c442d362fa04f6",
+        "bytes": 437162
+      },
+      "profile_operations.csv": {
+        "sha256": "b84f633549b94e9ed9e2902343482ca5b1bae1d82a64b53124f00e4989dd7aa5",
+        "bytes": 13184
+      }
+    },
+    "checked": [
+      "CSV vs JSON operations",
+      "status and UID totals",
+      "read/write counts",
+      "profile header event/dropped counts",
+      "32-bin count reconciliation"
+    ],
+    "raw_profiles_available_in_repository": false,
+    "request_byte_field": "io.*_bytes sums profile bytes, not requested_size"
+  },
+  "metadata_methods": [
+    "lookup",
+    "getattr",
+    "getxattr",
+    "readdirplus",
+    "opendir",
+    "releasedir"
+  ],
+  "rows": [
+    {
+      "run": "claudecode-minimax-m3-20260912-r01",
+      "agent_id": "claudecode-minimax-m3",
+      "task": "small-edit-r01",
+      "events": 67464,
+      "operations": {
+        "access": 296,
+        "batch_forget": 6,
+        "create": 1546,
+        "destroy": 2,
+        "flush": 4557,
+        "forget": 750,
+        "fsync": 2,
+        "getattr": 2365,
+        "getxattr": 4823,
+        "init": 2,
+        "interrupt": 2,
+        "link": 100,
+        "listxattr": 27,
+        "lookup": 11357,
+        "mkdir": 520,
+        "open": 2591,
+        "opendir": 2275,
+        "read": 10138,
+        "readdirplus": 4577,
+        "release": 4137,
+        "releasedir": 2275,
+        "rename": 219,
+        "rmdir": 321,
+        "setattr": 253,
+        "statfs": 26,
+        "unlink": 534,
+        "write": 13763
+      },
+      "status": {
+        "error": 14336,
+        "ok": 53128
+      },
+      "errno": {
+        "2": 9513,
+        "61": 4823
+      },
+      "uids": {
+        "0": 12036,
+        "1000": 55428
+      },
+      "io": {
+        "read_events": 10138,
+        "read_bytes": 846402657,
+        "write_events": 13763,
+        "write_bytes": 583955039,
+        "entries_seen": 16
+      },
+      "label": "Claude Code",
+      "model": "MiniMax M3",
+      "machine": "machine2",
+      "classes": {
+        "Metadata": 27672,
+        "Read": 10138,
+        "Write": 13763,
+        "Other": 15891
+      },
+      "metadata_pct": 41.01743151903237,
+      "read_mib": 807.1924753189087,
+      "write_mib": 556.9029226303101
+    },
+    {
+      "run": "codex-gpt56-sol-20260912-r01",
+      "agent_id": "codex-gpt56-sol",
+      "task": "small-edit-r01",
+      "events": 52148,
+      "operations": {
+        "access": 61,
+        "batch_forget": 8,
+        "create": 1184,
+        "destroy": 2,
+        "flush": 3252,
+        "forget": 703,
+        "getattr": 1695,
+        "getxattr": 3711,
+        "init": 2,
+        "link": 101,
+        "listxattr": 34,
+        "lookup": 8955,
+        "mkdir": 413,
+        "open": 1767,
+        "opendir": 1435,
+        "read": 8407,
+        "readdirplus": 2887,
+        "release": 2951,
+        "releasedir": 1435,
+        "rename": 157,
+        "rmdir": 279,
+        "setattr": 132,
+        "statfs": 16,
+        "unlink": 535,
+        "write": 12026
+      },
+      "status": {
+        "error": 11083,
+        "ok": 41065
+      },
+      "errno": {
+        "2": 7372,
+        "61": 3711
+      },
+      "uids": {
+        "0": 9963,
+        "1000": 42185
+      },
+      "io": {
+        "read_events": 8407,
+        "read_bytes": 732612008,
+        "write_events": 12026,
+        "write_bytes": 541674373,
+        "entries_seen": 20
+      },
+      "label": "Codex",
+      "model": "GPT-5.6 Sol",
+      "machine": "machine2",
+      "classes": {
+        "Metadata": 20118,
+        "Read": 8407,
+        "Write": 12026,
+        "Other": 11597
+      },
+      "metadata_pct": 38.57866073483163,
+      "read_mib": 698.6732559204102,
+      "write_mib": 516.5809373855591
+    },
+    {
+      "run": "deepseek-v41-flash-20260912-r04",
+      "agent_id": "dsh-v41-flash",
+      "task": "small-edit-r01",
+      "events": 51289,
+      "operations": {
+        "access": 21,
+        "batch_forget": 7,
+        "create": 1185,
+        "destroy": 2,
+        "flush": 2943,
+        "forget": 694,
+        "fsync": 2,
+        "getattr": 1514,
+        "getxattr": 3738,
+        "init": 2,
+        "link": 102,
+        "listxattr": 52,
+        "lookup": 9160,
+        "mkdir": 397,
+        "open": 1453,
+        "opendir": 1546,
+        "read": 8061,
+        "readdirplus": 3113,
+        "release": 2638,
+        "releasedir": 1546,
+        "rename": 158,
+        "rmdir": 264,
+        "setattr": 137,
+        "statfs": 9,
+        "unlink": 536,
+        "write": 12009
+      },
+      "status": {
+        "error": 11917,
+        "ok": 39372
+      },
+      "errno": {
+        "2": 8178,
+        "39": 1,
+        "61": 3738
+      },
+      "uids": {
+        "0": 9670,
+        "1000": 41619
+      },
+      "io": {
+        "read_events": 8061,
+        "read_bytes": 733898703,
+        "write_events": 12009,
+        "write_bytes": 541671517,
+        "entries_seen": 14
+      },
+      "label": "DeepSeek",
+      "model": "DeepSeek V4.1 Flash",
+      "machine": "machine1",
+      "classes": {
+        "Metadata": 20617,
+        "Read": 8061,
+        "Write": 12009,
+        "Other": 10602
+      },
+      "metadata_pct": 40.19770321121488,
+      "read_mib": 699.9003438949585,
+      "write_mib": 516.5782136917114
+    },
+    {
+      "run": "kimi-k3-local-discovery-20260911",
+      "agent_id": "kimi-k3",
+      "task": "discovery-write-r02",
+      "events": 47835,
+      "operations": {
+        "access": 44,
+        "batch_forget": 5,
+        "create": 1188,
+        "destroy": 2,
+        "flush": 3268,
+        "forget": 694,
+        "getattr": 1716,
+        "getxattr": 3758,
+        "init": 2,
+        "link": 101,
+        "listxattr": 69,
+        "lookup": 7548,
+        "mkdir": 395,
+        "open": 1782,
+        "opendir": 622,
+        "read": 8691,
+        "readdirplus": 1253,
+        "release": 2965,
+        "releasedir": 622,
+        "rename": 157,
+        "rmdir": 261,
+        "setattr": 132,
+        "statfs": 17,
+        "unlink": 535,
+        "write": 12008
+      },
+      "status": {
+        "error": 10350,
+        "ok": 37485
+      },
+      "errno": {
+        "13": 1,
+        "2": 6587,
+        "30": 4,
+        "61": 3758
+      },
+      "uids": {
+        "0": 46647,
+        "1000": 1188
+      },
+      "io": {
+        "read_events": 8691,
+        "read_bytes": 744206945,
+        "write_events": 12008,
+        "write_bytes": 541716150,
+        "entries_seen": 11
+      },
+      "label": "Kimi*",
+      "model": "Kimi K3",
+      "machine": "machine1",
+      "classes": {
+        "Metadata": 15519,
+        "Read": 8691,
+        "Write": 12008,
+        "Other": 11617
+      },
+      "metadata_pct": 32.44277202884917,
+      "read_mib": 709.7310495376587,
+      "write_mib": 516.6207790374756
+    },
+    {
+      "run": "zcode-glm-5.3-20260912-r01",
+      "agent_id": "zcode-glm-5.3",
+      "task": "small-edit-r01",
+      "events": 51259,
+      "operations": {
+        "access": 30,
+        "batch_forget": 8,
+        "create": 1185,
+        "destroy": 2,
+        "flush": 3221,
+        "forget": 690,
+        "fsync": 2,
+        "getattr": 1662,
+        "getxattr": 3687,
+        "init": 2,
+        "link": 101,
+        "lookup": 8289,
+        "mkdir": 395,
+        "open": 1734,
+        "opendir": 1417,
+        "read": 8510,
+        "readdirplus": 2849,
+        "release": 2919,
+        "releasedir": 1417,
+        "rename": 159,
+        "rmdir": 261,
+        "setattr": 133,
+        "statfs": 16,
+        "unlink": 535,
+        "write": 12035
+      },
+      "status": {
+        "error": 10372,
+        "ok": 40887
+      },
+      "errno": {
+        "2": 6685,
+        "61": 3687
+      },
+      "uids": {
+        "0": 9904,
+        "1000": 41355
+      },
+      "io": {
+        "read_events": 8510,
+        "read_bytes": 739264346,
+        "write_events": 12035,
+        "write_bytes": 541817657,
+        "entries_seen": 16
+      },
+      "label": "ZCode",
+      "model": "GLM-5.3",
+      "machine": "machine2",
+      "classes": {
+        "Metadata": 19321,
+        "Read": 8510,
+        "Write": 12035,
+        "Other": 11393
+      },
+      "metadata_pct": 37.69289295538344,
+      "read_mib": 705.0174198150635,
+      "write_mib": 516.717583656311
+    }
+  ],
+  "excluded": [
+    {
+      "run": "permission-align-20260911",
+      "events": 46021,
+      "reason": "Permission reference, not an additional agent"
+    }
+  ],
+  "events": 269995,
+  "profiles": 5,
+  "scope": {
+    "unit": "One complete mounted profile per agent/model configuration",
+    "statuses": "All; setup and cleanup retained",
+    "baseline": "Permission reference excluded from agent totals",
+    "supplemental": "Retries, diagnostic and terminated traces not mixed into core profiles",
+    "kimi": "Discovery profile; most events use UID 0; distinct task label",
+    "comparison": "Observed workload footprints, without a controlled agent speed comparison",
+    "task_description": "Repository documents disagree about exact edited file; use only shared inspection/edit/verification scope",
+    "uncertainty": "No replicate-based interval; events are not independent repeated runs"
+  }
+}
