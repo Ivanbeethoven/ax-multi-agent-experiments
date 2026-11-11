@@ -38,7 +38,7 @@ def pinned(value):
     return path
 
 
-def rewrite(code, helper_source, helper_sha256, worker_hashes):
+def rewrite(code, helper_source, helper_sha256, worker_hashes, scratch=None):
     """Keep the original remote closure and replace only the pack/copy tail."""
     require(code.count(MARKER) == 1 and code.count(CLOSE) == 1 and code.endswith(TERMINATOR),
             'Pinned original archive closure/packing boundary differs')
@@ -47,7 +47,8 @@ def rewrite(code, helper_source, helper_sha256, worker_hashes):
             "archive=pack(staging,names" in after, 'Unexpected original archive packing tail')
     # The original closure and our helper use separate Python namespaces.
     return before + '\n' + 'HELPER_SOURCE=' + repr(helper_source) + '\n' + \
-        'HELPER_SHA=' + repr(helper_sha256) + '\n' + 'WORKER_HASHES=' + repr(worker_hashes) + '''
+        'HELPER_SHA=' + repr(helper_sha256) + '\n' + 'WORKER_HASHES=' + repr(worker_hashes) + '\n' + \
+        'OBSERVER_SCRATCH=' + repr(scratch) + '''
 import hashlib
 if hashlib.sha256(HELPER_SOURCE.encode('utf-8')).hexdigest()!=HELPER_SHA:
  raise ValueError('Pinned archive-only helper bytes differ')
@@ -62,6 +63,7 @@ spec=dict(schema='c4-closed-observer-archive-v1',reviewed=True,root=ROOT,role=RO
  code_pins=[dict(path=str(pathlib.Path(CODE)/p),sha256=h) for p,h in sorted(WORKER_HASHES.items())],
  observer_ready=evidence(root/'o'/TAG/'ready.json'),observer_finished=evidence(root/'o'/TAG/'finished.json'),
  role_closure=evidence(q/'result.json'))
+if OBSERVER_SCRATCH:spec['observer_scratch']=OBSERVER_SCRATCH
 print(json.dumps(scope['archive'](spec)))
 '''
 
@@ -105,15 +107,33 @@ def run(request):
     require(Path(original.runner.__file__).resolve()==runner and digest(runner)==s['runner']['sha256'] and
             Path(original.runner.suite_state.__file__).resolve()==original.runner.REPO/'bench/suite_state.py',
             'Loaded runner or suite state does not match the pinned original')
-    original.runner.Fork = archive_fork(original.runner.Fork, source, s['helper']['sha256'], s['worker_code'])
+    original.runner.Fork = archive_fork(original.runner.Fork, source, s['helper']['sha256'], s['worker_code'],
+                                        s.get('observer_scratch'), original.runner.common.ROOTS)
     return original.run(s['trial'])
 
 
-def archive_fork(fork, source, helper_sha256, worker_code):
+def archive_fork(fork, source, helper_sha256, worker_code, scratch=None, common_roots=None):
     require(MARKER in inspect.getsource(fork.archive), 'Unknown original archive implementation')
+    if scratch:
+        require(scratch['root']=='/srv/ax-c4-observer-scratch' and common_roots is not None and
+                common_roots['objects']=='/srv/ax-objects-0', 'Pinned original object root required for scratch routing')
 
     class ArchiveOnly(fork):
         _in_archive = False
+
+        def execute(self, stage):
+            if stage!='observe-start' or not scratch:
+                return super().execute(stage)
+            require(self.purpose=='observer-calibration-on', 'Scratch route is limited to original observed calibration')
+            code = 'scope={"__name__":"scratch_preflight"}\nexec('+repr(source)+',scope)\n' + \
+                   'scope["verify_scratch"]('+repr(scratch)+')\nprint("scratch verified")'
+            self.python('objects',code)
+            before = dict(common_roots)
+            common_roots['objects'] = scratch['root']
+            try:
+                return super().execute(stage)
+            finally:
+                common_roots.clear(); common_roots.update(before)
 
         def archive(self):
             self._in_archive = True
@@ -124,7 +144,12 @@ def archive_fork(fork, source, helper_sha256, worker_code):
 
         def python(self, role, code):
             if self._in_archive:
-                code = rewrite(code, source, helper_sha256, worker_code[role])
+                storage = scratch if role=='objects' else None
+                if storage:
+                    marker = "ROOT='/srv/ax-objects-0'\n"
+                    require(code.count(marker)==1, 'Original object archive root assignment differs')
+                    code = code.replace(marker,'ROOT='+repr(storage['root'])+'\n',1)
+                code = rewrite(code, source, helper_sha256, worker_code[role],storage)
             return super().python(role, code)
 
     return ArchiveOnly

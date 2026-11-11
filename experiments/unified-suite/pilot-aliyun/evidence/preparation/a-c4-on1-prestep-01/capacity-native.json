@@ -1,0 +1,125 @@
+{
+  "at": "2026-11-11T17:07:01.450950+00:00",
+  "inventory": {
+    "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/fleet.json",
+    "sha256": "ebdffb7d5a7fe589a319a0a5cd66c4dd6c5925e24e0a831c552de457493cd638"
+  },
+  "pool": "pool-a",
+  "nodes": {
+    "client": {
+      "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+      "sampled_at": "2026-11-11T17:07:00.762785+00:00",
+      "disks": [
+        {
+          "path": "/srv/ax-client",
+          "device": 64784,
+          "serial": "bp1809mw7rlujtjc8epi",
+          "device_bytes": 107374182400,
+          "total_bytes": 100056096768,
+          "used_bytes": 17078284288,
+          "available_bytes": 82961035264,
+          "total_inodes": 26214400,
+          "used_inodes": 2540321,
+          "available_inodes": 23674079
+        }
+      ]
+    },
+    "metadata": {
+      "boot_id": "9a6ebc7c-3b6a-4819-8720-d8e61ff5941e",
+      "sampled_at": "2026-11-11T17:07:01.148950+00:00",
+      "disks": [
+        {
+          "path": "/srv/ax-metadata",
+          "device": 64784,
+          "serial": "bp1gy3cfuj9jik0upt3k",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 1320312832,
+          "available_bytes": 58733514752,
+          "total_inodes": 15728640,
+          "used_inodes": 154868,
+          "available_inodes": 15573772
+        }
+      ],
+      "redis": {
+        "used_memory": 895225184,
+        "used_memory_rss": 924418048,
+        "maxmemory": 10737418240,
+        "aof_current_size": 554172335,
+        "process_id": 9779
+      }
+    },
+    "objects": {
+      "boot_id": "5a984d75-dca0-4921-92fa-b021d1f799e5",
+      "sampled_at": "2026-11-11T17:07:01.431787+00:00",
+      "disks": [
+        {
+          "path": "/srv/ax-rustfs-data-0",
+          "device": 64784,
+          "serial": "bp1h9kaoya0predx6kvd",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 30770749440,
+          "available_bytes": 29283078144,
+          "total_inodes": 15728640,
+          "used_inodes": 3695881,
+          "available_inodes": 12032759
+        },
+        {
+          "path": "/srv/ax-rustfs-data-1",
+          "device": 64800,
+          "serial": "bp1h9kaoya0predx6kve",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 19460710400,
+          "available_bytes": 40593117184,
+          "total_inodes": 15728640,
+          "used_inodes": 3617211,
+          "available_inodes": 12111429
+        },
+        {
+          "path": "/srv/ax-rustfs-data-2",
+          "device": 64816,
+          "serial": "bp1h9kaoya0predx6kvf",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 19460530176,
+          "available_bytes": 40593297408,
+          "total_inodes": 15728640,
+          "used_inodes": 3617211,
+          "available_inodes": 12111429
+        },
+        {
+          "path": "/srv/ax-rustfs-data-3",
+          "device": 64832,
+          "serial": "bp1h9kaoya0predx6kvg",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 19460677632,
+          "available_bytes": 40593149952,
+          "total_inodes": 15728640,
+          "used_inodes": 3617211,
+          "available_inodes": 12111429
+        }
+      ],
+      "container_id": "d6c8829b0026ca782efa53629e3bd9ffe8e5b9b23404b079cf35921b7b94cc6f",
+      "image": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+      "pid": 7170
+    }
+  },
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/fleet.json",
+      "sha256": "ebdffb7d5a7fe589a319a0a5cd66c4dd6c5925e24e0a831c552de457493cd638"
+    },
+    {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+      "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+    },
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-after.json",
+      "sha256": "7f14a3de9c86aa6c5ff94f19f78d71f5aac7b621d9bc79b543326db6f65618b7"
+    }
+  ],
+  "scope": "Actual filesystem allocation and Redis memory/AOF snapshot; no workload or object deletion"
+}

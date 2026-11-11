@@ -1,0 +1,66 @@
+{
+  "reviewed": false,
+  "execution_enabled": false,
+  "status": "local preparation only; runnable outer driver and final remote pins remain incomplete",
+  "source_pool": "pool-a",
+  "target_pool": "pool-b",
+  "target_role": "client",
+  "wake_target": false,
+  "source_instance_id": "i-bp1809mw7rlujtj9f705",
+  "target_instance_id": "i-bp1fmmfkcpr8w99j2bsy",
+  "source_private_ip": "10.20.2.161",
+  "target_private_ip": "10.20.2.171",
+  "backend_pool": "pool-a",
+  "workspace": "/srv/ax-pilot-session/workspace",
+  "project": "/srv/ax-pilot-session/workspace/repo",
+  "restore_method": "shared-workspace-db",
+  "native_entrypoint": "python3 -m bench.runtime.handoff",
+  "canonical_control": "/srv/ax-pilot-control/parallel-control-01",
+  "original_plan": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/suite/plan.json",
+    "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+  },
+  "original_inventory": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/provenance/inventory.json",
+    "sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e"
+  },
+  "checkpoint": {
+    "path": "/srv/ax-pilot-control/preparation/c4-state-reopen-draft-01/verified-checkpoint/checkpoint.json",
+    "sha256": "d66cb316b2d1d66b80bb56cbc48448d57f15cba410761d2f1541612b5d131fb5"
+  },
+  "source_tree": {
+    "path": "/srv/ax-pilot-control/preparation/c4-state-reopen-draft-01/verified-checkpoint/source-tree.json",
+    "sha256": "dfc0b0b5efc7ed3796ac1da8a4dee987a10ac006b6a6eefe02bae1be8da9f981"
+  },
+  "checkpoint_receipt": {
+    "path": "/srv/ax-pilot-control/preparation/c4-state-reopen-draft-01/receipt.json",
+    "sha256": "abc3852490e01e37c1f728cf1d9b59eeb729196bdebe4c7fcc7e04617bdffe7a"
+  },
+  "session_id": "ses_e39418e40ffer6Ar6szDXn1kx2",
+  "original_export_sha256": "b3bdd63f6969387f11394cf78fd050352522c60a61a37c69ee835e4d30bd1bd9",
+  "opencode_sha256": "025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233",
+  "first_body_sha256": "3a792e6a0068fc3e73332289cb8be92e16315ae8cb4a2c496ed7d2d630631537",
+  "maximum_distinct_requests": 4,
+  "output_tokens": 512,
+  "thinking": "disabled",
+  "proposed_resume_timeout_seconds": 205,
+  "proposed_other_phase_timeout_seconds": 60,
+  "automatic_retry": false,
+  "offline_tests": {
+    "command": "python3 -m unittest discover -s tests -p test_bounded_cloud_session.py",
+    "count": 12,
+    "passed": true,
+    "seconds": 2.593,
+    "environment": "WSL Ubuntu-24.04",
+    "scope": "existing bounded relay/worker only; no cloud, real cgroup or model"
+  },
+  "open_gates": [
+    "fresh exclusive canonical resource locks and cell_leases audit after A work handoff",
+    "independent native handoff plan and exact source backend identity",
+    "source-only checkpoint preparation adapter compatible with bounded worker",
+    "root-authorized B client start and fresh original instance/disk/slot/runtime verification",
+    "source and target mount/phase/cohort specs and production qualifications",
+    "independent relay private configuration and process lifecycle",
+    "outer full cold-read, zero-debt, normal-stop, failure-lock and archive implementation"
+  ]
+}

@@ -120,16 +120,26 @@ def state_clean(controls,control,cell,plan):
                 raise ValueError('Original formal state already contains '+name)
 
 
-def observe_boundaries(runtime,cell,old,original,out):
+def observe_boundaries(runtime,cell,old,original,out,scratch=None):
+    """Check every original role root, plus the dedicated observer root when routed."""
     fleet=load(runtime/'fleet.json');pool=cell['pool'];attempts=[t['attempt'] for t in old['trials']]+[old['formal_attempt']]
+    checks=list(ROLES.items())
+    if scratch is not None:
+        if (not isinstance(scratch,dict) or scratch.get('root')!='/srv/ax-c4-observer-scratch' or
+                scratch.get('role')!='objects'):
+            raise ValueError('Exact dedicated C4 observer scratch root required')
+        # The observer tree moved off /srv/ax-objects-0, so the original object
+        # boundary check alone cannot see a live or half-started observation.
+        checks.append(('objects-scratch',scratch['root']))
     out.mkdir(parents=True,exist_ok=False);all_safe=True
-    for role,root in ROLES.items():
+    for name,root in checks:
+        role='objects' if name=='objects-scratch' else name
         code=original.failure_release_code(root,fleet_node(fleet,pool,role)['repo'],role,old['asset'],attempts)
         argv=['ssh','-F',str(runtime/'ssh.conf'),alias(pool,role),shlex.join(['python3','-c',code])]
         result=subprocess.run(argv,capture_output=True)
-        (out/(role+'-stdout')).write_bytes(result.stdout);(out/(role+'-stderr')).write_bytes(result.stderr)
-        write_new(out/(role+'-exit.json'),dict(exit_code=result.returncode))
-        all_safe=all_safe and result.returncode==0 and load(out/(role+'-stdout'))['safe_for_release'] is True
+        (out/(name+'-stdout')).write_bytes(result.stdout);(out/(name+'-stderr')).write_bytes(result.stderr)
+        write_new(out/(name+'-exit.json'),dict(exit_code=result.returncode))
+        all_safe=all_safe and result.returncode==0 and load(out/(name+'-stdout'))['safe_for_release'] is True
     return all_safe
 
 

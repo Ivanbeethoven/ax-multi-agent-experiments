@@ -1,0 +1,40 @@
+{
+  "schema": "c4-observer-scratch-storage-v1",
+  "passed": false,
+  "applied": true,
+  "at": "2026-11-11T16:59:00.861067+00:00",
+  "root": "/srv/ax-c4-observer-scratch",
+  "ownership_sha256": "ec98e27e844fbb70c956929cecb49dc57b4b0fd0c4d64d5fa933522baf78a106",
+  "disk_id": "d-bp16jaiu2fcmbij8mg7i",
+  "serial": "bp16jaiu2fcmbij8mg7i",
+  "uuid": null,
+  "device": null,
+  "source": "/dev/vdf",
+  "boot_id": "5a984d75-dca0-4921-92fa-b021d1f799e5",
+  "error": "Scratch mount/UUID/options differ from its whole device",
+  "stderr": "",
+  "commands": [
+    [
+      "mkfs.ext4",
+      "-q",
+      "-m",
+      "0",
+      "-i",
+      "4096",
+      "-L",
+      "ax-c4-observer",
+      "/dev/vdf"
+    ],
+    [
+      "mount",
+      "-t",
+      "ext4",
+      "-o",
+      "rw,noatime,nosuid,nodev",
+      "/dev/vdf",
+      "/srv/ax-c4-observer-scratch"
+    ]
+  ],
+  "unmounted": true,
+  "automatic_retry": false
+}

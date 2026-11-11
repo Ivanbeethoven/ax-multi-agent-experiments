@@ -29,6 +29,10 @@ CORE = ('control', 'cell_id', 'asset', 'qualification', 'node_tool', 'observer_t
         'observer_tool_sha256', 'runtime_control')
 WORKERS = ('client', 'metadata', 'objects')
 GROWTH = ('data_growth', 'observer_raw', 'archive_peak')
+ROOTS = {'client': '/srv/ax-client', 'metadata': '/srv/ax-metadata', 'objects': '/srv/ax-objects-0'}
+SCRATCH_ROOT = '/srv/ax-c4-observer-scratch'
+SCRATCH_SCHEMA = 'c4-observer-scratch-snapshot-v1'
+SCRATCH_TREES = ('o', 'q', 'archives', 'evidence')
 
 
 def require(ok, message):
@@ -321,6 +325,55 @@ def off1_observer_timing(first, old, cell):
     return math.ceil(math.fsum((*seconds,after_ack))), [first,end['cohort'],drain_pin,end['client_verify']]
 
 
+def scratch_overlay(c):
+    """Load the optional dedicated observer-scratch snapshot pinned by capacity."""
+    return load(pinned(c['observer_scratch'])) if c.get('observer_scratch') else None
+
+
+def scratch_disk_rows(scratch, snap, cell, old, number, disks, keys, cleanup, sampled, stamp, original, now):
+    """Validate the dedicated object scratch disk and charge this stage against it.
+
+    The scratch sample is appended to the native ``disks``/``keys`` structures, so
+    the existing 20% reserve gates judge it exactly like an original data disk.
+    Returns the root that owns the object observer/archive/evidence trees.
+    """
+    disk = scratch.get('disk') or {}
+    root = scratch.get('root')
+    device = scratch.get('device')
+    targets = scratch.get('targets')
+    attempt = old['formal_attempt'] if number==7 else old['trials'][number-1]['attempt']
+    require(scratch.get('schema')==SCRATCH_SCHEMA and scratch.get('passed') is True and
+            scratch.get('pool')==cell['pool'] and scratch.get('role')=='objects' and
+            root==SCRATCH_ROOT and scratch.get('tag')==attempt and
+            scratch.get('boot_id')==snap['nodes']['objects']['boot_id'] and
+            type(device) is int and isinstance(targets,dict) and
+            set(targets)=={root+'/'+name for name in SCRATCH_TREES} and
+            all(type(v) is int for v in targets.values()) and set(targets.values())=={device} and
+            isinstance(scratch.get('at'),str) and isinstance(disk,dict),
+            'Dedicated observer scratch snapshot does not match this pool, host, attempt or disk')
+    at = original.recent(scratch['at'],now)
+    require(cleanup<=at<=stamp and cleanup<=sampled,
+            'Observer scratch sample must follow the current cleanup check and precede this stage budget')
+    for quantity in ('bytes','inodes'):
+        used,total = disk.get('used_'+quantity),disk.get('total_'+quantity)
+        require(integer(used) and integer(total) and 0<=used<=total and total>0,
+                'Invalid observer scratch capacity sample: '+quantity)
+        keys['objects',root,quantity]=(used,total)
+    available = {'available_'+q:disk.get('available_'+q) for q in ('bytes','inodes')}
+    require(all(integer(v) for v in available.values()), 'Invalid observer scratch available space')
+    disks['objects',root]=dict(path=root,device=device,**available)
+    return root
+
+
+def calibration_overlay(overlay, old, trial, scratch):
+    """Build the reviewed calibration overlay body, routing objects to the scratch."""
+    body = dict(schema='c4-calibration-archive-overlay-v1',reviewed=True,calibrate=old['tools']['calibrate'],
+                runner=old['tools']['run'],helper=overlay['helper'],worker_code=overlay['worker_code'],trial=trial)
+    if scratch:
+        body['observer_scratch']=scratch
+    return body
+
+
 def stage_capacity(capacity, request, old, prefix, cell, number, mode, batch, runtime, out, archive_mode, original, now):
     """Check native disk identities, reviewed growth and local free space before dispatch."""
     c = load(pinned(capacity))
@@ -336,6 +389,8 @@ def stage_capacity(capacity, request, old, prefix, cell, number, mode, batch, ru
     previous = load(pinned(legacy['after']))
     observed = mode in ('on','formal')
     archived_roles = set(WORKERS) if observed else {'client'}
+    scratch = scratch_overlay(c)
+    require(not scratch or observed, 'Observer scratch capacity only applies to an observed on/formal stage')
     observers, archives = c.get('observer_basis',{}),c.get('archive_basis',{})
     require(set(observers)==(archived_roles if observed else set()) and set(archives)==archived_roles and
             all(isinstance(v,list) and v for v in observers.values()),
@@ -351,6 +406,8 @@ def stage_capacity(capacity, request, old, prefix, cell, number, mode, batch, ru
     require('cleanup' in c, 'Pre-step cleanup check must be recorded before capacity sampling')
     leaves = [c['snapshot'],c['placement'],c['cleanup'],legacy['before'],legacy['after'],*archives.values(),
               *off1_pins,*(p for sources in observers.values() for p in sources)]
+    if scratch:
+        leaves.append(c['observer_scratch'])
     require(len({p['path'] for p in leaves})==len(leaves) and all(p in pins for p in leaves) and
             len({p['path'] for p in pins})==len(pins),
             'Original data growth, raw samples and archive peaks require distinct pinned sources')
@@ -384,8 +441,15 @@ def stage_capacity(capacity, request, old, prefix, cell, number, mode, batch, ru
             ('bytes',st.f_blocks*st.f_frsize,(st.f_blocks-st.f_bfree)*st.f_frsize,st.f_bavail*st.f_frsize),
             ('inodes',st.f_files,st.f_files-st.f_ffree,st.f_favail)):
         keys['coordinator',str(path),quantity]=(used,total)
-    require(set(keys)==set(rows), 'Stage capacity must cover all native rows and coordinator bytes/inodes')
     disks = {(role,d['path']):d for role,node in snap['nodes'].items() for d in node['disks']}
+    # The dedicated scratch disk is sampled by the objects-side preparer, not by
+    # the native capacity tool, so charge it here with the same (used,total) shape.
+    scratch_root = (scratch_disk_rows(scratch,snap,cell,old,number,disks,keys,cleanup,sampled,stamp,original,now)
+                    if scratch else None)
+    require(scratch_root is None or archive_mode=='closed-observer-direct',
+            'Observer scratch capacity requires the reviewed closed-observer overlay')
+    require(set(keys)==set(rows),
+            'Stage capacity must cover all native rows, coordinator bytes/inodes and observer scratch rows')
     placement = load(pinned(c['placement']))
     require(c['placement'] in pins and placement['schema']=='c4-archive-device-placement-v1' and
             placement['runtime']==old['runtime_control'] and placement['pool']==cell['pool'] and
@@ -397,11 +461,17 @@ def stage_capacity(capacity, request, old, prefix, cell, number, mode, batch, ru
     for role, location in locations.items():
         node = snap['nodes'][role]
         dev = disks[role,location['path']]['device']
-        root = {'client':'/srv/ax-client','metadata':'/srv/ax-metadata','objects':'/srv/ax-objects-0'}[role]
+        root = location.get('root',ROOTS[role])
+        require(root==(scratch_root if role=='objects' and scratch_root else ROOTS[role]),
+                'Original archive/observer root changed: '+role)
+        require(scratch_root is None or role!='objects' or
+                (location['path']==scratch_root and dev==scratch['device']),
+                'Object placement must name the dedicated scratch disk')
         trees = ['archives','evidence'] + (['o'] if observed else [])
         require(location['boot_id']==node['boot_id'] and location['targets']=={root+'/'+name:dev for name in trees},
                 'Original archive/observer target placement changed: '+role)
-        archive_keys[role]=location['path']
+        # The object archive rows live on the scratch disk when one is pinned.
+        archive_keys[role] = root if (role=='objects' and scratch_root) else location['path']
 
     raw_min, archive_min, raw_budget = {}, {}, {}
     for role in sorted(archived_roles):
@@ -482,12 +552,20 @@ def run(request, validate_only=False):
     out = Path(s['out'])
     step = s['step']
     require(type(step) is int and 2<=step<=7, 'Choose exactly one original next stage (2..6 or 7=formal)')
+    mode = old['trials'][step-1]['mode'] if step<7 else 'formal'
     original.absent(out)
     formal = control/'cells'/cell['id']
     original.absent(formal)
     for t in old['trials'][step-1:]:
         original.absent(Path(t['out']))
     require(len(s['prefix'])==step-2, 'All prior continuation results, in order, are required')
+    # The scratch snapshot is pinned by the capacity file; refuse a scratch
+    # budget on an Off step before any original evidence is walked. A formal
+    # stage is refused as well: run-c4-formal-closed-observer.py has no scratch
+    # route yet, so accepting one there would silently write the object
+    # observer back onto the full original object disk.
+    require(not scratch_overlay(load(pinned(s['capacity']))) or mode=='on',
+            'Observer scratch capacity is only routed for an original observed calibration, not for off or formal stages')
     q = load(batch/'qualification-request.json')
     reuse = load(batch/'pretrial-reuse.json')
     require(q['reviewed'] is True and reuse['passed'] is True and reuse['base_reimported'] is False and
@@ -534,7 +612,6 @@ def run(request, validate_only=False):
             collector = current(end)
             prior.append(p)
         body = trial_body(old,core,step,collector,full,original) if step<7 else None
-        mode = old['trials'][step-1]['mode'] if step<7 else 'formal'
         overlay = s.get('archive_overlay')
         require(not overlay or mode in ('on','formal'), 'Direct closed-observer overlay requires active observers')
         if overlay:
@@ -546,8 +623,9 @@ def run(request, validate_only=False):
                 archive_runner.overlay_inputs(old['tools']['calibrate'],old['tools']['run'],
                                               overlay['helper'],overlay['worker_code'])
         archive_mode = 'closed-observer-direct' if overlay else 'original'
-        stage_capacity(s['capacity'],source,old,[stop['first'],*prior],cell,step,mode,
-                       batch,runtime,out,archive_mode,original,datetime.now(timezone.utc))
+        c = stage_capacity(s['capacity'],source,old,[stop['first'],*prior],cell,step,mode,
+                           batch,runtime,out,archive_mode,original,datetime.now(timezone.utc))
+        scratch = scratch_overlay(c)
         result = dict(passed=True, step=step, pool=cell['pool'], cell_id=cell['id'], original_request=source,
                       continuation_request=request, first=stop['first'], full_reference=full, prefix=prior,
                       capacity=s['capacity'], archive_mode=archive_mode, automatic_retry=False)
@@ -564,7 +642,7 @@ def run(request, validate_only=False):
         if old.get('cross_pool_qualification'):
             admission['cross_pool_qualification']=old['cross_pool_qualification']
         admit.validate(admission,require_overhead=False)
-        if not cont.observe_boundaries(runtime,cell,old,original,out/'before-boundaries'):
+        if not cont.observe_boundaries(runtime,cell,old,original,out/'before-boundaries',scratch):
             raise ValueError('Original trial process, slot or mount still present; no dispatch')
         try:
             if step<7:
@@ -574,8 +652,7 @@ def run(request, validate_only=False):
                 if overlay:
                     executable = overlay['runner']
                     arguments = arg_request(out/'archive-overlay.request.json',
-                        dict(schema='c4-calibration-archive-overlay-v1',reviewed=True,calibrate=old['tools']['calibrate'],
-                             runner=old['tools']['run'],helper=overlay['helper'],worker_code=overlay['worker_code'],trial=ref(p)))
+                        calibration_overlay(overlay,old,ref(p),scratch))
                 exit_pin = substep(out,'trial',executable,arguments)
                 finished = ref(Path(body['out'])/'finished.json')
                 good_trial(old['trials'][step-1],body,finished,cell['pool'],cont)
@@ -587,6 +664,11 @@ def run(request, validate_only=False):
                 body=dict(admission,**collector,out=str(formal),formal_attempt=old['formal_attempt'],overhead=overhead)
                 substep(out,'admit',old['tools']['admit'],arg_request(out/'admit.request.json',body))
                 if overlay:
+                    # run-c4-formal-closed-observer.py calls archive_fork without
+                    # an observer_scratch argument, so an extra field here would
+                    # be silently dropped and the object observer would still
+                    # write to /srv/ax-objects-0. Step 7 therefore records no
+                    # observer_scratch until that runner grows the same route.
                     formal_overlay = out/'formal-archive-overlay.request.json'
                     args = arg_request(formal_overlay,dict(schema='c4-formal-archive-overlay-v1',reviewed=True,
                         wrapper=overlay['runner'],original_runner=old['tools']['run'],
@@ -603,7 +685,7 @@ def run(request, validate_only=False):
         except Exception as error:
             write_new(out/'failed.json',dict(passed=False,error=str(error),automatic_retry=False))
             n=1
-            while not cont.observe_boundaries(runtime,cell,old,original,out/('failure-boundaries-'+str(n))):
+            while not cont.observe_boundaries(runtime,cell,old,original,out/('failure-boundaries-'+str(n)),scratch):
                 time.sleep(5)
                 n+=1
             raise

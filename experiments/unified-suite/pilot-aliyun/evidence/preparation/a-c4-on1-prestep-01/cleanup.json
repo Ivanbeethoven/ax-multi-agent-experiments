@@ -1,0 +1,36 @@
+{
+  "schema": "pilot-prestep-cleanup-v1",
+  "pool": "pool-a",
+  "original_request": {
+    "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/batch.request.json",
+    "sha256": "bd28482c6bb3d46c288e791e11f3d8aee1462b00ec43516cc523496ccdcf9392"
+  },
+  "step": 2,
+  "prefix": [
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/finished.json",
+      "sha256": "e02cb37af444573cc20ba9563736a0c162c72029cc0c2508991ce814c52bce64"
+    }
+  ],
+  "outcome": "not-needed",
+  "actions": [],
+  "finished_at": "2026-11-11T17:07:00.326899+00:00",
+  "checked": {
+    "reclaimed_tags": [
+      "c1-7084af367e0bcfad-r1-native",
+      "cal-n-rw-on1",
+      "cal-n-rw-on2",
+      "cal-n-rw-on3"
+    ],
+    "reclaimed_tags_absent": true,
+    "new_staging_since_apply": [],
+    "object_free_bytes": 29283082240,
+    "object_free_inodes": 12032759,
+    "scratch_next_attempt_absent": true,
+    "prior_applied_cleanup": {
+      "path": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/apply-01/result.json",
+      "sha256": "327f176e6aa9ef315b0b00b4f7179b6fab69203e19720b2c3d5ff3771edfbb9c"
+    }
+  },
+  "scope": "Read-only recheck of the already applied object reclaim; this step needed no deletion"
+}

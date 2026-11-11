@@ -1,0 +1,24 @@
+{
+  "schema": "c4-code-deployment-v1",
+  "at": "2026-11-12T01:03:00+08:00",
+  "frozen_source_root": "/srv/ax-pilot-control/code-19",
+  "new_root": "/srv/ax-pilot-control/code-c4-directory-hold-01",
+  "method": "cp -a code-19, then add/replace exactly the five overlay entrypoints; diff -rq reports no other member changed",
+  "overlays": {
+    "resume-c4-after-directory-hold.py": "a170af7797cdad22d5e9632b57385f42648f32bc08073d2673b8c3f5d3dfc67e",
+    "continue-c4-formal.py": "e2dd91c335213fbdb2adda78dc9d56eaf2fb1e9f4028899d010800a8efef1902",
+    "calibrate-c4-closed-observer.py": "d69caf60ec4bed585861ea6a89563fc62218cb9f97839acbb049c9c85e483625",
+    "archive-c4-closed-observer.py": "87993bace37c39ca9ed55a4d88248c606f11a42a64ff7f326ae152aa8191e3c2",
+    "run-c4-formal-closed-observer.py": "d6348e944f37fe01aaf243f7bb97cbae2ebe8e8597458ceb6e0be1adc380938b"
+  },
+  "untouched_original_tools": {
+    "capacity-check.py": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea",
+    "calibrate-c4.py": "47373aebf1376ec9b2eb3d913c6928624c4f8f8c378e4484b5636c7ec53f0868",
+    "run-c4.py": "7eb7110ba84fd0f34d82e28c0af7899ba122387981fda0b7b3fad0a0d518513b",
+    "admit-c4.py": "a06036a2e745b1c06443fecb8aca26530b83e6901e042ec61f15e2c0e6625834",
+    "check-c4-calibration.py": "dc19c4969ecccfd726f93aaa28434c15306226b1dafe01fa976d0da9d629b210",
+    "run-c4-batch-pretrial-01.py": "aefb4ad8763f46cb8a4cbd07669818a568019642814f2de3ca8d7d46483eacf6"
+  },
+  "worker_code": "unchanged; the three A workers still carry the seven named bench files pinned in capacity.json/request.json",
+  "scope": "Only coordinator-side continuation tools changed. The original C4 Off1 receipt, the RustFS data paths and the four original data disks are untouched."
+}

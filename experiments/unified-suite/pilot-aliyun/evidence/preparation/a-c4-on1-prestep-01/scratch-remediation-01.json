@@ -1,0 +1,55 @@
+{
+  "schema": "c4-observer-scratch-remediation-v1",
+  "passed": true,
+  "at": "2026-11-11T17:01:06.338253+00:00",
+  "device": "/dev/vdf",
+  "serial": "bp16jaiu2fcmbij8mg7i",
+  "reason": "Attempt 1 failed on a post-mkfs identity race. The empty, never-used new disk was re-blanked by the operator with rmdir of the empty mount point plus wipefs -a, so that a new reviewed attempt can start from a blank whole disk.",
+  "actions": [
+    "rmdir /srv/ax-c4-observer-scratch",
+    "wipefs -a /dev/vdf",
+    "udevadm settle"
+  ],
+  "previous_attempt": {
+    "path": "/srv/ax-receipts/c4-on1-scratch/apply-01/result.json",
+    "sha256": "d606c0e8e839701d7079373750998c0d6be2c976ab779cbd5b7075492fa80f56"
+  },
+  "previous_before": {
+    "path": "/srv/ax-receipts/c4-on1-scratch/apply-01/before.json",
+    "sha256": "c67b6128940ae810146ebcdd821303210c5a09c14d70a8502be5183ee10a0a15"
+  },
+  "blank_before_attempt_1": {
+    "disk": {
+      "name": "/dev/vdf",
+      "type": "disk",
+      "size": 107374182400,
+      "serial": "bp16jaiu2fcmbij8mg7i",
+      "uuid": null,
+      "fstype": null,
+      "mountpoints": [
+        null
+      ],
+      "pkname": null,
+      "maj:min": "253:80"
+    }
+  },
+  "verified_now": {
+    "block": [
+      {
+        "name": "/dev/vdf",
+        "type": "disk",
+        "size": 107374182400,
+        "serial": "bp16jaiu2fcmbij8mg7i",
+        "uuid": null,
+        "fstype": null,
+        "mountpoints": [
+          null
+        ]
+      }
+    ],
+    "blkid": "",
+    "mounts": "",
+    "root_exists": false
+  },
+  "automatic_retry": false
+}

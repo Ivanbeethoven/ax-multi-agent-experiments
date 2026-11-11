@@ -16,6 +16,7 @@ from pathlib import Path
 import re
 import shutil
 import stat
+import subprocess
 import sys
 import tarfile
 
@@ -27,6 +28,7 @@ CODE_FILES = {
 }
 MARKS = ['measure-start', 'measure-end', 'drain-end', 'verify-end']
 ID_KEYS = ('pid', 'boot_id', 'start_ticks')
+SCRATCH_ROOT = '/srv/ax-c4-observer-scratch'
 
 
 def require(ok, message):
@@ -38,6 +40,33 @@ def canonical(path):
     p = Path(path)
     require(p.is_absolute() and p.resolve(strict=True) == p, 'Noncanonical or linked evidence path: '+str(p))
     return p
+
+
+def verify_scratch(storage):
+    """Recheck the immutable setup receipt and actual live observer-only mount."""
+    require(storage['root']==SCRATCH_ROOT, 'Only the dedicated C4 observer root is allowed')
+    root = canonical(storage['root'])
+    value = load(storage['worker_receipt'], root/'storage.json')
+    keys = ('root','disk_id','serial','uuid','device','boot_id','ownership_sha256')
+    require(value['schema']=='c4-observer-scratch-storage-v1' and value['passed'] is True and
+            value['applied'] is True and all(value[k]==storage[k] for k in keys) and
+            root.stat().st_dev==storage['device'] and os.path.ismount(root) and
+            Path('/proc/sys/kernel/random/boot_id').read_text().strip()==storage['boot_id'],
+            'Original scratch receipt, boot or mount device changed')
+    fs = json.loads(subprocess.check_output(['findmnt','--json','--mountpoint',str(root),
+        '--output','SOURCE,TARGET,FSTYPE,UUID,OPTIONS'],text=True))['filesystems']
+    require(len(fs)==1 and fs[0]['target']==str(root) and fs[0]['fstype']=='ext4' and
+            fs[0]['uuid']==storage['uuid'] and 'rw' in fs[0]['options'].split(',') and
+            'noatime' in fs[0]['options'].split(','), 'Scratch filesystem identity/options changed')
+    block = json.loads(subprocess.check_output(['lsblk','--json','--bytes','--output','TYPE,SERIAL,SIZE',fs[0]['source']],
+                                              text=True))['blockdevices']
+    require(len(block)==1 and block[0]['type']=='disk' and not block[0].get('children') and
+            block[0]['serial'].strip()==storage['serial'] and block[0]['size']==100*1024**3,
+            'Scratch is no longer the exact owned 100GiB whole disk')
+    for name in ('o','q','archives','evidence'):
+        require(canonical(root/name).is_dir() and (root/name).stat().st_dev==storage['device'],
+                'Scratch subtree escaped its device')
+    return root
 
 
 def pin(ref, expected=None):
@@ -145,8 +174,12 @@ def pack_mapped(sources, states, out, cell, role, check):
 
 def archive(spec):
     role, tag, cell = (spec[k] for k in ('role', 'tag', 'cell_id'))
+    storage = spec.get('observer_scratch')
+    if storage:
+        require(role=='objects' and spec['root']==storage['root'], 'Scratch only routes the object observer')
+        verify_scratch(storage)
     require(spec['schema']=='c4-closed-observer-archive-v1' and spec['reviewed'] is True and
-            role in ROOTS and spec['root']==ROOTS[role] and spec['has_observer'] is True and
+            role in ROOTS and spec['root']==(SCRATCH_ROOT if storage else ROOTS[role]) and spec['has_observer'] is True and
             re.fullmatch(r'[a-z0-9-]{3,48}', tag) and re.fullmatch(r'[a-z0-9-]{3,80}', cell),
             'Reviewed exact original observed C4 archive specification required')
     root = canonical(spec['root'])
