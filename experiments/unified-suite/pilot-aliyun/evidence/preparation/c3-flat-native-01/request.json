@@ -1,0 +1,77 @@
+{
+  "schema": "pilot-flat-c3-base-v1",
+  "reviewed": true,
+  "control": "/srv/ax-pilot-control/parallel-control-01",
+  "cell_id": "16f4ac389d2a2da6-r1-native",
+  "runtime": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/binding.json",
+    "sha256": "bba6f0242f97a06438783d293769fa77f7de58e180c87885a6abc34f943efdde"
+  },
+  "peer_controls": [
+    "/srv/ax-pilot-control/c123-control-01",
+    "/srv/ax-pilot-control/c1-native-randread-rebind-01",
+    "/srv/ax-pilot-control/c3-stage-fixed-01",
+    "/srv/ax-pilot-control/fork-control-01"
+  ],
+  "controller_tools": {
+    "latest": {
+      "path": "/srv/ax-pilot-control/code-c3-flat-01/experiments/unified-suite/pilot-aliyun/scripts/verify-latest.py",
+      "sha256": "0f70ca67f08fa8d81c1c9d10dff6d50c6a536a2fb8fe8e2bd1119b497b4e5226"
+    },
+    "capacity": {
+      "path": "/srv/ax-pilot-control/code-c3-flat-01/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+      "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+    },
+    "collect": {
+      "path": "/srv/ax-pilot-control/code-c3-flat-01/experiments/unified-suite/pilot-aliyun/scripts/prepare-c3-controller.py",
+      "sha256": "2a2350a76b647f24df07ce1191e027f867ce992fdb82069f35848b1746c26016"
+    }
+  },
+  "node_files": {
+    "prepare": {
+      "path": "/srv/ax-client/code-14/experiments/unified-suite/pilot-aliyun/scripts/prepare-smallfiles.py",
+      "sha256": "edf50e8895b1024f29daa46a4da0d15433b5640fd05d3efd319a9f66395b3435"
+    },
+    "node": {
+      "path": "/srv/ax-client/code-14/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+      "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+    },
+    "plan": {
+      "path": "/srv/ax-client/preparation/parallel-control-01/plan.json",
+      "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+    },
+    "inventory": {
+      "path": "/srv/ax-client/preparation/parallel-control-01/inventory.json",
+      "sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e"
+    },
+    "source_proof": {
+      "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c3-verify/result.json",
+      "sha256": "925af7e4fe9e1662ad380627753a79d664e494b884e6a007ff911569ca328af0"
+    },
+    "filesystem-binary": {
+      "path": "/srv/ax-client/build-ca07159-01/bin/brewfs",
+      "sha256": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0"
+    },
+    "binary": {
+      "path": "/srv/ax-client/assets/bin/smallfiles",
+      "sha256": "8c45bca1348e936e0b8e5d01e7e8ee11f1db72120dc8aa7800aa72e1e0bcde96"
+    },
+    "copier": {
+      "path": "/srv/ax-client/assets/bin/smallfiles-copy-c3-01",
+      "sha256": "865fd2e3da836fa8d1eb775d89597ad78bce96cf05cd7e88d5999a7e21d6bcb7"
+    },
+    "verifier": {
+      "path": "/srv/ax-client/assets/bin/smallfiles-verify-c3-01",
+      "sha256": "843e4137ed6692f7b7ca9ee7961964733cfd5ebca7f75aff6d70486c646ecf95"
+    }
+  },
+  "source": "/srv/ax-client/inputs/pilot-100k-01/smallfiles-source",
+  "asset": "/srv/ax-client/a/c3-flat-native-100k-01",
+  "route": "/srv/ax-client/preparation/c3-flat-native-100k-01",
+  "database": 72,
+  "attempt": "c3-flat-native-100k-01",
+  "objects_container": "ax-pilot-20261111-objects-01-rustfs-1",
+  "qualification": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c3-flat-01",
+  "shared_qualification": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-shared-01",
+  "out": "/srv/ax-pilot-control/preparation/c3-flat-native-01/run-01"
+}

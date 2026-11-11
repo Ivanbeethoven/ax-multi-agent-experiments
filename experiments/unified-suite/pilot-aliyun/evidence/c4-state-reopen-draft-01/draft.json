@@ -1,0 +1,105 @@
+{
+  "schema": "pilot-c4-state-reopen-draft-v1",
+  "execution_enabled": false,
+  "reviewed": false,
+  "cell_id": "a161334a0bb9c48d-r1-juicefs-move",
+  "qualification_only": true,
+  "model_calls_allowed": 0,
+  "source_pool": "pool-b",
+  "target_pool": "pool-a",
+  "source_ssh": "pool-b-client",
+  "target_ssh": "pool-a-client",
+  "source_host": {
+    "instance_id": "i-bp1fmmfkcpr8w99j2bsy",
+    "private_ip": "10.20.2.171",
+    "hostname": "ax-pilot-20261111-b-client",
+    "data_disk_ids": [
+      "d-bp1fmmfkcpr8w99pwgc5"
+    ]
+  },
+  "target_host": {
+    "instance_id": "i-bp1809mw7rlujtj9f705",
+    "private_ip": "10.20.2.161",
+    "hostname": "ax-pilot-20261111-client",
+    "data_disk_ids": [
+      "d-bp1809mw7rlujtjc8epi"
+    ]
+  },
+  "workspace": "/srv/ax-pilot-session/workspace",
+  "project": "/srv/ax-pilot-session/workspace/repo",
+  "mount_point": "/srv/ax-pilot-session",
+  "canonical_control": "/srv/ax-pilot-control/parallel-control-01",
+  "original_plan": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/suite/plan.json",
+    "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+  },
+  "plan": {
+    "path": "/srv/ax-pilot-control/preparation/c4-state-reopen-draft-01/recipe/plan.json",
+    "sha256": "dc78b2c1276dc063e0571e8e3133e86e8f2388dcc5480fef3c2f8fcd0c90f0c9"
+  },
+  "inventory": {
+    "path": "/srv/ax-pilot-control/preparation/c4-state-reopen-draft-01/recipe/route-inventory.json",
+    "sha256": "908d9070eb5c844ee04d3c35cc145af94e24e0cea9141ec4db7d026e33b8acd0"
+  },
+  "original_inventory": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/provenance/inventory.json",
+    "sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e"
+  },
+  "build_manifest": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/provenance/build-manifest.json",
+    "sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e"
+  },
+  "ssh": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/ssh.conf",
+    "sha256": "5ed7438217586e9ac6b3af1e0f9c6755ed901b4754f07ed7ed9d2b4e526ab181"
+  },
+  "original_lock_resources": {
+    "pool-b": [
+      "host:i-bp1fmmfkcpr8w99j2bsy",
+      "disk:d-bp1fmmfkcpr8w99pwgc5",
+      "host:i-bp14nenf7osz9v1snsp2",
+      "disk:d-bp14nenf7osz9v1rkk5l",
+      "host:i-bp1bhdngko7nq3c3jrhp",
+      "disk:d-bp1bhdngko7nq3c2i343",
+      "disk:d-bp1bhdngko7nq3c2i342",
+      "disk:d-bp1bhdngko7nq3c2i341",
+      "disk:d-bp1bhdngko7nq3c2i340"
+    ],
+    "pool-a": [
+      "host:i-bp1809mw7rlujtj9f705",
+      "disk:d-bp1809mw7rlujtjc8epi",
+      "host:i-bp1gy3cfuj9jik0y4oc3",
+      "disk:d-bp1gy3cfuj9jik0upt3k",
+      "host:i-bp1h9kaoya0predubdkn",
+      "disk:d-bp1h9kaoya0predx6kvd",
+      "disk:d-bp1h9kaoya0predx6kve",
+      "disk:d-bp1h9kaoya0predx6kvf",
+      "disk:d-bp1h9kaoya0predx6kvg"
+    ]
+  },
+  "checkpoint_archive": {
+    "path": "/srv/ax-pilot-control/preparation/c4-state-reopen-draft-01/checkpoint.tar.gz",
+    "sha256": "9659f428182c55fbd7d8109bb61d0f37e6ef655f61615746b49baf0d3e5821fe"
+  },
+  "checkpoint_receipt": {
+    "path": "/srv/ax-pilot-control/preparation/c4-state-reopen-draft-01/receipt.json",
+    "sha256": "abc3852490e01e37c1f728cf1d9b59eeb729196bdebe4c7fcc7e04617bdffe7a"
+  },
+  "opencode_release": {
+    "path": "/srv/ax-pilot-control/assets/provenance/opencode-runtime.json",
+    "sha256": "b8ea020be8fa5ddf03dfab4503834d5923f6cf14435d00442cb62cc3f557e68b"
+  },
+  "candidate_database": 210,
+  "endpoint_scope": "Both mounts use source Redis/RustFS; target does not format and uses no target-pool credentials.",
+  "fence_scope": "Clean old process/mount closure plus coordinator grant rejection; no JuiceFS-native crash fencing claim.",
+  "phase_order": [
+    "actual_handoffs_and_locks",
+    "check_hosts_slots_and_db",
+    "source_import_and_export",
+    "source_fsync_debt_and_normal_stop",
+    "reject_old_source_grant",
+    "target_new_mount_and_export_same_db",
+    "target_normal_stop"
+  ],
+  "claim": "This is state readiness only. No model continuation, performance sample, or physical-host identity claim."
+}
