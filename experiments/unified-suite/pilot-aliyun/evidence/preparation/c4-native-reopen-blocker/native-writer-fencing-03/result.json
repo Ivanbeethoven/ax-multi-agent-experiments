@@ -1,0 +1,51 @@
+{
+  "passed": false,
+  "binary_sha256": "98e3c0402b735830efab7c80e50d8353625b3f8cecc5343ee15c37a6a761a526",
+  "bucket": "axp-fence-21ba3b28fb65",
+  "catalog": "ax-pilot-fence-9b7d45d7eb2a41b69cb298da99581f30",
+  "scope": "Actual FUSE/Redis/S3 correctness only; pause/expire/takeover is separate from clean handoff timing",
+  "automatic_retry": false,
+  "model_calls": 0,
+  "workspace_id": "01a1c7f0-c2f2-7cf2-9d21-b5c2b843d9f3",
+  "live_second_writer_rejected": true,
+  "failed_phase": "takeover",
+  "error_type": "OSError",
+  "error": "[Errno 5] Input/output error: '/home/hxy/ax-unified-pilot-prep/qualification/native-writer-fencing-03/target/mnt/owner.txt'",
+  "at": "2026-11-11T00:10:39.386432+00:00",
+  "processes": {
+    "source": {
+      "identity": {
+        "pid": 3514590,
+        "start_ticks": 65820301,
+        "boot_id": "32a0d7a6-e013-44e8-bc82-a8444a8e5f66",
+        "state": "R"
+      },
+      "alive": true,
+      "exit_code": null,
+      "mount_present": true
+    },
+    "challenger": {
+      "identity": {
+        "pid": 3514604,
+        "start_ticks": 65820339,
+        "boot_id": "32a0d7a6-e013-44e8-bc82-a8444a8e5f66",
+        "state": "R"
+      },
+      "alive": false,
+      "exit_code": 1,
+      "mount_present": false
+    },
+    "target": {
+      "identity": {
+        "pid": 3514611,
+        "start_ticks": 65823565,
+        "boot_id": "32a0d7a6-e013-44e8-bc82-a8444a8e5f66",
+        "state": "R"
+      },
+      "alive": true,
+      "exit_code": null,
+      "mount_present": true
+    }
+  },
+  "writer_helper_exit_code": null
+}

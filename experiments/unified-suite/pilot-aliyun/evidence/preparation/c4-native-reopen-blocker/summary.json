@@ -1,0 +1,50 @@
+{
+  "scope": "Local real native FUSE/Redis/RustFS qualification; not cloud hardware or performance",
+  "brewfs_commit": "622736b0a31caaa9007445886e626a2458bc316a",
+  "brewfs_binary_sha256": "98e3c0402b735830efab7c80e50d8353625b3f8cecc5343ee15c37a6a761a526",
+  "rustfs_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "clean_reopen_readback": true,
+  "reopened_existing_file_fsync_errno": 5,
+  "reopened_write_succeeded": false,
+  "live_second_writer_rejected": true,
+  "expired_writer_takeover_mounted": true,
+  "stale_writer_write_not_reached": true,
+  "c4_brewfs_native_workspace_qualified": false,
+  "model_calls": 0,
+  "archives": [
+    {
+      "attempt": "native-writer-fencing-01",
+      "archive_sha256": "68fba3bf9d6423ddaf2396b6b22296cd3f9ad0a8edf876efb6752d08caaa15bf",
+      "archive_bytes": 7874,
+      "file_members": 41
+    },
+    {
+      "attempt": "native-writer-fencing-02",
+      "archive_sha256": "40eb1bfc912a629bef55fc17c5c3cbf508eefaa1852f06213e7e2c46552a2c89",
+      "archive_bytes": 7571,
+      "file_members": 42
+    },
+    {
+      "attempt": "native-writer-fencing-03",
+      "archive_sha256": "1fd204feb2d95cc9b887fe175d7fb1af7f4a9c057ecebd755a696afa3d3a87ad",
+      "archive_bytes": 8635,
+      "file_members": 53
+    },
+    {
+      "attempt": "native-clean-reopened-write-01",
+      "archive_sha256": "aaf886158571e0c5f73957d59f72bef6f8fda1cf0028e9879fe89ce6888e3708",
+      "archive_bytes": 5486,
+      "file_members": 32
+    },
+    {
+      "attempt": "native-clean-reopened-write-02",
+      "archive_sha256": "c0093e6b10a6cc9e0935526d2801cb55e0fa625d94d2af3baf1623a243a9a47b",
+      "archive_bytes": 5781,
+      "file_members": 34
+    }
+  ],
+  "reproducer_tools": {
+    "qualify-native-local.py": "6af70b48ed70aadbedf634e347592a18c16a567acb02992d37c426747c2c3064",
+    "qualify-writer-fencing.py": "9fdd37dc8942e6fa68ad6722f42ae64fc8b32f511c9bd71e05dafd927903258f"
+  }
+}

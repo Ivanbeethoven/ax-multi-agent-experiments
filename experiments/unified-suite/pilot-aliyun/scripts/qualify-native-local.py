@@ -38,6 +38,16 @@ def write_challenge(root):
             os.close(fd)
 
 
+def write_reopened_challenge(root):
+    with (root/'data-renamed').open('r+b') as stream:
+        stream.seek(19);stream.write(b'new-writer-after-reopen');stream.flush();os.fsync(stream.fileno())
+    with (root/'new-writer.txt').open('xb') as stream:
+        stream.write(b'created by the second writer\n');stream.flush();os.fsync(stream.fileno())
+    fd=os.open(root,os.O_RDONLY|os.O_DIRECTORY)
+    try:os.fsync(fd)
+    finally:os.close(fd)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--route', choices=['flat', 'workspace'], required=True)
@@ -48,6 +58,7 @@ def main():
     p.add_argument('--redis-url')
     p.add_argument('--native-base',type=Path)
     p.add_argument('--cloud',action='store_true')
+    p.add_argument('--mutate-reopened',action='store_true',help='Write existing/new files after clean reopen, then verify a third cold mount')
     a = p.parse_args()
     if os.geteuid() != 0:
         raise PermissionError('Run on the owned local host as root')
@@ -82,6 +93,7 @@ def main():
             'write_ssd_bytes': 1073741824, 'memory_budget_bytes': 536870912,
             'writeback_mode': 'upload_before_commit', 'compression': 'none'})
     result = dict(passed=False, route=a.route, bucket=bucket, catalog=catalog,
+        binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),mutate_reopened=a.mutate_reopened,
         scope=('cloud' if a.cloud else 'local')+' native reopen feasibility only; not performance, native immutable publication or cross-machine handoff',
         cloud_instances_started=a.cloud)
     process = None
@@ -118,7 +130,7 @@ def main():
         write_challenge(oracle)
         expected = tree(oracle)
         (a.out / 'expected-tree.json').write_text(json.dumps(expected) + '\n')
-        for attempt in (1, 2):
+        for attempt in ((1, 2, 3) if a.mutate_reopened else (1, 2)):
             base['cache']['cache_root'] = str(a.out / f'cache-{attempt}')
             config = a.out / f'mount-{attempt}.json'
             config.write_text(json.dumps(base) + '\n')
@@ -143,8 +155,21 @@ def main():
                 if tree(mount):
                     raise ValueError('Expected an empty original volume')
                 write_challenge(mount)
-            if tree(mount) != expected:
+            actual=tree(mount)
+            if actual != expected:
                 raise ValueError('Logical tree or bytes differ')
+            proof=dict(passed=True,attempt=attempt,full_tree_equal=True,
+                expected_tree_sha256=hashlib.sha256(json.dumps(expected,sort_keys=True).encode()).hexdigest(),
+                fresh_cache=str(a.out/f'cache-{attempt}'),workspace_id=result.get('workspace_id'),
+                before_reopened_write=a.mutate_reopened and attempt==2)
+            (a.out/f'readback-{attempt}.json').write_text(json.dumps(proof,indent=2)+'\n')
+            if a.mutate_reopened and attempt==2:
+                result['clean_reopened_tree_equal_before_write']=True
+                write_reopened_challenge(oracle)
+                expected=tree(oracle)
+                (a.out/'expected-reopened-tree.json').write_text(json.dumps(expected)+'\n')
+                write_reopened_challenge(mount)
+                if tree(mount)!=expected:raise ValueError('Reopened writer bytes differ')
             run(f'unmount-{attempt}', ['fusermount3', '-u', mount])
             code = process.wait()
             stdout.close()
@@ -159,7 +184,7 @@ def main():
                         inspected['pending_writeback_bytes'] != 0 or inspected['workspace_id'] != result['workspace_id']:
                     raise ValueError('Original workspace writer/debt did not release')
         result.update(passed=True, original_volume_reopened=True, fresh_cache_on_reopen=True,
-            logical_tree_equal=True, normally_stopped=True)
+            logical_tree_equal=True, normally_stopped=True,reopened_writes_persisted=a.mutate_reopened)
     except BaseException as error:
         result['error'] = type(error).__name__ + ': ' + str(error)
         raise

@@ -273,6 +273,53 @@ class ConcurrencyS3(unittest.TestCase):
 
 
 class HandoffTests(unittest.TestCase):
+    def test_shared_database_requires_identical_workspace_local_xdg(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            phase=save(root/'phase.json',dict(schema='experiment-cohort-v1',agents=1,workers=[dict(peer={})]))
+            state=dict(workspace='/shared/workspace',project='/shared/workspace/repo',
+                config='/shared/workspace/config/opencode.json',
+                xdg={name:'/shared/workspace/source/'+name for name in ('data','state','cache','config')})
+            source=dict(anchor={'workspace':'w'},node_id='a',mount_directory='/old',peer={},session_state=state)
+            target=dict(source,node_id='b',mount_directory='/new',session_state=copy.deepcopy(state))
+            s=dict(mode='move',restore_method='shared-workspace-db',source=source,target=target,
+                **{name:phase for name in ('quiesce','lease_check','restore','resume','export_after')})
+            handoff.validate(s)
+            bad=copy.deepcopy(s);bad['target']['session_state']['xdg']['data']='/shared/workspace/fresh-data'
+            with self.assertRaisesRegex(ValueError,'same workspace-local'):handoff.validate(bad)
+            bad=copy.deepcopy(s)
+            for side in ('source','target'):bad[side]['session_state']['xdg']['data']='/outside'
+            with self.assertRaisesRegex(ValueError,'inside the shared workspace'):handoff.validate(bad)
+
+    def test_shared_database_never_stages_or_imports_session_json(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            before={'info':{'id':'s'},'messages':[{'info':{'id':'m1'},'parts':[
+                {'type':'tool','callID':'old','state':{'status':'completed'}}]}]}
+            after=copy.deepcopy(before)
+            after['messages'].append({'info':{'id':'m2'},'parts':[
+                {'type':'tool','callID':'new','state':{'status':'completed'}}]})
+            anchor={'workspace':'w'}
+            source=dict(peer={},mount_directory='/source',anchor=anchor,session_state={'workspace':'/shared/workspace'})
+            target=dict(peer={},mount_directory='/target',anchor=anchor,mount_spec={'path':'/mount','sha256':'a'*64})
+            s=dict(schema='experiment-handoff-v1',reviewed=True,mode='move',filesystem='juicefs',session_id='s',
+                restore_method='shared-workspace-db',source=source,target=target,
+                export_transfer_sha256=hashlib.sha256((json.dumps(before,ensure_ascii=False)+'\n').encode()).hexdigest(),
+                **{name:{'phase':name} for name in ('quiesce','lease_check','restore','resume','export_after')})
+            def reply(ref,output,observe=None):
+                if ref['phase']=='resume':
+                    observe(dict(coordinator_ns=time.monotonic_ns(),message=dict(type='tool_completed',session_id='s',call_id='new')))
+                exported=after if ref['phase']=='export_after' else before
+                return dict(passed=True,jobs=[dict(result=exported)])
+            ref=save(root/'handoff.json',s)
+            with patch.object(handoff,'validate'),patch.object(cohort,'run',side_effect=reply),patch.object(transport,'one',return_value={
+                    'passed':True,'mount_absent':True,'exit_code':0,'anchor':anchor}) as remote:
+                result=handoff.run(ref,root/'out')
+            self.assertTrue(result['passed']);self.assertEqual(result['native_session_json_transferred_bytes'],0)
+            self.assertEqual([call.args[1][0] for call in remote.call_args_list],['stop','start'])
+            self.assertNotIn('stage-export',result['phases'])
+            self.assertEqual(result['session_validation']['new_completed_tools'],1)
+
     def test_identity_and_placement_cannot_be_substituted(self):
         source={'anchor':{'workspace':'w'},'node_id':'a','mount_directory':'/old','physical_host_id':'p1'}
         target={**source,'node_id':'b','mount_directory':'/new','physical_host_id':'p2'}

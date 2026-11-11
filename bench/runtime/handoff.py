@@ -19,6 +19,9 @@ from ..session_check import checkpoint, check_after
 
 def validate(s):
     if s['mode'] not in ('stay','move'): raise ValueError('stay or move required')
+    restore_method=s.get('restore_method','native-export-import')
+    if restore_method not in ('native-export-import','shared-workspace-db'):
+        raise ValueError('Explicit supported native state restore method required')
     source, target = s['source'], s['target']
     if source['anchor'] != target['anchor']: raise ValueError('handoff must reopen the same shared volume/workspace')
     if s['mode'] == 'move' and source['node_id'] == target['node_id']: raise ValueError('move requires a different execution node')
@@ -27,6 +30,16 @@ def validate(s):
         raise ValueError('physical movement requires distinct verified physical hosts')
     if source['mount_directory'] == target['mount_directory'] and source['node_id'] == target['node_id']:
         raise ValueError('fresh target mount instance/evidence required even for stay')
+    if restore_method=='shared-workspace-db':
+        state=source.get('session_state')
+        if not state or state!=target.get('session_state'):
+            raise ValueError('The same workspace-local native database and XDG paths must reopen on the target')
+        workspace=Path(state['workspace'])
+        if not workspace.is_absolute() or Path(state['project'])!=workspace/'repo':
+            raise ValueError('Original canonical workspace/project required')
+        paths=[state['config']]+[state['xdg'][name] for name in ('data','state','cache','config')]
+        if any(not Path(p).is_absolute() or not Path(p).is_relative_to(workspace) or Path(p)==workspace for p in paths):
+            raise ValueError('All native configuration and XDG state must be inside the shared workspace')
     for name in ('quiesce','lease_check','restore','resume','export_after'):
         value = load(pinned(s[name]))
         if value.get('schema') != 'experiment-cohort-v1' or value.get('agents') != 1:
@@ -78,16 +91,23 @@ def run(ref, output):
             inspection = exported(lease)
             if inspection['lease_id'] is not None or inspection['holder_generation'] is not None or inspection['pending_writeback_bytes'] != 0 or inspection['workspace_id'] != source['anchor']['workspace']:
                 raise ValueError('BrewFS writer lease still present or wrong workspace')
-        # Transfer only native exported session JSON. The shared repo/HOME tree
-        # stays in the shared filesystem; never cp it between execution nodes.
-        phase = 'stage-export'
+        # Import mode transfers native JSON only. Shared-database mode opens
+        # the existing workspace state directly and transfers no session file.
+        phase = 'checkpoint-transfer-check'
         raw = (json.dumps(before,ensure_ascii=False)+'\n').encode()
         payload = {'base64':base64.b64encode(raw).decode(),'sha256':hashlib.sha256(raw).hexdigest()}
         if payload['sha256'] != s['export_transfer_sha256']:
-            raise ValueError('checkpoint differs from pre-reviewed import; retain and re-prepare outside measurement')
-        stage = s['stage_export']
-        measured(phase,lambda:node(target,'stage-json',phase,
-            ['stage-json','--spec',stage['path'],'--sha256',stage['sha256'],'--output',s['import_path']],payload))
+            raise ValueError('checkpoint differs from the reviewed native export; retain and re-prepare outside measurement')
+        restore_method=s.get('restore_method','native-export-import')
+        if restore_method=='native-export-import':
+            phase='stage-export';stage = s['stage_export']
+            measured(phase,lambda:node(target,'stage-json',phase,
+                ['stage-json','--spec',stage['path'],'--sha256',stage['sha256'],'--output',s['import_path']],payload))
+        else:
+            write_new(output/'shared-state-restore.json',dict(restore_method=restore_method,
+                session_state=source['session_state'],checkpoint_sha256=payload['sha256'],
+                native_session_json_transferred_bytes=0,workspace_copy_bytes=0,
+                scope='Target opens the original shared native database; restore cohort exports it for prefix verification'))
         # Import command input SHA is fixed in the reviewed restore template to
         # this checkpoint. If a different checkpoint arrives, do not rewrite it.
         phase = 'target-start'
@@ -110,6 +130,9 @@ def run(ref, output):
         first_tool=min((t for t,call in tool_events if call in new_calls),default=None)
         if first_tool is None: raise ValueError('missing observed new completed OpenCode tool event')
         result = {'passed':True,'mode':s['mode'],'session_id':s['session_id'],
+                  'restore_method':restore_method,
+                  'native_session_json_transferred_bytes':len(raw) if restore_method=='native-export-import' else 0,
+                  'workspace_copy_bytes':0,
                   'first_completed_tool_ack_seconds':(first_tool-begin)/1e9,
                   'phases':times,'session_validation':validation,
                   'scope':'clean native session handoff; coordinator ACK times include transport; task grading and neighbor effects separate',

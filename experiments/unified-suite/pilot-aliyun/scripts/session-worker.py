@@ -95,8 +95,14 @@ def run(request, output):
                 raise ValueError('Resume the original checkpoint session')
             argv=[binary,'run','--format','json','--model','experiment/deepseek-v4-flash',
                   '--agent','build','--session',sid,checkpoint['resume_prompt']]
-    write_new(output/'started.json',dict(action=action,argv=argv,at=datetime.now(timezone.utc).isoformat(),
-        binary=request['binary'],automatic_retry=False,total_timeout_seconds=None))
+    started=dict(action=action,argv=argv,at=datetime.now(timezone.utc).isoformat(),
+        binary=request['binary'],automatic_retry=False,total_timeout_seconds=None)
+    if action!='inspect-writer':
+        started['session_state']=dict(workspace=request['workspace'],project=request['project'],
+            config=request['config'],config_sha256=digest(Path(request['config'])),
+            xdg={name:env['XDG_'+name.upper()+'_HOME'] for name in ('data','state','cache','config')},
+            home=env['HOME'],home_empty_before_start=not any(Path(env['HOME']).iterdir()))
+    write_new(output/'started.json',started)
     begin=time.monotonic();events=[]
     with (output/'stdout').open('xb') as stdout,(output/'stderr').open('xb') as stderr:
         process=subprocess.Popen(argv,cwd=cwd,env=env,stdout=subprocess.PIPE,stderr=stderr)
@@ -109,6 +115,10 @@ def run(request, output):
                 except (ValueError,TypeError):pass
         process.stdout.close();code=process.wait()
     write_new(output/'exit.json',dict(exit_code=code,seconds=time.monotonic()-begin,automatic_retry=False))
+    if action!='inspect-writer':
+        write_new(output/'home-files.json',dict(home=env['HOME'],
+            entries=sorted(p.relative_to(env['HOME']).as_posix() for p in Path(env['HOME']).rglob('*')),
+            scope='Names only; all declared native XDG state stays inside the shared workspace'))
     if code:
         raise RuntimeError('Original native phase failed; inspect retained stdout/stderr')
     if action in ('export','inspect-writer'):

@@ -1,0 +1,40 @@
+{
+  "passed": false,
+  "binary_sha256": "98e3c0402b735830efab7c80e50d8353625b3f8cecc5343ee15c37a6a761a526",
+  "bucket": "axp-fence-f9361eb84114",
+  "catalog": "ax-pilot-fence-19a94dac415e412f9439bcec7d2005f7",
+  "scope": "Actual FUSE/Redis/S3 correctness only; pause/expire/takeover is separate from clean handoff timing",
+  "automatic_retry": false,
+  "model_calls": 0,
+  "workspace_id": "01a1c7f0-0c88-7e93-85d0-a55c2cda321b",
+  "live_second_writer_rejected": true,
+  "failed_phase": "expire-source",
+  "error_type": "FileNotFoundError",
+  "error": "[Errno 2] No such file or directory: 'redis-cli'",
+  "at": "2026-11-11T00:09:21.009672+00:00",
+  "processes": {
+    "source": {
+      "identity": {
+        "pid": 3514516,
+        "start_ticks": 65815577,
+        "boot_id": "32a0d7a6-e013-44e8-bc82-a8444a8e5f66",
+        "state": "R"
+      },
+      "alive": true,
+      "exit_code": null,
+      "mount_present": true
+    },
+    "challenger": {
+      "identity": {
+        "pid": 3514529,
+        "start_ticks": 65815616,
+        "boot_id": "32a0d7a6-e013-44e8-bc82-a8444a8e5f66",
+        "state": "R"
+      },
+      "alive": false,
+      "exit_code": 1,
+      "mount_present": false
+    }
+  },
+  "writer_helper_exit_code": null
+}

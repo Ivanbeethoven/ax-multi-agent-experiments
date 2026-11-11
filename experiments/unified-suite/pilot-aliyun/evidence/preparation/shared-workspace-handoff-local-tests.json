@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "tests": 32,
+  "command": "PYTHONPATH=tests python3 -m unittest tests.test_runtime_adapters tests.test_pilot_session_input -q",
+  "coverage": [
+    "Existing runtime adapters and failure boundaries",
+    "Shared-database handoff skips session staging/import",
+    "Different/outside-workspace XDG rejected",
+    "Original tool ACK and history-prefix checks retained"
+  ],
+  "scope": "Local checks, including mocked handoff control flow; actual cross-host resume remains pending"
+}

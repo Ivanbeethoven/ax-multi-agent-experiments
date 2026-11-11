@@ -1,0 +1,39 @@
+{
+  "passed": false,
+  "binary_sha256": "98e3c0402b735830efab7c80e50d8353625b3f8cecc5343ee15c37a6a761a526",
+  "bucket": "axp-fence-f080ce4e499c",
+  "catalog": "ax-pilot-fence-4bff7d7aa732478199b1a672ebb26f16",
+  "scope": "Actual FUSE/Redis/S3 correctness only; pause/expire/takeover is separate from clean handoff timing",
+  "automatic_retry": false,
+  "model_calls": 0,
+  "workspace_id": "01a1c7ed-4e0c-7843-bdf7-0e1731ccfdc9",
+  "live_second_writer_rejected": true,
+  "failed_phase": "expire-source",
+  "error_type": "KeyboardInterrupt",
+  "error": "",
+  "at": "2026-11-11T00:07:33.498458+00:00",
+  "processes": {
+    "source": {
+      "identity": {
+        "pid": 3514276,
+        "start_ticks": 65797274,
+        "boot_id": "32a0d7a6-e013-44e8-bc82-a8444a8e5f66",
+        "state": "R"
+      },
+      "alive": true,
+      "exit_code": null,
+      "mount_present": true
+    },
+    "challenger": {
+      "identity": {
+        "pid": 3514288,
+        "start_ticks": 65797314,
+        "boot_id": "32a0d7a6-e013-44e8-bc82-a8444a8e5f66",
+        "state": "R"
+      },
+      "alive": false,
+      "exit_code": 1,
+      "mount_present": false
+    }
+  }
+}
