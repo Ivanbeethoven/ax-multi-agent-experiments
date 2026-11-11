@@ -1,0 +1,186 @@
+{
+  "canonical_plan": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/suite/plan.json",
+    "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+  },
+  "fleet": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/fleet.json",
+    "sha256": "03157ed351fb126540f2712fb91d916085c5b6a7f6e31032649c582087ea97a5"
+  },
+  "guard": {
+    "path": "/srv/ax-pilot-control/preparation/c123-old-c1-retention-guard-02/runner.py",
+    "sha256": "7f1ff82922708cdea09da9ffc1930e94f60de1779ae9ae86e89db862cf1ea051"
+  },
+  "guard_stage": {
+    "path": "/srv/ax-pilot-control/preparation/c123-old-c1-retention-guard-02/stage-check.json",
+    "sha256": "862603917d108f47efdeb89c733ff2f24eb2a11adb51fa1f54be44f506b26f16"
+  },
+  "lease_controls": [
+    "/srv/ax-pilot-control/c1-native-randread-rebind-01",
+    "/srv/ax-pilot-control/c123-control-01",
+    "/srv/ax-pilot-control/c3-stage-fixed-01",
+    "/srv/ax-pilot-control/fork-control-01",
+    "/srv/ax-pilot-control/parallel-control-01"
+  ],
+  "lock_cell": "c5e97774bcffa69a-r1-native",
+  "lock_plan": {
+    "path": "/srv/ax-pilot-control/fork-control-01/suite/plan.json",
+    "sha256": "4b98ab083a06ae353806557f956a60fad8b3c29b8b43971c452cf3a7136b2a7e"
+  },
+  "minimum_after_bytes": 12014120960,
+  "original_plan": {
+    "path": "/srv/ax-pilot-control/c123-control-01/suite/plan.json",
+    "sha256": "81e604de204acec9fa250fd0b6330c7ac052e7b372439a37ce5180026c22c7c1"
+  },
+  "quiescence": {
+    "path": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/boundary-01/quiescence.json",
+    "sha256": "eb1765468092d0c030ff76cd1f1d20d7dea083b4b2f0fca7981ba23f15bbd6d2"
+  },
+  "resident_units": {
+    "ax-pilot-assets.service": {
+      "drop_ins": [],
+      "exec_start_sha256": "54e028c729adf5ac46134d301aa1816e557764c8413401f7c9de1c3a39f80c9c",
+      "fragment": {
+        "path": "/etc/systemd/system/ax-pilot-assets.service",
+        "sha256": "6521faa6d9660eff9ece6aaf5a281fb09feff311891ad9ed4b79bc66fc5e5849"
+      },
+      "invocation_id": "04819dcce87b4d728f1e8261c5455778",
+      "script": null
+    },
+    "ax-pilot-c4-relay-01.service": {
+      "drop_ins": [],
+      "exec_start_sha256": "7860994eac78d90dc66c98acc755f072d06f680a21486b7d7a0d4e8da39b339e",
+      "fragment": {
+        "path": "/run/systemd/transient/ax-pilot-c4-relay-01.service",
+        "sha256": "f7b624c4110c5b70ff628e87be2e95e5336c6f98051980ba2158ebd21283c84c"
+      },
+      "invocation_id": "db983268f1304a3491213f43f864da85",
+      "script": {
+        "path": "/srv/ax-pilot-control/preparation/c4-relay-01/session-relay.py",
+        "sha256": "36613e192b132b87253816bbfc1e00880f8b310dfdc68616b6d7dd52229eb6eb"
+      }
+    }
+  },
+  "reviewed": true,
+  "schema": "c1-closed-object-observer-reclaim-v1",
+  "space_floor_scope": "Twenty percent only; separate next-round peak capacity admission remains required",
+  "ssh_config": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/ssh.conf",
+    "sha256": "5ed7438217586e9ac6b3af1e0f9c6755ed901b4754f07ed7ed9d2b4e526ab181"
+  },
+  "targets": [
+    {
+      "cell_id": "7084af367e0bcfad-r1-native",
+      "public_archive": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/archives/objects.tar.gz",
+        "sha256": "227ef0bb654bd5d940fabbd717e7048cb53f6b3e363511b22fccaf5462e39dab"
+      },
+      "public_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/public-formal.json",
+        "sha256": "8c227f65342495e090d01573b664fa9a367ce598073dd7b094c476cdc02ec9b6"
+      },
+      "role_archive": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/archives/objects.tar.gz",
+        "sha256": "227ef0bb654bd5d940fabbd717e7048cb53f6b3e363511b22fccaf5462e39dab"
+      },
+      "role_check": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/archives/objects-check.json",
+        "sha256": "0673c757b04d29aac328f1bc8a139a2f65858e9ba55035f3ab89d9068fb33d63"
+      },
+      "tag": "c1-7084af367e0bcfad-r1-native"
+    },
+    {
+      "cell_id": "7084af367e0bcfad-r1-native",
+      "public_archive": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02.tar.gz",
+        "sha256": "e5d81588747ea2a33387b4f21044cc593be66432b44907f88a1b8592c598fd16"
+      },
+      "public_check": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02-archive-check.json",
+        "sha256": "798974cfdddac8ff7c71e9b5f5a7f654d4e9ba8caac27cc1ee7408775c0605a9"
+      },
+      "public_member": "cal-n-rw-on1/objects.tar.gz",
+      "public_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/public-calibrations.json",
+        "sha256": "ece556f148d905f0f4aaedc73f08904e2a7eac4246c114636d8b81e086eed040"
+      },
+      "role_archive": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02/cal-n-rw-on1/objects.tar.gz",
+        "sha256": "d9531b0c30cfa897056d7646e6d23fa32aee240751eb19fde7c429c078cc1851"
+      },
+      "role_check": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02/cal-n-rw-on1/objects-archive-check.json",
+        "sha256": "e352590d0105f715e23553dbac8aeccec3e74c279cc2b945121e8c157767a48c"
+      },
+      "tag": "cal-n-rw-on1"
+    },
+    {
+      "cell_id": "7084af367e0bcfad-r1-native",
+      "public_archive": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02.tar.gz",
+        "sha256": "e5d81588747ea2a33387b4f21044cc593be66432b44907f88a1b8592c598fd16"
+      },
+      "public_check": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02-archive-check.json",
+        "sha256": "798974cfdddac8ff7c71e9b5f5a7f654d4e9ba8caac27cc1ee7408775c0605a9"
+      },
+      "public_member": "cal-n-rw-on2/objects.tar.gz",
+      "public_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/public-calibrations.json",
+        "sha256": "ece556f148d905f0f4aaedc73f08904e2a7eac4246c114636d8b81e086eed040"
+      },
+      "role_archive": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02/cal-n-rw-on2/objects.tar.gz",
+        "sha256": "fec6ebf22857a93f3347aed2e70aeabb35ca3dc38dee12d41ac13cc254d1e6e3"
+      },
+      "role_check": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02/cal-n-rw-on2/objects-archive-check.json",
+        "sha256": "9a30096be6c21153cd073d4600466af4ee707b83b4aaf2643d2fd845bd6e5834"
+      },
+      "tag": "cal-n-rw-on2"
+    },
+    {
+      "cell_id": "7084af367e0bcfad-r1-native",
+      "public_archive": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02.tar.gz",
+        "sha256": "e5d81588747ea2a33387b4f21044cc593be66432b44907f88a1b8592c598fd16"
+      },
+      "public_check": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02-archive-check.json",
+        "sha256": "798974cfdddac8ff7c71e9b5f5a7f654d4e9ba8caac27cc1ee7408775c0605a9"
+      },
+      "public_member": "cal-n-rw-on3/objects.tar.gz",
+      "public_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/public-calibrations.json",
+        "sha256": "ece556f148d905f0f4aaedc73f08904e2a7eac4246c114636d8b81e086eed040"
+      },
+      "role_archive": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02/cal-n-rw-on3/objects.tar.gz",
+        "sha256": "a1f56c068fb897c6a477819af10da467d52182da77d1c235a14c07f581d0a452"
+      },
+      "role_check": {
+        "path": "/srv/ax-pilot-control/c123-control-01/retained-calibrations/native-randwrite-02/cal-n-rw-on3/objects-archive-check.json",
+        "sha256": "52e958a3a678eae3dadd6db2c6f5eef50768d243e94ac5d699df93f61fd77e9f"
+      },
+      "tag": "cal-n-rw-on3"
+    }
+  ],
+  "tool": {
+    "path": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/reclaim-closed-object-observer.py",
+    "sha256": "022b0a101de5f9783e154ac5e6795595ed12fc10aa8bdfdcddcc5651f655b76a"
+  },
+  "worker_identities": {
+    "client": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/pool-a-client.json",
+      "sha256": "20b62a11d155c59d6abf3bb0b26d9f64234bd27e9c557447aa476bf695f33651"
+    },
+    "metadata": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/pool-a-metadata.json",
+      "sha256": "122e570ef3ea8192409d5ab879252b7c2c1a256b40266f06baac5dad72d9625d"
+    },
+    "objects": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/pool-a-objects.json",
+      "sha256": "277e3ff412b8b4d22f8b3329614aa094031458ec8ae0b9bb32b9d76b90257f92"
+    }
+  }
+}

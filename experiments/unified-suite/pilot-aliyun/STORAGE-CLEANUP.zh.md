@@ -30,6 +30,8 @@
 
 首个脚本的实际调用形式如下，变量均来自本轮清单，不填通配路径：
 
+请求分别固定 `canonical_plan`（`parallel-control-01`）、`original_plan`（`c123-control-01`）和 `lock_plan`（`fork-control-01`）的真实 `suite/plan.json`。原 C4 `fork-1` 锁 cell 从 `lock_plan` 读取，其物理资源须与 canonical A 组和所选历史 C1 完全相同；实际仍取得 canonical 两池全资源锁。不能把没有 C4 cell 的 canonical 计划改写成 fork 计划。
+
 ```bash
 python3 reclaim-closed-object-observer.py \
   --request "$request" --sha256 "$request_sha" --out "$dry_out"
@@ -63,7 +65,7 @@ python3 reclaim-closed-object-observer.py \
 
 ## 本轮执行位置
 
-- **A 组：** 当前 Off1 继续，不能清理。待子任务完成冷验、归档并真正退出，核对原父进程身份，再恢复原父，让它收取真实退出码、在第二轮停点结束并释放锁；不会自动恢复。此后才核对旧副本。C4 后续使用[逐轮续跑入口](C4-A-DIRECTORY-HOLD.zh.md)，每轮消费清理回执和清理后的容量快照，不再连续派发六轮。
+- **A 组：** [Off1 已完整结束](evidence/preparation/a-c4-flat-off1-closed-01/README.zh.md)，[原父已于 23:48 停在第二轮前](evidence/preparation/a-c4-parent-close-01/README.zh.md)。00:18 [四份旧 C1 采样副本回收成功](evidence/preparation/a-old-c1-observer-reclaim-dryrun-01/README.zh.md)，盘 0 实测增加 8.90 GB，剩余 29.25 GB；尚未通过 On1 峰值检查。C4 后续使用[逐轮续跑入口](C4-A-DIRECTORY-HOLD.zh.md)，每轮消费清理回执和清理后的容量快照。
 - **B 组：** [22:33–22:43 短时只读检查](evidence/preparation/b-object-readonly-inspection-01/README.zh.md)后已重新停机。重启后四盘未自动挂载；正确只读挂载时空闲约 3.01/22.03/22.04/22.00 GB。18.05 GB 历史观测及暂存候选只占盘 0，还未获准删除；即使全删，也不能证明另三盘够用。恢复 C1 前先完成归档、清理和实际空间检查，新六轮从头校准，不混用失败批次的前两轮。
 - **代码接入范围：** C4 逐轮入口已在本地接入上述检查，14 项相关离线测试通过，尚未部署。旧 C1/C2/C3 连续运行器没有完整的逐轮空间门槛，不应直接启动新的多轮批次；续跑前须加入同样的逐轮边界。文档不代表这些旧入口已经自动清理。
 

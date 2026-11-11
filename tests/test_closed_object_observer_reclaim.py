@@ -1,6 +1,7 @@
 """Offline gates for exact historical object observer reclamation."""
 
 import importlib.util
+import copy
 import json
 import os
 from pathlib import Path
@@ -130,6 +131,51 @@ class HistoricalObserverReclaim(unittest.TestCase):
             item['public_receipt'] = save(self.root/'oss.json', pub)
             with self.assertRaisesRegex(ValueError, 'Exact public full readback required'):
                 TOOL.source(item, {CELL})
+
+
+    def test_real_separate_fork_plan_and_canonical_resources_are_required(self):
+        resources = ['host:original-a', 'disk:original-a']
+        canonical = dict(config=dict(clusters=[dict(id='pool-a', resource_ids=resources)]),
+                         cells=[dict(id='canonical-c1', pool='pool-a', suite='C1', resource_ids=resources)])
+        fork = dict(cells=[dict(id='original-fork', pool='pool-a', suite='C4', case='fork-1', resource_ids=resources)])
+        old = dict(cells=[dict(id=CELL, pool='pool-a', suite='C1', resource_ids=resources),
+                          dict(id='foreign-c4', pool='pool-a', suite='C4', resource_ids=resources)])
+        paths = [self.root/name/'suite/plan.json' for name in
+                 ('parallel-control-01', 'fork-control-01', 'c123-control-01')]
+        for path in paths:
+            path.parent.mkdir(parents=True)
+        original_pin = TOOL.pin
+
+        def request(plans):
+            return dict(zip(('canonical_plan', 'lock_plan', 'original_plan'),
+                            (save(path, plan) for path, plan in zip(paths, plans))), lock_cell='original-fork')
+
+        with patch.object(TOOL, 'PILOT', self.root), patch.object(TOOL, 'CANONICAL', paths[0].parents[1]), \
+                patch.object(TOOL, 'pin', side_effect=lambda value, expected: original_pin(value, expected, self.root)):
+            s = request((canonical, fork, old))
+            _, cell, eligible = TOOL.lock_context(s)
+            self.assertEqual(cell['id'], 'original-fork')
+            self.assertEqual(eligible, {CELL})
+            with self.assertRaisesRegex(ValueError, 'Only explicit historical Pool A C1'):
+                TOOL.source(dict(tag=TAG, cell_id='foreign-c4'), eligible)
+            wrong_path = self.root/'other-plan.json'
+            with self.assertRaisesRegex(ValueError, 'Wrong path'):
+                TOOL.lock_context(dict(s, lock_plan=save(wrong_path, fork)))
+            for target, change in (
+                    ('fork', 'extra'), ('canonical', 'extra'), ('fork', 'different'),
+                    ('fork', 'duplicate'), ('old', 'different'), ('old', 'not-c1')):
+                plans = dict(canonical=copy.deepcopy(canonical), fork=copy.deepcopy(fork), old=copy.deepcopy(old))
+                row = plans[target]['cells'][0]
+                if change == 'extra':
+                    row['resource_ids'] = resources + ['disk:outside']
+                elif change == 'different':
+                    row['resource_ids'] = ['host:outside', 'disk:outside']
+                elif change == 'duplicate':
+                    row['resource_ids'] = resources + [resources[0]]
+                else:
+                    row['suite'] = 'C4'
+                with self.subTest(target=target, change=change), self.assertRaises(ValueError):
+                    TOOL.lock_context(request((plans['canonical'], plans['fork'], plans['old'])))
 
 
 if __name__ == '__main__':

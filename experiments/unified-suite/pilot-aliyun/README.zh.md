@@ -6,7 +6,7 @@
 
 复跑先读[按需服务器并行调度手册](REPEAT-SCHEDULING.zh.md)，再按本批实际计划和资源账本开机。
 
-每次校准和正式测量前执行[空间检查与清理](STORAGE-CLEANUP.zh.md)：先归档核验，再清理明确的旧副本，用清理后的实际空间检查下一轮峰值，并逐盘保留 20%。当前运行中的 A 组不做清理。
+每次校准和正式测量前执行[空间检查与清理](STORAGE-CLEANUP.zh.md)：先归档核验，再清理明确的旧副本，用清理后的实际空间检查下一轮峰值，并逐盘保留 20%。A 组已完成 Off1；00:18 [实际回收 8.90 GB](evidence/preparation/a-old-c1-observer-reclaim-dryrun-01/README.zh.md)，尚未启动 On1。
 
 本轮在阿里云按量实例上试跑。C3和C4派生使用[10万文件](PILOT-100K.zh.md)，每文件4KiB。C1、C2完整trace和C4会话流转保持原负载。实验输入、原始数据和 SHA256 见[归档下载](OSS-ARCHIVE.zh.md)及[trace目录](../../../scenarios/k8s-containers/data-catalog.md)。
 
@@ -17,7 +17,7 @@
 | C1 fio | 9/10 | 双方顺序读、顺序写、随机写、随机读及[BrewFS混合读写](evidence/c1-native-randrw-01/)已验收；JuiceFS 混合读写校准失败，见[容量审计](evidence/preparation/b-c1-randrw-capacity-audit-01/README.zh.md)，正式轮未开始 |
 | C2 完整trace | 2/5 | flat BrewFS、JuiceFS 均已验收；[另外三项](evidence/preparation/c2-remaining-audit-01/README.zh.md)受 FUSE 操作或非空版本发布功能限制 |
 | C3 小文件（10万） | 2/4 | [JuiceFS](evidence/c3-jfs-01/)和[BrewFS flat](evidence/c3-flat-01/)均已验收并公开原始记录；Packed完整资格通过，观测开关差约5.98%，正式样本未启动 |
-| C4 派生（10万） | 1/5 | [B组 JuiceFS](evidence/c4-jfs-01/)已验收。A 组 BrewFS flat 首轮校准仍在执行，后续轮次须先过清理和容量检查 |
+| C4 派生（10万） | 1/5 | [B组 JuiceFS](evidence/c4-jfs-01/)已验收。A 组 [BrewFS flat Off1 已完整结束](evidence/preparation/a-c4-flat-off1-closed-01/README.zh.md)，后续五轮校准和正式轮须逐轮过清理与容量检查 |
 | C4 流转 | 0/4 | [本地原生恢复通过](evidence/preparation/opencode-native-capped-01/README.zh.md)：空 HOME、原数据库、新工具执行及完整冷读。跨机器恢复尚未执行 |
 
 11:07查到[BrewFS分支推进到ca07159](evidence/preparation/latest-progress-15.json)，RustFS未变。[11:47独立重建完成](evidence/preparation/brewfs-ca07159-build/README.zh.md)，两份源码均干净、旧产物保留。[新版本10万文件Packed本机检查通过](evidence/preparation/c3-packed-ca07159-100k/README.zh.md)。已结束的云上随机写配对固定622736b；下一批重新核分支并绑定新版本。`configure-pilot.py --phase c1`或`--phase c2`可单独生成新阶段，旧状态库保留。

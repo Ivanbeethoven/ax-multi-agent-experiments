@@ -1,0 +1,2871 @@
+{
+  "schema": "unified-c1-c4-v1-plan",
+  "campaign_id": "ax-parallel-20261111-01",
+  "config_sha256": "23bbf0aa9b1d5b93c4ee48c82146f646aaf48ef3ffc38bf7f4576afa7c515131",
+  "config": {
+    "schema": "unified-c1-c4-v1",
+    "campaign_id": "ax-parallel-20261111-01",
+    "profile": "pilot",
+    "study": "systems",
+    "seed": 9173,
+    "repetitions": 1,
+    "client_profile": "bounded-memory-v1",
+    "placement": {
+      "mode": "baseline-parallel",
+      "product_pools": {
+        "brewfs": [
+          "pool-a"
+        ],
+        "juicefs": [
+          "pool-b"
+        ]
+      }
+    },
+    "external_baselines": [
+      "juicefs"
+    ],
+    "backend_policy": {
+      "repository": "https://github.com/Ivanbeethoven/rustfs",
+      "branch": "feat/dynamic-block-size-rebased",
+      "revision_policy": "branch-latest",
+      "layout_profile": "enabled",
+      "brewfs_hint": "auto"
+    },
+    "cache_budget_bytes_per_client": 536870912,
+    "ssd_clean_cache_bytes": 0,
+    "durability": "upload_before_commit+fsync+remote-drain",
+    "telemetry": {
+      "interval_seconds": 5,
+      "max_gap_seconds": 30,
+      "max_relative_overhead": 0.05
+    },
+    "metadata_backend": "redis",
+    "input_manifest_sha256": "1377d895d40584a1cf6a3338b49cc41a733b9d0fce6b1c8c8d031e02191cb970",
+    "build_manifest_sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e",
+    "clusters": [
+      {
+        "id": "pool-a",
+        "hardware_class": "matched-pool-v1",
+        "metadata_backend": "redis",
+        "agent_slots": 1,
+        "supported_suites": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "resource_ids": [
+          "host:i-bp1809mw7rlujtj9f705",
+          "disk:d-bp1809mw7rlujtjc8epi",
+          "host:i-bp1gy3cfuj9jik0y4oc3",
+          "disk:d-bp1gy3cfuj9jik0upt3k",
+          "host:i-bp1h9kaoya0predubdkn",
+          "disk:d-bp1h9kaoya0predx6kvd",
+          "disk:d-bp1h9kaoya0predx6kve",
+          "disk:d-bp1h9kaoya0predx6kvf",
+          "disk:d-bp1h9kaoya0predx6kvg"
+        ],
+        "observer_ids": [
+          "pool-a-client",
+          "pool-a-metadata",
+          "pool-a-objects"
+        ],
+        "inventory_sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e"
+      },
+      {
+        "id": "pool-b",
+        "hardware_class": "matched-pool-v1",
+        "metadata_backend": "redis",
+        "agent_slots": 1,
+        "supported_suites": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "resource_ids": [
+          "host:i-bp1fmmfkcpr8w99j2bsy",
+          "disk:d-bp1fmmfkcpr8w99pwgc5",
+          "host:i-bp14nenf7osz9v1snsp2",
+          "disk:d-bp14nenf7osz9v1rkk5l",
+          "host:i-bp1bhdngko7nq3c3jrhp",
+          "disk:d-bp1bhdngko7nq3c2i343",
+          "disk:d-bp1bhdngko7nq3c2i342",
+          "disk:d-bp1bhdngko7nq3c2i341",
+          "disk:d-bp1bhdngko7nq3c2i340"
+        ],
+        "observer_ids": [
+          "pool-b-client",
+          "pool-b-metadata",
+          "pool-b-objects"
+        ],
+        "inventory_sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e"
+      }
+    ],
+    "cases": [
+      {
+        "suite": "C1",
+        "name": "fio-read",
+        "workload": "fio",
+        "params": {
+          "agents": 1,
+          "rw": "read",
+          "block_bytes": 1048576,
+          "file_bytes_per_job": 67108864,
+          "io_bytes_per_job": 67108864,
+          "numjobs": 1,
+          "ioengine": "psync",
+          "iodepth": 1,
+          "direct": false,
+          "fsync_every_write": true,
+          "rwmixread": 75,
+          "cache_state": "client-cold",
+          "time_based": false
+        },
+        "arms": {
+          "native": {
+            "product": "brewfs",
+            "role": "internal-control",
+            "engine": "flat-v1",
+            "delta": false,
+            "packed": false,
+            "hint": "auto",
+            "payload_cache_bytes": 536870912
+          },
+          "juicefs": {
+            "product": "juicefs",
+            "role": "external-baseline",
+            "engine": "juicefs",
+            "delta": "native-clone",
+            "packed": false,
+            "hint": "none",
+            "payload_cache_bytes": 536870912
+          }
+        },
+        "claim": "system",
+        "extra_gates": []
+      },
+      {
+        "suite": "C1",
+        "name": "fio-write",
+        "workload": "fio",
+        "params": {
+          "agents": 1,
+          "rw": "write",
+          "block_bytes": 1048576,
+          "file_bytes_per_job": 67108864,
+          "io_bytes_per_job": 67108864,
+          "numjobs": 1,
+          "ioengine": "psync",
+          "iodepth": 1,
+          "direct": false,
+          "fsync_every_write": true,
+          "rwmixread": 75,
+          "cache_state": "client-cold",
+          "time_based": false
+        },
+        "arms": {
+          "native": {
+            "product": "brewfs",
+            "role": "internal-control",
+            "engine": "flat-v1",
+            "delta": false,
+            "packed": false,
+            "hint": "auto",
+            "payload_cache_bytes": 536870912
+          },
+          "juicefs": {
+            "product": "juicefs",
+            "role": "external-baseline",
+            "engine": "juicefs",
+            "delta": "native-clone",
+            "packed": false,
+            "hint": "none",
+            "payload_cache_bytes": 536870912
+          }
+        },
+        "claim": "system",
+        "extra_gates": []
+      },
+      {
+        "suite": "C1",
+        "name": "fio-randread",
+        "workload": "fio",
+        "params": {
+          "agents": 1,
+          "rw": "randread",
+          "block_bytes": 4096,
+          "file_bytes_per_job": 67108864,
+          "io_bytes_per_job": 67108864,
+          "numjobs": 1,
+          "ioengine": "psync",
+          "iodepth": 1,
+          "direct": false,
+          "fsync_every_write": true,
+          "rwmixread": 75,
+          "cache_state": "client-cold",
+          "time_based": false
+        },
+        "arms": {
+          "native": {
+            "product": "brewfs",
+            "role": "internal-control",
+            "engine": "flat-v1",
+            "delta": false,
+            "packed": false,
+            "hint": "auto",
+            "payload_cache_bytes": 536870912
+          },
+          "juicefs": {
+            "product": "juicefs",
+            "role": "external-baseline",
+            "engine": "juicefs",
+            "delta": "native-clone",
+            "packed": false,
+            "hint": "none",
+            "payload_cache_bytes": 536870912
+          }
+        },
+        "claim": "system",
+        "extra_gates": []
+      },
+      {
+        "suite": "C1",
+        "name": "fio-randwrite",
+        "workload": "fio",
+        "params": {
+          "agents": 1,
+          "rw": "randwrite",
+          "block_bytes": 4096,
+          "file_bytes_per_job": 67108864,
+          "io_bytes_per_job": 67108864,
+          "numjobs": 1,
+          "ioengine": "psync",
+          "iodepth": 1,
+          "direct": false,
+          "fsync_every_write": true,
+          "rwmixread": 75,
+          "cache_state": "client-cold",
+          "time_based": false
+        },
+        "arms": {
+          "native": {
+            "product": "brewfs",
+            "role": "internal-control",
+            "engine": "flat-v1",
+            "delta": false,
+            "packed": false,
+            "hint": "auto",
+            "payload_cache_bytes": 536870912
+          },
+          "juicefs": {
+            "product": "juicefs",
+            "role": "external-baseline",
+            "engine": "juicefs",
+            "delta": "native-clone",
+            "packed": false,
+            "hint": "none",
+            "payload_cache_bytes": 536870912
+          }
+        },
+        "claim": "system",
+        "extra_gates": []
+      },
+      {
+        "suite": "C1",
+        "name": "fio-randrw",
+        "workload": "fio",
+        "params": {
+          "agents": 1,
+          "rw": "randrw",
+          "block_bytes": 4096,
+          "file_bytes_per_job": 67108864,
+          "io_bytes_per_job": 67108864,
+          "numjobs": 1,
+          "ioengine": "psync",
+          "iodepth": 1,
+          "direct": false,
+          "fsync_every_write": true,
+          "rwmixread": 75,
+          "cache_state": "client-cold",
+          "time_based": false
+        },
+        "arms": {
+          "native": {
+            "product": "brewfs",
+            "role": "internal-control",
+            "engine": "flat-v1",
+            "delta": false,
+            "packed": false,
+            "hint": "auto",
+            "payload_cache_bytes": 536870912
+          },
+          "juicefs": {
+            "product": "juicefs",
+            "role": "external-baseline",
+            "engine": "juicefs",
+            "delta": "native-clone",
+            "packed": false,
+            "hint": "none",
+            "payload_cache_bytes": 536870912
+          }
+        },
+        "claim": "system",
+        "extra_gates": []
+      },
+      {
+        "suite": "C2",
+        "name": "pytest-full-02-n1",
+        "workload": "trace",
+        "params": {
+          "agents": 1,
+          "trace": "pytest-full-02",
+          "tasks_per_agent": 1,
+          "pacing": "off",
+          "replay": "complete"
+        },
+        "arms": {
+          "native": {
+            "product": "brewfs",
+            "role": "internal-control",
+            "engine": "flat-v1",
+            "delta": false,
+            "packed": false,
+            "hint": "auto",
+            "payload_cache_bytes": 536870912
+          },
+          "native-workspace": {
+            "product": "brewfs",
+            "role": "internal-control",
+            "engine": "workspace-native-v2",
+            "delta": true,
+            "packed": false,
+            "hint": "auto",
+            "payload_cache_bytes": 536870912
+          },
+          "entity-native": {
+            "product": "brewfs",
+            "role": "internal-control",
+            "engine": "workspace-entity-v1",
+            "delta": true,
+            "packed": false,
+            "immutable_lower": "native",
+            "hint": "auto",
+            "payload_cache_bytes": 0
+          },
+          "packed": {
+            "product": "brewfs",
+            "role": "candidate",
+            "engine": "workspace-entity-v1",
+            "delta": true,
+            "packed": true,
+            "hint": "auto",
+            "payload_cache_bytes": 536870912
+          },
+          "juicefs": {
+            "product": "juicefs",
+            "role": "external-baseline",
+            "engine": "juicefs",
+            "delta": "native-clone",
+            "packed": false,
+            "hint": "none",
+            "payload_cache_bytes": 536870912
+          }
+        },
+        "claim": "system",
+        "extra_gates": [
+          "complete-trace-qualification",
+          "fresh-initial-tree",
+          "repo-home-xdg-on-mount"
+        ]
+      },
+      {
+        "suite": "C3",
+        "name": "files-100000-hot-1024",
+        "workload": "smallfiles",
+        "params": {
+          "agents": 1,
+          "files": 100000,
+          "file_bytes": 4096,
+          "directories": 1024,
+          "hot_files": 1024,
+          "workers": 8,
+          "workspaces": 1,
+          "read_ops": 8192,
+          "cow_files": 256,
+          "write_ops": 256,
+          "mixed_ops": 1024,
+          "prewarm_passes": 2,
+          "mixed_read_fraction": 0.75,
+          "fsync_every_write": true,
+          "dataset": "smallfiles-100k-4k"
+        },
+        "arms": {
+          "native": {
+            "product": "brewfs",
+            "role": "internal-control",
+            "engine": "flat-v1",
+            "delta": false,
+            "packed": false,
+            "hint": "auto",
+            "payload_cache_bytes": 536870912
+          },
+          "entity-native": {
+            "product": "brewfs",
+            "role": "internal-control",
+            "engine": "workspace-entity-v1",
+            "delta": true,
+            "packed": false,
+            "immutable_lower": "native",
+            "hint": "auto",
+            "payload_cache_bytes": 0
+          },
+          "packed": {
+            "product": "brewfs",
+            "role": "candidate",
+            "engine": "workspace-entity-v1",
+            "delta": true,
+            "packed": true,
+            "hint": "auto",
+            "payload_cache_bytes": 536870912
+          },
+          "juicefs": {
+            "product": "juicefs",
+            "role": "external-baseline",
+            "engine": "juicefs",
+            "delta": "native-clone",
+            "packed": false,
+            "hint": "none",
+            "payload_cache_bytes": 536870912
+          }
+        },
+        "claim": "system",
+        "extra_gates": [
+          "full-base-validation-once",
+          "client-cache-evidence"
+        ]
+      }
+    ],
+    "pilot_file_count": 100000
+  },
+  "provenance_bound": true,
+  "execution_enabled": false,
+  "blocks": [
+    {
+      "id": "34d56abaf85454a2-r1",
+      "pool": null,
+      "pools": [
+        "pool-a",
+        "pool-b"
+      ],
+      "cell_pools": {
+        "34d56abaf85454a2-r1-native": "pool-a",
+        "34d56abaf85454a2-r1-juicefs": "pool-b"
+      },
+      "cells": [
+        "34d56abaf85454a2-r1-native",
+        "34d56abaf85454a2-r1-juicefs"
+      ],
+      "resource_ids": [
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "disk:d-bp1bhdngko7nq3c2i340",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "host:i-bp1809mw7rlujtj9f705",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "host:i-bp1h9kaoya0predubdkn"
+      ],
+      "condition": "34d56abaf85454a2"
+    },
+    {
+      "id": "5ca7353ba24b2a18-r1",
+      "pool": null,
+      "pools": [
+        "pool-a",
+        "pool-b"
+      ],
+      "cell_pools": {
+        "5ca7353ba24b2a18-r1-native": "pool-a",
+        "5ca7353ba24b2a18-r1-juicefs": "pool-b"
+      },
+      "cells": [
+        "5ca7353ba24b2a18-r1-native",
+        "5ca7353ba24b2a18-r1-juicefs"
+      ],
+      "resource_ids": [
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "disk:d-bp1bhdngko7nq3c2i340",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "host:i-bp1809mw7rlujtj9f705",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "host:i-bp1h9kaoya0predubdkn"
+      ],
+      "condition": "5ca7353ba24b2a18"
+    },
+    {
+      "id": "451ef1d28b5d875c-r1",
+      "pool": null,
+      "pools": [
+        "pool-a",
+        "pool-b"
+      ],
+      "cell_pools": {
+        "451ef1d28b5d875c-r1-native": "pool-a",
+        "451ef1d28b5d875c-r1-juicefs": "pool-b"
+      },
+      "cells": [
+        "451ef1d28b5d875c-r1-native",
+        "451ef1d28b5d875c-r1-juicefs"
+      ],
+      "resource_ids": [
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "disk:d-bp1bhdngko7nq3c2i340",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "host:i-bp1809mw7rlujtj9f705",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "host:i-bp1h9kaoya0predubdkn"
+      ],
+      "condition": "451ef1d28b5d875c"
+    },
+    {
+      "id": "7084af367e0bcfad-r1",
+      "pool": null,
+      "pools": [
+        "pool-a",
+        "pool-b"
+      ],
+      "cell_pools": {
+        "7084af367e0bcfad-r1-juicefs": "pool-b",
+        "7084af367e0bcfad-r1-native": "pool-a"
+      },
+      "cells": [
+        "7084af367e0bcfad-r1-juicefs",
+        "7084af367e0bcfad-r1-native"
+      ],
+      "resource_ids": [
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "disk:d-bp1bhdngko7nq3c2i340",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "host:i-bp1809mw7rlujtj9f705",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "host:i-bp1h9kaoya0predubdkn"
+      ],
+      "condition": "7084af367e0bcfad"
+    },
+    {
+      "id": "8e3d340ff23c3ece-r1",
+      "pool": null,
+      "pools": [
+        "pool-a",
+        "pool-b"
+      ],
+      "cell_pools": {
+        "8e3d340ff23c3ece-r1-native": "pool-a",
+        "8e3d340ff23c3ece-r1-juicefs": "pool-b"
+      },
+      "cells": [
+        "8e3d340ff23c3ece-r1-native",
+        "8e3d340ff23c3ece-r1-juicefs"
+      ],
+      "resource_ids": [
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "disk:d-bp1bhdngko7nq3c2i340",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "host:i-bp1809mw7rlujtj9f705",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "host:i-bp1h9kaoya0predubdkn"
+      ],
+      "condition": "8e3d340ff23c3ece"
+    },
+    {
+      "id": "05357b5089cd679c-r1",
+      "pool": null,
+      "pools": [
+        "pool-a",
+        "pool-b"
+      ],
+      "cell_pools": {
+        "05357b5089cd679c-r1-entity-native": "pool-a",
+        "05357b5089cd679c-r1-juicefs": "pool-b",
+        "05357b5089cd679c-r1-native": "pool-a",
+        "05357b5089cd679c-r1-native-workspace": "pool-a",
+        "05357b5089cd679c-r1-packed": "pool-a"
+      },
+      "cells": [
+        "05357b5089cd679c-r1-entity-native",
+        "05357b5089cd679c-r1-juicefs",
+        "05357b5089cd679c-r1-native",
+        "05357b5089cd679c-r1-native-workspace",
+        "05357b5089cd679c-r1-packed"
+      ],
+      "resource_ids": [
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "disk:d-bp1bhdngko7nq3c2i340",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "host:i-bp1809mw7rlujtj9f705",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "host:i-bp1h9kaoya0predubdkn"
+      ],
+      "condition": "05357b5089cd679c"
+    },
+    {
+      "id": "16f4ac389d2a2da6-r1",
+      "pool": null,
+      "pools": [
+        "pool-a",
+        "pool-b"
+      ],
+      "cell_pools": {
+        "16f4ac389d2a2da6-r1-entity-native": "pool-a",
+        "16f4ac389d2a2da6-r1-juicefs": "pool-b",
+        "16f4ac389d2a2da6-r1-native": "pool-a",
+        "16f4ac389d2a2da6-r1-packed": "pool-a"
+      },
+      "cells": [
+        "16f4ac389d2a2da6-r1-entity-native",
+        "16f4ac389d2a2da6-r1-juicefs",
+        "16f4ac389d2a2da6-r1-native",
+        "16f4ac389d2a2da6-r1-packed"
+      ],
+      "resource_ids": [
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "disk:d-bp1bhdngko7nq3c2i340",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "host:i-bp1809mw7rlujtj9f705",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "host:i-bp1h9kaoya0predubdkn"
+      ],
+      "condition": "16f4ac389d2a2da6"
+    }
+  ],
+  "cells": [
+    {
+      "id": "34d56abaf85454a2-r1-native",
+      "paired_block": "34d56abaf85454a2-r1",
+      "order": 0,
+      "pool": "pool-a",
+      "suite": "C1",
+      "case": "fio-read",
+      "workload": "fio",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "rw": "read",
+        "block_bytes": 1048576,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "arm_id": "native",
+      "arm": {
+        "product": "brewfs",
+        "role": "internal-control",
+        "engine": "flat-v1",
+        "delta": false,
+        "packed": false,
+        "hint": "auto",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "ebd79b6b2fb3854f4b5c0ae8",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "flat-v1",
+        "volume": {
+          "format": "flat-v1"
+        },
+        "cache": {
+          "read_memory_bytes": 536870912,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        }
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    },
+    {
+      "id": "34d56abaf85454a2-r1-juicefs",
+      "paired_block": "34d56abaf85454a2-r1",
+      "order": 1,
+      "pool": "pool-b",
+      "suite": "C1",
+      "case": "fio-read",
+      "workload": "fio",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "rw": "read",
+        "block_bytes": 1048576,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "arm_id": "juicefs",
+      "arm": {
+        "product": "juicefs",
+        "role": "external-baseline",
+        "engine": "juicefs",
+        "delta": "native-clone",
+        "packed": false,
+        "hint": "none",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "e8e84e83fe1ab04adbe19d06",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "cache_dir": "memory",
+        "cache_mib": 512,
+        "buffer_mib": 512,
+        "writeback": false,
+        "attr_cache_seconds": 0,
+        "entry_cache_seconds": 0,
+        "open_cache_seconds": 0,
+        "prefetch": 1,
+        "max_readahead_mib": 128,
+        "cache_large_write": true,
+        "verify_cache_checksum": "full",
+        "backup_meta": "0",
+        "no_usage_report": true
+      },
+      "resource_ids": [
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i340"
+      ]
+    },
+    {
+      "id": "5ca7353ba24b2a18-r1-native",
+      "paired_block": "5ca7353ba24b2a18-r1",
+      "order": 0,
+      "pool": "pool-a",
+      "suite": "C1",
+      "case": "fio-write",
+      "workload": "fio",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "rw": "write",
+        "block_bytes": 1048576,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "arm_id": "native",
+      "arm": {
+        "product": "brewfs",
+        "role": "internal-control",
+        "engine": "flat-v1",
+        "delta": false,
+        "packed": false,
+        "hint": "auto",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "ebd79b6b2fb3854f4b5c0ae8",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "flat-v1",
+        "volume": {
+          "format": "flat-v1"
+        },
+        "cache": {
+          "read_memory_bytes": 536870912,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        }
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    },
+    {
+      "id": "5ca7353ba24b2a18-r1-juicefs",
+      "paired_block": "5ca7353ba24b2a18-r1",
+      "order": 1,
+      "pool": "pool-b",
+      "suite": "C1",
+      "case": "fio-write",
+      "workload": "fio",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "rw": "write",
+        "block_bytes": 1048576,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "arm_id": "juicefs",
+      "arm": {
+        "product": "juicefs",
+        "role": "external-baseline",
+        "engine": "juicefs",
+        "delta": "native-clone",
+        "packed": false,
+        "hint": "none",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "e8e84e83fe1ab04adbe19d06",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "cache_dir": "memory",
+        "cache_mib": 512,
+        "buffer_mib": 512,
+        "writeback": false,
+        "attr_cache_seconds": 0,
+        "entry_cache_seconds": 0,
+        "open_cache_seconds": 0,
+        "prefetch": 1,
+        "max_readahead_mib": 128,
+        "cache_large_write": true,
+        "verify_cache_checksum": "full",
+        "backup_meta": "0",
+        "no_usage_report": true
+      },
+      "resource_ids": [
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i340"
+      ]
+    },
+    {
+      "id": "451ef1d28b5d875c-r1-native",
+      "paired_block": "451ef1d28b5d875c-r1",
+      "order": 0,
+      "pool": "pool-a",
+      "suite": "C1",
+      "case": "fio-randread",
+      "workload": "fio",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "rw": "randread",
+        "block_bytes": 4096,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "arm_id": "native",
+      "arm": {
+        "product": "brewfs",
+        "role": "internal-control",
+        "engine": "flat-v1",
+        "delta": false,
+        "packed": false,
+        "hint": "auto",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "37de6d968821c483dbd34d1f",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "flat-v1",
+        "volume": {
+          "format": "flat-v1"
+        },
+        "cache": {
+          "read_memory_bytes": 536870912,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        }
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    },
+    {
+      "id": "451ef1d28b5d875c-r1-juicefs",
+      "paired_block": "451ef1d28b5d875c-r1",
+      "order": 1,
+      "pool": "pool-b",
+      "suite": "C1",
+      "case": "fio-randread",
+      "workload": "fio",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "rw": "randread",
+        "block_bytes": 4096,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "arm_id": "juicefs",
+      "arm": {
+        "product": "juicefs",
+        "role": "external-baseline",
+        "engine": "juicefs",
+        "delta": "native-clone",
+        "packed": false,
+        "hint": "none",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "c46b72f2a8727d19b8d9e313",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "cache_dir": "memory",
+        "cache_mib": 512,
+        "buffer_mib": 512,
+        "writeback": false,
+        "attr_cache_seconds": 0,
+        "entry_cache_seconds": 0,
+        "open_cache_seconds": 0,
+        "prefetch": 1,
+        "max_readahead_mib": 128,
+        "cache_large_write": true,
+        "verify_cache_checksum": "full",
+        "backup_meta": "0",
+        "no_usage_report": true
+      },
+      "resource_ids": [
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i340"
+      ]
+    },
+    {
+      "id": "7084af367e0bcfad-r1-juicefs",
+      "paired_block": "7084af367e0bcfad-r1",
+      "order": 0,
+      "pool": "pool-b",
+      "suite": "C1",
+      "case": "fio-randwrite",
+      "workload": "fio",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "rw": "randwrite",
+        "block_bytes": 4096,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "arm_id": "juicefs",
+      "arm": {
+        "product": "juicefs",
+        "role": "external-baseline",
+        "engine": "juicefs",
+        "delta": "native-clone",
+        "packed": false,
+        "hint": "none",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "c46b72f2a8727d19b8d9e313",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "cache_dir": "memory",
+        "cache_mib": 512,
+        "buffer_mib": 512,
+        "writeback": false,
+        "attr_cache_seconds": 0,
+        "entry_cache_seconds": 0,
+        "open_cache_seconds": 0,
+        "prefetch": 1,
+        "max_readahead_mib": 128,
+        "cache_large_write": true,
+        "verify_cache_checksum": "full",
+        "backup_meta": "0",
+        "no_usage_report": true
+      },
+      "resource_ids": [
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i340"
+      ]
+    },
+    {
+      "id": "7084af367e0bcfad-r1-native",
+      "paired_block": "7084af367e0bcfad-r1",
+      "order": 1,
+      "pool": "pool-a",
+      "suite": "C1",
+      "case": "fio-randwrite",
+      "workload": "fio",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "rw": "randwrite",
+        "block_bytes": 4096,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "arm_id": "native",
+      "arm": {
+        "product": "brewfs",
+        "role": "internal-control",
+        "engine": "flat-v1",
+        "delta": false,
+        "packed": false,
+        "hint": "auto",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "37de6d968821c483dbd34d1f",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "flat-v1",
+        "volume": {
+          "format": "flat-v1"
+        },
+        "cache": {
+          "read_memory_bytes": 536870912,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        }
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    },
+    {
+      "id": "8e3d340ff23c3ece-r1-native",
+      "paired_block": "8e3d340ff23c3ece-r1",
+      "order": 0,
+      "pool": "pool-a",
+      "suite": "C1",
+      "case": "fio-randrw",
+      "workload": "fio",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "rw": "randrw",
+        "block_bytes": 4096,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "arm_id": "native",
+      "arm": {
+        "product": "brewfs",
+        "role": "internal-control",
+        "engine": "flat-v1",
+        "delta": false,
+        "packed": false,
+        "hint": "auto",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "37de6d968821c483dbd34d1f",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "flat-v1",
+        "volume": {
+          "format": "flat-v1"
+        },
+        "cache": {
+          "read_memory_bytes": 536870912,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        }
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    },
+    {
+      "id": "8e3d340ff23c3ece-r1-juicefs",
+      "paired_block": "8e3d340ff23c3ece-r1",
+      "order": 1,
+      "pool": "pool-b",
+      "suite": "C1",
+      "case": "fio-randrw",
+      "workload": "fio",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "rw": "randrw",
+        "block_bytes": 4096,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "arm_id": "juicefs",
+      "arm": {
+        "product": "juicefs",
+        "role": "external-baseline",
+        "engine": "juicefs",
+        "delta": "native-clone",
+        "packed": false,
+        "hint": "none",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "c46b72f2a8727d19b8d9e313",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "cache_dir": "memory",
+        "cache_mib": 512,
+        "buffer_mib": 512,
+        "writeback": false,
+        "attr_cache_seconds": 0,
+        "entry_cache_seconds": 0,
+        "open_cache_seconds": 0,
+        "prefetch": 1,
+        "max_readahead_mib": 128,
+        "cache_large_write": true,
+        "verify_cache_checksum": "full",
+        "backup_meta": "0",
+        "no_usage_report": true
+      },
+      "resource_ids": [
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i340"
+      ]
+    },
+    {
+      "id": "05357b5089cd679c-r1-entity-native",
+      "paired_block": "05357b5089cd679c-r1",
+      "order": 0,
+      "pool": "pool-a",
+      "suite": "C2",
+      "case": "pytest-full-02-n1",
+      "workload": "trace",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "trace": "pytest-full-02",
+        "tasks_per_agent": 1,
+        "pacing": "off",
+        "replay": "complete"
+      },
+      "arm_id": "entity-native",
+      "arm": {
+        "product": "brewfs",
+        "role": "internal-control",
+        "engine": "workspace-entity-v1",
+        "delta": true,
+        "packed": false,
+        "immutable_lower": "native",
+        "hint": "auto",
+        "payload_cache_bytes": 0
+      },
+      "asset_id": "59631005c9efa4770b6070bd",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "complete-trace-qualification",
+        "fresh-initial-tree",
+        "repo-home-xdg-on-mount",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "workspace-entity-v1",
+        "volume": {
+          "format": "workspace-entity-v1"
+        },
+        "cache": {
+          "read_memory_bytes": 0,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        },
+        "entity_read_cache_bytes": 0
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    },
+    {
+      "id": "05357b5089cd679c-r1-juicefs",
+      "paired_block": "05357b5089cd679c-r1",
+      "order": 1,
+      "pool": "pool-b",
+      "suite": "C2",
+      "case": "pytest-full-02-n1",
+      "workload": "trace",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "trace": "pytest-full-02",
+        "tasks_per_agent": 1,
+        "pacing": "off",
+        "replay": "complete"
+      },
+      "arm_id": "juicefs",
+      "arm": {
+        "product": "juicefs",
+        "role": "external-baseline",
+        "engine": "juicefs",
+        "delta": "native-clone",
+        "packed": false,
+        "hint": "none",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "b7d96bebe21202363778403c",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "complete-trace-qualification",
+        "fresh-initial-tree",
+        "repo-home-xdg-on-mount",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "cache_dir": "memory",
+        "cache_mib": 512,
+        "buffer_mib": 512,
+        "writeback": false,
+        "attr_cache_seconds": 0,
+        "entry_cache_seconds": 0,
+        "open_cache_seconds": 0,
+        "prefetch": 1,
+        "max_readahead_mib": 128,
+        "cache_large_write": true,
+        "verify_cache_checksum": "full",
+        "backup_meta": "0",
+        "no_usage_report": true
+      },
+      "resource_ids": [
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i340"
+      ]
+    },
+    {
+      "id": "05357b5089cd679c-r1-native",
+      "paired_block": "05357b5089cd679c-r1",
+      "order": 2,
+      "pool": "pool-a",
+      "suite": "C2",
+      "case": "pytest-full-02-n1",
+      "workload": "trace",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "trace": "pytest-full-02",
+        "tasks_per_agent": 1,
+        "pacing": "off",
+        "replay": "complete"
+      },
+      "arm_id": "native",
+      "arm": {
+        "product": "brewfs",
+        "role": "internal-control",
+        "engine": "flat-v1",
+        "delta": false,
+        "packed": false,
+        "hint": "auto",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "fae5832d1fdfd15d55ae857d",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "complete-trace-qualification",
+        "fresh-initial-tree",
+        "repo-home-xdg-on-mount",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "flat-v1",
+        "volume": {
+          "format": "flat-v1"
+        },
+        "cache": {
+          "read_memory_bytes": 536870912,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        }
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    },
+    {
+      "id": "05357b5089cd679c-r1-native-workspace",
+      "paired_block": "05357b5089cd679c-r1",
+      "order": 3,
+      "pool": "pool-a",
+      "suite": "C2",
+      "case": "pytest-full-02-n1",
+      "workload": "trace",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "trace": "pytest-full-02",
+        "tasks_per_agent": 1,
+        "pacing": "off",
+        "replay": "complete"
+      },
+      "arm_id": "native-workspace",
+      "arm": {
+        "product": "brewfs",
+        "role": "internal-control",
+        "engine": "workspace-native-v2",
+        "delta": true,
+        "packed": false,
+        "hint": "auto",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "cea200ea530e910697d911fd",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "complete-trace-qualification",
+        "fresh-initial-tree",
+        "repo-home-xdg-on-mount",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "workspace-native-v2",
+        "volume": {
+          "format": "workspace-native-v2",
+          "schema_version": 2,
+          "native_control_version": 2
+        },
+        "cache": {
+          "read_memory_bytes": 536870912,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        }
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    },
+    {
+      "id": "05357b5089cd679c-r1-packed",
+      "paired_block": "05357b5089cd679c-r1",
+      "order": 4,
+      "pool": "pool-a",
+      "suite": "C2",
+      "case": "pytest-full-02-n1",
+      "workload": "trace",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "trace": "pytest-full-02",
+        "tasks_per_agent": 1,
+        "pacing": "off",
+        "replay": "complete"
+      },
+      "arm_id": "packed",
+      "arm": {
+        "product": "brewfs",
+        "role": "candidate",
+        "engine": "workspace-entity-v1",
+        "delta": true,
+        "packed": true,
+        "hint": "auto",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "c4a2e030f016ed68407e772b",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "complete-trace-qualification",
+        "fresh-initial-tree",
+        "repo-home-xdg-on-mount",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create",
+        "mount",
+        "measure",
+        "drain",
+        "unmount",
+        "verify",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "workspace-entity-v1",
+        "volume": {
+          "format": "workspace-entity-v1"
+        },
+        "cache": {
+          "read_memory_bytes": 0,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        },
+        "entity_read_cache_bytes": 536870912
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    },
+    {
+      "id": "16f4ac389d2a2da6-r1-entity-native",
+      "paired_block": "16f4ac389d2a2da6-r1",
+      "order": 0,
+      "pool": "pool-a",
+      "suite": "C3",
+      "case": "files-100000-hot-1024",
+      "workload": "smallfiles",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "files": 100000,
+        "file_bytes": 4096,
+        "directories": 1024,
+        "hot_files": 1024,
+        "workers": 8,
+        "workspaces": 1,
+        "read_ops": 8192,
+        "cow_files": 256,
+        "write_ops": 256,
+        "mixed_ops": 1024,
+        "prewarm_passes": 2,
+        "mixed_read_fraction": 0.75,
+        "fsync_every_write": true,
+        "dataset": "smallfiles-100k-4k"
+      },
+      "arm_id": "entity-native",
+      "arm": {
+        "product": "brewfs",
+        "role": "internal-control",
+        "engine": "workspace-entity-v1",
+        "delta": true,
+        "packed": false,
+        "immutable_lower": "native",
+        "hint": "auto",
+        "payload_cache_bytes": 0
+      },
+      "asset_id": "297e2d02d022d070ccc13238",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "full-base-validation-once",
+        "client-cache-evidence",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create-w01",
+        "mount-w01",
+        "measure-w01",
+        "drain-w01",
+        "unmount-w01",
+        "verify-w01",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start-w01",
+        "measure-end-w01",
+        "drain-end-w01",
+        "verify-end-w01"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "workspace-entity-v1",
+        "volume": {
+          "format": "workspace-entity-v1"
+        },
+        "cache": {
+          "read_memory_bytes": 0,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        },
+        "entity_read_cache_bytes": 0
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    },
+    {
+      "id": "16f4ac389d2a2da6-r1-juicefs",
+      "paired_block": "16f4ac389d2a2da6-r1",
+      "order": 1,
+      "pool": "pool-b",
+      "suite": "C3",
+      "case": "files-100000-hot-1024",
+      "workload": "smallfiles",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "files": 100000,
+        "file_bytes": 4096,
+        "directories": 1024,
+        "hot_files": 1024,
+        "workers": 8,
+        "workspaces": 1,
+        "read_ops": 8192,
+        "cow_files": 256,
+        "write_ops": 256,
+        "mixed_ops": 1024,
+        "prewarm_passes": 2,
+        "mixed_read_fraction": 0.75,
+        "fsync_every_write": true,
+        "dataset": "smallfiles-100k-4k"
+      },
+      "arm_id": "juicefs",
+      "arm": {
+        "product": "juicefs",
+        "role": "external-baseline",
+        "engine": "juicefs",
+        "delta": "native-clone",
+        "packed": false,
+        "hint": "none",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "5dbb6f9465f5d298f399236b",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "full-base-validation-once",
+        "client-cache-evidence",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create-w01",
+        "mount-w01",
+        "measure-w01",
+        "drain-w01",
+        "unmount-w01",
+        "verify-w01",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start-w01",
+        "measure-end-w01",
+        "drain-end-w01",
+        "verify-end-w01"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "cache_dir": "memory",
+        "cache_mib": 512,
+        "buffer_mib": 512,
+        "writeback": false,
+        "attr_cache_seconds": 0,
+        "entry_cache_seconds": 0,
+        "open_cache_seconds": 0,
+        "prefetch": 1,
+        "max_readahead_mib": 128,
+        "cache_large_write": true,
+        "verify_cache_checksum": "full",
+        "backup_meta": "0",
+        "no_usage_report": true
+      },
+      "resource_ids": [
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i340"
+      ]
+    },
+    {
+      "id": "16f4ac389d2a2da6-r1-native",
+      "paired_block": "16f4ac389d2a2da6-r1",
+      "order": 2,
+      "pool": "pool-a",
+      "suite": "C3",
+      "case": "files-100000-hot-1024",
+      "workload": "smallfiles",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "files": 100000,
+        "file_bytes": 4096,
+        "directories": 1024,
+        "hot_files": 1024,
+        "workers": 8,
+        "workspaces": 1,
+        "read_ops": 8192,
+        "cow_files": 256,
+        "write_ops": 256,
+        "mixed_ops": 1024,
+        "prewarm_passes": 2,
+        "mixed_read_fraction": 0.75,
+        "fsync_every_write": true,
+        "dataset": "smallfiles-100k-4k"
+      },
+      "arm_id": "native",
+      "arm": {
+        "product": "brewfs",
+        "role": "internal-control",
+        "engine": "flat-v1",
+        "delta": false,
+        "packed": false,
+        "hint": "auto",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "59a53a7beb53f4581317d11f",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "full-base-validation-once",
+        "client-cache-evidence",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create-w01",
+        "mount-w01",
+        "measure-w01",
+        "drain-w01",
+        "unmount-w01",
+        "verify-w01",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start-w01",
+        "measure-end-w01",
+        "drain-end-w01",
+        "verify-end-w01"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "flat-v1",
+        "volume": {
+          "format": "flat-v1"
+        },
+        "cache": {
+          "read_memory_bytes": 536870912,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        }
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    },
+    {
+      "id": "16f4ac389d2a2da6-r1-packed",
+      "paired_block": "16f4ac389d2a2da6-r1",
+      "order": 3,
+      "pool": "pool-a",
+      "suite": "C3",
+      "case": "files-100000-hot-1024",
+      "workload": "smallfiles",
+      "claim": "system",
+      "params": {
+        "agents": 1,
+        "files": 100000,
+        "file_bytes": 4096,
+        "directories": 1024,
+        "hot_files": 1024,
+        "workers": 8,
+        "workspaces": 1,
+        "read_ops": 8192,
+        "cow_files": 256,
+        "write_ops": 256,
+        "mixed_ops": 1024,
+        "prewarm_passes": 2,
+        "mixed_read_fraction": 0.75,
+        "fsync_every_write": true,
+        "dataset": "smallfiles-100k-4k"
+      },
+      "arm_id": "packed",
+      "arm": {
+        "product": "brewfs",
+        "role": "candidate",
+        "engine": "workspace-entity-v1",
+        "delta": true,
+        "packed": true,
+        "hint": "auto",
+        "payload_cache_bytes": 536870912
+      },
+      "asset_id": "18ded130933344db9818ea56",
+      "required_gates": [
+        "exact-build-input-inventory",
+        "native-route-and-metadata",
+        "effective-cache-and-durability",
+        "host-capacity-and-maintenance",
+        "complete-telemetry-and-overhead",
+        "full-base-validation-once",
+        "client-cache-evidence",
+        "cross-pool-hardware-equivalence"
+      ],
+      "stages": [
+        "observe-start",
+        "create-w01",
+        "mount-w01",
+        "measure-w01",
+        "drain-w01",
+        "unmount-w01",
+        "verify-w01",
+        "observe-stop",
+        "archive"
+      ],
+      "observation_marks": [
+        "measure-start-w01",
+        "measure-end-w01",
+        "drain-end-w01",
+        "verify-end-w01"
+      ],
+      "execution_enabled": false,
+      "client_settings": {
+        "volume_format": "workspace-entity-v1",
+        "volume": {
+          "format": "workspace-entity-v1"
+        },
+        "cache": {
+          "read_memory_bytes": 0,
+          "read_ssd_bytes": 0,
+          "write_memory_bytes": 536870912,
+          "write_ssd_bytes": 1073741824,
+          "memory_budget_bytes": 536870912,
+          "writeback_mode": "upload_before_commit",
+          "compression": "none",
+          "verify_cache_checksum": "full",
+          "prefetch_enabled": true,
+          "prefetch_max_bytes": 134217728,
+          "prefetch_concurrency": 64,
+          "range_background_prefetch": true,
+          "read_fetch_policy": "backend-default",
+          "populate_write_cache_after_upload": true,
+          "persist_write_cache_after_upload": false
+        },
+        "fuse": {
+          "cache_ttl_ms": 0,
+          "keep_cache": false
+        },
+        "data": {
+          "s3": {
+            "rustfs_ec_block_size_hint": "auto"
+          }
+        },
+        "entity_read_cache_bytes": 536870912
+      },
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "ebd79b6b2fb3854f4b5c0ae8",
+      "pool": "pool-a",
+      "dataset": "fio-67108864-0c532b1c0048",
+      "formation": {
+        "product": "brewfs",
+        "engine": "flat-v1",
+        "delta": false,
+        "packed": false,
+        "hint": "auto"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "e8e84e83fe1ab04adbe19d06",
+      "pool": "pool-b",
+      "dataset": "fio-67108864-0c532b1c0048",
+      "formation": {
+        "product": "juicefs",
+        "engine": "juicefs",
+        "delta": "native-clone",
+        "packed": false,
+        "hint": "none"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "37de6d968821c483dbd34d1f",
+      "pool": "pool-a",
+      "dataset": "fio-67108864-eb452268e8af",
+      "formation": {
+        "product": "brewfs",
+        "engine": "flat-v1",
+        "delta": false,
+        "packed": false,
+        "hint": "auto"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "c46b72f2a8727d19b8d9e313",
+      "pool": "pool-b",
+      "dataset": "fio-67108864-eb452268e8af",
+      "formation": {
+        "product": "juicefs",
+        "engine": "juicefs",
+        "delta": "native-clone",
+        "packed": false,
+        "hint": "none"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "59631005c9efa4770b6070bd",
+      "pool": "pool-a",
+      "dataset": "pytest-full-02",
+      "formation": {
+        "product": "brewfs",
+        "engine": "workspace-entity-v1",
+        "delta": true,
+        "packed": false,
+        "immutable_lower": "native",
+        "hint": "auto"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "b7d96bebe21202363778403c",
+      "pool": "pool-b",
+      "dataset": "pytest-full-02",
+      "formation": {
+        "product": "juicefs",
+        "engine": "juicefs",
+        "delta": "native-clone",
+        "packed": false,
+        "hint": "none"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "fae5832d1fdfd15d55ae857d",
+      "pool": "pool-a",
+      "dataset": "pytest-full-02",
+      "formation": {
+        "product": "brewfs",
+        "engine": "flat-v1",
+        "delta": false,
+        "packed": false,
+        "hint": "auto"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "cea200ea530e910697d911fd",
+      "pool": "pool-a",
+      "dataset": "pytest-full-02",
+      "formation": {
+        "product": "brewfs",
+        "engine": "workspace-native-v2",
+        "delta": true,
+        "packed": false,
+        "hint": "auto"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "c4a2e030f016ed68407e772b",
+      "pool": "pool-a",
+      "dataset": "pytest-full-02",
+      "formation": {
+        "product": "brewfs",
+        "engine": "workspace-entity-v1",
+        "delta": true,
+        "packed": true,
+        "hint": "auto"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "297e2d02d022d070ccc13238",
+      "pool": "pool-a",
+      "dataset": "smallfiles-100k-4k",
+      "formation": {
+        "product": "brewfs",
+        "engine": "workspace-entity-v1",
+        "delta": true,
+        "packed": false,
+        "immutable_lower": "native",
+        "hint": "auto"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "5dbb6f9465f5d298f399236b",
+      "pool": "pool-b",
+      "dataset": "smallfiles-100k-4k",
+      "formation": {
+        "product": "juicefs",
+        "engine": "juicefs",
+        "delta": "native-clone",
+        "packed": false,
+        "hint": "none"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "59a53a7beb53f4581317d11f",
+      "pool": "pool-a",
+      "dataset": "smallfiles-100k-4k",
+      "formation": {
+        "product": "brewfs",
+        "engine": "flat-v1",
+        "delta": false,
+        "packed": false,
+        "hint": "auto"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    },
+    {
+      "id": "18ded130933344db9818ea56",
+      "pool": "pool-a",
+      "dataset": "smallfiles-100k-4k",
+      "formation": {
+        "product": "brewfs",
+        "engine": "workspace-entity-v1",
+        "delta": true,
+        "packed": true,
+        "hint": "auto"
+      },
+      "import_repetitions": 1,
+      "required_stages": [
+        "source-verify",
+        "import",
+        "full-base-verify",
+        "cache-reset"
+      ],
+      "scope": "all preparation/validation/temporary bytes charged once per actual asset"
+    }
+  ],
+  "counts": {
+    "cells": 19,
+    "paired_blocks": 7,
+    "onboarding_assets": 13
+  },
+  "parallelism": "baseline arms split across assigned pools; per-cell leases; one active cell per pool; shared resource IDs serialize conflicting cells",
+  "repeat_scope": "operation blocks; independent deployment repetitions require new campaign identities",
+  "plan_sha256": "0feb04c5e52a28aa26d648386a5887aaffb5a792a7c579f5da25cd78f220a108"
+}

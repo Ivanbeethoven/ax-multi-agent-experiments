@@ -1,0 +1,42 @@
+{
+  "action": "dry-run",
+  "exit_code": 0,
+  "applied": false,
+  "automatic_retry": false,
+  "argv": [
+    "python3",
+    "-B",
+    "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/reclaim-closed-object-observer.py",
+    "--request",
+    "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/request.reviewed.json",
+    "--sha256",
+    "f91e7fb51a356cf266addf48a3786033323fa03cf130d249594562789b9734d5",
+    "--out",
+    "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/dry-run-01"
+  ],
+  "copied_public_receipts": [
+    {
+      "original": "experiments/unified-suite/pilot-aliyun/evidence/cloud-20261111/7084af367e0bcfad-r1-native/oss/objects.tar.gz.json",
+      "coordinator": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/public-formal.json",
+      "sha256": "8c227f65342495e090d01573b664fa9a367ce598073dd7b094c476cdc02ec9b6",
+      "bytes": 1601
+    },
+    {
+      "original": "experiments/unified-suite/pilot-aliyun/evidence/cloud-20261111/7084af367e0bcfad-r1-native/oss/calibrations.tar.gz.json",
+      "coordinator": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/public-calibrations.json",
+      "sha256": "ece556f148d905f0f4aaedc73f08904e2a7eac4246c114636d8b81e086eed040",
+      "bytes": 1598
+    }
+  ],
+  "tool_sha256": "022b0a101de5f9783e154ac5e6795595ed12fc10aa8bdfdcddcc5651f655b76a",
+  "request_sha256": "f91e7fb51a356cf266addf48a3786033323fa03cf130d249594562789b9734d5",
+  "result_sha256": "6ab6239e9b054ca0f07afa4441c0012aa71d862eddbabb49543c4b21a1a80017",
+  "observed_allocated_bytes": 8902164480,
+  "observed_files": 63756,
+  "locks_released_after_process_exit": true,
+  "local_offline_tests": {
+    "command": "python3 -m unittest discover -s tests -p test_closed_object_observer_reclaim.py -v",
+    "passed": 6
+  },
+  "scope": "Only four explicitly archived A C1 observer original trees; no deletion"
+}

@@ -1,0 +1,121 @@
+{
+  "applied": false,
+  "at": "2026-11-11T16:08:58.838922+00:00",
+  "automatic_retry": false,
+  "boot_id": "5a984d75-dca0-4921-92fa-b021d1f799e5",
+  "boundary": {
+    "lease_controls": [
+      "/srv/ax-pilot-control/c1-native-randread-rebind-01",
+      "/srv/ax-pilot-control/c123-control-01",
+      "/srv/ax-pilot-control/c3-stage-fixed-01",
+      "/srv/ax-pilot-control/fork-control-01",
+      "/srv/ax-pilot-control/parallel-control-01"
+    ],
+    "manager": {
+      "ActiveState": "failed",
+      "ControlPID": "0",
+      "ExecMainStatus": "1",
+      "InvocationID": "d944eeaa8da34cc495ad8a993adade7f",
+      "LoadState": "loaded",
+      "MainPID": "0",
+      "Result": "exit-code",
+      "SubState": "failed"
+    },
+    "resident_units": {
+      "ax-pilot-assets.service": {
+        "exec_start_sha256": "54e028c729adf5ac46134d301aa1816e557764c8413401f7c9de1c3a39f80c9c",
+        "invocation_id": "04819dcce87b4d728f1e8261c5455778",
+        "main_pid": 4282
+      },
+      "ax-pilot-c4-relay-01.service": {
+        "exec_start_sha256": "7860994eac78d90dc66c98acc755f072d06f680a21486b7d7a0d4e8da39b339e",
+        "invocation_id": "db983268f1304a3491213f43f864da85",
+        "main_pid": 29876
+      }
+    },
+    "reviewed_quiescence": {
+      "path": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/boundary-01/quiescence.json",
+      "sha256": "eb1765468092d0c030ff76cd1f1d20d7dea083b4b2f0fca7981ba23f15bbd6d2"
+    }
+  },
+  "device": 64784,
+  "final_free_bytes": 20285997056,
+  "groups": [
+    {
+      "allocated_bytes": 2301771776,
+      "files": 16029,
+      "fingerprint": "32a9092fffa591011eff13ddd02c35fb6899468a002448d77620c9351749f008",
+      "root": [
+        64784,
+        1113031,
+        16832,
+        358,
+        20480,
+        48,
+        1794367487715686032,
+        1794367487715686032
+      ],
+      "tag": "c1-7084af367e0bcfad-r1-native"
+    },
+    {
+      "allocated_bytes": 2183049216,
+      "files": 15894,
+      "fingerprint": "78eb9feba58237970b1ae2710733784c5a081052cdd3219fc279094204a03ba2",
+      "root": [
+        64784,
+        1064238,
+        16832,
+        355,
+        20480,
+        48,
+        1794358382721763583,
+        1794358382721763583
+      ],
+      "tag": "cal-n-rw-on1"
+    },
+    {
+      "allocated_bytes": 2184876032,
+      "files": 15894,
+      "fingerprint": "6de2dce6f3905c9b3dcdbeb6cfc0b7e77bb2754935a7910f0e654e4c05d37d92",
+      "root": [
+        64784,
+        1080487,
+        16832,
+        355,
+        20480,
+        40,
+        1794360207702845618,
+        1794360207702845618
+      ],
+      "tag": "cal-n-rw-on2"
+    },
+    {
+      "allocated_bytes": 2232467456,
+      "files": 15939,
+      "fingerprint": "a7c8c875b5769694317758a8adc8f0d77398dd87a2ea2276233b90685b0af99b",
+      "root": [
+        64784,
+        1096736,
+        16832,
+        356,
+        20480,
+        40,
+        1794365653903184677,
+        1794365653903184677
+      ],
+      "tag": "cal-n-rw-on3"
+    }
+  ],
+  "initial_free_bytes": 20285997056,
+  "mode": "dry-run",
+  "observed_allocated_bytes": 8902164480,
+  "passed": true,
+  "request": {
+    "path": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/request.reviewed.json",
+    "sha256": "f91e7fb51a356cf266addf48a3786033323fa03cf130d249594562789b9734d5"
+  },
+  "tool": {
+    "path": "/srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/reclaim-closed-object-observer.py",
+    "sha256": "022b0a101de5f9783e154ac5e6795595ed12fc10aa8bdfdcddcc5651f655b76a"
+  }
+}

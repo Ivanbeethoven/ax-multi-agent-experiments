@@ -1,0 +1,4275 @@
+{
+  "at": "2026-11-11T16:01:46.452653+00:00",
+  "documents": {
+    "capacity.json": {
+      "pin": {
+        "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01/capacity.json",
+        "sha256": "63776473d5c491929395fa2c71e9891ff681c19a48c06ed34289279708424e04"
+      },
+      "value": {
+        "schema": "c4-aof-reconciled-capacity-v1",
+        "passed": true,
+        "at": "2026-11-11T11:57:01.368952+00:00",
+        "cell_id": "c5e97774bcffa69a-r1-native",
+        "pool": "pool-a",
+        "before": {
+          "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before.json",
+          "sha256": "e2d38c455c5a459c706c77501ef2476de7e5af5269bbfbd8786203d9d080cf35"
+        },
+        "after": {
+          "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-after.json",
+          "sha256": "7f14a3de9c86aa6c5ff94f19f78d71f5aac7b621d9bc79b543326db6f65618b7"
+        },
+        "fresh": {
+          "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/fresh-01.json",
+          "sha256": "aed95f89dbba50b42bc4a5e4aa13379634f83c6065bb5287f88c8a701ffc1c59"
+        },
+        "original_capacity": {
+          "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity.json",
+          "sha256": "71f1bf57e69185de3d6fcb455e31e9aad3e7bd2ba288f90de58525cd4f80f5b4"
+        },
+        "preparation": {
+          "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/result.json",
+          "sha256": "b1dc911bae231cfbc526924864ffc34e30bb97a0f6fc80778a741bceef7c1321"
+        },
+        "recovery_proof": {
+          "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/recovery.json",
+          "sha256": "e400f505a1342faec7a8e0bab0cd0d3a16a9c7144506edc09fa0de1d13433d56"
+        },
+        "producer": {
+          "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/reconcile-c4-capacity.py",
+          "sha256": "67113ca7cc2df1af47b5b6d9d6524a9dc67f37e89801383d3af90ed2a6e9dc55"
+        },
+        "rows": [
+          {
+            "role": "client",
+            "path": "/srv/ax-client",
+            "quantity": "bytes",
+            "measured_base_increment": 17584128,
+            "extra_full_copies": 0,
+            "projected_used": 17077473280,
+            "total": 100056096768,
+            "observed_allocation_decrease": false,
+            "rewrite_headroom_bytes": 0,
+            "rewrite_headroom_inodes": 0,
+            "passed": true
+          },
+          {
+            "role": "client",
+            "path": "/srv/ax-client",
+            "quantity": "inodes",
+            "measured_base_increment": 171,
+            "extra_full_copies": 0,
+            "projected_used": 2540155,
+            "total": 26214400,
+            "observed_allocation_decrease": false,
+            "rewrite_headroom_bytes": 0,
+            "rewrite_headroom_inodes": 0,
+            "passed": true
+          },
+          {
+            "role": "metadata",
+            "path": "/srv/ax-metadata",
+            "quantity": "bytes",
+            "measured_base_increment": 1743368192,
+            "extra_full_copies": 7,
+            "projected_used": 20673531904,
+            "total": 60070604800,
+            "observed_allocation_decrease": true,
+            "rewrite_headroom_bytes": 7272353792,
+            "rewrite_headroom_inodes": 0,
+            "passed": true
+          },
+          {
+            "role": "metadata",
+            "path": "/srv/ax-metadata",
+            "quantity": "inodes",
+            "measured_base_increment": 154866,
+            "extra_full_copies": 7,
+            "projected_used": 1238946,
+            "total": 15728640,
+            "observed_allocation_decrease": false,
+            "rewrite_headroom_bytes": 0,
+            "rewrite_headroom_inodes": 16,
+            "passed": true
+          },
+          {
+            "role": "metadata",
+            "quantity": "redis-memory-bytes",
+            "measured_base_increment": 88108856,
+            "extra_full_copies": 7,
+            "projected_used": 1421476712,
+            "total": 10737418240,
+            "observed_allocation_decrease": false,
+            "passed": true
+          },
+          {
+            "role": "metadata",
+            "quantity": "redis-aof-bytes",
+            "before": 431505963,
+            "after": 371832356,
+            "measured_base_increment": 977254341,
+            "extra_full_copies": 7,
+            "projected_aof_bytes": 7272286350,
+            "included_in_metadata_disk_forecast": true,
+            "passed": true
+          },
+          {
+            "role": "objects",
+            "path": "/srv/ax-rustfs-data-0",
+            "quantity": "bytes",
+            "measured_base_increment": 1249935360,
+            "extra_full_copies": 7,
+            "projected_used": 47212527616,
+            "total": 60070604800,
+            "observed_allocation_decrease": false,
+            "rewrite_headroom_bytes": 0,
+            "rewrite_headroom_inodes": 0,
+            "passed": true
+          },
+          {
+            "role": "objects",
+            "path": "/srv/ax-rustfs-data-0",
+            "quantity": "inodes",
+            "measured_base_increment": 299991,
+            "extra_full_copies": 7,
+            "projected_used": 5561025,
+            "total": 15728640,
+            "observed_allocation_decrease": false,
+            "rewrite_headroom_bytes": 0,
+            "rewrite_headroom_inodes": 0,
+            "passed": true
+          },
+          {
+            "role": "objects",
+            "path": "/srv/ax-rustfs-data-1",
+            "quantity": "bytes",
+            "measured_base_increment": 1249824768,
+            "extra_full_copies": 7,
+            "projected_used": 27018199040,
+            "total": 60070604800,
+            "observed_allocation_decrease": false,
+            "rewrite_headroom_bytes": 0,
+            "rewrite_headroom_inodes": 0,
+            "passed": true
+          },
+          {
+            "role": "objects",
+            "path": "/srv/ax-rustfs-data-1",
+            "quantity": "inodes",
+            "measured_base_increment": 299989,
+            "extra_full_copies": 7,
+            "projected_used": 5417179,
+            "total": 15728640,
+            "observed_allocation_decrease": false,
+            "rewrite_headroom_bytes": 0,
+            "rewrite_headroom_inodes": 0,
+            "passed": true
+          },
+          {
+            "role": "objects",
+            "path": "/srv/ax-rustfs-data-2",
+            "quantity": "bytes",
+            "measured_base_increment": 1249808384,
+            "extra_full_copies": 7,
+            "projected_used": 27017871360,
+            "total": 60070604800,
+            "observed_allocation_decrease": false,
+            "rewrite_headroom_bytes": 0,
+            "rewrite_headroom_inodes": 0,
+            "passed": true
+          },
+          {
+            "role": "objects",
+            "path": "/srv/ax-rustfs-data-2",
+            "quantity": "inodes",
+            "measured_base_increment": 299989,
+            "extra_full_copies": 7,
+            "projected_used": 5417179,
+            "total": 15728640,
+            "observed_allocation_decrease": false,
+            "rewrite_headroom_bytes": 0,
+            "rewrite_headroom_inodes": 0,
+            "passed": true
+          },
+          {
+            "role": "objects",
+            "path": "/srv/ax-rustfs-data-3",
+            "quantity": "bytes",
+            "measured_base_increment": 1249808384,
+            "extra_full_copies": 7,
+            "projected_used": 27018043392,
+            "total": 60070604800,
+            "observed_allocation_decrease": false,
+            "rewrite_headroom_bytes": 0,
+            "rewrite_headroom_inodes": 0,
+            "passed": true
+          },
+          {
+            "role": "objects",
+            "path": "/srv/ax-rustfs-data-3",
+            "quantity": "inodes",
+            "measured_base_increment": 299989,
+            "extra_full_copies": 7,
+            "projected_used": 5417179,
+            "total": 15728640,
+            "observed_allocation_decrease": false,
+            "rewrite_headroom_bytes": 0,
+            "rewrite_headroom_inodes": 0,
+            "passed": true
+          }
+        ],
+        "extra_full_copies": 7,
+        "reserve_fraction": 0.2,
+        "rewrite_headroom_bytes": 7272353792,
+        "source_pins": [
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before.json",
+            "sha256": "e2d38c455c5a459c706c77501ef2476de7e5af5269bbfbd8786203d9d080cf35"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-after.json",
+            "sha256": "7f14a3de9c86aa6c5ff94f19f78d71f5aac7b621d9bc79b543326db6f65618b7"
+          },
+          {
+            "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/fresh-01.json",
+            "sha256": "aed95f89dbba50b42bc4a5e4aa13379634f83c6065bb5287f88c8a701ffc1c59"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity.json",
+            "sha256": "71f1bf57e69185de3d6fcb455e31e9aad3e7bd2ba288f90de58525cd4f80f5b4"
+          },
+          {
+            "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/recovery.json",
+            "sha256": "e400f505a1342faec7a8e0bab0cd0d3a16a9c7144506edc09fa0de1d13433d56"
+          },
+          {
+            "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/reconcile-c4-capacity.py",
+            "sha256": "67113ca7cc2df1af47b5b6d9d6524a9dc67f37e89801383d3af90ed2a6e9dc55"
+          }
+        ],
+        "scope": "Original one-base seven-copy forecast with verified AOF retirement, whole-before allocation allowance and one extra projected AOF. Not a measured future peak or performance acceptance."
+      }
+    },
+    "pretrial-reuse.json": {
+      "pin": {
+        "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01/pretrial-reuse.json",
+        "sha256": "273bc120045ee5b3850382e3c1b9f41e97b7172afe502f089a307d2daf1e4db5"
+      },
+      "value": {
+        "passed": true,
+        "reviewed_request": {
+          "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/reuse.request.reviewed.json",
+          "sha256": "ce38b30bef6b499fb271609ca0d63a9f0761b97c4cafb99b51e4091ec5058549"
+        },
+        "original_batch": {
+          "path": "/srv/ax-pilot-control/preparation/c4-native-flat-run-04/execution-03/batch.request.json",
+          "sha256": "27bbae601da79d295b316fcaed4566ee590e21e2e3b8e1edc6704aa0f8d3bd00"
+        },
+        "quiescence": {
+          "path": "/srv/ax-pilot-control/preparation/a-c4-pretrial-boundary-02/result.json",
+          "sha256": "2d89cabb6c9356d2e4ddae54ecf8fe561c0b2de8f98b296f2ff7d4b1f82ba929"
+        },
+        "preparation": {
+          "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/result.json",
+          "sha256": "b1dc911bae231cfbc526924864ffc34e30bb97a0f6fc80778a741bceef7c1321"
+        },
+        "capacity_source": {
+          "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/capacity-01.json",
+          "sha256": "63776473d5c491929395fa2c71e9891ff681c19a48c06ed34289279708424e04"
+        },
+        "capacity": {
+          "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01/capacity.json",
+          "sha256": "63776473d5c491929395fa2c71e9891ff681c19a48c06ed34289279708424e04"
+        },
+        "base_reimported": false,
+        "automatic_retry": false
+      }
+    },
+    "trial-2-request.json": {
+      "pin": {
+        "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01/trial-2-request.json",
+        "sha256": "794a89342a1b2c0da94e243880611c1589355d0e5e630f4060a35f8a66ce0b8a"
+      },
+      "value": {
+        "control": "/srv/ax-pilot-control/fork-control-01",
+        "cell_id": "c5e97774bcffa69a-r1-native",
+        "asset": "/srv/ax-client/a/c4-fork-flat-base-03",
+        "qualification": "/srv/ax-pilot-control/fork-control-01/qualification/pool-a-fork-03",
+        "node_tool": {
+          "path": "/srv/ax-client/code-19/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+          "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+        },
+        "observer_tool_name": "make-observer.py",
+        "observer_tool_sha256": "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff",
+        "collector_name": "ax-pilot-cal-pool-a-n-sf-c3f01-on3-collector",
+        "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-sf-c3f01-on3-collector",
+        "runtime_control": {
+          "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/binding.json",
+          "sha256": "224d7be366ee28d87e8c185190a30c644672def5ef8ff6edb5f25c4772d2ed41"
+        },
+        "fork": {
+          "tool": {
+            "path": "/srv/ax-client/code-19/experiments/unified-suite/pilot-aliyun/scripts/c4-fork-node.py",
+            "sha256": "e853e5af4021c40191be0da9d7ff061109e5bd802d8c49297b388b456fa4f84f"
+          },
+          "preparation": {
+            "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/result.json",
+            "sha256": "b1dc911bae231cfbc526924864ffc34e30bb97a0f6fc80778a741bceef7c1321"
+          }
+        },
+        "purpose": "observer-calibration-on",
+        "attempt": "c4-a-flat-on1",
+        "out": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1",
+        "verification_policy": "touched-cold-v1",
+        "full_reference": {
+          "path": "/srv/ax-client/q/c4-a-flat-off1/verify/result.json",
+          "sha256": "4950b7222ac336896b46fc8574c370a762685aa9cc970dd9c852f9ff0addb789"
+        },
+        "new_collector_name": "ax-pilot-c4-a-flat-on1-collector",
+        "new_collector_out": "/srv/ax-objects-0/q/ax-pilot-c4-a-flat-on1-collector",
+        "reviewed": true
+      }
+    },
+    "qualification-request.json": {
+      "pin": {
+        "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01/qualification-request.json",
+        "sha256": "8a0f5794a35ae82297cc096ac9915b48b98bfd2074610c99f91b69b4fd325145"
+      },
+      "value": {
+        "control": "/srv/ax-pilot-control/fork-control-01",
+        "cell_id": "c5e97774bcffa69a-r1-native",
+        "asset": "/srv/ax-client/a/c4-fork-flat-base-03",
+        "qualification": "/srv/ax-pilot-control/fork-control-01/qualification/pool-a-fork-03",
+        "node_tool": {
+          "path": "/srv/ax-client/code-19/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+          "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+        },
+        "observer_tool_name": "make-observer.py",
+        "observer_tool_sha256": "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff",
+        "collector_name": "ax-pilot-cal-pool-a-n-sf-c3f01-on3-collector",
+        "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-sf-c3f01-on3-collector",
+        "runtime_control": {
+          "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/binding.json",
+          "sha256": "224d7be366ee28d87e8c185190a30c644672def5ef8ff6edb5f25c4772d2ed41"
+        },
+        "fork": {
+          "tool": {
+            "path": "/srv/ax-client/code-19/experiments/unified-suite/pilot-aliyun/scripts/c4-fork-node.py",
+            "sha256": "e853e5af4021c40191be0da9d7ff061109e5bd802d8c49297b388b456fa4f84f"
+          },
+          "preparation": {
+            "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/result.json",
+            "sha256": "b1dc911bae231cfbc526924864ffc34e30bb97a0f6fc80778a741bceef7c1321"
+          }
+        },
+        "shared_qualification": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-shared-01",
+        "hardware": {
+          "path": "/srv/ax-pilot-control/fork-control-01/hardware-a-03/hardware.json",
+          "sha256": "f9565b48f040e65c564d9f630fc1b0038dfb96d7fa1c05642a4dde9b5aabb1cc"
+        },
+        "preparation_coordinator_result": {
+          "path": "/srv/ax-pilot-control/fork-control-01/preparation/base-flat-03/result.json",
+          "sha256": "ba5f5edab2c81cf369abee000c0f0cc660b812b3504e3db7d2ddfc752a240adf"
+        },
+        "reviewed": true
+      }
+    },
+    "request.json": {
+      "pin": {
+        "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01/request.json",
+        "sha256": "bd28482c6bb3d46c288e791e11f3d8aee1462b00ec43516cc523496ccdcf9392"
+      },
+      "value": {
+        "control": "/srv/ax-pilot-control/fork-control-01",
+        "canonical_control": "/srv/ax-pilot-control/parallel-control-01",
+        "cell_id": "c5e97774bcffa69a-r1-native",
+        "schema": "c4-fork-batch-v1",
+        "initialize_state": false,
+        "preparation_request": {
+          "path": "/srv/ax-pilot-control/preparation/c4-native-flat-run-04/execution-03/base.request.json",
+          "sha256": "4934e4c284df9f9ccb25271ee58109de246c99ef62660efb2e38b615c7a7e673"
+        },
+        "asset": "/srv/ax-client/a/c4-fork-flat-base-03",
+        "qualification": "/srv/ax-pilot-control/fork-control-01/qualification/pool-a-fork-03",
+        "runtime_control": {
+          "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/binding.json",
+          "sha256": "224d7be366ee28d87e8c185190a30c644672def5ef8ff6edb5f25c4772d2ed41"
+        },
+        "hardware": {
+          "path": "/srv/ax-pilot-control/fork-control-01/hardware-a-03/hardware.json",
+          "sha256": "f9565b48f040e65c564d9f630fc1b0038dfb96d7fa1c05642a4dde9b5aabb1cc"
+        },
+        "cross_pool_qualification": {
+          "path": "/srv/ax-pilot-control/fork-control-01/hardware-a-03/cross-pool.json",
+          "sha256": "e2213150a4ed0ee8f9fc58ec24a96476120db78b219f0a420c7a15a4df5fc114"
+        },
+        "shared_qualification": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-shared-01",
+        "tools": {
+          "baseline": {
+            "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py",
+            "sha256": "e5d83db08668789f6422e71f0cc31ad03430b1616cf2ae1a608f24c4c9e6abef"
+          },
+          "capacity": {
+            "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+            "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+          },
+          "prepare": {
+            "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/prepare-c4-controller.py",
+            "sha256": "01e02a5b65d7cbe8e11d5e209fa1a05af54b939b6d851cb21833c65513cdee6a"
+          },
+          "calibrate": {
+            "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4.py",
+            "sha256": "47373aebf1376ec9b2eb3d913c6928624c4f8f8c378e4484b5636c7ec53f0868"
+          },
+          "check": {
+            "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/check-c4-calibration.py",
+            "sha256": "dc19c4969ecccfd726f93aaa28434c15306226b1dafe01fa976d0da9d629b210"
+          },
+          "admit": {
+            "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/admit-c4.py",
+            "sha256": "a06036a2e745b1c06443fecb8aca26530b83e6901e042ec61f15e2c0e6625834"
+          },
+          "run": {
+            "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4.py",
+            "sha256": "7eb7110ba84fd0f34d82e28c0af7899ba122387981fda0b7b3fad0a0d518513b"
+          }
+        },
+        "node_tool": {
+          "path": "/srv/ax-client/code-19/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+          "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+        },
+        "fork_tool": {
+          "path": "/srv/ax-client/code-19/experiments/unified-suite/pilot-aliyun/scripts/c4-fork-node.py",
+          "sha256": "e853e5af4021c40191be0da9d7ff061109e5bd802d8c49297b388b456fa4f84f"
+        },
+        "observer_tool_name": "make-observer.py",
+        "observer_tool_sha256": "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff",
+        "objects_container": "d6c8829b0026ca782efa53629e3bd9ffe8e5b9b23404b079cf35921b7b94cc6f",
+        "out": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01",
+        "formal_attempt": "c4-a-flat-formal-01",
+        "calibration_verification": "touched-cold-v1",
+        "trials": [
+          {
+            "mode": "off",
+            "attempt": "c4-a-flat-off1",
+            "out": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1",
+            "collector_name": "ax-pilot-cal-pool-a-n-sf-c3f01-on3-collector",
+            "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-sf-c3f01-on3-collector"
+          },
+          {
+            "mode": "on",
+            "attempt": "c4-a-flat-on1",
+            "out": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1",
+            "collector_name": "ax-pilot-cal-pool-a-n-sf-c3f01-on3-collector",
+            "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-sf-c3f01-on3-collector",
+            "new_collector_name": "ax-pilot-c4-a-flat-on1-collector",
+            "new_collector_out": "/srv/ax-objects-0/q/ax-pilot-c4-a-flat-on1-collector"
+          },
+          {
+            "mode": "on",
+            "attempt": "c4-a-flat-on2",
+            "out": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on2",
+            "collector_name": "ax-pilot-c4-a-flat-on1-collector",
+            "collector_out": "/srv/ax-objects-0/q/ax-pilot-c4-a-flat-on1-collector"
+          },
+          {
+            "mode": "off",
+            "attempt": "c4-a-flat-off2",
+            "out": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off2",
+            "collector_name": "ax-pilot-c4-a-flat-on1-collector",
+            "collector_out": "/srv/ax-objects-0/q/ax-pilot-c4-a-flat-on1-collector"
+          },
+          {
+            "mode": "off",
+            "attempt": "c4-a-flat-off3",
+            "out": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off3",
+            "collector_name": "ax-pilot-c4-a-flat-on1-collector",
+            "collector_out": "/srv/ax-objects-0/q/ax-pilot-c4-a-flat-on1-collector"
+          },
+          {
+            "mode": "on",
+            "attempt": "c4-a-flat-on3",
+            "out": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on3",
+            "collector_name": "ax-pilot-c4-a-flat-on1-collector",
+            "collector_out": "/srv/ax-objects-0/q/ax-pilot-c4-a-flat-on1-collector",
+            "new_collector_name": "ax-pilot-c4-a-flat-on3-collector",
+            "new_collector_out": "/srv/ax-objects-0/q/ax-pilot-c4-a-flat-on3-collector"
+          }
+        ],
+        "collector_name": "ax-pilot-cal-pool-a-n-sf-c3f01-on3-collector",
+        "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-sf-c3f01-on3-collector",
+        "reviewed": true
+      }
+    },
+    "legacy-before": {
+      "pin": {
+        "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before.json",
+        "sha256": "e2d38c455c5a459c706c77501ef2476de7e5af5269bbfbd8786203d9d080cf35"
+      },
+      "value": {
+        "at": "2026-11-11T09:44:29.809931+00:00",
+        "inventory": {
+          "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/fleet.json",
+          "sha256": "ebdffb7d5a7fe589a319a0a5cd66c4dd6c5925e24e0a831c552de457493cd638"
+        },
+        "pool": "pool-a",
+        "nodes": {
+          "client": {
+            "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+            "sampled_at": "2026-11-11T09:44:29.197340+00:00",
+            "disks": [
+              {
+                "path": "/srv/ax-client",
+                "device": 64784,
+                "serial": "bp1809mw7rlujtjc8epi",
+                "device_bytes": 107374182400,
+                "total_bytes": 100056096768,
+                "used_bytes": 17059889152,
+                "available_bytes": 82979430400,
+                "total_inodes": 26214400,
+                "used_inodes": 2539984,
+                "available_inodes": 23674416
+              }
+            ]
+          },
+          "metadata": {
+            "boot_id": "9a6ebc7c-3b6a-4819-8720-d8e61ff5941e",
+            "sampled_at": "2026-11-11T09:44:29.480242+00:00",
+            "disks": [
+              {
+                "path": "/srv/ax-metadata",
+                "device": 64784,
+                "serial": "bp1gy3cfuj9jik0upt3k",
+                "device_bytes": 64424509440,
+                "total_bytes": 60070604800,
+                "used_bytes": 1197600768,
+                "available_bytes": 58856226816,
+                "total_inodes": 15728640,
+                "used_inodes": 154861,
+                "available_inodes": 15573779
+              }
+            ],
+            "redis": {
+              "used_memory": 716605864,
+              "used_memory_rss": 742653952,
+              "maxmemory": 10737418240,
+              "aof_current_size": 431505963,
+              "process_id": 9779
+            }
+          },
+          "objects": {
+            "boot_id": "5a984d75-dca0-4921-92fa-b021d1f799e5",
+            "sampled_at": "2026-11-11T09:44:29.790445+00:00",
+            "disks": [
+              {
+                "path": "/srv/ax-rustfs-data-0",
+                "device": 64784,
+                "serial": "bp1h9kaoya0predx6kvd",
+                "device_bytes": 64424509440,
+                "total_bytes": 60070604800,
+                "used_bytes": 37213044736,
+                "available_bytes": 22840782848,
+                "total_inodes": 15728640,
+                "used_inodes": 3161097,
+                "available_inodes": 12567543
+              },
+              {
+                "path": "/srv/ax-rustfs-data-1",
+                "device": 64800,
+                "serial": "bp1h9kaoya0predx6kve",
+                "device_bytes": 64424509440,
+                "total_bytes": 60070604800,
+                "used_bytes": 17019600896,
+                "available_bytes": 43034226688,
+                "total_inodes": 15728640,
+                "used_inodes": 3017267,
+                "available_inodes": 12711373
+              },
+              {
+                "path": "/srv/ax-rustfs-data-2",
+                "device": 64816,
+                "serial": "bp1h9kaoya0predx6kvf",
+                "device_bytes": 64424509440,
+                "total_bytes": 60070604800,
+                "used_bytes": 17019404288,
+                "available_bytes": 43034423296,
+                "total_inodes": 15728640,
+                "used_inodes": 3017267,
+                "available_inodes": 12711373
+              },
+              {
+                "path": "/srv/ax-rustfs-data-3",
+                "device": 64832,
+                "serial": "bp1h9kaoya0predx6kvg",
+                "device_bytes": 64424509440,
+                "total_bytes": 60070604800,
+                "used_bytes": 17019576320,
+                "available_bytes": 43034251264,
+                "total_inodes": 15728640,
+                "used_inodes": 3017267,
+                "available_inodes": 12711373
+              }
+            ],
+            "container_id": "d6c8829b0026ca782efa53629e3bd9ffe8e5b9b23404b079cf35921b7b94cc6f",
+            "image": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+            "pid": 7170
+          }
+        },
+        "source_pins": [
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/fleet.json",
+            "sha256": "ebdffb7d5a7fe589a319a0a5cd66c4dd6c5925e24e0a831c552de457493cd638"
+          },
+          {
+            "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+            "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before-raw.json",
+            "sha256": "78abc5ffd7a658d010427cb2130dbfd648e168c9c0856d1ac85b0eb7c9a8aadd"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/suite/plan.json",
+            "sha256": "4b98ab083a06ae353806557f956a60fad8b3c29b8b43971c452cf3a7136b2a7e"
+          }
+        ],
+        "scope": "Actual filesystem allocation and Redis memory/AOF snapshot; no workload or object deletion",
+        "cell_id": "c5e97774bcffa69a-r1-native",
+        "files": 100000
+      }
+    },
+    "legacy-after": {
+      "pin": {
+        "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-after.json",
+        "sha256": "7f14a3de9c86aa6c5ff94f19f78d71f5aac7b621d9bc79b543326db6f65618b7"
+      },
+      "value": {
+        "at": "2026-11-11T11:13:29.891852+00:00",
+        "inventory": {
+          "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/fleet.json",
+          "sha256": "ebdffb7d5a7fe589a319a0a5cd66c4dd6c5925e24e0a831c552de457493cd638"
+        },
+        "pool": "pool-a",
+        "nodes": {
+          "client": {
+            "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+            "sampled_at": "2026-11-11T11:13:28.348960+00:00",
+            "disks": [
+              {
+                "path": "/srv/ax-client",
+                "device": 64784,
+                "serial": "bp1809mw7rlujtjc8epi",
+                "device_bytes": 107374182400,
+                "total_bytes": 100056096768,
+                "used_bytes": 17077473280,
+                "available_bytes": 82961846272,
+                "total_inodes": 26214400,
+                "used_inodes": 2540155,
+                "available_inodes": 23674245
+              }
+            ],
+            "preparation": {
+              "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/result.json",
+              "sha256": "b1dc911bae231cfbc526924864ffc34e30bb97a0f6fc80778a741bceef7c1321",
+              "value": {
+                "passed": true,
+                "cell_id": "c5e97774bcffa69a-r1-native",
+                "pool": "pool-a",
+                "product": "brewfs",
+                "purpose": "asset-preparation",
+                "files": 100000,
+                "bytes": 409600000,
+                "asset": {
+                  "path": "/srv/ax-client/a/c4-fork-flat-base-03/asset.json",
+                  "sha256": "f1df94d8e50c5b8b8a484d35eaa3b316547fc5519cf6e14121b2c81037410586"
+                },
+                "source_tree": {
+                  "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c4-fixture-tree.json",
+                  "sha256": "02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13"
+                },
+                "fixture": {
+                  "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c4-fixture.json",
+                  "sha256": "276cd354adbefcc7ea4aa6799038064bb77d97073a4fe999f6b46be3d7a27a55"
+                },
+                "work_tag": "child-01",
+                "source_check": {
+                  "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/source-full-check.json",
+                  "sha256": "90cdcf297a63e68206420086283356864c5ec5b6c6da3327eaf9ae5fe764ef5e"
+                },
+                "cold_base_check": {
+                  "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/cold-base-check.json",
+                  "sha256": "90cdcf297a63e68206420086283356864c5ec5b6c6da3327eaf9ae5fe764ef5e"
+                },
+                "oracle": {
+                  "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/oracle-result/result.json",
+                  "sha256": "d83dd77c063cae9a8d827cc9d65137c67beac98450ab650acc0c5f4e2941b6b3"
+                },
+                "normal_exits": [
+                  {
+                    "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-1.json",
+                    "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494"
+                  },
+                  {
+                    "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-2.json",
+                    "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494"
+                  }
+                ],
+                "import_seconds": 1154.432497509,
+                "import_fsync_seconds": 27.509758605,
+                "cold_verify_seconds": 4099.977110591,
+                "performance_accepted": false,
+                "formal_admission": false,
+                "automatic_retry": false
+              },
+              "normal_exits": [
+                {
+                  "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-1.json",
+                  "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494",
+                  "value": {
+                    "passed": true,
+                    "exit_code": 0,
+                    "mount_absent": true,
+                    "anchor": {
+                      "filesystem": "brewfs",
+                      "workspace": null,
+                      "namespace": null,
+                      "storage_identity_sha256": "7c7aa5299e761d7ce6dc2b9df641124398621693c1922753355eab0b69d8c20b"
+                    },
+                    "original_mount": {
+                      "mount_id": 253,
+                      "point": "/srv/ax-client/a/c4-fork-flat-base-03/mnt",
+                      "filesystem": "fuse",
+                      "source": "brewfs",
+                      "options": "rw,nosuid,nodev,relatime"
+                    },
+                    "active_workers": []
+                  }
+                },
+                {
+                  "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-2.json",
+                  "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494",
+                  "value": {
+                    "passed": true,
+                    "exit_code": 0,
+                    "mount_absent": true,
+                    "anchor": {
+                      "filesystem": "brewfs",
+                      "workspace": null,
+                      "namespace": null,
+                      "storage_identity_sha256": "7c7aa5299e761d7ce6dc2b9df641124398621693c1922753355eab0b69d8c20b"
+                    },
+                    "original_mount": {
+                      "mount_id": 253,
+                      "point": "/srv/ax-client/a/c4-fork-flat-base-03/mnt",
+                      "filesystem": "fuse",
+                      "source": "brewfs",
+                      "options": "rw,nosuid,nodev,relatime"
+                    },
+                    "active_workers": []
+                  }
+                }
+              ]
+            }
+          },
+          "metadata": {
+            "boot_id": "9a6ebc7c-3b6a-4819-8720-d8e61ff5941e",
+            "sampled_at": "2026-11-11T11:13:28.996735+00:00",
+            "disks": [
+              {
+                "path": "/srv/ax-metadata",
+                "device": 64784,
+                "serial": "bp1gy3cfuj9jik0upt3k",
+                "device_bytes": 64424509440,
+                "total_bytes": 60070604800,
+                "used_bytes": 1137926144,
+                "available_bytes": 58915901440,
+                "total_inodes": 15728640,
+                "used_inodes": 154861,
+                "available_inodes": 15573779
+              }
+            ],
+            "redis": {
+              "used_memory": 804714720,
+              "used_memory_rss": 832012288,
+              "maxmemory": 10737418240,
+              "aof_current_size": 371832356,
+              "process_id": 9779
+            }
+          },
+          "objects": {
+            "boot_id": "5a984d75-dca0-4921-92fa-b021d1f799e5",
+            "sampled_at": "2026-11-11T11:13:29.869375+00:00",
+            "disks": [
+              {
+                "path": "/srv/ax-rustfs-data-0",
+                "device": 64784,
+                "serial": "bp1h9kaoya0predx6kvd",
+                "device_bytes": 64424509440,
+                "total_bytes": 60070604800,
+                "used_bytes": 38462980096,
+                "available_bytes": 21590847488,
+                "total_inodes": 15728640,
+                "used_inodes": 3461088,
+                "available_inodes": 12267552
+              },
+              {
+                "path": "/srv/ax-rustfs-data-1",
+                "device": 64800,
+                "serial": "bp1h9kaoya0predx6kve",
+                "device_bytes": 64424509440,
+                "total_bytes": 60070604800,
+                "used_bytes": 18269425664,
+                "available_bytes": 41784401920,
+                "total_inodes": 15728640,
+                "used_inodes": 3317256,
+                "available_inodes": 12411384
+              },
+              {
+                "path": "/srv/ax-rustfs-data-2",
+                "device": 64816,
+                "serial": "bp1h9kaoya0predx6kvf",
+                "device_bytes": 64424509440,
+                "total_bytes": 60070604800,
+                "used_bytes": 18269212672,
+                "available_bytes": 41784614912,
+                "total_inodes": 15728640,
+                "used_inodes": 3317256,
+                "available_inodes": 12411384
+              },
+              {
+                "path": "/srv/ax-rustfs-data-3",
+                "device": 64832,
+                "serial": "bp1h9kaoya0predx6kvg",
+                "device_bytes": 64424509440,
+                "total_bytes": 60070604800,
+                "used_bytes": 18269384704,
+                "available_bytes": 41784442880,
+                "total_inodes": 15728640,
+                "used_inodes": 3317256,
+                "available_inodes": 12411384
+              }
+            ],
+            "container_id": "d6c8829b0026ca782efa53629e3bd9ffe8e5b9b23404b079cf35921b7b94cc6f",
+            "image": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+            "pid": 7170
+          }
+        },
+        "source_pins": [
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/fleet.json",
+            "sha256": "ebdffb7d5a7fe589a319a0a5cd66c4dd6c5925e24e0a831c552de457493cd638"
+          },
+          {
+            "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+            "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before.json",
+            "sha256": "e2d38c455c5a459c706c77501ef2476de7e5af5269bbfbd8786203d9d080cf35"
+          }
+        ],
+        "scope": "Actual filesystem allocation and Redis memory/AOF snapshot; no workload or object deletion"
+      }
+    },
+    "runtime-binding": {
+      "pin": {
+        "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/binding.json",
+        "sha256": "224d7be366ee28d87e8c185190a30c644672def5ef8ff6edb5f25c4772d2ed41"
+      },
+      "value": {
+        "control": "/srv/ax-pilot-control/fork-control-01",
+        "runtime": "/srv/ax-pilot-control/fork-control-01/runtime-a-03",
+        "original_fleet": {
+          "path": "/srv/ax-pilot-control/fork-control-01/fleet.json",
+          "sha256": "f85605a02eea141c110c79cfb794bd2acaa83fc80b081cad7619f355ebc3aef1"
+        },
+        "fleet": {
+          "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/fleet.json",
+          "sha256": "ebdffb7d5a7fe589a319a0a5cd66c4dd6c5925e24e0a831c552de457493cd638"
+        },
+        "allocation": {
+          "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/allocation.json",
+          "sha256": "885216ff9cab7018a91a1424d873eaf5d094b62212af539bde84dae084dd82fd"
+        },
+        "ssh": {
+          "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/ssh.conf",
+          "sha256": "5ed7438217586e9ac6b3af1e0f9c6755ed901b4754f07ed7ed9d2b4e526ab181"
+        },
+        "proofs": [
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-a-client/probe.json",
+            "sha256": "43a06a42f195a64662d6c685fe5fb1d3dc0bf98ec43ed30cac61316610262c3c"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-a-client/peer.json",
+            "sha256": "9f50cecb490d2cb682e9d4713f1ed456363bb24ebcbbb12c26e18953814a49f3"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-a-client-slot/probe.json",
+            "sha256": "139c4244293c654aeabe43572f7f55c1429e31e689d2dfc51b319066d1492be4"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-a-client-slot/peer.json",
+            "sha256": "c2a3374e413c7be98fd10e78236e50211385dcb77a85dec89aa039f610c28331"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-a-metadata/probe.json",
+            "sha256": "da5af7f20f424082050eff8e13ab7b14df492ccf3f2db3de94dd995a1428c795"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-a-metadata/peer.json",
+            "sha256": "a1e832581484e56e468b83487f19355a706810d6f1c55e2803d49eff1990af23"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-a-objects/probe.json",
+            "sha256": "a0743edd1f4473d1a38a203cbd9dbec0e102fd656ac3f7948351c4c9e2bde658"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-a-objects/peer.json",
+            "sha256": "7d4169edf6ceb46ab83a561dc4aba1208898d947f8f0c1d08fa69bff16d8554d"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-b-client/probe.json",
+            "sha256": "1a1eff90f19c3b886ca744c5122df51034e1e6be88af6542e9891aa61b8ff8ad"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-b-client/peer.json",
+            "sha256": "202b24f77aaa8f414dfb46d907788d5f2a832a9cf57991db34bba9739ef3d4f1"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-b-client-slot/probe.json",
+            "sha256": "a27c2653cb732f0b9627a4295c2a715fc9bcbc25773cda37e55192390f9db05e"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-b-client-slot/peer.json",
+            "sha256": "6d4fd185fa72ab53efda21528a107c02f07816917e6b174ff4df138d004da47d"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-b-metadata/probe.json",
+            "sha256": "fcbd3840f3f862717a03475acc1175b2c30dfcf0ad154a711d40ad3778140284"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-b-metadata/peer.json",
+            "sha256": "29e4b347aa432bc4a89752f9f9a256d12006ca4c8e9c9f5a0307c3d4728f26e0"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-b-objects/probe.json",
+            "sha256": "4370702c67eecb6b0c10e4f736a4a0c40e490be287c0496a6ad921e8adc3181b"
+          },
+          {
+            "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/probes/pool-b-objects/peer.json",
+            "sha256": "27c6187475ea8436042765aa57a2a1a7eab2578a9be3a7ed1fa84eb8cad28ba1"
+          }
+        ],
+        "scope": "Runtime paths only; one original SQLite state, same hosts/disks/slots/boot IDs"
+      }
+    },
+    "fleet": {
+      "pin": {
+        "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/fleet.json",
+        "sha256": "ebdffb7d5a7fe589a319a0a5cd66c4dd6c5925e24e0a831c552de457493cd638"
+      },
+      "value": {
+        "schema": "experiment-inventory-v3",
+        "provider": "ssh",
+        "campaign_id": "ax-pilot-20261111",
+        "execution_enabled": false,
+        "nodes": [
+          {
+            "id": "pool-a-client",
+            "cluster_id": "pool-a",
+            "role": "executor",
+            "kind": "host",
+            "ssh_alias": "pool-a-client",
+            "environment_id": "i-bp1809mw7rlujtj9f705",
+            "host_id": "i-bp1809mw7rlujtj9f705",
+            "host_observer_node": "pool-a-client",
+            "host_key_verified": true,
+            "owned_by_campaign": true,
+            "repo": "/srv/ax-client/code-19",
+            "python": "/usr/bin/python3",
+            "work_root": "/srv/ax-client",
+            "data_paths": [
+              {
+                "path": "/srv/ax-client",
+                "min_free_bytes": 10737418240,
+                "min_free_inodes": 1200000
+              }
+            ],
+            "requirements": {
+              "max_agents": 1
+            },
+            "slots": [
+              {
+                "id": "pool-a-client",
+                "container": null,
+                "cgroup": "/sys/fs/cgroup/ax-slot-1"
+              }
+            ],
+            "data_disk_ids": [
+              "d-bp1809mw7rlujtjc8epi"
+            ],
+            "private_ip": "10.20.2.161",
+            "hostname": "ax-pilot-20261111-client"
+          },
+          {
+            "id": "pool-a-metadata",
+            "cluster_id": "pool-a",
+            "role": "service",
+            "kind": "host",
+            "ssh_alias": "pool-a-metadata",
+            "environment_id": "i-bp1gy3cfuj9jik0y4oc3",
+            "host_id": "i-bp1gy3cfuj9jik0y4oc3",
+            "host_observer_node": "pool-a-metadata",
+            "host_key_verified": true,
+            "owned_by_campaign": true,
+            "repo": "/srv/ax-metadata/code-19",
+            "python": "/usr/bin/python3",
+            "work_root": "/srv/ax-metadata",
+            "data_paths": [
+              {
+                "path": "/srv/ax-metadata",
+                "min_free_bytes": 10737418240,
+                "min_free_inodes": 1200000
+              }
+            ],
+            "requirements": {
+              "max_agents": 0
+            },
+            "slots": [],
+            "data_disk_ids": [
+              "d-bp1gy3cfuj9jik0upt3k"
+            ],
+            "private_ip": "10.20.2.162",
+            "hostname": "ax-pilot-20261111-metadata"
+          },
+          {
+            "id": "pool-a-objects",
+            "cluster_id": "pool-a",
+            "role": "service",
+            "kind": "host",
+            "ssh_alias": "pool-a-objects",
+            "environment_id": "i-bp1h9kaoya0predubdkn",
+            "host_id": "i-bp1h9kaoya0predubdkn",
+            "host_observer_node": "pool-a-objects",
+            "host_key_verified": true,
+            "owned_by_campaign": true,
+            "repo": "/srv/ax-objects-0/code-19",
+            "python": "/usr/bin/python3",
+            "work_root": "/srv/ax-objects-0",
+            "data_paths": [
+              {
+                "path": "/srv/ax-objects-0",
+                "min_free_bytes": 10737418240,
+                "min_free_inodes": 1200000
+              }
+            ],
+            "requirements": {
+              "max_agents": 0
+            },
+            "slots": [],
+            "data_disk_ids": [
+              "d-bp1h9kaoya0predx6kvd",
+              "d-bp1h9kaoya0predx6kve",
+              "d-bp1h9kaoya0predx6kvf",
+              "d-bp1h9kaoya0predx6kvg"
+            ],
+            "private_ip": "10.20.2.163",
+            "hostname": "ax-pilot-20261111-objects"
+          },
+          {
+            "id": "pool-b-client",
+            "cluster_id": "pool-b",
+            "role": "executor",
+            "kind": "host",
+            "ssh_alias": "pool-b-client",
+            "environment_id": "i-bp1fmmfkcpr8w99j2bsy",
+            "host_id": "i-bp1fmmfkcpr8w99j2bsy",
+            "host_observer_node": "pool-b-client",
+            "host_key_verified": true,
+            "owned_by_campaign": true,
+            "repo": "/srv/ax-client/code-12",
+            "python": "/usr/bin/python3",
+            "work_root": "/srv/ax-client",
+            "data_paths": [
+              {
+                "path": "/srv/ax-client",
+                "min_free_bytes": 10737418240,
+                "min_free_inodes": 1200000
+              }
+            ],
+            "requirements": {
+              "max_agents": 1
+            },
+            "slots": [
+              {
+                "id": "pool-b-client",
+                "container": null,
+                "cgroup": "/sys/fs/cgroup/ax-slot-1"
+              }
+            ],
+            "data_disk_ids": [
+              "d-bp1fmmfkcpr8w99pwgc5"
+            ],
+            "private_ip": "10.20.2.171",
+            "hostname": "ax-pilot-20261111-b-client"
+          },
+          {
+            "id": "pool-b-metadata",
+            "cluster_id": "pool-b",
+            "role": "service",
+            "kind": "host",
+            "ssh_alias": "pool-b-metadata",
+            "environment_id": "i-bp14nenf7osz9v1snsp2",
+            "host_id": "i-bp14nenf7osz9v1snsp2",
+            "host_observer_node": "pool-b-metadata",
+            "host_key_verified": true,
+            "owned_by_campaign": true,
+            "repo": "/srv/ax-metadata/code-12",
+            "python": "/usr/bin/python3",
+            "work_root": "/srv/ax-metadata",
+            "data_paths": [
+              {
+                "path": "/srv/ax-metadata",
+                "min_free_bytes": 10737418240,
+                "min_free_inodes": 1200000
+              }
+            ],
+            "requirements": {
+              "max_agents": 0
+            },
+            "slots": [],
+            "data_disk_ids": [
+              "d-bp14nenf7osz9v1rkk5l"
+            ],
+            "private_ip": "10.20.2.169",
+            "hostname": "ax-pilot-20261111-b-metadata"
+          },
+          {
+            "id": "pool-b-objects",
+            "cluster_id": "pool-b",
+            "role": "service",
+            "kind": "host",
+            "ssh_alias": "pool-b-objects",
+            "environment_id": "i-bp1bhdngko7nq3c3jrhp",
+            "host_id": "i-bp1bhdngko7nq3c3jrhp",
+            "host_observer_node": "pool-b-objects",
+            "host_key_verified": true,
+            "owned_by_campaign": true,
+            "repo": "/srv/ax-objects-0/code-12",
+            "python": "/usr/bin/python3",
+            "work_root": "/srv/ax-objects-0",
+            "data_paths": [
+              {
+                "path": "/srv/ax-objects-0",
+                "min_free_bytes": 10737418240,
+                "min_free_inodes": 1200000
+              }
+            ],
+            "requirements": {
+              "max_agents": 0
+            },
+            "slots": [],
+            "data_disk_ids": [
+              "d-bp1bhdngko7nq3c2i343",
+              "d-bp1bhdngko7nq3c2i342",
+              "d-bp1bhdngko7nq3c2i341",
+              "d-bp1bhdngko7nq3c2i340"
+            ],
+            "private_ip": "10.20.2.170",
+            "hostname": "ax-pilot-20261111-b-objects"
+          }
+        ],
+        "scope": "existing SSH environments; host_id groups shared capacity, not a physical-host proof"
+      }
+    }
+  },
+  "candidates": [
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-n-sf-c3f01-on1",
+      "exists": true,
+      "roles": {
+        "client": {
+          "finished": [],
+          "archive_check": null
+        },
+        "metadata": {
+          "finished": [],
+          "archive_check": null
+        },
+        "objects": {
+          "finished": [],
+          "archive_check": null
+        }
+      },
+      "context": null
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-n-sf-c3f01-on2",
+      "exists": true,
+      "roles": {
+        "client": {
+          "finished": [],
+          "archive_check": null
+        },
+        "metadata": {
+          "finished": [],
+          "archive_check": null
+        },
+        "objects": {
+          "finished": [],
+          "archive_check": null
+        }
+      },
+      "context": null
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-n-sf-c3f01-on3",
+      "exists": true,
+      "roles": {
+        "client": {
+          "finished": [],
+          "archive_check": null
+        },
+        "metadata": {
+          "finished": [],
+          "archive_check": null
+        },
+        "objects": {
+          "finished": [],
+          "archive_check": null
+        }
+      },
+      "context": null
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native",
+      "exists": true,
+      "roles": {
+        "client": {
+          "finished": [
+            {
+              "pin": {
+                "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/raw/client/o/c3-fa630431ea12-16f4ac389d2a2da6-r1-native/finished.json",
+                "sha256": "7a28f6f58060ccc5b91a6831e98be2ec67c1ba499bd34bfef6a13e0d3e004252"
+              },
+              "value": {
+                "passed": true,
+                "errors": [],
+                "samples": 82,
+                "latest_sample_ns": 51364318961668,
+                "spec_sha256": "e84064d2d648a701187a4a143784d5cd962e11de9f559fab5ade024384a744da",
+                "metric_contract_sha256": "2304c6085ac97713b6532cdd733fbd14b343cd4796651191cd76a210f31d84b6",
+                "marks": [
+                  {
+                    "label": "measure-start-w01",
+                    "sample_index": 52,
+                    "monotonic_ns": 51233845314114
+                  },
+                  {
+                    "label": "measurement-start",
+                    "sample_index": 53,
+                    "monotonic_ns": 51236304322208
+                  },
+                  {
+                    "label": "application-finished",
+                    "sample_index": 55,
+                    "monotonic_ns": 51243707142831
+                  },
+                  {
+                    "label": "measure-end-w01",
+                    "sample_index": 56,
+                    "monotonic_ns": 51244296720809
+                  },
+                  {
+                    "label": "drain-end-w01",
+                    "sample_index": 57,
+                    "monotonic_ns": 51247158012933
+                  },
+                  {
+                    "label": "verify-end-w01",
+                    "sample_index": 80,
+                    "monotonic_ns": 51362256861688
+                  }
+                ],
+                "target_states": {
+                  "filesystem": {
+                    "state": "cleanly-stopped",
+                    "receipt_sha256": "3ebb7f28f511d482a5c9c1eeecc2963fd7d545c8d384d45eab49e39eef9d1f09"
+                  },
+                  "filesystem-extra-1": {
+                    "state": "cleanly-stopped",
+                    "receipt_sha256": "3ebb7f28f511d482a5c9c1eeecc2963fd7d545c8d384d45eab49e39eef9d1f09"
+                  },
+                  "filesystem-extra-2": {
+                    "state": "cleanly-stopped",
+                    "receipt_sha256": "3ebb7f28f511d482a5c9c1eeecc2963fd7d545c8d384d45eab49e39eef9d1f09"
+                  }
+                },
+                "history": [
+                  {
+                    "index": 0,
+                    "monotonic_start_ns": 50978503350630,
+                    "monotonic_end_ns": 50978507080154,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "8261f8706f7dc7ea4d3d1556bd9329e81d8e963eddb1012c3d62f80cc12eba77"
+                  },
+                  {
+                    "index": 1,
+                    "monotonic_start_ns": 50978544383051,
+                    "monotonic_end_ns": 50978548072386,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "965a7b8d21132f0d8a7d669836e1979fb7246eea5377d3fbe073e788fdfc4658"
+                  },
+                  {
+                    "index": 2,
+                    "monotonic_start_ns": 50983553057374,
+                    "monotonic_end_ns": 50983557990451,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "c171c2b92dd9ff6cab1223e548a0db14ce7d212eb55e748ba2145929810e44de"
+                  },
+                  {
+                    "index": 3,
+                    "monotonic_start_ns": 50988563039017,
+                    "monotonic_end_ns": 50988603943887,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f079e5b1ca23a392fd1f6cb2db72de879c418105f7cec3348dce65e4a399b032"
+                  },
+                  {
+                    "index": 4,
+                    "monotonic_start_ns": 50993609050626,
+                    "monotonic_end_ns": 50993643511370,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "0acbd41b756d6fa32f6e9d0dd33bec977f7c42fdb0dbb3301452e00e0886ec33"
+                  },
+                  {
+                    "index": 5,
+                    "monotonic_start_ns": 50998649057394,
+                    "monotonic_end_ns": 50998684212104,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f6bac9cbde83b91975127ef09417521e717bce3e2334a00e89cc292a9cfd40d1"
+                  },
+                  {
+                    "index": 6,
+                    "monotonic_start_ns": 51003689047433,
+                    "monotonic_end_ns": 51003726137594,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "bded746a4a50d6a1ee02592fa6329cbdc277e221b9c2384893b263a325bbe391"
+                  },
+                  {
+                    "index": 7,
+                    "monotonic_start_ns": 51008731041839,
+                    "monotonic_end_ns": 51008767049642,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5974964914ee7307c8f19747a827b1f09cd0180a76f23fea6ca084ff7d929cf3"
+                  },
+                  {
+                    "index": 8,
+                    "monotonic_start_ns": 51013772048977,
+                    "monotonic_end_ns": 51013811106371,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a2b49bd0cdd61410559dc56a9e59c1dc243d48028e0973eeb33f4a96f6a0afcd"
+                  },
+                  {
+                    "index": 9,
+                    "monotonic_start_ns": 51018816045556,
+                    "monotonic_end_ns": 51018850250435,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1b9d2d03a07ca98c60c54ac2a1325c9b09dcbc3d42f8af44dfb516371fb8cc19"
+                  },
+                  {
+                    "index": 10,
+                    "monotonic_start_ns": 51023855042199,
+                    "monotonic_end_ns": 51023899434638,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "4c84898ba102c687d2318ba14000518130fd84d829944a6e87c1c2b97556765b"
+                  },
+                  {
+                    "index": 11,
+                    "monotonic_start_ns": 51028905041170,
+                    "monotonic_end_ns": 51028939785981,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "752996f6b39623486ac14a94b8e2aedb7ead2cbea32fa871cb5154a54c13ff69"
+                  },
+                  {
+                    "index": 12,
+                    "monotonic_start_ns": 51033945063638,
+                    "monotonic_end_ns": 51033982082964,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "de3cab47e1b51f54a427de4e54d0e4ef155b0b8b27b2f315b61417466adffb92"
+                  },
+                  {
+                    "index": 13,
+                    "monotonic_start_ns": 51038987062136,
+                    "monotonic_end_ns": 51039028087627,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "16a377bb456666a4324f6ef9888a05b16cfbd6b910ab005d159afb0ec1e3cacb"
+                  },
+                  {
+                    "index": 14,
+                    "monotonic_start_ns": 51044033039612,
+                    "monotonic_end_ns": 51044077267043,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ab1cbe6b1d8d3ba414917060323ee49ebef385bbe083b3cb01f15a5bdcc829a1"
+                  },
+                  {
+                    "index": 15,
+                    "monotonic_start_ns": 51049082047195,
+                    "monotonic_end_ns": 51049121427676,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "c1e8fec8036ff5f09e1546ab788046ca5a7fda6e60a813085d2da909a138f9ae"
+                  },
+                  {
+                    "index": 16,
+                    "monotonic_start_ns": 51054127044424,
+                    "monotonic_end_ns": 51054167317619,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d4a21bdaf5a27ea1ff9f69ff696b0d3d3f32a7a5a06cc59e7a2bc19505e2b8c8"
+                  },
+                  {
+                    "index": 17,
+                    "monotonic_start_ns": 51059171118487,
+                    "monotonic_end_ns": 51059211174385,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f861c4ce4a1e8d10b91bf978b255328abcb50563c8239fd3455a865c3e3b525b"
+                  },
+                  {
+                    "index": 18,
+                    "monotonic_start_ns": 51064216049212,
+                    "monotonic_end_ns": 51064264377880,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "aefd0be21da945d1aa9eed2e8fb05c4a737d709e7e779f41f4a0672768c0f214"
+                  },
+                  {
+                    "index": 19,
+                    "monotonic_start_ns": 51069270042071,
+                    "monotonic_end_ns": 51069309046590,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d21f79e54efbd423128022d3300380a5c0d657c279f4356379b8056553c8059e"
+                  },
+                  {
+                    "index": 20,
+                    "monotonic_start_ns": 51074314040796,
+                    "monotonic_end_ns": 51074352751304,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "bb4dbb4e8704c0c9b305caa1bc3ad0a39be705c8d42d1dcdcbae4c974ef10040"
+                  },
+                  {
+                    "index": 21,
+                    "monotonic_start_ns": 51079358047963,
+                    "monotonic_end_ns": 51079394447002,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "20014a5f050f3988ca36750a1e93ddf5459b30170c9176b6cc4b0348957f8275"
+                  },
+                  {
+                    "index": 22,
+                    "monotonic_start_ns": 51084400051447,
+                    "monotonic_end_ns": 51084438898601,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "6f599e63e5e8e643108972396873df5abf9d3f1b1a61c0a31791986f57d22b72"
+                  },
+                  {
+                    "index": 23,
+                    "monotonic_start_ns": 51089444042904,
+                    "monotonic_end_ns": 51089479152854,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "b92684b33cae7d7b32b82303afae7dd52908b71e276727c10dffa7d0931bddcc"
+                  },
+                  {
+                    "index": 24,
+                    "monotonic_start_ns": 51094484046592,
+                    "monotonic_end_ns": 51094526690751,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1f67fc00450fae5844f55f77ffc4f22ad585910ba888736b9e1884730121669a"
+                  },
+                  {
+                    "index": 25,
+                    "monotonic_start_ns": 51099532371632,
+                    "monotonic_end_ns": 51099569562763,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "3b1aabfacf09c199fc6081e3d8a114cc9f84573383a3eb7e6f90847627b934a6"
+                  },
+                  {
+                    "index": 26,
+                    "monotonic_start_ns": 51104575045289,
+                    "monotonic_end_ns": 51104614067280,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a26fe886bb0a22872db3786aee23415a09b64886236bf6b140f5a3952f824968"
+                  },
+                  {
+                    "index": 27,
+                    "monotonic_start_ns": 51109619041116,
+                    "monotonic_end_ns": 51109651017804,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d4939dab02b9252406f3bf7f1d49ae91e4cfada870fd842fad05aa48d441333f"
+                  },
+                  {
+                    "index": 28,
+                    "monotonic_start_ns": 51114656058036,
+                    "monotonic_end_ns": 51114694810991,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a2289891f0ed3ac30561be50a7f862a77468f2a999daf0b7d0a7f17318950f43"
+                  },
+                  {
+                    "index": 29,
+                    "monotonic_start_ns": 51119714040451,
+                    "monotonic_end_ns": 51119750508258,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "4042511f9d9aef9e03f057f4d0dc21fbb67a9e59b5d16d8f92a936bbb114469e"
+                  },
+                  {
+                    "index": 30,
+                    "monotonic_start_ns": 51124756050840,
+                    "monotonic_end_ns": 51124800219522,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f86eae04b64e8a6006ae77d845f2c6e3358dbaa9a964ce4edbbf7665f77c1800"
+                  },
+                  {
+                    "index": 31,
+                    "monotonic_start_ns": 51129805041955,
+                    "monotonic_end_ns": 51129845452814,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "fbb7d3a007e47112f528974e03ec01e4084a5874ed91a5fd0f5e8d3aff635db7"
+                  },
+                  {
+                    "index": 32,
+                    "monotonic_start_ns": 51134851040701,
+                    "monotonic_end_ns": 51134890723867,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1de46fcf0ae998a6c19e0ce5134aeb6ccd631faa7b7421d1cc2b89a7fcf61b21"
+                  },
+                  {
+                    "index": 33,
+                    "monotonic_start_ns": 51139896053296,
+                    "monotonic_end_ns": 51139930956505,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "611582fb6b9c17a842d16da2fd35986b8b57c1564ca505f811c5e995f6ac1485"
+                  },
+                  {
+                    "index": 34,
+                    "monotonic_start_ns": 51144936627698,
+                    "monotonic_end_ns": 51144973337890,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "910e8124e3f0d3eedeb1c422ca476176b1397b26938357ddfb9f5bcbd2843da3"
+                  },
+                  {
+                    "index": 35,
+                    "monotonic_start_ns": 51149979063439,
+                    "monotonic_end_ns": 51150025824399,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "0adbb52ea1ec6ec659b9e7f2e15b22c82ba7f5f4edcd2124b140a5b5beb65947"
+                  },
+                  {
+                    "index": 36,
+                    "monotonic_start_ns": 51155030245033,
+                    "monotonic_end_ns": 51155068570965,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "fd8ac64e4ada82b4b91f7496a337c9ab072b01f817bbd503e612556f7a85073e"
+                  },
+                  {
+                    "index": 37,
+                    "monotonic_start_ns": 51160074051416,
+                    "monotonic_end_ns": 51160110615654,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "47332300874a143110ae102a3ce22f6512c2402c3726ab5ca62ca7dc414d4053"
+                  },
+                  {
+                    "index": 38,
+                    "monotonic_start_ns": 51165115330820,
+                    "monotonic_end_ns": 51165159703495,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "96f0c7ea83af1ad087d0e4c1b73479baf339ffa9c6bf2a4b3f4e12fe3bbcd38f"
+                  },
+                  {
+                    "index": 39,
+                    "monotonic_start_ns": 51170174051564,
+                    "monotonic_end_ns": 51170214828489,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "8761303ab804330274b2f6f1d6cf75f50b5ec117f53e84b4f23f90b5a4283b87"
+                  },
+                  {
+                    "index": 40,
+                    "monotonic_start_ns": 51175220054260,
+                    "monotonic_end_ns": 51175259429533,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e1c7089579307b86cb33e557be84f0f4ae6bcff14e118e827b030b92a1c61cc8"
+                  },
+                  {
+                    "index": 41,
+                    "monotonic_start_ns": 51180265044222,
+                    "monotonic_end_ns": 51180307390532,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d7d22065dfcf93201fb96d687209e81037a454ffed9db4d4e432683e5e09aec4"
+                  },
+                  {
+                    "index": 42,
+                    "monotonic_start_ns": 51185313052349,
+                    "monotonic_end_ns": 51185349622646,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "40f7927ed6d98a283566c61e627345aa9fbbd3e0f48a4701bb195c81a4aba4a9"
+                  },
+                  {
+                    "index": 43,
+                    "monotonic_start_ns": 51190355047460,
+                    "monotonic_end_ns": 51190397408701,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "b60793f42001bf4916ca3db0eeef791844aaa6c9c801f31e387a5c7c4f999cb0"
+                  },
+                  {
+                    "index": 44,
+                    "monotonic_start_ns": 51195403049234,
+                    "monotonic_end_ns": 51195440124463,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "02cd33208397e223ae396ef9a76d361220b88624c7307ac85775b87361a57c47"
+                  },
+                  {
+                    "index": 45,
+                    "monotonic_start_ns": 51200445041315,
+                    "monotonic_end_ns": 51200486479481,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "38169aae20d02e19588a324c76faeeec57c9da096593142a443abc3d0f10291d"
+                  },
+                  {
+                    "index": 46,
+                    "monotonic_start_ns": 51205492039960,
+                    "monotonic_end_ns": 51205526785419,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e6ae08fc1a57c6e9d7ad4733c0d3bc0b7cc586e52f64a0c26873fed3a2c2768f"
+                  },
+                  {
+                    "index": 47,
+                    "monotonic_start_ns": 51210532130790,
+                    "monotonic_end_ns": 51210571937682,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "777853764793efef5a29d10c65349680ed96e5a96df4c8fe9bc6b9dd30c090d2"
+                  },
+                  {
+                    "index": 48,
+                    "monotonic_start_ns": 51215577056373,
+                    "monotonic_end_ns": 51215611274074,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "065f087c1440d999f5ac3b42e79df0204125514ad78b374f28c0eaa4262ce2a9"
+                  },
+                  {
+                    "index": 49,
+                    "monotonic_start_ns": 51220629050407,
+                    "monotonic_end_ns": 51220672527856,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "20c5e63c68a7e11d8aacf4a31ebe21919636a9588d42c4cab8f7680ba3bb88aa"
+                  },
+                  {
+                    "index": 50,
+                    "monotonic_start_ns": 51225676454869,
+                    "monotonic_end_ns": 51225705155559,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "9265532f00f8acc7e5cdf77de570ff8ef34c9d2f5ab8b724cc31bb25a0c514e7"
+                  },
+                  {
+                    "index": 51,
+                    "monotonic_start_ns": 51230710040331,
+                    "monotonic_end_ns": 51230714242467,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "76c7f9d0cfb97c8477bfb198ce3c544fdce14d94fab3507bc72ada9d9fc846a9"
+                  },
+                  {
+                    "index": 52,
+                    "monotonic_start_ns": 51233815929320,
+                    "monotonic_end_ns": 51233844638715,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "8f70395bfad5dc7937a14330995140ee774eda63de8467db6d9b9e8b7cadb516"
+                  },
+                  {
+                    "index": 53,
+                    "monotonic_start_ns": 51236275489342,
+                    "monotonic_end_ns": 51236303748475,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e29fd828731ffeb49adcea143ccee16c1afc41fcc46fee39b0d39dc72fe51c9e"
+                  },
+                  {
+                    "index": 54,
+                    "monotonic_start_ns": 51241309055057,
+                    "monotonic_end_ns": 51241357290892,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f6227bc2167d13ebc0868cf330da9f930614fdd5c24e2f4f29aadedeac40cfa5"
+                  },
+                  {
+                    "index": 55,
+                    "monotonic_start_ns": 51243677956185,
+                    "monotonic_end_ns": 51243706557661,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "3f9534a0ba0f42c4a19e63ca7ca3c2a272e5e9e71d1cc3f066795321863e7409"
+                  },
+                  {
+                    "index": 56,
+                    "monotonic_start_ns": 51244267705072,
+                    "monotonic_end_ns": 51244296104076,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5106c971c368024f347e7d6a75c46018278d072e2d7c56fb8b9115d83d2ac8f6"
+                  },
+                  {
+                    "index": 57,
+                    "monotonic_start_ns": 51247122551000,
+                    "monotonic_end_ns": 51247151267820,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "9d1084a1ffa0feba88b7411c6f70214201c4cf859085cc080a17d8711e77e73f"
+                  },
+                  {
+                    "index": 58,
+                    "monotonic_start_ns": 51252162307420,
+                    "monotonic_end_ns": 51252166609585,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "b2fd21010a4e6e6ce9353dbcaed30981d6d8e616ccf0560126028e8ddb13dee7"
+                  },
+                  {
+                    "index": 59,
+                    "monotonic_start_ns": 51257171040911,
+                    "monotonic_end_ns": 51257206170972,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "2bd3b6e64cdf0de6cb87447fb7846b62868ef2fb8a958667d245f1d0cc2e23aa"
+                  },
+                  {
+                    "index": 60,
+                    "monotonic_start_ns": 51262211046337,
+                    "monotonic_end_ns": 51262251449535,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "cb6e7c47216533b868695e9e0c689a53715ca8ac5ffb9f8e7bcf4accdfb4c21d"
+                  },
+                  {
+                    "index": 61,
+                    "monotonic_start_ns": 51267257040128,
+                    "monotonic_end_ns": 51267294380708,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e970ce0dc70f4f27d13f0ffd28a36ca90ff38ae6fd5e62b90747dafcc9d6ddce"
+                  },
+                  {
+                    "index": 62,
+                    "monotonic_start_ns": 51272300041605,
+                    "monotonic_end_ns": 51272339019947,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a381de05a696db0082472332c964330152bb4340d0c8e2c76516368220e40a22"
+                  },
+                  {
+                    "index": 63,
+                    "monotonic_start_ns": 51277344059712,
+                    "monotonic_end_ns": 51277381881484,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "72d889c66a9aa31f90e942347c1b6c0ff968684983d4af8f83d7aa71d7ed998c"
+                  },
+                  {
+                    "index": 64,
+                    "monotonic_start_ns": 51282387075132,
+                    "monotonic_end_ns": 51282429894930,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ab337918dcb5c92313952521f4b813f36183d294d516de3348fc221a9549a502"
+                  },
+                  {
+                    "index": 65,
+                    "monotonic_start_ns": 51287435040366,
+                    "monotonic_end_ns": 51287475210694,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "2d5dc4fbdb7520ebb3e2d217f6692f9bc8d3a349a5acaadf8752e739738c1d71"
+                  },
+                  {
+                    "index": 66,
+                    "monotonic_start_ns": 51292480745642,
+                    "monotonic_end_ns": 51292527583279,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f14de6ac2b25ef4f3e47a3249ad7c78d80afc35baabe32787bb9e1a88998137c"
+                  },
+                  {
+                    "index": 67,
+                    "monotonic_start_ns": 51297533045090,
+                    "monotonic_end_ns": 51297584394246,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "da989aafd94b1c3a6f12fd9a4688f393a3f1797d722366b55df41d6aa0110b96"
+                  },
+                  {
+                    "index": 68,
+                    "monotonic_start_ns": 51302590049921,
+                    "monotonic_end_ns": 51302630400045,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "6e69d567654666402156430b930c5708cea5328b1a380a09fc68d96c43be1aa5"
+                  },
+                  {
+                    "index": 69,
+                    "monotonic_start_ns": 51307636048993,
+                    "monotonic_end_ns": 51307674785925,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "18edf012b2812479f87b1d184d6cb8922caa8fbff9996f8d9769dc37086572b0"
+                  },
+                  {
+                    "index": 70,
+                    "monotonic_start_ns": 51312680038016,
+                    "monotonic_end_ns": 51312718544177,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "4ab9d3595ca72b4c416427aeb7f69c59363d52c4d665b64f920834c4e596ed26"
+                  },
+                  {
+                    "index": 71,
+                    "monotonic_start_ns": 51317724047386,
+                    "monotonic_end_ns": 51317766556500,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "c85ee868de9a4644240db44bdc1ee417f3b644159113425dd8dc0648108556fd"
+                  },
+                  {
+                    "index": 72,
+                    "monotonic_start_ns": 51322772039045,
+                    "monotonic_end_ns": 51322809037887,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "35abf9877c4ff69cb05ed15ed210f54f293e7d2b0ae541361063a84e66b4ad16"
+                  },
+                  {
+                    "index": 73,
+                    "monotonic_start_ns": 51327814039311,
+                    "monotonic_end_ns": 51327855726321,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "3fbc91f04a4c2901c82187c5dd247067881e579ac1257f571948e7f69f4f7e44"
+                  },
+                  {
+                    "index": 74,
+                    "monotonic_start_ns": 51332861049602,
+                    "monotonic_end_ns": 51332907283621,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "4cc874dbec955f0b603fc06f066317c853571e5caa64fdc69d8ce5778683d197"
+                  },
+                  {
+                    "index": 75,
+                    "monotonic_start_ns": 51337912051537,
+                    "monotonic_end_ns": 51337962460081,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "4936f5abfaf8c45943ac52192b90c97494ba956a7e218b43186b8b0de64814d1"
+                  },
+                  {
+                    "index": 76,
+                    "monotonic_start_ns": 51342968043874,
+                    "monotonic_end_ns": 51343010716852,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "7736a3d305c59513e9d9604256e1237f380c9deb74ca4fbce6c0b5a070c9d399"
+                  },
+                  {
+                    "index": 77,
+                    "monotonic_start_ns": 51348016039145,
+                    "monotonic_end_ns": 51348067084188,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d2d9353f57a9ca980abe9a40f35afb2ced77c9a783fca8db0c7d956128e11c52"
+                  },
+                  {
+                    "index": 78,
+                    "monotonic_start_ns": 51353084045754,
+                    "monotonic_end_ns": 51353117813774,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d8c78068c2d4a3dea08e188fe5ae1852084a414593c0a98be12a08b20d4c146b"
+                  },
+                  {
+                    "index": 79,
+                    "monotonic_start_ns": 51358123048444,
+                    "monotonic_end_ns": 51358159802182,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1645495eb0a3442d5dc4acdece6321c677c2ef61adb0b5df879d527ab0bebd3d"
+                  },
+                  {
+                    "index": 80,
+                    "monotonic_start_ns": 51362252144073,
+                    "monotonic_end_ns": 51362256521860,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "0a7619df2cfaae2620040217652a63d0863035836725048be2baf2766ef00fe0"
+                  },
+                  {
+                    "index": 81,
+                    "monotonic_start_ns": 51364314602537,
+                    "monotonic_end_ns": 51364318961668,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "cdd9fbdbc3de425b63f55c0b067f42c1b45bb0c1c898a8666c4a721530ee0130"
+                  }
+                ]
+              }
+            }
+          ],
+          "archive_check": {
+            "pin": {
+              "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/archives/client-check.json",
+              "sha256": "84f2c52aff4ff6fbeb3b394f47cd4f017d9a3caacf8fa1db924d52337c21318f"
+            },
+            "value": {
+              "schema": "suite-archive-check-v1",
+              "passed": true,
+              "archive": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/archives/client.tar.gz",
+              "sha256": "51fec67d2931f4a3f6b7eb572ccbdb7ca6e1104594c0fea1e33f39c67b4ef1e2",
+              "bytes": 1886563,
+              "file_members": 2394,
+              "cell_id": "16f4ac389d2a2da6-r1-native",
+              "kind": "client",
+              "deferred": [],
+              "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+            }
+          }
+        },
+        "metadata": {
+          "finished": [
+            {
+              "pin": {
+                "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/raw/metadata/o/c3-fa630431ea12-16f4ac389d2a2da6-r1-native/finished.json",
+                "sha256": "fd9237387fb6810fcd152e88712546927b8587b37cc915f2e469e4e94fb0f2ba"
+              },
+              "value": {
+                "passed": true,
+                "errors": [],
+                "samples": 82,
+                "latest_sample_ns": 51361156307318,
+                "spec_sha256": "3c2fc283c6d2ef6c18e1c515ce3061126426ee66df86f6cbca6a313ccf3a7308",
+                "metric_contract_sha256": "2304c6085ac97713b6532cdd733fbd14b343cd4796651191cd76a210f31d84b6",
+                "marks": [
+                  {
+                    "label": "measure-start-w01",
+                    "sample_index": 52,
+                    "monotonic_ns": 51230461436785
+                  },
+                  {
+                    "label": "measurement-start",
+                    "sample_index": 53,
+                    "monotonic_ns": 51232304945555
+                  },
+                  {
+                    "label": "application-finished",
+                    "sample_index": 55,
+                    "monotonic_ns": 51239659231719
+                  },
+                  {
+                    "label": "measure-end-w01",
+                    "sample_index": 56,
+                    "monotonic_ns": 51240671193656
+                  },
+                  {
+                    "label": "drain-end-w01",
+                    "sample_index": 57,
+                    "monotonic_ns": 51243529801118
+                  },
+                  {
+                    "label": "verify-end-w01",
+                    "sample_index": 80,
+                    "monotonic_ns": 51358868599628
+                  }
+                ],
+                "target_states": {
+                  "redis": {
+                    "state": "live",
+                    "required_names": [
+                      "total_commands_processed",
+                      "total_net_input_bytes",
+                      "total_net_output_bytes",
+                      "used_memory",
+                      "used_cpu_sys",
+                      "used_cpu_user",
+                      "aof_enabled",
+                      "aof_last_write_status"
+                    ]
+                  }
+                },
+                "history": [
+                  {
+                    "index": 0,
+                    "monotonic_start_ns": 50975302093536,
+                    "monotonic_end_ns": 50975313498652,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "2f359549053abf908debfd150ebbee9d787577cb596ec01cc391594a0c6d817c"
+                  },
+                  {
+                    "index": 1,
+                    "monotonic_start_ns": 50975343381515,
+                    "monotonic_end_ns": 50975354069639,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "bcb50f3bdfccb4ec4d17f5e40c1a614a31941df240e99a748b8519f25eb24d73"
+                  },
+                  {
+                    "index": 2,
+                    "monotonic_start_ns": 50980356901014,
+                    "monotonic_end_ns": 50980367570256,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "cac372b341e1ebe02c763601a7fa3fd63702c004eac9ef8d489ac966c3bc2a5b"
+                  },
+                  {
+                    "index": 3,
+                    "monotonic_start_ns": 50985372938068,
+                    "monotonic_end_ns": 50985383685793,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a227f2e47cf12a69025fc086a8c23132902b6905b97cc787f637144c538fb24d"
+                  },
+                  {
+                    "index": 4,
+                    "monotonic_start_ns": 50990387528334,
+                    "monotonic_end_ns": 50990400647106,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "7d3610a0e2ace1d72196f78654ce5b7c41cd24c3af2b8a95f446ed8ee0d6bb5c"
+                  },
+                  {
+                    "index": 5,
+                    "monotonic_start_ns": 50995406048146,
+                    "monotonic_end_ns": 50995418605456,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "7647f807266f684d7de047337be5023d422085ae01b5d9c697fda6b510185a5a"
+                  },
+                  {
+                    "index": 6,
+                    "monotonic_start_ns": 51000424046574,
+                    "monotonic_end_ns": 51000437227849,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "946d9abb70289fe7ee99544d8c154dfbc32da42c79ed596faff511d95855c8a4"
+                  },
+                  {
+                    "index": 7,
+                    "monotonic_start_ns": 51005442038950,
+                    "monotonic_end_ns": 51005454975041,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5e32f249b00c6f83f8864b1d8178ba599d3722cca1e2bf175bca8af6fe9f127a"
+                  },
+                  {
+                    "index": 8,
+                    "monotonic_start_ns": 51010460036419,
+                    "monotonic_end_ns": 51010472579806,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "8a4c558e29ddf3eab0b6bf76f64b0c520efe9d1806a9167087b7b5347c06922e"
+                  },
+                  {
+                    "index": 9,
+                    "monotonic_start_ns": 51015478039501,
+                    "monotonic_end_ns": 51015490656906,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5777268cfa30415041172472ea7c5f90927a076d5cb8aacc550590182d71eee6"
+                  },
+                  {
+                    "index": 10,
+                    "monotonic_start_ns": 51020496046701,
+                    "monotonic_end_ns": 51020511011760,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e2562655f603a9848a14a97d3dcf75fed460d9e9e01a5edac17b9b4a52493fd9"
+                  },
+                  {
+                    "index": 11,
+                    "monotonic_start_ns": 51025516035691,
+                    "monotonic_end_ns": 51025527675093,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "2e7469ce74f8bca8291799ea2ba19507794c14d55fc76d7e8fb68f9199df343f"
+                  },
+                  {
+                    "index": 12,
+                    "monotonic_start_ns": 51030531108990,
+                    "monotonic_end_ns": 51030544069921,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "aabff515001c533f02fa9b899b6dc9654cd8a1ceb39fad21eedeeacacefc168e"
+                  },
+                  {
+                    "index": 13,
+                    "monotonic_start_ns": 51035549041214,
+                    "monotonic_end_ns": 51035560510995,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f9e89181f8675eff75bcb3337935275901616343c1ff2f91f5868b5c01f380d1"
+                  },
+                  {
+                    "index": 14,
+                    "monotonic_start_ns": 51040561171228,
+                    "monotonic_end_ns": 51040573598908,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "af5b4a911070f1239697730020e258d818af385ae6fd5be6d25ea00308eb9f46"
+                  },
+                  {
+                    "index": 15,
+                    "monotonic_start_ns": 51045578529286,
+                    "monotonic_end_ns": 51045591636033,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "919dfb79d00b89d8d3eccca52ee5e6272111b2ba9609f3baaed8eb01a6831a15"
+                  },
+                  {
+                    "index": 16,
+                    "monotonic_start_ns": 51050597041977,
+                    "monotonic_end_ns": 51050609735793,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f5f70290f921d5033ecfc645eef13553f3247a5793bf94301bb6335a8d481ec5"
+                  },
+                  {
+                    "index": 17,
+                    "monotonic_start_ns": 51055615036694,
+                    "monotonic_end_ns": 51055628543262,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "8e25e71dff04d0b35a722a57af4d36c88f2f6ef473e0eff8c149864096f176e2"
+                  },
+                  {
+                    "index": 18,
+                    "monotonic_start_ns": 51060633630860,
+                    "monotonic_end_ns": 51060645991262,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "56f5ffd14f000913be22678a4f9e666faa3334c634bc423882a9aa1282a3aa49"
+                  },
+                  {
+                    "index": 19,
+                    "monotonic_start_ns": 51065651246117,
+                    "monotonic_end_ns": 51065664080569,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a74ac6452f557a3ae554e1e909c13df04b37b12c43790dd3ecab830c4eb4b7e5"
+                  },
+                  {
+                    "index": 20,
+                    "monotonic_start_ns": 51070664905822,
+                    "monotonic_end_ns": 51070676287245,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1ebf61ece8ad90e3c62a18e8c66b7db18ca3ae4f540b4810cc9815d6a1aabb44"
+                  },
+                  {
+                    "index": 21,
+                    "monotonic_start_ns": 51075681036847,
+                    "monotonic_end_ns": 51075692619264,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "139a800fdfc55a5b3d1b88a9c116bd6bff00df1945a0442e1f84302d04c313e0"
+                  },
+                  {
+                    "index": 22,
+                    "monotonic_start_ns": 51080697040386,
+                    "monotonic_end_ns": 51080708451807,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e4507fdf6cb586bc0ed184750ae2a637ab277257f16adfc29985babe7ee644a4"
+                  },
+                  {
+                    "index": 23,
+                    "monotonic_start_ns": 51085713037235,
+                    "monotonic_end_ns": 51085726411599,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "12eb85c286f0a2b2a839b406fce8cfec84f37aa4812970b0743d57d8f0795eb1"
+                  },
+                  {
+                    "index": 24,
+                    "monotonic_start_ns": 51090728250555,
+                    "monotonic_end_ns": 51090741416646,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "17d4d75535f2a3c71df313d512fc7dff8678941f9fa52c68d05f2ed82d4b67a6"
+                  },
+                  {
+                    "index": 25,
+                    "monotonic_start_ns": 51095746915316,
+                    "monotonic_end_ns": 51095758693770,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "b380f9c2e839eac0e93c8e08cee2590d885eaba2bd12f646e05c54300d58085a"
+                  },
+                  {
+                    "index": 26,
+                    "monotonic_start_ns": 51100760206209,
+                    "monotonic_end_ns": 51100773240657,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "fe0623b1e4e7c8403a8150fcffc1a2a79dfe12e9b84058fd49c6b75782342006"
+                  },
+                  {
+                    "index": 27,
+                    "monotonic_start_ns": 51105778039744,
+                    "monotonic_end_ns": 51105790355574,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d90c2bc54d383826885d42c7f3d064c9ac9ce6e2353767e02014f347bb69824e"
+                  },
+                  {
+                    "index": 28,
+                    "monotonic_start_ns": 51110795398198,
+                    "monotonic_end_ns": 51110808315223,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "c8c55162d761b0986baf05ac19dce3c044e0e3c008db6b0d906fcd53151240f0"
+                  },
+                  {
+                    "index": 29,
+                    "monotonic_start_ns": 51115812877510,
+                    "monotonic_end_ns": 51115825466228,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "630574ebc2582cb050bbdefea81e23f387d2434252529b8359692e884fcd9099"
+                  },
+                  {
+                    "index": 30,
+                    "monotonic_start_ns": 51120831038761,
+                    "monotonic_end_ns": 51120843427202,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "30cec43d0ab282dd3b91c266db505abd5131c2774ebb93ec4dd6aac6ee59cb8d"
+                  },
+                  {
+                    "index": 31,
+                    "monotonic_start_ns": 51125849038088,
+                    "monotonic_end_ns": 51125861856907,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "0ae0dd97db7850c72b338d6176ec3194e09e1397bfaf4985c02993d78852e7b2"
+                  },
+                  {
+                    "index": 32,
+                    "monotonic_start_ns": 51130867042897,
+                    "monotonic_end_ns": 51130879158149,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "c63dd9b714d3e3fedc0da0e028a2bf515b32fa00a4fa7bf3bf6ff9305aae0f76"
+                  },
+                  {
+                    "index": 33,
+                    "monotonic_start_ns": 51135882886584,
+                    "monotonic_end_ns": 51135894798243,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "c8b47125ae3a30516457c7295aade96d556b964c80aa5ec1c0b23a16c7f228fe"
+                  },
+                  {
+                    "index": 34,
+                    "monotonic_start_ns": 51140898113357,
+                    "monotonic_end_ns": 51140909945176,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "9cd9daef3c58951704aaabef54f6eb1732320ebdf39ab7cf0cb7fd45b5f41a6a"
+                  },
+                  {
+                    "index": 35,
+                    "monotonic_start_ns": 51145915043018,
+                    "monotonic_end_ns": 51145927685174,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "8fa40d8cbe90079eab5052b82ea08f3a0a2d9c87a39fd482968fbef65c667917"
+                  },
+                  {
+                    "index": 36,
+                    "monotonic_start_ns": 51150933033657,
+                    "monotonic_end_ns": 51150945075256,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "87bec280319d3814d43d2c0a853b36dbf557695adba43800dde94a2dd81c462d"
+                  },
+                  {
+                    "index": 37,
+                    "monotonic_start_ns": 51155950034395,
+                    "monotonic_end_ns": 51155962793868,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "034d961fe038f6e5cc920d7b3f47a18c698d415e2cd47d32d592b35ab5dd73e5"
+                  },
+                  {
+                    "index": 38,
+                    "monotonic_start_ns": 51160968039596,
+                    "monotonic_end_ns": 51160980776449,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "683923f45b84c87ddfcd6b5b822cd031051c3c985aadbdc2d7a61ca90c3a1d89"
+                  },
+                  {
+                    "index": 39,
+                    "monotonic_start_ns": 51165986038072,
+                    "monotonic_end_ns": 51165998188084,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1b8a632681887d8edb6c9576ce0cf87907d1b3e9d4f18357f140e408da69f4e3"
+                  },
+                  {
+                    "index": 40,
+                    "monotonic_start_ns": 51171003049696,
+                    "monotonic_end_ns": 51171016441836,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1eda6c3c1f705a27233ff0b6b5c3c0c6fa0c9270930685ce783f0ee905b7aea6"
+                  },
+                  {
+                    "index": 41,
+                    "monotonic_start_ns": 51176021418182,
+                    "monotonic_end_ns": 51176034708340,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "eb8087b421ed52b6555083917247eb9f5bdd23769a3deab667b1d0f74df7302f"
+                  },
+                  {
+                    "index": 42,
+                    "monotonic_start_ns": 51181040280820,
+                    "monotonic_end_ns": 51181053589609,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "636dcc3d9d2cc5ef09f3a98f3e695597b68f19ff43fbd677d8635b9c15533a68"
+                  },
+                  {
+                    "index": 43,
+                    "monotonic_start_ns": 51186059230571,
+                    "monotonic_end_ns": 51186072438296,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f9af256b13f31691b7edab5cd0b898f02fc82709d6fffd596b478e72a6beee94"
+                  },
+                  {
+                    "index": 44,
+                    "monotonic_start_ns": 51191077040633,
+                    "monotonic_end_ns": 51191089433659,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "746b8a7a11fc5ef89584bc1f9cafed78f218df6220993b14cec602e3f138a94c"
+                  },
+                  {
+                    "index": 45,
+                    "monotonic_start_ns": 51196094043080,
+                    "monotonic_end_ns": 51196106400284,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "2aefc487aa45d772c79bb49dde17d93c3ccb9e305aaf1f4b90e5f6d35fa7cb65"
+                  },
+                  {
+                    "index": 46,
+                    "monotonic_start_ns": 51201111041470,
+                    "monotonic_end_ns": 51201122692507,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "14d590c83d15de1a483d4f2984c92f76d0c7b6456f5f0997eb87dd253d7c2df7"
+                  },
+                  {
+                    "index": 47,
+                    "monotonic_start_ns": 51206127627200,
+                    "monotonic_end_ns": 51206140204311,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "0459f64e48534a062a5fdf456b98623011d1561f14b68cbe436315a1236e7808"
+                  },
+                  {
+                    "index": 48,
+                    "monotonic_start_ns": 51211145693099,
+                    "monotonic_end_ns": 51211158151980,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "837c7b019faf75eb386da9cee3552635d9b312ff5c66523f47d748cf55145909"
+                  },
+                  {
+                    "index": 49,
+                    "monotonic_start_ns": 51216161042407,
+                    "monotonic_end_ns": 51216173488927,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "6c35d915c8bcc3b702f02c5bc974e12a191fb86d12a581741afa059c04ce65bd"
+                  },
+                  {
+                    "index": 50,
+                    "monotonic_start_ns": 51221177697712,
+                    "monotonic_end_ns": 51221188560945,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5915d398e1d814aa7ea116108beeadffc4751631b5f0396892c488d26b6cf453"
+                  },
+                  {
+                    "index": 51,
+                    "monotonic_start_ns": 51226193610106,
+                    "monotonic_end_ns": 51226204395614,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a35ceef6b9811ba84207d73dce52901c3fba60769eb4052351ae1b219d61ead6"
+                  },
+                  {
+                    "index": 52,
+                    "monotonic_start_ns": 51230450386425,
+                    "monotonic_end_ns": 51230460988661,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "886cdd3576e3be0a2bd928268de1d0fedddc2bd12c5996506bdd1ba6f5729aba"
+                  },
+                  {
+                    "index": 53,
+                    "monotonic_start_ns": 51232294059541,
+                    "monotonic_end_ns": 51232304584881,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d705c6fa6b7b2a1ea1e52f0a1f2db8082687b07070d4639c92d0eff52e325808"
+                  },
+                  {
+                    "index": 54,
+                    "monotonic_start_ns": 51237309983612,
+                    "monotonic_end_ns": 51237320620424,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ee1b36974d7876909da0f814300e36d6be0037b9ba16856c4c52e86058d923a2"
+                  },
+                  {
+                    "index": 55,
+                    "monotonic_start_ns": 51239648258358,
+                    "monotonic_end_ns": 51239658837391,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e8702afcd35872bf5630893f6ec696a3efb680b446ab24d8ceca52aed65c6ce5"
+                  },
+                  {
+                    "index": 56,
+                    "monotonic_start_ns": 51240660444715,
+                    "monotonic_end_ns": 51240670796273,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e7ab2e9f30f2463449ccfc0e871208f3374f37c9e246e87bdd65070f144cad5b"
+                  },
+                  {
+                    "index": 57,
+                    "monotonic_start_ns": 51243518231110,
+                    "monotonic_end_ns": 51243529463857,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "3b370cc6458f8b80628ae81cd24e816c7e102fce13ede8759ae76d3fde105610"
+                  },
+                  {
+                    "index": 58,
+                    "monotonic_start_ns": 51248534037686,
+                    "monotonic_end_ns": 51248544767193,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "05a0a92f2a924876218fb116b460059d6a3d6c2826c4474ca4f9991cc252e2b7"
+                  },
+                  {
+                    "index": 59,
+                    "monotonic_start_ns": 51253550035215,
+                    "monotonic_end_ns": 51253560779293,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "753f5d88f87c5a71d9210fab93d143a2f0e7fc57242f0f45647b14b50f3ea4b5"
+                  },
+                  {
+                    "index": 60,
+                    "monotonic_start_ns": 51258563936863,
+                    "monotonic_end_ns": 51258575174755,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "47e1e9814815a45391c8f6492a78985c419eb63b73af0127ac48abc928e851bb"
+                  },
+                  {
+                    "index": 61,
+                    "monotonic_start_ns": 51263579960977,
+                    "monotonic_end_ns": 51263591317200,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "cf3e998ed6566659f6e667dd7be1c81b1c79f9a243eafa600a88e2e9c41227ce"
+                  },
+                  {
+                    "index": 62,
+                    "monotonic_start_ns": 51268596174167,
+                    "monotonic_end_ns": 51268607583739,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "c4e5f647bedc51de7ecb05a8858d31e44b69218e1ee1fbdd8e6187c73e6c929f"
+                  },
+                  {
+                    "index": 63,
+                    "monotonic_start_ns": 51273611134021,
+                    "monotonic_end_ns": 51273622441776,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "090c37b00efc9a26e924b558c25767f768b41786c6d7f5f55c74ff16391d2600"
+                  },
+                  {
+                    "index": 64,
+                    "monotonic_start_ns": 51278626670700,
+                    "monotonic_end_ns": 51278637860899,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "9646cd67385076bfa22708d04017d429fc622020002b825574cdfd41971925a3"
+                  },
+                  {
+                    "index": 65,
+                    "monotonic_start_ns": 51283641126240,
+                    "monotonic_end_ns": 51283652383193,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "2a8278d4fd414436373a7b765860cb7bf6918b2feb782617450ee3e92b1194dd"
+                  },
+                  {
+                    "index": 66,
+                    "monotonic_start_ns": 51288656645541,
+                    "monotonic_end_ns": 51288667783439,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "bcb32be416d050cf41723f85616a5a1f1b8c069929b1e3939e57c5093c12fc98"
+                  },
+                  {
+                    "index": 67,
+                    "monotonic_start_ns": 51293673045818,
+                    "monotonic_end_ns": 51293684297099,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "16d7b4764ba01376a77f0b986bd2a1e83fed663f7babea0865a070bbd69e299d"
+                  },
+                  {
+                    "index": 68,
+                    "monotonic_start_ns": 51298689665913,
+                    "monotonic_end_ns": 51298700660053,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1ee8c3175599d97cd7ad7b2b4cc7005c1cfb69044fe693265cf4c233d79b1992"
+                  },
+                  {
+                    "index": 69,
+                    "monotonic_start_ns": 51303703041421,
+                    "monotonic_end_ns": 51303714422896,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "fae4fe2294fb8a4be1760ede912c0af2314a6eb68adf00c34ff8c012779d03f6"
+                  },
+                  {
+                    "index": 70,
+                    "monotonic_start_ns": 51308719470243,
+                    "monotonic_end_ns": 51308730684225,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "7789d681802ef6567ec7f12e937de55bc6766261f14ff5f3e5fa04d3d5f45950"
+                  },
+                  {
+                    "index": 71,
+                    "monotonic_start_ns": 51313735303040,
+                    "monotonic_end_ns": 51313746370500,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a2b055e193bdff392affc5cd541d884edc46a5bd20c31d306981a1d624d25dac"
+                  },
+                  {
+                    "index": 72,
+                    "monotonic_start_ns": 51318751348930,
+                    "monotonic_end_ns": 51318762435238,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "286bf5af83ae1e1b9bcc28940acdd2d1bbfa69a86f0e11eb171837c00d358d07"
+                  },
+                  {
+                    "index": 73,
+                    "monotonic_start_ns": 51323767314521,
+                    "monotonic_end_ns": 51323779328091,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "2fbeb168084cf1e781d791010972f0c5b2734b52a3cf55c9accced5d0353ab3a"
+                  },
+                  {
+                    "index": 74,
+                    "monotonic_start_ns": 51328780626457,
+                    "monotonic_end_ns": 51328791734684,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ed01ac64d414c431c964b60193b0d1d0f606140d74c028edb8876ad42f6bf44f"
+                  },
+                  {
+                    "index": 75,
+                    "monotonic_start_ns": 51333797197308,
+                    "monotonic_end_ns": 51333808458511,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "78b287745cf9f3b167dc5c6bbb57593e57f0486db67fc738e6fcbe545699fb31"
+                  },
+                  {
+                    "index": 76,
+                    "monotonic_start_ns": 51338813823077,
+                    "monotonic_end_ns": 51338824910823,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1de27b80b7103eb47987994c4bb0a46789eaf502f2cd2af1cb74ba44d3408d94"
+                  },
+                  {
+                    "index": 77,
+                    "monotonic_start_ns": 51343830042147,
+                    "monotonic_end_ns": 51343841590263,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "3b926526e931a17d246366a5916826a8b916728b11bf14daf0c9bdb31b9674f7"
+                  },
+                  {
+                    "index": 78,
+                    "monotonic_start_ns": 51348846584361,
+                    "monotonic_end_ns": 51348857756620,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "16f7764902b386216bfe1b6fa56527508300868af04c285f64f1549a1f358283"
+                  },
+                  {
+                    "index": 79,
+                    "monotonic_start_ns": 51353863163802,
+                    "monotonic_end_ns": 51353874392578,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d64457ee0374ce36a40152d615867028d569acf79bb154967154b305494463b1"
+                  },
+                  {
+                    "index": 80,
+                    "monotonic_start_ns": 51358858082718,
+                    "monotonic_end_ns": 51358868259160,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d527e1bedcc99398e9b03b88bba93d754e537dffa566ab7ab27098adf6311c72"
+                  },
+                  {
+                    "index": 81,
+                    "monotonic_start_ns": 51361144662327,
+                    "monotonic_end_ns": 51361156307318,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e6d143afe28a88e6324ecd23f6165f3139c77ec5c7103e80259a7162670e3f5e"
+                  }
+                ]
+              }
+            }
+          ],
+          "archive_check": {
+            "pin": {
+              "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/archives/metadata-check.json",
+              "sha256": "3894f1a58579532517233d4d3331a3d1dceba12b7bf4ab3577d3cd2225ad1d34"
+            },
+            "value": {
+              "schema": "suite-archive-check-v1",
+              "passed": true,
+              "archive": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/archives/metadata.tar.gz",
+              "sha256": "01930a6c58c253789967f2e938fb90fb4947fda4a8a2c15093a8edfa6f7c14c6",
+              "bytes": 1080833,
+              "file_members": 2309,
+              "cell_id": "16f4ac389d2a2da6-r1-native",
+              "kind": "metadata",
+              "deferred": [],
+              "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+            }
+          }
+        },
+        "objects": {
+          "finished": [
+            {
+              "pin": {
+                "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/raw/objects/o/c3-fa630431ea12-16f4ac389d2a2da6-r1-native/finished.json",
+                "sha256": "d24c36863b92b9b601218fcbacddb7ebd6edf4e8512818abbc0b6ab64950f7d1"
+              },
+              "value": {
+                "passed": true,
+                "errors": [],
+                "samples": 80,
+                "latest_sample_ns": 51355230320582,
+                "spec_sha256": "049cc3f4dc2d5d53950fc9307b327a12b87b4bd52815191f1d52c7a7f29e4846",
+                "metric_contract_sha256": "2304c6085ac97713b6532cdd733fbd14b343cd4796651191cd76a210f31d84b6",
+                "marks": [
+                  {
+                    "label": "measure-start-w01",
+                    "sample_index": 50,
+                    "monotonic_ns": 51224530711786
+                  },
+                  {
+                    "label": "measurement-start",
+                    "sample_index": 51,
+                    "monotonic_ns": 51225606116158
+                  },
+                  {
+                    "label": "application-finished",
+                    "sample_index": 53,
+                    "monotonic_ns": 51232978180500
+                  },
+                  {
+                    "label": "measure-end-w01",
+                    "sample_index": 54,
+                    "monotonic_ns": 51234310874780
+                  },
+                  {
+                    "label": "drain-end-w01",
+                    "sample_index": 55,
+                    "monotonic_ns": 51237173376914
+                  },
+                  {
+                    "label": "verify-end-w01",
+                    "sample_index": 78,
+                    "monotonic_ns": 51352924774181
+                  }
+                ],
+                "target_states": {
+                  "rustfs": {
+                    "state": "live",
+                    "required_names": [
+                      "rustfs_s3_http_requests_total",
+                      "rustfs_http_server_request_body_bytes_total",
+                      "rustfs_http_server_response_body_bytes_total",
+                      "rustfs_http_server_request_duration_seconds_count",
+                      "rustfs_storage_snapshot_last_success_timestamp_seconds"
+                    ]
+                  },
+                  "collector": {
+                    "state": "live",
+                    "required_names": [
+                      "otelcol_receiver_accepted_metric_points",
+                      "otelcol_receiver_failed_metric_points",
+                      "otelcol_receiver_refused_metric_points"
+                    ]
+                  }
+                },
+                "history": [
+                  {
+                    "index": 0,
+                    "monotonic_start_ns": 50969491723885,
+                    "monotonic_end_ns": 50969688879952,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "58abdeca3ca26f1f6ba015d902f096325da30f34484fbec663b96d5ccba10e82"
+                  },
+                  {
+                    "index": 1,
+                    "monotonic_start_ns": 50969735404257,
+                    "monotonic_end_ns": 50969942306349,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d474cac408dbfd2eb5ac26d9b8180cf3c7e26a19943d7c4e659dd8b13852dfe8"
+                  },
+                  {
+                    "index": 2,
+                    "monotonic_start_ns": 50974948433134,
+                    "monotonic_end_ns": 50975175352674,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "0c5ca39ea00e1e66290192aadf313c7a5be7aaf4e62aabc03b25d09eca6010e6"
+                  },
+                  {
+                    "index": 3,
+                    "monotonic_start_ns": 50980181319000,
+                    "monotonic_end_ns": 50980378882985,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "49ed59a8652801950758aac5ffcca44159a8b025072c05902d355b4b9928df30"
+                  },
+                  {
+                    "index": 4,
+                    "monotonic_start_ns": 50985386043472,
+                    "monotonic_end_ns": 50985647392832,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "00e6a15de82eb01ec5a2341e73851e17b8f79be05b41bc54feaabbbea0616cab"
+                  },
+                  {
+                    "index": 5,
+                    "monotonic_start_ns": 50990653040675,
+                    "monotonic_end_ns": 50990884670579,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "012a91c23dbfd32721ab5b086aa2130adfb7ab977c6667eefea8da80f32fea80"
+                  },
+                  {
+                    "index": 6,
+                    "monotonic_start_ns": 50995891050177,
+                    "monotonic_end_ns": 50996133964793,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "4296d3f78fd2f68b51d525f165a5aedf15f816463a4b43e7b3dab5873ea16be2"
+                  },
+                  {
+                    "index": 7,
+                    "monotonic_start_ns": 51001141057825,
+                    "monotonic_end_ns": 51001408031755,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a2ca397975be7baddba303c1154e30ed3b61a39579097013a06b28c9c3e2a7b8"
+                  },
+                  {
+                    "index": 8,
+                    "monotonic_start_ns": 51006414049247,
+                    "monotonic_end_ns": 51006658748079,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "efff96518df44d5ef0005fb94f6f00c1f578d954d327a821a269df99cb34bb73"
+                  },
+                  {
+                    "index": 9,
+                    "monotonic_start_ns": 51011666036495,
+                    "monotonic_end_ns": 51011895929200,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "690d9a5bea13bfad90bbe91591bcd995f3bbf74528531a29bd29014ddc02292e"
+                  },
+                  {
+                    "index": 10,
+                    "monotonic_start_ns": 51016904051906,
+                    "monotonic_end_ns": 51017150736519,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "4c5824b139fd493a4fcd0686d0967d05919b8e8c31115598cbe3383bbcc74a73"
+                  },
+                  {
+                    "index": 11,
+                    "monotonic_start_ns": 51022157042687,
+                    "monotonic_end_ns": 51022391049879,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ecee40a5d8ffc3e8cae139294c445ba4a126f2226143de4c2f5addb129694c50"
+                  },
+                  {
+                    "index": 12,
+                    "monotonic_start_ns": 51027398042858,
+                    "monotonic_end_ns": 51027638262996,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "9124126f88437aa2cde01d1b3562d5a2d8777fb946fb508fb4e125dfe5949746"
+                  },
+                  {
+                    "index": 13,
+                    "monotonic_start_ns": 51032645058860,
+                    "monotonic_end_ns": 51032912657669,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5e78b3d70364676e8e1685ef608378739e04f0e26b015d73cc0c5e7f259af8c2"
+                  },
+                  {
+                    "index": 14,
+                    "monotonic_start_ns": 51037919052234,
+                    "monotonic_end_ns": 51038147748903,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "6e17ea2da16d642487d469b92eeb20df6a33724da44e0e7f4d9d3fdcddc7b0ea"
+                  },
+                  {
+                    "index": 15,
+                    "monotonic_start_ns": 51043156046171,
+                    "monotonic_end_ns": 51043423198379,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1d7e37e0ba7d7c54fc584b9b00311d4da5b4292d45068345b98ebd84a64eef04"
+                  },
+                  {
+                    "index": 16,
+                    "monotonic_start_ns": 51048431048758,
+                    "monotonic_end_ns": 51048730589269,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "6d4bdf14635afb8db5600aa9eb5414e21031e99e3a8de90378e0808090c0c688"
+                  },
+                  {
+                    "index": 17,
+                    "monotonic_start_ns": 51053738046777,
+                    "monotonic_end_ns": 51053973186663,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "c7a7f14a5454b3bb1f2b364c073df602e16ad9b7bc20f1f4c99d4a941ee703d5"
+                  },
+                  {
+                    "index": 18,
+                    "monotonic_start_ns": 51058980045470,
+                    "monotonic_end_ns": 51059236024223,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "0de95f6e7c4cd99b73e02e65e541d051525a673e02bb49fb0121759f1b98dc52"
+                  },
+                  {
+                    "index": 19,
+                    "monotonic_start_ns": 51064243312148,
+                    "monotonic_end_ns": 51064517101977,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "629abe1033d19bb2b0a1336eef2622a5fa78e1f27c7668d5c7eb98ec1299a59e"
+                  },
+                  {
+                    "index": 20,
+                    "monotonic_start_ns": 51069524043547,
+                    "monotonic_end_ns": 51069794386322,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "29885c365f5ffea410565fd8130aca9d9e84e657cdf7d99b5e93f6c918651582"
+                  },
+                  {
+                    "index": 21,
+                    "monotonic_start_ns": 51074802042961,
+                    "monotonic_end_ns": 51075057802714,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "0691e47a816305f3efee359d52ebd75aac5c1e5d546478019c333fdc11426b80"
+                  },
+                  {
+                    "index": 22,
+                    "monotonic_start_ns": 51080067066840,
+                    "monotonic_end_ns": 51080330404967,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "501530844d76b1534a968c0a8493081cf7750d4d3d50477b7ce4cc2dca08b11c"
+                  },
+                  {
+                    "index": 23,
+                    "monotonic_start_ns": 51085339043803,
+                    "monotonic_end_ns": 51085603346381,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "0174171cf557641f6541f44d968823b5a96b563bb154e3277c42065760a1378a"
+                  },
+                  {
+                    "index": 24,
+                    "monotonic_start_ns": 51090613045308,
+                    "monotonic_end_ns": 51090859398105,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e8e8cdba51ee88f38c050b123423fa0030362e9436bbe7b749e065d18dc083dc"
+                  },
+                  {
+                    "index": 25,
+                    "monotonic_start_ns": 51095867462051,
+                    "monotonic_end_ns": 51096123308912,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "791000a95d227b3fd27b1762125f84b46bad8e67037048ae715fca3c0f6f6aaf"
+                  },
+                  {
+                    "index": 26,
+                    "monotonic_start_ns": 51101131046052,
+                    "monotonic_end_ns": 51101367978865,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5a0a878279fbafefe6fb4d431980f5fb42aa425d2d1c6588954e32dbacf3bcce"
+                  },
+                  {
+                    "index": 27,
+                    "monotonic_start_ns": 51106376124856,
+                    "monotonic_end_ns": 51106640679187,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5d4414f88fb222078a9124442b690c61be24e2faa8892bec5f1eb88c7d2605fb"
+                  },
+                  {
+                    "index": 28,
+                    "monotonic_start_ns": 51111649045735,
+                    "monotonic_end_ns": 51111899866029,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f992760321f4183d6cc36d48cdab1d9457105a3c00f29f41f00e42018ecb31e7"
+                  },
+                  {
+                    "index": 29,
+                    "monotonic_start_ns": 51116907042261,
+                    "monotonic_end_ns": 51117152916324,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e12e08c4371133126e4aa4a6c9a2640d8951a81c51e89ce1479666d4e521531d"
+                  },
+                  {
+                    "index": 30,
+                    "monotonic_start_ns": 51122159044920,
+                    "monotonic_end_ns": 51122423976354,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "99552d956f1077cbdf1ddb85e82766e1f56c3996841726bd5e5b85c0bad66924"
+                  },
+                  {
+                    "index": 31,
+                    "monotonic_start_ns": 51127430050569,
+                    "monotonic_end_ns": 51127707601232,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f084558d3b03056ce34b939633ba52c49c6aaf90695be889afc2c924af03e283"
+                  },
+                  {
+                    "index": 32,
+                    "monotonic_start_ns": 51132714044760,
+                    "monotonic_end_ns": 51132941606857,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f05fe4a0b334b8cd89726c5ad6f614c360390d4a612a7b551d4ac09833cd8aab"
+                  },
+                  {
+                    "index": 33,
+                    "monotonic_start_ns": 51137949044364,
+                    "monotonic_end_ns": 51138233517619,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "b710d1742e506828bb1b773e68babf0c2261fea6d49cf81c1cfbfd55170aaf9a"
+                  },
+                  {
+                    "index": 34,
+                    "monotonic_start_ns": 51143241059723,
+                    "monotonic_end_ns": 51143479688047,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "218cd1949e2a4be1b29dc6ec42d25ac38652f13b45f91e08bb5250b7e35f6e22"
+                  },
+                  {
+                    "index": 35,
+                    "monotonic_start_ns": 51148486043804,
+                    "monotonic_end_ns": 51148733490106,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "8152074bb6955e80413b5e737caa497d809ac68f1d8389cf01ad928d5e8f52d0"
+                  },
+                  {
+                    "index": 36,
+                    "monotonic_start_ns": 51153739044338,
+                    "monotonic_end_ns": 51154008639629,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1a4d2f8818197a9f63635c1f72e6bee4c218abd8b4b98f85cfdec5714d5392cb"
+                  },
+                  {
+                    "index": 37,
+                    "monotonic_start_ns": 51159016044591,
+                    "monotonic_end_ns": 51159244406291,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1d6cc8520695cb7751ff55126dfcbaa70f4c79bffca6d83bc9f13bc6a8e94ee3"
+                  },
+                  {
+                    "index": 38,
+                    "monotonic_start_ns": 51164253044637,
+                    "monotonic_end_ns": 51164519064285,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "9f92086562a38417c9b30ddc21f60f859e59ab10f6228799f035ed8cd82b3f7b"
+                  },
+                  {
+                    "index": 39,
+                    "monotonic_start_ns": 51169525399149,
+                    "monotonic_end_ns": 51169808726298,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e0867b2baeec5713d27cac0fd61539b797c32fdf2d3f7fde224a039a6cd9cb26"
+                  },
+                  {
+                    "index": 40,
+                    "monotonic_start_ns": 51174816041901,
+                    "monotonic_end_ns": 51175102338764,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "591dc42baea4723de4d45f29dfb59b1aaa47803b37717353661cde30a7aeafeb"
+                  },
+                  {
+                    "index": 41,
+                    "monotonic_start_ns": 51180110050515,
+                    "monotonic_end_ns": 51180342569508,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "89b944870be9f3552bf4f0a4ee8605fb1b67aea7ed1c83afbec1cd8cf459ca10"
+                  },
+                  {
+                    "index": 42,
+                    "monotonic_start_ns": 51185352054822,
+                    "monotonic_end_ns": 51185628878036,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5b1e0cc30844d2ab218b697bd8769e12734c9eed127c3d167f70697afae8315f"
+                  },
+                  {
+                    "index": 43,
+                    "monotonic_start_ns": 51190637040319,
+                    "monotonic_end_ns": 51190915169089,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ceb0f1f71d6583381ed07b3b2a5669a6d9c4ab680230d1df85dab684d223ab4a"
+                  },
+                  {
+                    "index": 44,
+                    "monotonic_start_ns": 51195924044369,
+                    "monotonic_end_ns": 51196195286902,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d7c6c1c08111c82dbb9bc49bbfc61a0584d2d1f0f7b872150f144424ebcd1c5a"
+                  },
+                  {
+                    "index": 45,
+                    "monotonic_start_ns": 51201204044021,
+                    "monotonic_end_ns": 51201462233617,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e32e0d4f9f57d01fbad67a8041a1fea30999b333b71f223ab21934f4ee06c038"
+                  },
+                  {
+                    "index": 46,
+                    "monotonic_start_ns": 51206471044519,
+                    "monotonic_end_ns": 51206724794719,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "feea08b8c3bd23858cee96f4649cd514c704acee333a916cdd029cd3a821e4e9"
+                  },
+                  {
+                    "index": 47,
+                    "monotonic_start_ns": 51211733175938,
+                    "monotonic_end_ns": 51211937318535,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ed8f0b79fbe9d3e6420e4eb83b41be0722488747bb42de5b00feef750b637025"
+                  },
+                  {
+                    "index": 48,
+                    "monotonic_start_ns": 51216944921304,
+                    "monotonic_end_ns": 51217177283688,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ed79a078f17f52d8739ede483632601e185fd226d0342b118b9bce408a117109"
+                  },
+                  {
+                    "index": 49,
+                    "monotonic_start_ns": 51222184041473,
+                    "monotonic_end_ns": 51222392044525,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5863084c70a0782cdd333462f24d3177db462ed9f4c497522c5002898530defb"
+                  },
+                  {
+                    "index": 50,
+                    "monotonic_start_ns": 51224329507265,
+                    "monotonic_end_ns": 51224528679284,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "0439c627acbfa625c0c9b1bc15f750a6af81c0a9e720ce3d279ceec483a61882"
+                  },
+                  {
+                    "index": 51,
+                    "monotonic_start_ns": 51225395930278,
+                    "monotonic_end_ns": 51225604169954,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "86ab663fa36fa558eb16a17c1c0b52a77e83e17d5ef4440d4ad8c542caf56259"
+                  },
+                  {
+                    "index": 52,
+                    "monotonic_start_ns": 51230611106788,
+                    "monotonic_end_ns": 51230807111327,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "b1be6abf37519771d76e38c576b9e35e47a6fe565edd0ff10574b17f12594aef"
+                  },
+                  {
+                    "index": 53,
+                    "monotonic_start_ns": 51232776215232,
+                    "monotonic_end_ns": 51232976886878,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "24bfc686306d4b3a77b40f58966849956be6416ef15a8aa1bee861846253292d"
+                  },
+                  {
+                    "index": 54,
+                    "monotonic_start_ns": 51234120143176,
+                    "monotonic_end_ns": 51234309641075,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "9bda0cbc354783f21ddcc88f9c36558548da8931e03a70ba31501614dc73ed05"
+                  },
+                  {
+                    "index": 55,
+                    "monotonic_start_ns": 51236978182573,
+                    "monotonic_end_ns": 51237172222520,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d6b92ba480c9a45b672485392d0127954a219057d2cd4fed3a437c2e93063608"
+                  },
+                  {
+                    "index": 56,
+                    "monotonic_start_ns": 51242178411885,
+                    "monotonic_end_ns": 51242397662312,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "34d02d960d9d400b7ffeb05a41cf1553a8c381f69a0497c93c4228362fb882aa"
+                  },
+                  {
+                    "index": 57,
+                    "monotonic_start_ns": 51247403047737,
+                    "monotonic_end_ns": 51247639601040,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "14eaea0e23c82235b16f5943072e948b956d9544d96226ef893deeb8940d497f"
+                  },
+                  {
+                    "index": 58,
+                    "monotonic_start_ns": 51252645052556,
+                    "monotonic_end_ns": 51252896779872,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ab73fdcc83a3178963d5dc8eb9ea2e7e0c93ab9f4ffd5b02d603d4aad9b36a85"
+                  },
+                  {
+                    "index": 59,
+                    "monotonic_start_ns": 51257903058445,
+                    "monotonic_end_ns": 51258125366873,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "bd46d8cf9d5eb4d236bff56ed87a84e8cc0fccffda259616c888ae185477c779"
+                  },
+                  {
+                    "index": 60,
+                    "monotonic_start_ns": 51263131047910,
+                    "monotonic_end_ns": 51263347319342,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "1c499e3a922feee7e17a9d4f12ce91053b4cb0e14c12baba62d4e59dc28c7b8f"
+                  },
+                  {
+                    "index": 61,
+                    "monotonic_start_ns": 51268353059215,
+                    "monotonic_end_ns": 51268609456359,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "38109d8f670d34e926f1ce21b1260fb5ecb5838bda8af330373442c613a8dddd"
+                  },
+                  {
+                    "index": 62,
+                    "monotonic_start_ns": 51273615046655,
+                    "monotonic_end_ns": 51273847420906,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "8bc2fe07370a9efcc12f69811bbe4771384434de2bff4ad1a548ca046bd5959f"
+                  },
+                  {
+                    "index": 63,
+                    "monotonic_start_ns": 51278854042950,
+                    "monotonic_end_ns": 51279068754979,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "100df270d8530d2aff834d03157b1b08a844eb65c92402c7803f608fc6ac591f"
+                  },
+                  {
+                    "index": 64,
+                    "monotonic_start_ns": 51284076047203,
+                    "monotonic_end_ns": 51284319168391,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f8307213a4d34ba64417ef807968c121ebdba4b470faae073c8c07294d1fe94a"
+                  },
+                  {
+                    "index": 65,
+                    "monotonic_start_ns": 51289327054512,
+                    "monotonic_end_ns": 51289556277900,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "4782e8a5d7905208821c9af81a7d8c785bf19898a47d3aca065ad1d543b2fba6"
+                  },
+                  {
+                    "index": 66,
+                    "monotonic_start_ns": 51294564048862,
+                    "monotonic_end_ns": 51294789769231,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "8b94d1c506deac488da279f001e12360d479ab07054f450734881ff86480da0b"
+                  },
+                  {
+                    "index": 67,
+                    "monotonic_start_ns": 51299797052633,
+                    "monotonic_end_ns": 51300026530752,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f4b3d0b75ab8737947c325d5d3c5659543582e60a1ec3cae9ebb42e41da88cbc"
+                  },
+                  {
+                    "index": 68,
+                    "monotonic_start_ns": 51305033122319,
+                    "monotonic_end_ns": 51305318395891,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "b10cf1f8bd79959e995225b7fa77040836f178590047e4aec949563ea9ebd357"
+                  },
+                  {
+                    "index": 69,
+                    "monotonic_start_ns": 51310326279113,
+                    "monotonic_end_ns": 51310557724934,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ba34fff88edaa810b185b90876ca2e90e0cd6abe6c7a2d9ed49c376c1d8725c0"
+                  },
+                  {
+                    "index": 70,
+                    "monotonic_start_ns": 51315562119900,
+                    "monotonic_end_ns": 51315834231449,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "90690af6fc4ff7d9248ef2c82c8dbde709d235acc132578445492901718042a2"
+                  },
+                  {
+                    "index": 71,
+                    "monotonic_start_ns": 51320841039545,
+                    "monotonic_end_ns": 51321095072016,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "aca1901c843debd25b7e0ea11e0068fe18b3403b0aa743f443caa836f7aa5070"
+                  },
+                  {
+                    "index": 72,
+                    "monotonic_start_ns": 51326100053277,
+                    "monotonic_end_ns": 51326315599477,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "b2a1abe89c8c3a7b65b861dee970692f54b1bcbf3de14bb2dd7c753f9b231447"
+                  },
+                  {
+                    "index": 73,
+                    "monotonic_start_ns": 51331322043108,
+                    "monotonic_end_ns": 51331553268205,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "9ca7040803c2de8fdf73e73c489a76d3ef8e5a755c3a9ca417e6556d82e72a33"
+                  },
+                  {
+                    "index": 74,
+                    "monotonic_start_ns": 51336560044567,
+                    "monotonic_end_ns": 51336817253023,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "72859aefdeedaa5b3ac03900dc29a626f72e51553cad333c3264ac088fc6cd9a"
+                  },
+                  {
+                    "index": 75,
+                    "monotonic_start_ns": 51341824532756,
+                    "monotonic_end_ns": 51342054456423,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "708af6f9381caed8f662a148656d3ef4e9d74e4795cb62076720819a14c4dad1"
+                  },
+                  {
+                    "index": 76,
+                    "monotonic_start_ns": 51347062047926,
+                    "monotonic_end_ns": 51347318184448,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "15677bbe6e359764417a1299fa4b5298a84dcc1c60c8092d91c65b63acf419f0"
+                  },
+                  {
+                    "index": 77,
+                    "monotonic_start_ns": 51352322039276,
+                    "monotonic_end_ns": 51352546115164,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "86bc2a5c03948023534f99471c1486e96e9a5ccf2740a6a93125a49cfe9b197c"
+                  },
+                  {
+                    "index": 78,
+                    "monotonic_start_ns": 51352735212958,
+                    "monotonic_end_ns": 51352922782673,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "fd34db61f8c47c4b1c616300b35d0186a87c7c61ce2acc2f9781f47951e5596e"
+                  },
+                  {
+                    "index": 79,
+                    "monotonic_start_ns": 51355032806879,
+                    "monotonic_end_ns": 51355230320582,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ee1b6ea6049b0a145110450b0f3baa510d9f445d52bf076c5ff3f3b47cfa52a7"
+                  }
+                ]
+              }
+            }
+          ],
+          "archive_check": {
+            "pin": {
+              "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/archives/objects-check.json",
+              "sha256": "059557c3f16c06010128a9a1df9f64c63af7d1dcca502f3c880875265fc00df2"
+            },
+            "value": {
+              "schema": "suite-archive-check-v1",
+              "passed": true,
+              "archive": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/archives/objects.tar.gz",
+              "sha256": "711d2bdbeee7af0e69a6daae93bb6ef77754f6cdb105a31588dc84b630877288",
+              "bytes": 10122738,
+              "file_members": 3614,
+              "cell_id": "16f4ac389d2a2da6-r1-native",
+              "kind": "objects",
+              "deferred": [],
+              "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+            }
+          }
+        }
+      },
+      "context": {
+        "pin": {
+          "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/context.json",
+          "sha256": "e4980e28f6f5c980ced7cd8bde6a7fbb4cbd70b612c552355deae25cf997fa90"
+        },
+        "value": {
+          "control": "/srv/ax-pilot-control/parallel-control-01",
+          "out": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native",
+          "cell_id": "16f4ac389d2a2da6-r1-native",
+          "qualification": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c3-flat-01",
+          "overhead": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-native/overhead/result.json",
+            "sha256": "6103f6eb90f0589ec9cce91ccbc3de90697bc5094f9fce6849fd6580759e88be"
+          },
+          "node_tool": {
+            "path": "/srv/ax-client/code-14/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+            "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+          },
+          "observer_tool_name": "make-observer.py",
+          "observer_tool_sha256": "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff",
+          "collector_name": "ax-pilot-cal-pool-a-n-sf-c3f01-on3-collector",
+          "asset": "/srv/ax-client/a/c3-flat-native-100k-01",
+          "asset_manifest": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c3-flat-01/assets/native/asset.json",
+            "sha256": "df3d5ba405b8b851401c83085123db3d767996fde174f95063d8598c0d1c946d"
+          },
+          "runtime_control": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/binding.json",
+            "sha256": "bba6f0242f97a06438783d293769fa77f7de58e180c87885a6abc34f943efdde"
+          },
+          "smallfiles": {
+            "binary": {
+              "path": "/srv/ax-client/assets/bin/smallfiles",
+              "sha256": "8c45bca1348e936e0b8e5d01e7e8ee11f1db72120dc8aa7800aa72e1e0bcde96"
+            },
+            "verifier": {
+              "path": "/srv/ax-client/assets/bin/smallfiles-verify-c3-01",
+              "sha256": "843e4137ed6692f7b7ca9ee7961964733cfd5ebca7f75aff6d70486c646ecf95"
+            },
+            "copier": {
+              "path": "/srv/ax-client/assets/bin/smallfiles-copy-c3-01",
+              "sha256": "865fd2e3da836fa8d1eb775d89597ad78bce96cf05cd7e88d5999a7e21d6bcb7"
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native",
+      "exists": true,
+      "roles": {
+        "client": {
+          "finished": [
+            {
+              "pin": {
+                "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/raw/client/o/c1-fa630431ea12-8e3d340ff23c3ece-r1-native/finished.json",
+                "sha256": "57c56cd7eb070d43b13e158481cb709a260490fb05944fb395949c083a7d0ce2"
+              },
+              "value": {
+                "passed": true,
+                "errors": [],
+                "samples": 19,
+                "latest_sample_ns": 48027754168920,
+                "spec_sha256": "a8388f2311ddff57471b0337152357427a5a2111882ed782572fd29fb2576387",
+                "metric_contract_sha256": "220b64cee573132ba9c2738e40dbae2a8594e5b0d82686cf12dec15d1aa4d4f1",
+                "marks": [
+                  {
+                    "label": "measure-start",
+                    "sample_index": 5,
+                    "monotonic_ns": 47984000908618
+                  },
+                  {
+                    "label": "measurement-start",
+                    "sample_index": 6,
+                    "monotonic_ns": 47986400526677
+                  },
+                  {
+                    "label": "application-finished",
+                    "sample_index": 12,
+                    "monotonic_ns": 48011803710528
+                  },
+                  {
+                    "label": "measure-end",
+                    "sample_index": 13,
+                    "monotonic_ns": 48012363956551
+                  },
+                  {
+                    "label": "drain-end",
+                    "sample_index": 14,
+                    "monotonic_ns": 48015257407700
+                  },
+                  {
+                    "label": "verify-end",
+                    "sample_index": 17,
+                    "monotonic_ns": 48026339184256
+                  }
+                ],
+                "target_states": {
+                  "filesystem": {
+                    "state": "cleanly-stopped",
+                    "receipt_sha256": "91a1435dcedc2e76f049dd3e825a12f3ef956e4923d6571a8f4c7d23027acdc9"
+                  },
+                  "filesystem-extra-1": {
+                    "state": "cleanly-stopped",
+                    "receipt_sha256": "91a1435dcedc2e76f049dd3e825a12f3ef956e4923d6571a8f4c7d23027acdc9"
+                  },
+                  "filesystem-extra-2": {
+                    "state": "cleanly-stopped",
+                    "receipt_sha256": "91a1435dcedc2e76f049dd3e825a12f3ef956e4923d6571a8f4c7d23027acdc9"
+                  }
+                },
+                "history": [
+                  {
+                    "index": 0,
+                    "monotonic_start_ns": 47966660114846,
+                    "monotonic_end_ns": 47966663779215,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "b2607d2d974b74c8afdfbe9d465afb368dffc1e2f62be0936b702ec970775e91"
+                  },
+                  {
+                    "index": 1,
+                    "monotonic_start_ns": 47966701953948,
+                    "monotonic_end_ns": 47966705594258,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "73480c7db63129e92106f29c3256d2fb7317e763c5ef81fce2b819edd486ca0f"
+                  },
+                  {
+                    "index": 2,
+                    "monotonic_start_ns": 47971710668732,
+                    "monotonic_end_ns": 47971714524605,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "106fb05bdb47271b17fc38e8d859d9a16c0cd459d58ad1b1216cee72717c0c5b"
+                  },
+                  {
+                    "index": 3,
+                    "monotonic_start_ns": 47976715765717,
+                    "monotonic_end_ns": 47976754694503,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d14d7bb239ba1bd5a4b8f43ff632770917f4b5a2f2cdacbe68ad7e8c3365f535"
+                  },
+                  {
+                    "index": 4,
+                    "monotonic_start_ns": 47981760056531,
+                    "monotonic_end_ns": 47981765652080,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "97a7c0b204536265af569f0c50147b26c6d056147cb14a52a582520de19df837"
+                  },
+                  {
+                    "index": 5,
+                    "monotonic_start_ns": 47983964256490,
+                    "monotonic_end_ns": 47984000278533,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "c7f161a9bc620ecb29fa4a7306d6486f35e3784e069262dad1ec0526d63f39ec"
+                  },
+                  {
+                    "index": 6,
+                    "monotonic_start_ns": 47986365062277,
+                    "monotonic_end_ns": 47986399966827,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e0747efb6f989ebaa69ef5542bf868912ffbced4f17b939572730683d9936fb2"
+                  },
+                  {
+                    "index": 7,
+                    "monotonic_start_ns": 47991404124311,
+                    "monotonic_end_ns": 47991436015041,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "dc76ee85df2ad1c68f62ee36e071718bbdf99e4f1dd37449e9f3399dfd695d72"
+                  },
+                  {
+                    "index": 8,
+                    "monotonic_start_ns": 47996441044404,
+                    "monotonic_end_ns": 47996475841597,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "b3a6f34b16c35cd1487e2d3c34e06629cc940a64161bcdf7f4c134d00301bfe1"
+                  },
+                  {
+                    "index": 9,
+                    "monotonic_start_ns": 48001481040510,
+                    "monotonic_end_ns": 48001513461573,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e0ffdd1f94bb231b0480984891fda06809ea253efe5064e97fe98c7cb11d6319"
+                  },
+                  {
+                    "index": 10,
+                    "monotonic_start_ns": 48006519041715,
+                    "monotonic_end_ns": 48006549398350,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "3c5088175c6c76e226dd93b1a7c97f749bb158c77dcad5943586d4929ad8d798"
+                  },
+                  {
+                    "index": 11,
+                    "monotonic_start_ns": 48011552286153,
+                    "monotonic_end_ns": 48011586708187,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e1e30ba041c1e0caa844b4c6eced4a67cd58496ea815ca6c498a35dc2499d70a"
+                  },
+                  {
+                    "index": 12,
+                    "monotonic_start_ns": 48011774215783,
+                    "monotonic_end_ns": 48011803111000,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "0f76f73e4dfdf958d312f0317b45c6cfbe6e06771c18805e9152d29a431e42e5"
+                  },
+                  {
+                    "index": 13,
+                    "monotonic_start_ns": 48012334506910,
+                    "monotonic_end_ns": 48012363389171,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "9d89276f112079358e9706b425d6c9fb372da71b6aafc482e1d22440ba94a74b"
+                  },
+                  {
+                    "index": 14,
+                    "monotonic_start_ns": 48015228009068,
+                    "monotonic_end_ns": 48015256817076,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "3639a1a3045a612c78d2517a567aadee88833fe48800340d90eb62644424b3d2"
+                  },
+                  {
+                    "index": 15,
+                    "monotonic_start_ns": 48020259355415,
+                    "monotonic_end_ns": 48020263511718,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "80852af72460b41b42796f85f88433fcbed6678ee48493f76c49c992beb51ae3"
+                  },
+                  {
+                    "index": 16,
+                    "monotonic_start_ns": 48025268047911,
+                    "monotonic_end_ns": 48025320988935,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "26dc15a5053bdc08c2de5bca203ef21c527ea364985fb296d0f864949feea3d4"
+                  },
+                  {
+                    "index": 17,
+                    "monotonic_start_ns": 48026334507890,
+                    "monotonic_end_ns": 48026338805018,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "bd3d55830fa9ac67b0e6f71e83e2939abe1b046d4fa467b6e024672b3a280bde"
+                  },
+                  {
+                    "index": 18,
+                    "monotonic_start_ns": 48027749368106,
+                    "monotonic_end_ns": 48027754168920,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5c2a9bbefc6e1c0ec065b5112544852cc1be05ea83ec147b56d902932d2b7e25"
+                  }
+                ]
+              }
+            }
+          ],
+          "archive_check": {
+            "pin": {
+              "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/archives/client-check.json",
+              "sha256": "d107ae014f726d724024cc64f6acc2b4f8081bd1c0ab06252cb7e65b156e963d"
+            },
+            "value": {
+              "schema": "suite-archive-check-v1",
+              "passed": true,
+              "archive": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/archives/client.tar.gz",
+              "sha256": "c16400ec18c5df6604cf3478ee41286e2d9a47644f14fc009e7afa48a08cc1be",
+              "bytes": 358658,
+              "file_members": 628,
+              "cell_id": "8e3d340ff23c3ece-r1-native",
+              "kind": "client",
+              "deferred": [],
+              "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+            }
+          }
+        },
+        "metadata": {
+          "finished": [
+            {
+              "pin": {
+                "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/raw/metadata/o/c1-fa630431ea12-8e3d340ff23c3ece-r1-native/finished.json",
+                "sha256": "acf16ab024a05ac774850015abd551664803e2d5dda2c401075be36581df128b"
+              },
+              "value": {
+                "passed": true,
+                "errors": [],
+                "samples": 19,
+                "latest_sample_ns": 48024476508471,
+                "spec_sha256": "24f6f15fad637227fc7acf76835c1d536f73c279309ac6af905d3d833f48be69",
+                "metric_contract_sha256": "220b64cee573132ba9c2738e40dbae2a8594e5b0d82686cf12dec15d1aa4d4f1",
+                "marks": [
+                  {
+                    "label": "measure-start",
+                    "sample_index": 5,
+                    "monotonic_ns": 47980613948885
+                  },
+                  {
+                    "label": "measurement-start",
+                    "sample_index": 6,
+                    "monotonic_ns": 47982350224777
+                  },
+                  {
+                    "label": "application-finished",
+                    "sample_index": 12,
+                    "monotonic_ns": 48007758835322
+                  },
+                  {
+                    "label": "measure-end",
+                    "sample_index": 13,
+                    "monotonic_ns": 48008737616924
+                  },
+                  {
+                    "label": "drain-end",
+                    "sample_index": 14,
+                    "monotonic_ns": 48011632639130
+                  },
+                  {
+                    "label": "verify-end",
+                    "sample_index": 17,
+                    "monotonic_ns": 48022717312418
+                  }
+                ],
+                "target_states": {
+                  "redis": {
+                    "state": "live",
+                    "required_names": [
+                      "total_commands_processed",
+                      "total_net_input_bytes",
+                      "total_net_output_bytes",
+                      "used_memory",
+                      "used_cpu_sys",
+                      "used_cpu_user",
+                      "aof_enabled",
+                      "aof_last_write_status"
+                    ]
+                  }
+                },
+                "history": [
+                  {
+                    "index": 0,
+                    "monotonic_start_ns": 47963451346577,
+                    "monotonic_end_ns": 47963462271477,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a1fa41faa0358afce286e22742d5e6f9a546dd8f1323ea829062322122396550"
+                  },
+                  {
+                    "index": 1,
+                    "monotonic_start_ns": 47963495795622,
+                    "monotonic_end_ns": 47963506076208,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f8cd0734742dbb64a2e6e8cf998f6d8db3717690c6ddb77fe5757b433b384e50"
+                  },
+                  {
+                    "index": 2,
+                    "monotonic_start_ns": 47968511436532,
+                    "monotonic_end_ns": 47968522241842,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5f4d2d89b5f374fda10dc4956ec8394c5b9caefe49a63dcfcdf579bed536b3f4"
+                  },
+                  {
+                    "index": 3,
+                    "monotonic_start_ns": 47973527612751,
+                    "monotonic_end_ns": 47973538202670,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "fe35a393a87b9c9d8dedfd69d4007579199317f8453f20498a0e3b2171a0a31b"
+                  },
+                  {
+                    "index": 4,
+                    "monotonic_start_ns": 47978540853274,
+                    "monotonic_end_ns": 47978551885594,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "cd43ae8db1975ddb92fa47aa0633c019343915e685d3bc30b6dcb9747a841156"
+                  },
+                  {
+                    "index": 5,
+                    "monotonic_start_ns": 47980603255001,
+                    "monotonic_end_ns": 47980613503946,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f6e194fecc79105755f6950b535ed174e48927c5216b3327a66484f8f2aa3942"
+                  },
+                  {
+                    "index": 6,
+                    "monotonic_start_ns": 47982339331321,
+                    "monotonic_end_ns": 47982349844606,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a11bc59d460a6de439395d9f362494e2a07d952099bf8babdfa1e767d3dffde0"
+                  },
+                  {
+                    "index": 7,
+                    "monotonic_start_ns": 47987355259343,
+                    "monotonic_end_ns": 47987367188066,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "a95bea2c9333d2b8ac8f0a3cc77b07c8351b85d2595a51663f693840f15ab31e"
+                  },
+                  {
+                    "index": 8,
+                    "monotonic_start_ns": 47992372563446,
+                    "monotonic_end_ns": 47992383569491,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ad0921131786ad7ad2df2b41972f19650877c9d6e916ddf48c775ad011dede8c"
+                  },
+                  {
+                    "index": 9,
+                    "monotonic_start_ns": 47997388038030,
+                    "monotonic_end_ns": 47997399250122,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "396dfaa6f09d62c4e15420b46ab269306229d0e301313c06af46ae3774646888"
+                  },
+                  {
+                    "index": 10,
+                    "monotonic_start_ns": 48002404037767,
+                    "monotonic_end_ns": 48002415442217,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "c9ba46209b1422327cf3ae632adabb16d63772a296b56c695477ca01b33b4cd2"
+                  },
+                  {
+                    "index": 11,
+                    "monotonic_start_ns": 48007420837316,
+                    "monotonic_end_ns": 48007431701667,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "3073cf07de210de2fb7e20664d268ec1ff4598010af096567f8c8ae1c689d4dc"
+                  },
+                  {
+                    "index": 12,
+                    "monotonic_start_ns": 48007748126154,
+                    "monotonic_end_ns": 48007758485973,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "fe719babff8c307dcb7eb1ccb4b435bfd3ce848534c71112705e2920e3fde6fb"
+                  },
+                  {
+                    "index": 13,
+                    "monotonic_start_ns": 48008726799130,
+                    "monotonic_end_ns": 48008737275123,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "203873541a1bc9500dd685df10553204f25f5efac2cd54f8bb10fc3d6a97a1c4"
+                  },
+                  {
+                    "index": 14,
+                    "monotonic_start_ns": 48011621676074,
+                    "monotonic_end_ns": 48011632201497,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f55b31a69f3b8a1f0777f312de236afe7b77b8173716085c3cafe40f115f18c8"
+                  },
+                  {
+                    "index": 15,
+                    "monotonic_start_ns": 48016636036888,
+                    "monotonic_end_ns": 48016646816069,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "9108be0ef0cc5da15f6159b89f3e7f90d4b6b58e8e74a9d81f912937f39c4571"
+                  },
+                  {
+                    "index": 16,
+                    "monotonic_start_ns": 48021650416963,
+                    "monotonic_end_ns": 48021661043770,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "57815fae3ae86f15d58d0edb08df0cd8cf21bf1e3067725e3d5329d32ee6c80c"
+                  },
+                  {
+                    "index": 17,
+                    "monotonic_start_ns": 48022706535738,
+                    "monotonic_end_ns": 48022716927395,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "5034c52bf07124cbfe32805a6fae3da60779a294186d1b1c61285baf95c7cfde"
+                  },
+                  {
+                    "index": 18,
+                    "monotonic_start_ns": 48024466041280,
+                    "monotonic_end_ns": 48024476508471,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "d24dffd9355b1afd5c7f8f6ba1f2c7b85acbf993ad0940d962a7fbea8c26dbbb"
+                  }
+                ]
+              }
+            }
+          ],
+          "archive_check": {
+            "pin": {
+              "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/archives/metadata-check.json",
+              "sha256": "b345b5edaee1d3d058f973572b47d6059f0cf1c8dc0440b4390ddc2877ed8501"
+            },
+            "value": {
+              "schema": "suite-archive-check-v1",
+              "passed": true,
+              "archive": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/archives/metadata.tar.gz",
+              "sha256": "6ef8dd29266b3d74c3cf7c273483e3133da712782ac9146c83e39ef68beb2a9a",
+              "bytes": 251985,
+              "file_members": 545,
+              "cell_id": "8e3d340ff23c3ece-r1-native",
+              "kind": "metadata",
+              "deferred": [],
+              "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+            }
+          }
+        },
+        "objects": {
+          "finished": [
+            {
+              "pin": {
+                "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/raw/objects/o/c1-fa630431ea12-8e3d340ff23c3ece-r1-native/finished.json",
+                "sha256": "13ff45248174c82b05533341a814431292ed07b8144cccd4ea3ee485b4cccd7d"
+              },
+              "value": {
+                "passed": true,
+                "errors": [],
+                "samples": 18,
+                "latest_sample_ns": 48018455291093,
+                "spec_sha256": "69c4f7a721eeff9cb2629258882dc86ca1e04f7106c295faf14f849ecd7a807b",
+                "metric_contract_sha256": "220b64cee573132ba9c2738e40dbae2a8594e5b0d82686cf12dec15d1aa4d4f1",
+                "marks": [
+                  {
+                    "label": "measure-start",
+                    "sample_index": 5,
+                    "monotonic_ns": 47974554402723
+                  },
+                  {
+                    "label": "measurement-start",
+                    "sample_index": 6,
+                    "monotonic_ns": 47975596694360
+                  },
+                  {
+                    "label": "application-finished",
+                    "sample_index": 11,
+                    "monotonic_ns": 48001046908744
+                  },
+                  {
+                    "label": "measure-end",
+                    "sample_index": 12,
+                    "monotonic_ns": 48002434188996
+                  },
+                  {
+                    "label": "drain-end",
+                    "sample_index": 13,
+                    "monotonic_ns": 48005278205730
+                  },
+                  {
+                    "label": "verify-end",
+                    "sample_index": 16,
+                    "monotonic_ns": 48016361813063
+                  }
+                ],
+                "target_states": {
+                  "rustfs": {
+                    "state": "live",
+                    "required_names": [
+                      "rustfs_s3_http_requests_total",
+                      "rustfs_http_server_request_body_bytes_total",
+                      "rustfs_http_server_response_body_bytes_total",
+                      "rustfs_http_server_request_duration_seconds_count",
+                      "rustfs_storage_snapshot_last_success_timestamp_seconds"
+                    ]
+                  },
+                  "collector": {
+                    "state": "live",
+                    "required_names": [
+                      "otelcol_receiver_accepted_metric_points",
+                      "otelcol_receiver_failed_metric_points",
+                      "otelcol_receiver_refused_metric_points"
+                    ]
+                  }
+                },
+                "history": [
+                  {
+                    "index": 0,
+                    "monotonic_start_ns": 47957607988630,
+                    "monotonic_end_ns": 47957835338017,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "269a778077d75bc0b7eeb7c968e30d4269ef60952d1bd5a8ca661c5b52dd4289"
+                  },
+                  {
+                    "index": 1,
+                    "monotonic_start_ns": 47957852020838,
+                    "monotonic_end_ns": 47958037987287,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "2b9a109389dcc37f72765fe9b25a8ad0f7991d7d273d4b568b16f55ef29362a5"
+                  },
+                  {
+                    "index": 2,
+                    "monotonic_start_ns": 47963044073287,
+                    "monotonic_end_ns": 47963237070251,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "22c02b8d0c4638f83bcff09b645063c5fc7adabf6d51c34a312f036467892b3d"
+                  },
+                  {
+                    "index": 3,
+                    "monotonic_start_ns": 47968239385367,
+                    "monotonic_end_ns": 47968444737865,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "7195ef84c656eb1be6b6a327431fb29711cf6733be5899982888e1a62777f940"
+                  },
+                  {
+                    "index": 4,
+                    "monotonic_start_ns": 47973451635201,
+                    "monotonic_end_ns": 47973655900931,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "c0ead0691d581e200ef5ada1cb5de94469e44b12ac7160ea4b79131492f5aaa8"
+                  },
+                  {
+                    "index": 5,
+                    "monotonic_start_ns": 47974352852197,
+                    "monotonic_end_ns": 47974551634528,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "9c4210ca33678a92f9a6b7f7a31364c6035ec31b37377de3b9323cd5a4f09441"
+                  },
+                  {
+                    "index": 6,
+                    "monotonic_start_ns": 47975404268839,
+                    "monotonic_end_ns": 47975594812141,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "02ad38823a7314282695ff166defe43b6db08fe0c1abb4be567f22d3ab924906"
+                  },
+                  {
+                    "index": 7,
+                    "monotonic_start_ns": 47980601710626,
+                    "monotonic_end_ns": 47980836700501,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "521770408beb456d8894f40392b05225d6113fe655998a4850829e229d0c310e"
+                  },
+                  {
+                    "index": 8,
+                    "monotonic_start_ns": 47985843043014,
+                    "monotonic_end_ns": 47986044401212,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "36717722c213ff0df549e17a1f7b05fed08627075f21a3ba2fa757b2a7367e55"
+                  },
+                  {
+                    "index": 9,
+                    "monotonic_start_ns": 47991051049100,
+                    "monotonic_end_ns": 47991269847759,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "b52c90ca59de9a6f7e2277a7c177194e85f28a78feca81790fbb66e7151e74a9"
+                  },
+                  {
+                    "index": 10,
+                    "monotonic_start_ns": 47996274909188,
+                    "monotonic_end_ns": 47996477835114,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "e1fda8b2aa098a0a957f0988d3a4b2b757e8b7906ab8f27e8cbf154448d6cbce"
+                  },
+                  {
+                    "index": 11,
+                    "monotonic_start_ns": 48000863073601,
+                    "monotonic_end_ns": 48001044849780,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "74260b118966c6ac3c49b9e4697d0ad6d49cf05d73c6316a36c66c6beeccff14"
+                  },
+                  {
+                    "index": 12,
+                    "monotonic_start_ns": 48002189084003,
+                    "monotonic_end_ns": 48002432329744,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "ffd54fd7775d837175551e0fb9ef836cd7fed860e664bc63e1039d56d28bcd0d"
+                  },
+                  {
+                    "index": 13,
+                    "monotonic_start_ns": 48005080746398,
+                    "monotonic_end_ns": 48005276102538,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f0bec5c2a294fe9a416f8123a037de520d90d233519bfeb3514096ea362503d7"
+                  },
+                  {
+                    "index": 14,
+                    "monotonic_start_ns": 48010283246463,
+                    "monotonic_end_ns": 48010475107607,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "574dc0b3747963afc385da73535af787951d5df0f5bf999b067c5b3b0e7fc640"
+                  },
+                  {
+                    "index": 15,
+                    "monotonic_start_ns": 48015482250354,
+                    "monotonic_end_ns": 48015684376122,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "de92f3fcabea02541fbd6710e06dfb1b9c974ce53a6a62a195e869b9c49d26fa"
+                  },
+                  {
+                    "index": 16,
+                    "monotonic_start_ns": 48016163818731,
+                    "monotonic_end_ns": 48016359791216,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "8d89c7044f59a6ed319a274caee43db823fe867d6bd6511cac389f3e63a379aa"
+                  },
+                  {
+                    "index": 17,
+                    "monotonic_start_ns": 48018262831852,
+                    "monotonic_end_ns": 48018455291093,
+                    "passed": true,
+                    "errors": [],
+                    "sample_sha256": "f49e50c78d96b152a0bc44bba34b57c4e70e3a5a5c6159745c650a12b64e6714"
+                  }
+                ]
+              }
+            }
+          ],
+          "archive_check": {
+            "pin": {
+              "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/archives/objects-check.json",
+              "sha256": "a99d58b0af922ae4ace9fb250460f422137e57565b972cc2b6d3dc520af9c8d0"
+            },
+            "value": {
+              "schema": "suite-archive-check-v1",
+              "passed": true,
+              "archive": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/archives/objects.tar.gz",
+              "sha256": "e73df2ef602c5dac1129fcc0c1a888bb193bc6bd4af6fbedbd8d991db59cfa68",
+              "bytes": 2325911,
+              "file_members": 824,
+              "cell_id": "8e3d340ff23c3ece-r1-native",
+              "kind": "objects",
+              "deferred": [],
+              "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+            }
+          }
+        }
+      },
+      "context": {
+        "pin": {
+          "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/context.json",
+          "sha256": "f64305fb88b57225261840683d74f414a7e030b66c76dbaa34beabbb0aa58a1c"
+        },
+        "value": {
+          "control": "/srv/ax-pilot-control/parallel-control-01",
+          "out": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native",
+          "cell_id": "8e3d340ff23c3ece-r1-native",
+          "qualification": "/srv/ax-pilot-control/parallel-control-01/next/c1-randrw-drafts-01/pool-a",
+          "overhead": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-native/overhead/result.json",
+            "sha256": "f54e26d89a564afc9573ed720c6abbf4c111cf41ad2168120eeefb4c0c426434"
+          },
+          "node_tool": {
+            "path": "/srv/ax-client/code-12/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+            "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+          },
+          "observer_tool_name": "make-observer.py",
+          "observer_tool_sha256": "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff",
+          "collector_name": "ax-pilot-cal-pool-a-n-mx-c1m01-on3-collector",
+          "asset": "/srv/ax-client/a/parallel-c1-native-01",
+          "asset_manifest": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/next/c1-randrw-drafts-01/pool-a/assets/native/asset.json",
+            "sha256": "538d52357e0d968e9c8f1824403bb94b0d17f90a236451ac7df47d5096560957"
+          },
+          "runtime_control": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/binding.json",
+            "sha256": "bba6f0242f97a06438783d293769fa77f7de58e180c87885a6abc34f943efdde"
+          }
+        }
+      }
+    }
+  ],
+  "code": {
+    "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4.py": {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4.py",
+      "sha256": "7eb7110ba84fd0f34d82e28c0af7899ba122387981fda0b7b3fad0a0d518513b"
+    },
+    "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4.py": {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4.py",
+      "sha256": "47373aebf1376ec9b2eb3d913c6928624c4f8f8c378e4484b5636c7ec53f0868"
+    },
+    "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/continue-c4-formal.py": null,
+    "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/resume-c4-after-directory-hold.py": null
+  },
+  "coordinator": {
+    "path": "/srv/ax-pilot-control",
+    "device": 64784,
+    "total_bytes": 100056096768,
+    "available_bytes": 85190578176,
+    "total_inodes": 26214400,
+    "available_inodes": 25983257
+  }
+}

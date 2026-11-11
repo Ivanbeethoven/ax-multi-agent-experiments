@@ -4,6 +4,8 @@
 
 C2 native 的正式三角色原始记录和六次校准包已公开，共 **56,322,182 字节**。下载地址、SHA256 和逐次上传回执见 [index.json](evidence/cloud-20261111/05357b5089cd679c-r1-native/oss/index.json)。每个包均完成 OSS 内网全量读回校验和公网匿名 HEAD 检查。原云端文件保留。
 
+C2 JuiceFS 的正式三角色原档及原六次校准包也已公开，共 **139,424,013 字节**。见[下载及完整核验记录](evidence/c2-jfs-01/README.zh.md)，全部外层和 12 个嵌套包均从 OSS 下载副本独立核验。
+
 C3 JuiceFS 十万文件的正式三角色原始记录和原六次校准已公开，共 **35,354,910 字节**。下载地址及 SHA256 见 [C3 JuiceFS 下载清单](evidence/c3-jfs-01/oss/index.json)。校准复用了原始记录。
 
 C3 BrewFS flat 十万文件的正式三角色原始记录、关闭回执和原六次校准已公开，共 **29,801,805 字节**，见[下载清单](evidence/c3-flat-01/oss/index.json)。
@@ -13,6 +15,8 @@ C1 BrewFS [随机读](evidence/c1-native-randread-02/oss/index.json)和[混合�
 较早的 C1 随机写对照也公开了 [BrewFS](evidence/cloud-20261111/7084af367e0bcfad-r1-native/oss/index.json) 和 [JuiceFS](evidence/cloud-20261111/7084af367e0bcfad-r1-juicefs/oss/index.json) 的正式对象节点原档及各自原六次校准，共 212,589,036 字节。
 
 C4 JuiceFS 十万文件的[正式结果](evidence/c4-jfs-01/README.zh.md)已验收。三类节点原始记录、验收与关闭回执共 **36,536,477 字节**，见[下载清单](evidence/c4-jfs-01/oss/index.json)。
+
+C4 BrewFS flat 的 [Off1 完整校准记录](evidence/preparation/a-c4-flat-off1-closed-01/README.zh.md)已公开，20,647 字节、57 个成员；这是首轮校准，不计入正式完成数。
 
 C4 JuiceFS 第一轮关采集校准的[原始记录和关闭回执](evidence/c4-juicefs-calibration-off1-01/oss/index.json)已公开。该轮在冷读通过后补收原档，没有重跑。两轮[开采集校准原档](evidence/c4-juicefs-calibration-on12-01/oss/index.json)也已公开。第四轮[关采集校准原档和补收回执](evidence/c4-juicefs-calibration-off2-01/oss/index.json)也已公开，没有重跑。[第五轮（关采集）](evidence/c4-juicefs-calibration-off3-01/oss/index.json)和[第六轮（开采集）](evidence/c4-juicefs-calibration-on3-01/oss/index.json)的原始记录与关闭回执已公开。校准均未计入正式结果。
 

@@ -1,0 +1,100 @@
+{
+  "evidence": {
+    "archive_check": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/archives/client-check.json",
+      "sha256": "22d8da3a384468e544f63c8b73e0fb3d2633c94634245ca242eaa8e9068c0dfc"
+    },
+    "archive_content_rehashed": false,
+    "archives": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/archives.json",
+      "sha256": "2ce3b58db03dbab869fcdd39f7c50a391ab1b1161357e524171c7566993095ee"
+    },
+    "batch_tool": {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch-pretrial-01.py",
+      "sha256": "aefb4ad8763f46cb8a4cbd07669818a568019642814f2de3ca8d7d46483eacf6"
+    },
+    "fence": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01/trial-2",
+    "finished": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/finished.json",
+      "sha256": "e02cb37af444573cc20ba9563736a0c162c72029cc0c2508991ce814c52bce64"
+    },
+    "original_request": {
+      "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/batch.request.json",
+      "sha256": "bd28482c6bb3d46c288e791e11f3d8aee1462b00ec43516cc523496ccdcf9392"
+    },
+    "proofs": {
+      "client_verify": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/raw/client/q/c4-a-flat-off1/verify/result.json",
+        "sha256": "4950b7222ac336896b46fc8574c370a762685aa9cc970dd9c852f9ff0addb789"
+      },
+      "closure": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/closure.json",
+        "sha256": "0fa0a0190efab41ccad72f0128d14ce46beffa2214516c6533497e6f8c50fca9"
+      },
+      "cohort": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/cohort/result.json",
+        "sha256": "19767eab3f41a77956d043b26cf1506090df97ef56a5a135108937f8f1750f35"
+      },
+      "native_exit": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/raw/client/q/c4-a-flat-off1/exit.json",
+        "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494"
+      },
+      "parent_verify": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/raw/client/q/c4-a-flat-off1/verify/parent.json",
+        "sha256": "5e90401d69b69b486243115a9941ca9ccd9269c0b4aed5e24ba83302824381dd"
+      },
+      "verify_exit": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/raw/client/q/c4-a-flat-off1/verify-exit.json",
+        "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494"
+      },
+      "work": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/work-check.json",
+        "sha256": "55f6ca07a4d6b12cbc19e39037e8c5ad6d39d86214f87179992206e6025cdce3"
+      }
+    },
+    "trial_request": {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01/trial-1-request.json",
+      "sha256": "9aa432faac25a7b3e304df35cd4671fcc099c194a595d12d741afcbd39211e32"
+    }
+  },
+  "identity": {
+    "child": {
+      "cgroup": [
+        "0::/system.slice/ax-pilot-pa-c4-flat-reuse-01.service"
+      ],
+      "pid": 161969,
+      "ppid": 161875,
+      "raw_exit_status": 0,
+      "starttime": 6177817,
+      "state": "Z"
+    },
+    "parent": {
+      "argv": [
+        "/usr/bin/python3",
+        "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch-pretrial-01.py",
+        "--request",
+        "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/batch.request.json",
+        "--sha256",
+        "bd28482c6bb3d46c288e791e11f3d8aee1462b00ec43516cc523496ccdcf9392",
+        "--reuse-request",
+        "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/reuse.request.reviewed.json",
+        "--reuse-sha256",
+        "ce38b30bef6b499fb271609ca0d63a9f0761b97c4cafb99b51e4091ec5058549"
+      ],
+      "cgroup": [
+        "0::/system.slice/ax-pilot-pa-c4-flat-reuse-01.service"
+      ],
+      "pid": 161875,
+      "ppid": 1,
+      "raw_exit_status": 19,
+      "starttime": 6177165,
+      "state": "T"
+    },
+    "unit": {
+      "ActiveState": "active",
+      "InvocationID": "d944eeaa8da34cc495ad8a993adade7f",
+      "MainPID": "161875",
+      "SubState": "running"
+    }
+  }
+}

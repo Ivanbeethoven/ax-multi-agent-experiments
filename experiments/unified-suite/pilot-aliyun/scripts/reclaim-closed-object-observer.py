@@ -2,7 +2,8 @@
 """Reclaim only historical Pool A C1 observer copies already covered by public archives.
 
 The reviewed coordinator request pins the existing guard and its boundary inputs,
-both plans, the tool, and each target's role archive/check and OSS receipt.
+the canonical, original C1 and original fork plans, the tool, and each target's
+role archive/check and OSS receipt.
 For a nested publication, also pin the public outer archive/check and exact
 public member name. Dry-run and apply use the same request and separate outputs.
 """
@@ -285,6 +286,27 @@ def node(envelope, apply=False):
             'final_free_bytes': after, 'applied': apply, 'boot_id': boot, 'device': device}
 
 
+def lock_context(s):
+    plan = load(pin(s['canonical_plan'], CANONICAL/'suite/plan.json'))
+    lock_plan = load(pin(s['lock_plan'], PILOT/'fork-control-01/suite/plan.json'))
+    selected = [c for c in lock_plan['cells'] if c['id'] == s['lock_cell']]
+    require(len(selected) == 1, 'One original fork lock cell required')
+    cell = selected[0]
+    require(cell['pool'] == 'pool-a' and cell['suite'] == 'C4' and cell['case'] == 'fork-1',
+            'Original A physical lock cell required')
+    resources = set(cell['resource_ids'])
+    canonical_a = [c['resource_ids'] for c in plan['cells'] if c['pool'] == 'pool-a']
+    clusters = [c['resource_ids'] for c in plan['config']['clusters'] if c['id'] == 'pool-a']
+    require(resources and len(resources) == len(cell['resource_ids']) and canonical_a and len(clusters) == 1
+            and all(set(ids) == resources and len(ids) == len(resources) for ids in canonical_a + clusters),
+            'Original fork and canonical A physical resources differ')
+    old_plan = load(pin(s['original_plan'], PILOT/'c123-control-01/suite/plan.json'))
+    eligible = {c['id'] for c in old_plan['cells'] if c['pool'] == 'pool-a' and c['suite'] == 'C1'
+                and set(c['resource_ids']) == resources and len(c['resource_ids']) == len(resources)}
+    require(eligible, 'No original C1 cell matches the locked A physical resources')
+    return plan, cell, eligible
+
+
 def coordinator(args):
     request = {'path': str(args.request), 'sha256': args.sha256}
     s = load(pin(request, below=PREP))
@@ -295,12 +317,7 @@ def coordinator(args):
     tool = Path(__file__).resolve(strict=True)
     code = pin(s['tool'], tool, PREP).read_text()
     guard = runpy.run_path(str(pin(s['guard'], GUARD)))
-    plan = load(pin(s['canonical_plan'], CANONICAL/'suite/plan.json'))
-    cell = next(c for c in plan['cells'] if c['id'] == s['lock_cell'])
-    require(cell['pool'] == 'pool-a' and cell['suite'] == 'C4' and cell['case'] == 'fork-1', 'Original A physical lock cell required')
-    old_plan = load(pin(s['original_plan'], PILOT/'c123-control-01/suite/plan.json'))
-    eligible = {c['id'] for c in old_plan['cells'] if c['pool'] == 'pool-a' and c['suite'] == 'C1'
-                and set(c['resource_ids']) == set(cell['resource_ids'])}
+    plan, cell, eligible = lock_context(s)
     fleet = load(pin(s['fleet'], CANONICAL/'fleet.json'))
     identity = guard['identities'](s, cell, fleet)['objects']
     ssh = pin(s['ssh_config'], CANONICAL/'ssh.conf')

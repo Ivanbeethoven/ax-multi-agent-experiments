@@ -1,0 +1,96 @@
+{
+  "status": "prepared-locally-not-deployed",
+  "frozen_source_root": "/srv/ax-pilot-control/code-19",
+  "new_root": "/srv/ax-pilot-control/code-c4-directory-hold-01",
+  "method": "Create one fresh full coordinator code tree from code-19, then replace only these five overlay files; retain original tool paths and SHA",
+  "overlays": {
+    "resume-c4-after-directory-hold.py": {
+      "path": "/srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suite/pilot-aliyun/scripts/resume-c4-after-directory-hold.py",
+      "sha256": "0b052b0f4d282141c17722e59214454e9876d293c6501f998d2b93c3cc4e6561"
+    },
+    "continue-c4-formal.py": {
+      "path": "/srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suite/pilot-aliyun/scripts/continue-c4-formal.py",
+      "sha256": "5fecdb2d1607fdc0b3f4ccfd6443fce93356d3c821b16e99db602c6a0be253a0"
+    },
+    "calibrate-c4-closed-observer.py": {
+      "path": "/srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4-closed-observer.py",
+      "sha256": "4d5110d87376d93c67ddef4227414ba7c17e50a1256e80595ab112ad912fbd5f"
+    },
+    "archive-c4-closed-observer.py": {
+      "path": "/srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suite/pilot-aliyun/scripts/archive-c4-closed-observer.py",
+      "sha256": "70dcb36df2707bfd61114a84a1258cb54fd239d42ef762eb120ca8412d963ab8"
+    },
+    "run-c4-formal-closed-observer.py": {
+      "path": "/srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suite/pilot-aliyun/scripts/run-c4-formal-closed-observer.py",
+      "sha256": "d6348e944f37fe01aaf243f7bb97cbae2ebe8e8597458ceb6e0be1adc380938b"
+    }
+  },
+  "worker_deployments": [],
+  "original_tool_pins": {
+    "baseline": {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py",
+      "sha256": "e5d83db08668789f6422e71f0cc31ad03430b1616cf2ae1a608f24c4c9e6abef"
+    },
+    "capacity": {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+      "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+    },
+    "prepare": {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/prepare-c4-controller.py",
+      "sha256": "01e02a5b65d7cbe8e11d5e209fa1a05af54b939b6d851cb21833c65513cdee6a"
+    },
+    "calibrate": {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4.py",
+      "sha256": "47373aebf1376ec9b2eb3d913c6928624c4f8f8c378e4484b5636c7ec53f0868"
+    },
+    "check": {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/check-c4-calibration.py",
+      "sha256": "dc19c4969ecccfd726f93aaa28434c15306226b1dafe01fa976d0da9d629b210"
+    },
+    "admit": {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/admit-c4.py",
+      "sha256": "a06036a2e745b1c06443fecb8aca26530b83e6901e042ec61f15e2c0e6625834"
+    },
+    "run": {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4.py",
+      "sha256": "7eb7110ba84fd0f34d82e28c0af7899ba122387981fda0b7b3fad0a0d518513b"
+    }
+  },
+  "original_batch_tool": {
+    "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch-pretrial-01.py",
+    "sha256": "aefb4ad8763f46cb8a4cbd07669818a568019642814f2de3ca8d7d46483eacf6"
+  },
+  "runtime": {
+    "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/binding.json",
+    "sha256": "224d7be366ee28d87e8c185190a30c644672def5ef8ff6edb5f25c4772d2ed41"
+  },
+  "worker_code": {
+    "client": {
+      "bench/__init__.py": "79203ec1349037dca9f7ffd39622d5addb2a578e00f4b47891a623f04939c304",
+      "bench/archive_check.py": "014ce997ca7a3f134275971de720ad3525e430ace47b9b918d12a025b1841796",
+      "bench/experiment_io.py": "c8d37ec3f0c08908cbd5bbf2f81f271d69a7466b653b6dd59caeb4b61fe3531a",
+      "bench/experiment_step.py": "f0038b880f3bb90d2121f89711e8e11fedc3899f9a56c1e9cac6374e8760c7b4",
+      "bench/runtime/__init__.py": "dfdeed17e5e59e416dceb7a304447b3c7b295a909441c066811b2f7c255a0eda",
+      "bench/runtime/common.py": "c8c9916db9f54b8203132903ebaf59b40d70a27e0f2e7d086eb6e5a446f84960",
+      "bench/runtime/observe.py": "29bdf9cdf5d97115c694d85f5a761c03591d17df3b88ad7472e2a484f08a2efd"
+    },
+    "metadata": {
+      "bench/__init__.py": "79203ec1349037dca9f7ffd39622d5addb2a578e00f4b47891a623f04939c304",
+      "bench/archive_check.py": "014ce997ca7a3f134275971de720ad3525e430ace47b9b918d12a025b1841796",
+      "bench/experiment_io.py": "c8d37ec3f0c08908cbd5bbf2f81f271d69a7466b653b6dd59caeb4b61fe3531a",
+      "bench/experiment_step.py": "f0038b880f3bb90d2121f89711e8e11fedc3899f9a56c1e9cac6374e8760c7b4",
+      "bench/runtime/__init__.py": "dfdeed17e5e59e416dceb7a304447b3c7b295a909441c066811b2f7c255a0eda",
+      "bench/runtime/common.py": "c8c9916db9f54b8203132903ebaf59b40d70a27e0f2e7d086eb6e5a446f84960",
+      "bench/runtime/observe.py": "29bdf9cdf5d97115c694d85f5a761c03591d17df3b88ad7472e2a484f08a2efd"
+    },
+    "objects": {
+      "bench/__init__.py": "79203ec1349037dca9f7ffd39622d5addb2a578e00f4b47891a623f04939c304",
+      "bench/archive_check.py": "014ce997ca7a3f134275971de720ad3525e430ace47b9b918d12a025b1841796",
+      "bench/experiment_io.py": "c8d37ec3f0c08908cbd5bbf2f81f271d69a7466b653b6dd59caeb4b61fe3531a",
+      "bench/experiment_step.py": "f0038b880f3bb90d2121f89711e8e11fedc3899f9a56c1e9cac6374e8760c7b4",
+      "bench/runtime/__init__.py": "dfdeed17e5e59e416dceb7a304447b3c7b295a909441c066811b2f7c255a0eda",
+      "bench/runtime/common.py": "c8c9916db9f54b8203132903ebaf59b40d70a27e0f2e7d086eb6e5a446f84960",
+      "bench/runtime/observe.py": "29bdf9cdf5d97115c694d85f5a761c03591d17df3b88ad7472e2a484f08a2efd"
+    }
+  }
+}

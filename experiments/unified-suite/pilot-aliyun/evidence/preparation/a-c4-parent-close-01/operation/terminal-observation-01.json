@@ -1,0 +1,164 @@
+{
+  "at": "2026-11-11T15:48:08.306508+00:00",
+  "unit": "MainPID=0\nExecMainStatus=1\nActiveState=failed\nSubState=failed\nInvocationID=d944eeaa8da34cc495ad8a993adade7f\n",
+  "pids_present": {
+    "161875": false,
+    "161969": false
+  },
+  "trial2_empty": true,
+  "results": {
+    "trial-1/exit.json": {
+      "exit_code": 0
+    },
+    "failed.json": {
+      "passed": false,
+      "error": "[Errno 17] File exists: '/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01/trial-2'",
+      "automatic_retry": false,
+      "state": "Preserve original stages and evidence. No workload retries or cleanup are automatic."
+    },
+    "trial-2-request.json": {
+      "control": "/srv/ax-pilot-control/fork-control-01",
+      "cell_id": "c5e97774bcffa69a-r1-native",
+      "asset": "/srv/ax-client/a/c4-fork-flat-base-03",
+      "qualification": "/srv/ax-pilot-control/fork-control-01/qualification/pool-a-fork-03",
+      "node_tool": {
+        "path": "/srv/ax-client/code-19/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+        "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+      },
+      "observer_tool_name": "make-observer.py",
+      "observer_tool_sha256": "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff",
+      "collector_name": "ax-pilot-cal-pool-a-n-sf-c3f01-on3-collector",
+      "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-sf-c3f01-on3-collector",
+      "runtime_control": {
+        "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/binding.json",
+        "sha256": "224d7be366ee28d87e8c185190a30c644672def5ef8ff6edb5f25c4772d2ed41"
+      },
+      "fork": {
+        "tool": {
+          "path": "/srv/ax-client/code-19/experiments/unified-suite/pilot-aliyun/scripts/c4-fork-node.py",
+          "sha256": "e853e5af4021c40191be0da9d7ff061109e5bd802d8c49297b388b456fa4f84f"
+        },
+        "preparation": {
+          "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/result.json",
+          "sha256": "b1dc911bae231cfbc526924864ffc34e30bb97a0f6fc80778a741bceef7c1321"
+        }
+      },
+      "purpose": "observer-calibration-on",
+      "attempt": "c4-a-flat-on1",
+      "out": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1",
+      "verification_policy": "touched-cold-v1",
+      "full_reference": {
+        "path": "/srv/ax-client/q/c4-a-flat-off1/verify/result.json",
+        "sha256": "4950b7222ac336896b46fc8574c370a762685aa9cc970dd9c852f9ff0addb789"
+      },
+      "new_collector_name": "ax-pilot-c4-a-flat-on1-collector",
+      "new_collector_out": "/srv/ax-objects-0/q/ax-pilot-c4-a-flat-on1-collector",
+      "reviewed": true
+    }
+  },
+  "release_probes": [
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01/failure-release-probe-1",
+      "files": {
+        "metadata-stdout": {
+          "safe_for_release": true,
+          "original_processes": [],
+          "live": [],
+          "unknown_startup_directories": [],
+          "slot": "",
+          "mounts": []
+        },
+        "client-stdout": {
+          "safe_for_release": true,
+          "original_processes": [
+            {
+              "pid": 243824,
+              "start_ticks": 6156480,
+              "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+              "state": "R"
+            },
+            {
+              "pid": 243823,
+              "start_ticks": 6156365,
+              "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+              "state": "R"
+            },
+            {
+              "pid": 244644,
+              "start_ticks": 7002707,
+              "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+              "state": "R"
+            },
+            {
+              "pid": 244643,
+              "start_ticks": 7002592,
+              "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+              "state": "R"
+            },
+            {
+              "pid": 243979,
+              "start_ticks": 6156570,
+              "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+              "state": "R"
+            },
+            {
+              "pid": 243980,
+              "start_ticks": 6156591,
+              "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+              "state": "R"
+            }
+          ],
+          "live": [],
+          "unknown_startup_directories": [],
+          "slot": "",
+          "mounts": []
+        },
+        "objects-stdout": {
+          "safe_for_release": true,
+          "original_processes": [],
+          "live": [],
+          "unknown_startup_directories": [],
+          "slot": "",
+          "mounts": []
+        },
+        "metadata-exit.json": {
+          "argv": [
+            "ssh",
+            "-F",
+            "/srv/ax-pilot-control/fork-control-01/runtime-a-03/ssh.conf",
+            "pool-a-metadata",
+            "python3 -c 'ROOT='\"'\"'/srv/ax-metadata'\"'\"'\nREPO='\"'\"'/srv/ax-metadata/code-19'\"'\"'\nROLE='\"'\"'metadata'\"'\"'\nASSET='\"'\"'/srv/ax-client/a/c4-fork-flat-base-03'\"'\"'\nATTEMPTS=['\"'\"'c4-a-flat-off1'\"'\"', '\"'\"'c4-a-flat-on1'\"'\"', '\"'\"'c4-a-flat-on2'\"'\"', '\"'\"'c4-a-flat-off2'\"'\"', '\"'\"'c4-a-flat-off3'\"'\"', '\"'\"'c4-a-flat-on3'\"'\"', '\"'\"'c4-a-flat-formal-01'\"'\"']\nimport pathlib,sys,json\nroot=pathlib.Path(ROOT);sys.path.insert(0,REPO)\nfrom bench.runtime.common import alive,load,mounts\nidentities=[];unknown=[]\nfor tag in ATTEMPTS:\n observer=root/'\"'\"'o'\"'\"'/tag\n if observer.exists():\n  if (observer/'\"'\"'ready.json'\"'\"').is_file():identities.append(load(observer/'\"'\"'ready.json'\"'\"')['\"'\"'process'\"'\"'])\n  else:unknown.append(str(observer))\n if ROLE=='\"'\"'client'\"'\"':\n  for suffix in ('\"'\"''\"'\"','\"'\"'-v'\"'\"'):\n   state=root/'\"'\"'m'\"'\"'/(tag+suffix)\n   if state.exists():\n    if (state/'\"'\"'process.json'\"'\"').is_file():\n     p=load(state/'\"'\"'process.json'\"'\"');identities.extend([p['\"'\"'process'\"'\"'],p['\"'\"'supervisor'\"'\"']])\n    else:unknown.append(str(state))\n  worker=root/'\"'\"'j'\"'\"'/tag\n  if worker.exists():\n   if (worker/'\"'\"'ready.json'\"'\"').is_file():identities.append(load(worker/'\"'\"'ready.json'\"'\"')['\"'\"'process'\"'\"'])\n   else:unknown.append(str(worker))\n   for path in worker.glob('\"'\"'job-*/process.json'\"'\"'):identities.append(load(path)['\"'\"'process'\"'\"'])\nlive=[p for p in identities if p is None or alive(p)]\nslot=pathlib.Path('\"'\"'/sys/fs/cgroup/ax-slot-1/cgroup.procs'\"'\"').read_text().strip() if ROLE=='\"'\"'client'\"'\"' else '\"'\"''\"'\"'\nmounted=mounts(str(pathlib.Path(ASSET)/'\"'\"'mnt'\"'\"')) if ROLE=='\"'\"'client'\"'\"' else []\nsafe=not (live or unknown or slot or mounted)\nprint(json.dumps(dict(safe_for_release=safe,original_processes=identities,live=live,unknown_startup_directories=unknown,slot=slot,mounts=mounted)))\nraise SystemExit(0 if safe else 2)\n'"
+          ],
+          "exit_code": 0
+        },
+        "client-exit.json": {
+          "argv": [
+            "ssh",
+            "-F",
+            "/srv/ax-pilot-control/fork-control-01/runtime-a-03/ssh.conf",
+            "pool-a-client",
+            "python3 -c 'ROOT='\"'\"'/srv/ax-client'\"'\"'\nREPO='\"'\"'/srv/ax-client/code-19'\"'\"'\nROLE='\"'\"'client'\"'\"'\nASSET='\"'\"'/srv/ax-client/a/c4-fork-flat-base-03'\"'\"'\nATTEMPTS=['\"'\"'c4-a-flat-off1'\"'\"', '\"'\"'c4-a-flat-on1'\"'\"', '\"'\"'c4-a-flat-on2'\"'\"', '\"'\"'c4-a-flat-off2'\"'\"', '\"'\"'c4-a-flat-off3'\"'\"', '\"'\"'c4-a-flat-on3'\"'\"', '\"'\"'c4-a-flat-formal-01'\"'\"']\nimport pathlib,sys,json\nroot=pathlib.Path(ROOT);sys.path.insert(0,REPO)\nfrom bench.runtime.common import alive,load,mounts\nidentities=[];unknown=[]\nfor tag in ATTEMPTS:\n observer=root/'\"'\"'o'\"'\"'/tag\n if observer.exists():\n  if (observer/'\"'\"'ready.json'\"'\"').is_file():identities.append(load(observer/'\"'\"'ready.json'\"'\"')['\"'\"'process'\"'\"'])\n  else:unknown.append(str(observer))\n if ROLE=='\"'\"'client'\"'\"':\n  for suffix in ('\"'\"''\"'\"','\"'\"'-v'\"'\"'):\n   state=root/'\"'\"'m'\"'\"'/(tag+suffix)\n   if state.exists():\n    if (state/'\"'\"'process.json'\"'\"').is_file():\n     p=load(state/'\"'\"'process.json'\"'\"');identities.extend([p['\"'\"'process'\"'\"'],p['\"'\"'supervisor'\"'\"']])\n    else:unknown.append(str(state))\n  worker=root/'\"'\"'j'\"'\"'/tag\n  if worker.exists():\n   if (worker/'\"'\"'ready.json'\"'\"').is_file():identities.append(load(worker/'\"'\"'ready.json'\"'\"')['\"'\"'process'\"'\"'])\n   else:unknown.append(str(worker))\n   for path in worker.glob('\"'\"'job-*/process.json'\"'\"'):identities.append(load(path)['\"'\"'process'\"'\"'])\nlive=[p for p in identities if p is None or alive(p)]\nslot=pathlib.Path('\"'\"'/sys/fs/cgroup/ax-slot-1/cgroup.procs'\"'\"').read_text().strip() if ROLE=='\"'\"'client'\"'\"' else '\"'\"''\"'\"'\nmounted=mounts(str(pathlib.Path(ASSET)/'\"'\"'mnt'\"'\"')) if ROLE=='\"'\"'client'\"'\"' else []\nsafe=not (live or unknown or slot or mounted)\nprint(json.dumps(dict(safe_for_release=safe,original_processes=identities,live=live,unknown_startup_directories=unknown,slot=slot,mounts=mounted)))\nraise SystemExit(0 if safe else 2)\n'"
+          ],
+          "exit_code": 0
+        },
+        "objects-exit.json": {
+          "argv": [
+            "ssh",
+            "-F",
+            "/srv/ax-pilot-control/fork-control-01/runtime-a-03/ssh.conf",
+            "pool-a-objects",
+            "python3 -c 'ROOT='\"'\"'/srv/ax-objects-0'\"'\"'\nREPO='\"'\"'/srv/ax-objects-0/code-19'\"'\"'\nROLE='\"'\"'objects'\"'\"'\nASSET='\"'\"'/srv/ax-client/a/c4-fork-flat-base-03'\"'\"'\nATTEMPTS=['\"'\"'c4-a-flat-off1'\"'\"', '\"'\"'c4-a-flat-on1'\"'\"', '\"'\"'c4-a-flat-on2'\"'\"', '\"'\"'c4-a-flat-off2'\"'\"', '\"'\"'c4-a-flat-off3'\"'\"', '\"'\"'c4-a-flat-on3'\"'\"', '\"'\"'c4-a-flat-formal-01'\"'\"']\nimport pathlib,sys,json\nroot=pathlib.Path(ROOT);sys.path.insert(0,REPO)\nfrom bench.runtime.common import alive,load,mounts\nidentities=[];unknown=[]\nfor tag in ATTEMPTS:\n observer=root/'\"'\"'o'\"'\"'/tag\n if observer.exists():\n  if (observer/'\"'\"'ready.json'\"'\"').is_file():identities.append(load(observer/'\"'\"'ready.json'\"'\"')['\"'\"'process'\"'\"'])\n  else:unknown.append(str(observer))\n if ROLE=='\"'\"'client'\"'\"':\n  for suffix in ('\"'\"''\"'\"','\"'\"'-v'\"'\"'):\n   state=root/'\"'\"'m'\"'\"'/(tag+suffix)\n   if state.exists():\n    if (state/'\"'\"'process.json'\"'\"').is_file():\n     p=load(state/'\"'\"'process.json'\"'\"');identities.extend([p['\"'\"'process'\"'\"'],p['\"'\"'supervisor'\"'\"']])\n    else:unknown.append(str(state))\n  worker=root/'\"'\"'j'\"'\"'/tag\n  if worker.exists():\n   if (worker/'\"'\"'ready.json'\"'\"').is_file():identities.append(load(worker/'\"'\"'ready.json'\"'\"')['\"'\"'process'\"'\"'])\n   else:unknown.append(str(worker))\n   for path in worker.glob('\"'\"'job-*/process.json'\"'\"'):identities.append(load(path)['\"'\"'process'\"'\"'])\nlive=[p for p in identities if p is None or alive(p)]\nslot=pathlib.Path('\"'\"'/sys/fs/cgroup/ax-slot-1/cgroup.procs'\"'\"').read_text().strip() if ROLE=='\"'\"'client'\"'\"' else '\"'\"''\"'\"'\nmounted=mounts(str(pathlib.Path(ASSET)/'\"'\"'mnt'\"'\"')) if ROLE=='\"'\"'client'\"'\"' else []\nsafe=not (live or unknown or slot or mounted)\nprint(json.dumps(dict(safe_for_release=safe,original_processes=identities,live=live,unknown_startup_directories=unknown,slot=slot,mounts=mounted)))\nraise SystemExit(0 if safe else 2)\n'"
+          ],
+          "exit_code": 0
+        }
+      }
+    }
+  ],
+  "leases": {
+    "/srv/ax-pilot-control/fork-control-01/state.sqlite": [],
+    "/srv/ax-pilot-control/parallel-control-01/state.sqlite": [],
+    "/srv/ax-pilot-control/c1-native-randread-rebind-01/state.sqlite": [],
+    "/srv/ax-pilot-control/c3-stage-fixed-01/state.sqlite": [],
+    "/srv/ax-pilot-control/c123-control-01/state.sqlite": []
+  }
+}

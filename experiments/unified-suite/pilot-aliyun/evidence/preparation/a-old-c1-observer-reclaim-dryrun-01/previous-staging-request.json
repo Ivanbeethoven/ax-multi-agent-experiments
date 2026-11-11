@@ -1,0 +1,279 @@
+{
+  "schema": "c4-closed-object-staging-reclaim-v1",
+  "reviewed": true,
+  "apply": false,
+  "canonical": "/srv/ax-pilot-control/parallel-control-01",
+  "plan": {
+    "path": "/srv/ax-pilot-control/fork-control-01/suite/plan.json",
+    "sha256": "4b98ab083a06ae353806557f956a60fad8b3c29b8b43971c452cf3a7136b2a7e"
+  },
+  "cell_id": "c5e97774bcffa69a-r1-native",
+  "ssh_config": {
+    "path": "/srv/ax-pilot-control/fork-control-01/ssh.conf",
+    "sha256": "5ed7438217586e9ac6b3af1e0f9c6755ed901b4754f07ed7ed9d2b4e526ab181"
+  },
+  "other_lease_controls": [
+    "/srv/ax-pilot-control/c1-native-randread-rebind-01",
+    "/srv/ax-pilot-control/c123-control-01",
+    "/srv/ax-pilot-control/c3-stage-fixed-01"
+  ],
+  "worker_tool": {
+    "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/reclaim-object-evidence-staging.py",
+    "sha256": "f9d7a482a238228c87947b51be596d9301a005deccdb3dbd36bd09e6a30df24b"
+  },
+  "node_tool": "/srv/ax-objects-0/preparation/reclaim-object-evidence-staging-01.py",
+  "node_repo": "/srv/ax-objects-0/code-17",
+  "boot_id": "5a984d75-dca0-4921-92fa-b021d1f799e5",
+  "device": 64784,
+  "minimum_after_bytes": 22500000000,
+  "copies": [
+    {
+      "stage": "retained-calibrations/native-randwrite-02/cal-n-rw-on1/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/native-randwrite-02/cal-n-rw-on1/raw.tar.gz",
+        "sha256": "d9531b0c30cfa897056d7646e6d23fa32aee240751eb19fde7c429c078cc1851"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/01.json",
+        "sha256": "728cbb9765308fee32fb5a3917a2895a3226b2cc3376084e507aab1a2e856414"
+      }
+    },
+    {
+      "stage": "retained-calibrations/native-randwrite-02/cal-n-rw-on2/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/native-randwrite-02/cal-n-rw-on2/raw.tar.gz",
+        "sha256": "fec6ebf22857a93f3347aed2e70aeabb35ca3dc38dee12d41ac13cc254d1e6e3"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/02.json",
+        "sha256": "8c1a9e9f54a70875bf5241866d1ea90d54b6f3e257e97b58473ea0e2f038f5a5"
+      }
+    },
+    {
+      "stage": "retained-calibrations/native-randwrite-02/cal-n-rw-on3/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/native-randwrite-02/cal-n-rw-on3/raw.tar.gz",
+        "sha256": "a1f56c068fb897c6a477819af10da467d52182da77d1c235a14c07f581d0a452"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/03.json",
+        "sha256": "65a47cac9e1c630f1c26f608f735b56c8e4de0cada996a7dff47d68897aa10ac"
+      }
+    },
+    {
+      "stage": "retained-calibrations/juicefs-randwrite-01/cal-j-rw-on1/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/juicefs-randwrite-01/cal-j-rw-on1/raw.tar.gz",
+        "sha256": "3da7143149b174448a73707c1905490a8fb7c31b627dea44ed54ab34a494759e"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/04.json",
+        "sha256": "f0fb5a8ca834374ea8316e736a7ea859c54d5564dfb2fdb6eae64e2a0c5bd8cd"
+      }
+    },
+    {
+      "stage": "retained-calibrations/juicefs-randwrite-01/cal-j-rw-on2/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/juicefs-randwrite-01/cal-j-rw-on2/raw.tar.gz",
+        "sha256": "3d2804a05e6fcc8d57e292ceef44d510f89fa74e280c6cdefe95b5dd354076ad"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/05.json",
+        "sha256": "7045adfe76549cf75ee65f322175f005305744dbbb7e0b2614043105a7d06cdc"
+      }
+    },
+    {
+      "stage": "retained-calibrations/juicefs-randwrite-01/cal-j-rw-on3/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/juicefs-randwrite-01/cal-j-rw-on3/raw.tar.gz",
+        "sha256": "2385d0368a7faae4c6034ce3410f3925891c6eef461127215f1edccf7ba77d1a"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/06.json",
+        "sha256": "db37276a3af4b6455552caeda622eae3ea63a7c2a6be0099ab9d066130523a1d"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-c1-randread-01/cal-pool-a-n-rr-on1/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-c1-randread-01/cal-pool-a-n-rr-on1/raw.tar.gz",
+        "sha256": "a185cd01f2b38cfab76bfac1f8c2e9c1e70c463809282ac998c3c847807d9705"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/07.json",
+        "sha256": "5e10cdeb0294d8bccf251417611f5d30bd1325b8d4947d2cb878a0daeaf525f6"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-c1-randread-01/cal-pool-a-n-rr-on2/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-c1-randread-01/cal-pool-a-n-rr-on2/raw.tar.gz",
+        "sha256": "bf8f63443e6f7a1a6aedd6da2bc7ba8fef31e21c59eb73700be06132e55244df"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/08.json",
+        "sha256": "9f2673255f18db01fa3f66c6d413f459009315d09f53b4e721078291f7a3e7b1"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-c1-randread-01/cal-pool-a-n-rr-on3/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-c1-randread-01/cal-pool-a-n-rr-on3/raw.tar.gz",
+        "sha256": "09e7cbe09fc38ec055fd1fc91e2a5235557423db6f52a33bbd3df3d0763b46dd"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/09.json",
+        "sha256": "3b8165956e628eefc506cba9e7601931d966a9b93c1ad6dd7908ed1306c429d3"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-c1-randrw-01/cal-pool-a-n-mx-c1m01-on1/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-c1-randrw-01/cal-pool-a-n-mx-c1m01-on1/raw.tar.gz",
+        "sha256": "d15b932ef2ef8dd678cce8d14d2af97972f34cec5da1ef553b7555d5da4e5ec9"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/10.json",
+        "sha256": "d6186f18620dcdeff1b6810bf2b1513e948c35801bb7bdac0c8fb8edda9dbadc"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-c1-randrw-01/cal-pool-a-n-mx-c1m01-on2/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-c1-randrw-01/cal-pool-a-n-mx-c1m01-on2/raw.tar.gz",
+        "sha256": "6c8d6c4407903796e1216fee4cacb381ed5eb861917afbb75800edd59e1755d1"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/11.json",
+        "sha256": "69035ff66ef5c669e81e797551d666c1d67a609e65cb4b76d9ac4a0a0fa984f9"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-c1-randrw-01/cal-pool-a-n-mx-c1m01-on3/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-c1-randrw-01/cal-pool-a-n-mx-c1m01-on3/raw.tar.gz",
+        "sha256": "f9b282f7e95ced7aaa29aefb597ab638384e904c9175a23932fa7c6b4735534d"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/12.json",
+        "sha256": "7de39d94ef792e40e42ea1d601f6cbff7ffbb3b52f45405d7869e68044b1730c"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-c3-flat-01/cal-pool-a-n-sf-c3f01-on1/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-c3-flat-01/cal-pool-a-n-sf-c3f01-on1/raw.tar.gz",
+        "sha256": "7a1ccb9c7c1d5513a69b5e25f92e0c838ff946418a3ebee567f97b2be87d5790"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/13.json",
+        "sha256": "70528c7ba0a53078a4b140efc9c2765ffbbcdd40d97c7df098490821b8d16715"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-c3-flat-01/cal-pool-a-n-sf-c3f01-on2/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-c3-flat-01/cal-pool-a-n-sf-c3f01-on2/raw.tar.gz",
+        "sha256": "35ca3d2a567c06abaa8e012045c05e4d876be7b5c5e1ae179ab76af7a7354500"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/14.json",
+        "sha256": "2441d2ca437584aef7e9d224c65604fb66fd246834afb3e3c65d2b67cd9618e5"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-c3-flat-01/cal-pool-a-n-sf-c3f01-on3/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-c3-flat-01/cal-pool-a-n-sf-c3f01-on3/raw.tar.gz",
+        "sha256": "7b844831e7f499fc84fb2e8659dca0ed42b42032cb3c99e16c3bd7f9af648553"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/15.json",
+        "sha256": "95fa20ece941b7bc036e7821ac38a1749147b70c30b8119f084d82a886ed1f60"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-native-c2-01/cal-pool-a-n-tr-c201-on1/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-native-c2-01/cal-pool-a-n-tr-c201-on1/raw.tar.gz",
+        "sha256": "9a86197ab7af1f340933dd1898599e2401f95f09ceb38148084e3792829419e3"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/16.json",
+        "sha256": "4cf50a77eb50eb7e2574d1838ae4e681c3f5ff6947542f3791f87098b0256673"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-native-c2-01/cal-pool-a-n-tr-c201-on2/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-native-c2-01/cal-pool-a-n-tr-c201-on2/raw.tar.gz",
+        "sha256": "b9522f92cd38cb7b3b1fd4376647df972d74dfed0d5468ae26e090930dd85ff9"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/17.json",
+        "sha256": "788377572f9a36dae6dce5bf3d34a60f47b2f266ef0e89f190c361c24579e6b0"
+      }
+    },
+    {
+      "stage": "retained-calibrations/pool-a-native-c2-01/cal-pool-a-n-tr-c201-on3/raw",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/retained-calibrations/pool-a-native-c2-01/cal-pool-a-n-tr-c201-on3/raw.tar.gz",
+        "sha256": "a0ebe43b018b9275d9c9e2758fa0791637bd68f1cd82ecb04c2b6089db391d1e"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/18.json",
+        "sha256": "d13512afb8eabdbf856ed1e735de912204117db4b1d63c14295c2d164eeeb26a"
+      }
+    },
+    {
+      "stage": "evidence/c1-7084af367e0bcfad-r1-native",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/archives/c1-7084af367e0bcfad-r1-native-objects.tar.gz",
+        "sha256": "227ef0bb654bd5d940fabbd717e7048cb53f6b3e363511b22fccaf5462e39dab"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/19.json",
+        "sha256": "eff469569c7d93045dbf5a839e25985dd239855b1878d05baee7af5167fe9688"
+      }
+    },
+    {
+      "stage": "evidence/c1-7084af367e0bcfad-r1-juicefs",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/archives/c1-7084af367e0bcfad-r1-juicefs-objects.tar.gz",
+        "sha256": "1aaf16a83062ea9823f0ceae58be9f94fedef99d9936f539f5db27c56a3a0a92"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/20.json",
+        "sha256": "d9c75a07e77f6dfc388f901dfc8c498f48e1e3186b190ae91c9c91efa6a68bb3"
+      }
+    },
+    {
+      "stage": "evidence/c3-fa630431ea12-16f4ac389d2a2da6-r1-native",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/archives/c3-fa630431ea12-16f4ac389d2a2da6-r1-native-objects.tar.gz",
+        "sha256": "711d2bdbeee7af0e69a6daae93bb6ef77754f6cdb105a31588dc84b630877288"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/21.json",
+        "sha256": "3d188f9779e29b684147178c50da38f47b587a86dfc296b35b50365a15eccc9a"
+      }
+    },
+    {
+      "stage": "evidence/c2-fa630431ea12-05357b5089cd679c-r1-native",
+      "worker_archive": {
+        "path": "/srv/ax-objects-0/archives/c2-fa630431ea12-05357b5089cd679c-r1-native-objects.tar.gz",
+        "sha256": "698c66be9ac424ef49b7f052c4402b619185d7c120f367d6d39e8ea49b5d93b6"
+      },
+      "durable_member_receipt": {
+        "path": "/srv/ax-pilot-control/preparation/a-object-staging-reclaim-01/durable-member-receipts/22.json",
+        "sha256": "3ee710428009dfbd059c5260d33b696a3ae8f2075795581eb65ff0d6dae824a8"
+      }
+    }
+  ],
+  "original_capacity_probe": {
+    "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-01/probes/pool-a-objects/probe.json",
+    "sha256": "9322ab727ba23de981322d5f39028bd644c7f3cf1810b52f872ceea138de54bd"
+  },
+  "matched_regular_allocation_bytes": 12990361600,
+  "scope": "Reviewed for validation only. No delete, movement, original observers, RustFS datasets, or retained archives."
+}
