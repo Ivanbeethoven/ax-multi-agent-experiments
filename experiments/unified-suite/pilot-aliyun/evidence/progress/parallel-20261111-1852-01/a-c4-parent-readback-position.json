@@ -1,0 +1,61 @@
+{
+  "schema": "pilot-c4-parent-cold-readback-position-v1",
+  "scope": "Read-only diagnosis during asset preparation. No payload read by the probe. Not a performance sample, acceptance receipt, or ETA.",
+  "cell_id": "c5e97774bcffa69a-r1-native",
+  "pool": "pool-a",
+  "unit": "ax-pilot-pa-c4-flat-native-03",
+  "invocation_id": "6ad2b76c56dd4395a638b46885dc8e60",
+  "manager_pid": 141488,
+  "worker_pid": 239885,
+  "worker_parent_pid": 239380,
+  "worker_starttime_ticks": 5478465,
+  "worker_command_sha256": "e226971e6453fc7b6ebd314cfbb9f681705d96c8ef83a65cde4461eb4b64526a",
+  "worker_action": "check",
+  "source": {
+    "mount_base": "/srv/ax-client/a/c4-fork-flat-base-03/mnt/base",
+    "expected_tree_sha256": "02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13",
+    "fixture_file_count": 100000,
+    "fixture_file_bytes": 4096,
+    "worker_program": {
+      "path": "/srv/ax-client/code-19/bench/fs_step.py",
+      "sha256": "d58b7b7198450e1728c10b84cb978c0b793e257ecafca21ee5ac2829cb4a9c79"
+    },
+    "tree_implementation": {
+      "path": "/srv/ax-client/code-19/scripts/full_trace_common.py",
+      "sha256": "dfd6d0bd6f1b87af0fe0d5c0fb66ff91ca37bf3a550c994f249eefdd2d985054"
+    },
+    "matches_repository_bytes": true,
+    "method": "Materialize sorted path list, then read and hash one file at a time. File number is the zero-based ordinal within the payload pass."
+  },
+  "samples": [
+    {
+      "at": "2026-11-11T10:52:34.219965+00:00",
+      "state": "D",
+      "wchan": "folio_wait_bit_common",
+      "rchar": 250576543,
+      "syscr": 113790,
+      "relative_open_fd": "d000056/f00056796"
+    },
+    {
+      "at": "2026-11-11T10:52:38.220565+00:00",
+      "state": "D",
+      "wchan": "folio_wait_bit_common",
+      "rchar": 250625695,
+      "syscr": 113814,
+      "relative_open_fd": "d000056/f00056808"
+    },
+    {
+      "at": "2026-11-11T10:52:42.221020+00:00",
+      "state": "D",
+      "wchan": "folio_wait_bit_common",
+      "rchar": 250674847,
+      "syscr": 113838,
+      "relative_open_fd": "d000056/f00056820"
+    }
+  ],
+  "observed_files_advanced": 24,
+  "files_scanned_lower_bound": 56820,
+  "parent_full_check_closed": false,
+  "capacity_gate_reached": false,
+  "interpretation": "Same invocation advanced across the eight-second sample. The sampled wait channel alone does not identify a backend fault. File ordinal marks scan position, not a successful final comparison."
+}
