@@ -1,0 +1,64 @@
+{
+  "scope": "Static audit of frozen source and existing local input; no mount, replay, calibration or cloud action",
+  "status": "blocked-on-frozen-entity-fuse",
+  "brewfs_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "rustfs_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "routes": {
+    "packed": "shared-entity-fuse-operation-blocker; remote-verifier-symlink-support-required",
+    "entity-native": "shared-entity-fuse-operation-blocker; no native-only source quota blocker identified",
+    "native-workspace": "separate-workspace-native-v2-engine; not qualified by this audit",
+    "native": "flat route separately accepted; not entity-native"
+  },
+  "input": {
+    "case": "pytest-full-02",
+    "cloud_case_root": "/srv/ax-client/trace-exact-02/cases/pytest-full-02",
+    "manifest_sha256": "71a0661b82a433e9d14da29287a2bc1860460015d4887031f90a03ff5451a021",
+    "replay_binary_sha256": "35c45abd910d826ea17b5d6dfc750c7083cda5e8ce8f3bbe5ef77a78ffbea1aa",
+    "initial_tree_sha256": "c1b9b066e6660301ad944fff78de1910e6388021c6caa90923355848eb1c2847",
+    "final_tree_sha256": "c7f72521c9bd081a46816067f607ba5fa5bbf596f6d8d35ba575d61c5e0e646d",
+    "final_hardlinks_sha256": "417cc138490879e6ce3ab6cdad9609467f4ec4164a9b2d94314695455a0c4627",
+    "metrics_sha256": "f158b5a4f52e50497249edcd93466fc78f8230087801785a360a4c05fc3ae466",
+    "sqlite_oracle_sha256": "f00174ad14f9a2091ae0e59b1391c48388954106c1c79379d6cbec40b4ced995",
+    "callbacks": 1747109,
+    "actual_read_bytes": 281774624,
+    "actual_write_bytes": 194706661,
+    "initial": {
+      "entries_excluding_root": 714,
+      "directories_excluding_root": 100,
+      "files": 614,
+      "file_bytes": 35526497,
+      "hardlink_groups": [],
+      "symlinks": 0,
+      "owner_uid": 1000,
+      "owner_gid": 1000,
+      "directory_modes_octal": {"0755": 10, "0777": 90},
+      "file_modes_octal": {"0444": 4, "0644": 590, "0755": 2, "0777": 18},
+      "maximum_names_per_directory": 151,
+      "native_lower_rows_at_4_mib_estimate": 1415
+    },
+    "final": {
+      "entries_excluding_root": 5246,
+      "file_bytes": 205998305,
+      "hardlink_groups": [],
+      "symlinks": 7,
+      "opencode_db_sha256": "4064e23efd0f27dc2feaeebe632e3112f8d1a32264827e3dad8af65e40e97a2d",
+      "opencode_db_rows": {"session": 1, "message": 26, "part": 109}
+    }
+  },
+  "required_successful_callbacks": {
+    "statfs": {"count": 7, "first_seq": 35, "source": "vendor/asyncfuse/src/raw/filesystem.rs:258"},
+    "chown": {"count": 3, "first_seq": 205, "source": "src/fuse/entity.rs:586"},
+    "utimens": {"count": 4, "first_seq": 1950, "source": "src/fuse/entity.rs:586"},
+    "rename": {"count": 184, "first_seq": 5776, "source": "vendor/asyncfuse/src/raw/filesystem.rs:180"},
+    "symlink": {"count": 8, "first_seq": 6682, "source": "vendor/asyncfuse/src/raw/filesystem.rs:115"},
+    "link": {"count": 10, "first_seq": 1025265, "source": "vendor/asyncfuse/src/raw/filesystem.rs:192"}
+  },
+  "strict_replay_exception": {
+    "operation": "ioctl",
+    "request": "TCGETS",
+    "recorded_errno": "ENOTTY",
+    "only_accepted_alternative_errno": "EOPNOTSUPP",
+    "captured_probe_count": 1048,
+    "all_other_data_and_errno_comparisons_required": true
+  }
+}

@@ -6,8 +6,8 @@
 
 | 实验 | 正式完成/计划 | 当前情况 |
 |---|---:|---|
-| C1 fio | 9/10 | 双方顺序读、顺序写、随机写、随机读及[BrewFS混合读写](evidence/c1-native-randrw-01/)已验收；余JuiceFS混合读写 |
-| C2 完整trace | 1/5 | [flat BrewFS](evidence/cloud-20261111/05357b5089cd679c-r1-native/)已验收，回放1,747,109次操作；同份输入已校验并传到B组；[协调节点已等候核验C4交接](evidence/c2-handoff-watcher-01/)，尚未启动JuiceFS |
+| C1 fio | 9/10 | 双方顺序读、顺序写、随机写、随机读及[BrewFS混合读写](evidence/c1-native-randrw-01/)已验收；余[JuiceFS 混合读写](C1-MIXED-AFTER-C2.zh.md)，同组在 C2 后接续 |
+| C2 完整trace | 1/5 | [flat BrewFS](evidence/cloud-20261111/05357b5089cd679c-r1-native/)已验收，回放1,747,109次操作；同份输入已校验并传到B组；[协调节点已等候核验C4交接](evidence/c2-handoff-watcher-01/)，尚未启动JuiceFS；[Packed 和 entity-native 有文件操作阻断](C2-ENTITY-NEXT.zh.md) |
 | C3 小文件（10万） | 1/4 | [JuiceFS](evidence/c3-jfs-01/)已验收；[BrewFS flat基线](evidence/preparation/c3-flat-native-01/)冷读及容量核验通过，前两轮校准已通过，第三轮进行中；Packed完整资格通过，观测开关差约5.98%，正式样本未启动 |
 | C4 派生（10万） | 0/5 | B组JuiceFS首轮校准[原始归档已补收并公开](evidence/c4-juicefs-calibration-off1-01/oss/index.json)；[接续已启动](evidence/preparation/c4-b-resume-01/)，前两轮已通过；A 组的[BrewFS flat 派生草稿](C4-NATIVE-FLAT.zh.md)已备好，尚未启动 |
 | C4 流转 | 0/4 | 本机JuiceFS原会话数据库冷重开通过；BrewFS工作区重挂后写入EIO。云上跨机和真实继续任务未完成，模型调用暂停 |
