@@ -13,6 +13,8 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest='action',required=True)
     t = sub.add_parser('template'); t.add_argument('--profile',choices=['pilot','main'],default='pilot')
+    t.add_argument('--legacy-catalog', action='store_true',
+                   help='Explicitly generate the historical unified-c1-c4-v1 catalog, not the current design')
     t.add_argument('--study',choices=['systems','ablations'],default='systems'); t.add_argument('--output',required=True)
     t = sub.add_parser('plan'); t.add_argument('--config',required=True); t.add_argument('--output',required=True)
     t = sub.add_parser('init'); t.add_argument('--plan',required=True); t.add_argument('--db',required=True)
@@ -26,7 +28,12 @@ def main():
             t.add_argument('--stage',required=True); t.add_argument('--spec',required=True)
             t.add_argument('--sha256',required=True); t.add_argument('--output',required=True)
     a = p.parse_args()
-    if a.action == 'template': write_new(a.output,template(a.profile,a.study))
+    if a.action == 'template':
+        if not a.legacy_catalog:
+            p.error('Template uses historical entity/native-v2 routes. For new experiments read '
+                    'experiments/unified-suite/current/README.zh.md; the new adapter is pending. '
+                    'Use --legacy-catalog only for an intentional historical template.')
+        write_new(a.output,template(a.profile,a.study))
     elif a.action == 'plan':
         result=build(load(a.config)); write_new(a.output,result); print(json.dumps(result['counts']))
     elif a.action == 'init': state.initialize(a.db,load(a.plan))

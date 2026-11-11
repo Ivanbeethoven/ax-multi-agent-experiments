@@ -1,4 +1,8 @@
-"""Versioned workload/ablation catalog. Describes experiments, never starts them."""
+"""Historical unified-c1-c4-v1 catalog for frozen runs and explicit legacy templates.
+
+New design: experiments/unified-suite/current/design.json (not executable yet).
+Do not rename historical arms or reinterpret their engine identities.
+"""
 from copy import deepcopy
 
 PROTOCOL = 'unified-c1-c4-v1'
@@ -37,6 +41,10 @@ def cases(profile, study):
     if profile not in ('pilot', 'main') or study not in ('systems', 'ablations'):
         raise ValueError('profile pilot/main and study systems/ablations required')
     tiny = profile == 'pilot'
+    return historical_cases(tiny, study)
+
+
+def historical_cases(tiny, study):
     if study == 'ablations':
         # Independent contrasts, not an unqualified 2^3 product. Same-engine
         # alternatives remain visible and blocked until native proof exists.

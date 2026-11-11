@@ -1,5 +1,7 @@
 # C3：百万随机小文件与热读写
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](current/README.zh.md)。
+
 使用 [smallfiles Rust程序](../../tools/fs-probe/src/bin/smallfiles.rs)。它固定每文件4096字节，按file/version/workspace确定内容；每次读核全部4096字节，每次写同步fsync。8线程按hot set分片，不互相写同一个文件；所有arm使用相同seed和workspace序号。准备/全量验证见 [输入](04-inputs.zh.md)。
 
 main每cell四个新工作区依次执行，均从同一经校验base派生，各自生命周期包含创建/挂载/测量/排空/退出/验证。创建的成本保留，不用旧写过的upper“省”COW。热集两个独立条件：1024文件（逻辑4MiB）和16384文件（逻辑64MiB）。

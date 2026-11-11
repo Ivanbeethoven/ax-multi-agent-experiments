@@ -1,5 +1,7 @@
 # BrewFS 消融执行入口
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 负责独立`--study ablations`的精确条件，不从systems cell临时改参数。先读[共同执行步骤](README.md)和[技术点定义](../02-ablations.zh.md)。协调者使用独立campaign/config/plan/DB冻结本研究；同一消融campaign的各池仍共用一个控制端本地DB。
 
 ## 条件、arm与路径入口

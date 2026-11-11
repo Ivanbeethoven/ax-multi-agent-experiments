@@ -1,5 +1,7 @@
 # 百万文件实验的磁盘准备
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 现有四块60GiB对象数据盘保留。4KiB对象探针已测得每盘约8KiB实际分配；一份百万文件base加七份完整副本，至少每盘65,536,000,000B，超过现有容量。先测首份完整base的实际增量，再按剩余副本数和20%余量决定最终容量。
 
 已只读核对原实例、系统盘和四块数据盘，并取得扩到每盘256GiB的备选报价。对象节点含四盘的时价由¥2.346变为¥3.9924，增加¥1.6464/小时；**未执行扩容，也未改变当前费用单价**。这是当前整机配置询价，实际扩容费用及生效时间仍须另核。[清单与报价](evidence/preparation/object-growth-option-01/growth-plan.json)、[七项身份/配置检查](evidence/preparation/object-growth-option-01/checks.json)、[完整原始包](evidence/preparation/object-growth-option-01/retention.json)已保存。

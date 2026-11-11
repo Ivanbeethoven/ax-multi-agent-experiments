@@ -1,5 +1,7 @@
 # C2/C4：原生 workspace 和 Packed 的阻塞
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 核对的是本批 BrewFS `ca07159f3da4b670e4aeb878faef928e69bc1634`，现有二进制 SHA256 为 `814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0`。读了冻结源码，并查看该二进制的 `workspace --help`；未连云端或启动实验。
 
 | 路线 | 当前阻塞 |

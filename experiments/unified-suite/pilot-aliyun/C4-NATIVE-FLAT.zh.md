@@ -1,5 +1,7 @@
 # A 组 C4：BrewFS Flat 完整拷贝
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 回答一个具体问题：一个 Agent 要从同一份已持久化的工作区开始独立工作时，BrewFS Flat 完整拷贝要等多久、读写多少数据？它是工作区共享派生的对照。`cp -a --reflink=never` 与 B 组 JuiceFS `clone -p` 比较的是两种实际创建方式；两者的差值不能单独归因到 BrewFS 或某个设计。若要比较文件系统在完整拷贝上的成本，还须单独登记 JuiceFS 同命令的对照。
 
 - **输入**：A 组已准备 `/srv/ax-client/inputs/pilot-100k-01/fork-source`。100,000 个 4 KiB 文件，共 409,600,000 B。树 SHA256 为 `02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13`，与 B 组一致；不是 C3 的 `smallfiles-source`。A 组原收尾、实际文件数及关闭回执见 [输入准备记录](evidence/preparation/pool-a-next-01/)。不重生成、不从本机传数据。

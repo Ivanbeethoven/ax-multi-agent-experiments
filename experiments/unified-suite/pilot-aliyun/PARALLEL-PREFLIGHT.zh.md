@@ -1,5 +1,7 @@
 # 两池执行前检查
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 控制目录：`/srv/ax-pilot-control/parallel-control-01`。计划含19项C1/C2/C3，C3为100,000×4KiB。BrewFS在pool-a，JuiceFS在pool-b；共用一个状态库，旧批次保留。
 
 ## 当前硬件记录

@@ -1,5 +1,7 @@
 # C1：普通 fio
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](current/README.zh.md)。
+
 固定工作量psync/depth=1，顺序1MiB、随机4KiB，read/write/randread/randwrite/randrw(75/25)。每个job一个文件；不time_based、不碰裸设备、不自动扩大数据集。主表同步write每次fsync，保留fio原始JSON+与wrapper wall。应用direct=0，实际FUSE direct-I/O/内核缓存路径需独立验收。
 
 新main模板每job文件4GiB；顺序测量4GiB、随机测量256MiB，8 jobs。随机共524,288次IO，地址范围仍是32GiB；完整初始化与CRC读回仍覆盖32GiB，另计准备和校验。旧配置的4GiB随机测量量保持原值。容量和选值说明见[默认配置](13-defaults.zh.md)。显式invalidate=1只声明fio请求失效页缓存，不证明服务端或其他缓存已冷。

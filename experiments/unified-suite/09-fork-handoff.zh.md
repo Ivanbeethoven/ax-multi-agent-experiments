@@ -1,5 +1,7 @@
 # C4：fork 与跨机流转
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](current/README.zh.md)。
+
 ## F：固定 revision 的批量派生
 
 使用独立 `fork-fixture-million-4k` asset：1M×4KiB，目录命名遵循既有fs_step，内容固定。它与C3输入算法不同，独立记录准备成本。

@@ -1,5 +1,7 @@
 # BrewFS entity native lower 执行入口
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 负责entity引擎加冻结native lower的格式路径对照。先读[共同执行步骤](README.md)，默认systems中的`entity-native`在pool-a；可用精确arm映射拆到独立集群。
 
 ## 身份与工作负载

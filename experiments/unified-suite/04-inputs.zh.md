@@ -1,5 +1,7 @@
 # 输入、一次导入和 base 验证
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](current/README.zh.md)。
+
 ## 资产与工作区分开
 
 `plan.assets` 给出实际 pool/dataset/representation/layout 的 asset ID。相同不可变 asset 跨重复/冷热/缓存开关复用；不同对象布局使用新前缀，不能靠重新挂载改写旧布局。每个 cell / workspace 创建新 upper 与私有缓存；写过的 workspace 不回到待测队列。

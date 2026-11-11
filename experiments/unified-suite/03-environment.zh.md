@@ -1,5 +1,7 @@
 # 环境、构建与维护
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](current/README.zh.md)。
+
 所有命令从本仓库根目录运行，执行端 Linux、Python ≥3.11，构建smallfiles需要Rust ≥1.88。控制端状态库放独立本地磁盘；远程节点的 repo/bin/input/result 各自有固定绝对路径。先准备以下变量，随后文档复用：
 
 ```bash

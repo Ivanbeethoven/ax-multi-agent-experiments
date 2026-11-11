@@ -1,5 +1,7 @@
 # C3 新执行批次
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 旧批次的 `run-c1.py` 已能识别 `-w01`，但命令入口没有接受该参数。B 的三台采集器启动后，`create-w01` 在参数解析时退出2；没有创建挂载或工作负载。旧记录保留为失败，不计性能样本。
 
 - 旧状态：`/srv/ax-pilot-control/parallel-control-01/state.sqlite`。

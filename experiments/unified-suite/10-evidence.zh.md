@@ -1,5 +1,7 @@
 # 观测、核验、报告与释放
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](current/README.zh.md)。
+
 ## 原始证据与观测
 
 每cell保留计划/输入/构建/环境摘要，所有started/PID/真实exit、native stdout/stderr、raw fio JSON或每线程CSV、full trace结果、每workspace/revision身份、缓存统计、元数据/对象/宿主原始样本、归档hash/成员清单、失败/恢复文件。旧停掉的importer没有指标不等于新client故障。

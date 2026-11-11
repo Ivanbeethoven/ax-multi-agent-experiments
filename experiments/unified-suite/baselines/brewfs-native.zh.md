@@ -1,5 +1,7 @@
 # BrewFS native flat 执行入口
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 负责`flat-v1`内部原生对照。先读[共同执行步骤](README.md)，默认与其他BrewFS路径共用pool-a；若单独并行，冻结前将`arm_pools.native`指向独立实际pool。
 
 ## 身份与工作负载
