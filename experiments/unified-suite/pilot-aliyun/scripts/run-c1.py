@@ -346,7 +346,6 @@ write_new(q/'archive.json',checked);print(json.dumps(dict(closure=result,archive
                     io_metrics[phase['phase']+'_'+name]=dict(value=phase[name],unit=unit,direction='lower')
             for name in ('actual_read_bytes','actual_write_bytes','verified_reads','writes'):
                 io_metrics[name]=dict(value=values[name],unit='bytes' if name.endswith('bytes') else 'operations',direction='coverage')
-            io_metrics['create_and_fsync_seconds']=dict(value=load(q/'copy/result.json')['wall_seconds'],unit='seconds',direction='lower')
             metric_source=ref(work/'result.json');metric_scope='Eight native fixed-work phases with verified raw worker streams. Full cold child and parent checks are outside measurement.'
         else:
             replay=load(draft/'replay.json')
