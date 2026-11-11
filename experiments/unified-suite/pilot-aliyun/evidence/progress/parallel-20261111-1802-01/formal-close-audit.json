@@ -1,0 +1,389 @@
+{
+  "schema": "pilot-current-formal-close-audit-v1",
+  "at": "2026-11-11T10:02:06.251975+00:00",
+  "phase_plans": [
+    {
+      "state": "/srv/ax-pilot-control/c1-native-randread-rebind-01/state.sqlite",
+      "plan": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/suite/plan.json",
+        "sha256": "d51c68127f3d39134d15625b7240539757295e5f43bb02467328e044710971f2"
+      }
+    },
+    {
+      "state": "/srv/ax-pilot-control/c123-control-01/state.sqlite",
+      "plan": {
+        "path": "/srv/ax-pilot-control/c123-control-01/suite/plan.json",
+        "sha256": "81e604de204acec9fa250fd0b6330c7ac052e7b372439a37ce5180026c22c7c1"
+      }
+    },
+    {
+      "state": "/srv/ax-pilot-control/c3-stage-fixed-01/state.sqlite",
+      "plan": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/suite/plan.json",
+        "sha256": "5e592590920a1ab2f81dc8e93ab4b6720d7a741616ea45e8f716c8cfb3e4eff4"
+      }
+    },
+    {
+      "state": "/srv/ax-pilot-control/fork-control-01/state.sqlite",
+      "plan": {
+        "path": "/srv/ax-pilot-control/fork-control-01/suite/plan.json",
+        "sha256": "4b98ab083a06ae353806557f956a60fad8b3c29b8b43971c452cf3a7136b2a7e"
+      }
+    },
+    {
+      "state": "/srv/ax-pilot-control/parallel-control-01/state.sqlite",
+      "plan": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/suite/plan.json",
+        "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+      }
+    }
+  ],
+  "count_by_suite": {
+    "C1": 9,
+    "C3": 2,
+    "C4": 1,
+    "C2": 1
+  },
+  "formal_count": 13,
+  "scope": "Read-only live SQLite state, completed stages, no remaining cell lease, exact close and sample SHA256; calibrations and preflights are excluded.",
+  "cells": [
+    {
+      "suite": "C1",
+      "case": "fio-randread",
+      "arm": "juicefs",
+      "id": "451ef1d28b5d875c-r1-juicefs",
+      "state": "/srv/ax-pilot-control/c123-control-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create",
+        "drain",
+        "measure",
+        "mount",
+        "observe-start",
+        "observe-stop",
+        "unmount",
+        "verify"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs.close.json",
+        "sha256": "412a1a71f4f94cd66a27f2d00c5bab6e1e4b11475dc72057486cb37b4a10424d"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/sample.json",
+        "sha256": "4415be9d386cfa5d4110bd8deab0f66b284090fdcba3b041a90a8dfe1aa2f54a"
+      }
+    },
+    {
+      "suite": "C1",
+      "case": "fio-randread",
+      "arm": "native",
+      "id": "451ef1d28b5d875c-r1-native",
+      "state": "/srv/ax-pilot-control/c1-native-randread-rebind-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create",
+        "drain",
+        "measure",
+        "mount",
+        "observe-start",
+        "observe-stop",
+        "unmount",
+        "verify"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native.close.json",
+        "sha256": "21196cf5483467afc2ec2678edf9fe59ccab3b3eee17421dee099d793d4beabf"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/sample.json",
+        "sha256": "aa2c8969104fa3e6572229d9defe087b55b047484c78bfa78293597456f0170d"
+      }
+    },
+    {
+      "suite": "C1",
+      "case": "fio-randrw",
+      "arm": "native",
+      "id": "8e3d340ff23c3ece-r1-native",
+      "state": "/srv/ax-pilot-control/parallel-control-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create",
+        "drain",
+        "measure",
+        "mount",
+        "observe-start",
+        "observe-stop",
+        "unmount",
+        "verify"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native.close.json",
+        "sha256": "c3ff73fa1b5e6ab40f8e92826d4ae79c04b74f1930c251bd4efb2b9c181c5d3b"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/sample.json",
+        "sha256": "6cfa715406492b04f51b12742851351fa3e767ccb48df58a99ed7b51b53e565b"
+      }
+    },
+    {
+      "suite": "C1",
+      "case": "fio-randwrite",
+      "arm": "juicefs",
+      "id": "7084af367e0bcfad-r1-juicefs",
+      "state": "/srv/ax-pilot-control/c123-control-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create",
+        "drain",
+        "measure",
+        "mount",
+        "observe-start",
+        "observe-stop",
+        "unmount",
+        "verify"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs.close.json",
+        "sha256": "89fb76850a3919082370c30882a331899f3fe97248e743d3dcb4afd3069ad98c"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/sample.json",
+        "sha256": "fd9f5d5b8ab385ccffcad07cb9dd3b7f33e2cd19eab0ea5c775ab323850c1171"
+      }
+    },
+    {
+      "suite": "C1",
+      "case": "fio-randwrite",
+      "arm": "native",
+      "id": "7084af367e0bcfad-r1-native",
+      "state": "/srv/ax-pilot-control/c123-control-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create",
+        "drain",
+        "measure",
+        "mount",
+        "observe-start",
+        "observe-stop",
+        "unmount",
+        "verify"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native.close.json",
+        "sha256": "09fd6fb542be737b0ff8ef0aa7f4f98b2291f1d7a68a147741f389446f193e35"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/sample.json",
+        "sha256": "0e6236247bf9fedb0ac46f0f3b39ebfdae046ab71a8894e9814e603df7cd455a"
+      }
+    },
+    {
+      "suite": "C1",
+      "case": "fio-read",
+      "arm": "juicefs",
+      "id": "34d56abaf85454a2-r1-juicefs",
+      "state": "/srv/ax-pilot-control/c123-control-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create",
+        "drain",
+        "measure",
+        "mount",
+        "observe-start",
+        "observe-stop",
+        "unmount",
+        "verify"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs.close.json",
+        "sha256": "bce745e859025f4375850243972c252272071cccf9fffca9c21f94c21f63f8a2"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs/sample.json",
+        "sha256": "69d4e3cf97f15331cc82100651bd31083c53e4bf832d44fd79053d0489404cb0"
+      }
+    },
+    {
+      "suite": "C1",
+      "case": "fio-read",
+      "arm": "native",
+      "id": "34d56abaf85454a2-r1-native",
+      "state": "/srv/ax-pilot-control/c123-control-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create",
+        "drain",
+        "measure",
+        "mount",
+        "observe-start",
+        "observe-stop",
+        "unmount",
+        "verify"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native.close.json",
+        "sha256": "1866678e55eea004a0f9ce5041b28fc005f5d5105cc033e8b4ae56bc5d7420fd"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/sample.json",
+        "sha256": "3b04ead55c62de379ee3fd99b002fa0bd006aa46c25832730791c78a160e7f8c"
+      }
+    },
+    {
+      "suite": "C1",
+      "case": "fio-write",
+      "arm": "juicefs",
+      "id": "5ca7353ba24b2a18-r1-juicefs",
+      "state": "/srv/ax-pilot-control/c123-control-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create",
+        "drain",
+        "measure",
+        "mount",
+        "observe-start",
+        "observe-stop",
+        "unmount",
+        "verify"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs.close.json",
+        "sha256": "ac1fd4b03e69a33cde34f554e3d86cde58a2b0d62a9ab73a9bbfc4f8b77dd165"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/sample.json",
+        "sha256": "ed593ce409141e4e992d8222a7f035771d5aafd6e85e5ebc8c67a822734376df"
+      }
+    },
+    {
+      "suite": "C1",
+      "case": "fio-write",
+      "arm": "native",
+      "id": "5ca7353ba24b2a18-r1-native",
+      "state": "/srv/ax-pilot-control/c123-control-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create",
+        "drain",
+        "measure",
+        "mount",
+        "observe-start",
+        "observe-stop",
+        "unmount",
+        "verify"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native.close.json",
+        "sha256": "4ae79387b82129633c617662515b744832be54bc7c30dd4c3ef25d8d598b9e83"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/sample.json",
+        "sha256": "78fde053b7558a11994daa4f44898299dfacdf02b3d51b1b2ae6091bb668b199"
+      }
+    },
+    {
+      "suite": "C2",
+      "case": "pytest-full-02-n1",
+      "arm": "native",
+      "id": "05357b5089cd679c-r1-native",
+      "state": "/srv/ax-pilot-control/parallel-control-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create",
+        "drain",
+        "measure",
+        "mount",
+        "observe-start",
+        "observe-stop",
+        "unmount",
+        "verify"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native.close.json",
+        "sha256": "111d9dc7584b036e1870d55779776902eff661a69c06380c0ae660071f2f8647"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/sample.json",
+        "sha256": "ac66e04c353ed07dc35e8988e77e929930a06462f54d9c41e4e2875a375b0f00"
+      }
+    },
+    {
+      "suite": "C3",
+      "case": "files-100000-hot-1024",
+      "arm": "juicefs",
+      "id": "16f4ac389d2a2da6-r1-juicefs",
+      "state": "/srv/ax-pilot-control/c3-stage-fixed-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create-w01",
+        "drain-w01",
+        "measure-w01",
+        "mount-w01",
+        "observe-start",
+        "observe-stop",
+        "unmount-w01",
+        "verify-w01"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs.close.json",
+        "sha256": "3eb929d844025a0082049748f7a67feee3136e6cb8f380ce6498bd7f03582d9a"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/sample.json",
+        "sha256": "e622e33075a158c4d8256e897eff6b206643486549d83b6b36827601bab83913"
+      }
+    },
+    {
+      "suite": "C3",
+      "case": "files-100000-hot-1024",
+      "arm": "native",
+      "id": "16f4ac389d2a2da6-r1-native",
+      "state": "/srv/ax-pilot-control/parallel-control-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create-w01",
+        "drain-w01",
+        "measure-w01",
+        "mount-w01",
+        "observe-start",
+        "observe-stop",
+        "unmount-w01",
+        "verify-w01"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native.close.json",
+        "sha256": "9a61cb7ea23db1c32b98b11b6bbb54680854758784359dd76a5587801ed957a0"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/sample.json",
+        "sha256": "09de2c72c6cc41b90ee1cad849dc72890e4a95c804f2828162ba03b7319d9282"
+      }
+    },
+    {
+      "suite": "C4",
+      "case": "fork-1",
+      "arm": "juicefs",
+      "id": "c5e97774bcffa69a-r1-juicefs",
+      "state": "/srv/ax-pilot-control/fork-control-01/state.sqlite",
+      "stages": [
+        "archive",
+        "create",
+        "drain",
+        "measure",
+        "mount",
+        "observe-start",
+        "observe-stop",
+        "unmount",
+        "verify"
+      ],
+      "close": {
+        "path": "/srv/ax-pilot-control/fork-control-01/cells/c5e97774bcffa69a-r1-juicefs.close.json",
+        "sha256": "d8d08191e477caca7507e5ea5e3174610dbe863d642cc6044cac9c30e97ec98f"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/fork-control-01/cells/c5e97774bcffa69a-r1-juicefs/sample.json",
+        "sha256": "8e53a169282b0e8e4bfcb25c1a5860ec97c569e1cf460c7f5e12234951222b49"
+      }
+    }
+  ]
+}

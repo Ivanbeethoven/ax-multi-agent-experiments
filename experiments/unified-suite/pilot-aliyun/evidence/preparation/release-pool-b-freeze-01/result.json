@@ -1,0 +1,137 @@
+{
+  "schema": "ax-pilot-pool-b-release-freeze-public-audit-v1",
+  "recorded_at": "2026-11-11T10:03:02.177190+00:00",
+  "passed": true,
+  "campaign": "ax-pilot-20261111-b",
+  "verification": "Matched exact original request SHA256, creation ledger, deployment node specs and live filtered Aliyun ECS DescribeInstances and DescribeDisks responses. All members were present at observation.",
+  "read_only": true,
+  "release_executed": false,
+  "post_release_absence_proven": false,
+  "billing_cutoff_proven": false,
+  "owned_instance_count": 3,
+  "owned_disk_count": 9,
+  "owned_disk_total_gib": 520,
+  "original_jump_instance_preserved": "i-bp1cp8ccqor34u2bo5os",
+  "excluded": "Pool A, shared coordinator instance and all its disks, public IP, VPC and other networking, and all OSS data.",
+  "release_set_pins": {
+    "path": "release-set-pins.json",
+    "sha256": "cba9849558afea7119435bab3e92a4cf5679e8d23e9c06c7e84f08001b184520"
+  },
+  "local_freeze_index": {
+    "path": "/home/hxy/ax-unified-pilot-prep-next-01/release-evidence/pool-b-freeze-01/freeze-index.json",
+    "sha256": "057f2c3722dd30921618f67060a97310fa999bfd2272c2e7fac95a79e4dec83c"
+  },
+  "roles": {
+    "client": {
+      "freeze_api_observed_at": "2026-11-11T10:01:56.683116+00:00",
+      "instance": {
+        "id": "i-bp1fmmfkcpr8w99j2bsy",
+        "type": "ecs.u1-c1m4.xlarge",
+        "zone": "cn-hangzhou-j",
+        "status": "Running",
+        "charge_type": "PostPaid",
+        "public_bandwidth_mbps": 0
+      },
+      "disks": [
+        {
+          "id": "d-bp1fmmfkcpr8w99pwgc4",
+          "type": "system",
+          "gib": 40,
+          "performance_level": "PL0",
+          "status": "In_use",
+          "delete_with_instance": true
+        },
+        {
+          "id": "d-bp1fmmfkcpr8w99pwgc5",
+          "type": "data",
+          "gib": 100,
+          "performance_level": "PL1",
+          "status": "In_use",
+          "delete_with_instance": true
+        }
+      ]
+    },
+    "metadata": {
+      "freeze_api_observed_at": "2026-11-11T10:01:56.643778+00:00",
+      "instance": {
+        "id": "i-bp14nenf7osz9v1snsp2",
+        "type": "ecs.u1-c1m4.xlarge",
+        "zone": "cn-hangzhou-j",
+        "status": "Running",
+        "charge_type": "PostPaid",
+        "public_bandwidth_mbps": 0
+      },
+      "disks": [
+        {
+          "id": "d-bp14nenf7osz9v1rkk5k",
+          "type": "system",
+          "gib": 40,
+          "performance_level": "PL0",
+          "status": "In_use",
+          "delete_with_instance": true
+        },
+        {
+          "id": "d-bp14nenf7osz9v1rkk5l",
+          "type": "data",
+          "gib": 60,
+          "performance_level": "PL1",
+          "status": "In_use",
+          "delete_with_instance": true
+        }
+      ]
+    },
+    "objects": {
+      "freeze_api_observed_at": "2026-11-11T10:01:56.649475+00:00",
+      "instance": {
+        "id": "i-bp1bhdngko7nq3c3jrhp",
+        "type": "ecs.u1-c1m4.2xlarge",
+        "zone": "cn-hangzhou-j",
+        "status": "Running",
+        "charge_type": "PostPaid",
+        "public_bandwidth_mbps": 0
+      },
+      "disks": [
+        {
+          "id": "d-bp1bhdngko7nq3c2i33z",
+          "type": "system",
+          "gib": 40,
+          "performance_level": "PL0",
+          "status": "In_use",
+          "delete_with_instance": true
+        },
+        {
+          "id": "d-bp1bhdngko7nq3c2i340",
+          "type": "data",
+          "gib": 60,
+          "performance_level": "PL1",
+          "status": "In_use",
+          "delete_with_instance": true
+        },
+        {
+          "id": "d-bp1bhdngko7nq3c2i341",
+          "type": "data",
+          "gib": 60,
+          "performance_level": "PL1",
+          "status": "In_use",
+          "delete_with_instance": true
+        },
+        {
+          "id": "d-bp1bhdngko7nq3c2i342",
+          "type": "data",
+          "gib": 60,
+          "performance_level": "PL1",
+          "status": "In_use",
+          "delete_with_instance": true
+        },
+        {
+          "id": "d-bp1bhdngko7nq3c2i343",
+          "type": "data",
+          "gib": 60,
+          "performance_level": "PL1",
+          "status": "In_use",
+          "delete_with_instance": true
+        }
+      ]
+    }
+  }
+}

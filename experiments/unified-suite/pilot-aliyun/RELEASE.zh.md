@@ -1,5 +1,7 @@
 # 本轮资源收尾
 
+> 历史协议（截至 2026-11-11）：仅供旧冻结计划和结果追溯。新实验使用[当前方案](../current/README.zh.md)；本文旧路线、规模、默认配置与命令不作为新批次入口。
+
 先完成结果与全部校准原始文件的归档，独立下载并核全部成员，再停止负载、正常卸载并确认进程退出。`cloud.py release`负责发送释放请求，`release-evidence.py`只查状态，不执行删除。
 
 释放前，按原创建记录和节点配置核清机器的系统盘、全部数据盘及`DeleteWithInstance`。清单不允许多盘、换盘或混入原跳板机：
@@ -21,6 +23,8 @@ python3 experiments/unified-suite/pilot-aliyun/scripts/release-evidence.py check
 
 只有实例及原清单内每一块盘都不存在，才生成`cost-event.json`，供`record-cost.py --events`合并计算。仍有资源时返回2，保留实际ID和状态，不生成结束计费事件。停机不收费、删除请求返回成功、实例已消失而盘仍在，均不算完整释放。请求失败或响应不完整也不能生成证明。
 
-本轮清单位于本机`/home/hxy/ax-unified-pilot-prep/release-evidence/freeze-02/`，包含3台私网实例、9块附属盘和1块新协调盘。[只读查询](evidence/preparation/release-live-check-02.json)确认它们仍在，并正确拒绝生成结束计费事件。实际执行代码固定在同级`tools-01/`，原始API和代码已另存本机并[逐成员核验](evidence/preparation/release-flat-local-retention.json)。未来目标机另建清单，结束时再做真正的释放后查询；当前没有删除资源。
+A 组原清单位于本机 `/home/hxy/ax-unified-pilot-prep/release-evidence/freeze-02/`，包含 3 台私网实例、9 块附属盘和 1 块新协调盘。[只读查询](evidence/preparation/release-live-check-02.json)确认它们仍在，未生成结束计费事件。执行代码固定在同级 `tools-01/`，原始 API 和代码已另存本机并[逐成员核验](evidence/preparation/release-flat-local-retention.json)。
+
+B 组 [18:03 只读核验](evidence/preparation/release-pool-b-freeze-01/result.json)确认实际仍是原 3 台私网实例和 9 块盘，附属盘都随实例释放。[三份释放清单及 SHA256](evidence/preparation/release-pool-b-freeze-01/release-set-pins.json)位于本机 `/home/hxy/ax-unified-pilot-prep-next-01/release-evidence/pool-b-freeze-01/`。B 组清单排除原跳板、协调盘、A 组、网络和 OSS。两组仍在运行，本次只锁定范围，没有停止、删除或分离任何资源。
 
 最后停止本轮跳板服务，核新协调盘已归档、卸载后再分离并删除；原跳板切回`StopCharging`。原跳板系统盘、EIP、VPC、交换机、安全组和OSS数据保留。费用估算是按报价分段计算，最终账单另核。
