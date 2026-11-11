@@ -1,0 +1,73 @@
+{
+  "schema": "c4-aof-recovery-proof-v1",
+  "passed": true,
+  "at": "2026-11-11T11:56:42.486194+00:00",
+  "cell_id": "c5e97774bcffa69a-r1-native",
+  "pool": "pool-a",
+  "before": {
+    "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before.json",
+    "sha256": "e2d38c455c5a459c706c77501ef2476de7e5af5269bbfbd8786203d9d080cf35"
+  },
+  "after": {
+    "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-after.json",
+    "sha256": "7f14a3de9c86aa6c5ff94f19f78d71f5aac7b621d9bc79b543326db6f65618b7"
+  },
+  "original_capacity": {
+    "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity.json",
+    "sha256": "71f1bf57e69185de3d6fcb455e31e9aad3e7bd2ba288f90de58525cd4f80f5b4"
+  },
+  "journal_evidence": {
+    "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/c4-aof-journal-04.json",
+    "sha256": "b494ccf96ae833e908087ec4dd67b47ffc54222f40f9f2780778fbf05c6030d4"
+  },
+  "verifier": {
+    "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/verify-c4-aof-journal.py",
+    "sha256": "5cc76a8740cd54dba8ffd798998b8f73241d0e1f5c1544f0281c039891e8a44c"
+  },
+  "journal_verification": {
+    "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/verification.json",
+    "sha256": "8c78b4725da1640d4855309b80ecc76d44dd74e2d26a921879326135c5faadd0"
+  },
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before.json",
+      "sha256": "e2d38c455c5a459c706c77501ef2476de7e5af5269bbfbd8786203d9d080cf35"
+    },
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-after.json",
+      "sha256": "7f14a3de9c86aa6c5ff94f19f78d71f5aac7b621d9bc79b543326db6f65618b7"
+    },
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity.json",
+      "sha256": "71f1bf57e69185de3d6fcb455e31e9aad3e7bd2ba288f90de58525cd4f80f5b4"
+    },
+    {
+      "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/c4-aof-journal-04.json",
+      "sha256": "b494ccf96ae833e908087ec4dd67b47ffc54222f40f9f2780778fbf05c6030d4"
+    },
+    {
+      "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/verification.json",
+      "sha256": "8c78b4725da1640d4855309b80ecc76d44dd74e2d26a921879326135c5faadd0"
+    },
+    {
+      "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/verify-c4-aof-journal.py",
+      "sha256": "5cc76a8740cd54dba8ffd798998b8f73241d0e1f5c1544f0281c039891e8a44c"
+    },
+    {
+      "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/c4-redis-files-01.json",
+      "sha256": "3cff83c8c757aa387df1a062ebef155a32a4c04a7ef6be6071c5a95fb9421387"
+    },
+    {
+      "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/c4-controller-window-01.json",
+      "sha256": "5c9b3f8d0fdaf17477b18f53a3b10ea8e95a070980d205b979ea3666651ec854"
+    },
+    {
+      "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/build-c4-aof-recovery.py",
+      "sha256": "82326c50b437d940fcfcd8d5a9d157a89a6b74436d2e3aada7cb21395d18e363"
+    }
+  ],
+  "retirement_bytes": 605442048,
+  "retirement_inodes": 5,
+  "retired_aof_logical_bytes": 605421985,
+  "scope": "Original isolated C4 preparation forecast. Retired AOF and three manifest generations verified from journal; successful rewrite temp is the surviving .17 base. Entire before-used allocation is additionally reserved for any unidentified pre-existing reclamation. No performance admission."
+}

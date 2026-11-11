@@ -1,0 +1,379 @@
+{
+  "schema": "c4-redis-rewrite-files-v1",
+  "journal": [
+    {
+      "__REALTIME_TIMESTAMP": "1794391433603016",
+      "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=4756;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbcd39562;t=65ffd4ffce7c8;x=9191e9c19fa580a8",
+      "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+      "_PID": "9779",
+      "MESSAGE": "9779:M 11 Nov 2026 18:03:53.602 * Starting automatic rewriting of AOF on 100% growth"
+    },
+    {
+      "__REALTIME_TIMESTAMP": "1794391433604311",
+      "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=4757;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbcd39a71;t=65ffd4ffcecd7;x=4fb2e48bd10d5531",
+      "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+      "_PID": "9779",
+      "MESSAGE": "9779:M 11 Nov 2026 18:03:53.604 * Creating AOF incr file appendonly.aof.17.incr.aof on background rewrite"
+    },
+    {
+      "__REALTIME_TIMESTAMP": "1794391433616000",
+      "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=4758;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbcd3c81a;t=65ffd4ffd1a80;x=a7f0eed17866137c",
+      "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+      "_PID": "9779",
+      "MESSAGE": "9779:M 11 Nov 2026 18:03:53.615 * Background append only file rewriting started by pid 65993"
+    },
+    {
+      "__REALTIME_TIMESTAMP": "1794391438128252",
+      "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=4759;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd18a216;t=65ffd5041f47c;x=2584f4a251581bdd",
+      "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+      "_PID": "65993",
+      "MESSAGE": "65993:C 11 Nov 2026 18:03:58.128 * Successfully created the temporary AOF base file temp-rewriteaof-bg-65993.aof"
+    },
+    {
+      "__REALTIME_TIMESTAMP": "1794391438138551",
+      "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=475a;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd18ca51;t=65ffd50421cb7;x=be8e2a670045de4b",
+      "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+      "_PID": "65993",
+      "MESSAGE": "65993:C 11 Nov 2026 18:03:58.138 * Fork CoW for AOF rewrite: current 5 MB, peak 5 MB, average 3 MB"
+    },
+    {
+      "__REALTIME_TIMESTAMP": "1794391438243393",
+      "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=475b;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a63dc;t=65ffd5043b641;x=8c3c7a701dc2e930",
+      "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+      "_PID": "9779",
+      "MESSAGE": "9779:M 11 Nov 2026 18:03:58.243 * Background AOF rewrite terminated with success"
+    },
+    {
+      "__REALTIME_TIMESTAMP": "1794391438243686",
+      "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=475c;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a6500;t=65ffd5043b766;x=41eb911c4d36974d",
+      "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+      "_PID": "9779",
+      "MESSAGE": "9779:M 11 Nov 2026 18:03:58.243 * Successfully renamed the temporary AOF base file temp-rewriteaof-bg-65993.aof into appendonly.aof.17.base.rdb"
+    },
+    {
+      "__REALTIME_TIMESTAMP": "1794391438244677",
+      "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=475d;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a68df;t=65ffd5043bb45;x=5c66cea8a5541eab",
+      "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+      "_PID": "9779",
+      "MESSAGE": "9779:M 11 Nov 2026 18:03:58.244 * Removing the history file appendonly.aof.16.incr.aof in the background"
+    },
+    {
+      "__REALTIME_TIMESTAMP": "1794391438244726",
+      "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=475e;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a6910;t=65ffd5043bb76;x=267ed0987b4f1c34",
+      "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+      "_PID": "9779",
+      "MESSAGE": "9779:M 11 Nov 2026 18:03:58.244 * Removing the history file appendonly.aof.16.base.rdb in the background"
+    },
+    {
+      "__REALTIME_TIMESTAMP": "1794391438248540",
+      "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=475f;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a77f6;t=65ffd5043ca5c;x=806103f94511bf3d",
+      "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+      "_PID": "9779",
+      "MESSAGE": "9779:M 11 Nov 2026 18:03:58.248 * Background AOF rewrite finished successfully"
+    }
+  ],
+  "config": {
+    "dir": "/srv/ax-metadata/redis",
+    "appenddirname": "appendonlydir",
+    "appendonly": "yes",
+    "save": "",
+    "appendfsync": "always",
+    "no-appendfsync-on-rewrite": "no",
+    "auto-aof-rewrite-percentage": "100",
+    "auto-aof-rewrite-min-size": "67108864"
+  },
+  "info": {
+    "process_id": "9779",
+    "role": "master",
+    "rdb_saves": "0",
+    "rdb_last_bgsave_status": "ok",
+    "aof_rewrites": "16",
+    "aof_rewrites_consecutive_failures": "0",
+    "aof_last_bgrewrite_status": "ok",
+    "aof_last_write_status": "ok",
+    "aof_current_size": "371832356",
+    "aof_base_size": "366852897"
+  },
+  "dirs": {
+    "/srv/ax-metadata": [
+      {
+        "path": "/srv/ax-metadata/archives",
+        "inode": 7340033,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794388095186229252,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/assets",
+        "inode": 14680065,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794354459297484978,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-01",
+        "inode": 9437185,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794337940618414412,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-02",
+        "inode": 4194305,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794347036160436165,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-03",
+        "inode": 1572865,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794348664615125347,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-04",
+        "inode": 2097153,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794350421352902361,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-05",
+        "inode": 2621441,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794351273472811062,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-06",
+        "inode": 3145729,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794354100328521875,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-07",
+        "inode": 15204353,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794354460199484884,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-10",
+        "inode": 12058625,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794371388597565054,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-11",
+        "inode": 13107201,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794372589230223120,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-12",
+        "inode": 8388609,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794372994999524809,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-17",
+        "inode": 3670017,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794388727706481949,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-18",
+        "inode": 5242881,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794389897790947781,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/code-19",
+        "inode": 14155777,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794390265939092969,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/evidence",
+        "inode": 13631489,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794388094482228970,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/lost+found",
+        "inode": 11,
+        "device": 64784,
+        "bytes": 16384,
+        "allocated": 16384,
+        "mtime_ns": 1794337039000000000,
+        "mode": 16832
+      },
+      {
+        "path": "/srv/ax-metadata/o",
+        "inode": 9961473,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794387701254071501,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/preparation",
+        "inode": 12582913,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794390264936092573,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/q",
+        "inode": 1048577,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794388094481228969,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/redis",
+        "inode": 524289,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794391438241551715,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/retained-calibrations",
+        "inode": 11534337,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794388601800431749,
+        "mode": 16877
+      },
+      {
+        "path": "/srv/ax-metadata/runner-code11-manifest.json",
+        "inode": 13,
+        "device": 64784,
+        "bytes": 17778,
+        "allocated": 20480,
+        "mtime_ns": 1794372588893222865,
+        "mode": 33188
+      },
+      {
+        "path": "/srv/ax-metadata/runner-code11.tar.gz",
+        "inode": 12,
+        "device": 64784,
+        "bytes": 310575,
+        "allocated": 311296,
+        "mtime_ns": 1794372588650222682,
+        "mode": 33188
+      },
+      {
+        "path": "/srv/ax-metadata/runner-code12-manifest.json",
+        "inode": 15,
+        "device": 64784,
+        "bytes": 17918,
+        "allocated": 20480,
+        "mtime_ns": 1794372994674524674,
+        "mode": 33188
+      },
+      {
+        "path": "/srv/ax-metadata/runner-code12.tar.gz",
+        "inode": 14,
+        "device": 64784,
+        "bytes": 314816,
+        "allocated": 315392,
+        "mtime_ns": 1794372994426524572,
+        "mode": 33188
+      }
+    ],
+    "/srv/ax-metadata/redis": [
+      {
+        "path": "/srv/ax-metadata/redis/appendonlydir",
+        "inode": 524290,
+        "device": 64784,
+        "bytes": 4096,
+        "allocated": 4096,
+        "mtime_ns": 1794391438246551717,
+        "mode": 16877
+      }
+    ],
+    "/srv/ax-metadata/redis/appendonlydir": [
+      {
+        "path": "/srv/ax-metadata/redis/appendonlydir/appendonly.aof.17.base.rdb",
+        "inode": 524294,
+        "device": 64784,
+        "bytes": 366316316,
+        "allocated": 366317568,
+        "mtime_ns": 1794391438123551669,
+        "mode": 33188
+      },
+      {
+        "path": "/srv/ax-metadata/redis/appendonlydir/appendonly.aof.17.incr.aof",
+        "inode": 524291,
+        "device": 64784,
+        "bytes": 5516040,
+        "allocated": 5521408,
+        "mtime_ns": 1794395606926185667,
+        "mode": 33188
+      },
+      {
+        "path": "/srv/ax-metadata/redis/appendonlydir/appendonly.aof.manifest",
+        "inode": 524295,
+        "device": 64784,
+        "bytes": 92,
+        "allocated": 4096,
+        "mtime_ns": 1794391438243551716,
+        "mode": 33188
+      }
+    ]
+  },
+  "boot": "9a6ebc7c-3b6a-4819-8720-d8e61ff5941e",
+  "services": "aliyun.service              loaded active running Aliyun Assist\n  ax-pilot-redis.service      loaded active running AX pilot dedicated Redis metadata\n  chrony.service              loaded active running chrony, an NTP client/server\n  cloudmonitor.service        loaded active running cloudmonitor-agent\n  cron.service                loaded active running Regular background program processing daemon\n  dbus.service                loaded active running D-Bus System Message Bus\n  getty@tty1.service          loaded active running Getty on tty1\n  ModemManager.service        loaded active running Modem Manager\n  multipathd.service          loaded active running Device-Mapper Multipath Device Controller\n  networkd-dispatcher.service loaded active running Dispatcher daemon for systemd-networkd\n  polkit.service              loaded active running Authorization Manager\n  rsyslog.service             loaded active running System Logging Service\n  serial-getty@ttyS0.service  loaded active running Serial Getty on ttyS0\n  ssh.service                 loaded active running OpenBSD Secure Shell server\n  systemd-journald.service    loaded active running Journal Service\n  systemd-logind.service      loaded active running User Login Management\n  systemd-networkd.service    loaded active running Network Configuration\n  systemd-resolved.service    loaded active running Network Name Resolution\n  systemd-udevd.service       loaded active running Rule-based Manager for Device Events and Files\n  tuned.service               loaded active running Dynamic System Tuning Daemon\n  udisks2.service             loaded active running Disk Manager\n  unattended-upgrades.service loaded active running Unattended Upgrades Shutdown\n  user@0.service              loaded active running User Manager for UID 0",
+  "timers": "NEXT                            LEFT LAST                             PASSED UNIT                           ACTIVATES\nWed 2026-11-11 19:50:00 CST      13s Wed 2026-11-11 19:40:00 CST    9min ago sysstat-collect.timer          sysstat-collect.service\nThu 2026-11-12 00:00:00 CST 4h 10min Wed 2026-11-11 02:52:15 CST     16h ago dpkg-db-backup.timer           dpkg-db-backup.service\nThu 2026-11-12 00:00:00 CST 4h 10min Wed 2026-11-11 02:52:15 CST     16h ago logrotate.timer                logrotate.service\nThu 2026-11-12 00:07:00 CST 4h 17min -                                     - sysstat-summary.timer          sysstat-summary.service\nThu 2026-11-12 02:57:11 CST       7h Wed 2026-11-11 02:57:11 CST     16h ago update-notifier-download.timer update-notifier-download.service\nThu 2026-11-12 03:07:44 CST       7h Wed 2026-11-11 03:07:44 CST     16h ago systemd-tmpfiles-clean.timer   systemd-tmpfiles-clean.service\nThu 2026-11-12 05:18:22 CST       9h Wed 2026-11-11 18:48:45 CST 1h 1min ago motd-news.timer                motd-news.service\nThu 2026-11-12 06:10:43 CST      10h Fri 2026-10-16 15:13:45 CST           - update-notifier-motd.timer     update-notifier-motd.service\nThu 2026-11-12 06:27:30 CST      10h Wed 2026-11-11 04:03:59 CST     15h ago man-db.timer                   man-db.service\n-                                  - -                                     - apport-autoreport.timer        apport-autoreport.service\n-                                  - Wed 2026-11-11 02:58:39 CST     16h ago apt-daily-upgrade.timer        -\n-                                  - Fri 2026-10-16 15:13:45 CST           - apt-daily.timer                -\n-                                  - Wed 2026-11-11 02:52:46 CST     16h ago e2scrub_all.timer              -\n-                                  - Fri 2026-10-16 15:13:45 CST           - fstrim.timer                   -\n-                                  - Wed 2026-11-11 03:09:52 CST     16h ago fwupd-refresh.timer            -\n-                                  - -                                     - snapd.snap-repair.timer        snapd.snap-repair.service\n-                                  - -                                     - ua-timer.timer                 ua-timer.service\n\n17 timers listed.",
+  "redis_tree": "Inode: 524294   Type: regular    Mode:  0644   Flags: 0x80000\nGeneration: 2262346309    Version: 0x00000000:0000117a\nUser:   108   Group:   111   Project:     0   Size: 366316316\nFile ACL: 0\nLinks: 1   Blockcount: 715464\nFragment:  Address: 0    Number: 0    Size: 0\n ctime: 0x6af43d8e:3997258c -- Wed Nov 11 18:03:58 2026\n atime: 0x6af43d89:92852648 -- Wed Nov 11 18:03:53 2026\n mtime: 0x6af43d8e:1d74fed4 -- Wed Nov 11 18:03:58 2026\ncrtime: 0x6af43d89:92852648 -- Wed Nov 11 18:03:53 2026\nSize of extra inode fields: 32\nInode checksum: 0x72a33a1d\nEXTENTS:\n(0-20479):669696-690175, (20480-53247):692224-724991, (53248-86015):724992-757759, (86016-89432):757760-761176"
+}

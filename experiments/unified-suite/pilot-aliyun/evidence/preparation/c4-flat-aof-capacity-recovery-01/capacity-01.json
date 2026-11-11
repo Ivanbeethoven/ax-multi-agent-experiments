@@ -1,0 +1,244 @@
+{
+  "schema": "c4-aof-reconciled-capacity-v1",
+  "passed": true,
+  "at": "2026-11-11T11:57:01.368952+00:00",
+  "cell_id": "c5e97774bcffa69a-r1-native",
+  "pool": "pool-a",
+  "before": {
+    "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before.json",
+    "sha256": "e2d38c455c5a459c706c77501ef2476de7e5af5269bbfbd8786203d9d080cf35"
+  },
+  "after": {
+    "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-after.json",
+    "sha256": "7f14a3de9c86aa6c5ff94f19f78d71f5aac7b621d9bc79b543326db6f65618b7"
+  },
+  "fresh": {
+    "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/fresh-01.json",
+    "sha256": "aed95f89dbba50b42bc4a5e4aa13379634f83c6065bb5287f88c8a701ffc1c59"
+  },
+  "original_capacity": {
+    "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity.json",
+    "sha256": "71f1bf57e69185de3d6fcb455e31e9aad3e7bd2ba288f90de58525cd4f80f5b4"
+  },
+  "preparation": {
+    "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/result.json",
+    "sha256": "b1dc911bae231cfbc526924864ffc34e30bb97a0f6fc80778a741bceef7c1321"
+  },
+  "recovery_proof": {
+    "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/recovery.json",
+    "sha256": "e400f505a1342faec7a8e0bab0cd0d3a16a9c7144506edc09fa0de1d13433d56"
+  },
+  "producer": {
+    "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/reconcile-c4-capacity.py",
+    "sha256": "67113ca7cc2df1af47b5b6d9d6524a9dc67f37e89801383d3af90ed2a6e9dc55"
+  },
+  "rows": [
+    {
+      "role": "client",
+      "path": "/srv/ax-client",
+      "quantity": "bytes",
+      "measured_base_increment": 17584128,
+      "extra_full_copies": 0,
+      "projected_used": 17077473280,
+      "total": 100056096768,
+      "observed_allocation_decrease": false,
+      "rewrite_headroom_bytes": 0,
+      "rewrite_headroom_inodes": 0,
+      "passed": true
+    },
+    {
+      "role": "client",
+      "path": "/srv/ax-client",
+      "quantity": "inodes",
+      "measured_base_increment": 171,
+      "extra_full_copies": 0,
+      "projected_used": 2540155,
+      "total": 26214400,
+      "observed_allocation_decrease": false,
+      "rewrite_headroom_bytes": 0,
+      "rewrite_headroom_inodes": 0,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "path": "/srv/ax-metadata",
+      "quantity": "bytes",
+      "measured_base_increment": 1743368192,
+      "extra_full_copies": 7,
+      "projected_used": 20673531904,
+      "total": 60070604800,
+      "observed_allocation_decrease": true,
+      "rewrite_headroom_bytes": 7272353792,
+      "rewrite_headroom_inodes": 0,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "path": "/srv/ax-metadata",
+      "quantity": "inodes",
+      "measured_base_increment": 154866,
+      "extra_full_copies": 7,
+      "projected_used": 1238946,
+      "total": 15728640,
+      "observed_allocation_decrease": false,
+      "rewrite_headroom_bytes": 0,
+      "rewrite_headroom_inodes": 16,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "quantity": "redis-memory-bytes",
+      "measured_base_increment": 88108856,
+      "extra_full_copies": 7,
+      "projected_used": 1421476712,
+      "total": 10737418240,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "quantity": "redis-aof-bytes",
+      "before": 431505963,
+      "after": 371832356,
+      "measured_base_increment": 977254341,
+      "extra_full_copies": 7,
+      "projected_aof_bytes": 7272286350,
+      "included_in_metadata_disk_forecast": true,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-0",
+      "quantity": "bytes",
+      "measured_base_increment": 1249935360,
+      "extra_full_copies": 7,
+      "projected_used": 47212527616,
+      "total": 60070604800,
+      "observed_allocation_decrease": false,
+      "rewrite_headroom_bytes": 0,
+      "rewrite_headroom_inodes": 0,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-0",
+      "quantity": "inodes",
+      "measured_base_increment": 299991,
+      "extra_full_copies": 7,
+      "projected_used": 5561025,
+      "total": 15728640,
+      "observed_allocation_decrease": false,
+      "rewrite_headroom_bytes": 0,
+      "rewrite_headroom_inodes": 0,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-1",
+      "quantity": "bytes",
+      "measured_base_increment": 1249824768,
+      "extra_full_copies": 7,
+      "projected_used": 27018199040,
+      "total": 60070604800,
+      "observed_allocation_decrease": false,
+      "rewrite_headroom_bytes": 0,
+      "rewrite_headroom_inodes": 0,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-1",
+      "quantity": "inodes",
+      "measured_base_increment": 299989,
+      "extra_full_copies": 7,
+      "projected_used": 5417179,
+      "total": 15728640,
+      "observed_allocation_decrease": false,
+      "rewrite_headroom_bytes": 0,
+      "rewrite_headroom_inodes": 0,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-2",
+      "quantity": "bytes",
+      "measured_base_increment": 1249808384,
+      "extra_full_copies": 7,
+      "projected_used": 27017871360,
+      "total": 60070604800,
+      "observed_allocation_decrease": false,
+      "rewrite_headroom_bytes": 0,
+      "rewrite_headroom_inodes": 0,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-2",
+      "quantity": "inodes",
+      "measured_base_increment": 299989,
+      "extra_full_copies": 7,
+      "projected_used": 5417179,
+      "total": 15728640,
+      "observed_allocation_decrease": false,
+      "rewrite_headroom_bytes": 0,
+      "rewrite_headroom_inodes": 0,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-3",
+      "quantity": "bytes",
+      "measured_base_increment": 1249808384,
+      "extra_full_copies": 7,
+      "projected_used": 27018043392,
+      "total": 60070604800,
+      "observed_allocation_decrease": false,
+      "rewrite_headroom_bytes": 0,
+      "rewrite_headroom_inodes": 0,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-3",
+      "quantity": "inodes",
+      "measured_base_increment": 299989,
+      "extra_full_copies": 7,
+      "projected_used": 5417179,
+      "total": 15728640,
+      "observed_allocation_decrease": false,
+      "rewrite_headroom_bytes": 0,
+      "rewrite_headroom_inodes": 0,
+      "passed": true
+    }
+  ],
+  "extra_full_copies": 7,
+  "reserve_fraction": 0.2,
+  "rewrite_headroom_bytes": 7272353792,
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before.json",
+      "sha256": "e2d38c455c5a459c706c77501ef2476de7e5af5269bbfbd8786203d9d080cf35"
+    },
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-after.json",
+      "sha256": "7f14a3de9c86aa6c5ff94f19f78d71f5aac7b621d9bc79b543326db6f65618b7"
+    },
+    {
+      "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/fresh-01.json",
+      "sha256": "aed95f89dbba50b42bc4a5e4aa13379634f83c6065bb5287f88c8a701ffc1c59"
+    },
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity.json",
+      "sha256": "71f1bf57e69185de3d6fcb455e31e9aad3e7bd2ba288f90de58525cd4f80f5b4"
+    },
+    {
+      "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/recovery.json",
+      "sha256": "e400f505a1342faec7a8e0bab0cd0d3a16a9c7144506edc09fa0de1d13433d56"
+    },
+    {
+      "path": "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/reconcile-c4-capacity.py",
+      "sha256": "67113ca7cc2df1af47b5b6d9d6524a9dc67f37e89801383d3af90ed2a6e9dc55"
+    }
+  ],
+  "scope": "Original one-base seven-copy forecast with verified AOF retirement, whole-before allocation allowance and one extra projected AOF. Not a measured future peak or performance acceptance."
+}

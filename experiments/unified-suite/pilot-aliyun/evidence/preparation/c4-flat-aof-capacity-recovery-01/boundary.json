@@ -1,0 +1,172 @@
+{
+  "source_batch": {
+    "path": "/srv/ax-pilot-control/preparation/c4-native-flat-run-04/execution-03/batch.request.json",
+    "sha256": "27bbae601da79d295b316fcaed4566ee590e21e2e3b8e1edc6704aa0f8d3bd00"
+  },
+  "source_outer": {
+    "path": "/srv/ax-pilot-control/preparation/c4-native-flat-run-04/request.reviewed.json",
+    "sha256": "a08b3fa39b9488cd62642aafdf1bb32c6867aa1a9dffe18f02af0a863c0d0c09"
+  },
+  "unit": {
+    "show": {
+      "MainPID": "0",
+      "ControlPID": "0",
+      "Result": "exit-code",
+      "ExecMainStatus": "1",
+      "LoadState": "loaded",
+      "ActiveState": "failed",
+      "SubState": "failed",
+      "InvocationID": "6ad2b76c56dd4395a638b46885dc8e60"
+    },
+    "start": {
+      "UNIT": "ax-pilot-pa-c4-flat-native-03.service",
+      "INVOCATION_ID": "6ad2b76c56dd4395a638b46885dc8e60",
+      "_BOOT_ID": "38feb533e57a411ba83374fef5ed6914",
+      "__CURSOR": "s=cc50b74f3f1344d6b545ebeb51e1f8cb;i=1befe;b=38feb533e57a411ba83374fef5ed6914;m=c8489143a;t=65ffd0a271166;x=78059f415287b116",
+      "__REALTIME_TIMESTAMP": "1794390261961062",
+      "MESSAGE": "Started ax-pilot-pa-c4-flat-native-03.service - /usr/bin/python3 /srv/ax-pilot-control/preparation/c4-native-flat-run-04/continue-c4-native-flat.py run --runtime-repo /srv/ax-pilot-control/code-19 --request /srv/ax-pilot-control/preparation/c4-native-flat-run-04/request.reviewed.json --sha256 a08b3fa39b9488cd62642aafdf1bb32c6867aa1a9dffe18f02af0a863c0d0c09."
+    },
+    "end": {
+      "UNIT": "ax-pilot-pa-c4-flat-native-03.service",
+      "INVOCATION_ID": "6ad2b76c56dd4395a638b46885dc8e60",
+      "_BOOT_ID": "38feb533e57a411ba83374fef5ed6914",
+      "__CURSOR": "s=cc50b74f3f1344d6b545ebeb51e1f8cb;i=1dfae;b=38feb533e57a411ba83374fef5ed6914;m=dc35bb60a;t=65ffe48f9b336;x=705e5aecd8a993bd",
+      "__REALTIME_TIMESTAMP": "1794395610919734",
+      "MESSAGE": "ax-pilot-pa-c4-flat-native-03.service: Failed with result 'exit-code'."
+    }
+  },
+  "runtime": {
+    "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/binding.json",
+    "sha256": "224d7be366ee28d87e8c185190a30c644672def5ef8ff6edb5f25c4772d2ed41"
+  },
+  "live": {
+    "client": {
+      "role": "client",
+      "script_sha256": "cea2e0f45edf250ef4dfde08e926b11e7d5d5a4cf57153f2af78ee28244ed6a2",
+      "result": {
+        "safe_for_release": true,
+        "original_processes": [],
+        "live": [],
+        "unknown_startup_directories": [],
+        "slot": "",
+        "mounts": []
+      }
+    },
+    "metadata": {
+      "role": "metadata",
+      "script_sha256": "82120b42aa82d70c11a4120c452a90871d14bfd58a3002e7641aed434862b86f",
+      "result": {
+        "safe_for_release": true,
+        "original_processes": [],
+        "live": [],
+        "unknown_startup_directories": [],
+        "slot": "",
+        "mounts": []
+      }
+    },
+    "objects": {
+      "role": "objects",
+      "script_sha256": "083e7e575ead5008c6ee18f65a47dc8fcf47c614e2817f96dcb0178281aa7c1f",
+      "result": {
+        "safe_for_release": true,
+        "original_processes": [],
+        "live": [],
+        "unknown_startup_directories": [],
+        "slot": "",
+        "mounts": []
+      }
+    }
+  },
+  "closed_base": {
+    "role": "client",
+    "script_sha256": "006ba1ca244644b7e29b234e87b855db837ded3260dab6de0e0c71f7ccde9b30",
+    "result": {
+      "passed": true,
+      "sources": [
+        {
+          "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/result.json",
+          "sha256": "b1dc911bae231cfbc526924864ffc34e30bb97a0f6fc80778a741bceef7c1321"
+        },
+        {
+          "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/cold-base-check.json",
+          "sha256": "90cdcf297a63e68206420086283356864c5ec5b6c6da3327eaf9ae5fe764ef5e"
+        },
+        {
+          "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-1.json",
+          "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494"
+        },
+        {
+          "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-2.json",
+          "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494"
+        },
+        {
+          "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/start-1/stdout",
+          "sha256": "6a67682bd5dc9672a915b8f7ffce93add628e23f4649acea1c16d4b3c160eed7"
+        },
+        {
+          "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/start-2/stdout",
+          "sha256": "c4cbfb5b5b122558d787971609b17efbc4ad3ed7a924b6832f7f894d24ce7ba3"
+        }
+      ],
+      "debt": {
+        "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/import-debt/result.json",
+        "sha256": "cba9439cf3e72092b552e312959ae14887d8c6de266e5d55b76c95a191dcb4db"
+      },
+      "samples": [
+        {
+          "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/import-debt/sample-0.json",
+          "sha256": "1e6369450ad328767581044fc6c79cb2be8d9a3532964af5664bc865d12536c6"
+        },
+        {
+          "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/import-debt/sample-1.json",
+          "sha256": "431afecfbd7e17afc1f0a4e61327643837526181dd4e91b2f9bae1accedeef7c"
+        }
+      ],
+      "values": [
+        {
+          "passed": true,
+          "cell_id": "c5e97774bcffa69a-r1-native",
+          "at": "2026-11-11T10:05:00.228845+00:00",
+          "monotonic_ns": 54778218600856,
+          "pending_upload_bytes": 0,
+          "pending_upload_operations": 0,
+          "native_gauges": {
+            "brewfs_writeback_live_dirty_bytes": 0.0,
+            "brewfs_writeback_live_slices": 0.0,
+            "brewfs_writeback_recent_pending_upload_bytes": 0.0,
+            "brewfs_writeback_recent_pending_upload_slices": 0.0,
+            "brewfs_writeback_stage_inflight_bytes": 0.0,
+            "brewfs_writeback_remote_upload_inflight_bytes": 0.0,
+            "brewfs_writeback_metadata_inflight": 0.0
+          },
+          "interpretation": "Overlapping gauges summed only as a zero predicate; never an operation or throughput count. All application writers must have returned from fsync and exited."
+        },
+        {
+          "passed": true,
+          "cell_id": "c5e97774bcffa69a-r1-native",
+          "at": "2026-11-11T10:05:01.282275+00:00",
+          "monotonic_ns": 54779272028681,
+          "pending_upload_bytes": 0,
+          "pending_upload_operations": 0,
+          "native_gauges": {
+            "brewfs_writeback_live_dirty_bytes": 0.0,
+            "brewfs_writeback_live_slices": 0.0,
+            "brewfs_writeback_recent_pending_upload_bytes": 0.0,
+            "brewfs_writeback_recent_pending_upload_slices": 0.0,
+            "brewfs_writeback_stage_inflight_bytes": 0.0,
+            "brewfs_writeback_remote_upload_inflight_bytes": 0.0,
+            "brewfs_writeback_metadata_inflight": 0.0
+          },
+          "interpretation": "Overlapping gauges summed only as a zero predicate; never an operation or throughput count. All application writers must have returned from fsync and exited."
+        }
+      ]
+    }
+  },
+  "controls": [
+    "/srv/ax-pilot-control/c1-native-randread-rebind-01",
+    "/srv/ax-pilot-control/c123-control-01",
+    "/srv/ax-pilot-control/c3-stage-fixed-01",
+    "/srv/ax-pilot-control/fork-control-01",
+    "/srv/ax-pilot-control/parallel-control-01"
+  ]
+}

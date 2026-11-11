@@ -1,0 +1,227 @@
+{
+  "at": "2026-11-11T11:13:29.891852+00:00",
+  "inventory": {
+    "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/fleet.json",
+    "sha256": "ebdffb7d5a7fe589a319a0a5cd66c4dd6c5925e24e0a831c552de457493cd638"
+  },
+  "pool": "pool-a",
+  "nodes": {
+    "client": {
+      "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+      "sampled_at": "2026-11-11T11:13:28.348960+00:00",
+      "disks": [
+        {
+          "path": "/srv/ax-client",
+          "device": 64784,
+          "serial": "bp1809mw7rlujtjc8epi",
+          "device_bytes": 107374182400,
+          "total_bytes": 100056096768,
+          "used_bytes": 17077473280,
+          "available_bytes": 82961846272,
+          "total_inodes": 26214400,
+          "used_inodes": 2540155,
+          "available_inodes": 23674245
+        }
+      ],
+      "preparation": {
+        "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/result.json",
+        "sha256": "b1dc911bae231cfbc526924864ffc34e30bb97a0f6fc80778a741bceef7c1321",
+        "value": {
+          "passed": true,
+          "cell_id": "c5e97774bcffa69a-r1-native",
+          "pool": "pool-a",
+          "product": "brewfs",
+          "purpose": "asset-preparation",
+          "files": 100000,
+          "bytes": 409600000,
+          "asset": {
+            "path": "/srv/ax-client/a/c4-fork-flat-base-03/asset.json",
+            "sha256": "f1df94d8e50c5b8b8a484d35eaa3b316547fc5519cf6e14121b2c81037410586"
+          },
+          "source_tree": {
+            "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c4-fixture-tree.json",
+            "sha256": "02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13"
+          },
+          "fixture": {
+            "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c4-fixture.json",
+            "sha256": "276cd354adbefcc7ea4aa6799038064bb77d97073a4fe999f6b46be3d7a27a55"
+          },
+          "work_tag": "child-01",
+          "source_check": {
+            "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/source-full-check.json",
+            "sha256": "90cdcf297a63e68206420086283356864c5ec5b6c6da3327eaf9ae5fe764ef5e"
+          },
+          "cold_base_check": {
+            "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/cold-base-check.json",
+            "sha256": "90cdcf297a63e68206420086283356864c5ec5b6c6da3327eaf9ae5fe764ef5e"
+          },
+          "oracle": {
+            "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/oracle-result/result.json",
+            "sha256": "d83dd77c063cae9a8d827cc9d65137c67beac98450ab650acc0c5f4e2941b6b3"
+          },
+          "normal_exits": [
+            {
+              "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-1.json",
+              "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494"
+            },
+            {
+              "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-2.json",
+              "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494"
+            }
+          ],
+          "import_seconds": 1154.432497509,
+          "import_fsync_seconds": 27.509758605,
+          "cold_verify_seconds": 4099.977110591,
+          "performance_accepted": false,
+          "formal_admission": false,
+          "automatic_retry": false
+        },
+        "normal_exits": [
+          {
+            "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-1.json",
+            "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494",
+            "value": {
+              "passed": true,
+              "exit_code": 0,
+              "mount_absent": true,
+              "anchor": {
+                "filesystem": "brewfs",
+                "workspace": null,
+                "namespace": null,
+                "storage_identity_sha256": "7c7aa5299e761d7ce6dc2b9df641124398621693c1922753355eab0b69d8c20b"
+              },
+              "original_mount": {
+                "mount_id": 253,
+                "point": "/srv/ax-client/a/c4-fork-flat-base-03/mnt",
+                "filesystem": "fuse",
+                "source": "brewfs",
+                "options": "rw,nosuid,nodev,relatime"
+              },
+              "active_workers": []
+            }
+          },
+          {
+            "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-2.json",
+            "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494",
+            "value": {
+              "passed": true,
+              "exit_code": 0,
+              "mount_absent": true,
+              "anchor": {
+                "filesystem": "brewfs",
+                "workspace": null,
+                "namespace": null,
+                "storage_identity_sha256": "7c7aa5299e761d7ce6dc2b9df641124398621693c1922753355eab0b69d8c20b"
+              },
+              "original_mount": {
+                "mount_id": 253,
+                "point": "/srv/ax-client/a/c4-fork-flat-base-03/mnt",
+                "filesystem": "fuse",
+                "source": "brewfs",
+                "options": "rw,nosuid,nodev,relatime"
+              },
+              "active_workers": []
+            }
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "boot_id": "9a6ebc7c-3b6a-4819-8720-d8e61ff5941e",
+      "sampled_at": "2026-11-11T11:13:28.996735+00:00",
+      "disks": [
+        {
+          "path": "/srv/ax-metadata",
+          "device": 64784,
+          "serial": "bp1gy3cfuj9jik0upt3k",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 1137926144,
+          "available_bytes": 58915901440,
+          "total_inodes": 15728640,
+          "used_inodes": 154861,
+          "available_inodes": 15573779
+        }
+      ],
+      "redis": {
+        "used_memory": 804714720,
+        "used_memory_rss": 832012288,
+        "maxmemory": 10737418240,
+        "aof_current_size": 371832356,
+        "process_id": 9779
+      }
+    },
+    "objects": {
+      "boot_id": "5a984d75-dca0-4921-92fa-b021d1f799e5",
+      "sampled_at": "2026-11-11T11:13:29.869375+00:00",
+      "disks": [
+        {
+          "path": "/srv/ax-rustfs-data-0",
+          "device": 64784,
+          "serial": "bp1h9kaoya0predx6kvd",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 38462980096,
+          "available_bytes": 21590847488,
+          "total_inodes": 15728640,
+          "used_inodes": 3461088,
+          "available_inodes": 12267552
+        },
+        {
+          "path": "/srv/ax-rustfs-data-1",
+          "device": 64800,
+          "serial": "bp1h9kaoya0predx6kve",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 18269425664,
+          "available_bytes": 41784401920,
+          "total_inodes": 15728640,
+          "used_inodes": 3317256,
+          "available_inodes": 12411384
+        },
+        {
+          "path": "/srv/ax-rustfs-data-2",
+          "device": 64816,
+          "serial": "bp1h9kaoya0predx6kvf",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 18269212672,
+          "available_bytes": 41784614912,
+          "total_inodes": 15728640,
+          "used_inodes": 3317256,
+          "available_inodes": 12411384
+        },
+        {
+          "path": "/srv/ax-rustfs-data-3",
+          "device": 64832,
+          "serial": "bp1h9kaoya0predx6kvg",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 18269384704,
+          "available_bytes": 41784442880,
+          "total_inodes": 15728640,
+          "used_inodes": 3317256,
+          "available_inodes": 12411384
+        }
+      ],
+      "container_id": "d6c8829b0026ca782efa53629e3bd9ffe8e5b9b23404b079cf35921b7b94cc6f",
+      "image": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+      "pid": 7170
+    }
+  },
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/runtime-a-03/fleet.json",
+      "sha256": "ebdffb7d5a7fe589a319a0a5cd66c4dd6c5925e24e0a831c552de457493cd638"
+    },
+    {
+      "path": "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+      "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+    },
+    {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before.json",
+      "sha256": "e2d38c455c5a459c706c77501ef2476de7e5af5269bbfbd8786203d9d080cf35"
+    }
+  ],
+  "scope": "Actual filesystem allocation and Redis memory/AOF snapshot; no workload or object deletion"
+}
