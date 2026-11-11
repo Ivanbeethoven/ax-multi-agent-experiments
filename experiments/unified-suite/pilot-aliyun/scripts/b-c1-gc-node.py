@@ -134,7 +134,7 @@ def get_disk(serial, uuid, blocks):
     require(keys.get('TYPE') == 'ext4' and keys.get('UUID') == uuid and 'PTTYPE' not in keys,
             'Original ext4 UUID or type differs: '+serial)
     require(sum(row.get('uuid') == uuid for row in blocks) == 1, 'Duplicate ext4 UUID: '+uuid)
-    return device, mode.st_rdev
+    return device, serial, mode.st_rdev
 
 
 def inspect_rustfs(targets):
@@ -149,6 +149,25 @@ def inspect_rustfs(targets):
     require(len(row['Mounts']) == len(mapping) and all(x['Type'] == 'bind' and x['RW']
             for x in row['Mounts']) and {x['Source']: x['Destination'] for x in row['Mounts']} == mapping,
             'Original RustFS bind specification differs')
+
+
+def redis_processes():
+    """Every process started as this exact redis-server configuration."""
+    found = []
+    for entry in Path('/proc').iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            argv = [part.decode() for part in (entry/'cmdline').read_bytes().split(b'\0') if part]
+        except OSError:
+            continue
+        if argv[:2] == ['/usr/bin/redis-server', str(CONF)]:
+            found.append(int(entry.name))
+    return found
+
+
+def redis_listening():
+    return any(row.rstrip().endswith(':6379') for row in get('ss', '-H', '-ltn').splitlines())
 
 
 def inspect_redis():
@@ -177,7 +196,14 @@ logfile ""
             and props['FragmentPath'] == str(unit) and not props['DropInPaths'] and props['Restart'] == 'no'
             and 'argv[]=/usr/bin/redis-server '+str(CONF)+' ;' in props['ExecStart'],
             'Redis must be the original inactive unit without overrides')
-    require(get('ss', '-H', '-ltn', 'sport = :6379') == '', 'A process already listens on port 6379')
+    # A stopped-then-started node may already carry the original redis-server
+    # started outside this unit. Accept only the exact original configuration,
+    # never a foreign listener.
+    pids = redis_processes()
+    listening = redis_listening()
+    require(not listening or pids, 'A foreign process listens on port 6379')
+    require(not pids or listening, 'The original redis-server is not listening')
+    return bool(pids)
 
 
 def data_path(path, device, uid):
@@ -500,7 +526,7 @@ def main():
     targets = [Path('/srv/ax-rustfs-data-'+str(i)) for i in range(4)] if objects else []
     blocks = json.loads(get('lsblk', '-Jbp', '-o', 'NAME,TYPE,SERIAL,SIZE,UUID,MOUNTPOINTS'))['blockdevices']
     disks = [get_disk(serial, uuid, blocks) for serial, uuid in (OBJECTS if objects else METADATA)]
-    require(len(set(dev for _, dev in disks)) == len(roots), 'Expected distinct data devices')
+    require(len(set(rdev for _, _, rdev in disks)) == len(roots), 'Expected distinct data devices')
     for path in [*roots, *targets]:
         empty_target(path)
     if objects:
@@ -509,7 +535,7 @@ def main():
         inspect_redis()
     if args.preflight:
         emit(status='preflight', role=args.role, instance=expected_instance,
-             devices=[str(device) for device, _ in disks])
+             devices=[str(device) for device, _, _ in disks])
         return
     require(args.attempt, 'Explicit --attempt is required for a real maintenance window')
     started_marker, done_marker = begin_attempt(args.attempt, args.role)
@@ -520,7 +546,7 @@ def main():
     data_root = None if objects else roots[0]/'redis'
     aof_baseline = redis_baseline = None
     try:
-        for root, (device, rdev) in zip(roots, disks):
+        for root, (device, _serial, rdev) in zip(roots, disks):
             mount_register(['mount', '-t', 'ext4', '-o', 'rw', str(device), str(root)], root, mounted)
             require(findmnt(root) == str(root) and root.stat().st_dev == rdev
                     and 'rw' in findmnt(root, 'OPTIONS').split(','),
@@ -539,23 +565,37 @@ def main():
             run('docker', 'start', CID)
         else:
             data_path(data_root, roots[0].stat().st_dev, pwd.getpwnam('redis').pw_uid)
-            inspect_redis()
+            already = inspect_redis()
             started = True
-            run('systemctl', 'start', UNIT)
+            if not already:
+                run('systemctl', 'start', UNIT)
+        last = ''
         for _ in range(30):
             try:
                 if objects:
                     with OPENER.open('http://'+ip+':9000/health', timeout=2) as reply:
                         ready = reply.status == 200
+                        last = 'health '+str(reply.status)
                 else:
-                    ready = get('redis-cli', '-h', ip, 'PING') == 'PONG'
+                    # Try the private address first, then loopback: the original
+                    # configuration binds both, but a start race can bind later.
+                    answer = ''
+                    for host in (ip, '127.0.0.1'):
+                        try:
+                            answer = get('redis-cli', '-h', host, 'PING').strip()
+                        except Exception as error:
+                            answer = 'error '+repr(error)
+                        if answer == 'PONG':
+                            break
+                    ready = answer == 'PONG'
+                    last = answer
                 if ready:
                     break
-            except (OSError, sp.SubprocessError):
-                pass
+            except (OSError, sp.SubprocessError) as error:
+                last = repr(error)
             time.sleep(1)
         else:
-            raise ValueError('Original service did not become ready')
+            raise ValueError('Original service did not become ready: '+last[-300:])
         ready_row = dict(status='ready', role=args.role, instance=expected_instance, boot_id=boot_id(),
                          attempt=args.attempt, capacity=snapshots(roots, disks),
                          usage=usage(roots, args.du_timeout))

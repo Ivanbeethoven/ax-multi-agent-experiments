@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/run/b-c1-gc-b-c1-gc-05/node.py", line 639, in <module>
+    main()
+  File "/run/b-c1-gc-b-c1-gc-05/node.py", line 509, in main
+    inspect_redis()
+  File "/run/b-c1-gc-b-c1-gc-05/node.py", line 180, in inspect_redis
+    require(get('ss', '-H', '-ltn', 'sport = :6379') == '', 'A process already listens on port 6379')
+  File "/run/b-c1-gc-b-c1-gc-05/node.py", line 70, in require
+    raise ValueError(reason)
+ValueError: A process already listens on port 6379

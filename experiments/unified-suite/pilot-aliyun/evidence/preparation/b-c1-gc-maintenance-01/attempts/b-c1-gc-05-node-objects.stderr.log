@@ -1,0 +1,14 @@
+abc0a432b493e0a820a380738e359532921693e82e015d5c9982868084e33893
+abc0a432b493e0a820a380738e359532921693e82e015d5c9982868084e33893
+Traceback (most recent call last):
+  File "/run/b-c1-gc-b-c1-gc-05/node.py", line 639, in <module>
+    main()
+  File "/run/b-c1-gc-b-c1-gc-05/node.py", line 631, in main
+    raise failure
+  File "/run/b-c1-gc-b-c1-gc-05/node.py", line 560, in main
+    attempt=args.attempt, capacity=snapshots(roots, disks),
+                                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/run/b-c1-gc-b-c1-gc-05/node.py", line 289, in snapshots
+    for path, (device, serial, _rdev) in zip(roots, disks):
+              ^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 3, got 2)

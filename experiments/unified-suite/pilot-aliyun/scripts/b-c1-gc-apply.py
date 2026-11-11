@@ -238,8 +238,14 @@ def remote_locked(ssh, guard_alias='ax-pilot-jump'):
         return proc.wait(timeout=60)
 
     line = proc.stdout.readline().strip()
-    require(line == 'held', 'Coordinator guard unavailable: '+
-            (proc.stderr.read()[-500:] if proc.poll() is not None else 'unexpected '+repr(line)))
+    if line != 'held':
+        detail = proc.stderr.read()[-500:] if proc.poll() is not None else 'unexpected '+repr(line)
+        # A refused guard must never be left running with the physical locks held.
+        try:
+            release()
+        except Exception:
+            pass
+        require(False, 'Coordinator guard unavailable: '+detail)
     try:
         yield
     except Exception:
@@ -340,8 +346,8 @@ class NodeSession:
     def __init__(self, ssh, alias, remote, log_path, error_path):
         self.alias = alias
         self.log_path, self.error_path = Path(log_path), Path(error_path)
-        self.log = self.log_path.open('xb', encoding='utf-8')
-        self.error = self.error_path.open('xb')
+        self.log = self.log_path.open('x', encoding='utf-8')
+        self.error = self.error_path.open('x', encoding='utf-8')
         argv = ssh_argv(ssh['binary'], ssh['config'], alias, remote)
         self.process = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                         stderr=self.error, text=True, encoding='utf-8', bufsize=1)
@@ -370,6 +376,10 @@ class NodeSession:
             try:
                 line = self.rows.get(timeout=min(remaining, 1.0))
             except queue.Empty:
+                # A node that already died will never emit another row; do not
+                # hold the physical locks until the long protocol deadline.
+                require(self.process.poll() is None or not self.rows.empty(),
+                        'Node process exited before '+self.alias+' reported it; inspect '+str(self.error_path))
                 continue
             require(line is not None, 'Node closed the protocol unexpectedly: '+self.alias)
             value = json.loads(line)
@@ -505,13 +515,18 @@ def assert_client_stopped(cloud_client, moment):
     return dict(moment=moment, at=utcnow(), request_id=value.get('RequestId'), row=row)
 
 
-def start_instance(cloud_client, role):
+def start_instance(cloud_client, role, settle_seconds=300):
     require(role in START_ROLES, 'Only objects and metadata may be started: '+str(role))
     instance = INSTANCES[role]
     require(instance != CLIENT, 'The client instance must never be started')
     _, row = describe(cloud_client, instance)
-    require(row.get('Status') in ('Stopped', 'Stopping') and row.get('StoppedMode') == 'StopCharging',
-            'Instance must be StopCharging before start: '+role)
+    if not (row.get('Status') == 'Stopped' and row.get('StoppedMode') == 'StopCharging'):
+        # A previous stop may still be settling: wait for the exact StopCharging
+        # state, but never start something that is running.
+        require(row.get('Status') in ('Stopping', 'Stopped'),
+                'Instance must be StopCharging before start: '+role
+                +' ('+str(row.get('Status'))+'/'+str(row.get('StoppedMode'))+')')
+        row = wait_stopped(cloud_client, role, settle_seconds)['row']
     at = utcnow()
     value = cloud_client.api('StartInstance', InstanceId=instance)
     return dict(role=role, instance_id=instance, at=at, request_id=value.get('RequestId'))

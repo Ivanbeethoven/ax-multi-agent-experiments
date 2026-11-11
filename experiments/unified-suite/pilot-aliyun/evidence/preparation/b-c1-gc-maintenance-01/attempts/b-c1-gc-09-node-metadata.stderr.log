@@ -1,0 +1,15 @@
+Could not connect to Redis at 10.20.2.169:6379: Connection refused
+close verification also failed: stop-service: ValueError('Original Redis unit did not close')
+Traceback (most recent call last):
+  File "/run/b-c1-gc-b-c1-gc-09/node.py", line 679, in <module>
+    main()
+  File "/run/b-c1-gc-b-c1-gc-09/node.py", line 671, in main
+    raise failure
+  File "/run/b-c1-gc-b-c1-gc-09/node.py", line 604, in main
+    redis_baseline = dict(clients=redis_clients(), aof=redis_aof())
+                                                       ^^^^^^^^^^^
+  File "/run/b-c1-gc-b-c1-gc-09/node.py", line 393, in redis_aof
+    require('aof_current_size' in info, 'Redis persistence info lacks aof_current_size')
+  File "/run/b-c1-gc-b-c1-gc-09/node.py", line 70, in require
+    raise ValueError(reason)
+ValueError: Redis persistence info lacks aof_current_size
