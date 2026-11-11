@@ -1,0 +1,160 @@
+{
+  "schema": "suite-sample-v1",
+  "plan_sha256": "0feb04c5e52a28aa26d648386a5887aaffb5a792a7c579f5da25cd78f220a108",
+  "cell_id": "05357b5089cd679c-r1-native",
+  "uninterrupted": true,
+  "recovered": false,
+  "checks": {
+    "correctness": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/verification.json",
+        "sha256": "e12f8680c09a34819c461e2e26ea347082c816f2023f62533e4fafedbe4816ae"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "05357b5089cd679c-r1-native"
+      }
+    },
+    "isolation": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/verification.json",
+        "sha256": "e12f8680c09a34819c461e2e26ea347082c816f2023f62533e4fafedbe4816ae"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "05357b5089cd679c-r1-native"
+      }
+    },
+    "remote_readback": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/verification.json",
+        "sha256": "e12f8680c09a34819c461e2e26ea347082c816f2023f62533e4fafedbe4816ae"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "05357b5089cd679c-r1-native"
+      }
+    },
+    "real_exit": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/verification.json",
+        "sha256": "e12f8680c09a34819c461e2e26ea347082c816f2023f62533e4fafedbe4816ae"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "05357b5089cd679c-r1-native"
+      }
+    },
+    "cache_policy": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/verification.json",
+        "sha256": "e12f8680c09a34819c461e2e26ea347082c816f2023f62533e4fafedbe4816ae"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "05357b5089cd679c-r1-native"
+      }
+    },
+    "work": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/work-check.json",
+        "sha256": "ba04ba728df58bc251e6c4b48f36a39d1ecc514973d1a0cb2695fec94af7cc32"
+      },
+      "equals": {
+        "passed": true
+      }
+    },
+    "drain": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/closure.json",
+        "sha256": "dc1759f9e6c8352efc468239901a36b7b3ce7e589b1829fcebeb3d3873a92add"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "05357b5089cd679c-r1-native"
+      }
+    },
+    "observer_overhead": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/05357b5089cd679c-r1-native-c201/overhead/result.json",
+        "sha256": "e5cf07e6a8eeaea630ced4fa9e1cd2aedee865b2cc32bdba86f5d030725b42f2"
+      },
+      "equals": {
+        "passed": true
+      }
+    }
+  },
+  "required_observer_ids": [
+    "pool-a-client",
+    "pool-a-metadata",
+    "pool-a-objects"
+  ],
+  "required_marks": [
+    "measure-start",
+    "measure-end",
+    "drain-end",
+    "verify-end"
+  ],
+  "observers": [
+    {
+      "id": "pool-a-client",
+      "directory": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    },
+    {
+      "id": "pool-a-metadata",
+      "directory": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    },
+    {
+      "id": "pool-a-objects",
+      "directory": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    }
+  ],
+  "metrics": {
+    "replay_seconds": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/io-metrics.json",
+        "sha256": "5e60206c32fc6994c821512726869e785579f941e67dbc4185e40af4bb963514"
+      },
+      "field": "metrics.replay_seconds.value",
+      "unit": "seconds",
+      "direction": "lower"
+    },
+    "task_wall": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/cohort/result.json",
+        "sha256": "243c5a6cc00fbe20551cc83a09ae706f090bf58ea6dd145ec527c5e21e19f290"
+      },
+      "field": "coordinator_makespan_seconds",
+      "unit": "seconds",
+      "direction": "lower"
+    }
+  },
+  "timings_seconds": {
+    "native_measure": 77.678549518
+  },
+  "limitations": [
+    "One agent, one pilot repetition; no scaling or stable speedup conclusion.",
+    "Fresh client caches; shared backend/page caches remain observed."
+  ]
+}

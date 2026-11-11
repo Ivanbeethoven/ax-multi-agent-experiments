@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "systemd-run",
+    "--unit",
+    "ax-pilot-pa-c2-native-runtime12-01",
+    "--collect",
+    "--property=CPUAccounting=yes",
+    "--property=MemoryAccounting=yes",
+    "--property=IOAccounting=yes",
+    "python3",
+    "/srv/ax-pilot-control/code-13/experiments/unified-suite/pilot-aliyun/scripts/run-one-c1.py",
+    "--request",
+    "/srv/ax-pilot-control/parallel-control-01/requests/pool-a-native-c2-01.json",
+    "--sha256",
+    "afc3067e39d12a398fa79f2ca78f9c32f728975c78c06ca4cfc17addedcece63"
+  ],
+  "at": "2026-11-11T05:48:47.819933+00:00",
+  "automatic_retry": false,
+  "next_cell": false
+}

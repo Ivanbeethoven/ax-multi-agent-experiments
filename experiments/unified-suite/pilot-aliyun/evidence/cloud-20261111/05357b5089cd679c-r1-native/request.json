@@ -1,0 +1,103 @@
+{
+  "reviewed": true,
+  "cell_id": "05357b5089cd679c-r1-native",
+  "control": "/srv/ax-pilot-control/parallel-control-01",
+  "qualification": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c2-01",
+  "out": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/05357b5089cd679c-r1-native-c201",
+  "node_tool": {
+    "path": "/srv/ax-client/code-12/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+    "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+  },
+  "observer_tool": {
+    "name": "make-observer.py",
+    "sha256": "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff"
+  },
+  "tools": {
+    "calibrate": {
+      "path": "/srv/ax-pilot-control/code-13/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c1.py",
+      "sha256": "818360e8773de9c48ecc0e6e1953b5b0c15253d478c85e97f215a1728927813c"
+    },
+    "check": {
+      "path": "/srv/ax-pilot-control/code-13/experiments/unified-suite/pilot-aliyun/scripts/check-calibration.py",
+      "sha256": "2ed4ccf592f4bb19652377981794fdd0810ecc61c5944e7a3358fc22e70c56b4"
+    },
+    "admit": {
+      "path": "/srv/ax-pilot-control/code-13/experiments/unified-suite/pilot-aliyun/scripts/admit-c1.py",
+      "sha256": "bec5fcbaf7d2dbd590408f804ac02a9b18f2584e9b9c318943c6ed58967937ed"
+    },
+    "run": {
+      "path": "/srv/ax-pilot-control/code-13/experiments/unified-suite/pilot-aliyun/scripts/run-c1.py",
+      "sha256": "ef5b26cc00e0b7056886531b59942362570425cbf2c5bea9905d2234a0cf0b65"
+    }
+  },
+  "trials": [
+    {
+      "attempt": "cal-pool-a-n-tr-c201-off1",
+      "mode": "off",
+      "collector_name": "ax-pilot-cal-pool-a-n-rr-on3-collector",
+      "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-rr-on3-collector",
+      "new_collector_name": null,
+      "out": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-n-tr-c201-off1"
+    },
+    {
+      "attempt": "cal-pool-a-n-tr-c201-on1",
+      "mode": "on",
+      "collector_name": "ax-pilot-cal-pool-a-n-rr-on3-collector",
+      "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-rr-on3-collector",
+      "new_collector_name": "ax-pilot-cal-pool-a-n-tr-c201-on1-collector",
+      "out": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-n-tr-c201-on1"
+    },
+    {
+      "attempt": "cal-pool-a-n-tr-c201-on2",
+      "mode": "on",
+      "collector_name": "ax-pilot-cal-pool-a-n-tr-c201-on1-collector",
+      "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-tr-c201-on1-collector",
+      "new_collector_name": null,
+      "out": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-n-tr-c201-on2"
+    },
+    {
+      "attempt": "cal-pool-a-n-tr-c201-off2",
+      "mode": "off",
+      "collector_name": "ax-pilot-cal-pool-a-n-tr-c201-on1-collector",
+      "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-tr-c201-on1-collector",
+      "new_collector_name": null,
+      "out": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-n-tr-c201-off2"
+    },
+    {
+      "attempt": "cal-pool-a-n-tr-c201-off3",
+      "mode": "off",
+      "collector_name": "ax-pilot-cal-pool-a-n-tr-c201-on1-collector",
+      "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-tr-c201-on1-collector",
+      "new_collector_name": null,
+      "out": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-n-tr-c201-off3"
+    },
+    {
+      "attempt": "cal-pool-a-n-tr-c201-on3",
+      "mode": "on",
+      "collector_name": "ax-pilot-cal-pool-a-n-tr-c201-on1-collector",
+      "collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-tr-c201-on1-collector",
+      "new_collector_name": "ax-pilot-cal-pool-a-n-tr-c201-on3-collector",
+      "out": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-n-tr-c201-on3"
+    }
+  ],
+  "final_collector_name": "ax-pilot-cal-pool-a-n-tr-c201-on3-collector",
+  "final_collector_out": "/srv/ax-objects-0/q/cal-pool-a-n-tr-c201-on3-collector",
+  "review": {
+    "reviewer": "pilot-operator",
+    "note": "One explicit frozen flat cell, three predeclared off/on pairs in order off-on/on-off/off-on; no trial reuse, next cell or automatic retry."
+  },
+  "latest_check": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/provenance/latest-before-parallel-c2-01.json",
+    "sha256": "72e2842b24a332ba163ee1789fc6e4c88d7ad9dcdb95761bb5ad492cb12cdea3"
+  },
+  "cross_pool_qualification": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/result.json",
+    "sha256": "fcdfe806fb7b5d77710ae89b0359590c6ec540454750cb19c1697b072f1ebbce"
+  },
+  "pool": "pool-a",
+  "owner": "pilot-operator-pool-a",
+  "runtime_control": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/binding.json",
+    "sha256": "bba6f0242f97a06438783d293769fa77f7de58e180c87885a6abc34f943efdde"
+  }
+}

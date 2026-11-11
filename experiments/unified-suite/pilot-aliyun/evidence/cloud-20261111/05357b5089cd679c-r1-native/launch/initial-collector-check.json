@@ -1,0 +1,17 @@
+{
+  "at": "2026-11-11T05:48:09.006029+00:00",
+  "source": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-n-rr-on3/collector.json",
+    "sha256": "b8dce4dc166f8609cd108193ea6ee7292f571e051405a0bf7b2856f50162ca3f"
+  },
+  "argv": [
+    "ssh",
+    "-F",
+    "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/ssh.conf",
+    "pool-a-objects",
+    "docker inspect --format '{{json .State}}' ax-pilot-cal-pool-a-n-rr-on3-collector"
+  ],
+  "exit_code": 0,
+  "stdout": "{\"Status\":\"running\",\"Running\":true,\"Paused\":false,\"Restarting\":false,\"OOMKilled\":false,\"Dead\":false,\"Pid\":69527,\"ExitCode\":0,\"Error\":\"\",\"StartedAt\":\"2026-11-11T05:12:23.930964074Z\",\"FinishedAt\":\"0001-01-01T00:00:00Z\"}\n",
+  "stderr": ""
+}
