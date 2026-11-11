@@ -32,6 +32,11 @@ JuiceFS `gc --threads 1` **尚未执行**。九次尝试都停在协调者/节�
 | 07 | 上一次失败的 guard 进程没释放，物理锁被占 | 无（未启动实例） |
 | 08 | 上一次 stop 未落定，StartInstance 前状态检查拒绝 | `attempts/failed-08.json` |
 | 09 | 已运行的 Redis `INFO persistence` 没有 `aof_current_size` | `attempts/b-c1-gc-09-node-metadata.stderr.log` |
+| 10 | 同 09（加长等待后确认该字段在 Redis 7 里确实不存在） | `attempts/b-c1-gc-10-node-metadata.stderr.log` |
+| 11 | 上一次失败留下的 guard 仍占着 metadata 磁盘锁 | 无（未启动实例） |
+| 12 | 改由 appendonly 目录实测大小后，Redis 报 `aof_enabled = 0` | `attempts/b-c1-gc-12-node-metadata.stderr.log` |
+
+第 12 次把问题指到根上：节点上那个「原配置的 redis-server」虽然命令行指向原 conf，但 `INFO persistence` 明确报 **AOF 未启用**，而原 conf 里是 `appendonly yes`。在把这一点查清之前，不能假设 gc 读的是原 C1 的元数据库，也不能做任何删除。
 
 第 09 次之后协议层还有一个真实缺陷：节点进程已退出时 `NodeSession.wait` 仍等到 1 小时 deadline，导致锁和两台实例被多占。已改为「进程退出且队列为空即立即报错」。
 
@@ -46,8 +51,9 @@ JuiceFS `gc --threads 1` **尚未执行**。九次尝试都停在协调者/节�
 
 ## 下一步的前置
 
-1. 需要一次只读诊断窗口：启动 metadata 单机，读取实际 Redis 进程/配置与 `INFO persistence`，确认 `aof_current_size` 缺失是因为已有实例用别的配置启动。
+1. 需要一次只读诊断窗口：只启动 metadata，确认实际在跑的 redis-server 用的是哪份 conf、`INFO persistence` 为什么报 `aof_enabled:0`，以及 `appendonlydir` 里到底有哪些文件。结论出来前不要启动 objects，也不要跑 gc。
 2. 该结论出来之前不运行 `gc --delete`，也不手工清理盘 0；盘 0 上 3.06 GB 的存量与其它三盘 22 GB 的空闲都还没有被证明可回收。
 3. `meta_url` 的 database 仍按交接记录用 **61**；本次没有取得原 C1 asset 的 `metadata_url` 直接证据（asset 在已停机的 B client 上），因此 gc 即使打通也要先核对卷身份再考虑删除。
+4. 若诊断确认原 Redis 的 AOF 已关闭或已丢，C1 混合读写的元数据前提本身就要重新评估——这已经不是「清空间」的问题，需要回到原 C1 asset 重建路径。
 
-本轮不改变任何已验收结果，也不把维护窗口计成 C1 正式样本。
+本轮不改变任何已验收结果，也不把维护窗口计成 C1 正式样本。B 池三台现已全部回到 `Stopped/StopCharging`。

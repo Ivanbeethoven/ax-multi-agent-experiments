@@ -388,10 +388,35 @@ def redis_clients():
                 connected_clients=int(redis_info('clients').get('connected_clients', '0')))
 
 
-def redis_aof():
+def aof_files_bytes(root):
+    """Authoritative on-disk AOF size, used when INFO omits aof_current_size."""
+    total = 0
+    for path in sorted(Path(root).rglob('*')):
+        if path.is_file() and (path.suffix in ('.aof', '.rdb') or path.name.startswith('appendonly')):
+            total += path.stat().st_size
+    return total
+
+
+def redis_aof(fallback=None, seconds=30):
+    """AOF counters appear only once the original AOF is loaded and active.
+
+    Redis 7 dropped ``aof_current_size`` from ``INFO persistence``; the file
+    sizes under the original appendonly directory are the authoritative figure.
+    """
+    deadline = time.monotonic()+seconds
     info = redis_info('persistence')
-    require('aof_current_size' in info, 'Redis persistence info lacks aof_current_size')
-    return dict(aof_enabled=int(info.get('aof_enabled', '0')), aof_current_size=int(info['aof_current_size']),
+    while 'aof_current_size' not in info and fallback is None:
+        require(time.monotonic() < deadline,
+                'Redis persistence info lacks aof_current_size after '+str(seconds)+'s: '
+                +str(sorted(info))[:200])
+        time.sleep(1)
+        info = redis_info('persistence')
+    if 'aof_current_size' in info:
+        size, source = int(info['aof_current_size']), 'info'
+    else:
+        size, source = int(fallback), 'appendonly-files'
+    return dict(aof_enabled=int(info.get('aof_enabled', '0')), aof_current_size=size,
+                aof_current_size_source=source,
                 aof_rewrite_in_progress=int(info.get('aof_rewrite_in_progress', '0')),
                 aof_last_write_status=info.get('aof_last_write_status'),
                 aof_base_size=int(info.get('aof_base_size', '0')))
@@ -601,7 +626,7 @@ def main():
                          usage=usage(roots, args.du_timeout))
         if not objects:
             aof_baseline = verify_aof(data_root)
-            redis_baseline = dict(clients=redis_clients(), aof=redis_aof())
+            redis_baseline = dict(clients=redis_clients(), aof=redis_aof(aof_files_bytes(data_root)))
             require(redis_baseline['aof']['aof_enabled'] == 1, 'Original Redis AOF must be enabled')
             require(redis_baseline['aof']['aof_rewrite_in_progress'] == 0, 'Redis AOF rewrite in progress')
             require(not redis_baseline['clients']['suspect'], 'A JuiceFS/Go Redis session exists at ready')
@@ -630,7 +655,7 @@ def main():
                     row.update(established_redis_sockets=sockets)
                 else:
                     aof_row = verify_aof(data_root, stage)
-                    clients, aof_info = redis_clients(), redis_aof()
+                    clients, aof_info = redis_clients(), redis_aof(aof_files_bytes(data_root))
                     require(not clients['suspect'], 'A JuiceFS/Go Redis session is still connected')
                     require(aof_info['aof_rewrite_in_progress'] == 0, 'Redis AOF rewrite in progress')
                     require(clients['peers'] <= redis_baseline['clients']['peers'],
