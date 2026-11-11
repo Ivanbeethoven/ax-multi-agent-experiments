@@ -6,6 +6,8 @@ C3 JuiceFS 十万文件的正式三角色原始记录和原六次校准已公开
 
 C1 BrewFS [随机读](evidence/c1-native-randread-02/oss/index.json)和[混合读写](evidence/c1-native-randrw-01/oss/index.json)的正式三角色原始记录和关闭回执已公开。随机读复用了原六次校准。两批校准的完整原档仍保留在云端。
 
+C4 JuiceFS 第一轮关采集校准的[原始记录和关闭回执](evidence/c4-juicefs-calibration-off1-01/oss/index.json)已公开。该轮在冷读通过后补收原档，没有重跑。此处是校准记录，未计入正式结果。
+
 | 文件 | 内容 |
 |---|---|
 | client.tar.gz | 正式客户端、挂载、回放、校验和采集原档 |

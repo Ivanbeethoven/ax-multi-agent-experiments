@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "systemd-run",
+    "--unit",
+    "ax-pilot-b-c2-after-c4-watch-01",
+    "--collect",
+    "--property=Restart=no",
+    "--property=PrivateNetwork=yes",
+    "--property=Nice=15",
+    "--property=CPUAccounting=yes",
+    "--property=MemoryAccounting=yes",
+    "/usr/bin/python3",
+    "/srv/ax-pilot-control/preparation/c2-handoff-watcher-01/watch-c4-to-c2.py",
+    "--request",
+    "/srv/ax-pilot-control/preparation/c2-handoff-watcher-01/watch.request.json",
+    "--sha256",
+    "fd5d3f66dbf141ca180b6fc0eac678ab228bcee45564fa1bf585310396f5ea93",
+    "--out",
+    "/srv/ax-pilot-control/preparation/c2-handoff-watcher-01/run"
+  ],
+  "watcher": {
+    "path": "/srv/ax-pilot-control/preparation/c2-handoff-watcher-01/watch-c4-to-c2.py",
+    "sha256": "242a35b6d94c0398ee00bf07bca7783c37056c4e311e4eaa1e4eca7766fc2e23"
+  },
+  "request": {
+    "path": "/srv/ax-pilot-control/preparation/c2-handoff-watcher-01/watch.request.json",
+    "sha256": "fd5d3f66dbf141ca180b6fc0eac678ab228bcee45564fa1bf585310396f5ea93"
+  },
+  "automatic_retry": false
+}

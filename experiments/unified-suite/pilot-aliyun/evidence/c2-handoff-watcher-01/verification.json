@@ -1,0 +1,33 @@
+{
+  "recorded_at": "2026-11-11T08:32:27+00:00",
+  "watcher": {
+    "unit": "ax-pilot-b-c2-after-c4-watch-01",
+    "pid": 118614,
+    "invocation_id": "90550176cd574a3bb7cdf22d9e9c47e5",
+    "script_sha256": "242a35b6d94c0398ee00bf07bca7783c37056c4e311e4eaa1e4eca7766fc2e23",
+    "request_sha256": "fd5d3f66dbf141ca180b6fc0eac678ab228bcee45564fa1bf585310396f5ea93",
+    "private_network": true,
+    "observed_interfaces_via_nsenter": ["lo"],
+    "local_systemctl_readable_in_network_namespace": true,
+    "launch_intent_present": false
+  },
+  "c2": {
+    "unit": "ax-pilot-b-c2-jfs-runtime15-01",
+    "load_state": "not-found",
+    "main_pid": 0,
+    "continuation_output_present": false
+  },
+  "tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p test_c4_to_c2_watch.py -v",
+    "environment": "Local WSL, temporary coordinator evidence and SQLite only",
+    "passed": 4,
+    "seconds": 0.076,
+    "checks": [
+      "Pinned original normally completed C4 closure",
+      "Tampered original boundary receipt rejected",
+      "Wrong owner or collector rejected",
+      "Existing B lease rejected"
+    ]
+  },
+  "scope": "Watcher deployment and no-work waiting boundary only; no worker contacted or C2 started."
+}
