@@ -2,6 +2,8 @@
 
 协议 `unified-c1-c4-v1`。外部 baseline 只保留 **JuiceFS**；BrewFS native、workspace native、entity native 和 packed 是内部路径对照。方法、准备、运行、校验分开：AI 维护环境并调用单步工具，每一步都有固定输入和保留结果。
 
+规划正式复跑时先看[阿里云大规模实验](MAIN-SCALE.zh.md)：128 Agent 档、四节点 RustFS、各队列的按需节点预算和扩展准入条件。
+
 ## 按路径交给集群执行者
 
 | 路径 / 精确arm | 独立执行入口 | 默认systems pool |
