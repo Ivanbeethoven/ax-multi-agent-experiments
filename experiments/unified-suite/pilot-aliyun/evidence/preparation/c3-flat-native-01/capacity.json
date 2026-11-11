@@ -1,0 +1,183 @@
+{
+  "passed": true,
+  "before": {
+    "path": "/srv/ax-pilot-control/preparation/c3-flat-native-01/run-01/before.json",
+    "sha256": "9e9115098bb9064e51e1f95b51a65aefe9299dfee0615bdc1bc461146379a2cc"
+  },
+  "after": {
+    "path": "/srv/ax-pilot-control/preparation/c3-flat-native-01/run-01/after.json",
+    "sha256": "e5d056d7e1599463aa6b651861ef26c37d3be694d9c56c5514abe60ea4f151c0"
+  },
+  "reserve_fraction": 0.2,
+  "extra_full_copies": 7,
+  "rows": [
+    {
+      "role": "client",
+      "path": "/srv/ax-client",
+      "quantity": "bytes",
+      "measured_base_increment": 524288,
+      "extra_full_copies": 0,
+      "projected_used": 16890630144,
+      "total": 100056096768,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "client",
+      "path": "/srv/ax-client",
+      "quantity": "inodes",
+      "measured_base_increment": 125,
+      "extra_full_copies": 0,
+      "projected_used": 2523640,
+      "total": 26214400,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "path": "/srv/ax-metadata",
+      "quantity": "bytes",
+      "measured_base_increment": 71401472,
+      "extra_full_copies": 7,
+      "projected_used": 1317666816,
+      "total": 60070604800,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "path": "/srv/ax-metadata",
+      "quantity": "inodes",
+      "measured_base_increment": 0,
+      "extra_full_copies": 7,
+      "projected_used": 141388,
+      "total": 15728640,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "quantity": "redis-memory-bytes",
+      "measured_base_increment": 74110328,
+      "extra_full_copies": 7,
+      "projected_used": 698886288,
+      "total": 10737418240,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "quantity": "redis-aof-bytes",
+      "before": 51048993,
+      "after": 122445609,
+      "measured_base_increment": 71396616,
+      "extra_full_copies": 7,
+      "projected_aof_bytes": 622221921,
+      "included_in_metadata_disk_forecast": true,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-0",
+      "quantity": "bytes",
+      "measured_base_increment": 1255362560,
+      "extra_full_copies": 7,
+      "projected_used": 47099564032,
+      "total": 60070604800,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-0",
+      "quantity": "inodes",
+      "measured_base_increment": 300007,
+      "extra_full_copies": 7,
+      "projected_used": 3216346,
+      "total": 15728640,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-1",
+      "quantity": "bytes",
+      "measured_base_increment": 1255329792,
+      "extra_full_copies": 7,
+      "projected_used": 17157394432,
+      "total": 60070604800,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-1",
+      "quantity": "inodes",
+      "measured_base_increment": 300007,
+      "extra_full_copies": 7,
+      "projected_used": 3001100,
+      "total": 15728640,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-2",
+      "quantity": "bytes",
+      "measured_base_increment": 1255313408,
+      "extra_full_copies": 7,
+      "projected_used": 17157246976,
+      "total": 60070604800,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-2",
+      "quantity": "inodes",
+      "measured_base_increment": 300007,
+      "extra_full_copies": 7,
+      "projected_used": 3001100,
+      "total": 15728640,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-3",
+      "quantity": "bytes",
+      "measured_base_increment": 1255317504,
+      "extra_full_copies": 7,
+      "projected_used": 17157328896,
+      "total": 60070604800,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-rustfs-data-3",
+      "quantity": "inodes",
+      "measured_base_increment": 300007,
+      "extra_full_copies": 7,
+      "projected_used": 3001100,
+      "total": 15728640,
+      "observed_allocation_decrease": false,
+      "passed": true
+    }
+  ],
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/preparation/c3-flat-native-01/run-01/before.json",
+      "sha256": "9e9115098bb9064e51e1f95b51a65aefe9299dfee0615bdc1bc461146379a2cc"
+    },
+    {
+      "path": "/srv/ax-pilot-control/preparation/c3-flat-native-01/run-01/after.json",
+      "sha256": "e5d056d7e1599463aa6b651861ef26c37d3be694d9c56c5514abe60ea4f151c0"
+    },
+    {
+      "path": "/srv/ax-pilot-control/code-c3-flat-01/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+      "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+    }
+  ],
+  "scope": "Forecast from one measured full base, including all concurrent setup growth. Available-only before records use available decrease and after-native capacity, never invented before totals. Clone sharing and GC require separate actual proof."
+}
