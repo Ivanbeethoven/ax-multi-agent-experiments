@@ -50,7 +50,34 @@ def native_debt(q,attempt,cell,closure):
     return proofs
 
 
-def trials(batch,original,first,cell,plan_path,admit):
+def recovered_fourth(s,batch,original,cont):
+    if 'previous_resume' not in s:return None
+    prior=load(pinned(s['previous_resume']));previous=Path(prior['out'])
+    if (prior.get('schema')!=s['schema'] or prior.get('reviewed') is not True or
+            load(previous/'request.json')!=prior or any(s[k]!=prior[k] for k in ('original_request','recovered_first',
+                'calibration_verification','verification_tool','original_batch_tool'))):
+        raise ValueError('Different prior continuation for archive-only recovery')
+    deployed=load(pinned(s['archive_deployment']))
+    tool=[p for p in deployed['changed'] if Path(p['path']).name=='resume-c4-archive.py']
+    if len(tool)!=1:raise ValueError('Pinned archive-only tool required')
+    raw,command,context=module(tool[0]).archive_failure(previous,original['trials'][3])
+    terminal=cont.failed_unit(s['previous_unit'],s['previous_invocation'],s['previous_resume'])
+    if load(batch/'previous-unit.json')!=terminal:raise ValueError('Previous archive failure terminal proof changed')
+    recovered=ref(batch/'trial-4-archive/finished.json');finished=load(pinned(recovered))
+    source=load(pinned(finished['recovery']))
+    if (finished['recovery']!=ref(batch/'trial-4-archive/recovery.json') or
+            load(batch/'trial-4-archive/context.json')!=dict(context,out=str(batch/'trial-4-archive')) or
+            source.get('original')!=s['original_request'] or source.get('previous_resume')!=s['previous_resume'] or
+            source.get('original_trial')!=ref(raw/'context.json') or source.get('original_cohort')!=ref(raw/'cohort/result.json') or
+            source.get('failure')!=ref(command/'stderr') or source.get('previous_unit')!=ref(batch/'previous-unit.json') or
+            finished['cohort']!=source['original_cohort'] or
+            load(batch/'retained-trials.json')!=[s['recovered_first'],*[ref(Path(original['trials'][i]['out'])/'finished.json')
+                for i in (1,2)],recovered]):
+        raise ValueError('Archived fourth trial does not retain exact original cohort and terminal archive failure')
+    return dict(path=recovered['path'],previous=previous)
+
+
+def trials(batch,original,first,cell,plan_path,admit,fourth=None):
     modes=('off','on','on','off','off','on')
     items=original['trials']
     if len(items)!=6 or tuple(t['mode'] for t in items)!=modes or len({t['attempt'] for t in items})!=6:
@@ -58,6 +85,7 @@ def trials(batch,original,first,cell,plan_path,admit):
     rows=[]
     for i,(mode,item) in enumerate(zip(modes,items),1):
         p=Path(first['path']) if i==1 else Path(item['out'])/'finished.json'
+        if fourth and i==4:p=Path(fourth['path'])
         finished,v=checked(p);phase=None;stage_output=None;stage_request=None
         if i==1:
             original_trial=Path(item['out'])
@@ -65,10 +93,15 @@ def trials(batch,original,first,cell,plan_path,admit):
             if (finished!=first or recovery['original_trial']!=ref(original_trial/'context.json') or
                     v['cohort']!=ref(original_trial/'cohort/result.json')):
                 raise ValueError('First calibration must be archive-only recovery of the original work')
+        elif fourth and i==4:
+            stage=fourth['previous']/f'trial-{i}'
+            phase=ref(stage/'exit.json');stage_output=ref(stage/'stdout')
+            stage_request=ref(fourth['previous']/f'trial-{i}.request.json')
         else:
-            phase,status=checked(batch/f'trial-{i}'/'exit.json')
-            stage_output,stdout=checked(batch/f'trial-{i}'/'stdout')
-            stage_request,reviewed=checked(batch/f'trial-{i}.request.json')
+            source=fourth['previous'] if fourth and i in (2,3) else batch
+            phase,status=checked(source/f'trial-{i}'/'exit.json')
+            stage_output,stdout=checked(source/f'trial-{i}'/'stdout')
+            stage_request,reviewed=checked(source/f'trial-{i}.request.json')
             if (type(status['exit_code']) is not int or status['exit_code']!=0 or stdout!=v or
                     reviewed!=load(p.parent/'request.json') or reviewed['attempt']!=item['attempt'] or
                     reviewed['out']!=item['out'] or reviewed.get('reviewed') is not True):
@@ -185,7 +218,11 @@ def audit(request,unit,invocation,watch,out):
         if any(p.exists() for p in (batch/'result.json',batch/'admit.request.json',batch/'admit',batch/'formal',
                                    control/'cells'/cell['id'],Path(w['handoff']),Path(w['runner_output']))):
             raise ValueError('Formal work or the next workload already started; no calibration-only release')
-        rows=trials(batch,original,s['recovered_first'],cell,control/'suite/plan.json',module(s['tools']['admit']))
+        failure=load(batch/'failed.json')
+        if failure!=dict(passed=False,error=REJECTION,automatic_retry=False):
+            raise ValueError('Not the exact pre-formal observer overhead rejection')
+        fourth=recovered_fourth(s,batch,original,cont)
+        rows=trials(batch,original,s['recovered_first'],cell,control/'suite/plan.json',module(s['tools']['admit']),fourth)
         gate=rejected_gate(batch,rows)
         physical=boundaries(batch,stop);expected,seen=collector(rows[-1],recipe)
         receipt=dict(schema='c4-calibration-only-release-v1',passed=True,pool=cell['pool'],cell_id=cell['id'],

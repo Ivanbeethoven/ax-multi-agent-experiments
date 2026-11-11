@@ -20,7 +20,7 @@ A 组 C3 正式关闭后，才在原物理锁下确认现行 collector、空 Red
 
 ## 交接后启动
 
-协调节点已经核对 `/srv/ax-pilot-control/preparation/c4-native-flat-run-01/request.staged.json`，SHA256 `39ab16c9f2a6fb29d39b5a23ed80f07412a1d87a701522d5bf90096b83d33bfa`。`stage-check.json` 证明 173 个文件按清单逐项通过 SHA256 校验，计时函数与原 C4 相同；A 的工作节点还未接触。冻结目录为 `/srv/ax-pilot-control/code-16`，只在协调节点安装。实跑入口是 [continue-c4-native-flat.py](scripts/continue-c4-native-flat.py)。
+协调节点已经核对 `/srv/ax-pilot-control/preparation/c4-native-flat-run-02/request.staged.json`，SHA256 `7125cd10b0b95927253bdfa849a98439ce76ba207317a361870a14965571deca`。`stage-check.json` 证明 173 个文件按清单逐项通过 SHA256 校验，计时函数与原 C4 相同；A 的工作节点还未接触。冻结目录为 `/srv/ax-pilot-control/code-17`，只在协调节点安装。相对旧 code16，只改归档时的 slot 等待：在原 10 秒内等进程退出，仍要求 slot 空且原进程全部消失，不向任何进程发信号。实跑入口是 [continue-c4-native-flat.py](scripts/continue-c4-native-flat.py)。
 
 先确认原 A 组 C3 成功完成，以及本批前置归档已结束。保留原草稿，另写 `request.reviewed.json`：
 
@@ -37,13 +37,13 @@ A 组 C3 正式关闭后，才在原物理锁下确认现行 collector、空 Red
 
 ```bash
 root=/srv/ax-pilot-control
-stage=$root/preparation/c4-native-flat-run-01
+stage=$root/preparation/c4-native-flat-run-02
 request=$stage/request.reviewed.json
 request_sha=$(sha256sum "$request" | cut -d ' ' -f 1)
 systemd-run --unit=ax-pilot-pa-c4-flat-native-01 \
-  --property=RemainAfterExit=yes --property=WorkingDirectory="$root/code-16" \
+  --property=RemainAfterExit=yes --property=WorkingDirectory="$root/code-17" \
   /usr/bin/python3 "$stage/continue-c4-native-flat.py" run \
-  --runtime-repo "$root/code-16" --request "$request" --sha256 "$request_sha"
+  --runtime-repo "$root/code-17" --request "$request" --sha256 "$request_sha"
 ```
 
 原 C3 未退出、零债务或卸载证据不齐、任一相交资源仍有 lease 时，入口在连接 A 工作节点前退出。通过后才核对 Redis、slot、原 RustFS 和末轮 collector，部署冻结代码并启动一次 C4；输出固定写入 `execution-01`。该目录不得重用。六轮观测门槛若失败，不启动正式轮。

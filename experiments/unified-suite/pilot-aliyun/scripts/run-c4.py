@@ -149,9 +149,11 @@ if ROLE=='client':
  deadline=time.monotonic()+10
  while True:
   occupied={int(p) for p in slot.read_text().split()}
-  if occupied-known:raise ValueError('Unknown process still in agent slot')
   if not occupied and not any(alive(i) for i in identities):break
-  if time.monotonic()>=deadline:raise ValueError('Original C4 process or slot did not close')
+  if time.monotonic()>=deadline:
+   if occupied-known:raise ValueError('Unknown process still in agent slot')
+   raise ValueError('Original C4 process or slot did not close')
+  # After unmount, wait for the slot to empty. Never signal an unknown PID.
   time.sleep(.05)
  debt=[]
  for i in (0,1):
