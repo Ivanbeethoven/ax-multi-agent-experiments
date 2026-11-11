@@ -1,5 +1,7 @@
 # BrewFS native workspace 执行入口
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 负责`workspace-native-v2`内部对照及原生流转。先读[共同执行步骤](README.md)，默认pool-a；独立集群执行时按下面全部arm名分别配置arm_pools。
 
 ## 身份与工作负载

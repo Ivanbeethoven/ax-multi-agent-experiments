@@ -1,5 +1,7 @@
 # 默认配置与启动前核对
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](current/README.zh.md)。
+
 新模板使用 `client_profile=bounded-memory-v1`，解析后的数值写入每个cell的`client_settings`并纳入plan哈希。它限定实验预算；不修改BrewFS或JuiceFS生产默认值。已有config/plan/结果保持原值，不能把旧结果换算成这套配置的性能。
 
 ## 客户端缓存分别记账

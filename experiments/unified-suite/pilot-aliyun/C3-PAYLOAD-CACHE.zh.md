@@ -1,5 +1,7 @@
 # C3 缓存消融：同一份 Packed 数据，512 MiB 对 0
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 回答一个问题：只开启 Packed 数据缓存，能否减少对象存储读取，降低任务耗时？两档在 A 组顺序跑，用同一块客户端盘、同一 Redis/RustFS、同一 Packed manifest key/digest、同一产品二进制。沿用 C3 的 100,000 个 4 KiB 文件、seed、八阶段和全部 CSV。每档新建私有 volume/namespace/catalog。唯一客户端配置差异是 `--entity-read-cache-bytes 536870912` 或 `0`；保持 FUSE `keep_cache=false`、直接 I/O、零干净 SSD 缓存和同步写入。
 
 用 `scripts/packed-c3-payload-cache.py draft` 读原 C3 Packed plan、原 base asset 和完整资格，生成独立 `payload-cache` 计划及两档参数。只复用原生产者、输入、完整 base 校验和正常退出，避免重新发布基线或再扫同一个 base 来取得资格。现有 Packed runner 仍严格匹配原系统 plan 和 arm，不能直接拿它执行草稿：接线时将原父空间按原 plan 校验，将新子空间按新 plan 校验；两边实际 manifest digest、端点和冻结设置必须匹配，只允许新身份和这一个缓存值变化。不能把现有系统校准当作消融样本或准入证据。两档正式样本分别保留自己的冷读、隔离和正常退出证明。

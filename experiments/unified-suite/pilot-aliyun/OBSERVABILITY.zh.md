@@ -1,5 +1,7 @@
 # 本轮指标采集
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 每个实际角色运行一份 `bench.runtime.observe`，放在Agent的cgroup外。C1–C3和fork有client、metadata、objects三份；handoff新增target。采样和原始文件写各角色数据盘，不写被测挂载。所有角色归档后由协调者校验。
 
 | 角色 | 服务指标入口 | 同时保存 |

@@ -1,0 +1,622 @@
+{
+  "schema": "ax-c1-c4-design-v2",
+  "updated": "2026-11-11",
+  "status": "design-only",
+  "execution_enabled": false,
+  "execution_blockers": [
+    "workspace-v1-suite-adapter",
+    "three-runtime-switches",
+    "full-input-reopen-isolation",
+    "multi-host-barrier",
+    "global-slot-and-resource-admission",
+    "four-node-observation",
+    "replay-operation-latency-and-versioned-reread-analysis",
+    "clean-handoff-same-workspace"
+  ],
+  "versions": {
+    "brewfs": {
+      "repository": "https://github.com/brewfs/brewfs",
+      "branch": "main",
+      "revision_policy": "branch-latest-per-campaign",
+      "reviewed_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+      "cargo_features": [
+        "workspace-overlay",
+        "rustfs-ec-block-size-hint"
+      ],
+      "default_features": true
+    },
+    "rustfs": {
+      "repository": "https://github.com/Ivanbeethoven/rustfs",
+      "branch": "feat/dynamic-block-size-rebased",
+      "revision_policy": "branch-latest-per-campaign",
+      "reviewed_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00"
+    },
+    "juicefs": {
+      "minimum_version": "1.4.2",
+      "resolved_version": null,
+      "sha256": null
+    },
+    "same_binary_across_ablations": true
+  },
+  "controls": {
+    "metadata_backend": "redis",
+    "tikv": "separate-supplementary-campaign",
+    "sqlite": "coordinator-state-only; producer-temp-if-used",
+    "seed": 9173,
+    "max_agents": 32,
+    "max_active_workload_slots_total": 32,
+    "paired_repetitions": 3,
+    "paired_repetitions_at_32": 5,
+    "placement": "one-pool-sequential-arms",
+    "max_independent_pools": 2,
+    "unit_of_replication": "whole-paired-batch",
+    "order": "balanced-randomized-and-saved"
+  },
+  "scheduling": {
+    "assignment_unit": "whole-paired-block",
+    "all_arms_same_pool": true,
+    "one_active_cell_per_pool": true,
+    "pool_lock_scope": "prepare-through-paired-block-retention",
+    "prepare_and_measure_same_resource": "serial",
+    "shared_network_bulk_transfer": "outside-all-affected-measurement-windows",
+    "c1_active_slots": 1,
+    "handoff_live_agents": "source-stops-before-target-starts",
+    "second_pool_admission": "ready-independent-block-and-global-slot-budget",
+    "retry": "inspect-existing-process-and-retain-original-attempt",
+    "implementation": "new-suite-adapter-required"
+  },
+  "arms": {
+    "brewfs-basic": {
+      "engine": "flat-v1",
+      "overlay": false,
+      "packed_metadata": false,
+      "dynamic_block": true,
+      "role": "internal-system-control",
+      "status": "requires-current-build-qualification"
+    },
+    "brewfs-full": {
+      "engine": "workspace-v1",
+      "lower": "packed-v3-wire005",
+      "overlay": true,
+      "packed_metadata": true,
+      "dynamic_block": true,
+      "role": "candidate",
+      "status": "requires-suite-adapter-and-qualification"
+    },
+    "juicefs": {
+      "engine": "juicefs",
+      "role": "external-baseline",
+      "clone": "native",
+      "client_hint": "none",
+      "rustfs_layout_profile": "enabled",
+      "status": "requires-current-build-qualification"
+    }
+  },
+  "excluded_engines": [
+    "workspace-entity-v1",
+    "workspace-native-v2"
+  ],
+  "ablations": [
+    {
+      "id": "overlay-off",
+      "compare": [
+        "brewfs-full",
+        "overlay-off"
+      ],
+      "switches": {
+        "overlay": false,
+        "packed_metadata": true,
+        "dynamic_block": true
+      },
+      "engine": "workspace-v1",
+      "workloads": [
+        "C2",
+        "C4-fork"
+      ],
+      "requires": [
+        "same-engine-eager-materialization",
+        "identical-payload-and-metadata-layout"
+      ],
+      "status": "adapter-required"
+    },
+    {
+      "id": "packed-off",
+      "compare": [
+        "brewfs-full",
+        "packed-off"
+      ],
+      "switches": {
+        "overlay": true,
+        "packed_metadata": false,
+        "dynamic_block": true
+      },
+      "engine": "workspace-v1",
+      "workloads": [
+        "C2",
+        "C3"
+      ],
+      "requires": [
+        "same-engine-kv-lower",
+        "identical-payload-layout",
+        "equal-cache-budget"
+      ],
+      "status": "adapter-required"
+    },
+    {
+      "id": "dynamic-off",
+      "compare": [
+        "brewfs-full",
+        "dynamic-off"
+      ],
+      "switches": {
+        "overlay": true,
+        "packed_metadata": true,
+        "dynamic_block": false
+      },
+      "engine": "workspace-v1",
+      "workloads": [
+        "C1-layout",
+        "C2"
+      ],
+      "requires": [
+        "same-image-disabled-profile",
+        "no-hint-all-uploaders",
+        "fresh-object-prefix",
+        "persisted-B-q"
+      ],
+      "status": "adapter-and-qualification-required"
+    },
+    {
+      "id": "all-off",
+      "compare": [
+        "brewfs-full",
+        "all-off"
+      ],
+      "switches": {
+        "overlay": false,
+        "packed_metadata": false,
+        "dynamic_block": false
+      },
+      "engine": "workspace-v1",
+      "workloads": [
+        "C2"
+      ],
+      "requires": [
+        "same-engine-eager-materialization",
+        "same-engine-kv-lower",
+        "same-image-disabled-profile"
+      ],
+      "status": "adapter-required"
+    }
+  ],
+  "resources": {
+    "agent": {
+      "cpu": 2,
+      "memory_bytes": 8589934592,
+      "swap_bytes": 0
+    },
+    "slots_per_client": 8,
+    "client": {
+      "vcpu": 32,
+      "memory_gib": 128,
+      "system_disk": {
+        "gib": 40,
+        "tier": "PL0"
+      },
+      "data_disk": {
+        "gib": 100,
+        "tier": "PL1"
+      }
+    },
+    "redis": {
+      "nodes": 1,
+      "vcpu": 16,
+      "memory_gib": 64,
+      "system_disk": {
+        "gib": 40,
+        "tier": "PL0"
+      },
+      "data_disk": {
+        "gib": 60,
+        "tier": "PL1"
+      }
+    },
+    "rustfs": {
+      "nodes": 4,
+      "vcpu_per_node": 16,
+      "memory_gib_per_node": 64,
+      "system_disk_per_node": {
+        "gib": 40,
+        "tier": "PL0"
+      },
+      "data_disks_per_node": 4,
+      "data_disk": {
+        "gib": 120,
+        "tier": "PL1"
+      },
+      "erasure_geometry": "record-actual-set-membership-and-parity"
+    },
+    "target": {
+      "slots_per_node": 8,
+      "create_only_for_handoff": true
+    },
+    "coordinator": {
+      "public_ips": 1,
+      "sqlite_on_local_disk": true
+    },
+    "disk_free_fraction_min": 0.2
+  },
+  "service_settings": {
+    "redis": {
+      "appendonly": "yes",
+      "appendfsync": "always",
+      "save": "",
+      "maxmemory_policy": "noeviction",
+      "maxmemory_bytes": 51539607552,
+      "auto_aof_rewrite_percentage": 100,
+      "auto_aof_rewrite_min_size": "64mb",
+      "no_appendfsync_on_rewrite": "no",
+      "io_threads": 1,
+      "version_digest": null
+    },
+    "rustfs": {
+      "enabled": {
+        "RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE": "true",
+        "RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED": "true",
+        "RUSTFS_EC_READ_QUANTUM_ENABLE": "true",
+        "RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED": "true"
+      },
+      "disabled": {
+        "RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE": "false",
+        "RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED": "false",
+        "RUSTFS_EC_READ_QUANTUM_ENABLE": "false",
+        "RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED": "false"
+      },
+      "compression": "off",
+      "client_hint": "auto",
+      "fresh_objects_per_layout": true
+    }
+  },
+  "client_settings": {
+    "brewfs": {
+      "volume": {
+        "chunk_size": 4194304,
+        "block_size": 4194304
+      },
+      "cache": {
+        "read_memory_bytes": 536870912,
+        "read_ssd_bytes": 0,
+        "write_memory_bytes": 536870912,
+        "write_ssd_bytes": 1073741824,
+        "memory_budget_bytes": 536870912,
+        "writeback_mode": "upload_before_commit",
+        "compression": "none",
+        "verify_cache_checksum": "full",
+        "prefetch_enabled": true,
+        "prefetch_max_bytes": 134217728,
+        "prefetch_concurrency": 64,
+        "range_background_prefetch": true,
+        "read_fetch_policy": "backend-default",
+        "populate_write_cache_after_upload": true,
+        "persist_write_cache_after_upload": false
+      },
+      "fuse": {
+        "cache_ttl_ms": 0,
+        "keep_cache": false
+      },
+      "data": {
+        "s3": {
+          "rustfs_ec_block_size_hint": "auto"
+        }
+      },
+      "workspace_operator_managed": false
+    },
+    "packed": {
+      "budget_env": {
+        "BREWFS_PACKED_V3_ROOTS_BUDGET_BYTES": 16777216,
+        "BREWFS_PACKED_V3_METADATA_OWNED_BUDGET_BYTES": 268435456,
+        "BREWFS_PACKED_V3_PLANS_BUDGET_BYTES": 33554432,
+        "BREWFS_PACKED_V3_CONTROL_BUDGET_BYTES": 1048576,
+        "BREWFS_PACKED_V3_STORED_BUDGET_BYTES": 33554432,
+        "BREWFS_PACKED_V3_RAW_BUDGET_BYTES": 33554432,
+        "BREWFS_PACKED_V3_DECODE_WORKSPACE_BUDGET_BYTES": 8388608,
+        "BREWFS_PACKED_V3_OUTPUT_BUDGET_BYTES": 33554432
+      },
+      "cache_accounting": "record lower budget separately; not equal to VFS read cache",
+      "producer": {
+        "chunk_bytes": 4194304,
+        "block_bytes": 4194304,
+        "metadata_codec": "raw",
+        "data_codec": "raw",
+        "inline": false,
+        "max_random_frame_raw_bytes": 262144,
+        "profile": "random-small-file",
+        "policy": "size-only",
+        "status": "verify-native-cli-and-manifest-before-use"
+      },
+      "workspace_env": {
+        "BREWFS_WORKSPACE_ROW_CACHE_TTL_MS": "60000"
+      },
+      "reviewed_lease": {
+        "ttl_seconds": 30,
+        "heartbeat_seconds": 10
+      }
+    },
+    "juicefs": {
+      "cache_dir": "memory",
+      "cache_mib": 512,
+      "buffer_mib": 512,
+      "writeback": false,
+      "attr_cache_seconds": 0,
+      "entry_cache_seconds": 0,
+      "dir_entry_cache_seconds": 0,
+      "open_cache_seconds": 0,
+      "prefetch": 1,
+      "max_readahead_mib": 128,
+      "cache_large_write": true,
+      "verify_cache_checksum": "full",
+      "backup_meta": "0",
+      "no_usage_report": true,
+      "format_compress": "none",
+      "format_block_size_kib": 4096
+    }
+  },
+  "workloads": {
+    "C1": {
+      "arms": [
+        "brewfs-basic",
+        "juicefs"
+      ],
+      "modes": [
+        "read",
+        "write",
+        "randread",
+        "randwrite",
+        "randrw"
+      ],
+      "agents": 1,
+      "jobs": 8,
+      "file_bytes_per_job": 4294967296,
+      "sequential": {
+        "block_bytes": 1048576,
+        "io_bytes_per_job": 4294967296
+      },
+      "random": {
+        "block_bytes": 4096,
+        "io_bytes_per_job": 268435456,
+        "rwmixread": 75
+      },
+      "ioengine": "psync",
+      "iodepth": 1,
+      "direct": false,
+      "time_based": false,
+      "fsync_every_write": true
+    },
+    "C2": {
+      "arms": [
+        "brewfs-basic",
+        "brewfs-full",
+        "juicefs"
+      ],
+      "single_agent_traces": [
+        "pytest-full-02",
+        "django",
+        "ripgrep-20261026",
+        "archive-io-20261026"
+      ],
+      "scale_trace": "pytest-full-02",
+      "scale_agents": [
+        8,
+        16,
+        32
+      ],
+      "mixed_32": {
+        "pytest-full-02": 10,
+        "django": 2,
+        "ripgrep-20261026": 10,
+        "archive-io-20261026": 10
+      },
+      "staggered": {
+        "agents": 32,
+        "trace": "pytest-full-02",
+        "window_seconds": 2,
+        "seed": 9173
+      },
+      "replay": "complete",
+      "tasks_per_agent": 1,
+      "pacing": "off",
+      "simulate_llm": false,
+      "performance_mode": true,
+      "trace_and_blobs_outside_mount": true
+    },
+    "C3": {
+      "arms": [
+        "brewfs-basic",
+        "brewfs-full",
+        "juicefs"
+      ],
+      "agents": [
+        1,
+        8,
+        16,
+        32
+      ],
+      "workspaces_per_agent": 1,
+      "files": 1000000,
+      "file_bytes": 4096,
+      "directories": 1024,
+      "hot_files": [
+        1024,
+        16384
+      ],
+      "workers_per_workspace": 8,
+      "read_ops": 65536,
+      "cow_files": 256,
+      "write_ops": 2048,
+      "mixed_ops": 8192,
+      "mixed_read_fraction": 0.75,
+      "prewarm_passes": 2,
+      "fsync_every_write": true
+    },
+    "C4-fork": {
+      "arms": [
+        "brewfs-basic",
+        "brewfs-full",
+        "juicefs"
+      ],
+      "agents": [
+        1,
+        8,
+        16,
+        32
+      ],
+      "files": 1000000,
+      "file_bytes": 4096,
+      "fixture": "fork-fixture-million-4k",
+      "creation": "burst",
+      "source": "exact-immutable-revision",
+      "basic_copy": "cp --reflink=never -a",
+      "mutations": [
+        "overwrite",
+        "append",
+        "truncate",
+        "unlink",
+        "rename",
+        "new-file"
+      ]
+    },
+    "C4-handoff": {
+      "arms": [
+        "brewfs-full-stay",
+        "brewfs-full-move",
+        "juicefs-stay",
+        "juicefs-move"
+      ],
+      "agents": [
+        8,
+        16,
+        32
+      ],
+      "moved_agents": [
+        2,
+        4,
+        8
+      ],
+      "stop_mode": "clean-drained-unmounted",
+      "restore_method": "shared-workspace-db",
+      "workspace_contains": [
+        "repo",
+        "HOME",
+        "XDG"
+      ],
+      "target_home": "empty-outside-workspace",
+      "neighbors": "fixed-trace-continue",
+      "live_resume_sessions_per_arm_per_batch": 1,
+      "storage_replay_sessions": "all-moved",
+      "model_wait_excluded_from_storage_downtime": true,
+      "neighbor_baseline_seconds": 10,
+      "neighbor_post_recovery_seconds": 10,
+      "neighbor_sequence": "prequalified-fixed-sequence-covering-entire-window",
+      "neighbor_early_exit": "not-accepted-for-neighbor-impact"
+    }
+  },
+  "pilot": {
+    "purpose": "current-route-qualification-only",
+    "repetitions": 1,
+    "agents": 1,
+    "C1": {
+      "jobs": 1,
+      "file_bytes_per_job": 67108864,
+      "io_bytes_per_job": 67108864
+    },
+    "C2": {
+      "trace": "pytest-full-02",
+      "complete": true
+    },
+    "C3": {
+      "files": 100000,
+      "hot_files": 1024,
+      "read_ops": 8192,
+      "cow_files": 256,
+      "write_ops": 256,
+      "mixed_ops": 1024,
+      "workspaces": 1
+    },
+    "C4-fork": {
+      "files": 100000,
+      "children": 1
+    },
+    "C4-handoff": {
+      "agents": 1,
+      "moved_agents": 1
+    },
+    "four_node_topology_required_for_distributed_claims": true
+  },
+  "inputs": {
+    "catalog": "scenarios/k8s-containers/archives.json",
+    "source": "oss",
+    "callback_counts": {
+      "pytest-full-02": 1747109,
+      "django": 57787980,
+      "ripgrep-20261026": 3122195,
+      "archive-io-20261026": 3673814
+    },
+    "sha256_from_catalog": true,
+    "full_initial_final_tree_validation": true
+  },
+  "observation": {
+    "interval_seconds": 5,
+    "max_gap_seconds": 30,
+    "overhead_pairs": 3,
+    "max_relative_overhead": 0.05,
+    "roles": [
+      "every-client",
+      "every-target",
+      "redis",
+      "each-rustfs-node"
+    ],
+    "closure": {
+      "pending_upload_bytes": 0,
+      "pending_upload_operations": 0,
+      "samples": 2,
+      "min_spacing_seconds": 1,
+      "process_exited": true,
+      "mount_absent": true
+    },
+    "marks": [
+      "measure-start",
+      "measure-end",
+      "drain-end",
+      "verify-end"
+    ],
+    "c3_marks": "per-workspace-suffix",
+    "archive_during_measurement": false,
+    "backend_read_amplification": "backend-physical-read-bytes / successful-application-read-bytes",
+    "overlay_runtime_target_relative": 0.1
+  },
+  "readiness": {
+    "workspace_v1_adapter": false,
+    "runtime_switch_adapter": false,
+    "matched_payload_packed_off": false,
+    "same_engine_overlay_off": false,
+    "full_trace_reopen": false,
+    "multi_host_barrier": false,
+    "global_slot_admission": false,
+    "four_node_observation": false,
+    "replay_operation_latency": false,
+    "versioned_reread_analysis": false,
+    "clean_handoff": false
+  },
+  "freeze_required": [
+    "all-native-defaults-and-help",
+    "client-cpu-and-memory-placement",
+    "metadata-and-object-endpoints",
+    "per-node-and-per-disk-identity",
+    "erasure-geometry",
+    "producer-manifest-and-all-uploader-hints",
+    "fresh-client-cache-proof",
+    "version-and-input-sha",
+    "metric-field-map",
+    "paired-order-and-start-offsets"
+  ]
+}

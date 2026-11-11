@@ -1,5 +1,7 @@
 # 独立pool的Redis和RustFS
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 每池使用独立metadata和objects主机、数据盘及服务。共用原跳板的私网代理和镜像registry；不共用Redis、RustFS或采集器。准备脚本只操作明确指定的节点，不创建实例。
 
 `inventory.json`可为旧单池`{"pool_id":"pool-a","roles":{...}}`，或多池`{"pools":[{"pool_id":"pool-a","roles":{...}},{"pool_id":"pool-b","roles":{...}}]}`。每个role包含实际`instance_id/private_ip/hostname/data_disk_ids`；节点spec沿用`provision-node.py`输出字段。下面命令在对应新主机以root执行，所有输出目录必须未使用。

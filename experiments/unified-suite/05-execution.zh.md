@@ -1,5 +1,7 @@
 # 冻结、领取与单步执行
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](current/README.zh.md)。
+
 ## 1. 冻结实际配置
 
 在 [入口](README.md) 生成 config，填入本批 `build_manifest_sha256`、`input_manifest_sha256`、各 pool 的 `inventory_sha256`。摘要由下列命令读取，不能填占位字符：

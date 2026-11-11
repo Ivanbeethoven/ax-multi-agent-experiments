@@ -1,5 +1,7 @@
 # 云端结果归档
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 C2 native 的正式三角色原始记录和六次校准包已公开，共 **56,322,182 字节**。下载地址、SHA256 和逐次上传回执见 [index.json](evidence/cloud-20261111/05357b5089cd679c-r1-native/oss/index.json)。每个包均完成 OSS 内网全量读回校验和公网匿名 HEAD 检查。原云端文件保留。
 
 C3 JuiceFS 十万文件的正式三角色原始记录和原六次校准已公开，共 **35,354,910 字节**。下载地址及 SHA256 见 [C3 JuiceFS 下载清单](evidence/c3-jfs-01/oss/index.json)。校准复用了原始记录。

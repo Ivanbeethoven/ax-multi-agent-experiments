@@ -1,5 +1,7 @@
 # BrewFS packed 执行入口
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 负责entity引擎加authenticated packed lower的主候选。先读[共同执行步骤](README.md)，默认systems中的`packed`在pool-a；独立并行可将arm_pools.packed映射到自己的实际集群。
 
 ## 身份与工作负载

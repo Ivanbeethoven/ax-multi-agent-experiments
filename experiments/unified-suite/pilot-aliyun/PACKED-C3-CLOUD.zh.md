@@ -1,5 +1,7 @@
 # Packed C3下一批入口
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 节点动作：`scripts/packed-c3-node.py`。不编译新工具，不修改当前冻结批次。现有`prepare-packed.py`先发布完整100k输入并检查base，之后每轮只新建私有entity upper，共用同一packed manifest。
 
 先跑云上资格检查，结果不能算正式性能样本：

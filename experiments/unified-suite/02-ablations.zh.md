@@ -1,5 +1,7 @@
 # JuiceFS、native 与三个技术点
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](current/README.zh.md)。
+
 ## 系统路径
 
 | arm | 路径 | 用途 |

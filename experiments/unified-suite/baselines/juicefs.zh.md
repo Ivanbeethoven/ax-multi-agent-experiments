@@ -1,5 +1,7 @@
 # JuiceFS 执行入口
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 负责唯一外部baseline。先读[共同执行步骤](README.md)，然后按本页核对JuiceFS差异；默认systems映射到pool-b，实际以冻结cell.pool为准。
 
 ## 身份与工作负载

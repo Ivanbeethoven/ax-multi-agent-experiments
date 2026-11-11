@@ -1,5 +1,7 @@
 # C2：Packed 和 entity-native 的下一步
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 **当前两条路线都不启动。** 冻结的 BrewFS `ca07159f3da4b670e4aeb878faef928e69bc1634` 在 Entity FUSE 路径缺少这条 trace 成功执行过的文件操作。换 Packed 或 native lower 都走同一个 `EntityFuse`。已验收的 flat BrewFS 是另一条路线，`native-workspace`（`workspace-native-v2`）也不走 Entity FUSE，需独立资格验证。见[核对记录](evidence/preparation/c2-entity-feasibility-01/audit.json)。
 
 | 操作 | 成功回调数 | 首次成功序号 | 当前 Entity FUSE |

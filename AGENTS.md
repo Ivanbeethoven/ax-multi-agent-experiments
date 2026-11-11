@@ -1,15 +1,17 @@
 # 实验 Agent 入口
 
-- 2026-11-11用户最新要求：当前阿里云试跑的C3与C4派生暂用100,000×4KiB，按`experiments/unified-suite/pilot-aliyun/PILOT-100K.zh.md`显式生成新阶段。原百万文件计划/输入保留，C1/C2及活动测量不变。通用catalog默认仍为百万文件，不能用旧输入证明新规模。
+- 2026-11-11 当前方案：新实验从 `experiments/unified-suite/current/README.zh.md` 开始，参数见同目录 `design.json`。主候选为 workspace-v1 + Packed-v3，内部系统对照 flat-v1，外部仅 JuiceFS；entity-v1 和 native-v2 不进入新实验。新 suite 适配及三开关统一接口尚未完成，规划文件不可直接执行。历史回执和活动测量保持原义。
 
-- 协调者从 `experiments/unified-suite/README.md` 接入；各pool执行者从 `experiments/unified-suite/baselines/README.md` 选择JuiceFS、BrewFS native/native-workspace/entity-native/packed或消融的独立入口。C1 fio、C2 full trace、C3百万小文件、C4 fork/流转，外部baseline仅JuiceFS，native与D/P/G为内部对照/消融。共同步骤按环境→输入→冻结与领取→单步测量→证据收尾维护一份；同池一个owner，不因文档拆分重复建DB或启动任务。旧2026-10-29的C编号/证据保持原义。运行前读本批实际plan、inventory、state与资源账本。
-- 方法矩阵、节点清单、单步执行、测量程序、环境准备分别位于 `bench/scale_plan.py`（`--suite-config`）、`bench/ssh_inventory.py`、`bench/runtime/`、`tools/`、`infra/`。默认 `baseline-parallel`：按product/arm显式映射到不同集群，逐cell领取/关闭，跨池按同条件/轮次汇总配对；不把整组arms锁到同池。配置见 `experiments/unified-suite/12-parallel-baselines.zh.md`。`bench/suite.py`复用既有executor，不包办整轮。状态库留在一个协调者的本地独立盘，started不自动重放；共享host/disk/service的pool用相同resource ID。
+- 新 pilot 为 1 Agent、C3/C4 派生 100,000×4KiB；正式百万文件、并发最高32，参数与资格要求以 current 为准。不要从旧合成 trace 或 entity 结果推导新路线已通过。
+- 默认一池，最多两池；总并发≤32负载槽（C1计1槽，迁移目标替换源Agent）。完整配对批次固定在同一池，各臂依次执行；一个owner持有本池准备至归档的锁。共享服务/盘/瓶颈链路的导入、归档与测量串行，详见 MAIN-SCALE.zh.md。协调者本地 state.sqlite 只记录调度，元数据主线 Redis；TiKV另立补充运行。
+- 三个设计用运行配置切换，同批使用同一 BrewFS 二进制和 RustFS 镜像。新方案缺少的开关/适配必须明示，不回退到旧引擎补数。`bench.suite template --legacy-catalog` 仅用于明确选择的历史协议；旧冻结计划继续使用既有工具校验。
+- 节点清单、单步执行、测量程序、部署位于 `bench/`、`bench/runtime/`、`tools/`、`infra/`。运行前读实际 plan、inventory、state 与资源账本；started 不自动重放，共享 host/disk/service 使用同一 resource ID。
 - 文档按实验设置、配置、方法、指标和步骤写；共用要求写一次并链接。当前入口只写实际范围，旧硬件报价和证据放在历史/参考页。
 
 # 实验部署约定
 
 - 用户指定：后续实验部署 RustFS 使用 `https://github.com/Ivanbeethoven/rustfs` 的 `feat/dynamic-block-size-rebased` 分支。
-- 每批构建前同步该分支最新代码，不指定历史 commit。提交 SHA、产物 SHA 和镜像 digest 用于记录本批实际版本；BrewFS 客户端版本单独记录。
+- 每次冻结运行（campaign）开始同步最新分支，固定其全部配对重复与扩展曲线的产物；升级另开运行。提交SHA、产物SHA和镜像digest记录实际版本。
 - dynamic 默认开启：RustFS 四个 layout 开关为 true，BrewFS 编译 hint feature 并使用 auto。auto 当前不是完整的多档自适应策略，具体行为与验收见 `infra/rustfs/README.md`。
 - 同一批对照保持 RustFS 版本一致；分支或构建不可用时报告问题，不自动换成其他分支或官方 `latest`。
 - 历史实验保留实际使用的版本与结果。部署入口见 `infra/rustfs/README.md`。
@@ -33,4 +35,4 @@
    **不自动换分支、不自动退回官方 `latest`**。
 7. 历史批次保留当时的真实版本与结果，不回填新 SHA。
 
-同一配对批次分发同一产物；下批重新同步分支。构建或资格阶段分支推进时重新构建，不在正在测量的批次中热更新。旧回执的 `frozen_commit` 只用于解释历史结果，不能作为新批次输入。
+同一campaign分发相同产物；下一campaign重新同步分支。冻结前若分支推进，重新构建验证；冻结后不热更新。旧回执的 `frozen_commit` 仅解释历史结果。

@@ -1,5 +1,7 @@
 # C2：完整 AI trace 重放
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](current/README.zh.md)。
+
 正式 8/16/32 Agent、错峰及云盘资源见[32 Agent 落地手册](MAIN-C2-COST-DISKS.zh.md)。以下保留原统一协议，原计划默认无等待。
 
 四份trace×N=1/4/8，每个Agent一个完整任务，一次cohort释放。所有baseline使用相同输入摘要、initial树、操作顺序、真实写入blob和工作量；默认pacing=off。HOME/XDG/repo全部在该Agent专用workspace内，生成物不落宿主HOME。

@@ -1,5 +1,7 @@
 # 配置样例
 
+> 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+
 这些文件展示字段，`FILL_*`、null和reviewed=false均不能通过执行。复制到本轮RUN后填实际值并用suite_support pin引用；不改仓库样例充当运行状态。
 
 | 文件 | 接收工具 |
