@@ -3,10 +3,12 @@
 
 The request must pin the staged draft, current canonical plan and SSH config,
 three original host identity receipts, a fresh quiescence receipt, the worker
-tool and this runner. No test launches, worker deployment, retries or cleanup.
+tool, this runner, and both resident coordinator services. Neither pool may
+run work during archival. No test launches, deployment, retries or cleanup.
 """
 import argparse
 import base64
+from contextlib import ExitStack, closing, contextmanager
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -15,6 +17,8 @@ from pathlib import Path
 import re
 import runpy
 import shlex
+import sqlite3
+import stat
 import subprocess
 import sys
 import tarfile
@@ -28,6 +32,14 @@ DRAFT_DIR = PREP/'c123-old-c1-calibration-draft-01'
 ROLE_ROOTS = {'client': '/srv/ax-client', 'metadata': '/srv/ax-metadata', 'objects': '/srv/ax-objects-0'}
 MANAGER_FIELDS = ('LoadState', 'InvocationID', 'ActiveState', 'SubState', 'MainPID', 'ControlPID', 'Result', 'ExecMainStatus')
 TERMINAL = {('active', 'exited'), ('inactive', 'dead'), ('failed', 'failed')}
+POOLS = {'pool-a', 'pool-b'}
+PILOT_UNIT = re.compile(r'ax-pilot-[a-z0-9-]+\.service')
+ASSETS = 'ax-pilot-assets.service'
+RELAY = 'ax-pilot-c4-relay-01.service'
+RESIDENT_UNITS = {ASSETS, RELAY}
+CGROUP_ROOT = Path('/sys/fs/cgroup')
+SERVICE_FIELDS = ('LoadState', 'ActiveState', 'SubState', 'MainPID', 'ControlPID', 'ControlGroup')
+RESIDENT_FIELDS = (*SERVICE_FIELDS, 'InvocationID', 'FragmentPath', 'DropInPaths', 'NeedDaemonReload', 'ExecStart')
 GIB = 1024 ** 3
 MIB = 1024 ** 2
 RUN = re.compile(r'c123-old-c1-retention-[a-z0-9-]{2,45}')
@@ -160,20 +172,157 @@ def validate_quiescence(proof, cell, clock, fresh=True):
             (manager['ActiveState'], manager['SubState']) in TERMINAL, 'A manager boundary is not terminal')
 
 
-def live_units(output, allowed_b):
-    active = []
+def listed_units(output):
+    units = {}
     for line in output.splitlines():
         if not line.strip():
             continue
         columns = line.split()
-        require(len(columns) >= 4 and re.fullmatch(r'ax-pilot-[a-z0-9-]+\.service', columns[0]),
+        require(len(columns) >= 4 and PILOT_UNIT.fullmatch(columns[0]) and columns[0] not in units,
                 'Unrecognized pilot service in manager output')
-        if (columns[2], columns[3]) not in TERMINAL and columns[0] not in allowed_b:
-            active.append(columns[0])
-    return active
+        units[columns[0]] = tuple(columns[2:4])
+    return units
 
 
-def boundary(s, cell, plan, active_conflicts, fresh=True):
+def show_unit(unit, fields):
+    out = subprocess.check_output(['systemctl', 'show', unit, '--all', *['-p'+f for f in fields]], text=True)
+    entries = [line.split('=', 1) for line in out.splitlines()]
+    require(all(len(pair) == 2 for pair in entries) and len(entries) == len(fields) and
+            {pair[0] for pair in entries} == set(fields), 'Incomplete manager evidence: '+unit)
+    return dict(entries)
+
+
+def require_empty_cgroup(unit, group):
+    if not group:
+        return  # The manager reports no associated cgroup for this unit.
+    require(re.fullmatch(r'/[A-Za-z0-9_.@/-]+', group) and Path(group).name == unit,
+            'Unexpected workload cgroup: '+unit)
+    path = CGROUP_ROOT/group.lstrip('/')
+    require(path.is_relative_to(CGROUP_ROOT) and path.resolve() == path, 'Unsafe workload cgroup: '+unit)
+    try:
+        events = (path/'cgroup.events').read_text().splitlines()
+    except FileNotFoundError:
+        require(not path.exists(), 'Missing workload cgroup evidence: '+unit)
+        return  # An empty cgroup may disappear between the systemd and proc checks.
+    require([row for row in events if row.startswith('populated ')] == ['populated 0'],
+            'Workload cgroup is populated: '+unit)
+
+
+def command_identity(raw):
+    # Exclude the status, timestamps and PID appended by systemd to ExecStart.
+    start = re.fullmatch(r'\{ path=(\S+) ; argv\[\]=(.*?) ; ignore_errors=no ; .* \}', raw)
+    require(start is not None and raw.count('argv[]=') == 1, 'Expected one direct resident ExecStart')
+    executable, args = start.groups()
+    argv = shlex.split(args)
+    require(bool(argv) and argv[0] == executable, 'Resident executable and argv differ')
+    return argv, hashlib.sha256(encode(argv)).hexdigest()
+
+
+def check_resident(unit, reviewed, state):
+    require(set(reviewed) == {'invocation_id', 'fragment', 'drop_ins', 'exec_start_sha256', 'script'},
+            'Exact resident service pins required: '+unit)
+    invocation = reviewed['invocation_id']
+    require(state['LoadState'] == 'loaded' and (state['ActiveState'], state['SubState']) == ('active', 'running') and
+            state['MainPID'].isdigit() and int(state['MainPID']) > 0 and state['ControlPID'] == '0' and
+            state['NeedDaemonReload'] == 'no' and state['InvocationID'] == invocation and
+            re.fullmatch(r'[a-f0-9]{32}', invocation) and int(invocation, 16) != 0,
+            'Resident service invocation or loaded definition changed: '+unit)
+    pin(reviewed['fragment'], Path(state['FragmentPath']))
+    drop_ins = shlex.split(state['DropInPaths'])
+    require(drop_ins == [entry['path'] for entry in reviewed['drop_ins']], 'Resident drop-in set changed: '+unit)
+    for entry in reviewed['drop_ins']:
+        pin(entry)
+    argv, sha = command_identity(state['ExecStart'])
+    require(sha == reviewed['exec_start_sha256'], 'Resident command changed: '+unit)
+    if unit == ASSETS:
+        require(reviewed['script'] is None and argv == ['/usr/bin/python3', '-m', 'http.server', '18080',
+                '--bind', '10.20.0.10', '--directory', str(PILOT/'assets')], 'Unexpected immutable assets command')
+    else:
+        script = pin(reviewed['script'])
+        require(script.is_relative_to(PILOT) and script.name == 'session-relay.py' and
+                argv[0] in {'/usr/bin/python3', '/usr/bin/python3.12'}, 'Unexpected C4 relay script')
+        args = iter(argv[1:])
+        require(next((arg for arg in args if arg not in {'-B', '-u', '-I'}), None) == str(script),
+                'Resident relay does not start the pinned script')
+    return {'invocation_id': invocation, 'main_pid': int(state['MainPID']), 'exec_start_sha256': sha}
+
+
+def services_idle(s):
+    residents = s.get('resident_units', {})
+    require(isinstance(residents, dict) and set(residents) == RESIDENT_UNITS and not s.get('allow_live_b_units'),
+            'Only exact asset and C4 relay resident exceptions may be reviewed')
+    units = listed_units(subprocess.check_output(['systemctl', 'list-units', '--all', '--plain', '--full',
+        '--no-legend', '--no-pager', '--type=service', 'ax-pilot-*.service'], text=True))
+    active = [unit for unit, state in units.items() if unit not in RESIDENT_UNITS and state not in TERMINAL]
+    require(not active, 'Pilot service still active: '+', '.join(active))
+    require(RESIDENT_UNITS <= units.keys(), 'Reviewed resident services missing from manager inventory')
+    result = {}
+    for unit, state in sorted(units.items()):
+        fields = RESIDENT_FIELDS if unit in RESIDENT_UNITS else SERVICE_FIELDS
+        current = show_unit(unit, fields)
+        require((current['ActiveState'], current['SubState']) == state, 'Pilot service changed during check: '+unit)
+        if unit in RESIDENT_UNITS:
+            result[unit] = check_resident(unit, residents[unit], current)
+        else:
+            require(current['MainPID'] == current['ControlPID'] == '0', 'Pilot service has a live PID: '+unit)
+            require_empty_cgroup(unit, current['ControlGroup'])
+    jobs = subprocess.check_output(['systemctl', 'list-jobs', '--plain', '--full', '--no-legend', '--no-pager'], text=True)
+    if jobs.strip() == 'No jobs running.':
+        return result
+    for line in jobs.splitlines():
+        if line.strip():
+            columns = line.split()
+            require(len(columns) >= 4 and columns[0].isdigit(), 'Unrecognized manager job output')
+            require(not PILOT_UNIT.fullmatch(columns[1]), 'Pending pilot manager job: '+columns[1])
+    return result
+
+
+def lock_resources(plan):
+    clusters = plan['config']['clusters']
+    require(len(clusters) == len(POOLS) and {c['id'] for c in clusters} == POOLS and
+            {c['pool'] for c in plan['cells']} == POOLS, 'Canonical two-pool plan required')
+    resources = {'pool:'+pool for pool in POOLS}
+    for row in (*clusters, *plan['cells']):
+        ids = row['resource_ids']
+        require(isinstance(ids, list) and ids and all(isinstance(x, str) and x for x in ids),
+                'Missing canonical physical resource IDs')
+        resources.update(ids)
+    return sorted(resources)
+
+
+@contextmanager
+def two_pool_guard(directory, resources):
+    """Use the frozen runtime's exact canonical lock keys and flock mode."""
+    import fcntl
+    require(directory.resolve(strict=True) == directory and directory.is_dir(), 'Canonical locks were redirected')
+    with ExitStack() as stack:
+        for resource in resources:
+            key = hashlib.sha256(resource.encode()).hexdigest()+'.lock'
+            fd = os.open(directory/key, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
+            stack.callback(os.close, fd)
+            require(stat.S_ISREG(os.fstat(fd).st_mode), 'Unsafe canonical lock file: '+key)
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError as error:
+                raise ValueError('Another preparation or cell owns physical resource: '+resource) from error
+        yield
+
+
+def require_no_leases(s):
+    controls = {Path(x) for x in s['lease_controls']}
+    require(controls == {p.parent for p in PILOT.glob('*/state.sqlite')} and {CANONICAL, ORIGINAL} <= controls,
+            'Current coordinator state inventory differs from review')
+    for path in sorted(controls):
+        database = path/'state.sqlite'
+        require(path.resolve(strict=True) == path and database.resolve(strict=True) == database and database.is_file(),
+                'Unexpected coordinator lease state path')
+        with closing(sqlite3.connect(database.as_uri()+'?mode=ro', uri=True)) as db:
+            leases = db.execute('SELECT pool, cell_id FROM cell_leases ORDER BY pool, cell_id').fetchall()
+        require(not leases, 'Pilot resources are leased in '+str(path)+': '+str(leases))
+    return sorted(map(str, controls))
+
+
+def boundary(s, cell, fresh=True):
     path = pin(s['quiescence'])
     require(path.is_relative_to(PREP), 'Quiescence receipt must live under owned preparation')
     proof = read(path)
@@ -182,28 +331,12 @@ def boundary(s, cell, plan, active_conflicts, fresh=True):
             'Distinct actual close and live-check source receipts are required')
     for entry in proof['source_pins']:
         require(pin(entry).is_relative_to(PILOT), 'Foreign quiescence evidence')
-    controls = {Path(x) for x in s['lease_controls']}
-    require(controls == {p.parent for p in PILOT.glob('*/state.sqlite')} and {CANONICAL, ORIGINAL} <= controls,
-            'Current coordinator state inventory differs from review')
-    for path in controls:
-        require(path.resolve(strict=True) == path and (path/'state.sqlite').resolve(strict=True) == path/'state.sqlite',
-                'Unexpected coordinator lease state path')
-        require(not active_conflicts(path, cell, plan), 'A or a shared physical resource is leased: '+str(path))
-    out = subprocess.check_output(['systemctl', 'show', proof['unit'], *['-p'+f for f in MANAGER_FIELDS]], text=True)
-    manager = dict(line.split('=', 1) for line in out.splitlines())
+    controls = require_no_leases(s)
+    manager = show_unit(proof['unit'], MANAGER_FIELDS)
     require(manager == proof['manager'], 'Latest A service invocation or terminal state changed')
-    allowed_b = set(s.get('allow_live_b_units', []))
-    require(all(re.fullmatch(r'ax-pilot-pb-[a-z0-9-]+\.service', unit) for unit in allowed_b),
-            'Only explicitly reviewed independent B units may remain live')
-    if allowed_b:
-        b_cells = [c for c in plan['cells'] if c['pool'] == 'pool-b']
-        require(b_cells and all(not set(cell['resource_ids']).intersection(c['resource_ids']) for c in b_cells),
-                'B resources overlap original A')
-    units = subprocess.check_output(['systemctl', 'list-units', '--all', '--plain', '--full', '--no-legend', '--no-pager',
-                                     '--type=service', 'ax-pilot-*.service'], text=True)
-    active = live_units(units, allowed_b)
-    require(not active, 'Pilot service still active: '+', '.join(active))
-    return {'manager': manager, 'reviewed_quiescence': s['quiescence'], 'lease_controls': sorted(map(str, controls))}
+    residents = services_idle(s)
+    return {'manager': manager, 'reviewed_quiescence': s['quiescence'], 'lease_controls': controls,
+            'resident_units': residents}
 
 
 def disk_room(path, bytes_needed, inodes_needed):
@@ -283,13 +416,13 @@ def run(request, out, runner):
     s, draft, selected, repo, plan, cell, ssh, tool, adapter, node, runtime = load_input(request, runner)
     sys.path.insert(0, str(repo))
     from bench import archive_check
-    from bench.runtime.pilot_pools import active_conflicts, resource_guard
     fleet = read(pin(s['fleet'], CANONICAL/'fleet.json'))
     identity = identities(s, cell, fleet)
-    require((CANONICAL/'runner-locks').resolve(strict=True) == CANONICAL/'runner-locks', 'Canonical locks were redirected')
+    resources = lock_resources(plan)
+    boundary(s, cell)  # Do not contend with a still-running handoff for its next lock.
     worker_started = False
-    with resource_guard(CANONICAL, cell, plan):
-        handoff = boundary(s, cell, plan, active_conflicts)
+    with two_pool_guard(CANONICAL/'runner-locks', resources):
+        handoff = dict(boundary(s, cell), locked_resources=resources)
         rebuilt = adapter['build'](ORIGINAL, Path(draft['node_retainer']['path']))
         require(hashlib.sha256(encode(rebuilt)).hexdigest() == s['draft']['sha256'], 'Frozen original source changed after draft')
         controller = coordinator_manifest(selected, ORIGINAL)
@@ -306,7 +439,7 @@ def run(request, out, runner):
         try:
             preflight = {}
             for role, envelope in envelopes.items():
-                boundary(s, cell, plan, active_conflicts, fresh=False)
+                boundary(s, cell, fresh=False)
                 work = out/(role+'-preflight'); work.mkdir()
                 preflight[role] = dispatch(ssh, role, tool.read_bytes(), dict(envelope, phase='preflight'), work)
                 require(preflight[role]['bytes_written'] == 0 and preflight[role]['scratch'] == '/var/tmp/'+out.parent.name and
@@ -324,7 +457,7 @@ def run(request, out, runner):
             write(out/'controller.check.json', ctl)
             retained = {}
             for role, envelope in envelopes.items():
-                boundary(s, cell, plan, active_conflicts, fresh=False)
+                boundary(s, cell, fresh=False)
                 work = out/role; work.mkdir()
                 worker_started = True
                 r = dispatch(ssh, role, tool.read_bytes(), dict(envelope, phase='pack', preflight=preflight[role]), work)
@@ -332,9 +465,10 @@ def run(request, out, runner):
             require(sum(map(len, retained.values())) == 12, 'All original six trials and their role archives are required')
             write(out/'members.json', dict(cell_id=s['cell_id'], controller=ref(local_archive), roles=retained,
                   closure=s['quiescence'], independent_oss_verification_required=True, new_measurements=False))
-            boundary(s, cell, plan, active_conflicts, fresh=False)
+            boundary(s, cell, fresh=False)
             members = sorted(p.relative_to(out).as_posix() for p in out.rglob('*') if p.is_file())
             checked = archive_check.pack(out, members, package, s['cell_id'], 'original-c123-six-calibration-trials')
+            boundary(s, cell, fresh=False)
             write(out/'result.json', dict(passed=True, archive=checked, worker_archives=12, source_trial_count=6,
                   new_measurements=False, automatic_retry=False, scratch_preserved=True,
                   independent_oss_verification_required=True))
