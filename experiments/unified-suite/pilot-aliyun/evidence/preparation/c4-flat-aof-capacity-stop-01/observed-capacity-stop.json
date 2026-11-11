@@ -1,0 +1,358 @@
+{
+  "schema": "c4-flat-aof-capacity-stop-v1",
+  "captured_utc": "2026-11-11T11:16:21.952877+00:00",
+  "cell_id": "c5e97774bcffa69a-r1-native",
+  "pool": "pool-a",
+  "unit": {
+    "name": "ax-pilot-pa-c4-flat-native-03",
+    "properties": {
+      "MainPID": "0",
+      "Result": "exit-code",
+      "ExecMainStatus": "1",
+      "ActiveState": "failed",
+      "SubState": "failed",
+      "InvocationID": "6ad2b76c56dd4395a638b46885dc8e60"
+    }
+  },
+  "capacity": {
+    "before": {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before.json",
+      "sha256": "e2d38c455c5a459c706c77501ef2476de7e5af5269bbfbd8786203d9d080cf35"
+    },
+    "after": {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-after.json",
+      "sha256": "7f14a3de9c86aa6c5ff94f19f78d71f5aac7b621d9bc79b543326db6f65618b7"
+    },
+    "gate": {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity.json",
+      "sha256": "71f1bf57e69185de3d6fcb455e31e9aad3e7bd2ba288f90de58525cd4f80f5b4"
+    },
+    "failed": {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/failed.json",
+      "sha256": "76a8f863cba2ca9694c8452ebd5fea283452d999ae8fbe0c143dcee8aaf7e572"
+    },
+    "gate_exit": {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-budget/exit.json",
+      "sha256": "4f74fddecad347279a92c2fd5f02e47ff4b672f90f12adc921ef942241c9ff06"
+    },
+    "exit_code": 2,
+    "reserve_fraction": 0.2,
+    "extra_full_copies": 7,
+    "passed": false,
+    "rows": [
+      {
+        "role": "client",
+        "path": "/srv/ax-client",
+        "quantity": "bytes",
+        "measured_base_increment": 17584128,
+        "extra_full_copies": 0,
+        "projected_used": 17077473280,
+        "total": 100056096768,
+        "observed_allocation_decrease": false,
+        "passed": true
+      },
+      {
+        "role": "client",
+        "path": "/srv/ax-client",
+        "quantity": "inodes",
+        "measured_base_increment": 171,
+        "extra_full_copies": 0,
+        "projected_used": 2540155,
+        "total": 26214400,
+        "observed_allocation_decrease": false,
+        "passed": true
+      },
+      {
+        "role": "metadata",
+        "path": "/srv/ax-metadata",
+        "quantity": "bytes",
+        "measured_base_increment": 0,
+        "extra_full_copies": 7,
+        "projected_used": 1137926144,
+        "total": 60070604800,
+        "observed_allocation_decrease": true,
+        "passed": false
+      },
+      {
+        "role": "metadata",
+        "path": "/srv/ax-metadata",
+        "quantity": "inodes",
+        "measured_base_increment": 0,
+        "extra_full_copies": 7,
+        "projected_used": 154861,
+        "total": 15728640,
+        "observed_allocation_decrease": false,
+        "passed": true
+      },
+      {
+        "role": "metadata",
+        "quantity": "redis-memory-bytes",
+        "measured_base_increment": 88108856,
+        "extra_full_copies": 7,
+        "projected_used": 1421476712,
+        "total": 10737418240,
+        "observed_allocation_decrease": false,
+        "passed": true
+      },
+      {
+        "role": "metadata",
+        "quantity": "redis-aof-bytes",
+        "before": 431505963,
+        "after": 371832356,
+        "measured_base_increment": 0,
+        "extra_full_copies": 7,
+        "projected_aof_bytes": 371832356,
+        "included_in_metadata_disk_forecast": true,
+        "passed": false
+      },
+      {
+        "role": "objects",
+        "path": "/srv/ax-rustfs-data-0",
+        "quantity": "bytes",
+        "measured_base_increment": 1249935360,
+        "extra_full_copies": 7,
+        "projected_used": 47212527616,
+        "total": 60070604800,
+        "observed_allocation_decrease": false,
+        "passed": true
+      },
+      {
+        "role": "objects",
+        "path": "/srv/ax-rustfs-data-0",
+        "quantity": "inodes",
+        "measured_base_increment": 299991,
+        "extra_full_copies": 7,
+        "projected_used": 5561025,
+        "total": 15728640,
+        "observed_allocation_decrease": false,
+        "passed": true
+      },
+      {
+        "role": "objects",
+        "path": "/srv/ax-rustfs-data-1",
+        "quantity": "bytes",
+        "measured_base_increment": 1249824768,
+        "extra_full_copies": 7,
+        "projected_used": 27018199040,
+        "total": 60070604800,
+        "observed_allocation_decrease": false,
+        "passed": true
+      },
+      {
+        "role": "objects",
+        "path": "/srv/ax-rustfs-data-1",
+        "quantity": "inodes",
+        "measured_base_increment": 299989,
+        "extra_full_copies": 7,
+        "projected_used": 5417179,
+        "total": 15728640,
+        "observed_allocation_decrease": false,
+        "passed": true
+      },
+      {
+        "role": "objects",
+        "path": "/srv/ax-rustfs-data-2",
+        "quantity": "bytes",
+        "measured_base_increment": 1249808384,
+        "extra_full_copies": 7,
+        "projected_used": 27017871360,
+        "total": 60070604800,
+        "observed_allocation_decrease": false,
+        "passed": true
+      },
+      {
+        "role": "objects",
+        "path": "/srv/ax-rustfs-data-2",
+        "quantity": "inodes",
+        "measured_base_increment": 299989,
+        "extra_full_copies": 7,
+        "projected_used": 5417179,
+        "total": 15728640,
+        "observed_allocation_decrease": false,
+        "passed": true
+      },
+      {
+        "role": "objects",
+        "path": "/srv/ax-rustfs-data-3",
+        "quantity": "bytes",
+        "measured_base_increment": 1249808384,
+        "extra_full_copies": 7,
+        "projected_used": 27018043392,
+        "total": 60070604800,
+        "observed_allocation_decrease": false,
+        "passed": true
+      },
+      {
+        "role": "objects",
+        "path": "/srv/ax-rustfs-data-3",
+        "quantity": "inodes",
+        "measured_base_increment": 299989,
+        "extra_full_copies": 7,
+        "projected_used": 5417179,
+        "total": 15728640,
+        "observed_allocation_decrease": false,
+        "passed": true
+      }
+    ]
+  },
+  "original_base": {
+    "receipt": {
+      "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/result.json",
+      "sha256": "b1dc911bae231cfbc526924864ffc34e30bb97a0f6fc80778a741bceef7c1321"
+    },
+    "files": 100000,
+    "bytes": 409600000,
+    "expected_tree": {
+      "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c4-fixture-tree.json",
+      "sha256": "02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13"
+    },
+    "cold_base_check": {
+      "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/cold-base-check.json",
+      "sha256": "90cdcf297a63e68206420086283356864c5ec5b6c6da3327eaf9ae5fe764ef5e"
+    },
+    "normal_exits": [
+      {
+        "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-1.json",
+        "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494"
+      },
+      {
+        "path": "/srv/ax-client/preparation/c4-fork-flat-base-03/normal-stop-2.json",
+        "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494"
+      }
+    ],
+    "import_seconds": 1154.432497509,
+    "import_fsync_seconds": 27.509758605,
+    "cold_verify_seconds": 4099.977110591,
+    "formal_admission": false
+  },
+  "metadata": {
+    "before": {
+      "sampled_at": "2026-11-11T09:44:29.480242+00:00",
+      "redis": {
+        "used_memory": 716605864,
+        "used_memory_rss": 742653952,
+        "maxmemory": 10737418240,
+        "aof_current_size": 431505963,
+        "process_id": 9779
+      }
+    },
+    "after": {
+      "sampled_at": "2026-11-11T11:13:28.996735+00:00",
+      "redis": {
+        "used_memory": 804714720,
+        "used_memory_rss": 832012288,
+        "maxmemory": 10737418240,
+        "aof_current_size": 371832356,
+        "process_id": 9779
+      }
+    },
+    "journal_command": "journalctl _SYSTEMD_UNIT=ax-pilot-redis.service _PID=9779 --since=@1794390269 --until=@1794395609 --no-pager -o json",
+    "rewrite_events": [
+      {
+        "utc": "2026-11-11T10:03:53.603016+00:00",
+        "message": "9779:M 11 Nov 2026 18:03:53.602 * Starting automatic rewriting of AOF on 100% growth",
+        "cursor": "s=145e74384bed4d14a970c7d42a63bdb3;i=4756;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbcd39562;t=65ffd4ffce7c8;x=9191e9c19fa580a8",
+        "pid": 9779
+      },
+      {
+        "utc": "2026-11-11T10:03:53.604311+00:00",
+        "message": "9779:M 11 Nov 2026 18:03:53.604 * Creating AOF incr file appendonly.aof.17.incr.aof on background rewrite",
+        "cursor": "s=145e74384bed4d14a970c7d42a63bdb3;i=4757;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbcd39a71;t=65ffd4ffcecd7;x=4fb2e48bd10d5531",
+        "pid": 9779
+      },
+      {
+        "utc": "2026-11-11T10:03:53.616000+00:00",
+        "message": "9779:M 11 Nov 2026 18:03:53.615 * Background append only file rewriting started by pid 65993",
+        "cursor": "s=145e74384bed4d14a970c7d42a63bdb3;i=4758;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbcd3c81a;t=65ffd4ffd1a80;x=a7f0eed17866137c",
+        "pid": 9779
+      },
+      {
+        "utc": "2026-11-11T10:03:58.243393+00:00",
+        "message": "9779:M 11 Nov 2026 18:03:58.243 * Background AOF rewrite terminated with success",
+        "cursor": "s=145e74384bed4d14a970c7d42a63bdb3;i=475b;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a63dc;t=65ffd5043b641;x=8c3c7a701dc2e930",
+        "pid": 9779
+      },
+      {
+        "utc": "2026-11-11T10:03:58.243686+00:00",
+        "message": "9779:M 11 Nov 2026 18:03:58.243 * Successfully renamed the temporary AOF base file temp-rewriteaof-bg-65993.aof into appendonly.aof.17.base.rdb",
+        "cursor": "s=145e74384bed4d14a970c7d42a63bdb3;i=475c;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a6500;t=65ffd5043b766;x=41eb911c4d36974d",
+        "pid": 9779
+      },
+      {
+        "utc": "2026-11-11T10:03:58.244677+00:00",
+        "message": "9779:M 11 Nov 2026 18:03:58.244 * Removing the history file appendonly.aof.16.incr.aof in the background",
+        "cursor": "s=145e74384bed4d14a970c7d42a63bdb3;i=475d;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a68df;t=65ffd5043bb45;x=5c66cea8a5541eab",
+        "pid": 9779
+      },
+      {
+        "utc": "2026-11-11T10:03:58.244726+00:00",
+        "message": "9779:M 11 Nov 2026 18:03:58.244 * Removing the history file appendonly.aof.16.base.rdb in the background",
+        "cursor": "s=145e74384bed4d14a970c7d42a63bdb3;i=475e;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a6910;t=65ffd5043bb76;x=267ed0987b4f1c34",
+        "pid": 9779
+      },
+      {
+        "utc": "2026-11-11T10:03:58.248540+00:00",
+        "message": "9779:M 11 Nov 2026 18:03:58.248 * Background AOF rewrite finished successfully",
+        "cursor": "s=145e74384bed4d14a970c7d42a63bdb3;i=475f;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a77f6;t=65ffd5043ca5c;x=806103f94511bf3d",
+        "pid": 9779
+      }
+    ],
+    "fresh_redis_persistence": {
+      "aof_enabled": "1",
+      "aof_rewrite_in_progress": "0",
+      "aof_rewrite_scheduled": "0",
+      "aof_rewrites": "16",
+      "aof_last_bgrewrite_status": "ok",
+      "aof_current_size": "371832356",
+      "aof_base_size": "366852897",
+      "aof_buffer_length": "0",
+      "aof_pending_bio_fsync": "0",
+      "aof_last_write_status": "ok"
+    }
+  },
+  "boundaries": {
+    "client": {
+      "source": {
+        "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/failure-release-probe-1/client-stdout",
+        "sha256": "b8fd9cbc42b5dc2618083aa2cfb8bf7bf51654246ed2d26c05467db04e248b45"
+      },
+      "data": {
+        "safe_for_release": true,
+        "original_processes": [],
+        "live": [],
+        "unknown_startup_directories": [],
+        "slot": "",
+        "mounts": []
+      }
+    },
+    "metadata": {
+      "source": {
+        "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/failure-release-probe-1/metadata-stdout",
+        "sha256": "b8fd9cbc42b5dc2618083aa2cfb8bf7bf51654246ed2d26c05467db04e248b45"
+      },
+      "data": {
+        "safe_for_release": true,
+        "original_processes": [],
+        "live": [],
+        "unknown_startup_directories": [],
+        "slot": "",
+        "mounts": []
+      }
+    },
+    "objects": {
+      "source": {
+        "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/failure-release-probe-1/objects-stdout",
+        "sha256": "b8fd9cbc42b5dc2618083aa2cfb8bf7bf51654246ed2d26c05467db04e248b45"
+      },
+      "data": {
+        "safe_for_release": true,
+        "original_processes": [],
+        "live": [],
+        "unknown_startup_directories": [],
+        "slot": "",
+        "mounts": []
+      }
+    }
+  },
+  "scope": "Read-only failure audit and partial preservation. No qualification, formal timing, retry, or capacity override."
+}
