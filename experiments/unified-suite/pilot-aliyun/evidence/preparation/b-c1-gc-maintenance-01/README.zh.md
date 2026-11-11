@@ -51,11 +51,22 @@ JuiceFS `gc --threads 1` **尚未执行**。九次尝试都停在协调者/节�
 - 磁盘身份由 2 元组改为 3 元组（device/serial/rdev），修掉 `snapshots` 的解包错误。
 - metadata 侧允许「原配置的 redis-server 已在运行」，但拒绝任何陌生监听；就绪探测同时试私网地址与 loopback，并把最后一次应答写进错误。
 
+## 只读诊断的结论（决定性）
+
+02:00 单独启动 metadata 做了一次只读诊断（`metadata-redis-diagnosis-02.json`，探针只读、实例随后回到 `StopCharging`）：
+
+- `10.20.2.169:6379` **Connection refused** —— 原 `ax-pilot-redis.service`（bind `127.0.0.1 10.20.2.169`、256 库、`appendonly yes`、`dir /srv/ax-metadata/redis`）根本没有在服务。
+- `127.0.0.1:6379` 上有一个镜像自带的 `redis-server`：`appendonly no`、`dir /var/lib/redis`、只有默认 16 个库（`SELECT 60/61/62` 全部 `ERR DB index is out of range`），db0 为空。
+
+由此可以解释全部失败：原 conf 同时 bind `127.0.0.1`，而镜像自带的实例已经占着 `127.0.0.1:6379`，`ax-pilot-redis.service` 起不来；节点脚本的「原配置已在运行」容忍分支又把那个自带实例当成了原实例，于是 `INFO` 读到 `aof_enabled:0`、`CLIENT LIST` 在私网地址上连接被拒。
+
+**结论：B 池 C1 的 JuiceFS 元数据现在没有在服务。** 这不是「空间不够」，而是元数据前提缺失。
+
 ## 下一步的前置
 
-1. 需要一次只读诊断窗口：只启动 metadata，确认实际在跑的 redis-server 用的是哪份 conf、`INFO persistence` 为什么报 `aof_enabled:0`，以及 `appendonlydir` 里到底有哪些文件。结论出来前不要启动 objects，也不要跑 gc。
-2. 该结论出来之前不运行 `gc --delete`，也不手工清理盘 0；盘 0 上 3.06 GB 的存量与其它三盘 22 GB 的空闲都还没有被证明可回收。
-3. `meta_url` 的 database 仍按交接记录用 **61**；本次没有取得原 C1 asset 的 `metadata_url` 直接证据（asset 在已停机的 B client 上），因此 gc 即使打通也要先核对卷身份再考虑删除。
-4. 若诊断确认原 Redis 的 AOF 已关闭或已丢，C1 混合读写的元数据前提本身就要重新评估——这已经不是「清空间」的问题，需要回到原 C1 asset 重建路径。
+1. 维护窗口先做一次明确的宿主修复（需要写操作，因此必须单独审核）：`systemctl disable --now redis-server`（镜像自带）→ `systemctl start ax-pilot-redis.service` → 用 `CONFIG GET bind/databases/appendonly/dir` 核实际生效值，而不是只看进程命令行。修复前不要跑 gc，也不要删盘上任何东西。
+2. 节点脚本的「已运行」分支要改成核**生效配置**（`CONFIG GET`），而不是核命令行；否则同一个错误会静默重复。
+3. `meta_url` 的 database 仍按交接记录用 **61**；诊断显示当前根本没有 60/61/62 这些库，因此 gc 即使打通也必须先确认卷身份（`DBSIZE` 与 `INFO keyspace` 有数据）再考虑任何删除。
+4. 若原 Redis 数据目录 `/srv/ax-metadata/redis` 仍在盘上（第 14 次已核四盘重挂成功，可只读检查该目录的 `appendonlydir`），则元数据可能还在、只是服务没起；若目录为空，C1 混合读写的元数据前提就要回到原 asset 重建路径评估。
 
 本轮不改变任何已验收结果，也不把维护窗口计成 C1 正式样本。B 池三台现已全部回到 `Stopped/StopCharging`。

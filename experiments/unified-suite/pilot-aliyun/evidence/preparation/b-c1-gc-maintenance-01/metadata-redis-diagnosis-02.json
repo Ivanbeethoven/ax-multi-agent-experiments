@@ -1,0 +1,140 @@
+{
+  "ps_redis": {
+    "rc": 0,
+    "out": "  13 [kworker/u8:1-writeback]\n     45      13 [oom_reaper]\n     46      13 [kworker/u8:2-flush-253:0]\n     47      13 [kworker/R-write]\n     48      13 [kcompactd0]\n     49      13 [ksmd]\n     50      13 [khugepaged]\n     51      13 [kworker/R-kinte]\n     52      13 [kworker/R-kbloc]\n     53      13 [kworker/R-blkcg]\n     54      13 [irq/9-acpi]\n     55      13 [kworker/1:1-mm_percpu_wq]\n     56      13 [kworker/R-tpm_d]\n     57      13 [kworker/R-ata_s]\n     58      13 [kworker/R-md]\n     59      13 [kworker/R-md_bi]\n     60      13 [kworker/R-edac-]\n     61      13 [kworker/R-devfr]\n     62      13 [watchdogd]\n     63      13 [kworker/R-quota]\n     64      13 [kworker/1:1H-kblockd]\n     65      13 [kswapd0]\n     66      13 [ecryptfs-kthread]\n     67      13 [kworker/R-kthro]\n     68      13 [kworker/3:1-events]\n     69      13 [kworker/R-acpi_]\n     70      13 [kworker/2:1H-kblockd]\n     71      13 [kworker/R-mld]\n     72      13 [kworker/3:1H]\n     73      13 [kworker/R-ipv6_]\n     80      13 [kworker/R-kstrp]\n     82      13 [kworker/u9:0]\n     87      13 [kworker/R-crypt]\n     88      13 [kworker/3:2-events]\n     97      13 [kworker/R-charg]\n    125      13 [kworker/0:1H-kblockd]\n    164      13 [kworker/1:2-events]\n    169      13 [kworker/1:3-events]\n    191      13 [kworker/R-nvme-]\n    192      13 [kworker/R-nvme-]\n    193      13 [kworker/R-nvme-]\n    194      13 [kworker/R-nvme-]\n    207      12 [kworker/R-raid5]\n    247      12 [jbd2/vda3-8]\n    248      12 [kworker/R-ext4-]\n    321      12 /usr/lib/systemd/systemd-journald\n    344      12 [kworker/2:2-rcu_gp]\n    346      12 [kworker/R-kmpat]\n    347      12 [kworker/R-kmpat]\n    348      12 [kworker/u8:3-events_power_efficient]\n    364      12 [kworker/2:3-cgroup_free]\n    365      12 [kworker/2:4-events]\n    374      11 /sbin/multipathd -d -s\n    380      11 [kworker/0:2-events]\n    396      11 /usr/lib/systemd/systemd-udevd\n    401      11 [psimon]\n    483      11 /usr/lib/systemd/systemd-fsckd\n    576      11 [kworker/3:3-cgroup_free]\n    656      11 [kworker/R-nfit]\n    717      11 /usr/lib/systemd/systemd-resolved\n    828      11 [kworker/1:4-events]\n    878      10 /usr/lib/systemd/systemd-networkd\n    880      10 [kworker/R-cfg80]\n    901       8 /usr/local/share/aliyun-assist/aliyun-service.symlink\n    905       8 /usr/sbin/cron -f -P\n    906       8 @dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n    931       8 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers\n    933       8 /usr/lib/polkit-1/polkitd --no-debug\n    935       8 /usr/bin/redis-server 127.0.0.1:6379\n    950       8 /usr/lib/snapd/snapd\n    958       8 /usr/local/aegis/aegis_update/AliYunDunUpdate\n    961       8 /usr/lib/systemd/systemd-logind\n    968       8 /usr/libexec/udisks2/udisksd\n   1006       8 [kworker/0:3-mm_percpu_wq]\n   1031       8 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal\n   1058       8 /sbin/agetty -o -p -- \\u --keep-baud 115200,57600,38400,9600 - vt220\n   1065       8 /usr/sbin/rsyslogd -n -iNONE\n   1079       8 /usr/sbin/chronyd -F 1\n   1090       8 /usr/sbin/chronyd -F 1\n   1113       8 /usr/sbin/ModemManager\n   1124       8 /sbin/agetty -o -p -- \\u --noclear - linux\n   1127       8 /usr/bin/python3 -Es /usr/sbin/tuned -l -P\n   1133       8 /usr/local/cloudmonitor/bin/argusagent -d\n   1135       8 /usr/local/cloudmonitor/bin/argusagent\n   1202       8 /usr/lib/systemd/systemd-timedated\n   1318       3 (udev-worker)\n   1319       3 [kworker/u8:4]\n   1320       3 [kworker/u8:5-events_power_efficient]\n   1323       1 sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups\n   1327       1 [psimon]\n   1329       1 /usr/lib/systemd/systemd --user\n   1330       1 (sd-pam)\n   1335       1 [psimon]\n   1425       0 /usr/local/aegis/aegis_client/aegis_13_07/AliYunDun\n   1439       0 sshd: root@notty\n   1490       0 python3 -\n   1491       0 ps -eo pid,etimes,cmd",
+    "err": ""
+  },
+  "ss": {
+    "rc": 0,
+    "out": "LISTEN 0      4096         0.0.0.0:22   0.0.0.0:* users:((\"sshd\",pid=1323,fd=3),(\"systemd\",pid=1,fd=86))\nLISTEN 0      4096      127.0.0.54:53   0.0.0.0:* users:((\"systemd-resolve\",pid=717,fd=17))             \nLISTEN 0      511        127.0.0.1:6379 0.0.0.0:* users:((\"redis-server\",pid=935,fd=6))                 \nLISTEN 0      4096   127.0.0.53%lo:53   0.0.0.0:* users:((\"systemd-resolve\",pid=717,fd=15))             \nLISTEN 0      511            [::1]:6379    [::]:* users:((\"redis-server\",pid=935,fd=7))                 \nLISTEN 0      4096            [::]:22      [::]:* users:((\"sshd\",pid=1323,fd=4),(\"systemd\",pid=1,fd=87))",
+    "err": ""
+  },
+  "units": {
+    "rc": 0,
+    "out": "",
+    "err": ""
+  },
+  "host_127.0.0.1": {
+    "ping": {
+      "rc": 0,
+      "out": "PONG",
+      "err": ""
+    },
+    "persistence": {
+      "loading": "0",
+      "async_loading": "0",
+      "current_cow_peak": "0",
+      "current_cow_size": "0",
+      "current_cow_size_age": "0",
+      "current_fork_perc": "0.00",
+      "current_save_keys_processed": "0",
+      "current_save_keys_total": "0",
+      "rdb_changes_since_last_save": "0",
+      "rdb_bgsave_in_progress": "0",
+      "rdb_last_save_time": "1794419916",
+      "rdb_last_bgsave_status": "ok",
+      "rdb_last_bgsave_time_sec": "-1",
+      "rdb_current_bgsave_time_sec": "-1",
+      "rdb_saves": "0",
+      "rdb_last_cow_size": "0",
+      "rdb_last_load_keys_expired": "0",
+      "rdb_last_load_keys_loaded": "0",
+      "aof_enabled": "0",
+      "aof_rewrite_in_progress": "0",
+      "aof_rewrite_scheduled": "0",
+      "aof_last_rewrite_time_sec": "-1",
+      "aof_current_rewrite_time_sec": "-1",
+      "aof_last_bgrewrite_status": "ok",
+      "aof_rewrites": "0",
+      "aof_rewrites_consecutive_failures": "0",
+      "aof_last_write_status": "ok",
+      "aof_last_cow_size": "0",
+      "module_fork_in_progress": "0",
+      "module_fork_last_cow_size": "0"
+    },
+    "persistence_rc": 0,
+    "config_appendonly": {
+      "rc": 0,
+      "out": "appendonly\nno",
+      "err": ""
+    },
+    "dir": {
+      "rc": 0,
+      "out": "dir\n/var/lib/redis",
+      "err": ""
+    },
+    "dbsize": {
+      "0": {
+        "rc": 0,
+        "out": "0",
+        "err": ""
+      },
+      "60": {
+        "rc": 0,
+        "out": "0",
+        "err": "SELECT 60 failed: ERR DB index is out of range"
+      },
+      "61": {
+        "rc": 0,
+        "out": "0",
+        "err": "SELECT 61 failed: ERR DB index is out of range"
+      },
+      "62": {
+        "rc": 0,
+        "out": "0",
+        "err": "SELECT 62 failed: ERR DB index is out of range"
+      }
+    },
+    "client_list": {
+      "rc": 0,
+      "head": "id=11 addr=127.0.0.1:60036 laddr=127.0.0.1:6379 fd=8 name= age=0 idle=0 flags=N db=0 sub=0 psub=0 ssub=0 multi=-1 qbuf=26 qbuf-free=20448 argv-mem=10 multi-mem=0 rbs=16384 rbp=16384 obl=0 oll=0 omem=0 tot-mem=37658 events=r cmd=client|list user=default redir=-1 resp=2",
+      "err": ""
+    }
+  },
+  "host_10.20.2.169": {
+    "ping": {
+      "rc": 1,
+      "out": "",
+      "err": "Could not connect to Redis at 10.20.2.169:6379: Connection refused"
+    },
+    "persistence": {},
+    "persistence_rc": 1,
+    "config_appendonly": {
+      "rc": 1,
+      "out": "",
+      "err": "Could not connect to Redis at 10.20.2.169:6379: Connection refused"
+    },
+    "dir": {
+      "rc": 1,
+      "out": "",
+      "err": "Could not connect to Redis at 10.20.2.169:6379: Connection refused"
+    },
+    "dbsize": {
+      "0": {
+        "rc": 1,
+        "out": "",
+        "err": "Could not connect to Redis at 10.20.2.169:6379: Connection refused"
+      },
+      "60": {
+        "rc": 1,
+        "out": "",
+        "err": "Could not connect to Redis at 10.20.2.169:6379: Connection refused"
+      },
+      "61": {
+        "rc": 1,
+        "out": "",
+        "err": "Could not connect to Redis at 10.20.2.169:6379: Connection refused"
+      },
+      "62": {
+        "rc": 1,
+        "out": "",
+        "err": "Could not connect to Redis at 10.20.2.169:6379: Connection refused"
+      }
+    },
+    "client_list": {
+      "rc": 1,
+      "head": "",
+      "err": "Could not connect to Redis at 10.20.2.169:6379: Connection refused"
+    }
+  }
+}
