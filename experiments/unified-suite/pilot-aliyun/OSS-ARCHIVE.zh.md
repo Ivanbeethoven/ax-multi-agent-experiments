@@ -8,7 +8,7 @@ C3 BrewFS flat 十万文件的正式三角色原始记录、关闭回执和原�
 
 C1 BrewFS [随机读](evidence/c1-native-randread-02/oss/index.json)和[混合读写](evidence/c1-native-randrw-01/oss/index.json)的正式三角色原始记录、关闭回执和两组原六次校准已公开。
 
-C4 JuiceFS 第一轮关采集校准的[原始记录和关闭回执](evidence/c4-juicefs-calibration-off1-01/oss/index.json)已公开。该轮在冷读通过后补收原档，没有重跑。两轮[开采集校准原档](evidence/c4-juicefs-calibration-on12-01/oss/index.json)也已公开。第四轮[关采集校准原档和补收回执](evidence/c4-juicefs-calibration-off2-01/oss/index.json)也已公开，没有重跑。校准均未计入正式结果。
+C4 JuiceFS 第一轮关采集校准的[原始记录和关闭回执](evidence/c4-juicefs-calibration-off1-01/oss/index.json)已公开。该轮在冷读通过后补收原档，没有重跑。两轮[开采集校准原档](evidence/c4-juicefs-calibration-on12-01/oss/index.json)也已公开。第四轮[关采集校准原档和补收回执](evidence/c4-juicefs-calibration-off2-01/oss/index.json)也已公开，没有重跑。[第五轮（关采集）](evidence/c4-juicefs-calibration-off3-01/oss/index.json)和[第六轮（开采集）](evidence/c4-juicefs-calibration-on3-01/oss/index.json)的原始记录与关闭回执已公开。校准均未计入正式结果。
 
 | 文件 | 内容 |
 |---|---|
