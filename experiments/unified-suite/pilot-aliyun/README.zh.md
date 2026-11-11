@@ -1,8 +1,8 @@
 # 阿里云 C1–C4 小规模试跑
 
-最新版本核对：北京时间2026-11-11 09:41，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-12.json)。C1顺序读、顺序写的BrewFS和JuiceFS共四个单元已完成六次校准、正式测量、冷读回和归档；[报告](evidence/cloud-20261111/c1-progress-02.json)保留各项指标。四份完整原始包已独立下载并核全部成员。随机写正在执行，C1–C4全轮尚未完成。
+最新版本核对：北京时间2026-11-11 10:22，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-13.json)。C1顺序读、顺序写的BrewFS和JuiceFS共四个单元已完成六次校准、正式测量、冷读回和归档；[报告](evidence/cloud-20261111/c1-progress-02.json)保留各项指标。四份完整原始包已独立下载并核全部成员。随机写正在执行，C1–C4全轮尚未完成。
 
-10:02的[新增资源估算](evidence/cloud-20261111/cost-progress-10.json)为¥33.55，当前¥4.671/小时；未新增目标机或扩盘。原跳板、网络和OSS另计。随机写[前四次校准完成](evidence/cloud-20261111/c1-randwrite-progress-01.json)，尚无正式结果或完整开销结论。六次校准还需单独保留各节点原始文件：[归档工具的六项本机检查通过](evidence/preparation/calibration-retention-local-01.json)，[云端确认测量中会拒绝归档](evidence/preparation/calibration-retention-cloud-guard-01.json)。新代码仅部署到协调者，完整归档待当前测量结束后执行。
+10:22的[新增资源估算](evidence/cloud-20261111/cost-progress-11.json)为¥35.08，当前¥4.671/小时；未新增目标机或扩盘。原跳板、网络和OSS另计。随机写[前四次校准完成](evidence/cloud-20261111/c1-randwrite-progress-01.json)，尚无正式结果或完整开销结论。六次校准还需单独保留各节点原始文件：[归档工具的六项本机检查通过](evidence/preparation/calibration-retention-local-01.json)，[云端确认测量中会拒绝归档](evidence/preparation/calibration-retention-cloud-guard-01.json)。新代码仅部署到协调者，完整归档待当前测量结束后执行。
 
 JuiceFS顺序写先后保留两次校准失败：[采集接口随正常卸载关闭](evidence/preparation/c1-juicefs-write-calibration-failure/diagnosis.json)、[Linux复用mount ID使新增的退出检查误判](evidence/preparation/c1-juicefs-write-q2-calibration-failure/diagnosis.json)。前者负载和冷CRC通过，后者尚未执行负载。两次均已完整归档、独立下载和核验。采集器现以原进程身份及正常退出回执判断卸载，运行中断连、HTTP错误、解析错误和计数回退仍判失败。[54项本机检查通过](evidence/preparation/runtime-refresh-local.json)。修订后的新六次校准和正式单元已全部通过，旧结果不覆盖、不复用。
 
@@ -58,6 +58,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/probe-session-provider.py` | 默认只查模型列表；显式选择才发一次最多16输出token的小请求。已完成一次9 token检查，旧名称请求返回`deepseek-flash`；不提供文件系统恢复结论 |
 | `scripts/package-session-checkpoint.py`、`check-session-checkpoint.py` | 打包、恢复同一份关闭的会话输入，逐文件核内容、模式和内部链接；拒绝活动转发密钥、损坏包及不匹配的核验工具。[894项完整恢复与反例检查通过](evidence/preparation/session-checkpoint-package-local.json)，不调用模型 |
 | `scripts/fork-oracle.py` | 从C4原输入独立计算child修改后的完整预期树及固定首读摘要。[实际百万文件清单已生成](evidence/preparation/c4-fork-oracle-million-local.json)，三项本机交叉检查通过；云上派生和隔离验证尚未执行 |
+| `scripts/qualify-native-fork-local.py` | 从初始空revision派生两个child，分别写入并检查父子隔离、六次挂载的正常退出和冷读回。[本机通过](evidence/preparation/c4-native-empty-fork/README.zh.md)，不调用模型；非空base发布及百万文件派生仍待验证 |
 | `scripts/session-relay.py` | C4私网模型转发，主密钥仅在工作区外的私有配置，工作区使用独立转发凭据；不记录请求/响应正文，转发器不自动重试。可显式选择`--thinking-mode disabled`并记录策略，默认原样转发；OpenCode自身可能重试。云上仍为原版本，只完成[健康检查](evidence/preparation/c4-relay-health.json) |
 | `scripts/qualify-opencode-session.py`、`package-session-runtime.py` | 两轮真实会话验证export/import/resume，打包已安装依赖，密钥留在工作区外 |
 | `scripts/link-brewfs-tool.py`、`verify-entity-remote.rs` | 复用本轮BrewFS库构建只读核验器；检查原namespace的远端字节、目录、硬链接、ownership及核验前后状态 |

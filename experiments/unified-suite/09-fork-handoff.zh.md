@@ -20,6 +20,8 @@ python3 bench/fs_step.py snapshot --root "$DATA/fork-source" --output "$OUT/fork
 
 workspace目录接口与entity目录接口不同，不能把workspace-v1控制命令套到entity namespace。通过本批 `--help` / native smoke 固定exact argv。每个child一个命令；重复请求是否幂等须由原生语义证明，工具不会自动retry。
 
+本批最新版的[本机空版本派生检查](pilot-aliyun/evidence/preparation/c4-native-empty-fork/README.zh.md)已通过：两个child使用同一初始空revision，三个工作区分别写入并冷重挂读回，互不影响。它没有包含百万文件，也没有把父工作区后续写入发布为新revision；完整C4仍需先打通非空base发布，不能用这个检查替代。
+
 `fork_burst.py` 接收固定children清单（[样例](examples/fork-burst.json)）。所有step提前review并pin，在新输出目录保存整个intent；有界线程同时提交原命令，等待全部真实退出，不因一个child失败杀其他child。`parallelism` 主条件等于children，若资源不足，单列其他排队条件，不能悄悄降低并发。
 
 ```bash
