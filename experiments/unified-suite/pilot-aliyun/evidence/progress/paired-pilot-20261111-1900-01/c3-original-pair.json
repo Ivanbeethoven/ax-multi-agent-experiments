@@ -1,0 +1,528 @@
+{
+  "schema": "c3-pilot-matched-workload-audit-v1",
+  "at": "2026-11-11T11:00:49.711613+00:00",
+  "scope": "One sample per arm from independent physical pools with matched declared hardware and workload; descriptively compare identical timed phases only.",
+  "reuse_scope": "JuiceFS was rebound after an invocation rejected before workload. The create/copy/clone and fsync tooling differs; raw records are preserved and not a mechanism-level comparison.",
+  "independent_pools": true,
+  "no_shared_backend_cache_reset": true,
+  "samples": {
+    "juicefs": {
+      "cell": "16f4ac389d2a2da6-r1-juicefs",
+      "case": "files-100000-hot-1024",
+      "pool": "pool-b",
+      "paired_block": "16f4ac389d2a2da6-r1",
+      "plan_sha256": "54ddea371a6c1a24dec76a42e269761dfe5b5c167136dc33f3ee26e71a89e323",
+      "params": {
+        "agents": 1,
+        "files": 100000,
+        "file_bytes": 4096,
+        "directories": 1024,
+        "hot_files": 1024,
+        "workers": 8,
+        "workspaces": 1,
+        "read_ops": 8192,
+        "cow_files": 256,
+        "write_ops": 256,
+        "mixed_ops": 1024,
+        "prewarm_passes": 2,
+        "mixed_read_fraction": 0.75,
+        "fsync_every_write": true,
+        "dataset": "smallfiles-100k-4k"
+      },
+      "seed": 9173,
+      "close": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs.close.json",
+        "sha256": "3eb929d844025a0082049748f7a67feee3136e6cb8f380ce6498bd7f03582d9a"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/sample.json",
+        "sha256": "e622e33075a158c4d8256e897eff6b206643486549d83b6b36827601bab83913"
+      },
+      "build_manifest_sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e",
+      "input_manifest_sha256": "1377d895d40584a1cf6a3338b49cc41a733b9d0fce6b1c8c8d031e02191cb970",
+      "inventory_sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e",
+      "resource_ids": [
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "host:i-bp14nenf7osz9v1snsp2",
+        "disk:d-bp14nenf7osz9v1rkk5l",
+        "host:i-bp1bhdngko7nq3c3jrhp",
+        "disk:d-bp1bhdngko7nq3c2i343",
+        "disk:d-bp1bhdngko7nq3c2i342",
+        "disk:d-bp1bhdngko7nq3c2i341",
+        "disk:d-bp1bhdngko7nq3c2i340"
+      ],
+      "hardware_class": "matched-pool-v1",
+      "cache_budget_bytes_per_client": 536870912,
+      "metrics": {
+        "cold-read_wall_seconds": {
+          "value": 5.850454888,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "cold-read_io_p99_ns": {
+          "value": 8985461,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "cold-read_application_p99_ns": {
+          "value": 8986863,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "lower-prewarm_wall_seconds": {
+          "value": 1.006544333,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "lower-prewarm_io_p99_ns": {
+          "value": 6521804,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "lower-prewarm_application_p99_ns": {
+          "value": 6523805,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "hot-read_wall_seconds": {
+          "value": 3.556332212,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "hot-read_io_p99_ns": {
+          "value": 4740277,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "hot-read_application_p99_ns": {
+          "value": 4742279,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "cow_wall_seconds": {
+          "value": 0.423427654,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "cow_io_p99_ns": {
+          "value": 19100996,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "cow_application_p99_ns": {
+          "value": 19104827,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "upper-prewarm_wall_seconds": {
+          "value": 0.230927144,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "upper-prewarm_io_p99_ns": {
+          "value": 4738364,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "upper-prewarm_application_p99_ns": {
+          "value": 4740321,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "hot-write_wall_seconds": {
+          "value": 0.419377687,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "hot-write_io_p99_ns": {
+          "value": 16655764,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "hot-write_application_p99_ns": {
+          "value": 16657326,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "upper-rewarm_wall_seconds": {
+          "value": 0.280140624,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "upper-rewarm_io_p99_ns": {
+          "value": 8047693,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "upper-rewarm_application_p99_ns": {
+          "value": 8049590,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "mixed_wall_seconds": {
+          "value": 0.914721211,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "mixed_io_p99_ns": {
+          "value": 26435815,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "mixed_application_p99_ns": {
+          "value": 26437059,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "create_and_fsync_seconds": {
+          "value": 379.0250696380008,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+            "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+          }
+        },
+        "task_wall": {
+          "value": 12.703075358,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/cohort/result.json",
+            "sha256": "384ae38ccf536b6cf878ed4dfad64bc45dc808fdadc6bbcb26af5f41aa3b2a51"
+          }
+        }
+      }
+    },
+    "native": {
+      "cell": "16f4ac389d2a2da6-r1-native",
+      "case": "files-100000-hot-1024",
+      "pool": "pool-a",
+      "paired_block": "16f4ac389d2a2da6-r1",
+      "plan_sha256": "0feb04c5e52a28aa26d648386a5887aaffb5a792a7c579f5da25cd78f220a108",
+      "params": {
+        "agents": 1,
+        "files": 100000,
+        "file_bytes": 4096,
+        "directories": 1024,
+        "hot_files": 1024,
+        "workers": 8,
+        "workspaces": 1,
+        "read_ops": 8192,
+        "cow_files": 256,
+        "write_ops": 256,
+        "mixed_ops": 1024,
+        "prewarm_passes": 2,
+        "mixed_read_fraction": 0.75,
+        "fsync_every_write": true,
+        "dataset": "smallfiles-100k-4k"
+      },
+      "seed": 9173,
+      "close": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native.close.json",
+        "sha256": "9a61cb7ea23db1c32b98b11b6bbb54680854758784359dd76a5587801ed957a0"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/sample.json",
+        "sha256": "09de2c72c6cc41b90ee1cad849dc72890e4a95c804f2828162ba03b7319d9282"
+      },
+      "build_manifest_sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e",
+      "input_manifest_sha256": "1377d895d40584a1cf6a3338b49cc41a733b9d0fce6b1c8c8d031e02191cb970",
+      "inventory_sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e",
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ],
+      "hardware_class": "matched-pool-v1",
+      "cache_budget_bytes_per_client": 536870912,
+      "metrics": {
+        "cold-read_wall_seconds": {
+          "value": 4.093576053,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "cold-read_io_p99_ns": {
+          "value": 7295859,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "cold-read_application_p99_ns": {
+          "value": 7297125,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "lower-prewarm_wall_seconds": {
+          "value": 0.428914154,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "lower-prewarm_io_p99_ns": {
+          "value": 4924033,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "lower-prewarm_application_p99_ns": {
+          "value": 4925551,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "hot-read_wall_seconds": {
+          "value": 0.710854459,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "hot-read_io_p99_ns": {
+          "value": 1319072,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "hot-read_application_p99_ns": {
+          "value": 1320774,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "cow_wall_seconds": {
+          "value": 0.428308615,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "cow_io_p99_ns": {
+          "value": 21808299,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "cow_application_p99_ns": {
+          "value": 21812784,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "upper-prewarm_wall_seconds": {
+          "value": 0.057382422,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "upper-prewarm_io_p99_ns": {
+          "value": 1473087,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "upper-prewarm_application_p99_ns": {
+          "value": 1474885,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "hot-write_wall_seconds": {
+          "value": 0.424004409,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "hot-write_io_p99_ns": {
+          "value": 16647561,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "hot-write_application_p99_ns": {
+          "value": 16650388,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "upper-rewarm_wall_seconds": {
+          "value": 0.05692703,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "upper-rewarm_io_p99_ns": {
+          "value": 1572749,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "upper-rewarm_application_p99_ns": {
+          "value": 1574576,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "mixed_wall_seconds": {
+          "value": 0.424702913,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "mixed_io_p99_ns": {
+          "value": 15301339,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "mixed_application_p99_ns": {
+          "value": 15302631,
+          "unit": "nanoseconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "create_and_fsync_seconds": {
+          "value": 237.55738776199723,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/io-metrics.json",
+            "sha256": "be0504e8c263bd6b8bfa396fa2780599398bacdcc8cc39f213ff9c2c8f3f1e7e"
+          }
+        },
+        "task_wall": {
+          "value": 6.645098461,
+          "unit": "seconds",
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native/cohort/result.json",
+            "sha256": "8f6bbbc786e57864f80f2feaa82e619df83fffdd6df28d0d31c879fdd5227512"
+          }
+        }
+      }
+    }
+  }
+}

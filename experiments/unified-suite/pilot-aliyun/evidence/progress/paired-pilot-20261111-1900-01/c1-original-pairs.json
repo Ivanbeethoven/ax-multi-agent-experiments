@@ -1,0 +1,1484 @@
+{
+  "schema": "c1-pilot-original-pair-audit-v1",
+  "scope": "Nine accepted C1 samples. Read-only exact frozen plan, sample, metric and fio evidence; no new run, mechanism attribution or stable speedup estimate.",
+  "checked_at": "2026-11-11T10:58:40.585899+00:00",
+  "classification": {
+    "fio-randread": {
+      "status": "separate-observations",
+      "raw_fio_work_equal": true,
+      "provenance_differences": [
+        "plan_sha256",
+        "build_manifest_sha256",
+        "input_manifest_sha256",
+        "inventory_sha256"
+      ]
+    },
+    "fio-randrw": {
+      "status": "one-arm",
+      "available": [
+        "native"
+      ]
+    },
+    "fio-randwrite": {
+      "status": "original-matched-pair",
+      "raw_fio_work_equal": true,
+      "provenance_differences": []
+    },
+    "fio-read": {
+      "status": "original-matched-pair",
+      "raw_fio_work_equal": true,
+      "provenance_differences": []
+    },
+    "fio-write": {
+      "status": "original-matched-pair",
+      "raw_fio_work_equal": true,
+      "provenance_differences": []
+    }
+  },
+  "samples": [
+    {
+      "cell": "451ef1d28b5d875c-r1-juicefs",
+      "case": "fio-randread",
+      "arm": "juicefs",
+      "pool": "pool-a",
+      "paired_block": "451ef1d28b5d875c-r1",
+      "plan_sha256": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e",
+      "params": {
+        "agents": 1,
+        "rw": "randread",
+        "block_bytes": 4096,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "seed": 9173,
+      "build_manifest_sha256": "4e41bf0535942e0bccb1cfe6e071aef7553d6cff3427345833f3bb3a7f83ad4a",
+      "input_manifest_sha256": "8d52f9378e9cf6f750c71937bed1b9dc877d7fbd742293321790a4c911ef324e",
+      "hardware_class": "matched-pool-v1",
+      "inventory_sha256": "1b983c8c1577a6bcb5144166ae1efc2107d473a787058b44f7248c4907b8bd12",
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ],
+      "cache_budget_bytes_per_client": 536870912,
+      "metadata_backend": "redis",
+      "backend_policy": {
+        "repository": "https://github.com/Ivanbeethoven/rustfs",
+        "branch": "feat/dynamic-block-size-rebased",
+        "revision_policy": "branch-latest",
+        "layout_profile": "enabled",
+        "brewfs_hint": "auto"
+      },
+      "durability": "upload_before_commit+fsync+remote-drain",
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs.close.json",
+        "sha256": "412a1a71f4f94cd66a27f2d00c5bab6e1e4b11475dc72057486cb37b4a10424d"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/sample.json",
+        "sha256": "4415be9d386cfa5d4110bd8deab0f66b284090fdcba3b041a90a8dfe1aa2f54a"
+      },
+      "fio": {
+        "source": {
+          "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/raw/client/w/c1-451ef1d28b5d875c-r1-juicefs/draft/workload/fio.json",
+          "sha256": "f9cd305849358f0d789aeca1eb3a1bd554f9c2c1890b8c697a4156988eef2a4c"
+        },
+        "version": "fio-3.36",
+        "global_options": {
+          "ioengine": "psync",
+          "iodepth": "1",
+          "direct": "0",
+          "randrepeat": "1",
+          "verify": "crc32c",
+          "verify_fatal": "1",
+          "end_fsync": "1",
+          "fsync": "1",
+          "group_reporting": "0",
+          "invalidate": "1"
+        },
+        "job_options": {
+          "rw": "randread",
+          "bs": "4096",
+          "size": "67108864",
+          "io_size": "67108864",
+          "randseed": "9173",
+          "rwmixread": "75"
+        },
+        "read_bytes": 67108864,
+        "write_bytes": 0
+      },
+      "metrics": {
+        "read_bw_bytes": {
+          "value": 15520088,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/io-metrics.json",
+            "sha256": "eae295b40747db08d0846ac0835c156c106204d7062565480d7c5bc9a6cd24ab"
+          }
+        },
+        "read_iops": {
+          "value": 3789.084181,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/io-metrics.json",
+            "sha256": "eae295b40747db08d0846ac0835c156c106204d7062565480d7c5bc9a6cd24ab"
+          }
+        },
+        "read_p99_ns": {
+          "value": 1105920,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/io-metrics.json",
+            "sha256": "eae295b40747db08d0846ac0835c156c106204d7062565480d7c5bc9a6cd24ab"
+          }
+        },
+        "write_bw_bytes": {
+          "value": 0,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/io-metrics.json",
+            "sha256": "eae295b40747db08d0846ac0835c156c106204d7062565480d7c5bc9a6cd24ab"
+          }
+        },
+        "write_iops": {
+          "value": 0.0,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/io-metrics.json",
+            "sha256": "eae295b40747db08d0846ac0835c156c106204d7062565480d7c5bc9a6cd24ab"
+          }
+        },
+        "task_wall": {
+          "value": 4.657939207,
+          "unit": "seconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/cohort/result.json",
+            "sha256": "fcbb73b81024b0afbadada6ac843fb1755386a8cf6e0a800dfdd230a0c61ad87"
+          }
+        }
+      }
+    },
+    {
+      "cell": "451ef1d28b5d875c-r1-native",
+      "case": "fio-randread",
+      "arm": "native",
+      "pool": "pool-a",
+      "paired_block": "451ef1d28b5d875c-r1",
+      "plan_sha256": "276db6f0fce59a3fc568efb596bcfbad082bb5c85ecc724fa3bcdf3e3dad8aad",
+      "params": {
+        "agents": 1,
+        "rw": "randread",
+        "block_bytes": 4096,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "seed": 9173,
+      "build_manifest_sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e",
+      "input_manifest_sha256": "1377d895d40584a1cf6a3338b49cc41a733b9d0fce6b1c8c8d031e02191cb970",
+      "hardware_class": "matched-pool-v1",
+      "inventory_sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e",
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ],
+      "cache_budget_bytes_per_client": 536870912,
+      "metadata_backend": "redis",
+      "backend_policy": {
+        "repository": "https://github.com/Ivanbeethoven/rustfs",
+        "branch": "feat/dynamic-block-size-rebased",
+        "revision_policy": "branch-latest",
+        "layout_profile": "enabled",
+        "brewfs_hint": "auto"
+      },
+      "durability": "upload_before_commit+fsync+remote-drain",
+      "close": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native.close.json",
+        "sha256": "21196cf5483467afc2ec2678edf9fe59ccab3b3eee17421dee099d793d4beabf"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/sample.json",
+        "sha256": "aa2c8969104fa3e6572229d9defe087b55b047484c78bfa78293597456f0170d"
+      },
+      "fio": {
+        "source": {
+          "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/raw/client/w/c1-1fcfba3d8ee8-451ef1d28b5d875c-r1-native/draft/workload/fio.json",
+          "sha256": "4d5771d11fb3fc30fb68b108f60abb1077a2d7fd69f274d72921ceb9e413aa42"
+        },
+        "version": "fio-3.36",
+        "global_options": {
+          "ioengine": "psync",
+          "iodepth": "1",
+          "direct": "0",
+          "randrepeat": "1",
+          "verify": "crc32c",
+          "verify_fatal": "1",
+          "end_fsync": "1",
+          "fsync": "1",
+          "group_reporting": "0",
+          "invalidate": "1"
+        },
+        "job_options": {
+          "rw": "randread",
+          "bs": "4096",
+          "size": "67108864",
+          "io_size": "67108864",
+          "randseed": "9173",
+          "rwmixread": "75"
+        },
+        "read_bytes": 67108864,
+        "write_bytes": 0
+      },
+      "metrics": {
+        "read_bw_bytes": {
+          "value": 62718564,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/io-metrics.json",
+            "sha256": "36cb73298584a404b6271fc1e75613e0ffdd33900d26f7633d5e5a71e5cff1fb"
+          }
+        },
+        "read_iops": {
+          "value": 15312.149533,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/io-metrics.json",
+            "sha256": "36cb73298584a404b6271fc1e75613e0ffdd33900d26f7633d5e5a71e5cff1fb"
+          }
+        },
+        "read_p99_ns": {
+          "value": 71168,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/io-metrics.json",
+            "sha256": "36cb73298584a404b6271fc1e75613e0ffdd33900d26f7633d5e5a71e5cff1fb"
+          }
+        },
+        "write_bw_bytes": {
+          "value": 0,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/io-metrics.json",
+            "sha256": "36cb73298584a404b6271fc1e75613e0ffdd33900d26f7633d5e5a71e5cff1fb"
+          }
+        },
+        "write_iops": {
+          "value": 0.0,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/io-metrics.json",
+            "sha256": "36cb73298584a404b6271fc1e75613e0ffdd33900d26f7633d5e5a71e5cff1fb"
+          }
+        },
+        "task_wall": {
+          "value": 1.401902256,
+          "unit": "seconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/cohort/result.json",
+            "sha256": "f99a6496cf944750b5f9c573aa6bb7be0daacb6fff838e8e4fa86f89690af414"
+          }
+        }
+      }
+    },
+    {
+      "cell": "8e3d340ff23c3ece-r1-native",
+      "case": "fio-randrw",
+      "arm": "native",
+      "pool": "pool-a",
+      "paired_block": "8e3d340ff23c3ece-r1",
+      "plan_sha256": "0feb04c5e52a28aa26d648386a5887aaffb5a792a7c579f5da25cd78f220a108",
+      "params": {
+        "agents": 1,
+        "rw": "randrw",
+        "block_bytes": 4096,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "seed": 9173,
+      "build_manifest_sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e",
+      "input_manifest_sha256": "1377d895d40584a1cf6a3338b49cc41a733b9d0fce6b1c8c8d031e02191cb970",
+      "hardware_class": "matched-pool-v1",
+      "inventory_sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e",
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ],
+      "cache_budget_bytes_per_client": 536870912,
+      "metadata_backend": "redis",
+      "backend_policy": {
+        "repository": "https://github.com/Ivanbeethoven/rustfs",
+        "branch": "feat/dynamic-block-size-rebased",
+        "revision_policy": "branch-latest",
+        "layout_profile": "enabled",
+        "brewfs_hint": "auto"
+      },
+      "durability": "upload_before_commit+fsync+remote-drain",
+      "close": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native.close.json",
+        "sha256": "c3ff73fa1b5e6ab40f8e92826d4ae79c04b74f1930c251bd4efb2b9c181c5d3b"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/sample.json",
+        "sha256": "6cfa715406492b04f51b12742851351fa3e767ccb48df58a99ed7b51b53e565b"
+      },
+      "fio": {
+        "source": {
+          "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/raw/client/w/c1-fa630431ea12-8e3d340ff23c3ece-r1-native/draft/workload/fio.json",
+          "sha256": "502704a79cd30353cf99d9a80caba97db8d7cc16ee560101213e3883cd828bcb"
+        },
+        "version": "fio-3.36",
+        "global_options": {
+          "ioengine": "psync",
+          "iodepth": "1",
+          "direct": "0",
+          "randrepeat": "1",
+          "verify": "crc32c",
+          "verify_fatal": "1",
+          "end_fsync": "1",
+          "fsync": "1",
+          "group_reporting": "0",
+          "invalidate": "1"
+        },
+        "job_options": {
+          "rw": "randrw",
+          "bs": "4096",
+          "size": "67108864",
+          "io_size": "67108864",
+          "randseed": "9173",
+          "rwmixread": "75"
+        },
+        "read_bytes": 50479104,
+        "write_bytes": 16629760
+      },
+      "metrics": {
+        "read_bw_bytes": {
+          "value": 2066275,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/io-metrics.json",
+            "sha256": "2364d5e9c39591039b3f8bd0d61b43aa0a07f00b7f66dcb80c064cf2b63ed125"
+          }
+        },
+        "read_iops": {
+          "value": 504.461727,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/io-metrics.json",
+            "sha256": "2364d5e9c39591039b3f8bd0d61b43aa0a07f00b7f66dcb80c064cf2b63ed125"
+          }
+        },
+        "read_p99_ns": {
+          "value": 301056,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/io-metrics.json",
+            "sha256": "2364d5e9c39591039b3f8bd0d61b43aa0a07f00b7f66dcb80c064cf2b63ed125"
+          }
+        },
+        "write_bw_bytes": {
+          "value": 680710,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/io-metrics.json",
+            "sha256": "2364d5e9c39591039b3f8bd0d61b43aa0a07f00b7f66dcb80c064cf2b63ed125"
+          }
+        },
+        "write_iops": {
+          "value": 166.189112,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/io-metrics.json",
+            "sha256": "2364d5e9c39591039b3f8bd0d61b43aa0a07f00b7f66dcb80c064cf2b63ed125"
+          }
+        },
+        "write_p99_ns": {
+          "value": 378880,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/io-metrics.json",
+            "sha256": "2364d5e9c39591039b3f8bd0d61b43aa0a07f00b7f66dcb80c064cf2b63ed125"
+          }
+        },
+        "sync_p99_ns": {
+          "value": 6062080,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/io-metrics.json",
+            "sha256": "2364d5e9c39591039b3f8bd0d61b43aa0a07f00b7f66dcb80c064cf2b63ed125"
+          }
+        },
+        "task_wall": {
+          "value": 24.755174861,
+          "unit": "seconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native/cohort/result.json",
+            "sha256": "c46b52fa3d86237ddc6ab0ddafd195b3fa71dbc38fa5fa6730865e734f063d09"
+          }
+        }
+      }
+    },
+    {
+      "cell": "7084af367e0bcfad-r1-juicefs",
+      "case": "fio-randwrite",
+      "arm": "juicefs",
+      "pool": "pool-a",
+      "paired_block": "7084af367e0bcfad-r1",
+      "plan_sha256": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e",
+      "params": {
+        "agents": 1,
+        "rw": "randwrite",
+        "block_bytes": 4096,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "seed": 9173,
+      "build_manifest_sha256": "4e41bf0535942e0bccb1cfe6e071aef7553d6cff3427345833f3bb3a7f83ad4a",
+      "input_manifest_sha256": "8d52f9378e9cf6f750c71937bed1b9dc877d7fbd742293321790a4c911ef324e",
+      "hardware_class": "matched-pool-v1",
+      "inventory_sha256": "1b983c8c1577a6bcb5144166ae1efc2107d473a787058b44f7248c4907b8bd12",
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ],
+      "cache_budget_bytes_per_client": 536870912,
+      "metadata_backend": "redis",
+      "backend_policy": {
+        "repository": "https://github.com/Ivanbeethoven/rustfs",
+        "branch": "feat/dynamic-block-size-rebased",
+        "revision_policy": "branch-latest",
+        "layout_profile": "enabled",
+        "brewfs_hint": "auto"
+      },
+      "durability": "upload_before_commit+fsync+remote-drain",
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs.close.json",
+        "sha256": "89fb76850a3919082370c30882a331899f3fe97248e743d3dcb4afd3069ad98c"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/sample.json",
+        "sha256": "fd9f5d5b8ab385ccffcad07cb9dd3b7f33e2cd19eab0ea5c775ab323850c1171"
+      },
+      "fio": {
+        "source": {
+          "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/raw/client/w/c1-7084af367e0bcfad-r1-juicefs/draft/workload/fio.json",
+          "sha256": "1aaf03d3aad8315e071d9fe11ca7a72ce97a504c31e8a1cf61a43de9e794f1d4"
+        },
+        "version": "fio-3.36",
+        "global_options": {
+          "ioengine": "psync",
+          "iodepth": "1",
+          "direct": "0",
+          "randrepeat": "1",
+          "verify": "crc32c",
+          "verify_fatal": "1",
+          "end_fsync": "1",
+          "fsync": "1",
+          "group_reporting": "0",
+          "invalidate": "1"
+        },
+        "job_options": {
+          "rw": "randwrite",
+          "bs": "4096",
+          "size": "67108864",
+          "io_size": "67108864",
+          "randseed": "9173",
+          "rwmixread": "75"
+        },
+        "read_bytes": 0,
+        "write_bytes": 67108864,
+        "write_sync_details": {
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/raw/client/w/c1-7084af367e0bcfad-r1-juicefs/draft/workload/fio.json",
+            "sha256": "1aaf03d3aad8315e071d9fe11ca7a72ce97a504c31e8a1cf61a43de9e794f1d4"
+          },
+          "sync": {
+            "N": 16383,
+            "mean": 12843137.167063,
+            "min": 3377053,
+            "max": 317544585,
+            "percentiles": {
+              "50.000000": 6717440,
+              "95.000000": 32899072,
+              "99.000000": 108527616
+            }
+          },
+          "write_completion": {
+            "N": 16384,
+            "mean": 638346.283081,
+            "min": 151969,
+            "max": 59182365,
+            "percentiles": {
+              "50.000000": 214016,
+              "95.000000": 684032,
+              "99.000000": 12517376
+            }
+          }
+        }
+      },
+      "metrics": {
+        "read_bw_bytes": {
+          "value": 0,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/io-metrics.json",
+            "sha256": "d1e71df9f6c2e95609b5d66b9dca5b90cb4d08e34f9651349b3eef1c1f79ddbc"
+          }
+        },
+        "read_iops": {
+          "value": 0.0,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/io-metrics.json",
+            "sha256": "d1e71df9f6c2e95609b5d66b9dca5b90cb4d08e34f9651349b3eef1c1f79ddbc"
+          }
+        },
+        "write_bw_bytes": {
+          "value": 303603,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/io-metrics.json",
+            "sha256": "d1e71df9f6c2e95609b5d66b9dca5b90cb4d08e34f9651349b3eef1c1f79ddbc"
+          }
+        },
+        "write_iops": {
+          "value": 74.121995,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/io-metrics.json",
+            "sha256": "d1e71df9f6c2e95609b5d66b9dca5b90cb4d08e34f9651349b3eef1c1f79ddbc"
+          }
+        },
+        "write_p99_ns": {
+          "value": 12517376,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/io-metrics.json",
+            "sha256": "d1e71df9f6c2e95609b5d66b9dca5b90cb4d08e34f9651349b3eef1c1f79ddbc"
+          }
+        },
+        "sync_p99_ns": {
+          "value": 108527616,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/io-metrics.json",
+            "sha256": "d1e71df9f6c2e95609b5d66b9dca5b90cb4d08e34f9651349b3eef1c1f79ddbc"
+          }
+        },
+        "task_wall": {
+          "value": 221.379508745,
+          "unit": "seconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/cohort/result.json",
+            "sha256": "2920e989a168850963b768d90635714c962157b3cfd359fb24d1cd3b80d49249"
+          }
+        }
+      }
+    },
+    {
+      "cell": "7084af367e0bcfad-r1-native",
+      "case": "fio-randwrite",
+      "arm": "native",
+      "pool": "pool-a",
+      "paired_block": "7084af367e0bcfad-r1",
+      "plan_sha256": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e",
+      "params": {
+        "agents": 1,
+        "rw": "randwrite",
+        "block_bytes": 4096,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "seed": 9173,
+      "build_manifest_sha256": "4e41bf0535942e0bccb1cfe6e071aef7553d6cff3427345833f3bb3a7f83ad4a",
+      "input_manifest_sha256": "8d52f9378e9cf6f750c71937bed1b9dc877d7fbd742293321790a4c911ef324e",
+      "hardware_class": "matched-pool-v1",
+      "inventory_sha256": "1b983c8c1577a6bcb5144166ae1efc2107d473a787058b44f7248c4907b8bd12",
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ],
+      "cache_budget_bytes_per_client": 536870912,
+      "metadata_backend": "redis",
+      "backend_policy": {
+        "repository": "https://github.com/Ivanbeethoven/rustfs",
+        "branch": "feat/dynamic-block-size-rebased",
+        "revision_policy": "branch-latest",
+        "layout_profile": "enabled",
+        "brewfs_hint": "auto"
+      },
+      "durability": "upload_before_commit+fsync+remote-drain",
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native.close.json",
+        "sha256": "09fd6fb542be737b0ff8ef0aa7f4f98b2291f1d7a68a147741f389446f193e35"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/sample.json",
+        "sha256": "0e6236247bf9fedb0ac46f0f3b39ebfdae046ab71a8894e9814e603df7cd455a"
+      },
+      "fio": {
+        "source": {
+          "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/raw/client/w/c1-7084af367e0bcfad-r1-native/draft/workload/fio.json",
+          "sha256": "4c0001f5eeb80cef37ee0a60fee07644317e38ee6c92716a1b6a40cb5be2b22f"
+        },
+        "version": "fio-3.36",
+        "global_options": {
+          "ioengine": "psync",
+          "iodepth": "1",
+          "direct": "0",
+          "randrepeat": "1",
+          "verify": "crc32c",
+          "verify_fatal": "1",
+          "end_fsync": "1",
+          "fsync": "1",
+          "group_reporting": "0",
+          "invalidate": "1"
+        },
+        "job_options": {
+          "rw": "randwrite",
+          "bs": "4096",
+          "size": "67108864",
+          "io_size": "67108864",
+          "randseed": "9173",
+          "rwmixread": "75"
+        },
+        "read_bytes": 0,
+        "write_bytes": 67108864,
+        "write_sync_details": {
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/raw/client/w/c1-7084af367e0bcfad-r1-native/draft/workload/fio.json",
+            "sha256": "4c0001f5eeb80cef37ee0a60fee07644317e38ee6c92716a1b6a40cb5be2b22f"
+          },
+          "sync": {
+            "N": 16383,
+            "mean": 108287399.792712,
+            "min": 106487729,
+            "max": 299015789,
+            "percentiles": {
+              "50.000000": 108527616,
+              "95.000000": 109576192,
+              "99.000000": 109576192
+            }
+          },
+          "write_completion": {
+            "N": 16384,
+            "mean": 337874.378723,
+            "min": 275469,
+            "max": 3948689,
+            "percentiles": {
+              "50.000000": 329728,
+              "95.000000": 391168,
+              "99.000000": 464896
+            }
+          }
+        }
+      },
+      "metrics": {
+        "read_bw_bytes": {
+          "value": 0,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/io-metrics.json",
+            "sha256": "4f34b19207cb0133ceb80d80af84439ee77eaec53f283a7c6b053648309d9894"
+          }
+        },
+        "read_iops": {
+          "value": 0.0,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/io-metrics.json",
+            "sha256": "4f34b19207cb0133ceb80d80af84439ee77eaec53f283a7c6b053648309d9894"
+          }
+        },
+        "write_bw_bytes": {
+          "value": 37703,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/io-metrics.json",
+            "sha256": "4f34b19207cb0133ceb80d80af84439ee77eaec53f283a7c6b053648309d9894"
+          }
+        },
+        "write_iops": {
+          "value": 9.204944,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/io-metrics.json",
+            "sha256": "4f34b19207cb0133ceb80d80af84439ee77eaec53f283a7c6b053648309d9894"
+          }
+        },
+        "write_p99_ns": {
+          "value": 464896,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/io-metrics.json",
+            "sha256": "4f34b19207cb0133ceb80d80af84439ee77eaec53f283a7c6b053648309d9894"
+          }
+        },
+        "sync_p99_ns": {
+          "value": 109576192,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/io-metrics.json",
+            "sha256": "4f34b19207cb0133ceb80d80af84439ee77eaec53f283a7c6b053648309d9894"
+          }
+        },
+        "task_wall": {
+          "value": 1780.24694433,
+          "unit": "seconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/cohort/result.json",
+            "sha256": "e8a163ba06a79334b22860b99ee13a624747e8b339e13b716cca75a9c0050d49"
+          }
+        }
+      }
+    },
+    {
+      "cell": "34d56abaf85454a2-r1-juicefs",
+      "case": "fio-read",
+      "arm": "juicefs",
+      "pool": "pool-a",
+      "paired_block": "34d56abaf85454a2-r1",
+      "plan_sha256": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e",
+      "params": {
+        "agents": 1,
+        "rw": "read",
+        "block_bytes": 1048576,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "seed": 9173,
+      "build_manifest_sha256": "4e41bf0535942e0bccb1cfe6e071aef7553d6cff3427345833f3bb3a7f83ad4a",
+      "input_manifest_sha256": "8d52f9378e9cf6f750c71937bed1b9dc877d7fbd742293321790a4c911ef324e",
+      "hardware_class": "matched-pool-v1",
+      "inventory_sha256": "1b983c8c1577a6bcb5144166ae1efc2107d473a787058b44f7248c4907b8bd12",
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ],
+      "cache_budget_bytes_per_client": 536870912,
+      "metadata_backend": "redis",
+      "backend_policy": {
+        "repository": "https://github.com/Ivanbeethoven/rustfs",
+        "branch": "feat/dynamic-block-size-rebased",
+        "revision_policy": "branch-latest",
+        "layout_profile": "enabled",
+        "brewfs_hint": "auto"
+      },
+      "durability": "upload_before_commit+fsync+remote-drain",
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs.close.json",
+        "sha256": "bce745e859025f4375850243972c252272071cccf9fffca9c21f94c21f63f8a2"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs/sample.json",
+        "sha256": "69d4e3cf97f15331cc82100651bd31083c53e4bf832d44fd79053d0489404cb0"
+      },
+      "fio": {
+        "source": {
+          "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs/raw/client/w/c1-34d56abaf85454a2-r1-juicefs/draft/workload/fio.json",
+          "sha256": "43cf53bcfcdae91affe9bfd1a18624a128c7cf611170c7770303cc006842aff7"
+        },
+        "version": "fio-3.36",
+        "global_options": {
+          "ioengine": "psync",
+          "iodepth": "1",
+          "direct": "0",
+          "randrepeat": "1",
+          "verify": "crc32c",
+          "verify_fatal": "1",
+          "end_fsync": "1",
+          "fsync": "1",
+          "group_reporting": "0",
+          "invalidate": "1"
+        },
+        "job_options": {
+          "rw": "read",
+          "bs": "1048576",
+          "size": "67108864",
+          "io_size": "67108864",
+          "randseed": "9173",
+          "rwmixread": "75"
+        },
+        "read_bytes": 67108864,
+        "write_bytes": 0
+      },
+      "metrics": {
+        "read_bw_bytes": {
+          "value": 137518163,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs/io-metrics.json",
+            "sha256": "33b952cfd05f350eaf4bda8d9eadb2f7e47d79a8fd3ef2a5c1a88a08daa376bc"
+          }
+        },
+        "read_iops": {
+          "value": 131.147541,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs/io-metrics.json",
+            "sha256": "33b952cfd05f350eaf4bda8d9eadb2f7e47d79a8fd3ef2a5c1a88a08daa376bc"
+          }
+        },
+        "read_p99_ns": {
+          "value": 164626432,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs/io-metrics.json",
+            "sha256": "33b952cfd05f350eaf4bda8d9eadb2f7e47d79a8fd3ef2a5c1a88a08daa376bc"
+          }
+        },
+        "write_bw_bytes": {
+          "value": 0,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs/io-metrics.json",
+            "sha256": "33b952cfd05f350eaf4bda8d9eadb2f7e47d79a8fd3ef2a5c1a88a08daa376bc"
+          }
+        },
+        "write_iops": {
+          "value": 0.0,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs/io-metrics.json",
+            "sha256": "33b952cfd05f350eaf4bda8d9eadb2f7e47d79a8fd3ef2a5c1a88a08daa376bc"
+          }
+        },
+        "task_wall": {
+          "value": 0.825286947,
+          "unit": "seconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs/cohort/result.json",
+            "sha256": "c64b605526ee7611a8518be5a63cf9112cafacfc81340dc3349213138f42a0a0"
+          }
+        }
+      }
+    },
+    {
+      "cell": "34d56abaf85454a2-r1-native",
+      "case": "fio-read",
+      "arm": "native",
+      "pool": "pool-a",
+      "paired_block": "34d56abaf85454a2-r1",
+      "plan_sha256": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e",
+      "params": {
+        "agents": 1,
+        "rw": "read",
+        "block_bytes": 1048576,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "seed": 9173,
+      "build_manifest_sha256": "4e41bf0535942e0bccb1cfe6e071aef7553d6cff3427345833f3bb3a7f83ad4a",
+      "input_manifest_sha256": "8d52f9378e9cf6f750c71937bed1b9dc877d7fbd742293321790a4c911ef324e",
+      "hardware_class": "matched-pool-v1",
+      "inventory_sha256": "1b983c8c1577a6bcb5144166ae1efc2107d473a787058b44f7248c4907b8bd12",
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ],
+      "cache_budget_bytes_per_client": 536870912,
+      "metadata_backend": "redis",
+      "backend_policy": {
+        "repository": "https://github.com/Ivanbeethoven/rustfs",
+        "branch": "feat/dynamic-block-size-rebased",
+        "revision_policy": "branch-latest",
+        "layout_profile": "enabled",
+        "brewfs_hint": "auto"
+      },
+      "durability": "upload_before_commit+fsync+remote-drain",
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native.close.json",
+        "sha256": "1866678e55eea004a0f9ce5041b28fc005f5d5105cc033e8b4ae56bc5d7420fd"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/sample.json",
+        "sha256": "3b04ead55c62de379ee3fd99b002fa0bd006aa46c25832730791c78a160e7f8c"
+      },
+      "fio": {
+        "source": {
+          "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/raw/client/w/c1-34d56abaf85454a2-r1-native/draft/workload/fio.json",
+          "sha256": "a9a966ae5979f5915e9eba97f3658a1647af78d6257a03682aed61ba012242ec"
+        },
+        "version": "fio-3.36",
+        "global_options": {
+          "ioengine": "psync",
+          "iodepth": "1",
+          "direct": "0",
+          "randrepeat": "1",
+          "verify": "crc32c",
+          "verify_fatal": "1",
+          "end_fsync": "1",
+          "fsync": "1",
+          "group_reporting": "0",
+          "invalidate": "1"
+        },
+        "job_options": {
+          "rw": "read",
+          "bs": "1048576",
+          "size": "67108864",
+          "io_size": "67108864",
+          "randseed": "9173",
+          "rwmixread": "75"
+        },
+        "read_bytes": 67108864,
+        "write_bytes": 0
+      },
+      "metrics": {
+        "read_bw_bytes": {
+          "value": 254200242,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/io-metrics.json",
+            "sha256": "d97304ce3c44c298b7864cac3c326631c23dc40cab3ea7495a156f11178a2121"
+          }
+        },
+        "read_iops": {
+          "value": 242.424242,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/io-metrics.json",
+            "sha256": "d97304ce3c44c298b7864cac3c326631c23dc40cab3ea7495a156f11178a2121"
+          }
+        },
+        "read_p99_ns": {
+          "value": 21889024,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/io-metrics.json",
+            "sha256": "d97304ce3c44c298b7864cac3c326631c23dc40cab3ea7495a156f11178a2121"
+          }
+        },
+        "write_bw_bytes": {
+          "value": 0,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/io-metrics.json",
+            "sha256": "d97304ce3c44c298b7864cac3c326631c23dc40cab3ea7495a156f11178a2121"
+          }
+        },
+        "write_iops": {
+          "value": 0.0,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/io-metrics.json",
+            "sha256": "d97304ce3c44c298b7864cac3c326631c23dc40cab3ea7495a156f11178a2121"
+          }
+        },
+        "task_wall": {
+          "value": 0.59436763,
+          "unit": "seconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/cohort/result.json",
+            "sha256": "d7bbc6bdd6be69ed26e662b66bac07fd06715af9a9ad6975ffe6330a4d54d643"
+          }
+        }
+      }
+    },
+    {
+      "cell": "5ca7353ba24b2a18-r1-juicefs",
+      "case": "fio-write",
+      "arm": "juicefs",
+      "pool": "pool-a",
+      "paired_block": "5ca7353ba24b2a18-r1",
+      "plan_sha256": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e",
+      "params": {
+        "agents": 1,
+        "rw": "write",
+        "block_bytes": 1048576,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "seed": 9173,
+      "build_manifest_sha256": "4e41bf0535942e0bccb1cfe6e071aef7553d6cff3427345833f3bb3a7f83ad4a",
+      "input_manifest_sha256": "8d52f9378e9cf6f750c71937bed1b9dc877d7fbd742293321790a4c911ef324e",
+      "hardware_class": "matched-pool-v1",
+      "inventory_sha256": "1b983c8c1577a6bcb5144166ae1efc2107d473a787058b44f7248c4907b8bd12",
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ],
+      "cache_budget_bytes_per_client": 536870912,
+      "metadata_backend": "redis",
+      "backend_policy": {
+        "repository": "https://github.com/Ivanbeethoven/rustfs",
+        "branch": "feat/dynamic-block-size-rebased",
+        "revision_policy": "branch-latest",
+        "layout_profile": "enabled",
+        "brewfs_hint": "auto"
+      },
+      "durability": "upload_before_commit+fsync+remote-drain",
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs.close.json",
+        "sha256": "ac1fd4b03e69a33cde34f554e3d86cde58a2b0d62a9ab73a9bbfc4f8b77dd165"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/sample.json",
+        "sha256": "ed593ce409141e4e992d8222a7f035771d5aafd6e85e5ebc8c67a822734376df"
+      },
+      "fio": {
+        "source": {
+          "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/raw/client/w/c1-5ca7353ba24b2a18-r1-juicefs/draft/workload/fio.json",
+          "sha256": "108001269dad96200333e0231ae9735a99ea5231750920f4c0e3a5581f3b1828"
+        },
+        "version": "fio-3.36",
+        "global_options": {
+          "ioengine": "psync",
+          "iodepth": "1",
+          "direct": "0",
+          "randrepeat": "1",
+          "verify": "crc32c",
+          "verify_fatal": "1",
+          "end_fsync": "1",
+          "fsync": "1",
+          "group_reporting": "0",
+          "invalidate": "1"
+        },
+        "job_options": {
+          "rw": "write",
+          "bs": "1048576",
+          "size": "67108864",
+          "io_size": "67108864",
+          "randseed": "9173",
+          "rwmixread": "75"
+        },
+        "read_bytes": 0,
+        "write_bytes": 67108864,
+        "write_sync_details": {
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/raw/client/w/c1-5ca7353ba24b2a18-r1-juicefs/draft/workload/fio.json",
+            "sha256": "108001269dad96200333e0231ae9735a99ea5231750920f4c0e3a5581f3b1828"
+          },
+          "sync": {
+            "N": 63,
+            "mean": 9686575.047619,
+            "min": 9207910,
+            "max": 15270474,
+            "percentiles": {
+              "50.000000": 9502720,
+              "95.000000": 10158080,
+              "99.000000": 15269888
+            }
+          },
+          "write_completion": {
+            "N": 64,
+            "mean": 1001743.03125,
+            "min": 868475,
+            "max": 1770857,
+            "percentiles": {
+              "50.000000": 978944,
+              "95.000000": 1089536,
+              "99.000000": 1777664
+            }
+          }
+        }
+      },
+      "metrics": {
+        "read_bw_bytes": {
+          "value": 0,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+            "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+          }
+        },
+        "read_iops": {
+          "value": 0.0,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+            "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+          }
+        },
+        "write_bw_bytes": {
+          "value": 94519526,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+            "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+          }
+        },
+        "write_iops": {
+          "value": 90.140845,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+            "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+          }
+        },
+        "write_p99_ns": {
+          "value": 1777664,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+            "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+          }
+        },
+        "sync_p99_ns": {
+          "value": 15269888,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+            "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+          }
+        },
+        "task_wall": {
+          "value": 1.045453827,
+          "unit": "seconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/cohort/result.json",
+            "sha256": "2c28aea406ab8541e9edef74a6aaf39014ff9e6d2cb038d2884146d298277d54"
+          }
+        }
+      }
+    },
+    {
+      "cell": "5ca7353ba24b2a18-r1-native",
+      "case": "fio-write",
+      "arm": "native",
+      "pool": "pool-a",
+      "paired_block": "5ca7353ba24b2a18-r1",
+      "plan_sha256": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e",
+      "params": {
+        "agents": 1,
+        "rw": "write",
+        "block_bytes": 1048576,
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold",
+        "time_based": false
+      },
+      "seed": 9173,
+      "build_manifest_sha256": "4e41bf0535942e0bccb1cfe6e071aef7553d6cff3427345833f3bb3a7f83ad4a",
+      "input_manifest_sha256": "8d52f9378e9cf6f750c71937bed1b9dc877d7fbd742293321790a4c911ef324e",
+      "hardware_class": "matched-pool-v1",
+      "inventory_sha256": "1b983c8c1577a6bcb5144166ae1efc2107d473a787058b44f7248c4907b8bd12",
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg"
+      ],
+      "cache_budget_bytes_per_client": 536870912,
+      "metadata_backend": "redis",
+      "backend_policy": {
+        "repository": "https://github.com/Ivanbeethoven/rustfs",
+        "branch": "feat/dynamic-block-size-rebased",
+        "revision_policy": "branch-latest",
+        "layout_profile": "enabled",
+        "brewfs_hint": "auto"
+      },
+      "durability": "upload_before_commit+fsync+remote-drain",
+      "close": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native.close.json",
+        "sha256": "4ae79387b82129633c617662515b744832be54bc7c30dd4c3ef25d8d598b9e83"
+      },
+      "sample": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/sample.json",
+        "sha256": "78fde053b7558a11994daa4f44898299dfacdf02b3d51b1b2ae6091bb668b199"
+      },
+      "fio": {
+        "source": {
+          "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/raw/client/w/c1-5ca7353ba24b2a18-r1-native/draft/workload/fio.json",
+          "sha256": "f0f320e7e8ec3aad2c7b8937c0dce0e7c12491df00a10a7dc1f915a9f494a578"
+        },
+        "version": "fio-3.36",
+        "global_options": {
+          "ioengine": "psync",
+          "iodepth": "1",
+          "direct": "0",
+          "randrepeat": "1",
+          "verify": "crc32c",
+          "verify_fatal": "1",
+          "end_fsync": "1",
+          "fsync": "1",
+          "group_reporting": "0",
+          "invalidate": "1"
+        },
+        "job_options": {
+          "rw": "write",
+          "bs": "1048576",
+          "size": "67108864",
+          "io_size": "67108864",
+          "randseed": "9173",
+          "rwmixread": "75"
+        },
+        "read_bytes": 0,
+        "write_bytes": 67108864,
+        "write_sync_details": {
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/raw/client/w/c1-5ca7353ba24b2a18-r1-native/draft/workload/fio.json",
+            "sha256": "f0f320e7e8ec3aad2c7b8937c0dce0e7c12491df00a10a7dc1f915a9f494a578"
+          },
+          "sync": {
+            "N": 63,
+            "mean": 11104334.698413,
+            "min": 10273188,
+            "max": 14175215,
+            "percentiles": {
+              "50.000000": 10944512,
+              "95.000000": 11993088,
+              "99.000000": 14221312
+            }
+          },
+          "write_completion": {
+            "N": 64,
+            "mean": 991022.46875,
+            "min": 868519,
+            "max": 3586603,
+            "percentiles": {
+              "50.000000": 929792,
+              "95.000000": 1105920,
+              "99.000000": 3588096
+            }
+          }
+        }
+      },
+      "metrics": {
+        "read_bw_bytes": {
+          "value": 0,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/io-metrics.json",
+            "sha256": "73fd3076f1e7439cc3800592fd6aef6f71fa7b08584cd5692d09d9c5d730e823"
+          }
+        },
+        "read_iops": {
+          "value": 0.0,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/io-metrics.json",
+            "sha256": "73fd3076f1e7439cc3800592fd6aef6f71fa7b08584cd5692d09d9c5d730e823"
+          }
+        },
+        "write_bw_bytes": {
+          "value": 83991068,
+          "unit": "bytes/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/io-metrics.json",
+            "sha256": "73fd3076f1e7439cc3800592fd6aef6f71fa7b08584cd5692d09d9c5d730e823"
+          }
+        },
+        "write_iops": {
+          "value": 80.100125,
+          "unit": "operations/second",
+          "direction": "higher",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/io-metrics.json",
+            "sha256": "73fd3076f1e7439cc3800592fd6aef6f71fa7b08584cd5692d09d9c5d730e823"
+          }
+        },
+        "write_p99_ns": {
+          "value": 3588096,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/io-metrics.json",
+            "sha256": "73fd3076f1e7439cc3800592fd6aef6f71fa7b08584cd5692d09d9c5d730e823"
+          }
+        },
+        "sync_p99_ns": {
+          "value": 14221312,
+          "unit": "nanoseconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/io-metrics.json",
+            "sha256": "73fd3076f1e7439cc3800592fd6aef6f71fa7b08584cd5692d09d9c5d730e823"
+          }
+        },
+        "task_wall": {
+          "value": 1.128070713,
+          "unit": "seconds",
+          "direction": "lower",
+          "source": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/cohort/result.json",
+            "sha256": "8a535e7c5837219e6527c61397953cec9cece2d2c70f33f5773ffc2a964ae5b1"
+          }
+        }
+      }
+    }
+  ]
+}
