@@ -258,8 +258,8 @@ def worker(ref, directory):
         prepared_jobs.append(prepare(job['step']['path'], job['step']['sha256']))
         if job.get('result') and Path(job['result']['path']).exists(): raise ValueError('stale result before barrier')
     if s.get('purpose')!='adapter-test':
-        if s['kind'] not in ('trace','ml','s3','control','fio','smallfiles'):raise ValueError('explicit workload kind required')
-        if s['kind'] in ('trace','ml','fio','smallfiles') and not s.get('mount'):raise ValueError('filesystem workload requires supervised mount')
+        if s['kind'] not in ('trace','ml','s3','control','fio','smallfiles','fork'):raise ValueError('explicit workload kind required')
+        if s['kind'] in ('trace','ml','fio','smallfiles','fork') and not s.get('mount'):raise ValueError('filesystem workload requires supervised mount')
         for job in jobs:
             if not job.get('workload_id'):raise ValueError('explicit workload identity required for per-task statistics')
             expected=job.get('result',{}).get('equals',{})
@@ -267,12 +267,17 @@ def worker(ref, directory):
                   'ml':{'completed','attempted_files','actual_read_bytes','errors'},
                   's3':{'passed','requests','application_bytes','global_concurrency','shard'},'control':set(),
                   'fio':{'completed','passed','jobs','application_bytes','phase'},
-                  'smallfiles':{'completed','passed','files','verified_reads','writes','actual_read_bytes','actual_write_bytes'}}[s['kind']]
+                  'smallfiles':{'completed','passed','files','verified_reads','writes','actual_read_bytes','actual_write_bytes'},
+                  'fork':{'completed','passed','children','files','file_bytes','work_tag','method'}}[s['kind']]
             if not keys.issubset(expected):raise ValueError('workload result predicates incomplete')
             if s['kind']=='trace' and (expected['completed'] is not True or expected['remaining_handles']!=0 or expected['operations']<=0):
                 raise ValueError('incomplete trace acceptance')
             if s['kind'] in ('fio','smallfiles') and (expected['completed'] is not True or expected['passed'] is not True):
                 raise ValueError('complete successful native workload required')
+            if s['kind']=='fork' and (expected['completed'] is not True or expected['passed'] is not True or
+                    expected['children']!=1 or expected['files']<=0 or expected['file_bytes']!=4096 or
+                    expected['work_tag']!='child-01' or expected['method'] not in ('native-clone','full-independent-copy')):
+                raise ValueError('one fixed-work C4 baseline child required')
     mount = s.get('mount')
     if mount:
         expected_mount = spec(mount['spec'], 'experiment-mount-v1')
@@ -285,7 +290,8 @@ def worker(ref, directory):
         if snapshot['mount'] != ready['mount'] or snapshot['anchor'] != ready['anchor']:
             raise ValueError('mount identity changed')
     elif s.get('requires_mount', True): raise ValueError('missing mount receipt')
-    write_new(directory/'ready.json', {'worker_id': s['worker_id'], 'spec': ref, 'resources': resources})
+    write_new(directory/'ready.json', {'worker_id': s['worker_id'], 'spec': ref, 'resources': resources,
+                                     'process':identity(os.getpid())})
     from .common import isolation_identity
     emit('ready', worker=s['worker_id'], spec_sha256=ref['sha256'], resources=resources,
          isolation=isolation_identity() if s.get('purpose') != 'adapter-test' else None,

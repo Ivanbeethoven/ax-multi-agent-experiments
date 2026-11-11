@@ -1,0 +1,79 @@
+{
+  "schema": "c4-offline-verification-v1",
+  "passed": true,
+  "tests_run": 23,
+  "reported_test_seconds": 0.827,
+  "at": "2026-11-11T06:59:23.472204+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.test_c4_fork_baseline",
+    "tests.test_c4_formal",
+    "tests.test_pilot_runtime_refresh",
+    "tests.test_runtime_adapters.MetricsContractTests.test_overhead_pairs_bind_work_and_reject_regressions",
+    "tests.test_unified_suite.EvidenceTests.test_fork_burst_waits_all_and_preserves_failed_child",
+    "tests.test_unified_suite.EvidenceTests.test_interrupted_sample_and_gap_excluded_without_erasing_metrics",
+    "-v"
+  ],
+  "source_pins": [
+    {
+      "path": "bench/runtime/fork_work.py",
+      "sha256": "d0dbd00c48d3363db0dd72bfb1bbccc231ba3d3b3e1a98f401979375a3d6b619"
+    },
+    {
+      "path": "bench/runtime/node.py",
+      "sha256": "87134426493087ec49aade76ef8f983d51b4d88a8d181d80983f0521792bbf7d"
+    },
+    {
+      "path": "bench/runtime/observe.py",
+      "sha256": "29bdf9cdf5d97115c694d85f5a761c03591d17df3b88ad7472e2a484f08a2efd"
+    },
+    {
+      "path": "bench/suite_validate.py",
+      "sha256": "180906c16fd21c8639c13a1dd858af1445f43230fac720925bab92ac7b088e9d"
+    },
+    {
+      "path": "experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py",
+      "sha256": "e5d83db08668789f6422e71f0cc31ad03430b1616cf2ae1a608f24c4c9e6abef"
+    },
+    {
+      "path": "experiments/unified-suite/pilot-aliyun/scripts/c4-fork-node.py",
+      "sha256": "a54246894525e12c364e97f0220e342970deeb41795802da9fb7f7b063d0f624"
+    },
+    {
+      "path": "experiments/unified-suite/pilot-aliyun/scripts/run-c4.py",
+      "sha256": "49633522fe8ce3b413573c9918373dec5ee6d2b98c49d3bfc36e77ab08dc5c48"
+    },
+    {
+      "path": "experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4.py",
+      "sha256": "47373aebf1376ec9b2eb3d913c6928624c4f8f8c378e4484b5636c7ec53f0868"
+    },
+    {
+      "path": "experiments/unified-suite/pilot-aliyun/scripts/check-c4-calibration.py",
+      "sha256": "a962dba755e4105ad77c638033ce2f87870b574898cad626bbe616d77525b25a"
+    },
+    {
+      "path": "experiments/unified-suite/pilot-aliyun/scripts/admit-c4.py",
+      "sha256": "7ffc4db05b3ccb0f9a90085507860a7f768e08d2a2e99ff552ab4f6ba8c18dac"
+    },
+    {
+      "path": "experiments/unified-suite/pilot-aliyun/scripts/prepare-c4-controller.py",
+      "sha256": "01e02a5b65d7cbe8e11d5e209fa1a05af54b939b6d851cb21833c65513cdee6a"
+    },
+    {
+      "path": "experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py",
+      "sha256": "622df0f62387853a724725d2eaf5dc87077752600b0a573488d06de07285b340"
+    },
+    {
+      "path": "tests/test_c4_formal.py",
+      "sha256": "18a14d0f9f25b9b6223d424df955c6278f7e453eea28d38808c6eea6aa9f5221"
+    },
+    {
+      "path": "tests/test_c4_fork_baseline.py",
+      "sha256": "14ad7304e1af6da18e4b1c8841838caf53ec795a9e40be05bfe6a872fa962a99"
+    }
+  ],
+  "cloud_c4_executions": 0,
+  "scope": "Offline code verification only. Five-file fixtures, no model, FUSE/cloud workload, input generation or compilation. No formal experiment admission."
+}

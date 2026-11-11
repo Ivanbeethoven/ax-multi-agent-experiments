@@ -148,8 +148,9 @@ class Cell:
                     if self.pool!='pool-a' and not compose:raise ValueError('Exact RustFS deployment binding required')
                     if compose:args+=['--rustfs-compose',compose['path'],'--rustfs-compose-sha256',compose['sha256']]
                 if role == 'client':
-                    args += ['--mount-directory', self.main, '--extra-mount-directory', self.prep,
-                             '--extra-mount-directory', self.verify]
+                    dirs=self.mount_dirs if hasattr(self,'mount_dirs') else [self.main,self.prep,self.verify]
+                    args += ['--mount-directory',dirs[0]]
+                    for directory in dirs[1:]:args+=['--extra-mount-directory',directory]
                 spec = json.loads(self.remote(role, args))
                 peer = ref(self.runtime/'probes'/alias(self.pool,role)/'peer.json')
                 directory = root+'/o/'+self.tag
@@ -395,9 +396,11 @@ def close_cell(c,outcome,reason=None):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--context',type=Path,required=True)
-    p.add_argument('--stage',choices=['observe-start','create','mount','measure','drain','unmount','verify','observe-stop','archive'])
+    p.add_argument('--stage',help='One stage from the context cell in the frozen plan')
     p.add_argument('--close-failed',help='Explicit failure reason after separately recovered offline evidence; never reruns a stage')
     a=p.parse_args();c=Cell(a.context)
+    if a.stage and a.stage not in c.cell['stages']:
+        raise ValueError('Stage is not in this frozen cell')
     if a.close_failed:
         if a.stage:raise ValueError('Choose a stage or explicit failed closure')
         close_cell(c,'failed',a.close_failed);return

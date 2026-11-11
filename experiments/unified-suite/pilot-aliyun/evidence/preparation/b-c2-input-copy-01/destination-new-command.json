@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "ssh",
+    "-F",
+    "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/ssh.conf",
+    "pool-b-client",
+    "nice -n 15 ionice -c 3 python3 -c 'import pathlib,json,os;root=pathlib.Path('\"'\"'/srv/ax-client'\"'\"');stage=pathlib.Path('\"'\"'/srv/ax-client/preparation/c2-input-transfer-01'\"'\"');assert not stage.exists();assert not (root/'\"'\"'trace-exact-02'\"'\"').exists();assert not (root/'\"'\"'assets/bin/full-fuse-replay-parent-fd-01'\"'\"').exists();assert os.statvfs(root).f_bavail*os.statvfs(root).f_frsize>8*1024**3;stage.mkdir(mode=0o700,parents=True);(stage/'\"'\"'tar'\"'\"').mkdir();print(json.dumps(dict(passed=True)))'"
+  ]
+}

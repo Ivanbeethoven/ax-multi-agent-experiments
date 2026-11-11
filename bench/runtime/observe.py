@@ -314,6 +314,7 @@ def overhead(ref):
                         'ml':['attempted_files','actual_read_bytes','errors'],
                         'fio':['jobs','application_bytes','phase'],
                         'smallfiles':['files','verified_reads','writes','actual_read_bytes','actual_write_bytes'],
+                        'fork':['files','file_bytes','children','work_tag','method','logical_read_bytes','logical_write_bytes','fsync_files'],
                         's3':['requests','application_bytes','global_concurrency','shard']}.get(job['kind'])
                 if not job['passed'] or not fields:raise ValueError('missing measured workload calibration')
                 signatures.append((job['kind'],*[job['result'][k] for k in fields]))

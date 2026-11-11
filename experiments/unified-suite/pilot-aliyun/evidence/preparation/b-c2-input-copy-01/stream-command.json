@@ -1,0 +1,18 @@
+{
+  "sender": [
+    "ssh",
+    "-F",
+    "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/ssh.conf",
+    "pool-a-client",
+    "nice -n 15 ionice -c 3 tar -C /srv/ax-client -cf - trace-exact-02/cases/pytest-full-02 trace-exact-02/manifest-replay-inputs-03.json assets/bin/full-fuse-replay-parent-fd-01"
+  ],
+  "receiver": [
+    "ssh",
+    "-F",
+    "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/ssh.conf",
+    "pool-b-client",
+    "nice -n 15 ionice -c 3 tar -C /srv/ax-client/preparation/c2-input-transfer-01/tar -xpf -"
+  ],
+  "network": "VPC through coordinator",
+  "automatic_retry": false
+}

@@ -89,7 +89,13 @@ def work(plan, cell_id, packet):
             for k in ('operations','actual_read_bytes','actual_write_bytes'):totals[k]+=v[k]
         elif kind=='fork':
             predicates(v,{'completed':True,'passed':True,'children':params['children']})
-            if len(v['results'])!=params['children'] or any(r.get('exit_code')!=0 for r in v['results']):raise ValueError('fork child completion differs')
+            if v.get('schema')=='c4-fork-work-v1':
+                from .runtime.common import pinned
+                from .runtime.fork_work import validate_result
+                validate_result(v,load(pinned(item['clock'])),params)
+                if v['clock']!=item['clock_source'] or v['clock']['sha256']!=item['clock']['sha256']:
+                    raise ValueError('Original fork clock differs from its verified retained copy')
+            elif len(v['results'])!=params['children'] or any(r.get('exit_code')!=0 for r in v['results']):raise ValueError('fork child completion differs')
             totals['children']+=v['children']
         else:
             predicates(v,{'passed':True,'mode':cell['arm']['handoff_mode']})

@@ -1,0 +1,21 @@
+{
+  "tool": {
+    "path": "/srv/ax-pilot-control/preparation/c2-input-transfer-01/copy-c2-between-pools.py",
+    "sha256": "a8288edd77559614dc422034c76cc2e869b5a6fd66a58c912b89f05926eab7ec"
+  },
+  "argv": [
+    "systemd-run",
+    "--unit=ax-pilot-b-c2-input-copy-01",
+    "--collect",
+    "/usr/bin/python3",
+    "/srv/ax-pilot-control/preparation/c2-input-transfer-01/copy-c2-between-pools.py",
+    "--ssh-config",
+    "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/ssh.conf",
+    "--out",
+    "/srv/ax-pilot-control/parallel-control-01/preparation-commands/b-c2-input-copy-01"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "Running as unit: ax-pilot-b-c2-input-copy-01.service; invocation ID: a58109d3e8fe412b82b754755676836c\n",
+  "systemd": "MainPID=91183\nActiveState=active\nSubState=running\nInvocationID=a58109d3e8fe412b82b754755676836c\n"
+}
