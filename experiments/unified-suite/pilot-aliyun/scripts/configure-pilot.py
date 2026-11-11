@@ -20,7 +20,7 @@ def digest(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--phase', choices=['c123','c3','fork','handoff'], required=True)
+    parser.add_argument('--phase', choices=['c123','c1','c2','c3','fork','handoff'], required=True)
     parser.add_argument('--files', type=int, choices=[100000,1000000],
                         help='Explicit file count for a new C3/fork pilot; legacy defaults remain one million')
     parser.add_argument('--campaign', required=True)
@@ -41,7 +41,7 @@ def main():
     config['placement'] = json.loads((REPO/'experiments/unified-suite/pilot-aliyun/scope.json').read_text())['placement']
     config['metadata_backend'] = 'redis'
     config['cases'] = [c for c in config['cases'] if (c['suite'] in ('C1','C2','C3') if args.phase=='c123'
-                       else c['suite']=='C3' if args.phase=='c3' else c['workload']==args.phase)]
+                       else c['suite']==args.phase.upper() if args.phase in ('c1','c2','c3') else c['workload']==args.phase)]
     if args.files is not None:
         select_pilot_files(config, args.files)
     if args.handoff_task_id:
@@ -49,7 +49,7 @@ def main():
     roles = ['client','metadata','objects'] + (['target'] if args.phase=='handoff' else [])
     pool = config['clusters'][0]
     pool.update(metadata_backend='redis', agent_slots=2 if args.phase=='handoff' else 1,
-                supported_suites=['C1','C2','C3'] if args.phase=='c123' else ['C3'] if args.phase=='c3' else ['C4'],
+                supported_suites=['C1','C2','C3'] if args.phase=='c123' else [args.phase.upper()] if args.phase in ('c1','c2','c3') else ['C4'],
                 observer_ids=['pool-a-'+role for role in roles])
     if args.inventory:
         inventory = json.loads(args.inventory.read_text())
@@ -72,7 +72,7 @@ def main():
         pool['resource_ids'] = ['host:unresolved-'+role for role in roles]
     config['clusters'] = [pool]
     plan = build(config)
-    expected = {'c123':19, 'c3':4, 'fork':5, 'handoff':4}[args.phase]
+    expected = {'c123':19, 'c1':10, 'c2':5, 'c3':4, 'fork':5, 'handoff':4}[args.phase]
     if len(plan['cells']) != expected:
         raise ValueError('Unexpected pilot matrix; inspect catalog before changing scope')
     args.out.mkdir(parents=True, exist_ok=False)

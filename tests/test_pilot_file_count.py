@@ -127,6 +127,21 @@ class PilotFileCount(unittest.TestCase):
                 self.assertIn(b'source qualification', result.stderr.lower())
                 self.assertFalse(out.exists())
 
+    def test_new_version_can_prepare_c1_c2_without_rewriting_old_state(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for phase, expected in [('c1',10),('c2',5)]:
+                with self.subTest(phase=phase):
+                    out=Path(temporary)/phase
+                    subprocess.run([sys.executable,str(ROOT/'experiments/unified-suite/pilot-aliyun/scripts/configure-pilot.py'),
+                        '--phase',phase,'--campaign','new-version-'+phase,'--out',str(out)],
+                        check=True,capture_output=True)
+                    plan=json.loads((out/'plan.json').read_text())
+                    self.assertEqual(len(plan['cells']),expected)
+                    self.assertEqual({c['suite'] for c in plan['cells']},{phase.upper()})
+                    self.assertEqual(plan['config']['clusters'][0]['supported_suites'],[phase.upper()])
+                    self.assertFalse(plan['provenance_bound'])
+                    self.assertFalse((out/'state.sqlite').exists())
+
 
 if __name__ == '__main__':
     unittest.main()

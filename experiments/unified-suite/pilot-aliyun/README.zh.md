@@ -2,19 +2,21 @@
 
 用户最新决定：C3与C4派生先改为[10万文件试跑](PILOT-100K.zh.md)，每文件4KiB，另建明确标记规模的阶段。C1/C2及正在运行的校准沿用原设置，原百万文件数据和结果保留。下表C3/C4尚无正式结果，后续按新规模推进。
 
-截至北京时间2026-11-11 10:31，[协调者实际状态](evidence/cloud-20261111/status-20261111-1032.json)为5项完成、1项失败，其他尚未正式完成。当前C1–C3状态库共19项；C4的9项需在后续独立环境中执行。系统计划总计28项，另有22项消融尚无正式结果。
+截至北京时间2026-11-11 11:44，[协调者实际状态](evidence/cloud-20261111/status-20261111-1143.json)为6项完成、1项失败，其他尚未正式完成。当前C1–C3状态库共19项；C3随后按独立10万文件阶段执行，C4的9项也在后续阶段执行。系统计划仍为28个条件，另有22项消融尚无正式结果。
 
 | 实验 | 正式完成/计划 | 当前情况 |
 |---|---:|---|
-| C1 fio | 5/10 | 两边顺序读写、JuiceFS随机读完成；BrewFS随机读因归档阶段失败而排除。BrewFS随机写前5次校准通过，第6次运行中；其余随机写/混合读写待执行 |
+| C1 fio | 6/10 | 两边顺序读写、JuiceFS随机读、BrewFS随机写完成；BrewFS随机读因归档失败而排除。JuiceFS随机写正在校准，第一轮已通过；混合读写待执行 |
 | C2 完整trace | 0/5 | flat BrewFS、JuiceFS均已通过174.7万次完整回放与冷读回资格，正式校准和测量未完成；其他路径尚未通过完整资格 |
 | C3 小文件（现改10万） | 0/4 | 10万源数据、完整预期清单及独立Rust核验已完成；实际系统导入、容量资格、八阶段负载未完成 |
 | C4 派生（现改10万） | 0/5 | 本机空版本派生、私有写入和冷读回通过；10万文件输入和预期清单完成，非空版本发布及云上对照未完成 |
 | C4 流转 | 0/4 | 本机JuiceFS原会话数据库冷重开通过；BrewFS工作区重挂后写入EIO。云上跨机和真实继续任务未完成，模型调用暂停 |
 
-10:22[两条指定分支仍与构建一致](evidence/preparation/latest-progress-13.json)。[正式C1报告](evidence/cloud-20261111/c1-progress-02.json)保留五项通过及一项排除的实际指标；完整原始包已独立下载并核全部成员。每项仅1个Agent、1次pilot正式重复，不能作为扩展规模或稳定加速结论。
+11:07查到[BrewFS分支推进到ca07159](evidence/preparation/latest-progress-15.json)，RustFS未变。[11:47独立重建完成](evidence/preparation/brewfs-ca07159-build/README.zh.md)，两份源码均干净、旧产物保留。新版本正在本机验证10万文件Packed路径；已开始的云上随机写配对继续固定622736b。`configure-pilot.py --phase c1`或`--phase c2`可单独生成新阶段，旧状态库保留。
 
-10:29的[新增资源估算](evidence/cloud-20261111/cost-progress-12.json)为¥35.66，当前¥4.671/小时；未新增目标机或扩盘，原跳板、网络和OSS另计。[扩盘备选清单及报价](OBJECT-CAPACITY.zh.md)已准备，未执行。六次校准还需单独保留各节点原始文件：[归档工具本机检查通过](evidence/preparation/calibration-retention-local-01.json)，[云端确认测量中会拒绝归档](evidence/preparation/calibration-retention-cloud-guard-01.json)。新代码仅部署到协调者，完整归档待当前测量结束后执行。
+[正式C1报告](evidence/cloud-20261111/c1-progress-03.json)保留六项通过及一项排除的实际指标。BrewFS随机写[正式包及六次校准的所有嵌套节点包均已独立核验](evidence/cloud-20261111/7084af367e0bcfad-r1-native/README.zh.md)。每项仅1个Agent、1次pilot正式重复，不能作为扩展规模或稳定加速结论。
+
+11:45的[新增资源估算](evidence/cloud-20261111/cost-progress-14.json)为¥41.57，当前¥4.671/小时；未新增目标机或扩盘，原跳板、网络和OSS另计。[扩盘备选清单及报价](OBJECT-CAPACITY.zh.md)已准备，未执行。六次校准已通过[实际归档及独立副本核验](evidence/cloud-20261111/7084af367e0bcfad-r1-native/calibration-nested-check.independent.json)。归档工具首次云上执行的路径问题[已修复并保留失败记录](evidence/preparation/calibration-retention-fix/README.zh.md)；只更新协调者的归档代码，测量仍使用原code-07。
 
 JuiceFS顺序写先后保留两次校准失败：[采集接口随正常卸载关闭](evidence/preparation/c1-juicefs-write-calibration-failure/diagnosis.json)、[Linux复用mount ID使新增的退出检查误判](evidence/preparation/c1-juicefs-write-q2-calibration-failure/diagnosis.json)。前者负载和冷CRC通过，后者尚未执行负载。两次均已完整归档、独立下载和核验。采集器现以原进程身份及正常退出回执判断卸载，运行中断连、HTTP错误、解析错误和计数回退仍判失败。[54项本机检查通过](evidence/preparation/runtime-refresh-local.json)。修订后的新六次校准和正式单元已全部通过，旧结果不覆盖、不复用。
 

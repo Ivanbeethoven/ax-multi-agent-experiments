@@ -28,8 +28,9 @@ class CalibrationRetention(unittest.TestCase):
             dirs = ['o/cal-check-on1','m/cal-check-on1']
             files, skipped = module.file_list(root, dirs)
             before = module.stable_snapshot(root, files)
-            archive = Path(temporary)/'raw.tar.gz'
-            checked = module.archive_check.pack(root, files, archive, 'cell-1', 'calibration')
+            out = root/'retained-calibrations/check'; out.mkdir(parents=True)
+            archive = out/'raw.tar.gz'
+            checked = module.pack_node_files(root, files, out, 'cell-1', 'calibration')
             self.assertTrue(module.archive_check.verify(archive, checked['sha256'])['passed'])
             with tarfile.open(archive) as tar:
                 self.assertEqual(set(tar.getnames()), set(files)|{module.archive_check.MANIFEST})

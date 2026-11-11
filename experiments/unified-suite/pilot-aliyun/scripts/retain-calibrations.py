@@ -68,6 +68,19 @@ def assert_unchanged(root, directories, files, skipped, before):
         raise ValueError('Original evidence mutated during retention')
 
 
+def pack_node_files(root, files, out, cell_id, kind):
+    # The archive must be outside its packed root, even when retention uses the
+    # same data disk as the original worker evidence.
+    stage = out/'raw'
+    stage.mkdir()
+    for name in files:
+        archive_check.safe(name)
+        target = stage/name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(root/name, target)
+    return archive_check.pack(stage, files, out/'raw.tar.gz', cell_id, kind)
+
+
 def assert_closed_mount(directory):
     value = mount_lifecycle(dict(mount_directory=str(directory)))
     if not value or value['state'] != 'cleanly-stopped':
@@ -134,7 +147,7 @@ def node_pack(s):
         raise ValueError('Off trials retain client evidence only')
     files, skipped = file_list(root, directories)
     before = stable_snapshot(root, files)
-    checked = archive_check.pack(root, files, out/'raw.tar.gz', s['cell_id'], 'calibration-'+tag+'-'+role)
+    checked = pack_node_files(root, files, out, s['cell_id'], 'calibration-'+tag+'-'+role)
     assert_unchanged(root, directories, files, skipped, before)
     result = dict(passed=True, role=role, tag=tag, mode=s['mode'], archive=checked,
                   processes_and_mounts=closed, observer_audits=audits, debt_samples=debt,

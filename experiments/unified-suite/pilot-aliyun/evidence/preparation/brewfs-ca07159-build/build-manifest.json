@@ -1,0 +1,67 @@
+{
+  "format": "ax-pilot-local-build-v1",
+  "resolved_at": "2026-11-11T03:47:18.261511+00:00",
+  "sources": [
+    {
+      "component": "brewfs",
+      "repository": "https://github.com/brewfs/brewfs.git",
+      "branch": "main",
+      "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634"
+    },
+    {
+      "component": "rustfs",
+      "repository": "https://github.com/Ivanbeethoven/rustfs.git",
+      "branch": "feat/dynamic-block-size-rebased",
+      "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00"
+    }
+  ],
+  "files": [
+    {
+      "file": "brewfs",
+      "bytes": 437660368,
+      "sha256": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0"
+    },
+    {
+      "file": "packed_v3_snapshot_fixture",
+      "bytes": 47172456,
+      "sha256": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab"
+    },
+    {
+      "file": "entity_metadata_probe",
+      "bytes": 29604640,
+      "sha256": "638069a5e830df03b9d92586ceb3eb1bb1164f2192e1f52459155f7ab23f7e00"
+    },
+    {
+      "file": "rustfs",
+      "bytes": 280706352,
+      "sha256": "7cf928734f34be79d6a41ab280113f36c06cf74f1034b66a62a95aece12623ca"
+    },
+    {
+      "file": "smallfiles",
+      "bytes": 674024,
+      "sha256": "8c45bca1348e936e0b8e5d01e7e8ee11f1db72120dc8aa7800aa72e1e0bcde96"
+    },
+    {
+      "file": "full-fuse-replay",
+      "bytes": 773664,
+      "sha256": "4e8b0f9cf12e5f6b117e1a5a109896c1c961951602251d5c5f2cd7a5ec4db055"
+    }
+  ],
+  "build_jobs": "2",
+  "release_debug": 0,
+  "build_attestations": [
+    {
+      "component": "brewfs",
+      "path": "/home/hxy/ax-unified-pilot-prep-next-01/logs/brewfs/20261111T030911-3521246/attestation-finished.json",
+      "sha256": "34556a78476d892faf7777a12c7c301859a42c288bed707f129f22fadbd417d5"
+    },
+    {
+      "component": "rustfs",
+      "path": "/home/hxy/ax-unified-pilot-prep/logs/rustfs/20261110T162723-3453105/attestation-finished.json",
+      "sha256": "ba4153e54e57e58eefd88cf6154d84fb45a601765fbdc32c03953187991e51fc"
+    }
+  ],
+  "cloud_instances_started": false,
+  "ready_for_deployment": false,
+  "next_check": "Retain image revision/digest, dependencies and actual native mount qualification"
+}
