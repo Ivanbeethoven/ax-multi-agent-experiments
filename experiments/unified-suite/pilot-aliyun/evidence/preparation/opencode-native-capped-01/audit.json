@@ -1,0 +1,72 @@
+{
+  "at": "2026-11-11T15:23:12.401918+00:00",
+  "current_state_observation": {
+    "canonical_fuse_mount_in_audit_namespace": [],
+    "original_process_pid_paths_present": {
+      "cold": false,
+      "cold-export": false,
+      "cold-final-export": false,
+      "export-after-resume": false,
+      "export-before-stop": false,
+      "final": false,
+      "native-resume": false,
+      "source": false
+    },
+    "sandbox_cgroup_directories_remaining": [],
+    "scope": "Current absence only; cannot establish past normal exit or its cause. The three original closed/command exit receipts establish the recorded normal unmounts."
+  },
+  "independent_checks": {
+    "after_and_final_exports_equal": true,
+    "all_native_and_mount_command_exits_zero": true,
+    "before_and_cold_exports_equal": true,
+    "completed_call_sha256": [
+      "d71ae4c8510cd8ed03ddc6597119d21c6989804671b1df2ba6b2d3537e60a0f6"
+    ],
+    "executed_adapter_matches_pinned_source": true,
+    "executed_cap_script_matches_outer_intent": true,
+    "final_hash_matches_independent_checkpoint": true,
+    "model_requests": 2,
+    "native_event_and_cold_export_new_completed_call_ids_equal": true,
+    "normal_unmount_receipts": 3,
+    "original_history_prefix_unchanged": true
+  },
+  "native_reported_usage": [
+    {
+      "tokens": {
+        "cache": {
+          "read": 9344,
+          "write": 0
+        },
+        "input": 255,
+        "output": 81,
+        "reasoning": 0,
+        "total": 9680
+      },
+      "type": "step_finish"
+    },
+    {
+      "tokens": {
+        "cache": {
+          "read": 9472,
+          "write": 0
+        },
+        "input": 224,
+        "output": 22,
+        "reasoning": 0,
+        "total": 9718
+      },
+      "type": "step_finish"
+    }
+  ],
+  "no_data_deletion": true,
+  "no_mounts_or_service_restarts": true,
+  "no_new_model_calls": true,
+  "passed": true,
+  "runtime_checks_read_from_result": {
+    "cold_full_resumed_workspace_equal": true,
+    "cold_sqlite_tool_matches": 1,
+    "original_canonical_parent_restored": true,
+    "original_checkpoint_unchanged": true
+  },
+  "scope": "Same WSL host, empty HOME, original native DB on JuiceFS, normal unmount/remount; not cross-host or performance."
+}

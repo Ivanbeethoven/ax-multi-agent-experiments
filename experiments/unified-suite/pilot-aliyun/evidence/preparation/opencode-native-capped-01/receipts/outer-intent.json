@@ -1,0 +1,33 @@
+{
+  "at": "2026-11-11T14:53:47.869200+00:00",
+  "argv": [
+    "unshare",
+    "--mount",
+    "--propagation",
+    "private",
+    "/home/hxy/ax-unified-pilot-prep/venv/bin/python3",
+    "-B",
+    "/mnt/c/Users/HXY/.cache/ax-pilot-20261111/publish-fsync-1911-01/experiments/unified-suite/pilot-aliyun/scripts/qualify-session-shared-capped.py",
+    "--build-root",
+    "/home/hxy/ax-unified-pilot-prep",
+    "--checkpoint-directory",
+    "/home/hxy/ax-unified-pilot-prep/inputs/opencode-checkpoint",
+    "--services",
+    "/home/hxy/ax-unified-pilot-prep/qualification/local-services-03",
+    "--provider-config",
+    "/mnt/c/Users/HXY/.config/opencode/opencode.json",
+    "--out",
+    "/home/hxy/ax-unified-pilot-prep/qualification/session-shared-juicefs-cap512-01",
+    "--parent-mount-namespace",
+    "mnt:[4026532229]",
+    "--database",
+    "10",
+    "--resume",
+    "--thinking-mode",
+    "disabled",
+    "--execute-once"
+  ],
+  "script_sha256": "ef4e949dc902d40e1266a4dbfb700192df736909ea5b14e57fb99f7a42e02d1e",
+  "maximum_upstream_requests": 4,
+  "scope": "One local native resume qualification, not cloud or cross-machine performance."
+}

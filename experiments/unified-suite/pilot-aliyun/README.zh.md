@@ -10,7 +10,7 @@
 
 本轮在阿里云按量实例上试跑。C3和C4派生使用[10万文件](PILOT-100K.zh.md)，每文件4KiB。C1、C2完整trace和C4会话流转保持原负载。实验输入、原始数据和 SHA256 见[归档下载](OSS-ARCHIVE.zh.md)及[trace目录](../../../scenarios/k8s-containers/data-catalog.md)。
 
-截至北京时间 2026-11-11 22:00，[系统实验验收 14/28](evidence/progress/parallel-20261111-2200-01/STATUS.zh.md)，剩 14 项；22 项消融另计。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。B 组三台实例已停计算费、九块盘保留；新增资源累计估算 ¥130.04，当前约 ¥5.64/小时，原跳板、网络与 OSS 另计。
+截至北京时间 2026-11-11 23:24，[系统实验验收仍为 14/28](evidence/progress/parallel-20261111-2324-01/STATUS.zh.md)，剩 14 项；22 项消融另计。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。B 组三台已确认停计算费；新增资源累计估算 ¥138.14，当前约 ¥5.64/小时，原跳板、网络与 OSS 另计。
 
 | 实验 | 正式完成/计划 | 当前情况 |
 |---|---:|---|
@@ -18,7 +18,7 @@
 | C2 完整trace | 2/5 | flat BrewFS、JuiceFS 均已验收；[另外三项](evidence/preparation/c2-remaining-audit-01/README.zh.md)受 FUSE 操作或非空版本发布功能限制 |
 | C3 小文件（10万） | 2/4 | [JuiceFS](evidence/c3-jfs-01/)和[BrewFS flat](evidence/c3-flat-01/)均已验收并公开原始记录；Packed完整资格通过，观测开关差约5.98%，正式样本未启动 |
 | C4 派生（10万） | 1/5 | [B组 JuiceFS](evidence/c4-jfs-01/)已验收。A 组 BrewFS flat 首轮校准仍在执行，后续轮次须先过清理和容量检查 |
-| C4 流转 | 0/4 | 原会话数据库冷重开通过；完整原生恢复未通过。小型接口与离线请求诊断不计入正式结果 |
+| C4 流转 | 0/4 | [本地原生恢复通过](evidence/preparation/opencode-native-capped-01/README.zh.md)：空 HOME、原数据库、新工具执行及完整冷读。跨机器恢复尚未执行 |
 
 11:07查到[BrewFS分支推进到ca07159](evidence/preparation/latest-progress-15.json)，RustFS未变。[11:47独立重建完成](evidence/preparation/brewfs-ca07159-build/README.zh.md)，两份源码均干净、旧产物保留。[新版本10万文件Packed本机检查通过](evidence/preparation/c3-packed-ca07159-100k/README.zh.md)。已结束的云上随机写配对固定622736b；下一批重新核分支并绑定新版本。`configure-pilot.py --phase c1`或`--phase c2`可单独生成新阶段，旧状态库保留。
 
@@ -38,7 +38,7 @@ C4新增前置检查发现：[首批622736b的BrewFS工作区正常重挂后，�
 
 BrewFS flat的[独立本机检查](evidence/preparation/c4-native-flat-reopen/result.json)通过：首次写入、正常卸载、第二次空缓存重挂并修改/新建/同步、第三次空缓存读回一致。[三个原挂载进程与挂载均已关闭](evidence/preparation/c4-native-flat-reopen/operator-closure.json)。这条路线可继续准备派生实验；它不解除workspace路线的EIO，也不代表百万文件派生或跨机恢复已通过。
 
-JuiceFS 的两次本机检查均通过完整工作区冷读回及原 OpenCode 数据库历史核对；[实际 resume 的模型请求超时](evidence/preparation/session-shared-juicefs-01/README.zh.md)，[关闭思考模式的独立尝试仍超时](evidence/preparation/session-shared-juicefs-02/README.zh.md)。两次已停止并核清原进程和挂载，不能记作恢复成功。没有启动目标机。C1–C3和trace回放不调用模型；C4另报存储/会话状态就绪时间，把后续模型等待单列。
+JuiceFS 先前两次本机检查保留超时结果：[第一次](evidence/preparation/session-shared-juicefs-01/README.zh.md)、[关闭思考模式后](evidence/preparation/session-shared-juicefs-02/README.zh.md)。[第三次真实恢复](evidence/preparation/opencode-native-capped-01/README.zh.md)限制每次输出 512 token，实际用了两次请求；原历史、一次新工具操作、最终文件和工作区完整冷读均通过。不据此认定先前超时的原因，也不计为跨机性能结果。没有启动目标机。C1–C3和trace回放不调用模型；C4另报存储/会话状态就绪时间，把后续模型等待单列。
 
 
 05:55–05:56另核了[运行中的RustFS程序](evidence/preparation/cloud-runtime-progress-04.json)与[已部署BrewFS程序](evidence/preparation/cloud-brewfs-progress-04.json)，SHA256均与本批构建一致。执行脚本[code-02已在四个角色部署并逐文件核验](evidence/preparation/runner-code-02-deployment.json)；旧任务仍使用原脚本，不热替换。
@@ -82,7 +82,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/prepare-session-input.py` | 将固定检查点放入已挂载的工作区，核完整输入、内部链接、配置替换与fsync；只调用原生export。[本机真实OpenCode导出通过](evidence/preparation/session-input-local.json)，没有模型调用；挂载控制在该项本机检查中为模拟，云上验证另做 |
 | `scripts/prepare-handoff-source.py` | 准备单个共享文件系统上的会话，正常重挂后从原数据库导出；可另选一次实际resume和完整冷读回。当前仅完成语法和命令入口检查，尚未在云上运行；不创建目标机 |
 | `scripts/draft-handoff-target.py` | 在目标端生成同一后端、原工作区和相同二进制的挂载配置，不格式化卷、不复制工作区。配置检查通过；实际目标挂载尚待执行 |
-| `scripts/qualify-session-shared-local.py` | 在私有挂载命名空间内，用真实JuiceFS检查原数据库重开和可选resume；保护原路径，记录实际代码、空HOME、上游请求元数据及正常退出。当前两次原数据库冷读回通过，模型环节超时 |
+| `scripts/qualify-session-shared-local.py`、`qualify-session-shared-capped.py` | 在私有挂载命名空间内检查真实 JuiceFS 与原 OpenCode 数据库。后者限定输出和请求次数、隔离工具进程；本地真实 resume 与冷读通过，云上跨机另行执行 |
 | `scripts/probe-session-provider.py` | 默认只查模型列表；显式选择才发一次最多16输出token的小请求。已完成一次9 token检查，旧名称请求返回`deepseek-flash`；不提供文件系统恢复结论 |
 | `scripts/package-session-checkpoint.py`、`check-session-checkpoint.py` | 打包、恢复同一份关闭的会话输入，逐文件核内容、模式和内部链接；拒绝活动转发密钥、损坏包及不匹配的核验工具。[894项完整恢复与反例检查通过](evidence/preparation/session-checkpoint-package-local.json)，不调用模型 |
 | `scripts/fork-oracle.py` | 从C4原输入独立计算child修改后的完整预期树及固定首读摘要。[实际百万文件清单已生成](evidence/preparation/c4-fork-oracle-million-local.json)，三项本机交叉检查通过；云上派生和隔离验证尚未执行 |
