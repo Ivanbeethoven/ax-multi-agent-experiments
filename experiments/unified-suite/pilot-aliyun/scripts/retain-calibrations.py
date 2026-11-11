@@ -164,14 +164,20 @@ def idle(control, unit, cell=None, plan=None):
     if not re.fullmatch(r'ax-pilot-[a-z0-9-]+', unit):
         raise ValueError('Explicit owned original one-cell unit required')
     raw = subprocess.check_output(['systemctl','show',unit+'.service',
-        '-p','LoadState','-p','ActiveState','-p','SubState','-p','ExecMainStatus','-p','ExecMainCode'], text=True)
+        '-p','LoadState','-p','ActiveState','-p','SubState','-p','ExecMainStatus','-p','ExecMainCode',
+        '-p','MainPID','-p','Result','-p','RemainAfterExit'], text=True)
     state = dict(line.split('=',1) for line in raw.splitlines())
     # A successful transient service can already have been garbage collected.
     # The pinned completed invocation and closed formal cell are checked by main.
-    if (state.get('ActiveState') != 'inactive' or state.get('SubState') != 'dead' or
-            state.get('LoadState') not in ('loaded','not-found') or
-            (state.get('LoadState') == 'loaded' and
-             (state.get('ExecMainStatus') != '0' or state.get('ExecMainCode') != '1'))):
+    inactive = (state.get('ActiveState') == 'inactive' and state.get('SubState') == 'dead' and
+        (state.get('LoadState') == 'not-found' or
+         (state.get('LoadState') == 'loaded' and state.get('ExecMainStatus') == '0' and state.get('ExecMainCode') == '1')))
+    # RemainAfterExit is used by some campaigns to preserve systemd evidence.
+    # Only accept the exact no-process, normal-exit state.
+    exited = all(state.get(key) == value for key, value in dict(LoadState='loaded',
+        ActiveState='active', SubState='exited', RemainAfterExit='yes', MainPID='0',
+        Result='success', ExecMainCode='1', ExecMainStatus='0').items())
+    if not (inactive or exited):
         raise ValueError('Original one-cell service has not exited normally')
     if cell is None:
         # Keep the original conservative boundary for existing callers.

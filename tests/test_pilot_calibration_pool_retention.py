@@ -55,6 +55,16 @@ class PoolRetention(unittest.TestCase):
         self.lease(self.b); self.started(self.b['id'])
         self.assertEqual(self.idle()['ActiveState'], 'inactive')
 
+    def test_remain_after_exit_requires_a_successful_exit_and_no_main_pid(self):
+        raw = ('LoadState=loaded\nActiveState=active\nSubState=exited\nExecMainStatus=0\n'
+               'ExecMainCode=1\nMainPID=0\nResult=success\nRemainAfterExit=yes\n')
+        with patch.object(module.subprocess, 'check_output', return_value=raw):
+            self.assertEqual(module.idle(self.root, 'ax-pilot-check', self.a, self.plan)['SubState'], 'exited')
+        for change in (raw.replace('MainPID=0','MainPID=123'), raw.replace('Result=success','Result=exit-code')):
+            with patch.object(module.subprocess, 'check_output', return_value=change):
+                with self.assertRaisesRegex(ValueError, 'not exited normally'):
+                    module.idle(self.root, 'ax-pilot-check', self.a, self.plan)
+
     def test_same_pool_and_shared_resource_leases_block(self):
         for cell in (self.a2, self.shared):
             with self.subTest(cell=cell['id']):

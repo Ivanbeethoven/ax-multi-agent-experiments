@@ -18,4 +18,34 @@ python3 draft-c4-native-flat.py \
 
 A 组 C3 正式关闭后，才在原物理锁下确认现行 collector、空 Redis DB、新目录和容量；重新核当前分支与冻结二进制，刷新 A 的 runtime 和硬件绑定。使用含 C4 卸载退出竞态修复和缩减冷验的冻结代码，保留已有计时逻辑；勿直接用旧 code15 请求重现 B 组已查明的归档问题。导入前后量容量，必须容纳额外 7 份完整拷贝并留 20% 余量。只复用原 A 的 client、metadata、objects 和协调者；失败保留现场，不重跑抢位。可执行请求及收尾见 [C4 执行与观测](C4-OBSERVE.zh.md)。
 
+## 交接后启动
+
+协调节点已经核对 `/srv/ax-pilot-control/preparation/c4-native-flat-run-01/request.staged.json`，SHA256 `39ab16c9f2a6fb29d39b5a23ed80f07412a1d87a701522d5bf90096b83d33bfa`。`stage-check.json` 证明 173 个文件按清单逐项通过 SHA256 校验，计时函数与原 C4 相同；A 的工作节点还未接触。冻结目录为 `/srv/ax-pilot-control/code-16`，只在协调节点安装。实跑入口是 [continue-c4-native-flat.py](scripts/continue-c4-native-flat.py)。
+
+先确认原 A 组 C3 成功完成，以及本批前置归档已结束。保留原草稿，另写 `request.reviewed.json`：
+
+| 字段 | 填入 |
+| --- | --- |
+| `reviewed` / `database` | `true`；声明一个新的 20–255 号 Redis DB，脚本现场复核为空，勿复用 C3 的 72 号 |
+| `latest` | 当场运行 `verify-latest.py`，把当前 BrewFS 与 RustFS 分支 tip 与原 build manifest 校验，填返回的实际回执路径及 SHA256；需在 5 分钟内启动 |
+| `c3.unit` / `c3.invocation` | `ax-pilot-pa-c3-flat-after-base-02` 与原 invocation `81e67d4c0cd84f66aae276eb5bfce73b`，由 `systemctl show` 实际核对 |
+| `c3.result` / `c3.closing` | `parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-native/result.json` 与 `parallel-control-01/cells/16f4ac389d2a2da6-r1-native.close.json` 的绝对路径及实际 SHA256 |
+| `c3.run_request` | 原 `preparation/c3-flat-native-01/continuation-02/run.request.json` 的绝对路径及实际 SHA256，必须匹配该运行的 `started.json` |
+| `c3.retention_decision` | `verified-before-c4`（另附已通过的 `c3.retention_verification` 路径及 SHA256），或明确决定在 C4 期间原地保留 C3 时用 `preserve-local-through-c4` |
+
+如启动前新增了阶段数据库，按协调节点现状更新 `other_lease_controls`；入口会拒绝漏列。确认上述回执后，在协调节点执行：
+
+```bash
+root=/srv/ax-pilot-control
+stage=$root/preparation/c4-native-flat-run-01
+request=$stage/request.reviewed.json
+request_sha=$(sha256sum "$request" | cut -d ' ' -f 1)
+systemd-run --unit=ax-pilot-pa-c4-flat-native-01 \
+  --property=RemainAfterExit=yes --property=WorkingDirectory="$root/code-16" \
+  /usr/bin/python3 "$stage/continue-c4-native-flat.py" run \
+  --runtime-repo "$root/code-16" --request "$request" --sha256 "$request_sha"
+```
+
+原 C3 未退出、零债务或卸载证据不齐、任一相交资源仍有 lease 时，入口在连接 A 工作节点前退出。通过后才核对 Redis、slot、原 RustFS 和末轮 collector，部署冻结代码并启动一次 C4；输出固定写入 `execution-01`。该目录不得重用。六轮观测门槛若失败，不启动正式轮。
+
 本项只验 Flat 完整拷贝。`workspace-native-v2` 的空派生、Packed 的 C3 冷读，以及 OpenCode 迁移功能预演，各有原来的证据，均不计入本次 C4。
