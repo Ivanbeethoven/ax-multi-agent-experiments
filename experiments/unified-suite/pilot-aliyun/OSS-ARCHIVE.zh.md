@@ -4,7 +4,9 @@ C2 native 的正式三角色原始记录和六次校准包已公开，共 **56,3
 
 C3 JuiceFS 十万文件的正式三角色原始记录和原六次校准已公开，共 **35,354,910 字节**。下载地址及 SHA256 见 [C3 JuiceFS 下载清单](evidence/c3-jfs-01/oss/index.json)。校准复用了原始记录。
 
-C1 BrewFS [随机读](evidence/c1-native-randread-02/oss/index.json)和[混合读写](evidence/c1-native-randrw-01/oss/index.json)的正式三角色原始记录和关闭回执已公开。随机读复用了原六次校准。两批校准的完整原档仍保留在云端。
+C3 BrewFS flat 十万文件的正式三角色原始记录、关闭回执和原六次校准已公开，共 **29,801,805 字节**，见[下载清单](evidence/c3-flat-01/oss/index.json)。
+
+C1 BrewFS [随机读](evidence/c1-native-randread-02/oss/index.json)和[混合读写](evidence/c1-native-randrw-01/oss/index.json)的正式三角色原始记录、关闭回执和两组原六次校准已公开。
 
 C4 JuiceFS 第一轮关采集校准的[原始记录和关闭回执](evidence/c4-juicefs-calibration-off1-01/oss/index.json)已公开。该轮在冷读通过后补收原档，没有重跑。两轮[开采集校准原档](evidence/c4-juicefs-calibration-on12-01/oss/index.json)也已公开。第四轮[关采集校准原档和补收回执](evidence/c4-juicefs-calibration-off2-01/oss/index.json)也已公开，没有重跑。校准均未计入正式结果。
 

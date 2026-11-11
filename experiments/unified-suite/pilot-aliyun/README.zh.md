@@ -4,14 +4,14 @@
 
 本轮在阿里云按量实例上试跑。C3和C4派生使用[10万文件](PILOT-100K.zh.md)，每文件4KiB。C1、C2完整trace和C4会话流转保持原负载。实验输入、原始数据和 SHA256 见[归档下载](OSS-ARCHIVE.zh.md)及[trace目录](../../../scenarios/k8s-containers/data-catalog.md)。
 
-截至北京时间2026-11-11 17:04，**系统实验验收11/28，剩17项；22项消融另计**。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。复用一台跳板，两个私网组各三台；[16:51 新增资源费用估算](evidence/progress/parallel-20261111-1652-01/cost-total.json)为¥85.01（约¥9.24/小时），原跳板、网络与OSS另计。
+截至北京时间2026-11-11 17:19，**系统实验验收12/28，剩16项；22项消融另计**。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。复用一台跳板，两个私网组各三台；[17:18 新增资源费用估算](evidence/progress/parallel-20261111-1718-01/cost-total.json)为¥89.17（约¥9.24/小时），原跳板、网络与OSS另计。
 
 | 实验 | 正式完成/计划 | 当前情况 |
 |---|---:|---|
 | C1 fio | 9/10 | 双方顺序读、顺序写、随机写、随机读及[BrewFS混合读写](evidence/c1-native-randrw-01/)已验收；余[JuiceFS 混合读写](C1-MIXED-AFTER-C2.zh.md)，同组在 C2 后接续 |
 | C2 完整trace | 1/5 | [flat BrewFS](evidence/cloud-20261111/05357b5089cd679c-r1-native/)已验收，回放1,747,109次操作；同份输入已校验并传到B组；[协调节点已等候核验C4交接](evidence/c2-handoff-watcher-01/)，尚未启动JuiceFS；[Packed 和 entity-native 有文件操作阻断](C2-ENTITY-NEXT.zh.md) |
-| C3 小文件（10万） | 1/4 | [JuiceFS](evidence/c3-jfs-01/)已验收；[BrewFS flat基线](evidence/preparation/c3-flat-native-01/)冷读及容量核验通过，六轮校准通过，正式样本已启动；[归档已排在正式关闭之后](A-RETENTION.zh.md)；Packed完整资格通过，观测开关差约5.98%，正式样本未启动 |
-| C4 派生（10万） | 0/5 | B组JuiceFS首轮校准[原始归档已补收并公开](evidence/c4-juicefs-calibration-off1-01/oss/index.json)；[接续已启动](evidence/preparation/c4-b-resume-01/)，前四轮已校验并归档，其中[第四轮只补收原档](evidence/c4-juicefs-calibration-off2-01/oss/index.json)，第五轮在跑；A 组的[BrewFS flat 派生草稿](C4-NATIVE-FLAT.zh.md)已备好，尚未启动 |
+| C3 小文件（10万） | 2/4 | [JuiceFS](evidence/c3-jfs-01/)和[BrewFS flat](evidence/c3-flat-01/)均已验收并公开原始记录；Packed完整资格通过，观测开关差约5.98%，正式样本未启动 |
+| C4 派生（10万） | 0/5 | B组 JuiceFS 六轮校准通过，已启动正式样本；[第四轮只补收原档](evidence/c4-juicefs-calibration-off2-01/oss/index.json)。A 组 [BrewFS flat](C4-NATIVE-FLAT.zh.md) 首次启动在环境检查处退出，未执行负载，正在核对原因 |
 | C4 流转 | 0/4 | 本机JuiceFS原会话数据库冷重开通过；BrewFS工作区重挂后写入EIO。云上跨机和真实继续任务未完成，模型调用暂停 |
 
 11:07查到[BrewFS分支推进到ca07159](evidence/preparation/latest-progress-15.json)，RustFS未变。[11:47独立重建完成](evidence/preparation/brewfs-ca07159-build/README.zh.md)，两份源码均干净、旧产物保留。[新版本10万文件Packed本机检查通过](evidence/preparation/c3-packed-ca07159-100k/README.zh.md)。已结束的云上随机写配对固定622736b；下一批重新核分支并绑定新版本。`configure-pilot.py --phase c1`或`--phase c2`可单独生成新阶段，旧状态库保留。

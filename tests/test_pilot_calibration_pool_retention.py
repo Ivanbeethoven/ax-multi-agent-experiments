@@ -1,5 +1,6 @@
 """Retaining closed evidence must not interfere with an independent pool."""
 from copy import deepcopy
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -90,6 +91,29 @@ class PoolRetention(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'Unknown cell'):
                     self.idle()
                 shutil.rmtree(self.root/'one-cell-runs/unknown')
+
+    def test_packed_calibration_only_requires_exact_terminal_request(self):
+        run = self.root/'one-cell-runs/packed-legacy'
+        request = self.root/'packed.json'
+        spec = dict(schema='packed-c3-one-cell-pipeline-v1', reviewed=True,
+                    out=str(run), cell_id=self.a2['id'], next_cell=False, automatic_retry=False)
+
+        def pin():
+            request.write_text(json.dumps(spec))
+            return dict(path=str(request), sha256=hashlib.sha256(request.read_bytes()).hexdigest())
+
+        reference = pin()
+        self.started('packed-legacy', dict(request=reference))
+        with self.assertRaisesRegex(ValueError, 'Unknown cell'):
+            self.idle()
+        (run/'failed.json').write_text(json.dumps(dict(request=reference, passed=False, automatic_retry=False)))
+        self.assertEqual(self.idle()['ActiveState'], 'inactive')
+        spec['out'] = str(run.with_name('another-run'))
+        wrong = pin()
+        (run/'started.json').write_text(json.dumps(dict(request=wrong)))
+        (run/'failed.json').write_text(json.dumps(dict(request=wrong, passed=False, automatic_retry=False)))
+        with self.assertRaisesRegex(ValueError, 'Unknown cell'):
+            self.idle()
 
     def test_wrong_started_pool_and_modified_selected_cell_are_rejected(self):
         self.started(self.b['id'], dict(cell_id=self.b['id'], pool='pool-a'))

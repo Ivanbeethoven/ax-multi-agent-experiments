@@ -196,8 +196,22 @@ def idle(control, unit, cell=None, plan=None):
         other = None
         if cell is not None:
             value = load(started)
+            cell_id = value.get('cell_id') if isinstance(value, dict) else None
+            # The frozen Packed calibration-only runner records the cell in
+            # its immutable request. Accept only the exact failed, closed
+            # request for this run directory; an unknown live record blocks.
+            failure = started.parent/'failed.json'
+            if cell_id is None and isinstance(value, dict) and value.get('request') and failure.is_file():
+                request = value['request']
+                spec = load(pinned(request))
+                end = load(failure)
+                if (spec.get('schema') == 'packed-c3-one-cell-pipeline-v1' and spec.get('reviewed') is True and
+                        spec.get('out') == str(started.parent) and spec.get('next_cell') is False and
+                        spec.get('automatic_retry') is False and end.get('passed') is False and
+                        end.get('request') == request and end.get('automatic_retry') is False):
+                    cell_id = spec.get('cell_id')
             matches = [candidate for candidate in plan['cells']
-                       if isinstance(value, dict) and candidate['id']==value.get('cell_id')]
+                       if candidate['id']==cell_id]
             if len(matches)!=1:
                 raise ValueError('Unknown cell in original started invocation: '+str(started))
             other = matches[0]
