@@ -1,0 +1,64 @@
+{
+  "schema": "pilot-parallel-live-calibration-audit-v1",
+  "observed_at": "2026-11-11T10:30:57.447291+00:00",
+  "scope": "Frozen pilot; this checkpoint contains progress and qualification checks, not formal measurements.",
+  "accepted_formal_cells": {
+    "c1": [9, 10],
+    "c2": [1, 5],
+    "c3": [2, 4],
+    "c4_fork": [1, 5],
+    "c4_handoff": [0, 4],
+    "total": [13, 28]
+  },
+  "a_c4_flat": {
+    "cell_id": "c5e97774bcffa69a-r1-native",
+    "unit": "ax-pilot-pa-c4-flat-native-03",
+    "invocation": "6ad2b76c56dd4395a638b46885dc8e60",
+    "phase": "cold parent verification before the capacity gate",
+    "capacity_after_present": false,
+    "diagnostic_only": true,
+    "worker_proc": {
+      "pid": 239885,
+      "parent_pid": 239380,
+      "starttime_ticks": 5478465,
+      "rchar": 153779871,
+      "syscr": 66526
+    }
+  },
+  "b_c2_juicefs": {
+    "cell_id": "05357b5089cd679c-r1-juicefs",
+    "unit": "ax-pilot-b-c2-jfs-runtime15-01",
+    "invocation": "4ca2d264b11d49eda6e0a9925516326a",
+    "completed_trials": 1,
+    "required_trials": 6,
+    "off1": {
+      "root": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-tr-c201-off1",
+      "cohort_sha256": "b4a0dd944d7cd3c0fb59407cbb581985578fb659a38ae59ede56eea59f864f2d",
+      "cold_readback_sha256": "2ba4452f49c60651fb3892b9beacfbc7b623d924d1db1cfc7960b62bc0997ad3",
+      "finished_sha256": "c94fa3f083056e9890fa4c6239ad1b9c2ab058a5718e96780a1d7ac2d0a4e17a",
+      "finished_at": "2026-11-11T10:25:19.510629+00:00",
+      "cohort_makespan_seconds": 750.875891035,
+      "passed": true
+    },
+    "on1": {
+      "started_at": "2026-11-11T10:25:20.835508+00:00",
+      "started_sha256": "7e166d920ecb4fbeb49bc1ff442e20276a5f5095e2d41c3dd88f8cbec10dfcac",
+      "finished_at_observation": false
+    },
+    "formal_started_at_observation": false
+  },
+  "additional_cloud_resources_created": false,
+  "source_tips_rechecked": {
+    "brewfs": {
+      "repository": "https://github.com/brewfs/brewfs",
+      "branch": "main",
+      "commit": "ca07159f3da4b670e4aeb878faef928e69bc1634"
+    },
+    "rustfs": {
+      "repository": "https://github.com/Ivanbeethoven/rustfs",
+      "branch": "feat/dynamic-block-size-rebased",
+      "commit": "f4ed202508f2153afb7956bae6f7799b60eccd00"
+    },
+    "matches_running_batch": true
+  }
+}
