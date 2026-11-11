@@ -1,0 +1,29 @@
+{
+  "at": "2026-11-11T12:42:12.391102+00:00",
+  "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+  "scope": "One read-only /proc process-liveness snapshot outside the workload cgroup. No workspace scan, file hash, metric scrape or signal.",
+  "processes": [
+    {
+      "pid": 243980,
+      "ppid": 243979,
+      "state": "S",
+      "start_ticks": 6156591,
+      "cpu_ticks": 115,
+      "io": "rchar: 439563135\nwchar: 387\nsyscr: 1931\nsyscw: 2\nread_bytes: 0\nwrite_bytes: 8192\ncancelled_write_bytes: 0\n",
+      "command": "python3",
+      "children": [
+        243982
+      ]
+    },
+    {
+      "pid": 243982,
+      "ppid": 243980,
+      "state": "D",
+      "start_ticks": 6156707,
+      "cpu_ticks": 716,
+      "io": "rchar: 130006657\nwchar: 129998848\nsyscr: 63490\nsyscw: 31738\nread_bytes: 0\nwrite_bytes: 0\ncancelled_write_bytes: 0\n",
+      "command": "cp",
+      "children": []
+    }
+  ]
+}
