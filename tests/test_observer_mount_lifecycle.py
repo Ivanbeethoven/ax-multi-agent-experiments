@@ -66,3 +66,23 @@ class MountLifecycle(unittest.TestCase):
             root=Path(tmp);target,_,stop,mount=self.fixture(root);stop()
             with patch.object(observe,'alive',return_value=False),patch.object(observe,'mounts',return_value=[mount]):
                 self.assertEqual(observe.mount_lifecycle(target)['state'],'cleanly-stopped')
+
+    def test_stopping_drain_window_waits_for_verified_stop_receipt(self):
+        import threading, time
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);target,settings,stop,mount=self.fixture(root)
+            mdir=Path(target['mount_directory'])
+            (mdir/'stopping.json').write_text(json.dumps({'anchor':{'volume':'original'},'original_mount':mount}))
+            def delayed_stop():
+                time.sleep(.15)
+                stop()
+            writer=threading.Thread(target=delayed_stop);writer.start()
+            try:
+                def collect(t):raise URLError('metrics listener closed while draining TiKV/FUSE')
+                value=self.sample(root,settings,collect)
+            finally:
+                writer.join(2)
+            self.assertTrue(value['passed'])
+            self.assertEqual(value['target_states']['filesystem']['state'],'cleanly-stopped')
+            self.assertTrue(value['target_states']['filesystem']['stopped_during_collection'])
+
