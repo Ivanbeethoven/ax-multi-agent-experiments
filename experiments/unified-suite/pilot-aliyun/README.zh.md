@@ -2,6 +2,8 @@
 
 最新版本核对：北京时间2026-11-11 09:07，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-11.json)。C1顺序读、顺序写的BrewFS和JuiceFS共四个单元已完成六次校准、正式测量、冷读回和归档；[报告](evidence/cloud-20261111/c1-progress-02.json)保留各项指标。四份完整原始包已独立下载并核全部成员。随机写正在执行，C1–C4全轮尚未完成。
 
+09:33的[新增资源估算](evidence/cloud-20261111/cost-progress-09.json)为¥31.31，当前¥4.671/小时；未新增目标机或扩盘。原跳板、网络和OSS另计。六次校准还需单独保留各节点原始文件：[归档工具的六项本机检查通过](evidence/preparation/calibration-retention-local-01.json)，完整云上归档待当前测量结束后执行。
+
 JuiceFS顺序写先后保留两次校准失败：[采集接口随正常卸载关闭](evidence/preparation/c1-juicefs-write-calibration-failure/diagnosis.json)、[Linux复用mount ID使新增的退出检查误判](evidence/preparation/c1-juicefs-write-q2-calibration-failure/diagnosis.json)。前者负载和冷CRC通过，后者尚未执行负载。两次均已完整归档、独立下载和核验。采集器现以原进程身份及正常退出回执判断卸载，运行中断连、HTTP错误、解析错误和计数回退仍判失败。[54项本机检查通过](evidence/preparation/runtime-refresh-local.json)。修订后的新六次校准和正式单元已全部通过，旧结果不覆盖、不复用。
 
 [code-07在四个角色部署并逐文件核验](evidence/preparation/runner-code-07-deployment.json)。只更新执行与采集代码，核心二进制未变；原状态库、旧代码和失败现场保留。
@@ -88,6 +90,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/launch-one.py` | 启动明确指定的一项；先核前项关闭、归档全部成员、无上传债务、空槽位和采集器衔接，不选择下一项、不重试 |
 | `scripts/draft-session-phase.py` | 固定单个export/import/resume或退出检查的命令、输入摘要和结果条件；resume只转发实际工具完成事件 |
 | `scripts/retain-cell.py` | 仅打包已关闭单元，核封存文件集合及全部成员摘要，供独立下载；不启动负载 |
+| `scripts/retain-calibrations.py` | 在完整单元结束后，另存六次校准的负载结果、三角色原始采样、冷读回和退出记录。[使用方法](CALIBRATION-RETENTION.zh.md)；本机六项检查通过，云上完整归档尚待执行 |
 | `scripts/record-cost.py` | 按真实创建时间与报价估算费用。扩容按有凭据的新单价分段；只有核实实例及所有附属盘已释放，才停止计费估算。请求成功本身不算释放 |
 | `scripts/verify-latest.py` | 将本轮构建提交与指定远端分支最新提交逐一比较，保留带时间的结果 |
 
