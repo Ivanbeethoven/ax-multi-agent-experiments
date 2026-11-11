@@ -4,14 +4,14 @@
 
 本轮在阿里云按量实例上试跑。C3和C4派生使用[10万文件](PILOT-100K.zh.md)，每文件4KiB。C1、C2完整trace和C4会话流转保持原负载。实验输入、原始数据和 SHA256 见[归档下载](OSS-ARCHIVE.zh.md)及[trace目录](../../../scenarios/k8s-containers/data-catalog.md)。
 
-截至北京时间2026-11-11 17:39，**系统实验验收12/28，剩16项；22项消融另计**。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。复用一台跳板，两个私网组各三台；[17:38 新增资源费用估算](evidence/progress/parallel-20261111-1738-01/cost-total.json)为¥92.21（约¥9.24/小时），原跳板、网络与OSS另计。
+截至北京时间2026-11-11 17:45，**系统实验验收13/28，剩15项；22项消融另计**。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。复用一台跳板，两个私网组各三台；[17:38 新增资源费用估算](evidence/progress/parallel-20261111-1738-01/cost-total.json)为¥92.21（约¥9.24/小时），原跳板、网络与OSS另计。
 
 | 实验 | 正式完成/计划 | 当前情况 |
 |---|---:|---|
 | C1 fio | 9/10 | 双方顺序读、顺序写、随机写、随机读及[BrewFS混合读写](evidence/c1-native-randrw-01/)已验收；余[JuiceFS 混合读写](C1-MIXED-AFTER-C2.zh.md)，同组在 C2 后接续 |
-| C2 完整trace | 1/5 | [flat BrewFS](evidence/cloud-20261111/05357b5089cd679c-r1-native/)已验收，回放1,747,109次操作；同份输入已校验并传到B组；[协调节点已等候核验C4交接](evidence/c2-handoff-watcher-01/)，尚未启动JuiceFS；[Packed 和 entity-native 有文件操作阻断](C2-ENTITY-NEXT.zh.md) |
+| C2 完整trace | 1/5 | [flat BrewFS](evidence/cloud-20261111/05357b5089cd679c-r1-native/)已验收，回放1,747,109次操作；B组 JuiceFS 核验 C4 交接后已自动接续，正在做原完整输入的回放和冷验资格检查；[Packed 和 entity-native 有文件操作阻断](C2-ENTITY-NEXT.zh.md) |
 | C3 小文件（10万） | 2/4 | [JuiceFS](evidence/c3-jfs-01/)和[BrewFS flat](evidence/c3-flat-01/)均已验收并公开原始记录；Packed完整资格通过，观测开关差约5.98%，正式样本未启动 |
-| C4 派生（10万） | 0/5 | B 组 JuiceFS 六轮校准通过，正式计时和排空完成，正在全量冷读；[第四轮只补收原档](evidence/c4-juicefs-calibration-off2-01/oss/index.json)。A 组 [BrewFS flat](C4-NATIVE-FLAT.zh.md) 已恢复容量并通过硬件探针，批次入口缺少校验模块，未导入或计时 |
+| C4 派生（10万） | 1/5 | [B组 JuiceFS](evidence/c4-jfs-01/)正式验收，完整冷读、排空、退出和归档通过。A 组 [BrewFS flat](C4-NATIVE-FLAT.zh.md) 已补齐运行包，正在准备原工作区，尚未开始计时 |
 | C4 流转 | 0/4 | 本机JuiceFS原会话数据库冷重开通过；BrewFS工作区重挂后写入EIO。云上跨机和真实继续任务未完成，模型调用暂停 |
 
 11:07查到[BrewFS分支推进到ca07159](evidence/preparation/latest-progress-15.json)，RustFS未变。[11:47独立重建完成](evidence/preparation/brewfs-ca07159-build/README.zh.md)，两份源码均干净、旧产物保留。[新版本10万文件Packed本机检查通过](evidence/preparation/c3-packed-ca07159-100k/README.zh.md)。已结束的云上随机写配对固定622736b；下一批重新核分支并绑定新版本。`configure-pilot.py --phase c1`或`--phase c2`可单独生成新阶段，旧状态库保留。

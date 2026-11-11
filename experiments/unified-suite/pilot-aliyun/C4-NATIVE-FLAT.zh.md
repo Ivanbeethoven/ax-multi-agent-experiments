@@ -52,4 +52,6 @@ systemd-run --unit=ax-pilot-pa-c4-flat-native-01 \
 
 **17:38 接续**：[回收回执](evidence/preparation/c4-flat-a-start-01/staging-reclaim.json)记录 22 个归档暂存副本，每个都与独立保存的归档逐文件核对。仅清理暂存副本，原始观测、RustFS 对象和 OSS 数据保留。对象盘实际空余恢复到 22,867,697,664 B（21.30 GiB）。[code18 的 173 个文件与 code17 一致](evidence/preparation/c4-flat-a-start-01/second-stage-check.json)，[分支再核对通过](evidence/preparation/c4-flat-a-start-01/second-latest.json)。部署、运行时及硬件探针均通过；批次入口随后因缺少 `bench.runtime.c4_verify` 在导入阶段退出。没有执行工作区导入或校准。修复运行包时须先验证完整依赖，不更改计时逻辑。
 
+**17:44 接续**：[code19](evidence/preparation/c4-flat-a-start-01/third-stage-provenance.json)保留原有 173 个文件的内容和权限，只补入 B 组实际运行包中的 `bench.runtime.c4_verify`。[导入检查](evidence/preparation/c4-flat-a-start-01/third-import-audit.json)通过 21 个命令入口、77 项 Python 依赖及核验分派测试。原批次已通过导入前容量检查并开始准备父工作区。导入后仍按原规则测实际分配，核算另七份拷贝和 20% 余量。复用[运行包导入检查脚本](scripts/audit-c4-runtime-imports.py)可在部署前检查同一份包。
+
 本项只验 Flat 完整拷贝。`workspace-native-v2` 的空派生、Packed 的 C3 冷读，以及 OpenCode 迁移功能预演，各有原来的证据，均不计入本次 C4。

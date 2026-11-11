@@ -1,0 +1,236 @@
+{
+  "passed": true,
+  "scope": "Coordinator-only CLI help, real and recursive import audit for exact C4 payload; no worker calls or state writes",
+  "runtime": "/srv/ax-pilot-control/code-19",
+  "cli": {
+    "run-c4-batch.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "e99712fc36702fa108d2b97e70ec161367124ba7d2dec453cfeae11c91fbd0ec"
+    },
+    "run-c4-fork-baseline.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "e5d83db08668789f6422e71f0cc31ad03430b1616cf2ae1a608f24c4c9e6abef"
+    },
+    "capacity-check.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+    },
+    "prepare-c4-controller.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "01e02a5b65d7cbe8e11d5e209fa1a05af54b939b6d851cb21833c65513cdee6a"
+    },
+    "calibrate-c4.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "47373aebf1376ec9b2eb3d913c6928624c4f8f8c378e4484b5636c7ec53f0868"
+    },
+    "check-c4-calibration.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "dc19c4969ecccfd726f93aaa28434c15306226b1dafe01fa976d0da9d629b210"
+    },
+    "admit-c4.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "a06036a2e745b1c06443fecb8aca26530b83e6901e042ec61f15e2c0e6625834"
+    },
+    "run-c4.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "7eb7110ba84fd0f34d82e28c0af7899ba122387981fda0b7b3fad0a0d518513b"
+    },
+    "c4-fork-node.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "e853e5af4021c40191be0da9d7ff061109e5bd802d8c49297b388b456fa4f84f"
+    },
+    "pilot-node.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+    },
+    "make-observer.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff"
+    },
+    "deploy-c4-code.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "7fcc109deff8ce8ebf74f0ca900876976c6076bd370a7a185f55246472a440e6"
+    },
+    "setup-c4-control.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "0cfc95d7d951b15bf83a0e98c4bd6530540dfa6cada2c9acca11c4c29adb6f32"
+    },
+    "install-code.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "e7cef14f2aaee887c0d0bca6cb418e6790b44ad0638218607d15ebe42b75f9c7"
+    },
+    "continue-flat-c3-after-base.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "0b5c2b2ae7042e9a54e7629f6c57976683bf29f06d87921a1e8c0a6993083b8d"
+    },
+    "fork-oracle.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "06a226948fbae50ac3d897617530bf9829d28780f7b38257a9fe58fee3a27b00"
+    },
+    "verify-latest.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "0f70ca67f08fa8d81c1c9d10dff6d50c6a536a2fb8fe8e2bd1119b497b4e5226"
+    },
+    "run-c1.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "61163399579cee88bf87dc8bd0f84b8c2c6562f8f07d44062ce0ec724fbb8cfd"
+    },
+    "metric-collector.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "eea00c9abe808d44f38e3c7d3ae582576a8dc096629e8072416758948e4f057a"
+    },
+    "continue-c4-native-flat.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "af89381e9316a26916253248e0f897789a5adc22a449792bf9195f5051405b54"
+    },
+    "fs_step.py": {
+      "exit": 0,
+      "usage_printed": true,
+      "stderr": "",
+      "sha256": "d58b7b7198450e1728c10b84cb978c0b793e257ecafca21ee5ac2829cb4a9c79"
+    }
+  },
+  "requested_real_imports": [
+    "bench.runtime.c4_verify",
+    "bench.runtime.pilot_context",
+    "bench.runtime.fork_work",
+    "bench.runtime.common",
+    "bench.runtime.cohort",
+    "bench.runtime.fleet",
+    "bench.runtime.node",
+    "bench.runtime.observe",
+    "bench.runtime.prepare",
+    "bench.runtime.workloads",
+    "bench.runtime.pilot_pools",
+    "bench.suite_state",
+    "bench.suite_validate",
+    "bench.suite_report",
+    "bench.suite_plan",
+    "bench.suite_support",
+    "bench.suite_mount",
+    "bench.archive_check",
+    "bench.experiment_step",
+    "bench.fs_step",
+    "bench.ssh_inventory"
+  ],
+  "dynamic_status": 0,
+  "dynamic_stderr": "",
+  "import_closure": {
+    "top_level_imports_passed": true,
+    "nested_python_dependencies": 77,
+    "resolved_local_files": [
+      "bench/__init__.py",
+      "bench/archive_check.py",
+      "bench/experiment_inventory.py",
+      "bench/experiment_io.py",
+      "bench/experiment_step.py",
+      "bench/fio_workload.py",
+      "bench/fs_step.py",
+      "bench/runtime/__init__.py",
+      "bench/runtime/c4_verify.py",
+      "bench/runtime/cohort.py",
+      "bench/runtime/common.py",
+      "bench/runtime/fleet.py",
+      "bench/runtime/fork_work.py",
+      "bench/runtime/node.py",
+      "bench/runtime/observe.py",
+      "bench/runtime/pilot_context.py",
+      "bench/runtime/pilot_pools.py",
+      "bench/runtime/preflight.py",
+      "bench/runtime/prepare.py",
+      "bench/runtime/transport.py",
+      "bench/runtime/workloads.py",
+      "bench/session_check.py",
+      "bench/ssh_inventory.py",
+      "bench/suite_catalog.py",
+      "bench/suite_mount.py",
+      "bench/suite_plan.py",
+      "bench/suite_report.py",
+      "bench/suite_state.py",
+      "bench/suite_support.py",
+      "bench/suite_validate.py",
+      "bench/trace_checks.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/admit-c4.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/c4-fork-node.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/check-c4-calibration.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/continue-flat-c3-after-base.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/deploy-c4-code.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/fork-oracle.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/install-code.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/make-observer.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/metric-collector.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/pilot_io.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/prepare-c4-controller.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/run-c1.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/run-c4.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/setup-c4-control.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/verify-latest.py",
+      "scripts/full_trace_common.py"
+    ],
+    "other_python_entry_references": [
+      "bench/experiment_inventory.py",
+      "bench/experiment_io.py",
+      "bench/experiment_step.py",
+      "bench/fio_workload.py",
+      "bench/fs_step.py",
+      "bench/runtime/__init__.py",
+      "bench/runtime/preflight.py",
+      "bench/session_check.py",
+      "bench/ssh_inventory.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/fork-oracle.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/install-code.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/metric-collector.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/pilot_io.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/run-c1.py",
+      "experiments/unified-suite/pilot-aliyun/scripts/run-c4.py"
+    ],
+    "missing": [],
+    "guarded_network_and_process_actions": true,
+    "touched_dispatch_smoke": true
+  }
+}
