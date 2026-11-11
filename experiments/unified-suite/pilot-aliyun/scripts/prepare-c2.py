@@ -54,6 +54,41 @@ def preflight_case(case):
                 wall_seconds=time.monotonic()-begin,scope='Read-only source paths, bytes, modes and link targets before asset creation')
 
 
+def preflight_replay(binary,out,portable_terminal_probe=False,cache_parent_fds=False):
+    """Exercise the requested CLI policy before allocating a backend or mount."""
+    out.mkdir(parents=True)
+    root=out/'root';root.mkdir();(root/'file').write_bytes(b'right')
+    blobs=out/'blobs';blobs.mkdir()
+    rows=[('init',[],None),('open',['/file',0],7),
+          ('read',['/file',5,0,7],dict(len=5,sha256=hashlib.sha256(b'right').hexdigest())),
+          ('release',['/file',7],0),('destroy',[],None)]
+    trace=out/'events.jsonl'
+    with trace.open('x') as stream:
+        for index,(op,args,result) in enumerate(rows):
+            stream.write(json.dumps(dict(seq=index+1,op=op,args=args,result=result,errno=0))+'\n')
+    options=[]
+    if portable_terminal_probe:options.append('--portable-terminal-probe')
+    if cache_parent_fds:options.append('--cache-parent-fds')
+    argv=list(map(str,[binary,trace,blobs,root,out/'replay.json',*options]))
+    before=ref(binary);begin=time.monotonic()
+    write_new(out/'command.json',dict(argv=argv,binary=before,automatic_retry=False,
+              purpose='Five-byte CLI capability check on a local filesystem; no measured workload'))
+    with (out/'stdout').open('xb') as stdout,(out/'stderr').open('xb') as stderr:
+        process=subprocess.run(argv,stdout=stdout,stderr=stderr)
+    write_new(out/'exit.json',dict(exit_code=process.returncode,wall_seconds=time.monotonic()-begin))
+    if process.returncode:raise ValueError('Replay CLI capability check failed; inspect '+str(out))
+    report=load(out/'replay.json')
+    expected=dict(valid=True,completed=True,operations=5,actual_read_bytes=5,actual_write_bytes=0,remaining_handles=0,
+                  mode='strict-portable-terminal-probe' if portable_terminal_probe else 'strict',
+                  path_resolution='parent-fd-cache' if cache_parent_fds else 'full-path')
+    if any(report.get(key)!=value for key,value in expected.items()) or ref(binary)!=before:
+        raise ValueError('Replay capability report or pinned binary differs; inspect '+str(out))
+    result=dict(passed=True,binary=before,report=ref(out/'replay.json'),trace=ref(trace),
+                portable_terminal_probe=portable_terminal_probe,cache_parent_fds=cache_parent_fds)
+    write_new(out/'verification.json',result)
+    return result
+
+
 def sync_tree(root):
     # Record this extra barrier separately from replay timing. Verifying SQLite
     # uses copies; this only fsyncs existing files and directories.
@@ -92,10 +127,12 @@ def main():
     cell=next(c for c in plan['cells'] if c['workload']=='trace' and c['arm_id']==arm)
     if a.case.name!=cell['params']['trace']:raise ValueError('Exact declared trace case name required')
     source_check=preflight_case(a.case)
+    replay_check=preflight_replay(a.replay_binary,a.out.with_name(a.out.name+'-replay-preflight'),
+                                 a.portable_terminal_probe,a.cache_parent_fds)
     a.out.mkdir(parents=True)
     write_new(a.out/'started.json',dict(at=datetime.now(timezone.utc).isoformat(),product=a.product,
               cell_id=cell['id'],case=str(a.case),node_tool=ref(a.node_tool),qualifier=ref(a.qualifier),
-              events=ref(a.case/'capture/events.jsonl'),source_preflight=source_check,
+              events=ref(a.case/'capture/events.jsonl'),source_preflight=source_check,replay_preflight=replay_check,
               automatic_retry=False,purpose='full-route-qualification'))
     Path('/sys/fs/cgroup/ax-slot-1/cgroup.procs').write_text(str(os.getpid()))
     def run(name,argv):

@@ -1,0 +1,28 @@
+{
+  "recorded_from": "Actual tool execution results on 2026-11-11, before cloud attempt -03",
+  "replay_binary": {
+    "path": "/home/hxy/ax-unified-pilot-prep/tools/parent-fd-cache-01/full-fuse-replay",
+    "sha256": "35c45abd910d826ea17b5d6dfc750c7083cda5e8ce8f3bbe5ef77a78ffbea1aa"
+  },
+  "python": {
+    "command": "FULL_FUSE_REPLAY_BIN=/home/hxy/ax-unified-pilot-prep/tools/parent-fd-cache-01/full-fuse-replay AX_REPLAY_PARENT_FDS=1 python3 -m unittest tests.test_pilot_trace_source_preflight tests.test_pilot_replay_capability tests.test_full_fuse_portable",
+    "exit_code": 0,
+    "tests": 17,
+    "passed": 17,
+    "skipped": 0,
+    "wall_seconds_reported": 0.198,
+    "coverage": ["full five-byte read with requested CLI flags", "wrong read bytes rejected", "strict mode retained", "parent FD policy retained", "damaged initial modes and external hardlink aliases rejected before asset allocation", "unsupported flags preserved and rejected before a real mount"]
+  },
+  "rust": {
+    "command": "CARGO_TARGET_DIR=/home/hxy/ax-unified-pilot-prep/tools/parent-fd-cache-tests-02 ~/.cargo/bin/cargo test --offline --manifest-path tools/full-fuse-replay/Cargo.toml",
+    "user": "hxy",
+    "cargo_version": "1.99.0 (5f94df478 2026-08-27)",
+    "exit_code": 0,
+    "tests": 7,
+    "passed": 7,
+    "coverage": ["parent directory replacement invalidates cached descriptors", "namespace mutation releases cached descriptors", "symlink following cannot escape the root", "lstat can inspect the symlink", "descriptor count is bounded", "only the non-mutating terminal probe is portable", "pacing boundary and scheduler debt checks"],
+    "earlier_environment_failure": "Root initially selected /usr/bin/cargo, which rejected Cargo.lock version 4 before compilation. Running the existing hxy toolchain completed successfully; no lock file or source change was needed."
+  },
+  "cloud_binary_rebuilt": false,
+  "performance_acceptance": false
+}
