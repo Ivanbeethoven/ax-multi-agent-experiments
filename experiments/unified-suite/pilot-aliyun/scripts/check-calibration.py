@@ -16,12 +16,14 @@ def ref(path):
     return dict(path=str(path), sha256=digest(path))
 
 
-def check(pairs, metric, workload):
+def check(pairs, metric, workload, pool='pool-a'):
+    if pool not in ('pool-a', 'pool-b'):
+        raise ValueError('Explicit supported pool required')
     if len(pairs) < 3:
         raise ValueError('At least three explicitly listed pairs required')
     plan = dict(schema='experiment-observer-overhead-plan-v1', reviewed=True,
                 metric_contract_sha256=digest(metric), workload_contract_sha256=digest(workload),
-                max_relative_change=.05, pairs=[])
+                max_relative_change=.05, pairs=[], pool=pool)
     details = []
     seen = set()
     for pair in pairs:
@@ -49,9 +51,16 @@ def check(pairs, metric, workload):
                 evidence=finished['parent_verify']
                 if digest(evidence['path'])!=evidence['sha256'] or load(evidence['path'])['passed'] is not True:
                     raise ValueError('Original parent verification changed or failed')
+            original = load(root/'cohort.json')
+            if any(w['node_id'] != pool+'-client' for w in original['workers']):
+                raise ValueError('Calibration workers belong to another pool')
+            expected = {pool+'-'+role for role in ('client', 'metadata', 'objects')}
+            actual = {o['id'] for o in original.get('observers', [])}
+            if actual != (expected if mode == 'on' else set()):
+                raise ValueError('Calibration observer roles differ from the selected pool/mode')
             if mode == 'on':
                 for role in ('client', 'metadata', 'objects'):
-                    audit = root/'observer-stop'/('pool-a-'+role)/'raw-audit.json'
+                    audit = root/'observer-stop'/(pool+'-'+role)/'raw-audit.json'
                     if load(audit)['passed'] is not True:
                         raise ValueError('Missing raw observer audit')
             row[mode] = ref(cohort)
@@ -69,8 +78,9 @@ def main():
     p.add_argument('--metric-contract', type=Path, required=True)
     p.add_argument('--workload-contract', type=Path, required=True)
     p.add_argument('--out', type=Path, required=True)
+    p.add_argument('--pool', choices=('pool-a', 'pool-b'), default='pool-a')
     a = p.parse_args()
-    plan, details = check(load(a.pairs), a.metric_contract, a.workload_contract)
+    plan, details = check(load(a.pairs), a.metric_contract, a.workload_contract, a.pool)
     a.out.mkdir(parents=True, exist_ok=False)
     write_new(a.out/'plan.json', plan)
     result = overhead(ref(a.out/'plan.json'))

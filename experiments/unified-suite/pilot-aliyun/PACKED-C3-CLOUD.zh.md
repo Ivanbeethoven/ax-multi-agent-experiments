@@ -36,4 +36,52 @@ python3 "$TOOLS/packed-c3-node.py" qualify \
 
 `stage-spec --request ACTION.json --out STEP.json`可为fresh/debt/cold-verify生成原`experiment-step-v1`草稿。ACTION为`{"schema":"packed-c3-node-action-v1","action":"debt","arguments":{"asset":"实际路径","plan":"实际路径","cell":"原cell ID","manifest":"实际路径","probe":"实际路径","probe_sha256":"实际SHA","out":"新输出目录"}}`。再用原suite review/run-stage及同一`state.sqlite`和lease执行，不另建状态库。
 
-正式controller尚需接线：entity版三对校准、Packed资格收集/admit、单mount的三角色归档和sample。现有flat run-one/calibrate/archive不能直接用：它们会复制base、重新FUSE挂载并要求三份mount回执。归档必须检查真实单mount及全部reader/probe/observer退出、两份原生零债务、完整raw CSV、三角色raw指标，再调用原archive_check、suite_validate、suite_state.finish；不得补造flat回执。上述接线和云上资格通过前，不能标记正式可运行。
+协调者入口：`scripts/packed-c3-controller.py`。只使用原`parallel-control-01/state.sqlite`；新文件不改变已冻结flat执行器。云上资格通过以后依次执行：
+
+```bash
+python3 packed-c3-controller.py collect --context context.json \
+  --cloud-route "$QUALIFICATION/result.json" --base-preparation "$PRODUCER/result.json" \
+  --shared-qualification "$SHARED_QUALIFICATION"
+python3 packed-c3-capacity.py --request capacity-request.json --out "$CAPACITY"
+python3 packed-c3-controller.py pairs --request pairs-request.json --out "$PAIRS"
+python3 packed-c3-controller.py admit --context context.json \
+  --overhead "$PAIRS/overhead/result.json" --capacity-budget "$CAPACITY/result.json" \
+  --latest "$LATEST_BRANCH_RECEIPT" --cross-pool-qualification "$CROSS_POOL_PROOF"
+python3 packed-c3-controller.py run --context "$CELL_OUT/context.json"
+```
+
+`collect`只收原回执和实际二进制SHA，输出`qualification/packed/{binding,input,filesystem,metrics,workload}.json`、原base/private asset和硬件证明。`shared-qualification`中需有当前runtime的`hardware.json`和`native/metrics.json`。所有新输出目录必须不存在；失败保留原现场，不重跑。
+
+`context.json`必要字段如下；`pin`表示真实绝对路径和SHA组成的`{"path":"...","sha256":"..."}`：
+
+```text
+control, runtime_control(pin), cell_id, qualification, out, attempt, owner
+purpose: experiment | observer-calibration-on | observer-calibration-off
+base_runner(pin): 原冻结run-c1.py，复用SSH/marks/close_cell
+node_tool(pin), entity_tool(pin): client实际pilot-node.py、packed-c3-node.py
+observer_tools: {client: pin, metadata: pin, objects: pin}
+packed_tools: {binary: pin, probe: pin, reader: pin, verifier: pin, oracle: pin}
+private_object_env: 原0600文件，保持在证据目录外
+collector_name, collector_out: 当前真实collector
+new_collector_name: 需要从off切回on时使用的新名字
+```
+
+`attempt`必须每轮不同。保留runtime12 fleet/peer时，显式把client observer/node/entity工具指向实际新代码目录；其余角色可继续用原冻结工具。不得拿旧fleet.repo猜新helper路径。
+
+`pairs-request.json`为`{"schema":"packed-c3-pairs-v1","reviewed":true,"contexts":[六个context的pin],"checker":原check-calibration.py的pin}`。六轮固定`off,on,on,off,off,on`，各有不同out/attempt，其余绑定相同。每个on后一个off的`collector_name/out`要指向前一轮实际新collector。每轮执行完整八阶段、native排空、正常停、原child/parent只读冷验和三角色原档；校准只写`finished.json`，不claim正式格、不写sample。原checker负责5%门禁。
+
+`capacity-request.json`字段：
+
+```text
+schema: packed-c3-capacity-request-v1; reviewed: true
+control, runtime_control(pin), cell_id, hardware(pin)
+before_samples: {client: 原sample.json的pin, metadata: pin, objects: pin}
+node_specs: {client: 原云盘spec的pin, metadata: pin, objects: pin}
+base_started, base_preparation, qualification: client三个原JSON绝对路径
+objects_container: 当前原RustFS容器名或ID
+extra_full_copies: 7; reserve_fraction: 0.2
+```
+
+容量脚本只在该池空闲时运行。核验原before全部raw文件、采样早于producer、相同boot和原服务PID；after读取实际statvfs、lsblk serial、Redis INFO和原正常停止证明。before只有可用量，不补总量。预算包含观察窗口内归档/部署开销、完整parent和资格upper，并保守预留七个同量副本；不声称精确producer增量或克隆节省。当前A的原before来自C2最后三角色sample，原spec在`hardware-inputs-01/data/pool-a-*-spec.json`。
+
+正式`run`由原state逐stage写intent、调用原cohort、原archive_check/suite_validate、封存后由原finish释放资源。只检查真实单mount；reader/probe/observer/worker原进程、两份原生零债务和三角色raw均需正常收尾。workload-specific entity系列在原measure-end sample检查，缺项拒绝。小fixture通过只代表接口检查；正式完成须以云上原样本和报告验收为准。

@@ -81,6 +81,7 @@ def execute(a,s,control,plan,runtime,cell):
         pairs=[dict(off=trials[i]['out'],on=trials[j]['out']) for i,j in [(0,1),(3,2),(4,5)]]
         write_new(out/'pairs.json',pairs)
         run('check',['python3',pinned(s['tools']['check']),'--pairs',out/'pairs.json',
+                    '--pool',pool_of(cell),
                     '--metric-contract',q/cell['arm_id']/'metrics.json','--workload-contract',q/cell['arm_id']/'workload.json',
                     '--out',out/'overhead'])
         admit=['python3',pinned(s['tools']['admit']),'--control',control,'--qualification',q,
