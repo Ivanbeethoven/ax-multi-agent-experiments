@@ -1,0 +1,96 @@
+{
+  "schema": "ax-pilot-stopcharging-cost-rate-evidence-v1",
+  "passed": true,
+  "pool": "pool-b",
+  "role": "client",
+  "configuration_verified": true,
+  "resource_id": "i-bp1fmmfkcpr8w99j2bsy",
+  "at": "2026-11-11T13:18:04.418402+00:00",
+  "status": "Stopped",
+  "stopped_mode": "StopCharging",
+  "released": false,
+  "preserved_disks": true,
+  "preserved_disk_ids": [
+    "d-bp1fmmfkcpr8w99pwgc4",
+    "d-bp1fmmfkcpr8w99pwgc5"
+  ],
+  "quoted_hourly_cny": 0.252,
+  "quote": {
+    "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-stop-storage-quote-01/quote.json",
+    "sha256": "f682b3dba91e2545e04b6d70b411e17a71a7a80627be21537860d5ddb3ece3ce"
+  },
+  "quote_scope": "attached-system-and-data-disks-only",
+  "retained_disks": [
+    {
+      "role": "client",
+      "disk_id": "d-bp1fmmfkcpr8w99pwgc4",
+      "gib": 40,
+      "category": "cloud_essd",
+      "performance_level": "PL0",
+      "quoted_hourly_cny": 0.042,
+      "price_receipt": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-stop-storage-quote-01/20261111T130858.483168Z-DescribePrice.json",
+        "sha256": "24f470b8a418a050b1372fcedec889e610cdb52b8ef4f1f87fcbd0cc68c20bde"
+      }
+    },
+    {
+      "role": "client",
+      "disk_id": "d-bp1fmmfkcpr8w99pwgc5",
+      "gib": 100,
+      "category": "cloud_essd",
+      "performance_level": "PL1",
+      "quoted_hourly_cny": 0.21,
+      "price_receipt": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-stop-storage-quote-01/20261111T130857.737748Z-DescribePrice.json",
+        "sha256": "a0dd43fcbfbdb276405ffced969cc3401e1d9bc54281c70d12c89ac110bd58d5"
+      }
+    }
+  ],
+  "api_request_ids": {
+    "stop_request_id": "01A1CAC1-CDF6-530C-8A85-48349DCC40ED",
+    "instance_readback_request_id": "01A1CAC2-25FC-5BDA-AD63-AA6B65B505E7",
+    "disk_readback_request_id": "01A1CAC2-272A-5E9E-8143-4B34856E53A3"
+  },
+  "sources": {
+    "allowlist": {
+      "path": "/mnt/c/Users/HXY/.cache/ax-pilot-20261111/publish-fsync-1911-01/experiments/unified-suite/pilot-aliyun/evidence/preparation/release-pool-b-freeze-01/result.json",
+      "sha256": "0a7c6e3751f14f3b4d0a45a30d4352bc0e232fc2e39954fec78535ce770f38cf"
+    },
+    "apply_result": {
+      "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/result.json",
+      "sha256": "83894410d45d331f13569d5018a5e9fb2034ecc255b9c56d681ebb33fd0ec8f4"
+    },
+    "raw": {
+      "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/client-rate-change-raw.json",
+      "sha256": "188dcb359036964d02d6ff0a81650ccb75611ede0d623f20c09c5b4ffec1bbfa"
+    },
+    "quote_time_disks": {
+      "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-stop-storage-quote-01/20261111T130856.692079Z-DescribeDisks.json",
+      "sha256": "d3064571fc35fc726bbfcdd28880db282cadae02f9f6802e439d02f96e89b0ff"
+    },
+    "stop_api": {
+      "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/20261111T131741.430566Z-StopInstance.json",
+      "sha256": "dd98971717e51782a250dad4e86dccda2e07ddc1c29d921a3c28afe483164e48"
+    },
+    "last_running": {
+      "instance": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/20261111T131740.708758Z-DescribeInstances.json",
+        "sha256": "e9e6f24348e714f4e2d4602aa570376534c11e5dc5964b311f4204f3b1790a9b"
+      },
+      "disks": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/20261111T131741.010693Z-DescribeDisks.json",
+        "sha256": "bd7633fb12c7fc7eb4917121139c71710acab3ca6b9a3bf3ffb121dcc1aa85c0"
+      }
+    },
+    "confirmed_stopped": {
+      "instance": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/20261111T131803.804633Z-DescribeInstances.json",
+        "sha256": "44756dfddbc9bbf4be62133c2532041cacdd989156d56df7cce7d372b7668489"
+      },
+      "disks": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/20261111T131804.111786Z-DescribeDisks.json",
+        "sha256": "c924cb3f44f6980ae6704451db6154eca0eb2b1a1fe19797b21f2a1f9f3bee90"
+      }
+    }
+  }
+}

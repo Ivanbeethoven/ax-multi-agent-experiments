@@ -1,0 +1,96 @@
+{
+  "schema": "ax-pilot-stopcharging-cost-rate-evidence-v1",
+  "passed": true,
+  "pool": "pool-b",
+  "role": "metadata",
+  "configuration_verified": true,
+  "resource_id": "i-bp14nenf7osz9v1snsp2",
+  "at": "2026-11-11T13:18:22.974912+00:00",
+  "status": "Stopped",
+  "stopped_mode": "StopCharging",
+  "released": false,
+  "preserved_disks": true,
+  "preserved_disk_ids": [
+    "d-bp14nenf7osz9v1rkk5k",
+    "d-bp14nenf7osz9v1rkk5l"
+  ],
+  "quoted_hourly_cny": 0.168,
+  "quote": {
+    "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-stop-storage-quote-01/quote.json",
+    "sha256": "f682b3dba91e2545e04b6d70b411e17a71a7a80627be21537860d5ddb3ece3ce"
+  },
+  "quote_scope": "attached-system-and-data-disks-only",
+  "retained_disks": [
+    {
+      "role": "metadata",
+      "disk_id": "d-bp14nenf7osz9v1rkk5k",
+      "gib": 40,
+      "category": "cloud_essd",
+      "performance_level": "PL0",
+      "quoted_hourly_cny": 0.042,
+      "price_receipt": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-stop-storage-quote-01/20261111T130858.483168Z-DescribePrice.json",
+        "sha256": "24f470b8a418a050b1372fcedec889e610cdb52b8ef4f1f87fcbd0cc68c20bde"
+      }
+    },
+    {
+      "role": "metadata",
+      "disk_id": "d-bp14nenf7osz9v1rkk5l",
+      "gib": 60,
+      "category": "cloud_essd",
+      "performance_level": "PL1",
+      "quoted_hourly_cny": 0.126,
+      "price_receipt": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-stop-storage-quote-01/20261111T130859.077239Z-DescribePrice.json",
+        "sha256": "b77ae6f4b5ddc143ce4d56bfe10561faae21f6d2c89882a4297b6ecb4cbf82d9"
+      }
+    }
+  ],
+  "api_request_ids": {
+    "stop_request_id": "01A1CAC2-2B15-5CD5-9C80-AA4B80642EC2",
+    "instance_readback_request_id": "01A1CAC2-6D2A-565A-9CC8-FE1D3576389C",
+    "disk_readback_request_id": "01A1CAC2-6E69-5E65-8432-66CA8E8FBE8A"
+  },
+  "sources": {
+    "allowlist": {
+      "path": "/mnt/c/Users/HXY/.cache/ax-pilot-20261111/publish-fsync-1911-01/experiments/unified-suite/pilot-aliyun/evidence/preparation/release-pool-b-freeze-01/result.json",
+      "sha256": "0a7c6e3751f14f3b4d0a45a30d4352bc0e232fc2e39954fec78535ce770f38cf"
+    },
+    "apply_result": {
+      "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/result.json",
+      "sha256": "83894410d45d331f13569d5018a5e9fb2034ecc255b9c56d681ebb33fd0ec8f4"
+    },
+    "raw": {
+      "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/metadata-rate-change-raw.json",
+      "sha256": "fbefe504b92a0f692caad461ca6640c83f854fe5ae72aa6edac24e11736477af"
+    },
+    "quote_time_disks": {
+      "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-stop-storage-quote-01/20261111T130857.085627Z-DescribeDisks.json",
+      "sha256": "64ff8851dde2abc03bc3a76daf81e2dfd41591a928077a91a8595344ddad66bc"
+    },
+    "stop_api": {
+      "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/20261111T131805.136534Z-StopInstance.json",
+      "sha256": "a0f5ccf81cdb04ede5b24178125a7b4849fd576a9f0c164fd4e7d5d5afaba682"
+    },
+    "last_running": {
+      "instance": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/20261111T131804.418509Z-DescribeInstances.json",
+        "sha256": "c9e5be85db3470c0fd76898e0859a943856d6727094892cb547b7f7c8fabdc7d"
+      },
+      "disks": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/20261111T131804.699826Z-DescribeDisks.json",
+        "sha256": "630126acf744639b32316df334e8eb768d85b7dad39cf8f621efb358268e7dfa"
+      }
+    },
+    "confirmed_stopped": {
+      "instance": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/20261111T131822.356339Z-DescribeInstances.json",
+        "sha256": "967f888893c95fdac30a35fd29907ce8a0ee6cd0dd8650dce4f1086bdee73760"
+      },
+      "disks": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/stop-b-failed-apply-01/20261111T131822.647280Z-DescribeDisks.json",
+        "sha256": "1c837aeaca7b71519b9343df23f8a1081a45884b6b3f5cff6e77e7ce463062d3"
+      }
+    }
+  }
+}

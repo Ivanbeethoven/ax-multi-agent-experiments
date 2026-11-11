@@ -1,0 +1,223 @@
+{
+  "passed": true,
+  "state": "ready",
+  "request": {
+    "path": "/srv/ax-pilot-control/preparation/b-c1-failed-stop-request-02/request.json",
+    "sha256": "936b208de29de5d84913c815b28a1660840c31445c5a17fd8897d8dcfc0276f6"
+  },
+  "runner_sha256": "c40f4718a7f24674242a7203f0766c7b1154a9c4d50f6d05edfd0e5fe9a9e77e",
+  "apply": true,
+  "public_oss_pending": [
+    {
+      "cell_id": "05357b5089cd679c-r1-juicefs",
+      "file": "client.tar.gz",
+      "coordinator_archive": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-juicefs/archives/client.tar.gz",
+        "sha256": "c13751f131a9313060f5942acbde8d10882a1d7ac6897ef5799da821a440a0ce"
+      }
+    },
+    {
+      "cell_id": "05357b5089cd679c-r1-juicefs",
+      "file": "metadata.tar.gz",
+      "coordinator_archive": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-juicefs/archives/metadata.tar.gz",
+        "sha256": "ef448a53c90a416e9cb8e1d730c66467beb0c2191d664f0a85a9aa2d9fa4fbae"
+      }
+    },
+    {
+      "cell_id": "05357b5089cd679c-r1-juicefs",
+      "file": "objects.tar.gz",
+      "coordinator_archive": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-juicefs/archives/objects.tar.gz",
+        "sha256": "90aa93cb6a63aabff1946d271cd116e46c55951d7eb3574378cab98bda0100a5"
+      }
+    },
+    {
+      "cell_id": "05357b5089cd679c-r1-juicefs",
+      "file": "calibrations.tar.gz",
+      "coordinator_archive": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/retained-calibrations/pool-b-juicefs-c2-01.tar.gz",
+        "sha256": "664aec4c0ef443afa98db6265569e8d936af106e9cd9a2c85de72a590a71243a"
+      }
+    }
+  ],
+  "coordinator_archives": {
+    "05357b5089cd679c-r1-juicefs": {
+      "client.tar.gz": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-juicefs/archives/client.tar.gz",
+        "sha256": "c13751f131a9313060f5942acbde8d10882a1d7ac6897ef5799da821a440a0ce"
+      },
+      "metadata.tar.gz": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-juicefs/archives/metadata.tar.gz",
+        "sha256": "ef448a53c90a416e9cb8e1d730c66467beb0c2191d664f0a85a9aa2d9fa4fbae"
+      },
+      "objects.tar.gz": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-juicefs/archives/objects.tar.gz",
+        "sha256": "90aa93cb6a63aabff1946d271cd116e46c55951d7eb3574378cab98bda0100a5"
+      },
+      "calibrations.tar.gz": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/retained-calibrations/pool-b-juicefs-c2-01.tar.gz",
+        "sha256": "664aec4c0ef443afa98db6265569e8d936af106e9cd9a2c85de72a590a71243a"
+      }
+    }
+  },
+  "terminal_invocations": {
+    "ax-pilot-b-c1-mixed-after-c2-01.service": "007fcbaf78044d93b04d924e885491df",
+    "ax-pilot-b-c2-jfs-runtime15-01.service": "4ca2d264b11d49eda6e0a9925516326a",
+    "ax-pilot-b-c2-to-c1-watch-01.service": "ba4a66d0cd80409ab372aecf858081c5"
+  },
+  "coordinator": "ax-c1-jump",
+  "c1_outcome": "failed",
+  "c1_failure_evidence": {
+    "failed": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/failed.json",
+      "sha256": "401b6253a06292fb0a65c9f482d3df6d640e7633584984b5cf7a3dc26cf1dc68"
+    },
+    "request": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c1-mixed-after-c2-01/request.json",
+      "sha256": "ff23c7498b8c8c58fc24252c79203ba17b428fdc0e54d699e2d4598aac063693"
+    },
+    "started": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/started.json",
+      "sha256": "9ab30562f7709299c13c51797931d1bda44de2b9c6c8254efacab47a4be6441c"
+    },
+    "trial-1/intent.json": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-1/intent.json",
+      "sha256": "eb99007801237f0e3c361db4cb94d6cb60c729ae9c4648cd7c0468754c9b8b01"
+    },
+    "trial-1/exit.json": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-1/exit.json",
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2"
+    },
+    "trial-1/stdout": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-1/stdout",
+      "sha256": "4e9fe4f59256dcacd86235ef410afd129188ce845d6a423e7ce663e9ff1bb7d2"
+    },
+    "trial-1/stderr": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-1/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "trial-1/finished": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-mx-mxb01-off1/finished.json",
+      "sha256": "087e3c1ec0df6d1795a3545315ec3f9af52f5aed4071763879eafee298beaf59"
+    },
+    "trial-2/intent.json": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-2/intent.json",
+      "sha256": "29b224b66b30d073562bed659e82e3de6869336496dd945af1260fe727ff956b"
+    },
+    "trial-2/exit.json": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-2/exit.json",
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2"
+    },
+    "trial-2/stdout": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-2/stdout",
+      "sha256": "e0e27859a891d502cbaf5e04edb97ff4c3f039aab2f9924a15998d94fccd11d8"
+    },
+    "trial-2/stderr": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-2/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "trial-2/finished": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-mx-mxb01-on1/finished.json",
+      "sha256": "028f014b6b3ba2d921dd1f043c2d186859b32f77399997eb054e11875d10e211"
+    },
+    "trial-3/intent.json": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-3/intent.json",
+      "sha256": "4c6c3e63e5a099f3c08c0f40f2e3466b18044ece71a8d0821c3f8e9e04b9b0f9"
+    },
+    "trial-3/exit.json": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-3/exit.json",
+      "sha256": "56296949d3a02e635b050fd6b4762f0f0b52c23d05b925203095f7daf8e19027"
+    },
+    "trial-3/stdout": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-3/stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "trial-3/stderr": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/8e3d340ff23c3ece-r1-juicefs/trial-3/stderr",
+      "sha256": "66167b742c8772503e66b8e733064fa6cdeabd7814b2ce09c47ab8d2ad382e53"
+    },
+    "cohort": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-mx-mxb01-on2/cohort/result.json",
+      "sha256": "89aa2cd0cc6f83c19e9444300102a22c5f4daa9eaeb4525b09caed41316c7955"
+    },
+    "telemetry_failure": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-mx-mxb01-on2/cohort/telemetry-failed.json",
+      "sha256": "a53a0f7a6ef45c7e7155b8e192ae2a9e5deaafbc1a327be934e4a87f4ec077ee"
+    }
+  },
+  "raw_archive_pending": [
+    {
+      "role": "client",
+      "instance_id": "i-bp1fmmfkcpr8w99j2bsy",
+      "boot_id": "b4316c9e-f7da-47dc-a443-8f4c87a6cf11",
+      "disk_ids": [
+        "d-bp1fmmfkcpr8w99pwgc4",
+        "d-bp1fmmfkcpr8w99pwgc5"
+      ],
+      "paths": [
+        "/srv/ax-client/q/cal-pool-b-j-mx-mxb01-off1",
+        "/srv/ax-client/m/cal-pool-b-j-mx-mxb01-off1-p",
+        "/srv/ax-client/m/cal-pool-b-j-mx-mxb01-off1",
+        "/srv/ax-client/w/cal-pool-b-j-mx-mxb01-off1",
+        "/srv/ax-client/j/cal-pool-b-j-mx-mxb01-off1",
+        "/srv/ax-client/m/cal-pool-b-j-mx-mxb01-off1-v",
+        "/srv/ax-client/q/cal-pool-b-j-mx-mxb01-on1",
+        "/srv/ax-client/m/cal-pool-b-j-mx-mxb01-on1-p",
+        "/srv/ax-client/m/cal-pool-b-j-mx-mxb01-on1",
+        "/srv/ax-client/w/cal-pool-b-j-mx-mxb01-on1",
+        "/srv/ax-client/j/cal-pool-b-j-mx-mxb01-on1",
+        "/srv/ax-client/m/cal-pool-b-j-mx-mxb01-on1-v",
+        "/srv/ax-client/o/cal-pool-b-j-mx-mxb01-on1",
+        "/srv/ax-client/q/cal-pool-b-j-mx-mxb01-on1-observer",
+        "/srv/ax-client/q/cal-pool-b-j-mx-mxb01-on2",
+        "/srv/ax-client/m/cal-pool-b-j-mx-mxb01-on2-p",
+        "/srv/ax-client/m/cal-pool-b-j-mx-mxb01-on2",
+        "/srv/ax-client/w/cal-pool-b-j-mx-mxb01-on2",
+        "/srv/ax-client/j/cal-pool-b-j-mx-mxb01-on2",
+        "/srv/ax-client/o/cal-pool-b-j-mx-mxb01-on2",
+        "/srv/ax-client/q/cal-pool-b-j-mx-mxb01-on2-observer"
+      ],
+      "status": "pending",
+      "note": "Original paths on attached disks; completeness and archive pending."
+    },
+    {
+      "role": "metadata",
+      "instance_id": "i-bp14nenf7osz9v1snsp2",
+      "boot_id": "166d02b4-1d08-4ee3-bb02-7d75a77e588b",
+      "disk_ids": [
+        "d-bp14nenf7osz9v1rkk5k",
+        "d-bp14nenf7osz9v1rkk5l"
+      ],
+      "paths": [
+        "/srv/ax-metadata/o/cal-pool-b-j-mx-mxb01-on1",
+        "/srv/ax-metadata/q/cal-pool-b-j-mx-mxb01-on1-observer",
+        "/srv/ax-metadata/o/cal-pool-b-j-mx-mxb01-on2",
+        "/srv/ax-metadata/q/cal-pool-b-j-mx-mxb01-on2-observer"
+      ],
+      "status": "pending",
+      "note": "Original paths on attached disks; completeness and archive pending."
+    },
+    {
+      "role": "objects",
+      "instance_id": "i-bp1bhdngko7nq3c3jrhp",
+      "boot_id": "6382995a-7168-411b-b972-582ef75828a9",
+      "disk_ids": [
+        "d-bp1bhdngko7nq3c2i33z",
+        "d-bp1bhdngko7nq3c2i340",
+        "d-bp1bhdngko7nq3c2i341",
+        "d-bp1bhdngko7nq3c2i342",
+        "d-bp1bhdngko7nq3c2i343"
+      ],
+      "paths": [
+        "/srv/ax-objects-0/o/cal-pool-b-j-mx-mxb01-on1",
+        "/srv/ax-objects-0/q/cal-pool-b-j-mx-mxb01-on1-observer",
+        "/srv/ax-objects-0/o/cal-pool-b-j-mx-mxb01-on2",
+        "/srv/ax-objects-0/q/cal-pool-b-j-mx-mxb01-on2-observer",
+        "/srv/ax-objects-0/q/cal-pool-b-j-mx-mxb01-on1-collector"
+      ],
+      "status": "pending",
+      "note": "Original paths on attached disks; completeness and archive pending."
+    }
+  ]
+}
