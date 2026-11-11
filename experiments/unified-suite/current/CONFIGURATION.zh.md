@@ -1,5 +1,7 @@
 # 软件、服务与资源配置
 
+[下一批小规模服务器配置](PILOT-HARDWARE.zh.md)：单节点 pilot 使用 4×100 GiB RustFS 数据盘；下文正式四节点规格保持独立。
+
 [design.json](design.json) 保存规划数值。预检后补齐实际节点/盘、提交 SHA、镜像 digest、工作区 ID 和输入 SHA，再冻结运行清单。
 
 ## 版本和卷身份

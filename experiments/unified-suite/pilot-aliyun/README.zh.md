@@ -1,5 +1,7 @@
 # 阿里云 C1–C4 小规模试跑
 
+[下一批小规模服务器配置](../current/PILOT-HARDWARE.zh.md)：新建 RustFS 默认 4×100 GiB；原冻结批次不变。
+
 > 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
 
 复跑先读[按需服务器并行调度手册](REPEAT-SCHEDULING.zh.md)，再按本批实际计划和资源账本开机。

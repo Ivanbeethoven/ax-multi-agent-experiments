@@ -13,7 +13,7 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 ROLES = {
-    'objects': {'type': 'ecs.u1-c1m4.2xlarge', 'data_gib': [60, 60, 60, 60]},
+    'objects': {'type': 'ecs.u1-c1m4.2xlarge', 'data_gib': [100, 100, 100, 100]},
     'client': {'type': 'ecs.u1-c1m4.xlarge', 'data_gib': [100]},
     'target': {'type': 'ecs.u1-c1m4.xlarge', 'data_gib': [100]},
     'metadata': {'type': 'ecs.u1-c1m4.xlarge', 'data_gib': [60]},
