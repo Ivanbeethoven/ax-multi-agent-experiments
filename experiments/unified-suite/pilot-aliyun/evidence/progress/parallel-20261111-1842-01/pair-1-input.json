@@ -1,0 +1,115 @@
+{
+  "schema": "pilot-c2-juicefs-first-pair-audit-v1",
+  "scope": "First of three required calibration pairs; no formal cell or final overhead decision.",
+  "first_pair_makespan_change_pct": 3.7221275186337444,
+  "first_pair_task_p99_change_pct": 3.7220125270923443,
+  "off1": {
+    "cohort": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-tr-c201-off1/cohort/result.json",
+      "sha256": "b4a0dd944d7cd3c0fb59407cbb581985578fb659a38ae59ede56eea59f864f2d"
+    },
+    "finished": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-tr-c201-off1/finished.json",
+      "sha256": "c94fa3f083056e9890fa4c6239ad1b9c2ab058a5718e96780a1d7ac2d0a4e17a"
+    },
+    "cold_readback": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-tr-c201-off1/client/verify/result.json",
+      "sha256": "2ba4452f49c60651fb3892b9beacfbc7b623d924d1db1cfc7960b62bc0997ad3"
+    },
+    "makespan_seconds": 750.875891035,
+    "task_statistics": {
+      "pytest-full-02-n1": {
+        "attempted": 1,
+        "completed": 1,
+        "failed": 0,
+        "seconds": {
+          "0.5": 750.873249635,
+          "0.95": 750.873249635,
+          "0.99": 750.873249635
+        },
+        "scope": "successful supervised task wall time, nearest-rank empirical quantiles; small-n tails approximate maximum; native replay timing retained separately"
+      }
+    }
+  },
+  "on1": {
+    "cohort": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-tr-c201-on1/cohort/result.json",
+      "sha256": "a3fe8925df4b3816e11b7b74e68e31cf4a25d04508e2542167521627959502dd"
+    },
+    "finished": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-tr-c201-on1/finished.json",
+      "sha256": "b135580a320a998af4e01972464b186c5a9e25d671993001a57f6ead62145e45"
+    },
+    "cold_readback": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-tr-c201-on1/client/verify/result.json",
+      "sha256": "823d59a376d3876de332b62ae63039ecac8061c44a3279540fabefc87261389b"
+    },
+    "makespan_seconds": 778.824449206,
+    "task_statistics": {
+      "pytest-full-02-n1": {
+        "attempted": 1,
+        "completed": 1,
+        "failed": 0,
+        "seconds": {
+          "0.5": 778.820846049,
+          "0.95": 778.820846049,
+          "0.99": 778.820846049
+        },
+        "scope": "successful supervised task wall time, nearest-rank empirical quantiles; small-n tails approximate maximum; native replay timing retained separately"
+      }
+    }
+  },
+  "cold_window": {
+    "start_receipt": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-tr-c201-on1/commands/027/intent.json",
+      "sha256": "d6bf27e921fa55ac61622e5409e17d6eca3938f674ef2375ab1f2d39da2362e2"
+    },
+    "exit_receipt": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-tr-c201-on1/commands/027/exit.json",
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2"
+    },
+    "started_at": "2026-11-11T10:39:47.790515+00:00",
+    "exit_mtime": "2026-11-11T10:41:46.865273+00:00"
+  },
+  "archived_during_cold_readback": [
+    {
+      "path": "cloud-20261111/451ef1d28b5d875c-r1-juicefs/oss/cell.tar.gz.json",
+      "sha256": "73334c2ab74d6556913118f8d3431bc02769898e159fd011b7ec4b13d8262ece",
+      "verified_at": "2026-11-11T10:39:52.685601+00:00",
+      "bytes": 2888263
+    },
+    {
+      "path": "cloud-20261111/7084af367e0bcfad-r1-juicefs/oss/client.tar.gz.json",
+      "sha256": "2ac726aa11233987d5a83c42ab340ee8428797597f8610f0d12d461366d8d4b9",
+      "verified_at": "2026-11-11T10:39:54.630936+00:00",
+      "bytes": 952704
+    },
+    {
+      "path": "cloud-20261111/7084af367e0bcfad-r1-juicefs/oss/metadata.tar.gz.json",
+      "sha256": "5de72e8872828ac57eb1efb8361c9408df7d9b1fe029fdccf76577342fd37124",
+      "verified_at": "2026-11-11T10:39:55.806982+00:00",
+      "bytes": 720747
+    },
+    {
+      "path": "cloud-20261111/7084af367e0bcfad-r1-native/oss/client.tar.gz.json",
+      "sha256": "c5af02088fabd42c27065e261d9ef3a23b19408ccd97729d6f30a8467712356d",
+      "verified_at": "2026-11-11T10:39:59.837612+00:00",
+      "bytes": 7123226
+    },
+    {
+      "path": "cloud-20261111/7084af367e0bcfad-r1-native/oss/metadata.tar.gz.json",
+      "sha256": "05dcb74b7b31294525ffb6c853a4c2433cd45ffc421d57b27b2dec500cd7f3be",
+      "verified_at": "2026-11-11T10:40:02.578813+00:00",
+      "bytes": 4716240
+    }
+  ],
+  "archived_bytes": 16401180,
+  "a_diagnostic": {
+    "observed_at": "2026-11-11T10:41:33.484813+00:00",
+    "phase": "cold parent verification",
+    "pid": 239885,
+    "starttime_ticks": 5478465,
+    "rchar": 239967903,
+    "syscr": 108610
+  }
+}
