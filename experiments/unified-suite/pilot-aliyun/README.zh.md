@@ -1,12 +1,14 @@
 # 阿里云 C1–C4 小规模试跑
 
-最新版本核对：北京时间2026-11-11 08:39，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-10.json)。C1顺序读、顺序写的BrewFS和JuiceFS共四个单元已完成六次校准、正式测量、冷读回和归档；[报告](evidence/cloud-20261111/c1-progress-02.json)保留各项指标。四份完整原始包已独立下载并核全部成员。随机写正在执行，C1–C4全轮尚未完成。
+最新版本核对：北京时间2026-11-11 09:07，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-11.json)。C1顺序读、顺序写的BrewFS和JuiceFS共四个单元已完成六次校准、正式测量、冷读回和归档；[报告](evidence/cloud-20261111/c1-progress-02.json)保留各项指标。四份完整原始包已独立下载并核全部成员。随机写正在执行，C1–C4全轮尚未完成。
 
 JuiceFS顺序写先后保留两次校准失败：[采集接口随正常卸载关闭](evidence/preparation/c1-juicefs-write-calibration-failure/diagnosis.json)、[Linux复用mount ID使新增的退出检查误判](evidence/preparation/c1-juicefs-write-q2-calibration-failure/diagnosis.json)。前者负载和冷CRC通过，后者尚未执行负载。两次均已完整归档、独立下载和核验。采集器现以原进程身份及正常退出回执判断卸载，运行中断连、HTTP错误、解析错误和计数回退仍判失败。[54项本机检查通过](evidence/preparation/runtime-refresh-local.json)。修订后的新六次校准和正式单元已全部通过，旧结果不覆盖、不复用。
 
 [code-07在四个角色部署并逐文件核验](evidence/preparation/runner-code-07-deployment.json)。只更新执行与采集代码，核心二进制未变；原状态库、旧代码和失败现场保留。
 
 C4新增前置检查发现：[同一最新版BrewFS工作区正常重挂后，读回通过，但修改文件并fsync返回EIO](evidence/preparation/c4-native-reopen-blocker/README.zh.md)。两个新工作区均复现，挂载和进程已收尾；此项为本机真实FUSE验证，不是云上性能结果。BrewFS该路线暂不准入C4恢复性能比较，保留失败证据。
+
+JuiceFS 的两次本机检查均通过完整工作区冷读回及原 OpenCode 数据库历史核对；[实际 resume 的模型请求超时](evidence/preparation/session-shared-juicefs-01/README.zh.md)，[关闭思考模式的独立尝试仍超时](evidence/preparation/session-shared-juicefs-02/README.zh.md)。两次已停止并核清原进程和挂载，不能记作恢复成功。没有启动目标机。C1–C3和trace回放不调用模型；C4另报存储/会话状态就绪时间，把后续模型等待单列。
 
 
 05:55–05:56另核了[运行中的RustFS程序](evidence/preparation/cloud-runtime-progress-04.json)与[已部署BrewFS程序](evidence/preparation/cloud-brewfs-progress-04.json)，SHA256均与本批构建一致。执行脚本[code-02已在四个角色部署并逐文件核验](evidence/preparation/runner-code-02-deployment.json)；旧任务仍使用原脚本，不热替换。
@@ -47,8 +49,11 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/qualify-native-local.py --mutate-reopened`、`qualify-writer-fencing.py` | 检查重挂后写入、活跃写者互斥及过期后接管；实际失败和未到达的步骤单独记录，不用只读重挂代替恢复成功 |
 | `scripts/prepare-session-input.py` | 将固定检查点放入已挂载的工作区，核完整输入、内部链接、配置替换与fsync；只调用原生export。[本机真实OpenCode导出通过](evidence/preparation/session-input-local.json)，没有模型调用；挂载控制在该项本机检查中为模拟，云上验证另做 |
 | `scripts/prepare-handoff-source.py` | 准备单个共享文件系统上的会话，正常重挂后从原数据库导出；可另选一次实际resume和完整冷读回。当前仅完成语法和命令入口检查，尚未在云上运行；不创建目标机 |
+| `scripts/draft-handoff-target.py` | 在目标端生成同一后端、原工作区和相同二进制的挂载配置，不格式化卷、不复制工作区。配置检查通过；实际目标挂载尚待执行 |
+| `scripts/qualify-session-shared-local.py` | 在私有挂载命名空间内，用真实JuiceFS检查原数据库重开和可选resume；保护原路径，记录实际代码、空HOME、上游请求元数据及正常退出。当前两次原数据库冷读回通过，模型环节超时 |
+| `scripts/probe-session-provider.py` | 默认只查模型列表；显式选择才发一次最多16输出token的小请求。已完成一次9 token检查，旧名称请求返回`deepseek-flash`；不提供文件系统恢复结论 |
 | `scripts/package-session-checkpoint.py`、`check-session-checkpoint.py` | 打包、恢复同一份关闭的会话输入，逐文件核内容、模式和内部链接；拒绝活动转发密钥、损坏包及不匹配的核验工具。[894项完整恢复与反例检查通过](evidence/preparation/session-checkpoint-package-local.json)，不调用模型 |
-| `scripts/session-relay.py` | C4私网模型转发，主密钥仅在工作区外的私有配置，工作区使用独立转发凭据；不记录请求/响应正文，不自动重试；[云上健康检查通过](evidence/preparation/c4-relay-health.json)，尚无模型调用；本地5项验证通过 |
+| `scripts/session-relay.py` | C4私网模型转发，主密钥仅在工作区外的私有配置，工作区使用独立转发凭据；不记录请求/响应正文，转发器不自动重试。可显式选择`--thinking-mode disabled`并记录策略，默认原样转发；OpenCode自身可能重试。云上仍为原版本，只完成[健康检查](evidence/preparation/c4-relay-health.json) |
 | `scripts/qualify-opencode-session.py`、`package-session-runtime.py` | 两轮真实会话验证export/import/resume，打包已安装依赖，密钥留在工作区外 |
 | `scripts/link-brewfs-tool.py`、`verify-entity-remote.rs` | 复用本轮BrewFS库构建只读核验器；检查原namespace的远端字节、目录、硬链接、ownership及核验前后状态 |
 | `scripts/local-services.py` | 本机功能验证服务；四个目录共用一块盘，不能作为云上四独立盘的性能证据 |

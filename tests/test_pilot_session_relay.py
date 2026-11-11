@@ -105,6 +105,21 @@ class RelayTests(unittest.TestCase):
         finally:
             server.shutdown();server.server_close();thread.join()
 
+    def test_explicit_nonthinking_policy_preserves_task_and_model_without_logging_body(self):
+        self.config['thinking_mode']='disabled'
+        server,thread,records,calls,post=self.exercise(lambda request:Response())
+        try:
+            self.assertEqual(post()[0],200)
+            forwarded=json.loads(calls[0].data)
+            self.assertEqual(forwarded['thinking'],{'type':'disabled'})
+            self.assertEqual(forwarded['model'],'deepseek-v4-flash')
+            self.assertEqual(forwarded['messages'],[dict(role='user',content='private prompt')])
+            self.assertEqual(records[0]['thinking_policy'],'disabled')
+            self.assertEqual(records[0]['forwarded_request_bytes'],len(calls[0].data))
+            self.assertNotIn('private prompt',json.dumps(records))
+        finally:
+            server.shutdown();server.server_close();thread.join()
+
     def test_upstream_redirect_is_disabled(self):
         self.assertIsNone(relay.NoRedirect().redirect_request(None,None,302,'',{},'https://other.invalid'))
 

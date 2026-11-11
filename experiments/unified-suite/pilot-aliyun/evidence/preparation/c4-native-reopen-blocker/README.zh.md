@@ -13,6 +13,8 @@ BrewFS `main` 的 `622736b0a31caaa9007445886e626a2458bc316a`，二进制 SHA256 
 
 两次独立新工作区都复现。第二次的[重挂后完整读回](native-clean-reopened-write-02/readback-2.json)、[失败结果](native-clean-reopened-write-02/result.json)、[原挂载退出](native-clean-reopened-write-02/mount-process-1/exit.json)、[原租约释放](native-clean-reopened-write-02/inspect-1/stdout)及[失败后的收尾](native-clean-reopened-write-02/operator-closure.json)已保留。
 
+08:46又以新工作区、同一二进制和 `--log-level warn` 复现。[原始日志](native-clean-reopened-write-warn-01/mount-process-2/stdout)记录 `native fsync snapshot failed`，具体错误为 `record decode: object registration exists without its registry binding`。这是程序实际返回的错误，根因仍待定位；没有修改元数据绕过检查。[失败结果](native-clean-reopened-write-warn-01/result.json)、[正常卸载和原进程已退出](native-clean-reopened-write-warn-01/operator-closure.json)、[完整原始包摘要](native-clean-reopened-write-warn-01/archive-check.json)均已保留。
+
 ## 复现命令
 
 在已运行本机 Redis/RustFS 的 Linux 测试环境，以 root 执行。`BUILD` 为构建目录，`OUT` 必须是新目录：

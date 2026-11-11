@@ -118,6 +118,10 @@ def run(ref, output):
         phase = 'restore'
         restored = exported(measured(phase,lambda:cohort.run(s[phase],output/phase)))
         check_after(check,restored,False)
+        state_ready_ns=time.monotonic_ns()
+        write_new(output/'state-ready.json',dict(start_ns=begin,end_ns=state_ready_ns,
+            original_native_history_verified=True,model_resume_started=False,
+            scope='Storage/session state ready through original history verification; subsequent model resume is separate'))
         phase = 'resume'
         resumed = measured(phase,lambda:cohort.run(s[phase],output/phase,observe))
         if not resumed['passed']: raise ValueError('native resume failed')
@@ -133,6 +137,8 @@ def run(ref, output):
                   'restore_method':restore_method,
                   'native_session_json_transferred_bytes':len(raw) if restore_method=='native-export-import' else 0,
                   'workspace_copy_bytes':0,
+                  'state_ready_seconds':(state_ready_ns-begin)/1e9,
+                  'state_ready_includes_model_resume':False,
                   'first_completed_tool_ack_seconds':(first_tool-begin)/1e9,
                   'phases':times,'session_validation':validation,
                   'scope':'clean native session handoff; coordinator ACK times include transport; task grading and neighbor effects separate',

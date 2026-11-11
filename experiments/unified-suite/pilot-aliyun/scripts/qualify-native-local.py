@@ -59,12 +59,13 @@ def main():
     p.add_argument('--native-base',type=Path)
     p.add_argument('--cloud',action='store_true')
     p.add_argument('--mutate-reopened',action='store_true',help='Write existing/new files after clean reopen, then verify a third cold mount')
+    p.add_argument('--log-level',choices=['error','warn'],default='error',help='Warn captures native fsync errors without HTTP debug headers')
     a = p.parse_args()
     if os.geteuid() != 0:
         raise PermissionError('Run on the owned local host as root')
     a.out.mkdir(parents=True, exist_ok=False)
     env = dict(os.environ, AWS_EC2_METADATA_DISABLED='true', AWS_REGION='us-east-1',
-        RUST_LOG='error', NO_COLOR='1',
+        RUST_LOG=a.log_level, NO_COLOR='1',
         NO_PROXY='127.0.0.1,localhost', no_proxy='127.0.0.1,localhost')
     for line in (a.services / 'rustfs.env').read_text().splitlines():
         k, v = line.split('=', 1)
@@ -93,7 +94,7 @@ def main():
             'write_ssd_bytes': 1073741824, 'memory_budget_bytes': 536870912,
             'writeback_mode': 'upload_before_commit', 'compression': 'none'})
     result = dict(passed=False, route=a.route, bucket=bucket, catalog=catalog,
-        binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),mutate_reopened=a.mutate_reopened,
+        binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),mutate_reopened=a.mutate_reopened,log_level=a.log_level,
         scope=('cloud' if a.cloud else 'local')+' native reopen feasibility only; not performance, native immutable publication or cross-machine handoff',
         cloud_instances_started=a.cloud)
     process = None

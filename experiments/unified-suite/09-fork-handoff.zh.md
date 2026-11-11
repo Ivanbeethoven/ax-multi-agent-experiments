@@ -48,6 +48,8 @@ python3 -m bench.runtime.handoff --spec "$HANDOFF_SPEC" --sha256 "$HANDOFF_SHA" 
 
 stay和move从同一预注册checkpoint与任务suffix开始；stay也支付相同quiesce/export/stop/restore步骤，目标留在原executor；move换到实际另一宿主。N>1时其余邻居持续执行冻结负载，保存窗口吞吐/慢化；无邻居证据就没有“流转不影响其他Agent”的结论。
 
-共享repo/HOME/XDG由文件系统承载，跨机只传原生session JSON，不复制workspace数据树。保留source/target host ID、原生session ID、工具call ID、lease/generation、原writer释放和target新writer证据。actual checkpoint hash先固定，再构造restore spec；不能在测量中改写expected SHA以便通过。
+共享repo和XDG由文件系统承载，目标使用空HOME。恢复测试显式选择 `restore_method=shared-workspace-db`：目标打开相同工作区内的原数据库/XDG路径，不另传或导入session JSON，不复制workspace数据树。`native-export-import` 保留为另列的兼容性测试。保留source/target host ID、原生session ID、工具call ID、lease/generation、原writer释放和target新writer证据。actual checkpoint hash先固定，再构造restore spec；不能在测量中改写expected SHA以便通过。
 
 流转测首个新增完成工具事件、恢复到任务完成、停顿和上传债务；export/import命令耗时不是完整恢复时间。fresh-only entity不能进入现有namespace重开的主表，可在功能完成后新协议加测。
+
+另报 `state_ready_seconds`：从源端停止准备开始，到目标重新挂载并核对原会话历史结束，后续模型调用不计入这一项。`first_completed_tool_ack_seconds` 保留完整流程耗时，包含后续模型调用。两项分别报告，不能把模型等待时间算成文件系统的开销。

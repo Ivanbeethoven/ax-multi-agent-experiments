@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-11T01:15:17.0758368Z",
+  "passed": true,
+  "checks": [
+    {
+      "command": "python3 -m unittest tests.test_pilot_session_relay tests.test_pilot_session_shared tests.test_pilot_handoff_target -q",
+      "tests": 9,
+      "passed": true
+    },
+    {
+      "command": "python3 -m unittest tests.test_runtime_adapters.HandoffTests -v",
+      "tests": 4,
+      "passed": true
+    }
+  ],
+  "scope": "Local configuration, relay privacy/policy and timing boundary checks. Actual resume attempts remain failed due provider timeouts; no cloud performance acceptance.",
+  "cloud_deployed": false,
+  "model_resume_passed": false,
+  "global_user_model_config_modified": false
+}

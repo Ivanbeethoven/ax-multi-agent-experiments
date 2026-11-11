@@ -51,6 +51,8 @@ def validate_config(value):
         raise ValueError('This campaign uses deepseek-v4-flash')
     if not 1024 <= value['port'] <= 65535 or not 1 <= value['max_requests'] <= 1000:
         raise ValueError('Explicit unprivileged port and bounded request count required')
+    if value.get('thinking_mode','passthrough') not in ('passthrough','disabled'):
+        raise ValueError('Explicit supported thinking policy required')
     return value
 
 
@@ -100,6 +102,10 @@ def handler(config, record, reserve, opener=None):
             if not reserve():
                 self.reply(429, 'campaign request limit reached; inspect before continuing')
                 return
+            policy=config.get('thinking_mode','passthrough')
+            if policy=='disabled':
+                value['thinking']={'type':'disabled'}
+                raw=json.dumps(value).encode()
             request = urllib.request.Request(config['base_url'].rstrip('/') + '/chat/completions',
                 data=raw, headers={'Authorization': 'Bearer ' + config['api_key'],
                                    'Content-Type': 'application/json'}, method='POST')
@@ -132,6 +138,7 @@ def handler(config, record, reserve, opener=None):
             finally:
                 record(dict(at=datetime.now(timezone.utc).isoformat(),seconds=time.monotonic()-start,
                     request_bytes=length,response_bytes=output_bytes,status=status,outcome=outcome,
+                    forwarded_request_bytes=len(raw),thinking_policy=policy,streaming=bool(value.get('stream')),
                     automatic_retry=False))
 
     return Handler
@@ -146,6 +153,7 @@ def main():
     parser.add_argument('--bind')
     parser.add_argument('--port', type=int, default=18443)
     parser.add_argument('--max-requests', type=int, default=128)
+    parser.add_argument('--thinking-mode',choices=['passthrough','disabled'],default='passthrough')
     args = parser.parse_args()
     if args.initialize_provider_stdin:
         if not args.client_config or not args.bind:
@@ -153,7 +161,7 @@ def main():
         provider = json.loads(sys.stdin.read().lstrip('\ufeff'))
         config = validate_config(dict(bind=args.bind,port=args.port,base_url=provider['options']['baseURL'],
             api_key=provider['options']['apiKey'],relay_key=secrets.token_hex(32),
-            model='deepseek-v4-flash',max_requests=args.max_requests))
+            model='deepseek-v4-flash',max_requests=args.max_requests,thinking_mode=args.thinking_mode))
         client = {'$schema':'https://opencode.ai/config.json','provider':{'experiment':{
             'npm':provider['npm'],'models':{'deepseek-v4-flash':provider['models']['deepseek-v4-flash']},
             'options':{'baseURL':f'http://{args.bind}:{args.port}/v1','apiKey':config['relay_key']}}},
@@ -195,7 +203,7 @@ def main():
     server.daemon_threads = True
     server.timeout = 30
     (args.out/'ready.json').write_text(json.dumps(dict(pid=os.getpid(),bind=config['bind'],
-        port=server.server_port,model=config['model'],max_requests=config['max_requests'],
+        port=server.server_port,model=config['model'],max_requests=config['max_requests'],thinking_mode=config.get('thinking_mode','passthrough'),
         script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         provider_master_key_in_workspace=False,request_bodies_logged=False,
         scope='Private relay availability only; not a model or handoff qualification'))+'\n')

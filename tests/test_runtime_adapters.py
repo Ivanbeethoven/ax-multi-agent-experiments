@@ -319,6 +319,9 @@ class HandoffTests(unittest.TestCase):
             self.assertEqual([call.args[1][0] for call in remote.call_args_list],['stop','start'])
             self.assertNotIn('stage-export',result['phases'])
             self.assertEqual(result['session_validation']['new_completed_tools'],1)
+            self.assertFalse(result['state_ready_includes_model_resume'])
+            self.assertGreaterEqual(result['state_ready_seconds'],0)
+            self.assertLessEqual(result['state_ready_seconds'],result['first_completed_tool_ack_seconds'])
 
     def test_identity_and_placement_cannot_be_substituted(self):
         source={'anchor':{'workspace':'w'},'node_id':'a','mount_directory':'/old','physical_host_id':'p1'}
