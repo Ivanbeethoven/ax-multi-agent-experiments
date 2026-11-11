@@ -15,7 +15,7 @@ from bench.runtime.observe import validate,collect_target
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--role',choices=['client','metadata','objects'],required=True)
+    p.add_argument('--role',choices=['client','target','metadata','objects'],required=True)
     p.add_argument('--product',choices=['brewfs','juicefs'],required=True)
     p.add_argument('--entity',action='store_true',help='Entity cache metrics; debt is checked through the original namespace')
     p.add_argument('--metric-contract-sha256',required=True)
@@ -28,7 +28,7 @@ def main():
     if a.entity and a.product!='brewfs':raise ValueError('Entity is a BrewFS engine')
     if socket.gethostname()!='ax-pilot-20261111-'+a.role:raise ValueError('Wrong observer host')
     a.out.mkdir(parents=True,exist_ok=False)
-    root={'client':'/srv/ax-client','metadata':'/srv/ax-metadata','objects':'/srv/ax-objects-0'}[a.role]
+    root={'client':'/srv/ax-client','target':'/srv/ax-target','metadata':'/srv/ax-metadata','objects':'/srv/ax-objects-0'}[a.role]
     s=dict(schema='experiment-observer-v1',reviewed=True,interval_seconds=5,metric_contract_sha256=a.metric_contract_sha256,
         data_paths=[root],cgroups=[],processes=[],targets=[],role=a.role,
         review=dict(reviewer='pilot-operator',note='Native endpoints probed on this host; long-lived service identity and cgroups read from the running processes. Mount lifecycle is bound separately.'))
@@ -37,7 +37,7 @@ def main():
         return dict(id=tag,path='/sys/fs/cgroup/'+relative.lstrip('/'))
     def http(tag,url,required,counters):
         return dict(id=tag,kind='http',url=url,format='prometheus',timeout_seconds=2,required_names=required,counter_names=counters)
-    if a.role=='client':
+    if a.role in ('client','target'):
         s['cgroups']=[dict(id='agent',path='/sys/fs/cgroup/ax-slot-1')]
         # Client PIDs end before the observer. ready/stopped receipts and the
         # Agent cgroup track them; PID 1 pins the host boot throughout sampling.
@@ -98,7 +98,7 @@ def main():
     for t in s['targets']:
         # A not-yet-mounted client is checked when ready. Services are checked
         # now so absent series cannot be mistaken for an inactive mount.
-        if a.role!='client':
+        if a.role not in ('client','target'):
             raw,_=collect_target(t);(a.out/(t['id']+'-probe.txt')).write_text(raw)
     validate(s)
     write_new(a.out/'observer.json',s)

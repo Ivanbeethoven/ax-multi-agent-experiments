@@ -1,6 +1,6 @@
 # 阿里云 C1–C4 小规模试跑
 
-最新版本核对：北京时间2026-11-11 07:57，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-09.json)。C1顺序读、顺序写的BrewFS和JuiceFS共四个单元已完成六次校准、正式测量、冷读回和归档；[报告](evidence/cloud-20261111/c1-progress-02.json)保留各项指标。四份完整原始包已独立下载并核全部成员。随机写正在执行，C1–C4全轮尚未完成。
+最新版本核对：北京时间2026-11-11 08:39，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-10.json)。C1顺序读、顺序写的BrewFS和JuiceFS共四个单元已完成六次校准、正式测量、冷读回和归档；[报告](evidence/cloud-20261111/c1-progress-02.json)保留各项指标。四份完整原始包已独立下载并核全部成员。随机写正在执行，C1–C4全轮尚未完成。
 
 JuiceFS顺序写先后保留两次校准失败：[采集接口随正常卸载关闭](evidence/preparation/c1-juicefs-write-calibration-failure/diagnosis.json)、[Linux复用mount ID使新增的退出检查误判](evidence/preparation/c1-juicefs-write-q2-calibration-failure/diagnosis.json)。前者负载和冷CRC通过，后者尚未执行负载。两次均已完整归档、独立下载和核验。采集器现以原进程身份及正常退出回执判断卸载，运行中断连、HTTP错误、解析错误和计数回退仍判失败。[54项本机检查通过](evidence/preparation/runtime-refresh-local.json)。修订后的新六次校准和正式单元已全部通过，旧结果不覆盖、不复用。
 
@@ -46,6 +46,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `bench/runtime/handoff.py` 的 `shared-workspace-db` | 目标直接打开原工作区内相同的数据库/XDG路径，原生export核历史后继续会话；不传输或导入额外会话文件。新增流程检查通过，实际跨机尚待执行 |
 | `scripts/qualify-native-local.py --mutate-reopened`、`qualify-writer-fencing.py` | 检查重挂后写入、活跃写者互斥及过期后接管；实际失败和未到达的步骤单独记录，不用只读重挂代替恢复成功 |
 | `scripts/prepare-session-input.py` | 将固定检查点放入已挂载的工作区，核完整输入、内部链接、配置替换与fsync；只调用原生export。[本机真实OpenCode导出通过](evidence/preparation/session-input-local.json)，没有模型调用；挂载控制在该项本机检查中为模拟，云上验证另做 |
+| `scripts/prepare-handoff-source.py` | 准备单个共享文件系统上的会话，正常重挂后从原数据库导出；可另选一次实际resume和完整冷读回。当前仅完成语法和命令入口检查，尚未在云上运行；不创建目标机 |
 | `scripts/package-session-checkpoint.py`、`check-session-checkpoint.py` | 打包、恢复同一份关闭的会话输入，逐文件核内容、模式和内部链接；拒绝活动转发密钥、损坏包及不匹配的核验工具。[894项完整恢复与反例检查通过](evidence/preparation/session-checkpoint-package-local.json)，不调用模型 |
 | `scripts/session-relay.py` | C4私网模型转发，主密钥仅在工作区外的私有配置，工作区使用独立转发凭据；不记录请求/响应正文，不自动重试；[云上健康检查通过](evidence/preparation/c4-relay-health.json)，尚无模型调用；本地5项验证通过 |
 | `scripts/qualify-opencode-session.py`、`package-session-runtime.py` | 两轮真实会话验证export/import/resume，打包已安装依赖，密钥留在工作区外 |
@@ -82,7 +83,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/launch-one.py` | 启动明确指定的一项；先核前项关闭、归档全部成员、无上传债务、空槽位和采集器衔接，不选择下一项、不重试 |
 | `scripts/draft-session-phase.py` | 固定单个export/import/resume或退出检查的命令、输入摘要和结果条件；resume只转发实际工具完成事件 |
 | `scripts/retain-cell.py` | 仅打包已关闭单元，核封存文件集合及全部成员摘要，供独立下载；不启动负载 |
-| `scripts/record-cost.py` | 按真实创建时间与报价保存新增资源的费用估算，列清未包含的项目 |
+| `scripts/record-cost.py` | 按真实创建时间与报价估算费用。扩容按有凭据的新单价分段；只有核实实例及所有附属盘已释放，才停止计费估算。请求成功本身不算释放 |
 | `scripts/verify-latest.py` | 将本轮构建提交与指定远端分支最新提交逐一比较，保留带时间的结果 |
 
 新云节点和跳板启动都要求本地产物、镜像、依赖、功能资格完成。现成脚本不等于已通过路线资格，失败记录保留。
