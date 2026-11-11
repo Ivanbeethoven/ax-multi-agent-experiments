@@ -1,0 +1,112 @@
+{
+  "schema": "ax-c4-native-reopen-root-cause-v1",
+  "scope": "Read-only analysis of the two existing same-host Redis/RustFS/FUSE qualifications. No new execution; this is not a formal C4 migration result.",
+  "product": {
+    "brewfs_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+    "brewfs_binary_sha256": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0",
+    "rustfs_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "volume_format": "workspace-native-v2",
+    "profile": "p1-retained-trial"
+  },
+  "archive": {
+    "file": "functional.tar.gz",
+    "bytes": 10384832,
+    "sha256": "f961be32ec5c08c70d9c5c8a156dc09a0cccdd1422b31f349935c17a9c1c6f9d",
+    "catalog": "../c3-packed-ca07159-100k/README.zh.md"
+  },
+  "observed": {
+    "mount_error": "native fsync snapshot failed, fh: 6, ino: 3, error: record decode: object registration exists without its registry binding",
+    "failing_syscall": "fsync on existing data-renamed after successful r+b open, seek, write and Python stream flush; close also returned EIO",
+    "operation": "On the second mount, overwrite 23 bytes at offset 19 in the already written file; failure precedes the second-writer new file.",
+    "configuration": "Both runs used new catalog names, bucket names and workspace IDs. Within each run the two mount configs are identical except for cache_root; the second path is fresh. Both used local Redis DB3; a globally empty DB was not asserted for workspace mode.",
+    "source_closure": {
+      "original_first_mount_exit_code": 0,
+      "mount_absent": true,
+      "inspect_lease_id": null,
+      "inspect_holder_generation": null,
+      "inspect_pending_writeback_bytes": 0
+    },
+    "reopened_full_tree_equal_before_write": true,
+    "reopened_full_tree_expected_sha256": "61d74cc366ac310b56e038aab4c83cf689c389199424796b5d7703ed377e87fe",
+    "attempts": [
+      {
+        "member_prefix": "qualification/native-workspace-reopen-ca07159-01/",
+        "workspace_id": "01a1c8cb-55bd-7c00-ad30-23ce3d58ddbd",
+        "mount1": {
+          "pid": 3523784,
+          "start_ticks": "67275822"
+        },
+        "mount2": {
+          "pid": 3523799,
+          "start_ticks": "67275876"
+        },
+        "identity_members": [
+          "mount-process-1/started.json",
+          "mount-process-2/started.json"
+        ],
+        "warning_member": "mount-process-2/stdout",
+        "warning_member_sha256": "45e6d824e45600868fcd743da084f250f8d2716d7686fe25206cea457422e53d",
+        "warning_at": "2026-11-11T04:08:52.490254Z",
+        "source_release_member": "inspect-1/stdout",
+        "target_readback_member": "readback-2.json",
+        "traceback_archive_member": "preparation/native-workspace-reopen-ca07159-01/stderr",
+        "reopened_closure_member": "operator-normal-stop/result.json",
+        "reopened_normal_unmount_exit_code": 0,
+        "reopened_original_pidfd_exit_observed": true,
+        "reopened_original_exit_code": null
+      },
+      {
+        "member_prefix": "qualification/native-workspace-reopen-ca07159-02/",
+        "workspace_id": "01a1c8d3-3c77-7042-9d6d-5b603e7bfa23",
+        "mount1": {
+          "pid": 3524357,
+          "start_ticks": "67328376"
+        },
+        "mount2": {
+          "pid": 3524371,
+          "start_ticks": "67328422"
+        },
+        "identity_members": [
+          "mount-process-1/started.json",
+          "mount-process-2/started.json"
+        ],
+        "warning_member": "mount-process-2/stdout",
+        "warning_member_sha256": "8002bc666703307b9e8afbeca8da4b16079f8172ea33a8a6cb936453ae961834",
+        "warning_at": "2026-11-11T04:17:30.086015Z",
+        "source_release_member": "inspect-1/stdout",
+        "target_readback_member": "readback-2.json",
+        "traceback_archive_member": "preparation/native-qualification-guards-01/workspace-failure-cleanup-stderr",
+        "reopened_closure_member": "mount-process-2/failure-exit.json",
+        "reopened_original_exit_code": 0
+      }
+    ]
+  },
+  "source_diagnosis": {
+    "status": "Strong source diagnosis consistent with both raw warnings; neither run captured the actual rejected Redis keys or a patched execution.",
+    "chain": [
+      {
+        "source": "src/cli.rs:1341-1378; src/native_base/write/overlay.rs:244-250,261-312,338-348",
+        "finding": "The reopened mount acquires a new catalog writer generation but keeps the same persistent workspace head and write domain. It constructs a new overlay whose in-memory ticket counter starts at zero."
+      },
+      {
+        "source": "src/native_base/write/overlay.rs:508-529,1536-1548; src/native_base/runtime/io.rs:835-857,902-910",
+        "finding": "An operation ID hashes volume, workspace, inode and local ticket only. The first block write on both mounts uses the same inode and local ticket even though the durable per-inode mutation order advances."
+      },
+      {
+        "source": "src/native_base/write/overlay.rs:665-689,752-781; src/native_base/write/receipts.rs:159-236; src/native_base/write/keys.rs:90-103",
+        "finding": "The receipt object ID is derived from that operation ID, but its content and full-hash object key change when the block contents and receipt entries change. The new key lookup misses, while the old domain/object-ID registration exists."
+      },
+      {
+        "source": "src/native_base/write/domain.rs:137-169; src/vfs/fs/mod.rs:6916-6929; src/native_base/write/commit.rs:322-343",
+        "finding": "The registration guard rejects the inconsistent identity and the VFS returns EIO. Even bypassing that guard would leave the durable idempotency row keyed by the reused operation ID."
+      }
+    ],
+    "no_validated_cli_workaround": true
+  },
+  "proposed_repair": {
+    "tested": false,
+    "change": "Give newly admitted mutations a restart-safe operation ID: include a unique writer generation in the ID preimage, or use a durable non-repeating allocation. Keep an admitted operation's ID stable across retries and its derivative receipt/slice IDs coherent. Preserve existing registry and mutation rows; do not bypass identity validation.",
+    "regression": "Using the same volume, workspace, Redis and RustFS, write and fsync a file on mount 1 and close normally; on a fresh-cache mount 2 verify original bytes, overwrite the same inode with different data as its first mutation, fsync, create/fsync another file and close; a third fresh-cache mount must read both new results and unmodified bytes. Check distinct operation and receipt IDs, immutable old rows, and stable same-operation retry. The existing src/native_base/runtime/io.rs:2386-2424 remount test checks reads only.",
+    "migration_fence": "Still unverified. src/cli.rs:1341-1378 acquires a workspace session but constructs WriteOverlay::new without with_writer_lease; src/native_base/write/overlay.rs:338-379,1358-1385 shows that the no-lease guard uses the currently read head. Test actual old writer publication rejection after the new writer acquires the workspace; catalog release and separate API tests alone cannot prove the mount path's data-write fence."
+  }
+}
