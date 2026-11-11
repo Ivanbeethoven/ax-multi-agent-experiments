@@ -2,19 +2,21 @@
 
 本轮在阿里云按量实例上试跑。C3和C4派生使用[10万文件](PILOT-100K.zh.md)，每文件4KiB。C1、C2完整trace和C4会话流转保持原负载。实验输入、原始数据和 SHA256 见[归档下载](OSS-ARCHIVE.zh.md)及[trace目录](../../../scenarios/k8s-containers/data-catalog.md)。
 
-截至北京时间2026-11-11 15:45，**系统实验验收9/28，剩19项；22项消融另计**。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。复用一台跳板，两个私网组各三台；[新增资源费用估算](evidence/progress/parallel-20261111-1545-01/cost-total.json)为¥74.77（约¥9.24/小时），原跳板、网络与OSS另计。
+截至北京时间2026-11-11 16:08，**系统实验验收10/28，剩18项；22项消融另计**。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。复用一台跳板，两个私网组各三台；[新增资源费用估算](evidence/progress/parallel-20261111-1608-01/cost-total.json)为¥78.27（约¥9.24/小时），原跳板、网络与OSS另计。
 
 | 实验 | 正式完成/计划 | 当前情况 |
 |---|---:|---|
-| C1 fio | 7/10 | 双方顺序读、顺序写、随机写及JuiceFS随机读已验收；BrewFS随机读待补正式样本，双方混合读写待跑 |
+| C1 fio | 8/10 | 双方顺序读、顺序写、随机写、随机读已验收；A组正在做BrewFS混合读写，JuiceFS混合读写待跑 |
 | C2 完整trace | 1/5 | [flat BrewFS](evidence/cloud-20261111/05357b5089cd679c-r1-native/)已验收，回放1,747,109次操作；同份输入已校验并传到B组，待C4之后运行JuiceFS |
-| C3 小文件（10万） | 1/4 | [JuiceFS](evidence/c3-jfs-01/)已验收；A组Packed通过完整冷读资格检查，接着运行校准和正式样本 |
+| C3 小文件（10万） | 1/4 | [JuiceFS](evidence/c3-jfs-01/)已验收；Packed完整资格通过，观测开关差约5.98%，超过5%门槛，正式样本未启动 |
 | C4 派生（10万） | 0/5 | B组正在运行JuiceFS批次；BrewFS各路线仍待正式测量 |
 | C4 流转 | 0/4 | 本机JuiceFS原会话数据库冷重开通过；BrewFS工作区重挂后写入EIO。云上跨机和真实继续任务未完成，模型调用暂停 |
 
 11:07查到[BrewFS分支推进到ca07159](evidence/preparation/latest-progress-15.json)，RustFS未变。[11:47独立重建完成](evidence/preparation/brewfs-ca07159-build/README.zh.md)，两份源码均干净、旧产物保留。[新版本10万文件Packed本机检查通过](evidence/preparation/c3-packed-ca07159-100k/README.zh.md)。已结束的云上随机写配对固定622736b；下一批重新核分支并绑定新版本。`configure-pilot.py --phase c1`或`--phase c2`可单独生成新阶段，旧状态库保留。
 
 [正式C1报告](evidence/cloud-20261111/c1-progress-04.json)保留七项通过及一项排除的实际指标。两边随机写的正式包及六次校准包均已独立下载，核验全部嵌套节点包：[BrewFS](evidence/cloud-20261111/7084af367e0bcfad-r1-native/README.zh.md)、[JuiceFS](evidence/cloud-20261111/7084af367e0bcfad-r1-juicefs/README.zh.md)。该对同步随机写中，BrewFS约9.2 IOPS、JuiceFS约74.1 IOPS，保留BrewFS较慢的结果。每项仅1个Agent、1次pilot正式重复。
+
+[BrewFS随机读补跑](evidence/c1-native-randread-02/)使用新目录，沿用相同产品二进制、输入和六轮原校准，核对现用采集器镜像及配置后只执行正式样本。九个阶段均通过。fio记录读带宽59.81 MiB/s、15,312 IOPS、读P99 71.168 µs。新样本与先前JuiceFS随机读的批次不同，暂不据此报加速比。
 
 12:11的[新增资源估算](evidence/cloud-20261111/cost-progress-15.json)为¥43.59，当前¥4.671/小时；未新增目标机或扩盘，原跳板、网络和OSS另计。[扩盘备选](OBJECT-CAPACITY.zh.md)未执行。归档工具首次云上执行的路径问题[已修复并保留失败记录](evidence/preparation/calibration-retention-fix/README.zh.md)；测量继续使用原code-07。
 

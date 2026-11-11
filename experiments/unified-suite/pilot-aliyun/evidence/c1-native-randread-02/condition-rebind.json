@@ -1,0 +1,274 @@
+{
+  "schema": "flat-condition-rebind-v1",
+  "passed": true,
+  "prepared_plan": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/suite/plan.json",
+    "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+  },
+  "execution_plan": {
+    "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/suite/plan.json",
+    "sha256": "d51c68127f3d39134d15625b7240539757295e5f43bb02467328e044710971f2"
+  },
+  "prepared_request": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/requests/pool-a-native-randread-01.json",
+    "sha256": "8e2a45589219da7de2389d57e16ac27bc1ca5d9f2adf46a86eb31a4492e7befc"
+  },
+  "failed_attempt": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pa-c1-rr-before-work-01.reviewed-close.json",
+    "sha256": "35d855d012ccbb0de62a8dcab081a9f557108eceaa148beee8897030a3401f0f"
+  },
+  "prepared_asset": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-shared-01/assets/native/asset.json",
+    "sha256": "538d52357e0d968e9c8f1824403bb94b0d17f90a236451ac7df47d5096560957"
+  },
+  "original_cell": {
+    "id": "451ef1d28b5d875c-r1-native",
+    "paired_block": "451ef1d28b5d875c-r1",
+    "order": 0,
+    "pool": "pool-a",
+    "suite": "C1",
+    "case": "fio-randread",
+    "workload": "fio",
+    "claim": "system",
+    "params": {
+      "agents": 1,
+      "rw": "randread",
+      "block_bytes": 4096,
+      "file_bytes_per_job": 67108864,
+      "io_bytes_per_job": 67108864,
+      "numjobs": 1,
+      "ioengine": "psync",
+      "iodepth": 1,
+      "direct": false,
+      "fsync_every_write": true,
+      "rwmixread": 75,
+      "cache_state": "client-cold",
+      "time_based": false
+    },
+    "arm_id": "native",
+    "arm": {
+      "product": "brewfs",
+      "role": "internal-control",
+      "engine": "flat-v1",
+      "delta": false,
+      "packed": false,
+      "hint": "auto",
+      "payload_cache_bytes": 536870912
+    },
+    "asset_id": "37de6d968821c483dbd34d1f",
+    "required_gates": [
+      "exact-build-input-inventory",
+      "native-route-and-metadata",
+      "effective-cache-and-durability",
+      "host-capacity-and-maintenance",
+      "complete-telemetry-and-overhead",
+      "cross-pool-hardware-equivalence"
+    ],
+    "stages": [
+      "observe-start",
+      "create",
+      "mount",
+      "measure",
+      "drain",
+      "unmount",
+      "verify",
+      "observe-stop",
+      "archive"
+    ],
+    "observation_marks": [
+      "measure-start",
+      "measure-end",
+      "drain-end",
+      "verify-end"
+    ],
+    "execution_enabled": false,
+    "client_settings": {
+      "volume_format": "flat-v1",
+      "volume": {
+        "format": "flat-v1"
+      },
+      "cache": {
+        "read_memory_bytes": 536870912,
+        "read_ssd_bytes": 0,
+        "write_memory_bytes": 536870912,
+        "write_ssd_bytes": 1073741824,
+        "memory_budget_bytes": 536870912,
+        "writeback_mode": "upload_before_commit",
+        "compression": "none",
+        "verify_cache_checksum": "full",
+        "prefetch_enabled": true,
+        "prefetch_max_bytes": 134217728,
+        "prefetch_concurrency": 64,
+        "range_background_prefetch": true,
+        "read_fetch_policy": "backend-default",
+        "populate_write_cache_after_upload": true,
+        "persist_write_cache_after_upload": false
+      },
+      "fuse": {
+        "cache_ttl_ms": 0,
+        "keep_cache": false
+      },
+      "data": {
+        "s3": {
+          "rustfs_ec_block_size_hint": "auto"
+        }
+      }
+    },
+    "resource_ids": [
+      "host:i-bp1809mw7rlujtj9f705",
+      "disk:d-bp1809mw7rlujtjc8epi",
+      "host:i-bp1gy3cfuj9jik0y4oc3",
+      "disk:d-bp1gy3cfuj9jik0upt3k",
+      "host:i-bp1h9kaoya0predubdkn",
+      "disk:d-bp1h9kaoya0predx6kvd",
+      "disk:d-bp1h9kaoya0predx6kve",
+      "disk:d-bp1h9kaoya0predx6kvf",
+      "disk:d-bp1h9kaoya0predx6kvg"
+    ]
+  },
+  "execution_cell": {
+    "id": "451ef1d28b5d875c-r1-native",
+    "paired_block": "451ef1d28b5d875c-r1",
+    "order": 0,
+    "pool": "pool-a",
+    "suite": "C1",
+    "case": "fio-randread",
+    "workload": "fio",
+    "claim": "system",
+    "params": {
+      "agents": 1,
+      "rw": "randread",
+      "block_bytes": 4096,
+      "file_bytes_per_job": 67108864,
+      "io_bytes_per_job": 67108864,
+      "numjobs": 1,
+      "ioengine": "psync",
+      "iodepth": 1,
+      "direct": false,
+      "fsync_every_write": true,
+      "rwmixread": 75,
+      "cache_state": "client-cold",
+      "time_based": false
+    },
+    "arm_id": "native",
+    "arm": {
+      "product": "brewfs",
+      "role": "internal-control",
+      "engine": "flat-v1",
+      "delta": false,
+      "packed": false,
+      "hint": "auto",
+      "payload_cache_bytes": 536870912
+    },
+    "asset_id": "37de6d968821c483dbd34d1f",
+    "required_gates": [
+      "exact-build-input-inventory",
+      "native-route-and-metadata",
+      "effective-cache-and-durability",
+      "host-capacity-and-maintenance",
+      "complete-telemetry-and-overhead",
+      "cross-pool-hardware-equivalence"
+    ],
+    "stages": [
+      "observe-start",
+      "create",
+      "mount",
+      "measure",
+      "drain",
+      "unmount",
+      "verify",
+      "observe-stop",
+      "archive"
+    ],
+    "observation_marks": [
+      "measure-start",
+      "measure-end",
+      "drain-end",
+      "verify-end"
+    ],
+    "execution_enabled": false,
+    "client_settings": {
+      "volume_format": "flat-v1",
+      "volume": {
+        "format": "flat-v1"
+      },
+      "cache": {
+        "read_memory_bytes": 536870912,
+        "read_ssd_bytes": 0,
+        "write_memory_bytes": 536870912,
+        "write_ssd_bytes": 1073741824,
+        "memory_budget_bytes": 536870912,
+        "writeback_mode": "upload_before_commit",
+        "compression": "none",
+        "verify_cache_checksum": "full",
+        "prefetch_enabled": true,
+        "prefetch_max_bytes": 134217728,
+        "prefetch_concurrency": 64,
+        "range_background_prefetch": true,
+        "read_fetch_policy": "backend-default",
+        "populate_write_cache_after_upload": true,
+        "persist_write_cache_after_upload": false
+      },
+      "fuse": {
+        "cache_ttl_ms": 0,
+        "keep_cache": false
+      },
+      "data": {
+        "s3": {
+          "rustfs_ec_block_size_hint": "auto"
+        }
+      }
+    },
+    "resource_ids": [
+      "host:i-bp1809mw7rlujtj9f705",
+      "disk:d-bp1809mw7rlujtjc8epi",
+      "host:i-bp1gy3cfuj9jik0y4oc3",
+      "disk:d-bp1gy3cfuj9jik0upt3k",
+      "host:i-bp1h9kaoya0predubdkn",
+      "disk:d-bp1h9kaoya0predx6kvd",
+      "disk:d-bp1h9kaoya0predx6kve",
+      "disk:d-bp1h9kaoya0predx6kvf",
+      "disk:d-bp1h9kaoya0predx6kvg"
+    ]
+  },
+  "full_cell_equal": true,
+  "original_metric_contract": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-shared-01/native/metrics.json",
+    "sha256": "220b64cee573132ba9c2738e40dbae2a8594e5b0d82686cf12dec15d1aa4d4f1"
+  },
+  "original_workload_contract": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-shared-01/native/workload.json",
+    "sha256": "0d83859aef999e5cb461ef399b3f9a92b022fbc653a4130e0d05a519471cc4eb"
+  },
+  "unchanged_metric_contract": {
+    "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/qualification/native/metrics.json",
+    "sha256": "220b64cee573132ba9c2738e40dbae2a8594e5b0d82686cf12dec15d1aa4d4f1"
+  },
+  "unchanged_workload_contract": {
+    "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/qualification/native/workload.json",
+    "sha256": "0d83859aef999e5cb461ef399b3f9a92b022fbc653a4130e0d05a519471cc4eb"
+  },
+  "original_calibration": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/451ef1d28b5d875c-r1-native/overhead/result.json",
+    "sha256": "0b94854687f8e5112075c04ae79e39f00680f1a9150819337d6270e628141fb5"
+  },
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/requests/pool-a-native-randread-01.json",
+      "sha256": "8e2a45589219da7de2389d57e16ac27bc1ca5d9f2adf46a86eb31a4492e7befc"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pa-c1-rr-before-work-01.reviewed-close.json",
+      "sha256": "35d855d012ccbb0de62a8dcab081a9f557108eceaa148beee8897030a3401f0f"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/451ef1d28b5d875c-r1-native/overhead/result.json",
+      "sha256": "0b94854687f8e5112075c04ae79e39f00680f1a9150819337d6270e628141fb5"
+    },
+    {
+      "path": "/srv/ax-pilot-control/code-c1-rebind-01/experiments/unified-suite/pilot-aliyun/scripts/rebind-flat-attempt.py",
+      "sha256": "530661ee4397c5ec8cd77d37961949134ddc17fa14df05b90ac547744ba90f14"
+    }
+  ],
+  "scope": "New declared attempt; same complete cell/binaries/configuration/input/work and sampler. Original preparation and calibration remain historical facts, with their original plan and times. No producer, import or calibration rerun."
+}

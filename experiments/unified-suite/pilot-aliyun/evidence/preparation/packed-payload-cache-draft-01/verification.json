@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "draft": {
+    "path": "/srv/ax-pilot-control/preparation/packed-c3-payload-cache-draft-01/draft/route.draft.json",
+    "sha256": "74a414ee74fd6cb18f70062cbf2c21ad7e02bf2f4f06592092466a84d378e22b"
+  },
+  "plan": {
+    "path": "/srv/ax-pilot-control/preparation/packed-c3-payload-cache-draft-01/draft/plan.json",
+    "sha256": "e012fa995415489be18ee3dae6cb2d9e84614344f7df1cc2e467893ff4be36a2"
+  },
+  "checker": {
+    "path": "/srv/ax-pilot-control/preparation/packed-c3-payload-cache-draft-01/packed-c3-payload-cache.py",
+    "sha256": "cb617fbef83524a3239481c4fc2bc85d357f9eb1d2f035ed2170d60dd24c1d08"
+  },
+  "cache_on_check": {
+    "path": "/srv/ax-pilot-control/preparation/packed-c3-payload-cache-draft-01/cache-on-existing-calibration.json",
+    "sha256": "8af7370f07a0ab3e79d9a7311b3357ef4918882f700fc81e2994ef16775eae20"
+  },
+  "mislabel_rejected": true,
+  "cache_off_actual_tested": false,
+  "no_workload_started": true,
+  "arms": [
+    {
+      "cell_id": "3ceff3bbd2fdfd26-r1-cache-off",
+      "arm": "cache-off",
+      "pool": "pool-a",
+      "config_patch": {
+        "entity_read_cache_bytes": 0
+      },
+      "mount_argv_fragment": [
+        "--entity-read-cache-bytes",
+        "0"
+      ]
+    },
+    {
+      "cell_id": "3ceff3bbd2fdfd26-r1-cache-on",
+      "arm": "cache-on",
+      "pool": "pool-a",
+      "config_patch": {
+        "entity_read_cache_bytes": 536870912
+      },
+      "mount_argv_fragment": [
+        "--entity-read-cache-bytes",
+        "536870912"
+      ]
+    }
+  ],
+  "capacity_bytes": 536870912,
+  "retained_bytes": [
+    0,
+    41020416
+  ],
+  "entries": [
+    0,
+    8902
+  ],
+  "object_gets_total": 46855,
+  "object_get_body_bytes_total": 7271531631,
+  "deltas": {
+    "brewfs_cache_hits_total{cache=\"entity_lower_payload\"}": 10093,
+    "brewfs_cache_hits_total{cache=\"entity_upper_payload\"}": 1229,
+    "brewfs_cache_misses_total{cache=\"entity_lower_payload\"}": 8339,
+    "brewfs_cache_misses_total{cache=\"entity_upper_payload\"}": 563,
+    "brewfs_entity_read_cache_evictions_total": 0
+  }
+}

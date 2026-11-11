@@ -4,6 +4,8 @@ C2 native 的正式三角色原始记录和六次校准包已公开，共 **56,3
 
 C3 JuiceFS 十万文件的正式三角色原始记录和原六次校准已公开，共 **35,354,910 字节**。下载地址及 SHA256 见 [C3 JuiceFS 下载清单](evidence/c3-jfs-01/oss/index.json)。校准复用了原始记录。
 
+C1 BrewFS 随机读补跑的正式三角色原始记录和关闭回执也已公开，见 [C1 BrewFS 下载清单](evidence/c1-native-randread-02/oss/index.json)。原六次校准未重跑，暂保留在本轮云端。
+
 | 文件 | 内容 |
 |---|---|
 | client.tar.gz | 正式客户端、挂载、回放、校验和采集原档 |

@@ -1,0 +1,196 @@
+{
+  "schema": "suite-sample-v1",
+  "plan_sha256": "276db6f0fce59a3fc568efb596bcfbad082bb5c85ecc724fa3bcdf3e3dad8aad",
+  "cell_id": "451ef1d28b5d875c-r1-native",
+  "uninterrupted": true,
+  "recovered": false,
+  "checks": {
+    "correctness": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/verification.json",
+        "sha256": "4a60906d542f5156d538a15c741916849c49a11ba425cc6c1a4f02bd7b1a952e"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "451ef1d28b5d875c-r1-native"
+      }
+    },
+    "isolation": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/verification.json",
+        "sha256": "4a60906d542f5156d538a15c741916849c49a11ba425cc6c1a4f02bd7b1a952e"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "451ef1d28b5d875c-r1-native"
+      }
+    },
+    "remote_readback": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/verification.json",
+        "sha256": "4a60906d542f5156d538a15c741916849c49a11ba425cc6c1a4f02bd7b1a952e"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "451ef1d28b5d875c-r1-native"
+      }
+    },
+    "real_exit": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/verification.json",
+        "sha256": "4a60906d542f5156d538a15c741916849c49a11ba425cc6c1a4f02bd7b1a952e"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "451ef1d28b5d875c-r1-native"
+      }
+    },
+    "cache_policy": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/verification.json",
+        "sha256": "4a60906d542f5156d538a15c741916849c49a11ba425cc6c1a4f02bd7b1a952e"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "451ef1d28b5d875c-r1-native"
+      }
+    },
+    "work": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/work-check.json",
+        "sha256": "880044f429f14a33b5c46b445a6b0d42ef52b2e841a46e08aaa5003b905336c9"
+      },
+      "equals": {
+        "passed": true
+      }
+    },
+    "drain": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/closure.json",
+        "sha256": "e56ad2d555c976a9a8cdf6c45f7e347b7e172fd203b89f5c77975ffbbeff39bc"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "451ef1d28b5d875c-r1-native"
+      }
+    },
+    "observer_overhead": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/451ef1d28b5d875c-r1-native/overhead/result.json",
+        "sha256": "0b94854687f8e5112075c04ae79e39f00680f1a9150819337d6270e628141fb5"
+      },
+      "equals": {
+        "passed": true
+      }
+    }
+  },
+  "required_observer_ids": [
+    "pool-a-client",
+    "pool-a-metadata",
+    "pool-a-objects"
+  ],
+  "required_marks": [
+    "measure-start",
+    "measure-end",
+    "drain-end",
+    "verify-end"
+  ],
+  "observers": [
+    {
+      "id": "pool-a-client",
+      "directory": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/raw/client/o/c1-1fcfba3d8ee8-451ef1d28b5d875c-r1-native",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    },
+    {
+      "id": "pool-a-metadata",
+      "directory": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/raw/metadata/o/c1-1fcfba3d8ee8-451ef1d28b5d875c-r1-native",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    },
+    {
+      "id": "pool-a-objects",
+      "directory": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/raw/objects/o/c1-1fcfba3d8ee8-451ef1d28b5d875c-r1-native",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    }
+  ],
+  "metrics": {
+    "read_bw_bytes": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/io-metrics.json",
+        "sha256": "36cb73298584a404b6271fc1e75613e0ffdd33900d26f7633d5e5a71e5cff1fb"
+      },
+      "field": "metrics.read_bw_bytes.value",
+      "unit": "bytes/second",
+      "direction": "higher"
+    },
+    "read_iops": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/io-metrics.json",
+        "sha256": "36cb73298584a404b6271fc1e75613e0ffdd33900d26f7633d5e5a71e5cff1fb"
+      },
+      "field": "metrics.read_iops.value",
+      "unit": "operations/second",
+      "direction": "higher"
+    },
+    "read_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/io-metrics.json",
+        "sha256": "36cb73298584a404b6271fc1e75613e0ffdd33900d26f7633d5e5a71e5cff1fb"
+      },
+      "field": "metrics.read_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "write_bw_bytes": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/io-metrics.json",
+        "sha256": "36cb73298584a404b6271fc1e75613e0ffdd33900d26f7633d5e5a71e5cff1fb"
+      },
+      "field": "metrics.write_bw_bytes.value",
+      "unit": "bytes/second",
+      "direction": "higher"
+    },
+    "write_iops": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/io-metrics.json",
+        "sha256": "36cb73298584a404b6271fc1e75613e0ffdd33900d26f7633d5e5a71e5cff1fb"
+      },
+      "field": "metrics.write_iops.value",
+      "unit": "operations/second",
+      "direction": "higher"
+    },
+    "task_wall": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native/cohort/result.json",
+        "sha256": "f99a6496cf944750b5f9c573aa6bb7be0daacb6fff838e8e4fa86f89690af414"
+      },
+      "field": "coordinator_makespan_seconds",
+      "unit": "seconds",
+      "direction": "lower"
+    }
+  },
+  "timings_seconds": {
+    "native_measure": 1.3443913150040316
+  },
+  "limitations": [
+    "One agent, one pilot repetition; no scaling or stable speedup conclusion.",
+    "Fresh client caches; shared backend/page caches remain observed."
+  ]
+}

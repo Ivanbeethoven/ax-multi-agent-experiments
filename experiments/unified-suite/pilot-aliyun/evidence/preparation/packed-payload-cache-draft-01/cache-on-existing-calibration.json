@@ -1,0 +1,62 @@
+{
+  "passed": true,
+  "capacity_bytes": 536870912,
+  "retained_bytes": [
+    0,
+    41020416
+  ],
+  "entries": [
+    0,
+    8902
+  ],
+  "before": {
+    "mark": {
+      "label": "measurement-start",
+      "sample_index": 5,
+      "monotonic_ns": 47264585134505
+    },
+    "raw": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-p-c301-on3/raw/client/o/pc3-pool-a-eb81b2990ad0570af5/sample-000005/filesystem.txt",
+      "sha256": "dbc6f96d556135f9696a45c9542ceb1c111912e7af50c3ec76ce7a8e9348cc51"
+    },
+    "sample": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-p-c301-on3/raw/client/o/pc3-pool-a-eb81b2990ad0570af5/sample-000005/sample.json",
+      "sha256": "5a76b6ffbe1f013b6224cf6bdda334537e3159cd57159a8227cdb4fef1150eff"
+    }
+  },
+  "after": {
+    "mark": {
+      "label": "application-finished",
+      "sample_index": 25,
+      "monotonic_ns": 47360922795298
+    },
+    "raw": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-p-c301-on3/raw/client/o/pc3-pool-a-eb81b2990ad0570af5/sample-000025/filesystem.txt",
+      "sha256": "f3f0beee983ca3821fc8088072ab7cc2f4c3d82a248bac05e79b2f41839effc0"
+    },
+    "sample": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-p-c301-on3/raw/client/o/pc3-pool-a-eb81b2990ad0570af5/sample-000025/sample.json",
+      "sha256": "6f5aedcbf7c49de1de21d2dc64f7d77daa1c42e4d7db28e74dd54afc1feaf556"
+    }
+  },
+  "deltas": {
+    "brewfs_cache_hits_total{cache=\"entity_lower_payload\"}": 10093,
+    "brewfs_cache_hits_total{cache=\"entity_upper_payload\"}": 1229,
+    "brewfs_cache_misses_total{cache=\"entity_lower_payload\"}": 8339,
+    "brewfs_cache_misses_total{cache=\"entity_upper_payload\"}": 563,
+    "brewfs_entity_read_cache_evictions_total": 0,
+    "brewfs_object_get_total{kind=\"upper\"}": 46855,
+    "brewfs_object_get_total{kind=\"packed\"}": 0,
+    "brewfs_object_get_total{kind=\"large\"}": 0,
+    "brewfs_object_get_bytes_total{kind=\"upper\"}": 7271531631,
+    "brewfs_object_get_bytes_total{kind=\"packed\"}": 0,
+    "brewfs_object_get_bytes_total{kind=\"large\"}": 0
+  },
+  "object_gets_total": 46855,
+  "object_get_body_bytes_total": 7271531631,
+  "range_requests": {
+    "observed": false,
+    "reason": "Current client labels do not distinguish HTTP Range from non-Range GET"
+  },
+  "scope": "Effective application payload cache and client object GET/body delta between original live marks; no physical disk or pure lower/upper attribution."
+}

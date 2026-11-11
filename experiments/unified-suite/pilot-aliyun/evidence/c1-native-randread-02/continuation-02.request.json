@@ -1,0 +1,25 @@
+{
+  "schema": "pilot-c1-after-packed-v1",
+  "reviewed": true,
+  "wait_seconds": 7200,
+  "prepare": {
+    "path": "/srv/ax-pilot-control/preparation/c1-native-randread-rebind-01/prepare.request.json",
+    "sha256": "8553feeb346f8dab1c297bea852949c28d08ca425c6ed618f8e46bf894e0163c"
+  },
+  "rebind_tool": {
+    "path": "/srv/ax-pilot-control/code-c1-rebind-01/experiments/unified-suite/pilot-aliyun/scripts/rebind-flat-attempt.py",
+    "sha256": "530661ee4397c5ec8cd77d37961949134ddc17fa14df05b90ac547744ba90f14"
+  },
+  "latest_tool": {
+    "path": "/srv/ax-pilot-control/code-c1-rebind-01/experiments/unified-suite/pilot-aliyun/scripts/verify-latest.py",
+    "sha256": "0f70ca67f08fa8d81c1c9d10dff6d50c6a536a2fb8fe8e2bd1119b497b4e5226"
+  },
+  "unit": "ax-pilot-pa-packed-c3-runtime14-live-01",
+  "handoff_cell": "16f4ac389d2a2da6-r1-packed",
+  "handoff": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/handoff-a-packed-calibration-only.json",
+  "out": "/srv/ax-pilot-control/preparation/c1-native-randread-rebind-01/continuation-02",
+  "calibration_only_handoff": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/handoff-a-packed-calibration-only.json",
+    "sha256": "b0d9a70acc5000756ff1cb56b6599e1b62fc3042a990cb23136643a13d43e8de"
+  }
+}

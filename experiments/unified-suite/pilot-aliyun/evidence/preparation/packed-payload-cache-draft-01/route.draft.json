@@ -1,0 +1,81 @@
+{
+  "reviewed": false,
+  "execution_enabled": false,
+  "measured_workload_started": false,
+  "original_system_plan": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/suite/plan.json",
+    "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+  },
+  "plan": {
+    "path": "/srv/ax-pilot-control/preparation/packed-c3-payload-cache-draft-01/draft/plan.json",
+    "sha256": "e012fa995415489be18ee3dae6cb2d9e84614344f7df1cc2e467893ff4be36a2"
+  },
+  "original_cell_id": "16f4ac389d2a2da6-r1-packed",
+  "base_asset": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c3-packed-01/assets/packed/asset.json",
+    "sha256": "c344b42810042f2b64eb243a436e6a129dd0e59d07e43242a4e04d33bdaf6f45"
+  },
+  "original_base_qualification": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c3-packed-01/packed/filesystem.json",
+    "sha256": "5d447de66ea85873971b5bc1b187dda5e4c6bac640f587c292a2887f542297d1"
+  },
+  "reused_base_proofs": {
+    "source": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c3-packed-01/proofs/source.json",
+      "sha256": "925af7e4fe9e1662ad380627753a79d664e494b884e6a007ff911569ca328af0"
+    },
+    "full_base_check": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c3-packed-01/proofs/full_base_check.json",
+      "sha256": "3ee876657627d7804d994ecf3fa262744dd0736cf203c3599c65f5eb8156a115"
+    },
+    "base_normal_exit": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c3-packed-01/proofs/base_normal_exit.json",
+      "sha256": "0a1dae9a8443f8fd7dc3da8a966f00e87432cb2649fd0e9eaa944eccbff29829"
+    }
+  },
+  "packed_manifest_key": "base/objects/0/015fd5f8ee74bbea0e017243ffce39ac31b6ecd4a40e43e097adf77ede5371bd",
+  "redis_url": "redis://10.20.2.162:6379/70",
+  "s3_endpoint": "http://10.20.2.163:9000",
+  "s3_bucket": "axp-f50629e4f0f74d62",
+  "build_manifest_sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e",
+  "input_manifest_sha256": "1377d895d40584a1cf6a3338b49cc41a733b9d0fce6b1c8c8d031e02191cb970",
+  "filesystem_binary": {
+    "path": "/srv/ax-client/build-ca07159-01/bin/brewfs",
+    "sha256": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0"
+  },
+  "seed": 9173,
+  "arms": [
+    {
+      "cell_id": "3ceff3bbd2fdfd26-r1-cache-off",
+      "arm": "cache-off",
+      "pool": "pool-a",
+      "config_patch": {
+        "entity_read_cache_bytes": 0
+      },
+      "mount_argv_fragment": [
+        "--entity-read-cache-bytes",
+        "0"
+      ]
+    },
+    {
+      "cell_id": "3ceff3bbd2fdfd26-r1-cache-on",
+      "arm": "cache-on",
+      "pool": "pool-a",
+      "config_patch": {
+        "entity_read_cache_bytes": 536870912
+      },
+      "mount_argv_fragment": [
+        "--entity-read-cache-bytes",
+        "536870912"
+      ]
+    }
+  ],
+  "required_new_gates": [
+    "separate immutable-parent/child plan validation",
+    "native capacity and actual read-cache counters per arm",
+    "valid ≤5% observer calibration for each measured route",
+    "full formal cold child/parent readback"
+  ],
+  "reuses_failed_calibration": false,
+  "scope": "Draft only; reuse original full immutable base proof, never a system sample or a formal child proof."
+}
