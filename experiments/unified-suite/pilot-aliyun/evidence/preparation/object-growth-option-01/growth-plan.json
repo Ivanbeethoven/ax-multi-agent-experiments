@@ -1,0 +1,160 @@
+{
+  "schema": "ax-pilot-object-growth-plan-v1",
+  "passed": true,
+  "at": "2026-11-11T02:28:28.167144+00:00",
+  "applied": false,
+  "release_set": {
+    "path": "/home/hxy/ax-unified-pilot-prep/release-evidence/freeze-02/objects/release-set.json",
+    "sha256": "37ac6a2aa4813086f027e059f40ae7545ca29232c42056a2bde0010727960fd3"
+  },
+  "instance_id": "i-bp1h9kaoya0predubdkn",
+  "disks": [
+    {
+      "disk_id": "d-bp1h9kaoya0predx6kvd",
+      "serial": "bp1h9kaoya0predx6kvd",
+      "mount": "/srv/ax-objects-0",
+      "before_gib": 60,
+      "desired_gib": 256,
+      "delete_with_instance": true,
+      "future_request": {
+        "DiskId": "d-bp1h9kaoya0predx6kvd",
+        "NewSize": 256,
+        "Type": "online",
+        "ClientToken": "c672b969-223b-411e-81dd-e7435b13afbd"
+      }
+    },
+    {
+      "disk_id": "d-bp1h9kaoya0predx6kve",
+      "serial": "bp1h9kaoya0predx6kve",
+      "mount": "/srv/ax-objects-1",
+      "before_gib": 60,
+      "desired_gib": 256,
+      "delete_with_instance": true,
+      "future_request": {
+        "DiskId": "d-bp1h9kaoya0predx6kve",
+        "NewSize": 256,
+        "Type": "online",
+        "ClientToken": "4f2eaf3d-a7aa-411c-8cb0-8d0b982cf329"
+      }
+    },
+    {
+      "disk_id": "d-bp1h9kaoya0predx6kvf",
+      "serial": "bp1h9kaoya0predx6kvf",
+      "mount": "/srv/ax-objects-2",
+      "before_gib": 60,
+      "desired_gib": 256,
+      "delete_with_instance": true,
+      "future_request": {
+        "DiskId": "d-bp1h9kaoya0predx6kvf",
+        "NewSize": 256,
+        "Type": "online",
+        "ClientToken": "f4261f02-2307-4081-ab69-2ff81e248f4c"
+      }
+    },
+    {
+      "disk_id": "d-bp1h9kaoya0predx6kvg",
+      "serial": "bp1h9kaoya0predx6kvg",
+      "mount": "/srv/ax-objects-3",
+      "before_gib": 60,
+      "desired_gib": 256,
+      "delete_with_instance": true,
+      "future_request": {
+        "DiskId": "d-bp1h9kaoya0predx6kvg",
+        "NewSize": 256,
+        "Type": "online",
+        "ClientToken": "8e3ac40b-6c75-4005-ab10-14e32376e186"
+      }
+    }
+  ],
+  "current_object_host_quote": {
+    "hourly_trade_price_cny": 2.346,
+    "hourly_standard_price_cny": 2.346,
+    "disk_options": {
+      "SystemDisk.Category": "cloud_essd",
+      "SystemDisk.PerformanceLevel": "PL0",
+      "SystemDisk.Size": 40,
+      "DataDisk.1.Category": "cloud_essd",
+      "DataDisk.1.Size": 60,
+      "DataDisk.1.PerformanceLevel": "PL1",
+      "DataDisk.2.Category": "cloud_essd",
+      "DataDisk.2.Size": 60,
+      "DataDisk.2.PerformanceLevel": "PL1",
+      "DataDisk.3.Category": "cloud_essd",
+      "DataDisk.3.Size": 60,
+      "DataDisk.3.PerformanceLevel": "PL1",
+      "DataDisk.4.Category": "cloud_essd",
+      "DataDisk.4.Size": 60,
+      "DataDisk.4.PerformanceLevel": "PL1"
+    },
+    "price_unit": "Hour",
+    "amount": 1,
+    "scope": "Current whole-instance quote for this disk configuration; not a resize bill"
+  },
+  "desired_object_host_quote": {
+    "hourly_trade_price_cny": 3.9924,
+    "hourly_standard_price_cny": 3.9924,
+    "disk_options": {
+      "SystemDisk.Category": "cloud_essd",
+      "SystemDisk.PerformanceLevel": "PL0",
+      "SystemDisk.Size": 40,
+      "DataDisk.1.Category": "cloud_essd",
+      "DataDisk.1.Size": 256,
+      "DataDisk.1.PerformanceLevel": "PL1",
+      "DataDisk.2.Category": "cloud_essd",
+      "DataDisk.2.Size": 256,
+      "DataDisk.2.PerformanceLevel": "PL1",
+      "DataDisk.3.Category": "cloud_essd",
+      "DataDisk.3.Size": 256,
+      "DataDisk.3.PerformanceLevel": "PL1",
+      "DataDisk.4.Category": "cloud_essd",
+      "DataDisk.4.Size": 256,
+      "DataDisk.4.PerformanceLevel": "PL1"
+    },
+    "price_unit": "Hour",
+    "amount": 1,
+    "scope": "Current whole-instance quote for this disk configuration; not a resize bill"
+  },
+  "quoted_incremental_hourly_cny": 1.6463999999999999,
+  "source": {
+    "path": "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-multi-agent-experiments/experiments/unified-suite/pilot-aliyun/scripts/plan-object-growth.py",
+    "sha256": "eefa792563126ae6e116c5c780db5879fda86bfdc60ff95b3d18acc7e2de97c2"
+  },
+  "local_source_dependencies": [
+    {
+      "path": "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-multi-agent-experiments/experiments/unified-suite/pilot-aliyun/scripts/release-evidence.py",
+      "sha256": "bcf38f3c0d8b133e811bf18e6a0b3f3b409f97c7b5e1900711630f22aff96fb9"
+    },
+    {
+      "path": "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-multi-agent-experiments/experiments/unified-suite/pilot-aliyun/scripts/cloud.py",
+      "sha256": "46ad6be2452fdd79a8133ab5b417072fd28ef986822af15e1e45a8f98bc132d0"
+    }
+  ],
+  "api_evidence": [
+    {
+      "path": "/home/hxy/ax-unified-pilot-prep/cloud/object-growth-option-01/20261111T022825.744345Z-DescribeInstances.json",
+      "sha256": "b0ff5df37cbf147135fa65b0b531994b38dd045059d50b9c8884a4e64aeb3887"
+    },
+    {
+      "path": "/home/hxy/ax-unified-pilot-prep/cloud/object-growth-option-01/20261111T022826.129010Z-DescribeDisks.json",
+      "sha256": "dfecb1e2d8464660db9bd9f8b620f7efcd95be4a763209212fc9385c028e8ac9"
+    },
+    {
+      "path": "/home/hxy/ax-unified-pilot-prep/cloud/object-growth-option-01/20261111T022826.418830Z-DescribePrice.json",
+      "sha256": "0d98156bdc1eb6f8886976da158dfdda11f0ed8eb02f2b3c1517d225602b74e5"
+    },
+    {
+      "path": "/home/hxy/ax-unified-pilot-prep/cloud/object-growth-option-01/20261111T022827.421728Z-DescribePrice.json",
+      "sha256": "48a1622455ed607d7a68f09244aa9d974ff1efd2139ea707fcfbef710108c21b"
+    }
+  ],
+  "prerequisites_before_application": [
+    "All original C1/C2 paired measurements and calibrations closed and independently retained",
+    "No unfinished invocation, lease, occupied agent slot or active observer/workload",
+    "Measure one complete million-file base and decide capacity with 20 percent reserve",
+    "Refresh this exact cloud ownership check and native block serial/ext4 UUID/mount inspection",
+    "Only grow whole-device ext4 on these four original data disks; never format or touch the system disk",
+    "After API expansion grow ext4, verify all four devices and filesystem sizes, preserve data and UUIDs",
+    "Record actual new capacity/rate evidence and create fresh C3 inventory/qualifications"
+  ],
+  "scope": "Read-only capacity option and live quote. No disk mutation, worker command, resource creation, cost-rate event or C3 admission."
+}
