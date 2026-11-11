@@ -1,0 +1,50 @@
+{
+  "schema": "ax-pilot-b-c1-randrw-counter-diagnostics-v1",
+  "scope": "B C2 final sample to B C1 On2 sample 28. Includes more than one trial and other activity; not a trial measurement or an upper bound.",
+  "identity": {"boot_id": "6382995a-7168-411b-b972-582ef75828a9", "rustfs_pid": 4744, "rustfs_start_ticks": 63431},
+  "endpoints": {
+    "before": {"utc_ns": 1794398755384972237, "manifest": "c2-objects-sample-199.json", "sha256": "d20d92196041a09bcf79b3688bbff82f0992fc832a05d9dd7aeadffdc41c575a", "coordinator_sample": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-juicefs/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-juicefs/sample-000199"},
+    "after": {"utc_ns": 1794400650733859808, "manifest": "../../progress/parallel-20261111-2105-01/objects-sample-28.json", "sha256": "c76f160c66722b4884726215eec7be6f55cbb7a88785f4084bb00c0f92e7c423", "original_worker_sample": "/srv/ax-objects-0/o/cal-pool-b-j-mx-mxb01-on2/sample-000028", "retained_archive_basename": "objects-observer-last-original.tar.gz", "retained_archive_sha256": "886af2f11bbdbf53f1b040a8b4010dd742c43fb5ab0bc135fa85598ecb29efbe"},
+    "elapsed_ns": 1895348887571
+  },
+  "raw_member_sha256_before_after": {
+    "rustfs.txt": ["d9fa9da03e5f4e1fce4d69e1961154eefbabb897c041eeda7cf3c229b4afadd2", "da9320a17023e5611dc248fe44fc553d55ba9b672e642228536d3d17a1b45efb"],
+    "host-net-netstat.txt": ["a6456587d6c871f92156fcd02bb63a7632a18f2ba4969b71bbcde891200916aa", "28f321a47f662ae27ae3f7b87c68502d02b7d172b8bb4ea82f91e4e568755976"],
+    "pid-4744-io.txt": ["43eec39c2bd61bf3d2021776393979a4cb5d64286c50990a20ccf4b64ac1c0d8", "20474dd55e515a377ac55ddd012ffea3d0fc78c586277ed07e96921ec9b1186c"],
+    "rustfs-process-io.stat.txt": ["14b0f418dc120552fe2f8d85d5d4ac18a0d7ab2f6ec456981b447240970623aa", "7ad9604ee5342819dc3b64f544c2020e13dce76275dec310fb04b271d62be1a1"],
+    "host-net-dev.txt": ["ffe9be0a4429eba26e4dd62960017c40f9ed3ba3bb62af58ecf00c7d1f040879", "131345bfd106186e0daae2926adebba248a210b656397562ad00dbd7d18ec7f0"],
+    "host-diskstats.txt": ["f3df9bc47ce8a3764131e5cac4536b8cf13ce0763a21fae0f3b2b39df5ec046a", "985f155023f911e5d36d655312becee44b257623f511a9ac8e90213648360023"]
+  },
+  "frozen_rustfs_http_source": {
+    "commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "path": "rustfs/src/server/http.rs",
+    "file_sha256": "fdf192f6248991a28f7c1e04a242a4cf9930c195f96e1e5edc615433e52e3588",
+    "request_start_content_length_lines": [1595, 1600],
+    "request_total_and_method_histogram_lines": [2896, 2901],
+    "meaning": "Parses the request Content-Length header and records the total and histogram at request start, before body consumption or response outcome. Counts declared bytes, not bytes received, completed uploads, or successful writes."
+  },
+  "counters": {
+    "declared_request_content_length_bytes": {"before": 3177419760, "after": 170327331824, "delta": 167149912064},
+    "declared_put_content_length_histogram_sum_bytes": {"before": 3177419760, "after": 170327331824, "delta": 167149912064},
+    "put_content_length_histogram_count": {"before": 245351, "after": 294046, "delta": 48695},
+    "put_content_length_histogram_le_10000": {"before": 233517, "after": 242369, "delta": 8852},
+    "put_content_length_gt_10000": {"delta_count": 39843, "declared_sum_lower_bound_bytes": 167061392064, "declared_sum_upper_bound_bytes": 167149912064, "mean_lower_bound_bytes": 4192992.2963632257, "mean_upper_bound_bytes": 4195214.016615215, "derivation": "All recorded lengths are nonnegative. Subtract at most 10,000 B for each added member of the <=10,000 B bin, then divide both bounds by the added larger count. This bounds only their mean."},
+    "successful_put_object_count": {"before": 245345, "after": 294027, "delta": 48682},
+    "successful_delete_object_count": {"before": 9553, "after": 37063, "delta": 27510},
+    "host_ipext_in_octets": {"before": 15255079531, "after": 183836614738, "delta": 168581535207, "scope": "Host IPv4 IP-layer counter with same boot; includes other traffic and is neither NIC octets nor an S3 per-request counter."},
+    "host_ipext_out_octets": {"before": 18092991094, "after": 31613168849, "delta": 13520177755},
+    "rustfs_proc_write_bytes": {"before": 10122661888, "after": 347426316288, "delta": 337303654400, "scope": "Same PID, boot and process start ticks. /proc/PID/io accounting, not final net disk allocation or a per-object total."},
+    "rustfs_proc_cancelled_write_bytes": {"before": 294912, "after": 294912, "delta": 0},
+    "rustfs_cgroup_wbytes_endpoint_comparison": {
+      "labels": ["253:16", "253:32", "253:48", "253:64"],
+      "before": [4299304960, 4283367424, 4300312576, 4279222272],
+      "after": [89193095168, 89166356480, 89180876800, 89158692864],
+      "arithmetic_difference": [84893790208, 84882989056, 84880564224, 84879470592],
+      "arithmetic_difference_sum": 339536814080,
+      "before_observer_spec_sha256": "16c35162e288e0ddeda4029bab2e0bf0eb76f1b389b15a2a05225fca00e2c82b",
+      "after_observer_spec_sha256_from_original_protocol": "8a243ab0b32deb818bf40947c3e63f0752477734729e41a03deba81668de5d65",
+      "limit": "Same tracked process and device labels, but the original On2 observer cgroup path and independent device no-rebind proof were unavailable. Corroborating endpoint comparison only; no exact per-PUT disk multiplier."
+    }
+  },
+  "continuity_limits": "The host netdev and diskstats members exist at both endpoints. A continuous eth0 ifindex and stable device binding throughout the window are not established by those members. No eth0 or diskstats delta is reported. The original counters and files are unchanged."
+}

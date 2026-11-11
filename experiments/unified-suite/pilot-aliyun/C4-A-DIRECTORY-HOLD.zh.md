@@ -22,10 +22,18 @@ python3 resume-c4-after-directory-hold.py --request "$request" --sha256 "$sha256
 
 所有 pin 使用 `{"path":"/绝对路径","sha256":"..."}`。打开归档入口后，只有归档阶段的已关闭 `o/<tag>` 直接打包。原闭合校验、其他目录的快照、归档完整性校验、统计和正式验收继续走原代码。正式轮的八个归档前阶段继续用原 `run-c4.py --stage` 命令和输入。若启用新归档，正式轮仍保留完整冷校验和全部观察原文，容量只扣除 worker 第二份 observer staging；省略入口时仍须预留这份 staging。
 
-容量文件使用 `schema: c4-resume-stage-capacity-v1`、`passed: true`、`reviewed: true`。填入 `original_request`、原批次 `capacity.json` pin（`legacy_capacity`）、原 `runtime` pin、`pool`、`cell_id`、`step`、`prefix`（Off1 原 `finished.json` pin 加续跑请求的 `prefix`）、`archive_mode`（`original` 或 `closed-observer-direct`）、`reserve_fraction: 0.2`、`at`（带时区）。`snapshot` pin 必须来自原容量工具在上一轮完成后的新观测；`placement` pin 必须来自实际目录设备；`source_pins` 同时保留这两份观测和峰值估算依据。`coordinator` 填本轮 `out` 的父目录 `path` 及其 `stat` 返回的整数 `device`。
+每轮先做清理检查，再测容量。两步均在原阶段启动前完成，不计入测量时间。C4 入口只核对清理回执，不删除 workspace、对象或证据，也不触发 GC。其它 C1–C3 轮继续使用各自的闭合与容量步骤。
 
-`placement` 使用 `schema: c4-archive-device-placement-v1`、`at`、`runtime`、`pool`、`workers`。每个角色填 `path`（容量观测中的盘路径）、`boot_id` 和 `targets`（该角色实际根目录下 `archives`、`evidence` 以及观察开启时的 `o`，路径 → 原生 `st_dev`）。On 和正式轮含三角色，Off 仅 client。某路径还不存在时，只读核对最近存在的祖先设备；若这三个目录不在同一数据盘，先核对实际分盘预算，本入口不直接放行。
+容量文件使用 `schema: c4-resume-stage-capacity-v1`、`passed: true`、`reviewed: true`。填 `original_request`、`legacy_capacity`（原 `capacity.json` pin）、`runtime`、`pool`、`cell_id`、`step`、`prefix`（Off1 原 `finished.json` pin 加续跑请求的 `prefix`）、`archive_mode`（`original` 或 `closed-observer-direct`）、`reserve_fraction: 0.2` 和带时区的 `at`。`source_pins` 必须包含以下不同的原始文件：
 
-`rows` 覆盖所有原生数据盘、Redis 内存和 AOF，以及协调者盘。每行填 `role`、`path`（Redis 行为 null）、`quantity`（`bytes`、`inodes`、`redis-memory-bytes` 或 `redis-aof-bytes`）、三个非负整数 `data_growth`、`observer_raw`、`archive_peak`。保留本轮原始采样、归档 tar、非观察者 staging 和协调者解包原文的峰值；原归档还计入第二份 observer staging。AOF 行标记 `included_in_metadata_disk_forecast: true`，元数据盘留原重写空间。写明峰值依据，不能用旧七份副本预算替代这份逐轮容量预算。
+- `cleanup`：`pilot-prestep-cleanup-v1` 回执，带 `pool`、`original_request`、`step`、`prefix`、`finished_at`、`outcome`、`actions`。确实清理过才填 `cleaned`，并列出通过且已执行的原 reclaimer 结果 pins；无需清理填 `not-needed` 和空数组。每个 worker 的 `snapshot` 原生采样及 `placement` 均须在本轮检查之后。
+- 原 `legacy_capacity` 的 `before` 和 `after` pins：重算原盘数据增长，不用新的总用量替代。
+- `observer_basis`：每角色一组已正常停止的原 `raw/<role>/o/<tag>/finished.json` pins，从对应 `sample.json` 和实际文件大小重算每秒速率和单次峰值。`observer_seconds` 是审核过的整轮观察时长，含启动、冷验和收尾；每个 On 轮和正式轮都须在 `source_pins` 中加入原 A Off1 的 `finished.json`、其绑定的 `cohort/result.json` 和完整冷验 `verify/result.json`，以及同一轮的 `drain-timing.json`。最短时长取 Off1 实测执行、执行结束确认到排空启动的间隔、排空和完整冷验之和，向上取整；历史短采样只能用于估算速率，不能缩短这段时长。该值不含挂载、卸载或观察者启停的完整开销，审核时还要给这些阶段和本轮波动留余量。Off 填空映射、时长 0。
+- `archive_basis`：每个会归档的角色各填一个已核验的原 `archives/<role>-check.json` pin。工具从实际 tar 的 SHA、清单和长度核算非观察目录暂存及 tar 占用，按预计原文规模放大历史压缩占用的最低估算。On 和正式轮都要三角色，Off 只要 client。旧归档另加完整的 observer 副本，新归档只省该副本。
+- `snapshot` 和 `placement`：当前原生盘及实际目录设备的 pins。`placement` 用 `c4-archive-device-placement-v1`，含 `at`、`runtime`、`pool`、`workers`；每个归档角色填容量快照中的盘 `path`、`boot_id` 和实际根目录下 `archives`、`evidence`、以及 On/正式轮的 `o` 路径到原生 `st_dev` 的映射。
+
+`coordinator` 填本轮续跑 `out` 的父目录 `path`、整数 `device`，以及 `targets`（续跑 `out`、原 trial/formal 输出、其 `archives` 和 `raw` 路径到整数设备号的映射）。工具按实际路径或最近已存在祖先核对设备并读取可用空间；只允许这些路径同盘后合并预算。分盘时先重新核算，不可拿续跑目录的空闲量代替实验盘。
+
+`rows` 覆盖所有原生数据盘、Redis 内存和 AOF，以及协调者盘。每行填 `role`、`path`（Redis 行为 null）、`quantity`（`bytes`、`inodes`、`redis-memory-bytes` 或 `redis-aof-bytes`）和三个非负整数 `data_growth`、`observer_raw`、`archive_peak`。AOF 行标记 `included_in_metadata_disk_forecast: true`，元数据盘留原重写空间。计入全部原始采样、协调者解包、tar 和暂存峰值后，实际盘仍须至少留 20% 字节和 inode。历史数值仅给出不得低于的预算，审核仍需为本轮预计峰值留足空间。
 
 某轮失败，保留原证据，工具不自动重跑。原批次目录和原试验输出路径不会被改名或删除。

@@ -6,17 +6,19 @@
 
 复跑先读[按需服务器并行调度手册](REPEAT-SCHEDULING.zh.md)，再按本批实际计划和资源账本开机。
 
+每次校准和正式测量前执行[空间检查与清理](STORAGE-CLEANUP.zh.md)：先归档核验，再清理明确的旧副本，用清理后的实际空间检查下一轮峰值，并逐盘保留 20%。当前运行中的 A 组不做清理。
+
 本轮在阿里云按量实例上试跑。C3和C4派生使用[10万文件](PILOT-100K.zh.md)，每文件4KiB。C1、C2完整trace和C4会话流转保持原负载。实验输入、原始数据和 SHA256 见[归档下载](OSS-ARCHIVE.zh.md)及[trace目录](../../../scenarios/k8s-containers/data-catalog.md)。
 
-截至北京时间 2026-11-11 18:02，[系统实验验收 13/28](evidence/progress/parallel-20261111-1802-01/formal-close-audit.json)，剩 15 项；22 项消融另计。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。复用一台跳板，两个私网组各三台；[18:03 新增资源费用估算](evidence/progress/parallel-20261111-1802-01/cost-total.json)为 ¥96.05（约 ¥9.24/小时），原跳板、网络与 OSS 另计。
+截至北京时间 2026-11-11 22:00，[系统实验验收 14/28](evidence/progress/parallel-20261111-2200-01/STATUS.zh.md)，剩 14 项；22 项消融另计。同一条件跨状态库只计一次。准备、校准和本机验证不计入正式完成数。B 组三台实例已停计算费、九块盘保留；新增资源累计估算 ¥130.04，当前约 ¥5.64/小时，原跳板、网络与 OSS 另计。
 
 | 实验 | 正式完成/计划 | 当前情况 |
 |---|---:|---|
-| C1 fio | 9/10 | 双方顺序读、顺序写、随机写、随机读及[BrewFS混合读写](evidence/c1-native-randrw-01/)已验收；余[JuiceFS 混合读写](C1-MIXED-AFTER-C2.zh.md)，同组在 C2 后接续 |
-| C2 完整trace | 1/5 | [flat BrewFS](evidence/cloud-20261111/05357b5089cd679c-r1-native/)已验收，回放1,747,109次操作；B组 JuiceFS 核验 C4 交接后已自动接续，正在做原完整输入的回放和冷验资格检查；[Packed 和 entity-native 有文件操作阻断](C2-ENTITY-NEXT.zh.md) |
+| C1 fio | 9/10 | 双方顺序读、顺序写、随机写、随机读及[BrewFS混合读写](evidence/c1-native-randrw-01/)已验收；JuiceFS 混合读写校准失败，见[容量审计](evidence/preparation/b-c1-randrw-capacity-audit-01/README.zh.md)，正式轮未开始 |
+| C2 完整trace | 2/5 | flat BrewFS、JuiceFS 均已验收；[另外三项](evidence/preparation/c2-remaining-audit-01/README.zh.md)受 FUSE 操作或非空版本发布功能限制 |
 | C3 小文件（10万） | 2/4 | [JuiceFS](evidence/c3-jfs-01/)和[BrewFS flat](evidence/c3-flat-01/)均已验收并公开原始记录；Packed完整资格通过，观测开关差约5.98%，正式样本未启动 |
-| C4 派生（10万） | 1/5 | [B组 JuiceFS](evidence/c4-jfs-01/)正式验收，完整冷读、排空、退出和归档通过。A 组 [BrewFS flat](C4-NATIVE-FLAT.zh.md) 已补齐运行包，正在准备原工作区，尚未开始计时 |
-| C4 流转 | 0/4 | 本机JuiceFS原会话数据库冷重开通过；BrewFS工作区重挂后写入EIO。云上跨机和真实继续任务未完成，模型调用暂停 |
+| C4 派生（10万） | 1/5 | [B组 JuiceFS](evidence/c4-jfs-01/)已验收。A 组 BrewFS flat 首轮校准仍在执行，后续轮次须先过清理和容量检查 |
+| C4 流转 | 0/4 | 原会话数据库冷重开通过；完整原生恢复未通过。小型接口与离线请求诊断不计入正式结果 |
 
 11:07查到[BrewFS分支推进到ca07159](evidence/preparation/latest-progress-15.json)，RustFS未变。[11:47独立重建完成](evidence/preparation/brewfs-ca07159-build/README.zh.md)，两份源码均干净、旧产物保留。[新版本10万文件Packed本机检查通过](evidence/preparation/c3-packed-ca07159-100k/README.zh.md)。已结束的云上随机写配对固定622736b；下一批重新核分支并绑定新版本。`configure-pilot.py --phase c1`或`--phase c2`可单独生成新阶段，旧状态库保留。
 
