@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "systemd-run",
+    "--unit",
+    "ax-pilot-pa-c3-flat-after-base-02",
+    "--property=Type=exec",
+    "--property=RemainAfterExit=yes",
+    "python3",
+    "/srv/ax-pilot-control/code-c3-flat-02/experiments/unified-suite/pilot-aliyun/scripts/continue-flat-c3-after-base.py",
+    "--request",
+    "/srv/ax-pilot-control/preparation/c3-flat-native-01/continuation.request-02.json",
+    "--sha256",
+    "d98d7348f07d1f7862293c9f71c9eb3047e4fd39a5ba2fddf11be2dd6dedd6b7"
+  ],
+  "request": {
+    "path": "/srv/ax-pilot-control/preparation/c3-flat-native-01/continuation.request-02.json",
+    "sha256": "d98d7348f07d1f7862293c9f71c9eb3047e4fd39a5ba2fddf11be2dd6dedd6b7"
+  },
+  "new_tool": {
+    "path": "/srv/ax-pilot-control/code-c3-flat-02/experiments/unified-suite/pilot-aliyun/scripts/continue-flat-c3-after-base.py",
+    "sha256": "0b5c2b2ae7042e9a54e7629f6c57976683bf29f06d87921a1e8c0a6993083b8d"
+  },
+  "automatic_retry": false
+}
