@@ -1,0 +1,580 @@
+{
+  "schema": "pilot-public-formal-coverage-v1",
+  "scope": "Rechecked the 13 existing accepted samples on the coordinator; compared exact closure-bound archives with their prior full OSS readback and anonymous HEAD receipts. No new transfers or resource release authorization.",
+  "checked_at": "2026-11-11T10:48:53.366190+00:00",
+  "accepted_snapshot": 13,
+  "formal_public_archives_matching_close": 13,
+  "calibration_package_or_trial_indexes_public": 8,
+  "calibration_worker_raw_pending": 5,
+  "pending_original_calibration_cells": [
+    "34d56abaf85454a2-r1-juicefs",
+    "34d56abaf85454a2-r1-native",
+    "451ef1d28b5d875c-r1-juicefs",
+    "5ca7353ba24b2a18-r1-juicefs",
+    "5ca7353ba24b2a18-r1-native"
+  ],
+  "cells": {
+    "451ef1d28b5d875c-r1-native": {
+      "suite": "C1",
+      "case": "fio-randread",
+      "arm": "native",
+      "closing": {
+        "path": "/srv/ax-pilot-control/c1-native-randread-rebind-01/cells/451ef1d28b5d875c-r1-native.close.json",
+        "sha256": "21196cf5483467afc2ec2678edf9fe59ccab3b3eee17421dee099d793d4beabf"
+      },
+      "index": {
+        "path": "c1-native-randread-02/oss/index.json",
+        "sha256": "bc1d5cb65d533a2ef6c339460a07e46351607ba3317db9f20c910ea944edcd35"
+      },
+      "formal": {
+        "roles": {
+          "client.tar.gz": {
+            "path": "c1-native-randread-02/oss/client.tar.gz.json",
+            "sha256": "3d6bb65a5fabbfbb7e815122a488738fa0e12a3f1d45adf80c0bbd2d5f3948bc",
+            "bytes": 232282,
+            "file_sha256": "09341bc72e082377b1f1d7cadba718dbcee7846e5395ee5db3678a2c56acb6d3",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-451ef1d28b5d875c-r1-native/client.tar.gz"
+          },
+          "metadata.tar.gz": {
+            "path": "c1-native-randread-02/oss/metadata.tar.gz.json",
+            "sha256": "6b6563b45121b74e9d68690cf43509b07694b55ccbc4965ea99f8c3d500b8a09",
+            "bytes": 172523,
+            "file_sha256": "e18b4a924874f36a8a3d660d5f2880220cebe228c2901bde5ce7b4d2fee4057b",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-451ef1d28b5d875c-r1-native/metadata.tar.gz"
+          },
+          "objects.tar.gz": {
+            "path": "c1-native-randread-02/oss/objects.tar.gz.json",
+            "sha256": "eff01be666243d8bb40c3206d479b929e87abfa7db4ebe36c6228ed819e5e1e9",
+            "bytes": 1560222,
+            "file_sha256": "06400d40d40a2b8fb13491465d400eb02cc27faa388b5fa6eb438e69f388617b",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-451ef1d28b5d875c-r1-native/objects.tar.gz"
+          }
+        }
+      },
+      "calibration": {
+        "state": "public-package",
+        "package": {
+          "path": "c1-native-randread-02/oss/calibrations.tar.gz.json",
+          "sha256": "6b0468e04a0d4f15971fda9833b1218592922017e6d408c089e378e4b1d874fa",
+          "bytes": 4768887,
+          "file_sha256": "1101d59c98073846a42eba180e3ef7d77c05fcf5b1efaddbf1ef3f7c2500a976",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-451ef1d28b5d875c-r1-native/calibrations.tar.gz"
+        }
+      }
+    },
+    "8e3d340ff23c3ece-r1-native": {
+      "suite": "C1",
+      "case": "fio-randrw",
+      "arm": "native",
+      "closing": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/8e3d340ff23c3ece-r1-native.close.json",
+        "sha256": "c3ff73fa1b5e6ab40f8e92826d4ae79c04b74f1930c251bd4efb2b9c181c5d3b"
+      },
+      "index": {
+        "path": "c1-native-randrw-01/oss/index.json",
+        "sha256": "2fb625c3a00fadcaba7880ce66b74491db6272d9f6487c0dc7341a702e4daca7"
+      },
+      "formal": {
+        "roles": {
+          "client.tar.gz": {
+            "path": "c1-native-randrw-01/oss/client.tar.gz.json",
+            "sha256": "81324a8d69d570fecf15a4ceea9dd4b0c48ef76b03388008909e2583e2696215",
+            "bytes": 358658,
+            "file_sha256": "c16400ec18c5df6604cf3478ee41286e2d9a47644f14fc009e7afa48a08cc1be",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-8e3d340ff23c3ece-r1-native/client.tar.gz"
+          },
+          "metadata.tar.gz": {
+            "path": "c1-native-randrw-01/oss/metadata.tar.gz.json",
+            "sha256": "b0c8cf00914e7e00d10a3074135570356de497e12a9bfae6443a6f9f0a0b3bc4",
+            "bytes": 251985,
+            "file_sha256": "6ef8dd29266b3d74c3cf7c273483e3133da712782ac9146c83e39ef68beb2a9a",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-8e3d340ff23c3ece-r1-native/metadata.tar.gz"
+          },
+          "objects.tar.gz": {
+            "path": "c1-native-randrw-01/oss/objects.tar.gz.json",
+            "sha256": "ee7be9d307268059bd61545f9995b95ce87cca136f4175ac38c21824a96126e0",
+            "bytes": 2325911,
+            "file_sha256": "e73df2ef602c5dac1129fcc0c1a888bb193bc6bd4af6fbedbd8d991db59cfa68",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-8e3d340ff23c3ece-r1-native/objects.tar.gz"
+          }
+        }
+      },
+      "calibration": {
+        "state": "public-package",
+        "package": {
+          "path": "c1-native-randrw-01/oss/calibrations.tar.gz.json",
+          "sha256": "edea584617ed0df9fec60a73bac3ea9900742f72c760399372d2810d0ebf54e6",
+          "bytes": 7000648,
+          "file_sha256": "ab5778caae6d06010ef7024cf295b1c7f0435ea49b250030008526b7bc4f6f2d",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-8e3d340ff23c3ece-r1-native/calibrations.tar.gz"
+        }
+      }
+    },
+    "16f4ac389d2a2da6-r1-native": {
+      "suite": "C3",
+      "case": "files-100000-hot-1024",
+      "arm": "native",
+      "closing": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-native.close.json",
+        "sha256": "9a61cb7ea23db1c32b98b11b6bbb54680854758784359dd76a5587801ed957a0"
+      },
+      "index": {
+        "path": "c3-flat-01/oss/index.json",
+        "sha256": "1480c855ab2155702d202d578232a0135dab26f9a5aefadc9fb4753866458090"
+      },
+      "formal": {
+        "roles": {
+          "client.tar.gz": {
+            "path": "c3-flat-01/oss/client.tar.gz.json",
+            "sha256": "3fb8659cd5405eca9caaccdd277e7fccfb7f5519ecafcc75ea0630335c786082",
+            "bytes": 1886563,
+            "file_sha256": "51fec67d2931f4a3f6b7eb572ccbdb7ca6e1104594c0fea1e33f39c67b4ef1e2",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c3-16f4ac389d2a2da6-r1-native/client.tar.gz"
+          },
+          "metadata.tar.gz": {
+            "path": "c3-flat-01/oss/metadata.tar.gz.json",
+            "sha256": "22d2dde1e4f3fd80f75a7147734e2bbe75e306b6f317858a5d4d71709fc351ed",
+            "bytes": 1080833,
+            "file_sha256": "01930a6c58c253789967f2e938fb90fb4947fda4a8a2c15093a8edfa6f7c14c6",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c3-16f4ac389d2a2da6-r1-native/metadata.tar.gz"
+          },
+          "objects.tar.gz": {
+            "path": "c3-flat-01/oss/objects.tar.gz.json",
+            "sha256": "007422cbf8e20a14c0bfb820915a8c96efe27faaf33a3a77a298992fea6a1a91",
+            "bytes": 10122738,
+            "file_sha256": "711d2bdbeee7af0e69a6daae93bb6ef77754f6cdb105a31588dc84b630877288",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c3-16f4ac389d2a2da6-r1-native/objects.tar.gz"
+          }
+        }
+      },
+      "calibration": {
+        "state": "public-package",
+        "package": {
+          "path": "c3-flat-01/oss/calibrations.tar.gz.json",
+          "sha256": "91801bb5cb71e09eeb9b6062d4548fbc3007e51eb0c777842d68a2ce86ba41f7",
+          "bytes": 16707526,
+          "file_sha256": "20ca77598e2f788dacb7605336106f05bb94f05ed4b077b1126193d85675cbc8",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c3-16f4ac389d2a2da6-r1-native/calibrations.tar.gz"
+        }
+      }
+    },
+    "16f4ac389d2a2da6-r1-juicefs": {
+      "suite": "C3",
+      "case": "files-100000-hot-1024",
+      "arm": "juicefs",
+      "closing": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs.close.json",
+        "sha256": "3eb929d844025a0082049748f7a67feee3136e6cb8f380ce6498bd7f03582d9a"
+      },
+      "index": {
+        "path": "c3-jfs-01/oss/index.json",
+        "sha256": "9b12a1b4d08e34dd288937ae9a72cacb66a8e13d775e32790d26e2cf636a4267"
+      },
+      "formal": {
+        "roles": {
+          "client.tar.gz": {
+            "path": "c3-jfs-01/oss/client.json",
+            "sha256": "a28d19d6176f3dc4fb36877b18d14422bc9a993a9fca3c0aad807cfdc7130f5d",
+            "bytes": 2329350,
+            "file_sha256": "f8d74603c8b18c972e9305b3e8a90bc72da65b5450b6c240b1e9cd17a791d397",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c3-16f4ac389d2a2da6-r1-juicefs/client.tar.gz"
+          },
+          "metadata.tar.gz": {
+            "path": "c3-jfs-01/oss/metadata.json",
+            "sha256": "5d1fd9334e2eb1bd5110fadbc13188df7e2a3ff1626f738b1ad35a011d63e20d",
+            "bytes": 1583556,
+            "file_sha256": "5b88cf06510526904d51425c1838c3d438b0ab07bc3c956af6470385ad86018b",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c3-16f4ac389d2a2da6-r1-juicefs/metadata.tar.gz"
+          },
+          "objects.tar.gz": {
+            "path": "c3-jfs-01/oss/objects.json",
+            "sha256": "0511a3fd57b2fe2cd0767a8bfcda5f33f8c0957e6c9ab040cc4e3b2313468486",
+            "bytes": 11424826,
+            "file_sha256": "3e744b9bec249b712f7ba90a30b8732a961da184312f635c682a405abd359d06",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c3-16f4ac389d2a2da6-r1-juicefs/objects.tar.gz"
+          }
+        }
+      },
+      "calibration": {
+        "state": "public-package",
+        "package": {
+          "path": "c3-jfs-01/oss/calibrations.json",
+          "sha256": "8ab97a66b4888a3cfffe63709e91bf23ccab206ad5d3ce76a6c7d5606dc2212c",
+          "bytes": 20017178,
+          "file_sha256": "9c630af2308039123f2e3ee57b56e2551ca86a807e47952fd928c29b85dc31de",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c3-16f4ac389d2a2da6-r1-juicefs/calibrations.tar.gz"
+        }
+      }
+    },
+    "c5e97774bcffa69a-r1-juicefs": {
+      "suite": "C4",
+      "case": "fork-1",
+      "arm": "juicefs",
+      "closing": {
+        "path": "/srv/ax-pilot-control/fork-control-01/cells/c5e97774bcffa69a-r1-juicefs.close.json",
+        "sha256": "d8d08191e477caca7507e5ea5e3174610dbe863d642cc6044cac9c30e97ec98f"
+      },
+      "index": {
+        "path": "c4-jfs-01/oss/index.json",
+        "sha256": "509e2c46c927751bf52f2b6f1d432875b96da86fff6a841f66cca9e58fa0f284"
+      },
+      "formal": {
+        "roles": {
+          "client.tar.gz": {
+            "path": "c4-jfs-01/oss/client.tar.gz.json",
+            "sha256": "d7606190cdf309ece999239b0fa260fefe946b2c26cd3c7f53893be170a13db3",
+            "bytes": 4726615,
+            "file_sha256": "54d2b6b9a7829c47ab7b4756d410102cbc0658a5db50e0b30d846d9fc93f1a92",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c4-c5e97774bcffa69a-r1-juicefs/client.tar.gz"
+          },
+          "metadata.tar.gz": {
+            "path": "c4-jfs-01/oss/metadata.tar.gz.json",
+            "sha256": "d55ae7f3e99d116d1cc3258176caa857df0875bb4132a0e433c345a9630974df",
+            "bytes": 3728948,
+            "file_sha256": "6adf74352a578bb9c1b16ad123dbb375d18e893487d56c044a058003e63cdd7b",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c4-c5e97774bcffa69a-r1-juicefs/metadata.tar.gz"
+          },
+          "objects.tar.gz": {
+            "path": "c4-jfs-01/oss/objects.tar.gz.json",
+            "sha256": "d3a2f81b90b1a9e511baf890a14ff5471c9dee14a88c51a6b6e8821d0a9470b6",
+            "bytes": 28058467,
+            "file_sha256": "b875412f1b284f559c7739416a754249549eb99b972714266db6485829e2f73e",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c4-c5e97774bcffa69a-r1-juicefs/objects.tar.gz"
+          }
+        }
+      },
+      "calibration": {
+        "state": "public-trial-indexes",
+        "indexes": [
+          {
+            "path": "c4-juicefs-calibration-off1-01/oss/index.json",
+            "sha256": "924ca5733e9c9b2c75acccddb2c4255bc8e8a6aa5ca82043a87e0d0023b0504d"
+          },
+          {
+            "path": "c4-juicefs-calibration-on12-01/oss/index.json",
+            "sha256": "9676058b249a079bbe1b186591ffc5cfa695717d4ecd55ecaf3655d1bb717122"
+          },
+          {
+            "path": "c4-juicefs-calibration-off2-01/oss/index.json",
+            "sha256": "6ccb0ac6e2342a9b87c96391837b5cba7e490171dd4bb7396044ee47c1c542a6"
+          },
+          {
+            "path": "c4-juicefs-calibration-off3-01/oss/index.json",
+            "sha256": "69a3a118a81a491ef5037a1d29ea2235d47ae2acc6a0aa70a1a27507b0d58079"
+          },
+          {
+            "path": "c4-juicefs-calibration-on3-01/oss/index.json",
+            "sha256": "6a23b0044ed9be463a8fa938ddbf68ad90efb1e6d0b78c612972f6cd42b26be2"
+          }
+        ],
+        "trials": [
+          "off1",
+          "off2",
+          "off3",
+          "on1",
+          "on2",
+          "on3"
+        ]
+      }
+    },
+    "05357b5089cd679c-r1-native": {
+      "suite": "C2",
+      "case": "pytest-full-02-n1",
+      "arm": "native",
+      "closing": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native.close.json",
+        "sha256": "111d9dc7584b036e1870d55779776902eff661a69c06380c0ae660071f2f8647"
+      },
+      "index": {
+        "path": "cloud-20261111/05357b5089cd679c-r1-native/oss/index.json",
+        "sha256": "02c03d05f9bfbfe9c5d306dea3fb90f86b34dc63a47d1bd273258556e15768a6"
+      },
+      "formal": {
+        "roles": {
+          "client.tar.gz": {
+            "path": "cloud-20261111/05357b5089cd679c-r1-native/oss/client.tar.gz.json",
+            "sha256": "e58490fb995e1615f96db453237412f1c0fc2badfa2be6f4c32aaa41c8a3fb59",
+            "bytes": 6544008,
+            "file_sha256": "e66eb7acb1a28527f92eb0f64130c8ead50c31d276928bc398f11469307a57cc",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c2-05357b5089cd679c-r1-native/client.tar.gz"
+          },
+          "metadata.tar.gz": {
+            "path": "cloud-20261111/05357b5089cd679c-r1-native/oss/metadata.tar.gz.json",
+            "sha256": "f78dcc597c35bee694766d02e14b8fb67a3712ed659e710a52cd2da0e9b24f47",
+            "bytes": 466622,
+            "file_sha256": "f1058ed9a98509790a5089db908fe22c374486cee934f4e07777bda98acffe83",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c2-05357b5089cd679c-r1-native/metadata.tar.gz"
+          },
+          "objects.tar.gz": {
+            "path": "cloud-20261111/05357b5089cd679c-r1-native/oss/objects.tar.gz.json",
+            "sha256": "2d49973a11dc43e3e79ea288f42f0c2175710c89516d1d5d8c254850dc381930",
+            "bytes": 3847683,
+            "file_sha256": "698c66be9ac424ef49b7f052c4402b619185d7c120f367d6d39e8ea49b5d93b6",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c2-05357b5089cd679c-r1-native/objects.tar.gz"
+          }
+        }
+      },
+      "calibration": {
+        "state": "public-package",
+        "package": {
+          "path": "cloud-20261111/05357b5089cd679c-r1-native/oss/calibrations.tar.gz.json",
+          "sha256": "76df7f057499567171674ea754590fee91343c878f43a8a70970eec6b7aa81f0",
+          "bytes": 45463869,
+          "file_sha256": "ef7f2689fc64aa41f52fc28a87d827f64f7302dac88688a2495459236b7600c8",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c2-05357b5089cd679c-r1-native/calibrations.tar.gz"
+        }
+      }
+    },
+    "34d56abaf85454a2-r1-juicefs": {
+      "suite": "C1",
+      "case": "fio-read",
+      "arm": "juicefs",
+      "closing": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs.close.json",
+        "sha256": "bce745e859025f4375850243972c252272071cccf9fffca9c21f94c21f63f8a2"
+      },
+      "index": {
+        "path": "cloud-20261111/34d56abaf85454a2-r1-juicefs/oss/index.json",
+        "sha256": "b9ade153e6b60e678a763a62499d08b9389a0a2bb1bf008595e208643b9553c4"
+      },
+      "formal": {
+        "package": {
+          "path": "cloud-20261111/34d56abaf85454a2-r1-juicefs/oss/cell.tar.gz.json",
+          "sha256": "f763097d81eece8ff74de41b3e96fde64ef18b2e11bda46f41e0b326c54718cc",
+          "bytes": 3115485,
+          "file_sha256": "00cdb8e6c3eeaf14d4bbc46339143da9f5501b2f40e1b3fde75b0e48d12f7b27",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-34d56abaf85454a2-r1-juicefs/cell.tar.gz"
+        },
+        "nested_roles": {
+          "archives/client.tar.gz": "328abc5d05eb462b7480c71aad8e7e9884a89b918a08e177159f4793e6647778",
+          "archives/metadata.tar.gz": "ea614bc12e45b861127dc9351e6c551da659dc08c98883d52da6412947606a6d",
+          "archives/objects.tar.gz": "dac734d2b9e459cfdd8353be61d118cdde933fe6ca000172266612c81a319662",
+          "closure.json": "baf92477b595818706e3db5f86fb05192a72f20b0a42a7f7cf57011f3923699b"
+        }
+      },
+      "calibration": {
+        "state": "worker-raw-retention-pending"
+      }
+    },
+    "34d56abaf85454a2-r1-native": {
+      "suite": "C1",
+      "case": "fio-read",
+      "arm": "native",
+      "closing": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native.close.json",
+        "sha256": "1866678e55eea004a0f9ce5041b28fc005f5d5105cc033e8b4ae56bc5d7420fd"
+      },
+      "index": {
+        "path": "cloud-20261111/34d56abaf85454a2-r1-native/oss/index.json",
+        "sha256": "bb467fa52e8002d3ba552acad7b0441c74bb7a84d6c9af06cb99b26ce4cf67f8"
+      },
+      "formal": {
+        "package": {
+          "path": "cloud-20261111/34d56abaf85454a2-r1-native/oss/cell.tar.gz.json",
+          "sha256": "571c3e141930a9bbfaaf128cc9a26f5848636affc36d580d6dbde1c3b55c51ab",
+          "bytes": 3417578,
+          "file_sha256": "12bfdbb0322228dba485511a698dfd915314b7d4a6d1da0d34af60a57a79850a",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-34d56abaf85454a2-r1-native/cell.tar.gz"
+        },
+        "nested_roles": {
+          "archives/client.tar.gz": "246d643da02df0638fa7f196736aeb40f7198ed5e5216b0cb1df53cd6089690d",
+          "archives/metadata.tar.gz": "ee69e45357b2d3726d1acf80ed31ce931a9bb863dc6a8cda021fd7581669a0fd",
+          "archives/objects.tar.gz": "6c7c48c0f457fe5207cba0ce72143534921791d96786b03ace10bd0c396ac789",
+          "closure.json": "c0aa8937db9aba2ef80fabbcc9810351c62f3d74b644841088820344efc982da"
+        }
+      },
+      "calibration": {
+        "state": "worker-raw-retention-pending"
+      }
+    },
+    "451ef1d28b5d875c-r1-juicefs": {
+      "suite": "C1",
+      "case": "fio-randread",
+      "arm": "juicefs",
+      "closing": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs.close.json",
+        "sha256": "412a1a71f4f94cd66a27f2d00c5bab6e1e4b11475dc72057486cb37b4a10424d"
+      },
+      "index": {
+        "path": "cloud-20261111/451ef1d28b5d875c-r1-juicefs/oss/index.json",
+        "sha256": "e340855230b801cb78cbd010aac13305249562ae42d54611a140a148752e731a"
+      },
+      "formal": {
+        "package": {
+          "path": "cloud-20261111/451ef1d28b5d875c-r1-juicefs/oss/cell.tar.gz.json",
+          "sha256": "73334c2ab74d6556913118f8d3431bc02769898e159fd011b7ec4b13d8262ece",
+          "bytes": 2888263,
+          "file_sha256": "ed196da60a276972d6721c389d421030c8c4a8fbde36748aff071fc3b413e270",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-451ef1d28b5d875c-r1-juicefs/cell.tar.gz"
+        },
+        "nested_roles": {
+          "archives/client.tar.gz": "cdc769fe79e118fe32d5a74e4dc770c93aa6c55cbe94725fcd28c1002bf22ddf",
+          "archives/metadata.tar.gz": "1c71f77f02dc13b4e1d7e3c4fcacc2508a63324a01493364383f78572f8725e1",
+          "archives/objects.tar.gz": "8b48cac8647f93db558efd57434355fc4e892138f0bac786e5a572d86fee2efa",
+          "closure.json": "fa7d9a50a2ac74523d9700a16286083b1137cda3f9729e7c85bf3948ffff6399"
+        }
+      },
+      "calibration": {
+        "state": "worker-raw-retention-pending"
+      }
+    },
+    "5ca7353ba24b2a18-r1-juicefs": {
+      "suite": "C1",
+      "case": "fio-write",
+      "arm": "juicefs",
+      "closing": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs.close.json",
+        "sha256": "ac1fd4b03e69a33cde34f554e3d86cde58a2b0d62a9ab73a9bbfc4f8b77dd165"
+      },
+      "index": {
+        "path": "cloud-20261111/5ca7353ba24b2a18-r1-juicefs/oss/index.json",
+        "sha256": "25f8ddb7461c5a84d2ec9d56a183d05937eab9e0eff77fc4382dbe46664d69a3"
+      },
+      "formal": {
+        "package": {
+          "path": "cloud-20261111/5ca7353ba24b2a18-r1-juicefs/oss/cell.tar.gz.json",
+          "sha256": "74ca3e8cf4c24a6b1faf61ed4d512aaab02716fabeb09f93f06bd37ad6315143",
+          "bytes": 3170452,
+          "file_sha256": "58864813077cf2bd80b61b27a93e1b03a5af4838d5be777038b355946c2d83c9",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-5ca7353ba24b2a18-r1-juicefs/cell.tar.gz"
+        },
+        "nested_roles": {
+          "archives/client.tar.gz": "1b27a4cec910e9f53869a6671b91ee722a58f94e9335179933d1a7d80184cfd4",
+          "archives/metadata.tar.gz": "86bfe177608013ee2a27a9651991671842c0384e21c310a28bf549547e49dd07",
+          "archives/objects.tar.gz": "d3616e4d5eed29fd492bf9d5ad81b0f469c52574123138e56d2447ea5f2659fc",
+          "closure.json": "7fb2f67a64dd60c406d7fe09a3e587c4f30ff9261b0c2dec5d84e0ed74a08133"
+        }
+      },
+      "calibration": {
+        "state": "worker-raw-retention-pending"
+      }
+    },
+    "5ca7353ba24b2a18-r1-native": {
+      "suite": "C1",
+      "case": "fio-write",
+      "arm": "native",
+      "closing": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native.close.json",
+        "sha256": "4ae79387b82129633c617662515b744832be54bc7c30dd4c3ef25d8d598b9e83"
+      },
+      "index": {
+        "path": "cloud-20261111/5ca7353ba24b2a18-r1-native/oss/index.json",
+        "sha256": "8e7782a73edcbfe6b6ab9abc62f831a3a7d09fd48ea8345362c890dba73bca5e"
+      },
+      "formal": {
+        "package": {
+          "path": "cloud-20261111/5ca7353ba24b2a18-r1-native/oss/cell.tar.gz.json",
+          "sha256": "c482db2eeb90bed8ee646c8f39c0552b88abd6b247b358976eaaa884409a262b",
+          "bytes": 3418829,
+          "file_sha256": "7bec2d8c8218e83a7867898aed492bbbde2a7e69b3c6ad6a458b681c724259f6",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-5ca7353ba24b2a18-r1-native/cell.tar.gz"
+        },
+        "nested_roles": {
+          "archives/client.tar.gz": "babb39c04ab7f84055344002591e6bcf4fd916c795b86b2bee1f99d509ad4775",
+          "archives/metadata.tar.gz": "128e6a59d0f00ffa4aee684b72661c81a372686a6109b1cd7ee7ecc40919ec7c",
+          "archives/objects.tar.gz": "d452b679cae8e48215e69a1ee0374e8fd89304d8a15e441c8d682bd0f698ce19",
+          "closure.json": "4ba771e9613fa390cba21f9fd78892c6e4c0109cf823b7095bf0e5e8f741b606"
+        }
+      },
+      "calibration": {
+        "state": "worker-raw-retention-pending"
+      }
+    },
+    "7084af367e0bcfad-r1-juicefs": {
+      "suite": "C1",
+      "case": "fio-randwrite",
+      "arm": "juicefs",
+      "closing": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs.close.json",
+        "sha256": "89fb76850a3919082370c30882a331899f3fe97248e743d3dcb4afd3069ad98c"
+      },
+      "index": {
+        "path": "cloud-20261111/7084af367e0bcfad-r1-juicefs/oss/index.json",
+        "sha256": "50b8e2174af9e36cbe6c7788b483b8ba3b8f14d1dfda47c05cd397f0f9445222"
+      },
+      "formal": {
+        "roles": {
+          "client.tar.gz": {
+            "path": "cloud-20261111/7084af367e0bcfad-r1-juicefs/oss/client.tar.gz.json",
+            "sha256": "2ac726aa11233987d5a83c42ab340ee8428797597f8610f0d12d461366d8d4b9",
+            "bytes": 952704,
+            "file_sha256": "39df510899d2aaae7427ec9b1fe339ab5377d5c23960fa9b7ba96c844c9f02fb",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-7084af367e0bcfad-r1-juicefs/client.tar.gz"
+          },
+          "metadata.tar.gz": {
+            "path": "cloud-20261111/7084af367e0bcfad-r1-juicefs/oss/metadata.tar.gz.json",
+            "sha256": "5de72e8872828ac57eb1efb8361c9408df7d9b1fe029fdccf76577342fd37124",
+            "bytes": 720747,
+            "file_sha256": "2639b9eb84d5f3daff87c39eeae7dabed4cd85fe37771dca93bdfd60a2fa4cd6",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-7084af367e0bcfad-r1-juicefs/metadata.tar.gz"
+          },
+          "objects.tar.gz": {
+            "path": "cloud-20261111/7084af367e0bcfad-r1-juicefs/oss/objects.tar.gz.json",
+            "sha256": "d66994180845cd333a7a142fcd7013cd293e43574537d1fcf5fb32b2ea93bb37",
+            "bytes": 6221641,
+            "file_sha256": "1aaf16a83062ea9823f0ceae58be9f94fedef99d9936f539f5db27c56a3a0a92",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-7084af367e0bcfad-r1-juicefs/objects.tar.gz"
+          }
+        }
+      },
+      "calibration": {
+        "state": "public-package",
+        "package": {
+          "path": "cloud-20261111/7084af367e0bcfad-r1-juicefs/oss/calibrations.tar.gz.json",
+          "sha256": "495ffaf1de8c042d9826ccb3dc08fbf21011a531cab7e3c13f203bb785d8c8cb",
+          "bytes": 22549681,
+          "file_sha256": "b6dbfe8101fcad8695217bfa9c2a5dc1fe28556a340a1a54197cd9197bcc824f",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-7084af367e0bcfad-r1-juicefs/calibrations.tar.gz"
+        }
+      }
+    },
+    "7084af367e0bcfad-r1-native": {
+      "suite": "C1",
+      "case": "fio-randwrite",
+      "arm": "native",
+      "closing": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native.close.json",
+        "sha256": "09fd6fb542be737b0ff8ef0aa7f4f98b2291f1d7a68a147741f389446f193e35"
+      },
+      "index": {
+        "path": "cloud-20261111/7084af367e0bcfad-r1-native/oss/index.json",
+        "sha256": "69e50f3850f888ed8879f00bec4aa556d5e8b43f084f040355e37f3ead03bd85"
+      },
+      "formal": {
+        "roles": {
+          "client.tar.gz": {
+            "path": "cloud-20261111/7084af367e0bcfad-r1-native/oss/client.tar.gz.json",
+            "sha256": "c5af02088fabd42c27065e261d9ef3a23b19408ccd97729d6f30a8467712356d",
+            "bytes": 7123226,
+            "file_sha256": "4ec886d214b13f23a8c19348570a741e2b9eb833da6aeb8fcb1ce47ddc90cd41",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-7084af367e0bcfad-r1-native/client.tar.gz"
+          },
+          "metadata.tar.gz": {
+            "path": "cloud-20261111/7084af367e0bcfad-r1-native/oss/metadata.tar.gz.json",
+            "sha256": "05dcb74b7b31294525ffb6c853a4c2433cd45ffc421d57b27b2dec500cd7f3be",
+            "bytes": 4716240,
+            "file_sha256": "4b28023e02a3b9f4cb6a8a8c3abdcbafe0a2e14164c166b0a7801d55ac67db1e",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-7084af367e0bcfad-r1-native/metadata.tar.gz"
+          },
+          "objects.tar.gz": {
+            "path": "cloud-20261111/7084af367e0bcfad-r1-native/oss/objects.tar.gz.json",
+            "sha256": "8c227f65342495e090d01573b664fa9a367ce598073dd7b094c476cdc02ec9b6",
+            "bytes": 40170583,
+            "file_sha256": "227ef0bb654bd5d940fabbd717e7048cb53f6b3e363511b22fccaf5462e39dab",
+            "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-7084af367e0bcfad-r1-native/objects.tar.gz"
+          }
+        }
+      },
+      "calibration": {
+        "state": "public-package",
+        "package": {
+          "path": "cloud-20261111/7084af367e0bcfad-r1-native/oss/calibrations.tar.gz.json",
+          "sha256": "ece556f148d905f0f4aaedc73f08904e2a7eac4246c114636d8b81e086eed040",
+          "bytes": 143647131,
+          "file_sha256": "e5d81588747ea2a33387b4f21044cc593be66432b44907f88a1b8592c598fd16",
+          "url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/c1-7084af367e0bcfad-r1-native/calibrations.tar.gz"
+        }
+      }
+    }
+  }
+}
