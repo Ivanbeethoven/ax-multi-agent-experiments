@@ -2,7 +2,7 @@
 
 最新版本核对：北京时间2026-11-11 09:07，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-11.json)。C1顺序读、顺序写的BrewFS和JuiceFS共四个单元已完成六次校准、正式测量、冷读回和归档；[报告](evidence/cloud-20261111/c1-progress-02.json)保留各项指标。四份完整原始包已独立下载并核全部成员。随机写正在执行，C1–C4全轮尚未完成。
 
-09:33的[新增资源估算](evidence/cloud-20261111/cost-progress-09.json)为¥31.31，当前¥4.671/小时；未新增目标机或扩盘。原跳板、网络和OSS另计。六次校准还需单独保留各节点原始文件：[归档工具的六项本机检查通过](evidence/preparation/calibration-retention-local-01.json)，完整云上归档待当前测量结束后执行。
+09:33的[新增资源估算](evidence/cloud-20261111/cost-progress-09.json)为¥31.31，当前¥4.671/小时；未新增目标机或扩盘。原跳板、网络和OSS另计。六次校准还需单独保留各节点原始文件：[归档工具的六项本机检查通过](evidence/preparation/calibration-retention-local-01.json)，[云端确认测量中会拒绝归档](evidence/preparation/calibration-retention-cloud-guard-01.json)。新代码仅部署到协调者，完整归档待当前测量结束后执行。
 
 JuiceFS顺序写先后保留两次校准失败：[采集接口随正常卸载关闭](evidence/preparation/c1-juicefs-write-calibration-failure/diagnosis.json)、[Linux复用mount ID使新增的退出检查误判](evidence/preparation/c1-juicefs-write-q2-calibration-failure/diagnosis.json)。前者负载和冷CRC通过，后者尚未执行负载。两次均已完整归档、独立下载和核验。采集器现以原进程身份及正常退出回执判断卸载，运行中断连、HTTP错误、解析错误和计数回退仍判失败。[54项本机检查通过](evidence/preparation/runtime-refresh-local.json)。修订后的新六次校准和正式单元已全部通过，旧结果不覆盖、不复用。
 

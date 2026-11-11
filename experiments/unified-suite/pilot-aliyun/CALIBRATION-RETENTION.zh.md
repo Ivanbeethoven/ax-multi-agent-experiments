@@ -24,4 +24,4 @@ python3 "$CODE/experiments/unified-suite/pilot-aliyun/scripts/retain-calibration
 
 输出为`$CONTROL/retained-calibrations/$BUNDLE.tar.gz`及同名`-archive-check.json`。原校准目录不修改，失败不重试。另将两份文件下载到本机，再核外层摘要和全部成员；这一步通过前不能释放机器。归档成功不代替原有性能、开销和正确性验收。
 
-当前状态：六项本机检查通过；尚未在云上执行完整六次校准归档。C1随机写仍在测量，部署新的归档工具不会替换其运行代码。
+当前状态：六项本机检查通过；新代码仅安装到协调者的`code-08`，133个文件逐项核验通过。[云端检查](evidence/preparation/calibration-retention-cloud-guard-01.json)确认，C1仍在运行时会拒绝归档。工作节点继续用原`code-07`；尚未执行完整六次校准归档。
