@@ -1,0 +1,119 @@
+{
+  "schema": "ax-pilot-b-c1-randrw-capacity-audit-v1",
+  "pool": "pool-b",
+  "cell": "8e3d340ff23c3ece-r1-juicefs",
+  "attempt": "mxb01",
+  "coordinator_root": "/srv/ax-pilot-control",
+  "path_scope": "Coordinator paths are relative to coordinator_root; local paths are relative to this file.",
+  "scope": "Read-only historical diagnosis. No worker access, cloud changes, release, reclamation, or new performance measurement. Endpoints are not a single-trial bracket.",
+  "rustfs_identity_both_endpoints": {"pid": 4744, "start_ticks": 63431, "boot_id": "6382995a-7168-411b-b972-582ef75828a9"},
+  "disk_paths_order": ["/srv/ax-objects-0", "/srv/ax-objects-1", "/srv/ax-objects-2", "/srv/ax-objects-3"],
+  "counter_window": {
+    "before": {
+      "label": "B C2 formal final sample, before B C1 start",
+      "coordinator_path": "parallel-control-01/cells/05357b5089cd679c-r1-juicefs/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-juicefs/sample-000199/sample.json",
+      "local_path": "c2-objects-sample-199.json",
+      "sha256": "d20d92196041a09bcf79b3688bbff82f0992fc832a05d9dd7aeadffdc41c575a",
+      "utc_ns": 1794398755384972237,
+      "available_bytes": [42491367424, 57296474112, 57296445440, 57296457728],
+      "rustfs_http_request_body_bytes_total": 3177419760,
+      "rustfs_2xx_put_object_total": 245345,
+      "rustfs_2xx_delete_object_total": 9553
+    },
+    "after": {
+      "label": "B C1 failed On2 sample 28, inside its measurement",
+      "original_worker_path": "/srv/ax-objects-0/o/cal-pool-b-j-mx-mxb01-on2/sample-000028/sample.json",
+      "local_path": "../../progress/parallel-20261111-2105-01/objects-sample-28.json",
+      "sha256": "c76f160c66722b4884726215eec7be6f55cbb7a88785f4084bb00c0f92e7c423",
+      "utc_ns": 1794400650733859808,
+      "available_bytes": [58949632, 20539932672, 20539936768, 20539985920],
+      "rustfs_http_request_body_bytes_total": 170327331824,
+      "rustfs_2xx_put_object_total": 294027,
+      "rustfs_2xx_delete_object_total": 37063,
+      "manifest_files_bytes_excluding_sample_json": 5664916,
+      "rustfs_txt_bytes": 5638786
+    },
+    "delta": {
+      "net_allocated_bytes_by_disk_from_available_decrease": [42432417792, 36756541440, 36756508672, 36756471808],
+      "net_allocated_bytes_all_disks": 152701939712,
+      "rustfs_http_request_body_bytes": 167149912064,
+      "rustfs_2xx_put_object": 48682,
+      "rustfs_2xx_delete_object": 27510
+    }
+  },
+  "last_on2_object_observer_window": {
+    "sample20_original_worker_path": "/srv/ax-objects-0/o/cal-pool-b-j-mx-mxb01-on2/sample-000020/sample.json",
+    "sample20_original_sha256_recorded_in_capacity_capture": "de819cd780c9f73d886a7442706f632ab9882db175ff036a4146f93579efdd49",
+    "sample20_utc_ns": 1794400609286443707,
+    "sample20_available_bytes": [1031434240, 21467357184, 21467357184, 21467418624],
+    "delta_to_sample28_elapsed_ns": 41447416101,
+    "delta_to_sample28_net_allocated_bytes": [972484608, 927424512, 927420416, 927432704],
+    "other_three_disks_net_allocated_bytes": 2782277632
+  },
+  "later_snapshot": {
+    "local_path": "../../progress/parallel-20261111-2105-01/live-capacity-and-debt.txt",
+    "sha256": "92dd75213944170ae57c53d48a87112cfe89ab9f8d8d8cd84e3123d071774045",
+    "at": "2026-11-11T13:02:16.445397959Z",
+    "available_bytes": [595075072, 11023032320, 11029680128, 10985451520],
+    "capacity_bytes_per_disk": 60070604800,
+    "reserve_fraction": 0.2,
+    "required_available_bytes_each": 12014120960,
+    "deficit_to_reserve_bytes_before_any_new_load": [11419045888, 991088640, 984440832, 1028669440]
+  },
+  "original_workload": {
+    "request_path": "parallel-control-01/drafts/pool-b-c1-mixed-after-c2-01/request.json",
+    "request_sha256": "ff23c7498b8c8c58fc24252c79203ba17b428fdc0e54d699e2d4598aac063693",
+    "preceding_c2_base_only_capacity_budget": {"path": "parallel-control-01/capacity-b-c2-01/budget.json", "sha256": "c90a32446e1260561a84d915d38c575df90784f53a9d7f079245a363c3fa890a"},
+    "contract_sha256": "9b4f3b1a1d5769f9024f7caf8f6c89a2de331b8b0e142a24c08860cab7365f60",
+    "contract_path": "parallel-control-01/drafts/pool-b-c1-mixed-after-c2-01/qualification/juicefs/workload.json",
+    "seed": 9173,
+    "block_bytes": 4096,
+    "read_bytes_each_trial": 50479104,
+    "read_ios_each_trial": 12324,
+    "write_bytes_each_trial": 16629760,
+    "write_ios_each_trial": 4060,
+    "native_fio_sync_total_ios_each_trial": 16382,
+    "trials": {
+      "off1": {"start_at": "2026-11-11T12:09:46.017242+00:00", "start_sha256": "98e843cc8b6347156d837831b957418d888215dff95264fa49c7265fdd525e58", "cohort_sha256": "49b59534e88c3ca99ab5a28137aef2d4f05482368baa0e62f4651ea687b41e0f", "makespan_seconds": 735.712912468},
+      "on1": {"start_at": "2026-11-11T12:22:21.715451+00:00", "start_sha256": "16031e1a86d748ff8be86b8688529f0e1ab87cfdb94b6c6dd222c72407d6b7f7", "cohort_sha256": "0d501a1630fb83eae081e5108ad095e2f685459d488bb287194c426e1370f653", "makespan_seconds": 729.440045456},
+      "on2": {"start_at": "2026-11-11T12:35:07.173464+00:00", "start_sha256": "00df409a61fad0e242ba2cdbc60451c00d5ba8106c2efcdf79e97cfcdf7188c6", "cohort_sha256": "89aa2cd0cc6f83c19e9444300102a22c5f4daa9eaeb4525b09caed41316c7955", "makespan_seconds": 1225.672415757, "performance_accepted": false}
+    },
+    "trial_paths": "parallel-control-01/calibration/cal-pool-b-j-mx-mxb01-<trial>/{started.json,cohort/result.json}",
+    "on2_local_cohort": "../../progress/parallel-20261111-2105-01/c1-on2-cohort.json",
+    "base_qualification_local_path": "../pool-b-services-actual-01/c1-qualification.json",
+    "base_random_prepare_result_sha256": "5c885f2a5b3f35c2a4e7c3abf283e159aa4c7cfb363f992e1bb8305eec3d4685",
+    "base_qualification_closed_before_window": "2026-11-11T05:15:47.568072+00:00",
+    "frozen_code_pins": {
+      "code-15/bench/fio_workload.py": "3b377ae5eb225d9f7e5dceaa997b58ec5054e415359a6879afa3bd46bbdd9d74",
+      "code-15/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858",
+      "code-15/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c1.py": "818360e8773de9c48ecc0e6e1953b5b0c15253d478c85e97f215a1728927813c"
+    },
+    "original_receipt_pins": [
+      ["parallel-control-01/calibration/cal-pool-b-j-mx-mxb01-off1/client/copy/result.json", "off1-copy-result.json", "db2f70c71a2f0956bb7cf6fef7ac6d175d721d9728ea6398a9367fe38e663293"],
+      ["parallel-control-01/calibration/cal-pool-b-j-mx-mxb01-on1/client/copy/result.json", "on1-copy-result.json", "add057acb61aefa64b0bbb55c9226bd55ad3d772064d2743a0524460b2725075"],
+      ["parallel-control-01/calibration/cal-pool-b-j-mx-mxb01-on1/observer-stop/pool-b-objects/raw-audit.json", "on1-objects-raw-audit.json", "0c7ba0c767737301a079364fa4f1937966d2fe4dd05b3ce82ccec8646b2e282e"],
+      ["parallel-control-01/calibration/cal-pool-b-j-mx-mxb01-on2/commands/005/intent.json", "on2-copy-intent.json", "f70a8a839f68be5ef8f146e044aa584b06e97a6def79baaa5950e61865b76fb1"],
+      ["parallel-control-01/calibration/cal-pool-b-j-mx-mxb01-on2/commands/005/exit.json", "on2-copy-exit.json", "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2"]
+    ]
+  },
+  "old_observer_candidates": {
+    "scope": "Logical byte counts for archived regular files with prefix o/<tag>/. Each row is an independent source with an existing passed coordinator check. Worker existence, allocated blocks and removability are not verified; all paths would be on disk 0.",
+    "columns": ["group", "tag", "coordinator_directory_containing_objects_tar_gz", "verified_archive_sha256", "observer_logical_bytes", "observer_file_sizes_rounded_to_4096_bytes"],
+    "rows": [
+      ["C2", "cal-pool-b-j-tr-c201-on1", "parallel-control-01/retained-calibrations/pool-b-juicefs-c2-01/cal-pool-b-j-tr-c201-on1", "5e8d3dbd879ce881804f8a48d09a4290088e3317dba447fec225eb4c0dc5293f", 1084646006, 1114935296],
+      ["C2", "cal-pool-b-j-tr-c201-on2", "parallel-control-01/retained-calibrations/pool-b-juicefs-c2-01/cal-pool-b-j-tr-c201-on2", "85dc49c04559376bed3ab5e8c6d3aab023f43c8a7484500a9bb1ae74bc844462", 1113337195, 1144090624],
+      ["C2", "cal-pool-b-j-tr-c201-on3", "parallel-control-01/retained-calibrations/pool-b-juicefs-c2-01/cal-pool-b-j-tr-c201-on3", "8e9c0e478b99b7ae618a47e5143b112f1455b76be06ef86e3194b9612a4c6847", 1066686379, 1096232960],
+      ["C2", "c2-fa630431ea12-05357b5089cd679c-r1-juicefs", "parallel-control-01/cells/05357b5089cd679c-r1-juicefs/archives", "90aa93cb6a63aabff1946d271cd116e46c55951d7eb3574378cab98bda0100a5", 1123816376, 1155112960],
+      ["C3", "cal-pool-b-j-sf-on1", "c3-stage-fixed-01/retained-original-calibrations/c3-jfs-original-six-01/cal-pool-b-j-sf-on1", "6eb0930ff4d74ccb1571df34b311997e2c18f9b7d25e4104bc7d842af1d7ae48", 245830259, 253931520],
+      ["C3", "cal-pool-b-j-sf-on2", "c3-stage-fixed-01/retained-original-calibrations/c3-jfs-original-six-01/cal-pool-b-j-sf-on2", "371e5c20c0624c00dfe82cb9838bd5aaf46f51d420bc68adc3fa5bf43203f4e2", 241175215, 249049088],
+      ["C3", "cal-pool-b-j-sf-on3", "c3-stage-fixed-01/retained-original-calibrations/c3-jfs-original-six-01/cal-pool-b-j-sf-on3", "fafc3b3fb7284fb09fcfb5363a9963c28a18f38ad910ce3778cef5575be59890", 248224878, 256274432],
+      ["C3", "c3-d909e5330618-16f4ac389d2a2da6-r1-juicefs", "c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/archives", "3e744b9bec249b712f7ba90a30b8732a961da184312f635c682a405abd359d06", 605404640, 625057792],
+      ["C4", "c4-b-jfs-on1", "fork-control-01/calibration/jfs-on1/archives", "b9f520a8625fb2923dfae666cc8f59ebfe6a81677971126fab60f437e2a235c9", 487019944, 502218752],
+      ["C4", "c4-b-jfs-on2", "fork-control-01/calibration/jfs-on2/archives", "a7b8c264041838ffe37469b8a308d2b2f008fee30c7f98c6435ca45acbba3f5d", 497885137, 512995328],
+      ["C4", "c4-b-jfs-on3", "fork-control-01/calibration/jfs-on3/archives", "af1da5a7dc202dc292ec284fd33000aa354728392d96a787dcc75cea651242f5", 514111296, 529416192],
+      ["C4", "c4-b-jfs-formal-01", "fork-control-01/cells/c5e97774bcffa69a-r1-juicefs/archives", "b875412f1b284f559c7739416a754249549eb99b972714266db6485829e2f73e", 1534476811, 1580048384]
+    ],
+    "observer_logical_bytes_one_copy": 8762614136,
+    "observer_logical_bytes_two_copies_if_both_still_exist": 17525228272
+  }
+}

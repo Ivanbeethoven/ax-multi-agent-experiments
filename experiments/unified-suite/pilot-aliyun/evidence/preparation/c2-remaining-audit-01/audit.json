@@ -1,0 +1,62 @@
+{
+  "schema": "ax-frozen-c2-remaining-audit-v1",
+  "observed_at": "2026-11-11T21:30:34+08:00",
+  "scope": "Read-only local frozen-source evidence, coordinator plan, SQLite and small receipts; no worker queries or starts",
+  "coordinator_root": "/srv/ax-pilot-control",
+  "plans": {
+    "parallel-control-01/suite/plan.json": {"sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7", "fingerprint": "0feb04c5e52a28aa26d648386a5887aaffb5a792a7c579f5da25cd78f220a108"},
+    "c123-control-01/suite/plan.json": {"sha256": "81e604de204acec9fa250fd0b6330c7ac052e7b372439a37ce5180026c22c7c1", "fingerprint": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e"}
+  },
+  "state_query": "SELECT status,result FROM cells WHERE id=?; SELECT name,status FROM stages WHERE cell_id=?; SELECT pool,owner FROM cell_leases WHERE cell_id=?",
+  "state_notes": "c123-control-01 has all five historical pending placeholders. parallel-control-01 is authoritative for the two accepted cells; the other three state rows match across both SQLite files. No C2 cell appears in the three other phase plans.",
+  "frozen_inputs": {
+    "case": "pytest-full-02-n1",
+    "manifest_sha256": "71a0661b82a433e9d14da29287a2bc1860460015d4887031f90a03ff5451a021",
+    "initial_tree_sha256": "c1b9b066e6660301ad944fff78de1910e6388021c6caa90923355848eb1c2847",
+    "replay_sha256": "35c45abd910d826ea17b5d6dfc750c7083cda5e8ce8f3bbe5ef77a78ffbea1aa",
+    "callbacks": 1747109,
+    "brewfs": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+    "rustfs": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "parallel-control-01/provenance/build-manifest.json": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e"
+  },
+  "cells": {
+    "05357b5089cd679c-r1-native": {
+      "engine": "flat-v1", "pool": "pool-a", "state": "complete", "complete_stages": 9, "leases": 0,
+      "last_attempt": "parallel-control-01/one-cell-runs/05357b5089cd679c-r1-native-c201/result.json",
+      "last_attempt_sha256": "6e74edc89c295b1cf27989bf789360c96ffe632dccc92b0a53e573d9f4e5eb03",
+      "qualification": "parallel-control-01/qualification/pool-a-c2-01/route/result.json",
+      "qualification_sha256": "22a41c69abb93029cdd2879fb7550a45fa28449f8a2edf652dc8cc696820aa94",
+      "close_sha256": "111d9dc7584b036e1870d55779776902eff661a69c06380c0ae660071f2f8647",
+      "sample_sha256": "ac66e04c353ed07dc35e8988e77e929930a06462f54d9c41e4e2875a375b0f00"
+    },
+    "05357b5089cd679c-r1-juicefs": {
+      "engine": "juicefs", "pool": "pool-b", "state": "complete", "complete_stages": 9, "leases": 0,
+      "last_attempt": "parallel-control-01/one-cell-runs/05357b5089cd679c-r1-juicefs-c201/result.json",
+      "last_attempt_sha256": "1f98c34c94a834be445dc2c10ff768a3190caf7f7b5a172c7924952c3765a85c",
+      "qualification": "parallel-control-01/qualification/pool-b-c2-01/route/result.json",
+      "qualification_sha256": "7b14cb880833be652c9ea98182b90e028821664ac71d8efe549e40575448b6f1",
+      "close_sha256": "dae1acf7f157a09f0abcf02598f5954721c8a548a2d789097a10ebb2a66a4bf5",
+      "sample_sha256": "81240916e21d3da26ada44992f7d0597761691cee687761f9d9d9492a626d611"
+    },
+    "05357b5089cd679c-r1-packed": {
+      "engine": "workspace-entity-v1", "pool": "pool-a", "state": "pending", "result": null, "complete_stages": 0, "leases": 0,
+      "last_attempt": null, "qualification": null, "blocker": "shared EntityFuse missing required operations; separate C3 proof is not C2 qualification"
+    },
+    "05357b5089cd679c-r1-entity-native": {
+      "engine": "workspace-entity-v1", "pool": "pool-a", "state": "pending", "result": null, "complete_stages": 0, "leases": 0,
+      "last_attempt": null, "qualification": null, "blocker": "same EntityFuse; no extra input-size blocker found"
+    },
+    "05357b5089cd679c-r1-native-workspace": {
+      "engine": "workspace-native-v2", "pool": "pool-a", "state": "pending", "result": null, "complete_stages": 0, "leases": 0,
+      "last_attempt": null, "qualification": null, "blocker": "no supported production publish-to-fork route for the nonempty original tree; C4 empty-fork proof is not this qualification"
+    }
+  },
+  "repository_refs_relative_to_pilot_root": {
+    "evidence/preparation/c2-entity-feasibility-01/audit.json": "38c4304f671452937d43a4a9ca5312981e884cc5ba4fb1658ceadf733137028f",
+    "NATIVE-WORKSPACE-AND-C4-PACKED.zh.md": "40da3b67bafb477a98eaede2331f57598da5b4ee2b4473503bcb9012b8fd234d",
+    "evidence/preparation/c3-packed-ca07159-100k/result.json": "b6b7ec1a7868e1b7c8b2adc91f396c505cbe838432c2cfa05587884c2302a1d1",
+    "evidence/preparation/c4-native-empty-fork/result.json": "dafa66cdc7e4ee64006b9a2427fd05db0896115c7ba3ef246bedfa34a7e560e9",
+    "scripts/verify-entity-remote.rs": "680537027f474601aef51be7cb36cb3d645c471c2fc93418986e9e00aba692fd"
+  },
+  "script_only_runnable_next": null
+}

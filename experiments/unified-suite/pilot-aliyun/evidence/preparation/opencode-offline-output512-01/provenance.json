@@ -1,0 +1,35 @@
+{
+  "baseline_result_sha256": "037e0d45b9825513ab9fdbe30cccf01a90eaebfe5a25e0c09c4e70f27c6926aa",
+  "checkpoint_sdk_config_schema": {
+    "archive_member": "workspace/source/config/opencode/node_modules/@opencode-ai/sdk/dist/v2/gen/types.gen.d.ts",
+    "excerpt": "limit?: {\n                context: number;\n                input?: number;\n                output: number;\n            }",
+    "version": "1.2.26"
+  },
+  "custom_model_id_absent_from_pinned_binary": true,
+  "opencode_sha256": "025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233",
+  "pinned_binary_embedded_code": {
+    "effective_default_context": {
+      "excerpt": "context: model.limit?.context ?? existingModel?.limit?.context ?? 0",
+      "offset_bytes": 111693581
+    },
+    "effective_default_output": {
+      "excerpt": "output: model.limit?.output ?? existingModel?.limit?.output ?? 0",
+      "offset_bytes": 111693666
+    },
+    "output_cap": {
+      "excerpt": "ProviderTransform.OUTPUT_TOKEN_MAX = Flag.OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX || 32000",
+      "offset_bytes": 111621632
+    },
+    "output_selection": {
+      "excerpt": "Math.min(model.limit.output, ProviderTransform.OUTPUT_TOKEN_MAX) || ProviderTransform.OUTPUT_TOKEN_MAX",
+      "offset_bytes": 111647656
+    },
+    "runtime_model_limit_numbers": {
+      "excerpt": "limit: zod_default.object({\n        context: zod_default.number(),\n        input: zod_default.number().optional(),\n        output: zod_default.number()\n      }),",
+      "offset_bytes": 106010351
+    }
+  },
+  "probe_script_sha256": "06238c6f7702db2d9ab06e7f74358dd31d11154b03c2a749623f2d940d377f24",
+  "result_sha256": "aafa44d29d55b08548dd1cb3ded62534a41d0527a8b4ccfab6c043328fa319ea",
+  "schema": "opencode-offline-output-provenance-v1"
+}
