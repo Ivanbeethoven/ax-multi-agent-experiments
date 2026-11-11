@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "/srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4-closed-observer.py", line 163, in <module>
+    print(json.dumps(run(dict(path=args.request, sha256=args.sha256))))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4-closed-observer.py", line 112, in run
+    return original.run(s['trial'])
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4.py", line 37, in run
+    for stage in c.cell['stages']:c.execute(stage)
+                                  ^^^^^^^^^^^^^^^^
+  File "/srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4-closed-observer.py", line 126, in execute
+    return super().execute(stage)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4.py", line 112, in execute
+    if stage=='archive':self.archive();return
+                        ^^^^^^^^^^^^^^
+  File "/srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4-closed-observer.py", line 141, in archive
+    return super().archive()
+           ^^^^^^^^^^^^^^^^^
+  File "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4.py", line 184, in archive
+    response=json.loads(self.python(role,'\n'.join(k+'='+repr(v) for k,v in variables.items())+'\n'+script))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4-closed-observer.py", line 153, in python
+    return super().python(role, code)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c1.py", line 87, in python
+    return self.remote(role, ['python3', '-c', code])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c1.py", line 83, in remote
+    raise RuntimeError('Inspect failed remote command: '+str(attempt))
+RuntimeError: Inspect failed remote command: /srv/ax-pilot-control/fork-control-01/calibration/flat-on1/commands/0032
