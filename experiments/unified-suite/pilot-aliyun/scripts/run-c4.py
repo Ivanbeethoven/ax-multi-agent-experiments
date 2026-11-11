@@ -13,7 +13,7 @@ REPO=Path(__file__).resolve().parents[4];sys.path.insert(0,str(REPO))
 loader=importlib.util.spec_from_file_location('c4_common_runner',Path(__file__).with_name('run-c1.py'))
 common=importlib.util.module_from_spec(loader);loader.loader.exec_module(common)
 from bench.runtime.common import digest,load,pinned,write_new
-from bench.runtime import cohort,fleet,pilot_context
+from bench.runtime import c4_verify,cohort,fleet,pilot_context
 from bench.runtime.pilot_pools import pool_of,alias,fleet_node
 from bench import suite_state,suite_validate,suite_report,archive_check,experiment_step
 from bench.suite_plan import check_plan
@@ -34,6 +34,11 @@ class Fork(common.Cell):
                 self.cell['params']['agents']!=1 or self.cell['params']['children']!=1):
             raise ValueError('Explicit one-child C4 baseline only')
         self.purpose=self.s.get('purpose','experiment');self.tag=self.s['attempt']
+        self.verification_policy=self.s.get('verification_policy',c4_verify.FULL)
+        self.full_reference=self.s.get('full_reference')
+        c4_verify.scope(self.verification_policy,self.purpose,self.full_reference)
+        self.verification_tool=self.s.get('verification_tool')
+        if self.verification_tool and self.purpose=='experiment':raise ValueError('Formal C4 retains its original full verification binary')
         import re
         if not re.fullmatch('[a-z0-9-]{3,48}',self.tag):raise ValueError('Explicit unique trial path required')
         self.base='/srv/ax-client/q/'+self.tag;self.main='/srv/ax-client/m/'+self.tag
@@ -45,6 +50,8 @@ class Fork(common.Cell):
         for source in (self.s['node_tool'],self.s['fork']['tool'],self.s['fork']['preparation']):
             if self.remote('client',['sha256sum',source['path']]).split()[0]!=source['sha256']:
                 raise ValueError('Original C4 worker/tool/preparation changed')
+        if self.verification_tool and self.remote('client',['sha256sum',self.verification_tool['path']]).split()[0]!=self.verification_tool['sha256']:
+            raise ValueError('Calibration-only verification tool changed')
         for role in ('client','metadata','objects'):
             tool=fleet_node(self.fleet,self.pool,role)['repo']+'/experiments/unified-suite/pilot-aliyun/scripts/'+self.s['observer_tool_name']
             if self.remote(role,['sha256sum',tool]).split()[0]!=self.s['observer_tool_sha256']:
@@ -52,7 +59,8 @@ class Fork(common.Cell):
 
     def fork_helper(self,action,**fields):
         source=self.s['fork']['preparation']
-        argv=['python3',self.s['fork']['tool']['path'],action,'--asset',self.asset,'--cell',self.id,
+        tool=self.verification_tool if self.verification_tool and action in ('verify','capture-parent-reference') else self.s['fork']['tool']
+        argv=['python3',tool['path'],action,'--asset',self.asset,'--cell',self.id,
             '--child-name',self.tag,'--preparation',source['path'],'--preparation-sha256',source['sha256']]
         for key,value in fields.items():argv+=['--'+key.replace('_','-'),str(value)]
         return self.remote('client',argv)
@@ -93,7 +101,12 @@ class Fork(common.Cell):
         if stage=='verify':
             self.helper('draft-mount',cell=self.id,purpose=self.purpose,out=self.base+'/verify-mount')
             self.helper('start',join_slot=True,spec=self.base+'/verify-mount/mount.reviewed.json',out=self.verify)
-            self.fork_helper('verify',out=self.base+'/verify')
+            verify=dict(out=self.base+'/verify')
+            if self.verification_policy!=c4_verify.FULL:
+                verify.update(purpose=self.purpose,verification_policy=self.verification_policy)
+                if self.full_reference:verify.update(full_reference=self.full_reference['path'],
+                                                       full_reference_sha256=self.full_reference['sha256'])
+            self.fork_helper('verify',**verify)
             self.helper('stop',mount_run=self.verify,out=self.base+'/verify-exit.json')
             self.mark('verify-end');return
         if stage=='archive':self.archive();return
@@ -111,6 +124,7 @@ class Fork(common.Cell):
             variables=dict(ROOT=root,CODE=fleet_node(self.fleet,self.pool,role)['repo'],TAG=self.tag,CELL=self.id,
                 ROLE=role,DIRS=dirs,HAS_OBSERVER=has_observer,ASSET=self.asset)
             script='''import json,pathlib,sys,shutil
+import time
 root=pathlib.Path(ROOT);sys.path.insert(0,CODE)
 from bench.runtime.common import alive,load,write_new,digest
 from bench.suite_support import closure
@@ -130,7 +144,15 @@ if ROLE=='client':
  if load(root/'w'/TAG/'measure/create-exit.json')['exit_code']!=0:raise ValueError('Native creation process did not exit normally')
  finished=load(job/'job-0000/finished.json')
  if not finished['passed'] or finished['remaining_process_group']:raise ValueError('C4 leaf descendants remain')
- if pathlib.Path('/sys/fs/cgroup/ax-slot-1/cgroup.procs').read_text().strip():raise ValueError('Slot remains occupied')
+ slot=pathlib.Path('/sys/fs/cgroup/ax-slot-1/cgroup.procs')
+ known={i['pid'] for i in identities}
+ deadline=time.monotonic()+10
+ while True:
+  occupied={int(p) for p in slot.read_text().split()}
+  if occupied-known:raise ValueError('Unknown process still in agent slot')
+  if not occupied and not any(alive(i) for i in identities):break
+  if time.monotonic()>=deadline:raise ValueError('Original C4 process or slot did not close')
+  time.sleep(.05)
  debt=[]
  for i in (0,1):
   p=root/'q'/TAG/'debt'/('sample-'+str(i)+'.json');v=load(p)
@@ -140,8 +162,11 @@ if ROLE=='client':
     mount_points=[load(pathlib.Path(ASSET)/'asset.json')['mount_point']],debt_samples=debt)
  p=root/'q'/TAG/'closure-request.json';write_new(p,request);result=closure(p)
  result['passed']=result['all_exited'] and result['all_unmounted']
-else:result=dict(passed=not any(alive(p) for p in identities),cell_id=CELL,
- all_exited=not any(alive(p) for p in identities),all_unmounted=True,processes=identities)
+else:
+ deadline=time.monotonic()+10
+ while any(alive(i) for i in identities) and time.monotonic()<deadline:time.sleep(.05)
+ result=dict(passed=not any(alive(p) for p in identities),cell_id=CELL,
+  all_exited=not any(alive(p) for p in identities),all_unmounted=True,processes=identities)
 if not result['passed']:raise ValueError('Original C4 processes or mounts remain')
 q=root/'q'/(TAG+'-closure');q.mkdir();write_new(q/'result.json',result);DIRS.append('q/'+TAG+'-closure')
 staging=root/'evidence'/TAG;staging.mkdir(parents=True);names=[]
@@ -177,6 +202,8 @@ print(json.dumps(dict(closure=result,archive=archive)))'''
         write_new(self.out/'work-packet.json',packet)
         write_new(self.out/'work-check.json',suite_validate.work(self.plan,self.id,packet))
         verified=load(q/'verify/result.json');normal=[load(q/n) for n in ('exit.json','verify-exit.json')]
+        if self.purpose=='experiment' and not (verified.get('parent_unchanged') is True and verified.get('full_cold_child') is True):
+            raise ValueError('Formal C4 must use full parent and child cold verification')
         proof=dict(passed=verified['passed'] and all(v['passed'] and v['exit_code']==0 and v['mount_absent'] for v in normal),
             cell_id=self.id,cold_child=ref(q/'verify/result.json'),parent_unchanged=ref(q/'verify/parent.json'),
             normal_exits=[ref(q/n) for n in ('exit.json','verify-exit.json')])

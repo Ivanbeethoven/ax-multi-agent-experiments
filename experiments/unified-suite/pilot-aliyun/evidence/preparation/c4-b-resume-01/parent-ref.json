@@ -1,0 +1,43 @@
+{
+  "verification_policy": "recovered-parent-stat-v1",
+  "passed": true,
+  "parent_shape_matches": true,
+  "parent_identity": {
+    "schema": "c4-parent-stat-v1",
+    "entries": 100101,
+    "sha256": "3f9776c17fa645060805fce565ceaee8a0d5ac735fbf4fca1c52c87b33ba4efc"
+  },
+  "child_name": "c4-b-jfs-off1",
+  "binding": {
+    "cell_id": "c5e97774bcffa69a-r1-juicefs",
+    "arm": "juicefs",
+    "files": 100000,
+    "work_tag": "child-01",
+    "asset": {
+      "path": "/srv/ax-client/a/c4-fork-jfs-base-01/asset.json",
+      "sha256": "5b3ed88f1ca243d86121047786a3fb712b9b869641b6964773ba5dcae735420f"
+    },
+    "preparation": {
+      "path": "/srv/ax-client/preparation/c4-fork-jfs-base-01/result.json",
+      "sha256": "3c5c060d218b1ade393df806340d297b7ab8e29231c9d70a1fea28b5979f0127"
+    },
+    "source_tree": {
+      "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c4-fixture-tree.json",
+      "sha256": "02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13"
+    },
+    "expected_child": {
+      "path": "/srv/ax-client/preparation/c4-fork-jfs-base-01/oracle-result/expected-tree.json",
+      "sha256": "c96cf044c5899f80e105d63b3bfdd8029985b7a615b0f679e3486bd001a512ce"
+    }
+  },
+  "original_full": {
+    "path": "/srv/ax-client/q/c4-b-jfs-off1/verify/result.json",
+    "sha256": "e320b692122648230ea51044f767fefff4e453c6b4ee9fb6bc20809aff5031e2"
+  },
+  "content_read": {
+    "files": 0,
+    "bytes": 0
+  },
+  "seconds": 82.963497928,
+  "scope": "Post-closure metadata fingerprint only; separate original full cold proof retained."
+}

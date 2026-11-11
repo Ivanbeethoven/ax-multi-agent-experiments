@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "at": "2026-11-11T08:26:35.606767+00:00",
+  "original_manifest_sha256": "acc723fda087ce16516c5dd32f2ae588ac9c23679babb08ca53d5b048b7ffe63",
+  "coordinator": {
+    "path": "/srv/ax-pilot-control/code-c4-resume-01",
+    "manifest": {
+      "path": "/srv/ax-pilot-control/preparation/c4-resume-overlay-01/coordinator-manifest.json",
+      "sha256": "2e994583ee873ac67a6d6e32efbfb82655706e39f5e112b1acde08a7d747a964"
+    }
+  },
+  "client": {
+    "path": "/srv/ax-client/code-c4-resume-01",
+    "manifest": {
+      "path": "/srv/ax-pilot-control/preparation/c4-resume-overlay-01/client-manifest.json",
+      "sha256": "457563300f0b5615e9b9232f7cd1fbc0b27a99ef86bfc05d0854d16895b0960e"
+    }
+  },
+  "changed_coordinator": [
+    "bench/runtime/c4_verify.py",
+    "experiments/unified-suite/pilot-aliyun/scripts/admit-c4.py",
+    "experiments/unified-suite/pilot-aliyun/scripts/audit-c4-handoff.py",
+    "experiments/unified-suite/pilot-aliyun/scripts/c4-fork-node.py",
+    "experiments/unified-suite/pilot-aliyun/scripts/check-c4-calibration.py",
+    "experiments/unified-suite/pilot-aliyun/scripts/continue-c4-formal.py",
+    "experiments/unified-suite/pilot-aliyun/scripts/resume-c4-trials.py",
+    "experiments/unified-suite/pilot-aliyun/scripts/run-c4.py",
+    "experiments/unified-suite/pilot-aliyun/scripts/watch-c4-formal-boundary.py"
+  ],
+  "changed_client": [
+    "bench/runtime/c4_verify.py",
+    "experiments/unified-suite/pilot-aliyun/scripts/c4-fork-node.py"
+  ],
+  "workload_binary_reused": true,
+  "scope": "Original measured leaf still selected from code15; new client code is only for post-measure verification. Original code15 unchanged."
+}

@@ -15,6 +15,7 @@ sys.path[:0]=[str(REPO),str(REPO/'bench'),str(REPO/'scripts'),str(Path(__file__)
 from bench.runtime.common import digest,load,pinned,write_new,spec
 from bench.runtime.prepare import AGENT_BUDGET
 from bench.runtime.fork_work import WORK_TAG,logical_work,validate_result
+from bench.runtime import c4_verify
 from bench.fs_step import first_read,mutate
 from bench.suite_plan import check_plan
 from bench.suite_support import review
@@ -52,6 +53,12 @@ def checked_preparation(reference,asset,cell):
     oracle=load(pinned(value['oracle']))
     if oracle['tag']!=WORK_TAG or oracle['files']!=cell['params']['files']:raise ValueError('Independent fixed-tag oracle required')
     return value,oracle
+
+
+def verification_binding(prepared,oracle,cell,preparation):
+    return dict(cell_id=cell['id'],arm=cell['arm_id'],files=cell['params']['files'],
+        work_tag=WORK_TAG,asset=prepared['asset'],preparation=ref(preparation),
+        source_tree=prepared['source_tree'],expected_child=oracle['expected_tree'])
 
 
 def measure(request,output):
@@ -102,11 +109,13 @@ def measure(request,output):
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['draft','worker','measure','verify'])
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['draft','worker','measure','verify','capture-parent-reference'])
     p.add_argument('--asset',type=Path);p.add_argument('--cell');p.add_argument('--child-name')
     p.add_argument('--preparation');p.add_argument('--preparation-sha256')
     p.add_argument('--out',type=Path,required=True);p.add_argument('--request');p.add_argument('--sha256')
     p.add_argument('--mount-spec');p.add_argument('--mount-run');p.add_argument('--draft')
+    p.add_argument('--verification-policy',default=c4_verify.FULL)
+    p.add_argument('--full-reference');p.add_argument('--full-reference-sha256')
     p.add_argument('--purpose',choices=['experiment','observer-calibration-on','observer-calibration-off'],default='experiment')
     a=p.parse_args()
     if a.action=='measure':measure(dict(path=a.request,sha256=a.sha256),a.out);return
@@ -119,16 +128,50 @@ def main():
             child_name=a.child_name,work_tag=WORK_TAG,files=cell['params']['files'],oracle=prepared['oracle'],
             tested_filesystem_mutated=False))
     elif a.action=='verify':
+        if bool(a.full_reference)!=bool(a.full_reference_sha256):
+            raise ValueError('Original C4 full reference requires path and SHA256')
+        reference=dict(path=a.full_reference,sha256=a.full_reference_sha256) if a.full_reference else None
+        c4_verify.scope(a.verification_policy,a.purpose,reference)
         if a.out.exists():raise ValueError('Fresh complete verification evidence required')
         a.out.mkdir(parents=True)
         original=load(pinned(prepared['source_tree']));expected=load(pinned(oracle['expected_tree']));start=time.monotonic_ns()
-        parent_ok=tree(base)==original;child_ok=tree(child)==expected
+        details={}
+        if a.verification_policy==c4_verify.FULL:
+            parent_ok=tree(base)==original;child_ok=tree(child)==expected;passed=parent_ok and child_ok
+        else:
+            proof_binding=verification_binding(prepared,oracle,cell,a.preparation)
+            original_reference=load(pinned(reference)) if reference else None
+            original_full=(load(pinned(original_reference['original_full'])) if original_reference and
+                           original_reference.get('verification_policy')==c4_verify.CAPTURE else None)
+            identity=c4_verify.reference_identity(original_reference,proof_binding,a.child_name,original_full) if reference else None
+            details=c4_verify.check(base,child,original,expected,first_read=oracle['first_read']['path'],reference=identity)
+            passed=details.pop('passed');parent_ok=details['parent_matches'];child_ok=details['child_matches']
+            details.update(binding=proof_binding,full_reference=reference)
         end=time.monotonic_ns()
-        write_new(a.out/'parent.json',dict(passed=parent_ok,cell_id=cell['id'],expected=prepared['source_tree']))
-        write_new(a.out/'result.json',dict(passed=parent_ok and child_ok,cell_id=cell['id'],
+        full=a.verification_policy!=c4_verify.TOUCHED
+        write_new(a.out/'parent.json',dict(passed=parent_ok and (full or details['parent_identity_unchanged']),
+            cell_id=cell['id'],expected=prepared['source_tree'],full_cold_parent=full,
+            parent_identity=details.get('parent_identity'),verification_policy=a.verification_policy))
+        write_new(a.out/'result.json',dict(passed=passed,cell_id=cell['id'],
             files=cell['params']['files'],child_name=a.child_name,work_tag=WORK_TAG,expected_child=oracle['expected_tree'],
-            parent_unchanged=parent_ok,full_cold_child=child_ok,start_ns=start,end_ns=end,cold_verification_seconds=(end-start)/1e9))
-        if not parent_ok or not child_ok:raise ValueError('Full original parent/child isolation failed')
+            parent_unchanged=full and parent_ok,full_cold_child=full and child_ok,
+            start_ns=start,end_ns=end,cold_verification_seconds=(end-start)/1e9,
+            verification_policy=a.verification_policy,**details))
+        if not passed:raise ValueError('Original C4 parent/child verification failed')
+    elif a.action=='capture-parent-reference':
+        if a.purpose!='observer-calibration-off' or not (a.full_reference and a.full_reference_sha256) or a.out.exists():
+            raise ValueError('New, unmeasured metadata reference for an original completed full off trial required')
+        reference=dict(path=a.full_reference,sha256=a.full_reference_sha256);full=load(pinned(reference))
+        proof_binding=verification_binding(prepared,oracle,cell,a.preparation)
+        if full.get('child_name')!=a.child_name:raise ValueError('Different original full cold child')
+        original=load(pinned(prepared['source_tree']));start=time.monotonic_ns()
+        actual,identity,read=c4_verify.scan(base,set(),parent_identity=True)
+        value=dict(verification_policy=c4_verify.CAPTURE,passed=actual==c4_verify.expected_projection(original,set()),
+            parent_shape_matches=actual==c4_verify.expected_projection(original,set()),parent_identity=identity,
+            child_name=a.child_name,binding=proof_binding,original_full=reference,content_read=read,
+            seconds=(time.monotonic_ns()-start)/1e9,scope='Post-closure metadata fingerprint only; separate original full cold proof retained.')
+        c4_verify.reference_identity(value,proof_binding,None,full)
+        a.out.mkdir(parents=True);write_new(a.out/'result.json',value)
     else:
         if a.out.exists():raise ValueError('New worker evidence required')
         a.out.mkdir(parents=True)

@@ -1,0 +1,95 @@
+{
+  "schema": "c4-fork-baseline-request-v1",
+  "reviewed": true,
+  "source_tool_sha256": "e5d83db08668789f6422e71f0cc31ad03430b1616cf2ae1a608f24c4c9e6abef",
+  "control": "/srv/ax-pilot-control/parallel-control-01",
+  "canonical_plan": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/suite/plan.json",
+    "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+  },
+  "fork_plan": {
+    "path": "/srv/ax-pilot-control/fork-control-01/suite/plan.json",
+    "sha256": "4b98ab083a06ae353806557f956a60fad8b3c29b8b43971c452cf3a7136b2a7e"
+  },
+  "inventory": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/provenance/inventory.json",
+    "sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e"
+  },
+  "build_manifest": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/provenance/build-manifest.json",
+    "sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e"
+  },
+  "ssh_config": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/ssh.conf",
+    "sha256": "5ed7438217586e9ac6b3af1e0f9c6755ed901b4754f07ed7ed9d2b4e526ab181"
+  },
+  "latest_check": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/provenance/latest-before-parallel-c3-01.json",
+    "sha256": "df2187537966bd587f8e1223a606acf0b1e0ff75902a19c03e08ed36cada87d2"
+  },
+  "pool": "pool-b",
+  "product": "juicefs",
+  "cell_id": "c5e97774bcffa69a-r1-juicefs",
+  "other_lease_controls": [
+    "/srv/ax-pilot-control/c123-control-01",
+    "/srv/ax-pilot-control/c3-stage-fixed-01"
+  ],
+  "out": "/srv/ax-pilot-control/fork-control-01/preparation/base-jfs-01",
+  "worker": {
+    "tool": {
+      "path": "/srv/ax-client/code-15/experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py",
+      "sha256": "e5d83db08668789f6422e71f0cc31ad03430b1616cf2ae1a608f24c4c9e6abef"
+    },
+    "plan": {
+      "path": "/srv/ax-client/preparation/c4-runtime-15-01/plan.json",
+      "sha256": "4b98ab083a06ae353806557f956a60fad8b3c29b8b43971c452cf3a7136b2a7e"
+    },
+    "inventory": {
+      "path": "/srv/ax-client/preparation/c4-runtime-15-01/inventory.json",
+      "sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e"
+    },
+    "node_tool": {
+      "path": "/srv/ax-client/code-15/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+      "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+    },
+    "runtime_pins": {
+      "bench/fs_step.py": "d58b7b7198450e1728c10b84cb978c0b793e257ecafca21ee5ac2829cb4a9c79",
+      "experiments/unified-suite/pilot-aliyun/scripts/fork-oracle.py": "06a226948fbae50ac3d897617530bf9829d28780f7b38257a9fe58fee3a27b00",
+      "experiments/unified-suite/pilot-aliyun/scripts/pilot_io.py": "26943cee20cfbe9ead0e1852c679e3def2dd154b6d327d7ec56f41e7984c313c"
+    },
+    "filesystem_binary": {
+      "path": "/srv/ax-client/assets/bin/juicefs",
+      "sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+    },
+    "source_tree": {
+      "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c4-fixture-tree.json",
+      "sha256": "02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13"
+    },
+    "fixture": {
+      "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c4-fixture.json",
+      "sha256": "276cd354adbefcc7ea4aa6799038064bb77d97073a4fe999f6b46be3d7a27a55"
+    },
+    "input_closure": {
+      "path": "/srv/ax-client/preparation/pool-b-services-actual-01/input-closure.json",
+      "sha256": "5d75b17c3917fc05ba383774e6475e03a8d6e078c0519db533821028d6c3ee97"
+    },
+    "source": "/srv/ax-client/inputs/pilot-100k-01/fork-source",
+    "asset": "/srv/ax-client/a/c4-fork-jfs-base-01",
+    "out": "/srv/ax-client/preparation/c4-fork-jfs-base-01",
+    "database": 200,
+    "attempt": "c4-jfs-base-01",
+    "mode": "prepare"
+  },
+  "frozen_runtime": {
+    "coordinator": "/srv/ax-pilot-control/code-15",
+    "client": "/srv/ax-client/code-15",
+    "manifest": {
+      "path": "/srv/ax-pilot-control/preparation/code-15/manifest.json",
+      "sha256": "acc723fda087ce16516c5dd32f2ae588ac9c23679babb08ca53d5b048b7ffe63"
+    }
+  },
+  "preflight": {
+    "path": "/srv/ax-pilot-control/preparation/c4-setup-01/preflight-01/result.json",
+    "sha256": "409064cf4092a829b353947ae2048890eccbc43cd59b0d725380c8b840b78365"
+  }
+}

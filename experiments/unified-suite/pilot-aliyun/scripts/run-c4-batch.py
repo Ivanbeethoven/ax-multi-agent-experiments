@@ -17,7 +17,7 @@ from types import SimpleNamespace
 
 REPO=Path(__file__).resolve().parents[4];sys.path.insert(0,str(REPO))
 from bench.runtime.common import load,pinned,digest,write_new
-from bench.runtime import pilot_context
+from bench.runtime import c4_verify,pilot_context
 from bench.runtime.pilot_pools import active_conflicts,resource_guard,alias,cell_resources,fleet_node
 from bench import suite_state
 from bench.suite_plan import check_plan
@@ -37,6 +37,14 @@ def trial_order(trials,formal_attempt):
     names=[t['attempt'] for t in trials]+[formal_attempt]
     if len(set(names))!=7 or len({t['out'] for t in trials})!=6:
         raise ValueError('Seven unique child paths and six unique trial outputs required')
+
+
+def trial_verification(policy,index,reference):
+    if policy==c4_verify.FULL:return {}
+    if policy!=c4_verify.TOUCHED:raise ValueError('Unknown C4 calibration verification policy')
+    if index==0:return dict(verification_policy=c4_verify.REFERENCE)
+    if not reference:raise ValueError('Original first full C4 trial must pass before touched trials')
+    return dict(verification_policy=c4_verify.TOUCHED,full_reference=reference)
 
 
 def ensure_conflicts(controls,cell,plan):
@@ -100,6 +108,8 @@ def main():
     if set(cell_resources(plan,cell))!=set(validated['wanted']):raise ValueError('Actual physical resources differ')
     runtime=pilot_context.select(control,s.get('runtime_control'))
     trial_order(s['trials'],s['formal_attempt'])
+    verification=s.get('calibration_verification',c4_verify.FULL)
+    trial_verification(verification,0,None)
     out=Path(s['out']);formal=control/'cells'/cell['id']
     if out.exists() or formal.exists() or Path(s['qualification']).exists():raise ValueError('Fresh batch/formal/qualification paths required')
     controls=list(dict.fromkeys([*validated['controls'],control]))
@@ -154,19 +164,31 @@ def main():
             invoke('qualification','prepare',dict(base,shared_qualification=s['shared_qualification'],hardware=s['hardware'],
                 preparation_coordinator_result=ref(validated['out']/'result.json')))
             current=dict(collector_name=s['collector_name'],collector_out=s['collector_out'])
+            full_reference=None
             for i,t in enumerate(s['trials']):
                 expected={k:t[k] for k in ('collector_name','collector_out')}
                 if expected!=current:raise ValueError('Predeclared collector chain differs from original completed trial')
                 body=dict(base,**current,purpose='observer-calibration-'+t['mode'],attempt=t['attempt'],out=t['out'])
+                body.update(trial_verification(verification,i,full_reference))
                 for key in ('new_collector_name','new_collector_out'):
                     if key in t:body[key]=t[key]
                 invoke('trial-'+str(i+1),'calibrate',body)
                 finished=load(Path(t['out'])/'finished.json')
                 current={k:finished[k] for k in ('collector_name','collector_out')}
+                if i==0 and verification==c4_verify.TOUCHED:
+                    original=load(pinned(finished['client_verify']))
+                    if original.get('child_name')!=t['attempt'] or original['binding']['asset']['path']!=s['asset']+'/asset.json':
+                        raise ValueError('First full proof did not use the original prepared C4 asset and attempt')
+                    expected_binding=dict(cell_id=cell['id'],arm=cell['arm_id'],files=cell['params']['files'],
+                        work_tag='child-01',preparation=preparation,asset=original['binding']['asset'],
+                        source_tree=original['binding']['source_tree'],expected_child=original['expected_child'])
+                    c4_verify.reference_identity(original,expected_binding,s['formal_attempt'])
+                    full_reference=dict(path='/srv/ax-client/q/'+t['attempt']+'/verify/result.json',
+                                        sha256=finished['client_verify']['sha256'])
             write_new(out/'trials.json',[t['out'] for t in s['trials']])
             q=Path(s['qualification'])/cell['arm_id']
             run('overhead',['python3',pinned(s['tools']['check']),'--trials',out/'trials.json','--metric',q/'metrics.json',
-                '--workload',q/'workload.json','--out',out/'overhead'])
+                '--workload',q/'workload.json','--out',out/'overhead','--verification-policy',verification])
             # This qualification comes from actual clone/copy+full cold parent
             # and child checks. No preparation-only receipt is called formal.
             trial=Path(s['trials'][0]['out']);end=load(trial/'finished.json')

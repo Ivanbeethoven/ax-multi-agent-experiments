@@ -1,0 +1,51 @@
+{
+  "schema": "c4-calibration-continuation-v1",
+  "reviewed": true,
+  "original_request": {
+    "path": "/srv/ax-pilot-control/preparation/c4-setup-01/batch.request.reviewed.json",
+    "sha256": "55b389b5ffd4f9b99f382a49549b66427ff65a736a5c6bbbd015a24a87f0552c"
+  },
+  "original_batch_tool": {
+    "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py",
+    "sha256": "622df0f62387853a724725d2eaf5dc87077752600b0a573488d06de07285b340"
+  },
+  "original_unit": "ax-pilot-b-c4-jfs-100k-01",
+  "original_invocation": "caa3114512094e75bf6bd3cb457f2ea9",
+  "recovered_first": {
+    "path": "/srv/ax-pilot-control/fork-control-01/calibration/jfs-off1-archive-recovery-01/finished.json",
+    "sha256": "063b61ee51aa7ea21da5456fa406f8495bab662f61d5479c3602227327ba9d3d"
+  },
+  "out": "/srv/ax-pilot-control/fork-control-01/batch-jfs-resume-01",
+  "tools": {
+    "continuation": {
+      "path": "/srv/ax-pilot-control/code-c4-resume-01/experiments/unified-suite/pilot-aliyun/scripts/continue-c4-formal.py",
+      "sha256": "5fecdb2d1607fdc0b3f4ccfd6443fce93356d3c821b16e99db602c6a0be253a0"
+    },
+    "admit": {
+      "path": "/srv/ax-pilot-control/code-c4-resume-01/experiments/unified-suite/pilot-aliyun/scripts/admit-c4.py",
+      "sha256": "a06036a2e745b1c06443fecb8aca26530b83e6901e042ec61f15e2c0e6625834"
+    },
+    "run": {
+      "path": "/srv/ax-pilot-control/code-c4-resume-01/experiments/unified-suite/pilot-aliyun/scripts/run-c4.py",
+      "sha256": "8370e5872ef8282237f10d2000916f71bda605a7dd6ea96ec43643a4a788019f"
+    },
+    "check": {
+      "path": "/srv/ax-pilot-control/code-c4-resume-01/experiments/unified-suite/pilot-aliyun/scripts/check-c4-calibration.py",
+      "sha256": "dc19c4969ecccfd726f93aaa28434c15306226b1dafe01fa976d0da9d629b210"
+    },
+    "calibrate": {
+      "path": "/srv/ax-pilot-control/code-c4-resume-01/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4.py",
+      "sha256": "47373aebf1376ec9b2eb3d913c6928624c4f8f8c378e4484b5636c7ec53f0868"
+    }
+  },
+  "calibration_verification": "touched-cold-v1",
+  "capture_attempt": "c4-b-jfs-ref-supp-01",
+  "verification_tool": {
+    "path": "/srv/ax-client/code-c4-resume-01/experiments/unified-suite/pilot-aliyun/scripts/c4-fork-node.py",
+    "sha256": "e853e5af4021c40191be0da9d7ff061109e5bd802d8c49297b388b456fa4f84f"
+  },
+  "deployment": {
+    "path": "/srv/ax-pilot-control/preparation/c4-resume-overlay-01/result.json",
+    "sha256": "17f3b259ac5967172790b08e8a5ab94927077db15d5ea37f8d2ef2cb4174f3db"
+  }
+}

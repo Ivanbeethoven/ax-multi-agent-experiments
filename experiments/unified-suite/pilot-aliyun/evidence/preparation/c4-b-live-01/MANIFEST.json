@@ -1,0 +1,94 @@
+{
+  "sources": {
+    "batch-reviewed.json": {
+      "path": "/srv/ax-pilot-control/preparation/c4-setup-01/batch.request.reviewed.json",
+      "sha256": "55b389b5ffd4f9b99f382a49549b66427ff65a736a5c6bbbd015a24a87f0552c",
+      "bytes": 5747,
+      "role": "coordinator"
+    },
+    "batch-start.json": {
+      "path": "/srv/ax-pilot-control/preparation/c4-setup-01/batch-start.command.json",
+      "sha256": "4425838cbc1340e491df55657ca8d4a28f6dfc61b3aa9bf8be5ad7fa1e3322cb",
+      "bytes": 1078,
+      "role": "coordinator"
+    },
+    "batch-start-exit.json": {
+      "path": "/srv/ax-pilot-control/preparation/c4-setup-01/batch-start.exit.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "bytes": 17,
+      "role": "coordinator"
+    },
+    "prep-reviewed.json": {
+      "path": "/srv/ax-pilot-control/preparation/c4-setup-01/preparation.request.reviewed.json",
+      "sha256": "f8fdf6b06dd0459f70ddc590c3959267d08a96c5a95968fc039db709fa0cc8f3",
+      "bytes": 4308,
+      "role": "coordinator"
+    },
+    "prepared-coordinator.json": {
+      "path": "/srv/ax-pilot-control/fork-control-01/preparation/base-jfs-01/result.json",
+      "sha256": "9bb1ce95e7a1dba0e085e8c9f6049e0806478c8d73bf6704cb02413cd06d4709",
+      "bytes": 670,
+      "role": "coordinator"
+    },
+    "base-result.json": {
+      "path": "/srv/ax-client/preparation/c4-fork-jfs-base-01/result.json",
+      "sha256": "3c5c060d218b1ade393df806340d297b7ab8e29231c9d70a1fea28b5979f0127",
+      "bytes": 1894,
+      "role": "pool-b-client"
+    },
+    "base-cold-exit.json": {
+      "path": "/srv/ax-client/preparation/c4-fork-jfs-base-01/cold-base-check/exit.json",
+      "sha256": "8f23a18898297391b24923dd1f00ec4c40549c62d4db8f0f1358a2cba34169fe",
+      "bytes": 54,
+      "role": "pool-b-client"
+    },
+    "capacity.json": {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-jfs-01/capacity.json",
+      "sha256": "0a78c82490363b98f53734e0c567cc078ad679a4084160b9c2568d3679969e91",
+      "bytes": 5521,
+      "role": "coordinator"
+    },
+    "locks-held.json": {
+      "path": "/srv/ax-pilot-control/fork-control-01/batch-jfs-01/locks-held.json",
+      "sha256": "36272cc9f6a2ac141e4ccdcd5c8fdb1042cdfebc163df3c6c2382cd919ada105",
+      "bytes": 733,
+      "role": "coordinator"
+    },
+    "runtime-binding.json": {
+      "path": "/srv/ax-pilot-control/fork-control-01/runtime-15-01/binding.json",
+      "sha256": "eb08a7fe5824a6c8d887d660c947aa3f61e760a497b810d8ae1200f12b132ad4",
+      "bytes": 4121,
+      "role": "coordinator"
+    },
+    "cross-pool.json": {
+      "path": "/srv/ax-pilot-control/fork-control-01/hardware-15-01/cross-pool.json",
+      "sha256": "aef12a62d4d74f5e1e117799b6b25e90964c3eccc1884020b8e087667a8a6f38",
+      "bytes": 14866,
+      "role": "coordinator"
+    },
+    "off1-cohort.json": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/jfs-off1/cohort/result.json",
+      "sha256": "24ac1fdbddcdca21460e4138af5e4b916211393e9f36ba2f7314ee9bc9c75726",
+      "bytes": 3121,
+      "role": "coordinator"
+    },
+    "off1-timed.json": {
+      "path": "/srv/ax-client/w/c4-b-jfs-off1/measure/result.json",
+      "sha256": "93ff274d1b3e1fbceb908d8dfc931799bbd20c735f1e11dce3b49f668788af9b",
+      "bytes": 966,
+      "role": "pool-b-client"
+    }
+  },
+  "systemd": {
+    "MainPID": "98681",
+    "ExecMainStartTimestamp": "Wed 2026-11-11 15:27:34 CST",
+    "ExecMainStatus": "0",
+    "ExecStart": "{ path=/usr/bin/python3 ; argv[]=/usr/bin/python3 /srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py --request /srv/ax-pilot-control/preparation/c4-setup-01/batch.request.reviewed.json --sha256 55b389b5ffd4f9b99f382a49549b66427ff65a736a5c6bbbd015a24a87f0552c ; ignore_errors=no ; start_time=[Wed 2026-11-11 15:27:34 CST] ; stop_time=[n/a] ; pid=98681 ; code=(null) ; status=0/0 }",
+    "ActiveState": "active",
+    "SubState": "running",
+    "InvocationID": "caa3114512094e75bf6bd3cb457f2ea9"
+  },
+  "at": "2026-11-11T08:01:11.630146+00:00",
+  "schema": "c4-b-live-evidence-v1",
+  "scope": "Original base preparation, current batch admission and first timed calibration; not a formal sample."
+}

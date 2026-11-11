@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "systemd-run",
+    "--unit=ax-pilot-b-c4-jfs-100k-01",
+    "--property=Type=exec",
+    "--property=WorkingDirectory=/srv/ax-pilot-control/code-15",
+    "--property=StandardOutput=append:/srv/ax-pilot-control/preparation/c4-setup-01/c4-batch.stdout",
+    "--property=StandardError=append:/srv/ax-pilot-control/preparation/c4-setup-01/c4-batch.stderr",
+    "python3",
+    "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py",
+    "--request",
+    "/srv/ax-pilot-control/preparation/c4-setup-01/batch.request.reviewed.json",
+    "--sha256",
+    "55b389b5ffd4f9b99f382a49549b66427ff65a736a5c6bbbd015a24a87f0552c"
+  ],
+  "request": {
+    "path": "/srv/ax-pilot-control/preparation/c4-setup-01/batch.request.reviewed.json",
+    "sha256": "55b389b5ffd4f9b99f382a49549b66427ff65a736a5c6bbbd015a24a87f0552c"
+  },
+  "source_tool": {
+    "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py",
+    "sha256": "622df0f62387853a724725d2eaf5dc87077752600b0a573488d06de07285b340"
+  }
+}

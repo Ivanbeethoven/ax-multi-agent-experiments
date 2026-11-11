@@ -1,6 +1,6 @@
 # C4执行与观测
 
-已实现下述入口，小文件回归通过；尚未执行云端C4，也未把功能预演计作正式样本。只支持JuiceFS `clone -p`和BrewFS `flat-v1`完整拷贝；其余臂直接拒绝。
+下述入口支持 JuiceFS `clone -p` 和 BrewFS `flat-v1` 完整拷贝。其他臂另走各自的原生路径。基线准备、校准和正式样本分别记账。
 
 ```bash
 python3 "$FROZEN_REPO/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py" \
@@ -35,8 +35,16 @@ python3 "$FROZEN_REPO/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batc
 
 部署须冻结新代码目录，不能覆盖正在运行的code12/13或已冻结code14。旧draft-02只是code14功能预演请求，不能直接用于本formal入口。
 
-本轮coordinator已建立`/srv/ax-pilot-control/fork-control-01`，仅准备小文件，尚无state。具体请求草稿在`/srv/ax-pilot-control/preparation/c4-setup-01/drafts-01/`，待B原C3完整关闭、原始归档交接后执行。code15位于`/srv/ax-pilot-control/code-15`，manifest另存`preparation/code-15/manifest.json`；不要假定代码目录里存在`.code-manifest.json`。
+本轮 coordinator 为 `/srv/ax-pilot-control/fork-control-01`。原草稿位于 `/srv/ax-pilot-control/preparation/c4-setup-01/drafts-01/`；B 组完成 C3 交接后，用 code15 实际部署与探测生成了新的 `batch.request.reviewed.json`。code15 的清单另存 `preparation/code-15/manifest.json`，不在代码目录内。
 
 [setup-c4-control.py](scripts/setup-c4-control.py)的`control/runtime/hardware`动作分别保留原证据、只更新空闲本池runtime、派生代码路径变化后的硬件资格；指定`--runtime-repo /srv/ax-pilot-control/code-15`可独立分发使用。原硬件/API采样时间不改，另记派生时间和源证明；未更新的另一池不重新探测。`runtime`要求原C3关闭及C2数据准备证明，持原canonical锁，并检查`c123-control-01`、`c3-stage-fixed-01`等实际旧state。
 
 [draft-c4-requests.py](scripts/draft-c4-requests.py)从实际code manifest生成6校准+1正式的具体请求。草稿始终`reviewed=false`；先取得实际runtime、硬件及当前collector证明，再新建reviewed请求，保留原稿。coordinator准备原始回执见`evidence/preparation/c4-setup-coordinator-01/`。两项新helper的5个小回归通过；准备不计C4实验完成。
+
+2026-11-11 B 组 JuiceFS 实跑从 15:27 开始。一次导入 100,000×4 KiB，用时 566.71 秒；随后完整 fsync 281.98 秒。两次零债务采样、正常卸载、新缓存全量读回均通过，冷读回用时 614.22 秒。容量门槛通过。第一次 off 校准的 clone 到首读核对成功为 3.2304 秒，完整 child fsync 为 291.7176 秒；这两个数仍属校准。原请求、容量、基线和首轮计时回执见 [`c4-b-live-01`](evidence/preparation/c4-b-live-01/)。
+
+新的 reviewed 请求可显式设 `calibration_verification: "touched-cold-v1"`。基线准备、第一轮校准和正式样本仍全量冷读回。随后五轮重挂载后核对父子目录的完整路径、类型、大小和权限；父目录还须匹配完整的 inode、归属、链接数、mtime 和 ctime 指纹。逐个冷读并核对所有被改、改名、新建及首读路径；删除路径必须确实消失。挂载与卸载、两次原生零债务、观测、归档不变。缩减的只有 `measure-end` 后未改文件的内容读回；六轮计时仍使用原 leaf，包含完整创建、首读、全量 fsync 和固定修改。缩减核验回执显式标记 `full_cold_child: false`，只用于校准。
+
+B 组第一轮校准完整冷核验通过，用时 1181.66 秒。原归档在卸载回执写出与 supervisor 退出之间读到 slot 非空，原批次以失败关闭；随后的三个角色探针确认无残留。用 `continue-c4-formal.py recover-first` 从原工作路径补齐并逐成员核对归档，无需重跑或重挂。`resume-c4-trials.py` 在同一物理锁下保留原 off1、基线和计划，按原顺序继续五轮。只读补录父目录指纹用时 82.96 秒，覆盖 100,101 个条目、读取文件内容 0 字节；它单独绑定原 off1 全量冷读回证明。后续每轮使用原 code15 计时 leaf，只在计时后调用新核验工具。原挂载回执没有 `cell_id`：准入检查以各自挂载规格 SHA、anchor、mount ID 和原 PID/boot/start ticks 绑定；两个挂载可复用同一数字 mount ID。回执见 [`c4-b-resume-01`](evidence/preparation/c4-b-resume-01/)。
+
+正式完成后，[audit-c4-handoff.py](scripts/audit-c4-handoff.py) 绑定原请求、继续请求、SHA、systemd unit 和 invocation，确认批次正常退出、旧阶段无相交 lease、七个试验的进程与挂载均已关闭、slot 空且原 collector 仍在。当前协调节点的一次性 watcher 仅在这些检查全通过后写 `/srv/ax-pilot-control/fork-control-01/handoff-b-c4-to-c2-01/result.json`；它不启动下一负载，也不重试失败步骤。
