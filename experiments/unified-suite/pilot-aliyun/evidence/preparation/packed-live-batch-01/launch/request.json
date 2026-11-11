@@ -1,0 +1,128 @@
+{
+  "schema": "packed-c3-one-cell-pipeline-v1",
+  "reviewed": true,
+  "cell_id": "16f4ac389d2a2da6-r1-packed",
+  "out": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-packed-pc301-live",
+  "commands": [
+    {
+      "name": "pairs",
+      "argv": [
+        "python3",
+        "/srv/ax-pilot-control/code-packed-controller-03/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py",
+        "pairs",
+        "--request",
+        "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/pairs-request.json",
+        "--out",
+        "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/pairs"
+      ]
+    },
+    {
+      "name": "admit",
+      "argv": [
+        "python3",
+        "/srv/ax-pilot-control/code-packed-controller-03/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py",
+        "admit",
+        "--context",
+        "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/formal-context.json",
+        "--overhead",
+        "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/pairs/overhead/result.json",
+        "--capacity-budget",
+        "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/capacity-alias-01/result.json",
+        "--latest",
+        "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/latest.json",
+        "--cross-pool-qualification",
+        "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/result.json"
+      ]
+    },
+    {
+      "name": "formal",
+      "argv": [
+        "python3",
+        "/srv/ax-pilot-control/code-packed-controller-03/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py",
+        "run",
+        "--context",
+        "/srv/ax-pilot-control/parallel-control-01/cells/16f4ac389d2a2da6-r1-packed/context.json"
+      ]
+    }
+  ],
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-02/run-packed-c3-pipeline-02.py",
+      "sha256": "750e85a7016b58aea91dd733d42d4f6aa2e1bb9f49c157e965791276e7ec6e92"
+    },
+    {
+      "path": "/srv/ax-pilot-control/code-packed-controller-03/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py",
+      "sha256": "59e1a40330db8077f9dfca97b736f830318fd7e5d7f318cb70744d83ce1a4b5c"
+    },
+    {
+      "path": "/srv/ax-pilot-control/code-packed-controller-03/experiments/unified-suite/pilot-aliyun/scripts/check-packed-c3-live-calibration.py",
+      "sha256": "70ea78c93e2d2287e84a155f9708ea783fb86cdc46acd4146bbda5cfb22dca2d"
+    },
+    {
+      "path": "/srv/ax-pilot-control/code-packed-controller-03/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-capacity.py",
+      "sha256": "0cf68c39da285cce4d2adb5c3917b67a43816341ec6854f2cf12ea897fb5c5cf"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/formal-context.json",
+      "sha256": "edbfb448273d9a0656ca811a5209c55751c68abe983b24b20cbf6d76b79324a0"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/pairs-request.json",
+      "sha256": "6240a46aaacbbf03f690cef2920eebd8beae97cb6cad054951b2d3290c61923b"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/capacity-alias-01/result.json",
+      "sha256": "24d56451e8aed8d99c2bedc98fd7e8e7c359d4052206101612a1c69b1046eba5"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c3-packed-01/packed/filesystem.json",
+      "sha256": "5d447de66ea85873971b5bc1b187dda5e4c6bac640f587c292a2887f542297d1"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/latest.json",
+      "sha256": "0ec46d4278d1d22e8a6152d4531bee02d139620a5fdff87f62d4834e23bd3963"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/binding.json",
+      "sha256": "bba6f0242f97a06438783d293769fa77f7de58e180c87885a6abc34f943efdde"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/result.json",
+      "sha256": "fcdfe806fb7b5d77710ae89b0359590c6ec540454750cb19c1697b072f1ebbce"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/contexts/p-c301-off1.json",
+      "sha256": "72531c4478243ecce0ec5a12261e238309b9ce0faa8b621ba100b6ecfdba2850"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/contexts/p-c301-on1.json",
+      "sha256": "edb29a9db2dde6d26fa808682741434d24a80535f008b2b7c073d36ead9f72fe"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/contexts/p-c301-on2.json",
+      "sha256": "da3ef4e2b48070c80b6b1467288ed13fc95c2ad196c7de7968ebe36833506adf"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/contexts/p-c301-off2.json",
+      "sha256": "42b10ec96b7d530ad830427f7ef95f7a5937f1ece3b04badd9b9c82255932e31"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/contexts/p-c301-off3.json",
+      "sha256": "864aa5711229af6a8614a425cd0453ad7923236a9c16972f57911e7813ed5907"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/contexts/p-c301-on3.json",
+      "sha256": "6c03b597aa349f134499873bd5d474b3e191ac04e482c8d0b4943ca40acc9ddb"
+    }
+  ],
+  "cloud_qualification": {
+    "path": "/srv/ax-client/qualification/parallel-c3-packed-cold-02/result.json",
+    "sha256": "19dbf93a2777b0d4ab4a820cc876fb1d1351d9107e507b9c8424b226f9a309dd"
+  },
+  "automatic_retry": false,
+  "next_cell": false,
+  "review": {
+    "reviewer": "pilot-operator",
+    "basis": "Same six full timed 100k workloads with post-timing live touched + immutable identity checks; formal remains full cold. Both original full qualifications and current capacity passed; no new resources."
+  }
+}

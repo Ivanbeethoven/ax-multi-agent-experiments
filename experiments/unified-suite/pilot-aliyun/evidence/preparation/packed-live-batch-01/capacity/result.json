@@ -1,0 +1,661 @@
+{
+  "schema": "packed-c3-capacity-v1",
+  "passed": true,
+  "cell_id": "16f4ac389d2a2da6-r1-packed",
+  "pool": "pool-a",
+  "plan_sha256": "0feb04c5e52a28aa26d648386a5887aaffb5a792a7c579f5da25cd78f220a108",
+  "inventory_sha256": "f85605a02eea141c110c79cfb794bd2acaa83fc80b081cad7619f355ebc3aef1",
+  "base_preparation": {
+    "path": "/srv/ax-client/preparation/parallel-c3-packed-base-01/result.json",
+    "sha256": "51dde9af750dc45f645f544a9c61a011481afd303abd32b14dfcc7d87225e846"
+  },
+  "qualification": {
+    "path": "/srv/ax-client/qualification/parallel-c3-packed-cold-02/result.json",
+    "sha256": "19dbf93a2777b0d4ab4a820cc876fb1d1351d9107e507b9c8424b226f9a309dd"
+  },
+  "before": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/capacity-alias-01/before.json",
+    "sha256": "5194458177efdbc23db0c806ae06de25529bb268a2b53eb6ac060a90147fa0cd"
+  },
+  "after": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/capacity-alias-01/after.json",
+    "sha256": "b8fb93f6bd4754cb39cc1fff5e598505e72370cbf5fe1db936d8a908b8e8586b"
+  },
+  "reserve_fraction": 0.2,
+  "extra_full_copies": 7,
+  "rows": [
+    {
+      "role": "client",
+      "path": "/srv/ax-client",
+      "quantity": "bytes",
+      "before_available": 83788251136,
+      "after_available": 83257430016,
+      "observed_window_increment": 530821120,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 79541682176,
+      "total": 100056096768,
+      "before_total_unknown": true,
+      "passed": true
+    },
+    {
+      "role": "client",
+      "path": "/srv/ax-client",
+      "quantity": "inodes",
+      "before_available": 23707590,
+      "after_available": 23702341,
+      "observed_window_increment": 5249,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 23665598,
+      "total": 26214400,
+      "before_total_unknown": true,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "path": "/srv/ax-metadata",
+      "quantity": "bytes",
+      "before_available": 59378155520,
+      "after_available": 59357290496,
+      "observed_window_increment": 20865024,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 59211235328,
+      "total": 60070604800,
+      "before_total_unknown": true,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "path": "/srv/ax-metadata",
+      "quantity": "inodes",
+      "before_available": 15599637,
+      "after_available": 15596066,
+      "observed_window_increment": 3571,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 15571069,
+      "total": 15728640,
+      "before_total_unknown": true,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "quantity": "used_memory",
+      "before": 90038392,
+      "after": 91517976,
+      "observed_window_increment": 1479584,
+      "extra_full_copies": 7,
+      "projected": 101875064,
+      "limit": 10737418240,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "quantity": "aof_current_size",
+      "before": 41303418,
+      "after": 43868124,
+      "observed_window_increment": 2564706,
+      "extra_full_copies": 7,
+      "projected": 61821066,
+      "limit": null,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-0",
+      "quantity": "bytes",
+      "before_available": 27322253312,
+      "after_available": 26174349312,
+      "observed_window_increment": 1147904000,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 18139021312,
+      "total": 60070604800,
+      "before_total_unknown": true,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-0",
+      "quantity": "inodes",
+      "before_available": 15034972,
+      "after_available": 15020702,
+      "observed_window_increment": 14270,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 14920812,
+      "total": 15728640,
+      "before_total_unknown": true,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-1",
+      "quantity": "bytes",
+      "before_available": 54157062144,
+      "after_available": 53805785088,
+      "observed_window_increment": 351277056,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 51346845696,
+      "total": 60070604800,
+      "before_total_unknown": true,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-1",
+      "quantity": "inodes",
+      "before_available": 15231976,
+      "after_available": 15223047,
+      "observed_window_increment": 8929,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 15160544,
+      "total": 15728640,
+      "before_total_unknown": true,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-2",
+      "quantity": "bytes",
+      "before_available": 54157074432,
+      "after_available": 53805801472,
+      "observed_window_increment": 351272960,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 51346890752,
+      "total": 60070604800,
+      "before_total_unknown": true,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-2",
+      "quantity": "inodes",
+      "before_available": 15231976,
+      "after_available": 15223047,
+      "observed_window_increment": 8929,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 15160544,
+      "total": 15728640,
+      "before_total_unknown": true,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-3",
+      "quantity": "bytes",
+      "before_available": 54157033472,
+      "after_available": 53805756416,
+      "observed_window_increment": 351277056,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 51346817024,
+      "total": 60070604800,
+      "before_total_unknown": true,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-3",
+      "quantity": "inodes",
+      "before_available": 15231976,
+      "after_available": 15223047,
+      "observed_window_increment": 8929,
+      "observed_available_increase": false,
+      "extra_full_copies": 7,
+      "projected_available": 15160544,
+      "total": 15728640,
+      "before_total_unknown": true,
+      "passed": true
+    }
+  ],
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-02/capacity-request.json",
+      "sha256": "1ce320b497a6cd852564e851bb0fe6f94f10249a0b9b04c0b766ecd34d9d1060"
+    },
+    {
+      "path": "/srv/ax-pilot-control/code-packed-controller-03/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-capacity.py",
+      "sha256": "0cf68c39da285cce4d2adb5c3917b67a43816341ec6854f2cf12ea897fb5c5cf"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/fleet.json",
+      "sha256": "f85605a02eea141c110c79cfb794bd2acaa83fc80b081cad7619f355ebc3aef1"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-shared-01/hardware.json",
+      "sha256": "108a948b8f17c59084d600e65a04f97f06bc3ae1383cc76c87123385d894df7f"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/data/pool-a-client-spec.json",
+      "sha256": "3592411238e1af9eb21980c78d61394c24ea33f74d6452babd335a497d0b5d55"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/data/pool-a-metadata-spec.json",
+      "sha256": "edc06fd6b280e05c187a8aa43ff11a4dd7a1c4926a33b2c246394b1de914b108"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/data/pool-a-objects-spec.json",
+      "sha256": "fd2e4bc48b6d8c7d434f4d0d8de1d68cc65fd1d30d58e1c4482f0f6f2327aae9"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/capacity-alias-01/raw/client/stdout",
+      "sha256": "4473642cca4e90ff39d7f0a06d4a0531aa2ee3879d72cd763309dd19ae02efee"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/capacity-alias-01/raw/metadata/stdout",
+      "sha256": "3b2b726923594a70f476c7826a7ad0c3efbec06a7c6e58f8a1521ccbec3d071b"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/capacity-alias-01/raw/objects/stdout",
+      "sha256": "a1da5349158b6391a36743ea2f97ba3a3a44aee502388b5bd90c1fad47218be6"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/sample.json",
+      "sha256": "9bd98298b409fd1a139a5561396e59921e7d8a2b1505fafe8af9d766b9aa7ca9"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-stat.txt",
+      "sha256": "fcf274c435ecf5c6aa33729dcc34d3257ecf0be86e8d537d3586c6a84ced4003"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-meminfo.txt",
+      "sha256": "d128b1103fa9d1e096cb8480e6d3c9227d2cc08e3d883eee3410f4451eddf165"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-vmstat.txt",
+      "sha256": "39af99283d26fcb05b9cdd9508d57b1eea6b95b80807cff1417c062affe2a5a2"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-diskstats.txt",
+      "sha256": "6fd500763e15ad3518d061bbd8b24de6c2358ef910ecc10bfaeced505ad2ea4f"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-net-dev.txt",
+      "sha256": "b32c46750bbb5e03197eb2b10e9d7ddb3d848772269013c5ecb278f278269bd4"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-net-snmp.txt",
+      "sha256": "f0aaf91bf85b16fc86fd309e5a9319a0ae2156d8100824708ff46be30da5d96b"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-net-netstat.txt",
+      "sha256": "fe902c22b8ce497b0723128db7c94e0c42f3f16f35b329ea61c23adaa7b8f87a"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-pressure-cpu.txt",
+      "sha256": "649a8c42d404a564d7e6423e7a2055a30c7133c487bc6e4b12cd0b97daa2a725"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-pressure-memory.txt",
+      "sha256": "cf60bfc6ca1a025c403e8860c2e9a1b9415b010b7c7f2749323f87933f59246c"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-pressure-io.txt",
+      "sha256": "0834d639928d219f9cf7378c37d74ad3346fbb9feb49823d0bd4e7b4982ca0c2"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-cpu.stat.txt",
+      "sha256": "c89ac60f0d438cad5838d1ce47c02eeed8f1f04533bd0fb5f98562fe6a590c46"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-cpu.max.txt",
+      "sha256": "07eb5019b2babb019fbbfe1cb328ec5b7affac5e07da4b94ebedb5e110dfab69"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-memory.current.txt",
+      "sha256": "dd505941768cf07f282b06bf767a0670288037852d8df9827f8d5dbad4ffc3fb"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-memory.peak.txt",
+      "sha256": "6eb9334a8b350ca12a731de4c6dfdd97f51deca40039e7a07b87e006dd1b04e7"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-memory.max.txt",
+      "sha256": "8528d39f97fdd9c9689c4373fe4c7b18f2c3bef6b044a2c4be74b07bf9cd07d8"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-memory.events.txt",
+      "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-memory.swap.current.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-memory.swap.max.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-io.stat.txt",
+      "sha256": "29f51268eee3841a598db5abbe3d6104942cbbbfad2fab07532051c5b15c162f"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-cpu.pressure.txt",
+      "sha256": "2bb6f9f87756d964267572f95e3b06dc7d23be58352bbad17bb55ef4c364dd7a"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-memory.pressure.txt",
+      "sha256": "dc0f7175c5b7e41df9673ad3b7d60a35ee2fbfa2226de10a2b19a62d56e505d0"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-io.pressure.txt",
+      "sha256": "663785c22fc8e3dda8b48c425c33b7bcfd97c2ec5fa338359ddfdcbdbf525478"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/agent-pids.current.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/pid-1-stat.txt",
+      "sha256": "2fe70838868faa3a7053dd09b45cd558a721a43585365bc11dc909f906603a3e"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/pid-1-status.txt",
+      "sha256": "957bfc37ce1ed6381c2f3948c91ce54965c75679d87da7e3c14defe35d907502"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/client/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/pid-1-io.txt",
+      "sha256": "a9a14247dbfa0775946d04ca01bbe70dd76d555a9ba1c20c108782454011475c"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/sample.json",
+      "sha256": "5cd931ada318f06339d708f3fbc0b1bde826db4b19d2389cc506cff31556594f"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-stat.txt",
+      "sha256": "2ea158e004f3f8cdd3eddde35e074e269b3eb63902963c2ff1c48baabc8969ed"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-meminfo.txt",
+      "sha256": "c442c49eb4674854e9523b7e069adb321ac278a447bf3f3df7fc7305e1f1c0ff"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-vmstat.txt",
+      "sha256": "e40478acf0d4bcce597ca97ba8d73c2c5ca8acbd70fc0f250225c5abbd4273ca"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-diskstats.txt",
+      "sha256": "fb05ccb95c4fbee03b8bc395fd4bdfbdeb63f4320a0bc64d96f4e569250b5a30"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-net-dev.txt",
+      "sha256": "574194714003f9b3b9fd8d4b81e08d36a5a1147bc2db8f9d59f9251330746104"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-net-snmp.txt",
+      "sha256": "d833995f1f6f6a2130c38930cc60cc646d64174c861e415a9cc674e1d899d34e"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-net-netstat.txt",
+      "sha256": "46309a1517bfbcf164bab2f268fcf4df2fdd8079a597fd70c61f82baf03c210c"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-pressure-cpu.txt",
+      "sha256": "421a63cfe0f91a22d5b7c45136a9ea9fdfc2ae0ad620917ab801e294b0f466d7"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-pressure-memory.txt",
+      "sha256": "7889e0d0552291cd6072b2756b89c404949c3e4bc3f5abc76eb3e83408d75097"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/host-pressure-io.txt",
+      "sha256": "92108a76f357ae8e7620ca9a97a0a9f9040609d039663a375731b70424914b26"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-cpu.stat.txt",
+      "sha256": "fcbb6ef01d87262911d5713353326101e7ec6cac15acdfb3879505b38b3a8d5c"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-cpu.max.txt",
+      "sha256": "309af899ee7bd98ba4868342f16baa2390cf24d9739ca56ff680875f7113b426"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-memory.current.txt",
+      "sha256": "ee1b9c680455ea02c19c14c9d1ee7ebda6afc8adcb90ca85ed5c3453819b674a"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-memory.peak.txt",
+      "sha256": "ed800c6f1458720f3d1d03cd70060b6ba84ea4afbaf77a3f43a1f592f00dddd6"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-memory.max.txt",
+      "sha256": "a630e4856aa63a81f6d753cdda664d7488fcf285b0091c48d498b0f430f9ecd1"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-memory.events.txt",
+      "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-memory.swap.current.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-memory.swap.max.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-io.stat.txt",
+      "sha256": "a924bd4c8ee64a22c0ed97a6cd43e7ce0514f0bac0b5cbb0d9445378c19fc650"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-cpu.pressure.txt",
+      "sha256": "4a4909b239222a686414fd892c26488f056a6eec1903085961467f80b87bb693"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-memory.pressure.txt",
+      "sha256": "412d920370f34151bf0ed4a09cb00c0495ef7d8f922049744e873bbc34c2f17f"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-io.pressure.txt",
+      "sha256": "19ef2ec40f9e5b8a2d7aba42c6f4b9be4c707f2159f54f23e8e19549b6997af1"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis-process-pids.current.txt",
+      "sha256": "06e9d52c1720fca412803e3b07c4b228ff113e303f4c7ab94665319d832bbfb7"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/pid-9779-stat.txt",
+      "sha256": "e7a334d37e7d2b7141e7f3c78d91403c831ced07c3d22eebe68620d410a48279"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/pid-9779-status.txt",
+      "sha256": "b3ae5abf1a9f8c2e335e2144a36ca06600221ff43d434edef4e44befef9c439c"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/pid-9779-io.txt",
+      "sha256": "e60cc2d4d714fc273e9ac47802ada58ce2f3cce0d3813c42535176d9a7f3b624"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/metadata/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000035/redis.txt",
+      "sha256": "90d8ac659eb981893d28908915b69897aa112b0841bb76d868dcfea492d42c2e"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/sample.json",
+      "sha256": "4b382ae91015090e07070c5b7ea63ba90a8b463fac11401b22b052dd2c888428"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/host-stat.txt",
+      "sha256": "7a958f4676de9caa917426123cdc9db7bb14bf5e0c997f583d4d747a2ae529fb"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/host-meminfo.txt",
+      "sha256": "e50a473987f9fc2673a7b3ed43e0617e1ed5578f9fc5840e5b06f36f5efa692f"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/host-vmstat.txt",
+      "sha256": "e75169e2b2aacc46e470182d2f2be835b5052d98fb76b05a06115553b1d66970"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/host-diskstats.txt",
+      "sha256": "6f4caa09b8e93f9fa0180cf7b32d1f917ca0fcf87583db3041162cba58b23972"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/host-net-dev.txt",
+      "sha256": "1bb98c72e21eb8e1148f62c64b0429d9e9201a8f5f610565e460ed1dd8962074"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/host-net-snmp.txt",
+      "sha256": "10122ded5872c508262d0e9dd8369a7087fa3702ecd7a5d313383c9da8b3b20f"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/host-net-netstat.txt",
+      "sha256": "5b1ccad400b65ded03ba2ed922d575e3751cf5888ab8a61b5a87a463a6929672"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/host-pressure-cpu.txt",
+      "sha256": "fcc2e298ae69a282583f20ad1a85fe6a762e9654a019fc23cfe8a5258113822a"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/host-pressure-memory.txt",
+      "sha256": "dbd6db5a1643282477e6c25a4563a727e73ae068d20f5471bd5de336b16e611b"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/host-pressure-io.txt",
+      "sha256": "f88df533f452ce371bc14fc31340044bb0c19451181fa63ab42adaa37e8ca0d8"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-cpu.stat.txt",
+      "sha256": "999017ec7e3418718ef575ca451006af36d3ad319aadbc6a810ee641767c0414"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-cpu.max.txt",
+      "sha256": "2f8bd783be33cf80b6a2a0cf810f81ccf85f988c72c9bb76fa6172b6e4ec2b02"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-memory.current.txt",
+      "sha256": "76b6205b6df2d277e70dc817abeb8fd8e6368b2814af4c4647a43315bf4a82f4"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-memory.peak.txt",
+      "sha256": "c67625706c656b4a345a7c4bd96c1e43cb623793b4f4ccead020de8c1b3140ae"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-memory.max.txt",
+      "sha256": "e15b6050a0ee6ea43f29cb46cec0ddcc207f00fe520854aeecfdceb86a9ea799"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-memory.events.txt",
+      "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-memory.swap.current.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-memory.swap.max.txt",
+      "sha256": "dbe7218fd3953d71eac340668b850fe4b57278326a462a0cf0ad506efbf8b02e"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-io.stat.txt",
+      "sha256": "a1e588e7a52daebacdd74642ec3bf252025c2a92d159f26009862a9c482d01ed"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-cpu.pressure.txt",
+      "sha256": "10a51280dad34bbe4fbbda94fb307693fbcd7d80d3a303fac50191e15e44789a"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-memory.pressure.txt",
+      "sha256": "1f6804015fc0a818754d6bdcd808c154bf17f45cb4344077f3cd118cb3f12498"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-io.pressure.txt",
+      "sha256": "972004b7ea89517fa4d686645980441503b1035d29e6ed69c833039d2d160b13"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs-process-pids.current.txt",
+      "sha256": "95cf32708a31caa478a0e9141103ac567d85e5186e697e7e0c81f75589999e31"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-cpu.stat.txt",
+      "sha256": "8ce6e196a149a395ab486c2515bb0470eb9dc1d24e1c48e7a279db0134935fe5"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-cpu.max.txt",
+      "sha256": "261369fa24cb11ef3776980c85360401b9cdc7cf51aaa7a27e7acad94d662607"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-memory.current.txt",
+      "sha256": "9ec049c8d71aa0eba69c3beed7d5c99b862053d4db3dd623ee8d87d3899b5076"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-memory.peak.txt",
+      "sha256": "cf1d72c99a40a9ca89c11afc20f3cac0e6e163727a0aa76850b0c4cf04650b56"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-memory.max.txt",
+      "sha256": "0be2ad7435fd88ddcce418aa053f6e472d9f792fc972f4211202bdba076bb4c7"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-memory.events.txt",
+      "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-memory.swap.current.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-memory.swap.max.txt",
+      "sha256": "0be2ad7435fd88ddcce418aa053f6e472d9f792fc972f4211202bdba076bb4c7"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-io.stat.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-cpu.pressure.txt",
+      "sha256": "dd2471a7149f49fe8824f845fe84fd2b45e3a30f6f12af333854305e614a5cb0"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-memory.pressure.txt",
+      "sha256": "412d920370f34151bf0ed4a09cb00c0495ef7d8f922049744e873bbc34c2f17f"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-io.pressure.txt",
+      "sha256": "c5cd59d1260d9ddb6f5041d7d7c6ddf1fd5e3d3d33bd0da3756c9d25d3bbc566"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector-process-pids.current.txt",
+      "sha256": "aa67a169b0bba217aa0aa88a65346920c84c42447c36ba5f7ea65f422c1fe5d8"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/pid-7170-stat.txt",
+      "sha256": "3199d88b87d7ef70c63ed761df4de71b7590a30cc587a723f0d3d0bd582d2539"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/pid-7170-status.txt",
+      "sha256": "d8473bbc2a4682b7c1e50364bff5f76541e67feddeb57cb516612dd993bcd191"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/pid-7170-io.txt",
+      "sha256": "2495942afd9e7fba181b60c480744aa52f4571e9713553c0a32acc80c83a5299"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/pid-73993-stat.txt",
+      "sha256": "b70b5390929c4feec7bf4eb4bf9ba4a22574b9a000ee04ca7fb651ea5328c4fb"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/pid-73993-status.txt",
+      "sha256": "b98a056ada5d2a91143f9fb5e998a10bc9026febbab2bd3d7c703190ddd1f09b"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/pid-73993-io.txt",
+      "sha256": "ea27821ba59ee46bc3487638a5625224e3fa51547c269b15da740d663e25e331"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/rustfs.txt",
+      "sha256": "c7468dc318e992511420abcffe06b4dd3d2294de645dadc3a2e8ae36f4f52716"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/cells/05357b5089cd679c-r1-native/raw/objects/o/c2-fa630431ea12-05357b5089cd679c-r1-native/sample-000032/collector.txt",
+      "sha256": "b8af99fa62ae5ec222a1b6ec16df219f65c22f03efbc08da32238c5c2e6eb9e7"
+    }
+  ],
+  "scope": "Conservative observed-window growth includes C2 archive/code/setup and full Packed parent plus qualification upper. Forecasts seven additional full-window copies on every retained data disk and Redis; does not claim exact producer attribution or clone savings. Before filesystem totals were not recorded."
+}

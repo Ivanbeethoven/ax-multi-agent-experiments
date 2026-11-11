@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "original_request": {
+    "path": "/srv/ax-pilot-control/preparation/packed-live-draft-interface-01/source.json",
+    "sha256": "e94eb7aaf695d589e45c52b1b68d4dac0c564658637a6e89f089cec6b4b95a78"
+  },
+  "formal_context": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/formal-context.json",
+    "sha256": "edbfb448273d9a0656ca811a5209c55751c68abe983b24b20cbf6d76b79324a0"
+  },
+  "full_cold_qualification": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c3-packed-01/packed/filesystem.json",
+    "sha256": "5d447de66ea85873971b5bc1b187dda5e4c6bac640f587c292a2887f542297d1"
+  },
+  "remote_helper": {
+    "path": "/srv/ax-client/code-packed-calibration-01/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-calibration-node.py",
+    "sha256": "f2b34ce0df60452e8596c7c218cec97617b3b7ed159a83eeea9a7f3b6994f1ab"
+  },
+  "helper_pin_command": [
+    "ssh",
+    "-F",
+    "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/ssh.conf",
+    "pool-a-client",
+    "sha256sum /srv/ax-client/code-packed-calibration-01/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-calibration-node.py"
+  ],
+  "draft": {
+    "path": "/srv/ax-pilot-control/preparation/packed-live-draft-interface-01/draft/pairs-request.draft.json",
+    "sha256": "298b82b9e026eec052521b166a4bab09e2c5b5963378340e293974bcbf24e59b"
+  },
+  "measured_workload_started": false
+}

@@ -1,0 +1,335 @@
+{
+  "schema": "c2-juicefs-coordinator-draft-v1",
+  "execution_enabled": false,
+  "reviewed": false,
+  "at": "2026-11-11T07:49:04.625059+00:00",
+  "cell_id": "05357b5089cd679c-r1-juicefs",
+  "pool": "pool-b",
+  "candidate_database": 80,
+  "plan": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/suite/plan.json",
+    "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+  },
+  "runtime_control": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c2-runtime15-01/binding.json",
+    "sha256": "e6fece41ca1b8d5c9b5efe01a2b41f574c1c01375e8cf2feca2a5d5c267afe1d"
+  },
+  "source": {
+    "manifest_sha256": "71a0661b82a433e9d14da29287a2bc1860460015d4887031f90a03ff5451a021",
+    "binary_sha256": "35c45abd910d826ea17b5d6dfc750c7083cda5e8ce8f3bbe5ef77a78ffbea1aa",
+    "case": "/srv/ax-client/trace-exact-02/cases/pytest-full-02",
+    "manifest": "/srv/ax-client/trace-exact-02/manifest-replay-inputs-03.json",
+    "binary": "/srv/ax-client/assets/bin/full-fuse-replay-parent-fd-01",
+    "verified_bytes": 914193836,
+    "manifest_files": 67577,
+    "initial_entries": 714
+  },
+  "tools": {
+    "prepare-c2.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/prepare-c2.py",
+      "sha256": "e2127bc10e463683e939f743d2cc8ea590151801c06ca02becdfdef69bb8438f"
+    },
+    "prepare-c2-controller.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/prepare-c2-controller.py",
+      "sha256": "5e4d6fb22a4fa59f82295927c36b3ab39d479e5a7bb5e4d59c0d1941c3ed7c99"
+    },
+    "attest-client-binary.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/attest-client-binary.py",
+      "sha256": "9f61124a63d2085574d29b21bc13eae5bc75189df25f101d53071d1607a57d51"
+    },
+    "draft-one-c1.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/draft-one-c1.py",
+      "sha256": "bcc933b978a3c84be2f5c7685e4bcba59e0c66031511c46b11ba8e9fb5cc8764"
+    },
+    "run-one-c1.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/run-one-c1.py",
+      "sha256": "c4e397edce3b851f6ffb1e55267788b125f9aa53b4b698392363788715bc38e8"
+    },
+    "calibrate-c1.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c1.py",
+      "sha256": "818360e8773de9c48ecc0e6e1953b5b0c15253d478c85e97f215a1728927813c"
+    },
+    "check-calibration.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/check-calibration.py",
+      "sha256": "293ab55cfdb52a48a04776c9b81532fb87e933e8c3e482a279c9e3d28e619fce"
+    },
+    "admit-c1.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/admit-c1.py",
+      "sha256": "bec5fcbaf7d2dbd590408f804ac02a9b18f2584e9b9c318943c6ed58967937ed"
+    },
+    "run-c1.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/run-c1.py",
+      "sha256": "2994774e4d53423b33985204be89b01d8af2319e106a70e2a1d1f069e5a680e6"
+    },
+    "pilot-node.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+      "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+    },
+    "make-observer.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/make-observer.py",
+      "sha256": "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff"
+    },
+    "qualify-trace.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py",
+      "sha256": "c034eab754b524bb49fc85e77c76847e3ef88ec7ddb0802e1a66a668d4061e3f"
+    },
+    "capacity-check.py": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+      "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+    }
+  },
+  "remote_tools": {
+    "pilot-node.py": {
+      "path": "/srv/ax-client/code-15/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+      "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+    },
+    "make-observer.py": {
+      "path": "/srv/ax-client/code-15/experiments/unified-suite/pilot-aliyun/scripts/make-observer.py",
+      "sha256": "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff"
+    },
+    "qualify-trace.py": {
+      "path": "/srv/ax-client/code-15/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py",
+      "sha256": "c034eab754b524bb49fc85e77c76847e3ef88ec7ddb0802e1a66a668d4061e3f"
+    }
+  },
+  "commands": {
+    "capacity_before": [
+      "python3",
+      "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+      "snapshot",
+      "--control",
+      "/srv/ax-pilot-control/parallel-control-01",
+      "--pool",
+      "pool-b",
+      "--objects-container",
+      "abc0a432b493e0a820a380738e359532921693e82e015d5c9982868084e33893",
+      "--out",
+      "/srv/ax-pilot-control/parallel-control-01/capacity-b-c2-01/before.json",
+      "--runtime-control",
+      "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c2-runtime15-01/binding.json",
+      "--runtime-control-sha256",
+      "e6fece41ca1b8d5c9b5efe01a2b41f574c1c01375e8cf2feca2a5d5c267afe1d"
+    ],
+    "client_qualification": [
+      "python3",
+      "/srv/ax-client/preparation/c2-juicefs-01/prepare-c2.py",
+      "--product",
+      "juicefs",
+      "--asset",
+      "/srv/ax-client/a/parallel-c2-juicefs-01",
+      "--database",
+      "80",
+      "--plan",
+      "/srv/ax-client/preparation/parallel-control-01/plan.json",
+      "--case",
+      "/srv/ax-client/trace-exact-02/cases/pytest-full-02",
+      "--replay-binary",
+      "/srv/ax-client/assets/bin/full-fuse-replay-parent-fd-01",
+      "--node-tool",
+      "/srv/ax-client/code-15/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+      "--node-tool-sha256",
+      "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858",
+      "--qualifier",
+      "/srv/ax-client/code-15/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py",
+      "--qualifier-sha256",
+      "c034eab754b524bb49fc85e77c76847e3ef88ec7ddb0802e1a66a668d4061e3f",
+      "--attempt",
+      "bc201",
+      "--filesystem-binary",
+      "/srv/ax-client/assets/bin/juicefs",
+      "--filesystem-binary-sha256",
+      "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+      "--inventory",
+      "/srv/ax-client/preparation/parallel-control-01/inventory.json",
+      "--portable-terminal-probe",
+      "--cache-parent-fds",
+      "--out",
+      "/srv/ax-client/qualification/parallel-c2-juicefs-01"
+    ],
+    "collect_qualification": [
+      "python3",
+      "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/prepare-c2-controller.py",
+      "--control",
+      "/srv/ax-pilot-control/parallel-control-01",
+      "--shared-qualification",
+      "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c2-runtime15-01/shared",
+      "--product",
+      "juicefs",
+      "--route",
+      "/srv/ax-client/qualification/parallel-c2-juicefs-01",
+      "--asset",
+      "/srv/ax-client/a/parallel-c2-juicefs-01",
+      "--case",
+      "/srv/ax-client/trace-exact-02/cases/pytest-full-02",
+      "--manifest",
+      "/srv/ax-client/trace-exact-02/manifest-replay-inputs-03.json",
+      "--binary",
+      "/srv/ax-client/assets/bin/full-fuse-replay-parent-fd-01",
+      "--verifier",
+      "/srv/ax-client/code-15/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py",
+      "--cache-parent-fds",
+      "--out",
+      "/srv/ax-pilot-control/parallel-control-01/qualification/pool-b-c2-01",
+      "--runtime-control",
+      "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c2-runtime15-01/binding.json",
+      "--runtime-control-sha256",
+      "e6fece41ca1b8d5c9b5efe01a2b41f574c1c01375e8cf2feca2a5d5c267afe1d"
+    ],
+    "attest_client": [
+      "python3",
+      "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/attest-client-binary.py",
+      "--qualification",
+      "/srv/ax-pilot-control/parallel-control-01/qualification/pool-b-c2-01/juicefs",
+      "--ssh-config",
+      "/srv/ax-pilot-control/fork-control-01/runtime-15-01/ssh.conf",
+      "--client-alias",
+      "pool-b-client",
+      "--release",
+      "/srv/ax-pilot-control/parallel-control-01/provenance/juicefs-release.json",
+      "--admitter",
+      "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/admit-c1.py",
+      "--build-manifest",
+      "/srv/ax-pilot-control/parallel-control-01/provenance/build-manifest.json",
+      "--route-key",
+      "complete_route",
+      "--mount-spec",
+      "/srv/ax-client/qualification/parallel-c2-juicefs-01/mount/mount.reviewed.json"
+    ],
+    "capacity_after": [
+      "python3",
+      "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+      "snapshot",
+      "--control",
+      "/srv/ax-pilot-control/parallel-control-01",
+      "--pool",
+      "pool-b",
+      "--before",
+      "/srv/ax-pilot-control/parallel-control-01/capacity-b-c2-01/before.json",
+      "--objects-container",
+      "abc0a432b493e0a820a380738e359532921693e82e015d5c9982868084e33893",
+      "--out",
+      "/srv/ax-pilot-control/parallel-control-01/capacity-b-c2-01/after.json",
+      "--runtime-control",
+      "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c2-runtime15-01/binding.json",
+      "--runtime-control-sha256",
+      "e6fece41ca1b8d5c9b5efe01a2b41f574c1c01375e8cf2feca2a5d5c267afe1d"
+    ],
+    "capacity_budget": [
+      "python3",
+      "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+      "budget",
+      "--before",
+      "/srv/ax-pilot-control/parallel-control-01/capacity-b-c2-01/before.json",
+      "--after",
+      "/srv/ax-pilot-control/parallel-control-01/capacity-b-c2-01/after.json",
+      "--extra-full-copies",
+      "7",
+      "--reserve",
+      "0.2",
+      "--out",
+      "/srv/ax-pilot-control/parallel-control-01/capacity-b-c2-01/budget.json"
+    ],
+    "draft_six_and_formal": [
+      "python3",
+      "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/draft-one-c1.py",
+      "--control",
+      "/srv/ax-pilot-control/parallel-control-01",
+      "--qualification",
+      "/srv/ax-pilot-control/parallel-control-01/qualification/pool-b-c2-01",
+      "--cell",
+      "05357b5089cd679c-r1-juicefs",
+      "--calibrator",
+      "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c1.py",
+      "--checker",
+      "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/check-calibration.py",
+      "--admitter",
+      "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/admit-c1.py",
+      "--runner",
+      "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/run-c1.py",
+      "--node-tool",
+      "/srv/ax-client/code-15/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+      "--node-tool-sha256",
+      "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858",
+      "--observer-tool-name",
+      "make-observer.py",
+      "--observer-tool-sha256",
+      "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff",
+      "--collector-name",
+      "ax-pilot-c4-b-jfs-on3-collector",
+      "--collector-out",
+      "/srv/ax-objects-0/q/c4-b-jfs-on3-collector",
+      "--attempt-suffix",
+      "c201",
+      "--run-directory",
+      "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/05357b5089cd679c-r1-juicefs-c201",
+      "--latest-check",
+      "/srv/ax-pilot-control/parallel-control-01/provenance/latest-before-b-c2-01.json",
+      "--cross-pool-qualification",
+      "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c2-runtime15-01/cross-pool.json",
+      "--out",
+      "/srv/ax-pilot-control/parallel-control-01/requests/pool-b-juicefs-c2-01.json",
+      "--runtime-control",
+      "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c2-runtime15-01/binding.json",
+      "--runtime-control-sha256",
+      "e6fece41ca1b8d5c9b5efe01a2b41f574c1c01375e8cf2feca2a5d5c267afe1d"
+    ]
+  },
+  "client_helper_install": {
+    "source": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/prepare-c2.py",
+      "sha256": "e2127bc10e463683e939f743d2cc8ea590151801c06ca02becdfdef69bb8438f"
+    },
+    "destination": "/srv/ax-client/preparation/c2-juicefs-01/prepare-c2.py",
+    "overwrite": false
+  },
+  "remote_plan": {
+    "path": "/srv/ax-client/preparation/parallel-control-01/plan.json",
+    "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+  },
+  "remote_inventory": {
+    "path": "/srv/ax-client/preparation/parallel-control-01/inventory.json",
+    "sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e"
+  },
+  "filesystem_binary": {
+    "path": "/srv/ax-client/assets/bin/juicefs",
+    "sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+  },
+  "blocked_until": [
+    "C4 owner hands off B after normal closure and retention; verify its actual final collector matches this recipe.",
+    "Check all actual campaign databases for B leases and hold the common physical runner locks throughout preparation and six trials/formal.",
+    "Verify actual current B hostname/boot/worker hashes, old remote plan/inventory hashes, empty slot, candidate DBSIZE=0 and absent new asset/route/output paths.",
+    "Capture before capacity before any C2 backend write; execute complete strict replay and original cold readback, then collect/attest/after snapshot. Budget seven additional full-copy costs and 20% reserve.",
+    "Record a fresh actual branch-tip receipt and require unchanged frozen builds. Generate the real reviewed six-trial request only after all qualifications and capacity pass."
+  ],
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/recheck-tools-pool-b-01/experiments/unified-suite/pilot-aliyun/scripts/draft-c2-juicefs.py",
+      "sha256": "d9f7af44a5399e1002ff012fd0577448e409c0031d1bc0ab001da85e2e0309c0"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/preparation-commands/b-c2-input-copy-01/result.json",
+      "sha256": "6e07e2a69d4c3c4f7a5ef5cafa56c8ad17cde10ee6557681f2160d855bdfa028"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-b-shared-02/assets/juicefs/asset.json",
+      "sha256": "1ea77372aafb573aa65199a6aaa37e35d2a2e21c801c316e25c833eb22a433fc"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c2-runtime15-01/shared/hardware.json",
+      "sha256": "0a90b218eae214d5d2c1693d1a02ccd157e6ea2546b92a92195933c35c095424"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c2-runtime15-01/shared/juicefs/metrics.json",
+      "sha256": "99d13e8f63a5beeff630c45ea27eeea6273d37617e404742d8b575d8d9751b17"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c2-runtime15-01/cross-pool.json",
+      "sha256": "76e97e4b310ee85fd59a8bdfd35de260f065bbba912f179abab4233d2c55c9fe"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/drafts/pool-b-c2-runtime15-01/shared/rustfs-source.json",
+      "sha256": "74178ad7ebd8d36c70aa1f5d77315ab8549742e71f8ed4544ab83f3fea8ed879"
+    }
+  ],
+  "scope": "Only a future recipe; no worker contacted, service changed, database selected in Redis, qualification asserted, calibration reused, or cell claimed. Full fixed trace includes repository and HOME/XDG state; no model calls."
+}

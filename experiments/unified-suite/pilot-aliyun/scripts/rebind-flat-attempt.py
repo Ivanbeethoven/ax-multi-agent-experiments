@@ -6,6 +6,7 @@ from copy import deepcopy
 from datetime import datetime,timezone
 import json
 from pathlib import Path
+import re
 import runpy
 import shlex
 import shutil
@@ -47,15 +48,65 @@ def command(out,name,argv,input=None):
     return (folder/'stdout').read_text()
 
 
+COLLECTOR_FIELDS=('image_reference','runtime_image','network','config_sha256','prometheus_port',
+    'otlp_http_port','source_timestamps','container_memory_bytes','container_cpus','limiter_mib')
+
+
+def collector_identity(original,current):
+    if original['name']==current['name'] or original['container_id']==current['container_id']:
+        raise ValueError('A replacement must identify a different named container')
+    if any(original[k]!=current[k] for k in (*COLLECTOR_FIELDS,'image_id','args','runtime_limits')):
+        raise ValueError('Current collector image, config or resource settings differ from the calibrated collector')
+    if not current['running'] or current['runtime_limits'] != dict(network='host',memory=512*1024**2,
+            nano_cpus=10**9,read_only=True):
+        raise ValueError('Matching collector is not running with the calibrated resource settings')
+    return dict(passed=True,original=original,current=current,configuration_unchanged=True)
+
+
+def collector_probe(out,control,pool,original,replacement):
+    old=[original['final_collector_name'],original['final_collector_out']]
+    new=[replacement['name'],replacement['out']]
+    for name,directory in (old,new):
+        if not re.fullmatch(r'ax-pilot-[a-z0-9-]+',name) or not re.fullmatch(r'/srv/ax-objects-0/q/[a-z0-9-]+',directory):
+            raise ValueError('Expected named pilot collector with a dedicated original receipt')
+    code=r'''import pathlib,subprocess,json,hashlib,sys
+def get(name,directory):
+    directory=pathlib.Path(directory)
+    path=directory/'started.json';b=path.read_bytes();receipt=json.loads(b)
+    conf=directory/'collector.json'
+    row=json.loads(subprocess.check_output(['docker','inspect',name]))[0]
+    host=row['HostConfig'];mounts=row['Mounts'];labels=row['Config']['Labels']
+    if (row['Id']!=receipt['container_id'] or labels.get('ax.pilot.owner')!=name
+        or hashlib.sha256(conf.read_bytes()).hexdigest()!=receipt['config_sha256']
+        or len(mounts)!=1 or mounts[0]['Source']!=str(conf)
+        or mounts[0]['Destination']!='/etc/otelcol-contrib/pilot.json' or mounts[0]['RW']):
+        raise ValueError('Collector runtime or immutable receipt differs')
+    limits=dict(network=host['NetworkMode'],memory=host['Memory'],nano_cpus=host['NanoCpus'],read_only=host['ReadonlyRootfs'])
+    return dict({k:receipt[k] for k in FIELDS},name=name,container_id=row['Id'],image_id=row['Image'],
+        args=row['Args'],running=row['State']['Running'],runtime_limits=limits,
+        start_receipt=dict(path=str(path),sha256=hashlib.sha256(b).hexdigest()))
+print(json.dumps([get(*json.loads(value)) for value in sys.argv[1:]]))
+'''.replace('FIELDS',repr(COLLECTOR_FIELDS))
+    rows=json.loads(command(out,'collector-equivalence',['ssh','-F',control/'ssh.conf',alias(pool,'objects'),
+        shlex.join(['python3','-c',code,json.dumps(old),json.dumps(new)])]))
+    proof=collector_identity(*rows)
+    write_new(out/'collector-equivalence.json',proof)
+    return proof['current']['name']
+
+
 def prepare(request):
     s=load(request)
     if s.get('schema')!='flat-attempt-rebind-v1' or s.get('reviewed') is not True:raise ValueError('Explicit reviewed new campaign required')
     original=load(pinned(s['original_request']));source=Path(original['control']);old=load(source/'suite/plan.json')
     plan,cell=rebound_plan(old,original['cell_id'],s['campaign']);pool=pool_of(cell);runtime=pilot_context.select(source,original.get('runtime_control'))
     close=load(pinned(s['failed_attempt_close']))
-    if close.get('outcome')!='failed' or close.get('performance_started') is not False or close.get('cell_id')!=cell['id']:raise ValueError('Retained original before-work failure required')
+    if (close.get('outcome')!='failed' or close.get('performance_started') is not False or
+            close.get('cell_id')!=cell['id'] or close.get('plan_sha256')!=old['plan_sha256']):
+        raise ValueError('Retained original plan-bound before-work failure required')
     with suite_state.transaction(source/'state.sqlite') as db:
-        if db.execute('SELECT status FROM cells WHERE id=?',(cell['id'],)).fetchone()[0]!='failed':raise ValueError('Old failed attempt must be closed without reset')
+        row=db.execute('SELECT status,result FROM cells WHERE id=?',(cell['id'],)).fetchone()
+        if row[0]!='failed' or json.loads(row[1])!=s['failed_attempt_close']:
+            raise ValueError('Old failed attempt must be closed without reset with this exact proof')
     out=Path(s['control']);q=out/'qualification';oldq=Path(original['qualification']);arm=cell['arm_id']
     with resource_guard(source,cell,old):
         if active_conflicts(source,cell,old):raise ValueError('Original physical pool is reserved')
@@ -146,9 +197,12 @@ def formal(request,sha):
                 value=json.loads(command(out,'preflight-'+role,['ssh','-F',control/'ssh.conf',alias(pool,role),shlex.join(['python3','-c',code])]))
                 if value['boot_id']!=load(control/'probes'/alias(pool,role)/'probe.json')['boot_id'] or value['observer_sha256']!=old['observer_tool']['sha256']:raise ValueError('Inherited actual hardware or observer changed')
                 if role=='client' and (value['slot'].strip() or value['node_sha256']!=old['node_tool']['sha256']):raise ValueError('Slot busy or original worker helper changed')
+            collector=old['final_collector_name']
+            if s.get('replacement_collector'):
+                collector=collector_probe(out,control,pool,old,s['replacement_collector'])
             argv=['python3',admit,'--control',control,'--qualification',q,'--overhead',overhead,'--cell',cell['id'],
                 '--node-tool',old['node_tool']['path'],'--node-tool-sha256',old['node_tool']['sha256'],'--observer-tool-name',old['observer_tool']['name'],
-                '--observer-tool-sha256',old['observer_tool']['sha256'],'--collector-name',old['final_collector_name'],'--latest-check',latest_path,
+                '--observer-tool-sha256',old['observer_tool']['sha256'],'--collector-name',collector,'--latest-check',latest_path,
                 '--cross-pool-qualification',control/'cross-pool-inheritance.json','--owner',old['owner'],'--out',cellout]
             command(out,'admit',argv);command(out,'formal',['python3',run,'--context',cellout/'context.json'])
             write_new(out/'result.json',dict(passed=True,cell_id=cell['id'],closing=ref(control/'cells'/(cell['id']+'.close.json')),prepared=s['prepared'],automatic_retry=False))

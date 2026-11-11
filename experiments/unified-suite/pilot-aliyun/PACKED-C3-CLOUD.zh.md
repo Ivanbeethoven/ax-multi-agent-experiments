@@ -68,7 +68,11 @@ new_collector_name: 需要从off切回on时使用的新名字
 
 `attempt`必须每轮不同。保留runtime12 fleet/peer时，显式把client observer/node/entity工具指向实际新代码目录；其余角色可继续用原冻结工具。不得拿旧fleet.repo猜新helper路径。
 
-`pairs-request.json`为`{"schema":"packed-c3-pairs-v1","reviewed":true,"contexts":[六个context的pin],"checker":原check-calibration.py的pin}`。六轮固定`off,on,on,off,off,on`，各有不同out/attempt，其余绑定相同。每个on后一个off的`collector_name/out`要指向前一轮实际新collector。每轮执行完整八阶段、native排空、正常停、原child/parent只读冷验和三角色原档；校准只写`finished.json`，不claim正式格、不写sample。原checker负责5%门禁。
+`pairs-request.json`为`{"schema":"packed-c3-pairs-v1","reviewed":true,"contexts":[六个context的pin],"checker":校验脚本的pin}`。六轮固定`off,on,on,off,off,on`，各有不同out/attempt，其余绑定相同。切回off时，`collector_name/out`指向前一轮实际启用的collector。每轮仍执行完整八阶段，保留8份CSV、两次native零债务和正常退出；开启采集的三轮保留三个角色的原始数据。校准不领取正式格，不写正式样本。
+
+已有通过完整冷读的100k资格结果时，可以只在校准中缩短计时后的校验。六个context使用相同的`calibration_verification: live-touched-v1`，绑定`calibration_node`（client上`packed-c3-calibration-node.py`的pin）和`full_cold_qualification`（协调者`qualification/packed/filesystem.json`的pin）；`checker`使用`check-packed-c3-live-calibration.py`。每轮在`measure-end`后用原`smallfiles verify-touched`逐一读回256个修改文件（共1 MiB），核对大小、权限、属主和链接数。退出后再用native status核对子空间已静止、父空间的标识及lower digest未变。采集开销门禁对makespan和任务P99分别计算三对`on/off−1`的中位数，二者绝对值都须不超过5%；回执显式记录`full_namespace_cold: false`。正式context不带这三个校准字段，保留自己的完整子空间和父空间冷读。
+
+`draft-packed-c3-live.py --source ORIGINAL_PAIRS.json --formal-context context.json --checker "$TOOLS/check-packed-c3-live-calibration.py" --calibration-node "$CLIENT_TOOL" --calibration-node-sha256 "$CLIENT_TOOL_SHA" --out "$DRAFT"` 可生成上述六轮绑定。它检查已有完整资格与client脚本，输出`reviewed:false`的草稿，不启动任务。复核后另存批准的request再交给`pairs`；先确认六个输出目录均未使用。
 
 `capacity-request.json`字段：
 
@@ -82,6 +86,8 @@ objects_container: 当前原RustFS容器名或ID
 extra_full_copies: 7; reserve_fraction: 0.2
 ```
 
-容量脚本只在该池空闲时运行。核验原before全部raw文件、采样早于producer、相同boot和原服务PID；after读取实际statvfs、lsblk serial、Redis INFO和原正常停止证明。before只有可用量，不补总量。预算包含观察窗口内归档/部署开销、完整parent和资格upper，并保守预留七个同量副本；不声称精确producer增量或克隆节省。当前A的原before来自C2最后三角色sample，原spec在`hardware-inputs-01/data/pool-a-*-spec.json`。
+容量脚本只在该池空闲时运行。核验原before全部raw文件、采样早于producer、相同boot和原服务PID；after读取实际statvfs、lsblk serial、Redis INFO和原正常停止证明。RustFS容器可经bind别名挂盘，四个源路径必须与各盘`rustfs-data`目录的设备号及inode逐一相同。before只有可用量，不补总量。预算包含观察窗口内归档/部署开销、完整parent和资格upper，并保守预留七个同量副本；不声称精确producer增量或克隆节省。当前A的原before来自C2最后三角色sample，原spec在`hardware-inputs-01/data/pool-a-*-spec.json`。
 
 正式`run`由原state逐stage写intent、调用原cohort、原archive_check/suite_validate、封存后由原finish释放资源。只检查真实单mount；reader/probe/observer/worker原进程、两份原生零债务和三角色raw均需正常收尾。workload-specific entity系列在原measure-end sample检查，缺项拒绝。小fixture通过只代表接口检查；正式完成须以云上原样本和报告验收为准。
+
+正式批次退出后，`audit-packed-c3-close.py --context "$CELL_OUT/context.json" --pipeline "$PIPELINE_OUT/result.json" --unit "$UNIT" --out "$HANDOFF"` 检查当前A池是否可以交给下一项：原state已关闭、无lease、原进程和挂载已消失、槽位空闲，并记录实际collector的名称和目录。它只检查交接边界，不另启动任务或停止现有服务；原档验收另用`suite_report.sample`。

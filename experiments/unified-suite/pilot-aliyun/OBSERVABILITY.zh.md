@@ -34,3 +34,13 @@ OTEL_RESOURCE_ATTRIBUTES=rustfs.cluster.id=<本轮独立集群ID>
 本轮开/关校准保留两种客户端内置计数与指标入口，并保留RustFS的OTLP发送逻辑；切换的是三角色外部采样、抓取和OTLP接收器。JuiceFS 1.4.2省略`--metrics`仍会开启默认入口，不能据此写成“内置指标已关闭”，见[该版本实现](https://github.com/juicedata/juicefs/blob/v1.4.2/cmd/mount.go)。两侧均使用新挂载和空客户端缓存，接收器按实际容器ID正常停止，新启动保存新名字、配置和PID。关闭接收器期间不报告后端计数覆盖；开启试验重新核时间戳和接收状态。内置计数的成本属于各系统当前二进制，本轮不声称测出了移除这部分代码的开销。
 
 部署时用systemd的`IOAccounting=yes`保持I/O控制器开启：执行节点的system.slice和Redis服务均设置，并实测各自cgroup的`io.stat`。只向root的`cgroup.subtree_control`写`+io`会被systemd收回，本轮已实际遇到并保留失败。客户端正式采集绑定准备、测量和冷读回三个原始监督目录；同一时刻只挂载一个，其他入口明确记为尚未开始或正常停止。cgroup来源ID加`-process`，避免与同名HTTP/Redis指标入口冲突。
+# 正式样本的分阶段计数
+
+[summarize-flat-observations.py](scripts/summarize-flat-observations.py) 从已验收的正式样本读取三角色原始采集。给定正式单元目录、关闭回执和新输出文件，分别计算应用运行、整个测量和排空阶段的计数差值：
+
+```bash
+python3 experiments/unified-suite/pilot-aliyun/scripts/summarize-flat-observations.py \
+  --cell "$CELL_DIR" --close "$CLOSE_JSON" --out "$NEW_JSON"
+```
+
+[C2 BrewFS](evidence/progress/observation-deltas-01/c2-native.json)与[C3 JuiceFS](evidence/progress/observation-deltas-01/c3-juicefs.json)已从云端原档生成。每个区间用该节点自己的单调时钟；缺失的计数项保留为空。Redis计数包含采集请求，RustFS有导出延迟，宿主磁盘统计含其他进程。文件系统逻辑字节、对象请求体字节和磁盘扇区字节分别保留。

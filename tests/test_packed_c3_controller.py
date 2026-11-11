@@ -155,4 +155,19 @@ class PackedController(unittest.TestCase):
         self.assertTrue(load(result['parent_verify']['path'])['passed'])
 
 
+class ObjectBindIdentity(unittest.TestCase):
+    def test_aliases_must_point_to_the_exact_original_directories(self):
+        tools=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts'
+        check=runpy.run_path(str(tools/'packed-c3-capacity.py'))['check_object_binds']
+        paths=[f'/srv/ax-objects-{i}' for i in range(4)]
+        aliases=[f'/srv/ax-rustfs-data-{i}' for i in range(4)]
+        dirs={path:dict(device=10+i,inode=100+i) for i,path in enumerate(paths)}
+        snapshot=dict(container=dict(mounts=[dict(Source=alias,Destination=f'/data/rustfs{i}',Type='bind',RW=True)
+            for i,alias in enumerate(aliases)]),disks=[dict(path=path,device=dirs[path]['device']) for path in paths],
+            data_directories=dirs,container_bind_directories={alias:dict(dirs[paths[i]]) for i,alias in enumerate(aliases)})
+        check(snapshot,paths)
+        snapshot['container_bind_directories'][aliases[0]]['inode']+=1
+        with self.assertRaisesRegex(ValueError,'not the original'):check(snapshot,paths)
+
+
 if __name__=='__main__':unittest.main()

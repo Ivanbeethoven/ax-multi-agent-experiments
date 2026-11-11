@@ -47,6 +47,12 @@ def remote_snapshot(request):
     if request['role']=='objects':
         fmt='{"id":{{json .Id}},"image":{{json .Image}},"pid":{{json .State.Pid}},"running":{{json .State.Running}},"restarts":{{json .RestartCount}},"mounts":{{json .Mounts}}}'
         result['container']=json.loads(command(['docker','inspect','--format',fmt,request['objects_container']]))
+        def identity(path):
+            value=Path(path).stat()
+            return dict(device=value.st_dev,inode=value.st_ino)
+        result['data_directories']={path:identity(Path(path)/'rustfs-data') for path in request['paths']}
+        result['container_bind_directories']={mount['Source']:identity(mount['Source']) for mount in result['container']['mounts']
+            if mount['Destination'].startswith('/data/rustfs') and mount['Type']=='bind'}
     if request['role']=='client':
         if Path('/sys/fs/cgroup/ax-slot-1/cgroup.procs').read_text().strip():raise ValueError('Packed qualification must be completely stopped')
         result['documents']={key:original(request[key]) for key in ('base_started','base_preparation','qualification')}
@@ -66,6 +72,22 @@ def remote_snapshot(request):
 def redis(raw):
     values=dict(line.split(':',1) for line in raw.splitlines() if ':' in line and not line.startswith('#'))
     return {key:int(values[key]) for key in ('used_memory','used_memory_rss','maxmemory','aof_current_size','process_id')}
+
+
+def check_object_binds(snapshot,paths):
+    """Bind mount aliases are valid only if their device and inode match the original data directory."""
+    mounts=[mount for mount in snapshot['container']['mounts'] if mount['Destination'].startswith('/data/rustfs')]
+    disks={disk['path']:disk['device'] for disk in snapshot['disks']}
+    if (set(disks)!=set(paths) or len(set(disks.values()))!=len(paths) or len(mounts)!=len(paths) or
+            {mount['Destination'] for mount in mounts}!={f'/data/rustfs{i}' for i in range(len(paths))} or
+            len({mount['Source'] for mount in mounts})!=len(paths)):
+        raise ValueError('Exactly four original object storage mounts required')
+    for mount in mounts:
+        index=int(mount['Destination'].removeprefix('/data/rustfs'));path=paths[index]
+        original=snapshot['data_directories'][path]
+        if (mount['Type']!='bind' or mount['RW'] is not True or original['device']!=disks[path] or
+                snapshot['container_bind_directories'].get(mount['Source'])!=original):
+            raise ValueError('Object bind source is not the original data directory and disk: '+path)
 
 
 def before_sample(pin,started_at,boot,paths):
@@ -156,8 +178,7 @@ def run(request,out):
             if role=='objects':
                 service=current['container']
                 if not service['running'] or service['restarts'] or service['pid'] not in [p['pid'] for p in old['original_processes']]:raise ValueError('Original object service changed')
-                binds=[m['Source'] for m in service['mounts'] if m['Destination'].startswith('/data/rustfs')]
-                if len(binds)!=4 or any(not any(Path(bind)==Path(path) or Path(path) in Path(bind).parents for path in paths) for bind in binds):raise ValueError('Object service uses another data path')
+                check_object_binds(current,paths)
             before[role]=old
         rows=forecast(before,actual,s['extra_full_copies'],s['reserve_fraction'])
         write_new(out/'before.json',dict(measurement_basis='available',nodes=before,source_pins=pins))

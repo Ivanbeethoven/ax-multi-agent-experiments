@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-11T07:48:34.521251+00:00",
+  "argv": [
+    "systemd-run",
+    "--unit",
+    "ax-pilot-pa-packed-c3-runtime14-live-01",
+    "--collect",
+    "--property=Type=exec",
+    "--property=StandardOutput=append:/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/pipeline.stdout",
+    "--property=StandardError=append:/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/pipeline.stderr",
+    "python3",
+    "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-02/run-packed-c3-pipeline-02.py",
+    "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/pipeline-request.json"
+  ],
+  "request": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/pipeline-request.json",
+    "sha256": "da8d06f61bcde6ff6f9113f181a33dcb3ce369159fe4c13359b7ff953dc84763"
+  },
+  "automatic_retry": false
+}

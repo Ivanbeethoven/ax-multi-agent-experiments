@@ -47,6 +47,22 @@ class PackedMethods:
         self.base=ROOTS['client']+'/q/'+self.tag;self.main=ROOTS['client']+'/m/'+self.tag
         self.asset=ROOTS['client']+'/a/'+self.tag;self.qualification=Path(self.s['qualification'])/'packed'
         self.binding=load(self.qualification/'binding.json') if (self.qualification/'binding.json').exists() else None
+        if self.purpose=='experiment' and self.s.get('calibration_verification'):
+            raise ValueError('Formal cells always require original full cold verification')
+
+    def live_calibration(self):
+        return self.purpose!='experiment' and getattr(self,'s',{}).get('calibration_verification')=='live-touched-v1'
+
+    def calibration_node(self,action,**fields):
+        b=self.binding
+        common=dict(base_asset=b['base_asset'],asset=self.asset,plan=b['plan_remote'],cell=self.id,manifest=b['manifest_remote'],
+                    entity_tool=self.s['entity_tool']['path'],entity_tool_sha256=self.s['entity_tool']['sha256'],
+                    probe=b['tools']['probe']['path'],probe_sha256=b['tools']['probe']['sha256'])
+        argv=['python3',self.s['calibration_node']['path'],action]
+        for key,value in {**common,**fields}.items():
+            if isinstance(value,dict):value=json.dumps(value,separators=(',',':'))
+            argv+=['--'+key.replace('_','-'),str(value)]
+        return self.remote('client',argv)
 
     def entity(self,action,**fields):
         argv=['python3',self.s['entity_tool']['path'],action]
@@ -66,6 +82,14 @@ class PackedMethods:
             pin=base['filesystem_binary'] if name=='brewfs' else b['tools']['probe' if name=='entity_metadata_probe' else 'binary']
             if pin['sha256']!=wanted:raise ValueError('Bound binary differs from frozen build')
         pins=[self.s['node_tool'],self.s['entity_tool'],base['filesystem_binary'],*b['tools'].values()]
+        if self.live_calibration():
+            pins.append(self.s['calibration_node'])
+            full=load(pinned(self.s['full_cold_qualification']))
+            if full.get('passed') is not True or full.get('cell_id')!=self.id or self.s['full_cold_qualification']!=ref(self.qualification/'filesystem.json'):
+                raise ValueError('Actual retained complete cold qualification required for calibration')
+            for name in ('cold_child','cold_parent'):
+                proof=load(pinned(full['proofs'][name]))
+                if proof.get('passed') is not True or proof.get('files')!=self.cell['params']['files']:raise ValueError('Incomplete reused original cold proof')
         for pin in pins:
             if self.remote('client',['sha256sum',pin['path']]).split()[0]!=pin['sha256']:raise ValueError('Deployed packed input changed')
         if self.remote('client',['sha256sum',b['base_asset']+'/asset.json']).split()[0]!=b['asset_manifest']['sha256']:
@@ -95,6 +119,7 @@ class PackedMethods:
         if stage=='observe-start':self.start_observers()
         elif stage=='create':
             self.entity('fresh',base_asset=b['base_asset'],asset=self.asset,plan=b['plan_remote'],cell=self.id,out=self.base+'/create')
+            if self.live_calibration():self.calibration_node('parent-snapshot',out=self.base+'/parent-before')
         elif stage=='mount':
             # Both calibration arms retain the native metrics endpoint and counter code.
             self.helper('draft-mount',cell=self.id,purpose='experiment',out=self.base+'/main')
@@ -115,12 +140,20 @@ class PackedMethods:
             if cohort.run(ref(self.out/'cohort.json'),self.out/'cohort')['passed'] is not True:raise ValueError('Work or native telemetry failed')
             self.mark('measure-end')
         elif stage=='drain':
+            if self.live_calibration():
+                self.calibration_node('live-check',source=b['source'],state_file=ROOTS['client']+'/w/'+self.tag+'/draft/workload/expected-touched.tsv',
+                    smallfiles=b['tools']['binary']['path'],smallfiles_sha256=b['tools']['binary']['sha256'],mount_run=self.main,out=self.base+'/live-check')
             self.entity('debt',asset=self.asset,plan=b['plan_remote'],cell=self.id,manifest=b['manifest_remote'],
                 probe=b['tools']['probe']['path'],probe_sha256=b['tools']['probe']['sha256'],out=self.base+'/debt')
             self.mark('drain-end')
         elif stage=='unmount':self.helper('stop',mount_run=self.main,out=self.base+'/exit.json')
         elif stage=='verify':
             stop=self.base+'/exit.json';sha=self.remote('client',['sha256sum',stop]).split()[0]
+            if self.live_calibration():
+                def remote_ref(path):return dict(path=path,sha256=self.remote('client',['sha256sum',path]).split()[0])
+                self.calibration_node('finish',normal_stop=stop,normal_stop_sha256=sha,
+                    live_check=remote_ref(self.base+'/live-check/result.json'),parent_before=remote_ref(self.base+'/parent-before/result.json'),out=self.base+'/verify')
+                self.mark('verify-end');return
             fields=dict(asset=self.asset,base_asset=b['base_asset'],plan=b['plan_remote'],cell=self.id,manifest=b['manifest_remote'],
                 source=b['source'],source_proof=b['source_proof_remote'],state_file=ROOTS['client']+'/w/'+self.tag+'/draft/workload/expected-touched.tsv',
                 normal_stop=stop,normal_stop_sha256=sha,private_object_env=b['private_object_env'],out=self.base+'/verify')
@@ -219,8 +252,16 @@ write_new(directory/'archive.json',archive);print(json.dumps(dict(closure=closed
         write_new(self.out/'work-packet.json',packet);write_new(self.out/'work-check.json',suite_validate.work(self.plan,self.id,packet))
         verification=load(q/'verify/result.json');stop=load(q/'exit.json')
         if verification['passed'] is not True or stop['passed'] is not True or not all(c['passed'] for c in closures):raise ValueError('Original readback or closure failed')
-        proof=dict(passed=True,cell_id=self.id,cold_child=ref(q/'verify/child-cold/verify.json'),parent_unchanged=ref(q/'verify/parent-cold/verify.json'),
-            original_route=ref(q/'verify/result.json'),normal_exit=ref(q/'exit.json'),cache_scope='One fresh entity namespace/cache; no FUSE reopen; server/page caches remain observed')
+        if self.live_calibration():
+            if verification.get('verification_mode')!='live-touched-v1' or verification.get('full_namespace_cold') is not False:raise ValueError('Explicit live-only calibration proof required')
+            proof=dict(passed=True,cell_id=self.id,verification_mode='live-touched-v1',full_namespace_cold=False,
+                original_route=ref(q/'verify/result.json'),live_check=ref(q/'live-check/result.json'),
+                parent_before=ref(q/'parent-before/result.json'),parent_after=ref(q/'verify/parent-after/result.json'),
+                child_status=ref(q/'verify/child-status/result.json'),normal_exit=ref(q/'exit.json'),
+                full_cold_qualification=self.s['full_cold_qualification'],namespace=verification['namespace'],volume=verification['volume'])
+        else:
+            proof=dict(passed=True,cell_id=self.id,cold_child=ref(q/'verify/child-cold/verify.json'),parent_unchanged=ref(q/'verify/parent-cold/verify.json'),
+                original_route=ref(q/'verify/result.json'),normal_exit=ref(q/'exit.json'),cache_scope='One fresh entity namespace/cache; no FUSE reopen; server/page caches remain observed')
         write_new(self.out/'verification.json',proof)
         client=closures[0];closed=dict(cell_id=self.id,passed=all(c['passed'] for c in closures),all_exited=all(c['all_exited'] for c in closures),all_unmounted=all(c['all_unmounted'] for c in closures),
             pending_upload_bytes=client['pending_upload_bytes'],pending_upload_operations=client['pending_upload_operations'],nodes=closures)
@@ -240,6 +281,12 @@ write_new(directory/'archive.json',archive);print(json.dumps(dict(closure=closed
                 checks=checks,required_observer_ids=[alias(self.pool,role) for role in ROOTS],required_marks=self.cell['observation_marks'],observers=observers,
                 metrics=metrics,timings_seconds={'native_measure':values['wall_seconds']},limitations=['One agent and one pilot repetition. Fresh client entity; shared backend/page caches remain observed.']))
         else:
+            if self.live_calibration():
+                write_new(self.out/'finished.json',dict(passed=True,at=utc(),cohort=ref(self.out/'cohort/result.json'),
+                    live_verification=ref(self.out/'verification.json'),normal_exit=ref(q/'exit.json'),work_check=ref(self.out/'work-check.json'),
+                    verification_mode='live-touched-v1',full_namespace_cold=False,full_cold_qualification=self.s['full_cold_qualification'],
+                    archives=archives,scope='Calibration only: unchanged eight phases, all touched bytes live, native double-zero and normal stop, parent identity; full cold qualification is referenced separately, not repeated or claimed for this trial.'))
+                return
             exits=[q/'verify/child-readback/exit.json',q/'verify/parent-readback/exit.json']
             passed=all(load(path)['exit_code']==0 for path in exits)
             write_new(self.out/'reader-exits.json',dict(passed=passed,normal_reader_exits=[ref(path) for path in exits],mount_reopened=False))
@@ -307,6 +354,13 @@ def collect(context,cloud_route,base_preparation,shared):
                      ('work_check',route['work_check']),('debt',route['native_debt']),('native_exit',route['normal_exit']),('original_readback',route['original_readback'])]:
         path=c.get('client',pin['path'],'proofs/'+name+'.json')
         if digest(path)!=pin['sha256'] or load(path).get('passed') is not True:raise ValueError('Changed or failed native cloud proof: '+name)
+        collected[name]=ref(path)
+    cold=load(collected['original_readback']['path'])
+    for name,key in [('cold_child','cold_child'),('cold_parent','parent_unchanged')]:
+        original=cold[key];path=c.get('client',original['path'],'proofs/'+name+'.json');value=load(path)
+        required=('passed','expected_tree_equal','expected_hardlinks_equal','namespace_unchanged','authority_unchanged','volume_rows_unchanged')
+        if digest(path)!=original['sha256'] or not all(value.get(k) is True for k in required) or value.get('files')!=files or value.get('logical_file_bytes')!=files*4096:
+            raise ValueError('Original full cold proof is incomplete: '+name)
         collected[name]=ref(path)
     source=load(collected['source']['path']);base_check=load(collected['full_base_check']['path'])
     if any(value.get('files')!=files or value.get('bytes_checked')!=files*4096 for value in (source,base_check)):
@@ -428,7 +482,7 @@ def pair_schedule(contexts):
     if [doc.get('purpose') for doc in docs]!=['observer-calibration-'+mode for mode in modes]:
         raise ValueError('Frozen counterbalanced off-on/on-off/off-on order required')
     if len({doc['out'] for doc in docs})!=6 or len({doc['attempt'] for doc in docs})!=6:raise ValueError('Six fresh distinct trials required')
-    for key in ('control','cell_id','qualification','runtime_control','base_runner','entity_tool','node_tool','observer_tools'):
+    for key in ('control','cell_id','qualification','runtime_control','base_runner','entity_tool','node_tool','observer_tools','calibration_verification','calibration_node','full_cold_qualification'):
         if any(doc.get(key)!=docs[0].get(key) for doc in docs[1:]):raise ValueError('Calibration changed the fixed route: '+key)
     return [dict(off=docs[0]['out'],on=docs[1]['out']),dict(on=docs[2]['out'],off=docs[3]['out']),dict(off=docs[4]['out'],on=docs[5]['out'])]
 

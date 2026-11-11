@@ -29,5 +29,15 @@ class FlatAttemptRebind(unittest.TestCase):
         self.assertEqual(view['plan'],newplan);self.assertEqual(view['mount_point'],'/new/asset/mnt')
         for key in ('config','bucket','database','seed','filesystem_binary'):self.assertEqual(view[key],old[key])
 
+    def test_replacement_collector_requires_same_runtime_and_config(self):
+        before={key:'expected' for key in CODE['COLLECTOR_FIELDS']}
+        before.update(name='old',container_id='1',image_id='pinned',args=['--config=/pilot'],
+            running=False,runtime_limits=dict(network='host',memory=512*1024**2,nano_cpus=10**9,read_only=True))
+        after=dict(before,name='new',container_id='2',running=True)
+        self.assertTrue(CODE['collector_identity'](before,after)['configuration_unchanged'])
+        for replacement in (dict(after,running=False),dict(after,config_sha256='changed'),dict(after,image_id='changed'),
+                            dict(after,runtime_limits=dict(after['runtime_limits'],memory=1))):
+            with self.assertRaises(ValueError):CODE['collector_identity'](before,replacement)
+
 
 if __name__=='__main__':unittest.main()
