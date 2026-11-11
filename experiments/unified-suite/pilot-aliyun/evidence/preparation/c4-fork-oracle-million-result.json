@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "at": "2026-11-11T01:41:59.133905+00:00",
+  "files": 1000000,
+  "tag": "pilot-child-01",
+  "base_tree": {
+    "path": "/home/hxy/ax-unified-pilot-prep/receipts/c4-fixture-tree.json",
+    "sha256": "9012238946c63c4310fbb7c61d60676a4dab4c1189cb54128c130675c7a8e76a"
+  },
+  "fixture": {
+    "path": "/home/hxy/ax-unified-pilot-prep/receipts/c4-fixture.json",
+    "sha256": "7c3657d226e6a54f4e3417ae50b9422d40be1fb1b2f804e7f46556bb1b6d364b"
+  },
+  "expected_tree": {
+    "path": "/home/hxy/ax-unified-pilot-prep/inputs/c4-fork-oracle-01/expected-tree.json",
+    "sha256": "d43cd96d730af6e354afe2937c285afa0d358807a44b0d4f75fc1d4adff92af9"
+  },
+  "first_read": {
+    "path": "d000000/f00000000",
+    "bytes": 4096,
+    "sha256": "0bf290b35af378e65f91b562806d1b4d4ce0743bb16efd2e858890175fc7f538"
+  },
+  "changed_operations": [
+    "overwrite",
+    "append",
+    "truncate",
+    "unlink",
+    "rename",
+    "new-file"
+  ],
+  "source_tree_mutated": false,
+  "tested_filesystem_accessed": false,
+  "source_tool_sha256": "820ab7d353274a979b4f51b22d38a98c1625c8abae4bf1d2a55a2ad8f333f705",
+  "scope": "Expected complete names/types/modes/bytes only. Actual fork timing, isolation, cold readback, ownership and durable exit require separate checks."
+}

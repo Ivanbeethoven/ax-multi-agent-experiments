@@ -34,7 +34,18 @@ python3 bench/fs_step.py first-read --root "$CHILD" --file d000000/f00000000 \
 python3 bench/fs_step.py mutate --root "$CHILD" --tag "$CHILD_ID" --output "$OUT/mutation.json"
 ```
 
-tag对每child唯一，挑战覆盖overwrite/append/truncate/unlink/rename/new-file及文件/目录fsync。挑战前先在独立本地副本生成预期最终树，保留规则与SHA；不能拿被测输出自身当expected。完整树检查使用 `fs_step check --expected ... --expected-sha256 ...`；利用immutable base+delta的独立验证器也需先资格通过。检查child远端最终状态、parent和兄弟不变、普通卸载/退出。大树完整遍历的实际时间全部记verification，不隐去慢项。
+tag对每child唯一，挑战覆盖overwrite/append/truncate/unlink/rename/new-file及文件/目录fsync。挑战前生成预期最终树：在独立本地副本执行固定修改，或使用先经交叉检查的生成器；保留规则与SHA，不能拿被测输出自身当expected。完整树检查使用 `fs_step check --expected ... --expected-sha256 ...`。检查child远端最终状态、parent和兄弟不变、普通卸载/退出。大树完整遍历的实际时间全部记verification，不隐去慢项。
+
+pilot已提供[`fork-oracle.py`](pilot-aliyun/scripts/fork-oracle.py)：读取提前关闭并核过SHA256的完整输入清单，按固定输入公式算出六项操作后的完整预期树，不读取被测child。两种系统使用相同tag与预期结果；同一组的不同child使用不同tag。输入文件模式为0644、目录0755，执行修改时固定`umask 0022`。完整清单只覆盖名称、类型、模式、内容，文件所有者和链接关系另查。
+
+```bash
+python3 experiments/unified-suite/pilot-aliyun/scripts/fork-oracle.py \
+  --base-tree "$BASE_TREE" --base-tree-sha256 "$BASE_TREE_SHA256" \
+  --fixture-proof "$FIXTURE_PROOF" --fixture-proof-sha256 "$FIXTURE_PROOF_SHA256" \
+  --tag "$CHILD_TAG" --out "$EXPECTED"
+```
+
+命令要求100万文件、每文件4KiB。`$EXPECTED/result.json`记录固定首读文件的内容摘要及完整`expected-tree.json`摘要。对实际child执行`fs_step mutate --tag "$CHILD_TAG"`，冷重挂后以这份清单检查；对parent仍用原输入清单。预期生成的耗时单列为准备，不计入派生时间。
 
 报告创建wall/每child延迟、ready及首读、前台任务、COW与排空、校验、metadata/object增长、实际copy字节。shared lower派生和eager copy均完成相同最终视图，支持有限语义的路径单列。
 

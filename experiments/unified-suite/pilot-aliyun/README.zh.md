@@ -1,6 +1,6 @@
 # 阿里云 C1–C4 小规模试跑
 
-最新版本核对：北京时间2026-11-11 09:07，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-11.json)。C1顺序读、顺序写的BrewFS和JuiceFS共四个单元已完成六次校准、正式测量、冷读回和归档；[报告](evidence/cloud-20261111/c1-progress-02.json)保留各项指标。四份完整原始包已独立下载并核全部成员。随机写正在执行，C1–C4全轮尚未完成。
+最新版本核对：北京时间2026-11-11 09:41，[两个远端分支仍与构建一致](evidence/preparation/latest-progress-12.json)。C1顺序读、顺序写的BrewFS和JuiceFS共四个单元已完成六次校准、正式测量、冷读回和归档；[报告](evidence/cloud-20261111/c1-progress-02.json)保留各项指标。四份完整原始包已独立下载并核全部成员。随机写正在执行，C1–C4全轮尚未完成。
 
 09:33的[新增资源估算](evidence/cloud-20261111/cost-progress-09.json)为¥31.31，当前¥4.671/小时；未新增目标机或扩盘。原跳板、网络和OSS另计。六次校准还需单独保留各节点原始文件：[归档工具的六项本机检查通过](evidence/preparation/calibration-retention-local-01.json)，[云端确认测量中会拒绝归档](evidence/preparation/calibration-retention-cloud-guard-01.json)。新代码仅部署到协调者，完整归档待当前测量结束后执行。
 
@@ -55,6 +55,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/qualify-session-shared-local.py` | 在私有挂载命名空间内，用真实JuiceFS检查原数据库重开和可选resume；保护原路径，记录实际代码、空HOME、上游请求元数据及正常退出。当前两次原数据库冷读回通过，模型环节超时 |
 | `scripts/probe-session-provider.py` | 默认只查模型列表；显式选择才发一次最多16输出token的小请求。已完成一次9 token检查，旧名称请求返回`deepseek-flash`；不提供文件系统恢复结论 |
 | `scripts/package-session-checkpoint.py`、`check-session-checkpoint.py` | 打包、恢复同一份关闭的会话输入，逐文件核内容、模式和内部链接；拒绝活动转发密钥、损坏包及不匹配的核验工具。[894项完整恢复与反例检查通过](evidence/preparation/session-checkpoint-package-local.json)，不调用模型 |
+| `scripts/fork-oracle.py` | 从C4原输入独立计算child修改后的完整预期树及固定首读摘要。[实际百万文件清单已生成](evidence/preparation/c4-fork-oracle-million-local.json)，三项本机交叉检查通过；云上派生和隔离验证尚未执行 |
 | `scripts/session-relay.py` | C4私网模型转发，主密钥仅在工作区外的私有配置，工作区使用独立转发凭据；不记录请求/响应正文，转发器不自动重试。可显式选择`--thinking-mode disabled`并记录策略，默认原样转发；OpenCode自身可能重试。云上仍为原版本，只完成[健康检查](evidence/preparation/c4-relay-health.json) |
 | `scripts/qualify-opencode-session.py`、`package-session-runtime.py` | 两轮真实会话验证export/import/resume，打包已安装依赖，密钥留在工作区外 |
 | `scripts/link-brewfs-tool.py`、`verify-entity-remote.rs` | 复用本轮BrewFS库构建只读核验器；检查原namespace的远端字节、目录、硬链接、ownership及核验前后状态 |
