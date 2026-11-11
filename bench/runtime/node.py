@@ -117,6 +117,20 @@ def serve(ref, directory):
             time.sleep(.05)
         if len(observed) != 1 or observed[0]['filesystem'] not in s['allowed_fstypes'] or not observed[0]['filesystem'].startswith('fuse'):
             raise ValueError('exact expected FUSE mount missing; process retained for inspection')
+        if s.get('metrics_address'):
+            mhost, mport = s['metrics_address'].rsplit(':', 1)
+            metrics_ready = False
+            while time.monotonic() < deadline:
+                if child.poll() is not None:
+                    raise ValueError('mount exited before metrics readiness')
+                try:
+                    with socket.create_connection((mhost, int(mport)), timeout=.5):
+                        metrics_ready = True
+                        break
+                except OSError:
+                    time.sleep(.05)
+            if not metrics_ready:
+                raise ValueError('mount metrics endpoint not ready; process retained for inspection')
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as server:
             server.bind(str(directory/'control.sock')); os.chmod(directory/'control.sock', 0o600)
             server.listen(16)
@@ -141,6 +155,7 @@ def serve(ref, directory):
                             active.remove(request['worker']); result = snapshot
                         elif action == 'stop':
                             if active: raise ValueError('workload active or unaccounted; refuse unmount')
+                            write_new(directory/'stopping.json', {'process': identity(child.pid), 'anchor': s['anchor'], 'original_mount': observed[0]})
                             # Original live Popen object owns the signal target. Never kill a reused PID.
                             child.send_signal(signal.SIGINT)
                             code = child.wait()  # drain may be long; never force/lazy unmount.

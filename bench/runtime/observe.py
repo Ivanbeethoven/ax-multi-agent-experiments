@@ -167,6 +167,12 @@ def snapshot(s,directory,index,previous=None):
                 if isinstance(error,(OSError,URLError)) and not isinstance(error,HTTPError):
                     try:
                         stopped=mount_lifecycle(target)
+                        mdir=target.get('mount_directory')
+                        if stopped is None and mdir and (Path(mdir)/'stopping.json').exists():
+                            wait_end=time.monotonic()+min(30,max(5,s.get('interval_seconds',5)*2))
+                            while time.monotonic()<wait_end and not (Path(mdir)/'stopped.json').exists():
+                                time.sleep(.05)
+                            stopped=mount_lifecycle(target)
                         if stopped and stopped['state']=='cleanly-stopped':
                             target_states[target['id']]={**stopped,'stopped_during_collection':True,
                                 'collection_error':type(error).__name__};continue
