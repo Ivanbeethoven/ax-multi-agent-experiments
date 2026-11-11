@@ -1,0 +1,41 @@
+{
+  "at": "2026-11-11T12:23:12.250983+00:00",
+  "unit": "ax-pilot-pa-c4-flat-reuse-01.service",
+  "invocation_id": "d944eeaa8da34cc495ad8a993adade7f",
+  "parent": {
+    "pid": 161875,
+    "state": "S",
+    "ppid": 1,
+    "start_ticks": 6177165,
+    "argv": [
+      "/usr/bin/python3",
+      "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch-pretrial-01.py",
+      "--request",
+      "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/batch.request.json",
+      "--sha256",
+      "bd28482c6bb3d46c288e791e11f3d8aee1462b00ec43516cc523496ccdcf9392",
+      "--reuse-request",
+      "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/reuse.request.reviewed.json",
+      "--reuse-sha256",
+      "ce38b30bef6b499fb271609ca0d63a9f0761b97c4cafb99b51e4091ec5058549"
+    ]
+  },
+  "child": {
+    "pid": 161969,
+    "state": "S",
+    "ppid": 161875,
+    "start_ticks": 6177817,
+    "argv": [
+      "python3",
+      "/srv/ax-pilot-control/code-19/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4.py",
+      "--request",
+      "/srv/ax-pilot-control/fork-control-01/batch-a-flat-reuse-01/trial-1-request.json",
+      "--sha256",
+      "9aa432faac25a7b3e304df35cd4671fcc099c194a595d12d741afcbd39211e32"
+    ]
+  },
+  "action": "SIGSTOP to batch coordinator PID only; current calibration child continues",
+  "reason": "Seven-copy capacity forecast excluded observer raw data and archive copies; hold subsequent dispatch for capacity review.",
+  "goal_status": "active",
+  "automatic_retry": false
+}

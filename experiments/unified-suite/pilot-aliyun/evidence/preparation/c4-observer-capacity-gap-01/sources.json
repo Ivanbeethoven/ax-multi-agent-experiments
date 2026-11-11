@@ -1,0 +1,56 @@
+{
+  "schema": "c4-observer-capacity-gap-v1",
+  "scope": "Read-only coordinator archive audit. Logical byte counts, not measured filesystem allocation or upper bounds. No change to the original seven-copy data forecast, 20-percent reserve, or running protocol.",
+  "pool_a": {
+    "object_device": 64784,
+    "object_boot_id": "5a984d75-dca0-4921-92fa-b021d1f799e5",
+    "observer_root": "/srv/ax-objects-0",
+    "capacity_disk": "/srv/ax-rustfs-data-0",
+    "total_bytes": 60070604800,
+    "fresh_available_bytes": 21607723008,
+    "projected_used_bytes": 47212527616,
+    "used_limit_bytes": 48056483840,
+    "forecast_residual_bytes": 843956224,
+    "device_probe_repository_ref": "../c4-flat-a-start-01/second-object-probe.json",
+    "original_forecast_repository_ref": "../c4-flat-aof-capacity-recovery-01/capacity.json",
+    "pins": {
+      "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/capacity-01.json": "63776473d5c491929395fa2c71e9891ff681c19a48c06ed34289279708424e04",
+      "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/fresh-01.json": "aed95f89dbba50b42bc4a5e4aa13379634f83c6065bb5287f88c8a701ffc1c59",
+      "/srv/ax-pilot-control/preparation/c4-aof-reconcile-01/batch.request.json": "bd28482c6bb3d46c288e791e11f3d8aee1462b00ec43516cc523496ccdcf9392",
+      "/srv/ax-pilot-control/fork-control-01/suite/plan.json": "4b98ab083a06ae353806557f956a60fad8b3c29b8b43971c452cf3a7136b2a7e"
+    }
+  },
+  "code_root": "/srv/ax-pilot-control/code-19",
+  "code_pins": {
+    "bench/runtime/observe.py": "29bdf9cdf5d97115c694d85f5a761c03591d17df3b88ad7472e2a484f08a2efd",
+    "bench/archive_check.py": "014ce997ca7a3f134275971de720ad3525e430ace47b9b918d12a025b1841796",
+    "experiments/unified-suite/pilot-aliyun/scripts/run-c4.py": "7eb7110ba84fd0f34d82e28c0af7899ba122387981fda0b7b3fad0a0d518513b",
+    "experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py": "e99712fc36702fa108d2b97e70ec161367124ba7d2dec453cfeae11c91fbd0ec",
+    "experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4.py": "47373aebf1376ec9b2eb3d913c6928624c4f8f8c378e4484b5636c7ec53f0868",
+    "experiments/unified-suite/pilot-aliyun/scripts/check-c4-calibration.py": "dc19c4969ecccfd726f93aaa28434c15306226b1dafe01fa976d0da9d629b210",
+    "experiments/unified-suite/pilot-aliyun/scripts/admit-c4.py": "a06036a2e745b1c06443fecb8aca26530b83e6901e042ec61f15e2c0e6625834",
+    "experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+  },
+  "measurements": {
+    "sources_relative_to_trial": {"archive": "archives/objects.tar.gz", "archive_check": "archives/objects-check.json", "observer_finished": "raw/objects/o/<tag>/finished.json"},
+    "method": "SHA-256 every sample.json against the archived observer finished history. Compute timestamps from sample indices and monotonic ends. Sum logical lengths of regular files in coordinator raw/objects, with observer tree separately; compressed length from the already member-verified archive. Existing archive checks pin every member and the outer archive.",
+    "a_c3_object_sample_sizes": [
+      {"trial": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-p-c301-on1", "tag": "pc3-pool-a-19cbb01078cca8b5d0", "samples": 29, "rustfs_sample_bytes_min_median_max": [6977002, 6989223, 6989381], "timed_internal_raw_bytes": 126256891, "observer_finished_sha256": "3684e3e479a3bea835f56ca016d5bbb9a52cf1fd04ae4adb19aa14f5b5b26db3", "archive_check_sha256": "08c7c1dd824e26d67023545225266796d4ff024cd9a6f198eac00fed7cd43005", "archive_sha256": "be2fd6c33a10ebd03f4f07a5910866d7405562028bbd348759ab2099ca5962f3"},
+      {"trial": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-p-c301-on2", "tag": "pc3-pool-a-435d4dd40d4de6a56d", "samples": 29, "rustfs_sample_bytes_min_median_max": [6988917, 6989367, 6989445], "timed_internal_raw_bytes": 133294356, "observer_finished_sha256": "1c1018d5d8ab0dd363ea8aabb872aeddcac8bffdd43cf9e5589b3d000ea0ef1b", "archive_check_sha256": "52749e6c4b520b19a613ed1c39368001197498bd2dffe9b00c18e92e5b975ae6", "archive_sha256": "6e0d79a5d6838410240c4fabfa598becda43f290b68d511bc31f8e80306bf25d"},
+      {"trial": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-a-p-c301-on3", "tag": "pc3-pool-a-eb81b2990ad0570af5", "samples": 28, "rustfs_sample_bytes_min_median_max": [6990190, 6990785.5, 6990849], "timed_internal_raw_bytes": 126303748, "observer_finished_sha256": "2308098cf54166ec10772f3c3728181411ada828baf73e63c77adefdde76fabb", "archive_check_sha256": "624effbfc9590726f541186f968f15473a3b80a1a1d240b56a2c65789880bfb5", "archive_sha256": "a5b5b36ea31d1d0e367b9323191086b7f4c4f56cdc7f4c79fbd06a8389bf678b"}
+    ],
+    "b_c4_object_archive_sizes": [
+      {"trial": "/srv/ax-pilot-control/fork-control-01/calibration/jfs-on1", "tag": "c4-b-jfs-on1", "samples": 98, "observed_seconds": 475.417119137, "drain_to_verify_end_seconds": 171.059231814, "all_objects_raw_bytes": 491959251, "observer_tree_bytes": 487019944, "archive_bytes": 9151872, "observer_finished_sha256": "8d21209c922b1c622a839f0f44b50c0422e8f0c88614a919a3e47c5dd1641c7e", "archive_check_sha256": "a8ad71b464cdf0d4348972c158d25b8fdc2e4d31af3b025f445292f49d5033be", "archive_sha256": "b9f520a8625fb2923dfae666cc8f59ebfe6a81677971126fab60f437e2a235c9"},
+      {"trial": "/srv/ax-pilot-control/fork-control-01/calibration/jfs-on2", "tag": "c4-b-jfs-on2", "samples": 97, "observed_seconds": 472.831957679, "drain_to_verify_end_seconds": 168.991456306, "all_objects_raw_bytes": 502982968, "observer_tree_bytes": 497885137, "archive_bytes": 9216486, "observer_finished_sha256": "4f726b3ceee6bf5badd6faaaa6381eaf62b6ed694c658093053022cc6f913bcc", "archive_check_sha256": "56b4388ebcb2de03bcc52fef079c513df68565cd79500e09467c68d49bb6f21f", "archive_sha256": "a7b8c264041838ffe37469b8a308d2b2f008fee30c7f98c6435ca45acbba3f5d"},
+      {"trial": "/srv/ax-pilot-control/fork-control-01/calibration/jfs-on3", "tag": "c4-b-jfs-on3", "samples": 99, "observed_seconds": 479.12723598, "drain_to_verify_end_seconds": 170.296578809, "all_objects_raw_bytes": 519222924, "observer_tree_bytes": 514111296, "archive_bytes": 9465114, "observer_finished_sha256": "a94f44f97ca11cb7a099db4163556b223dcdf81a773de6ca16568cda33a36d4b", "archive_check_sha256": "2e0a853edf77cacaf7396578bd766dddbb2d11bcd55cba71e7bfb32f6bfef740", "archive_sha256": "af1da5a7dc202dc292ec284fd33000aa354728392d96a787dcc75cea651242f5"},
+      {"trial": "/srv/ax-pilot-control/fork-control-01/cells/c5e97774bcffa69a-r1-juicefs", "tag": "c4-b-jfs-formal-01", "samples": 294, "observed_seconds": 1487.131644691, "drain_to_verify_end_seconds": 1178.695744579, "all_objects_raw_bytes": 1539665628, "observer_tree_bytes": 1534476811, "archive_bytes": 28058467, "observer_finished_sha256": "1d3a2187639a642b9b95ff6097354a3236fc8d6699cbce8dd1b793333817538e", "archive_check_sha256": "059087176fb15e2693e1008880aecb248310118707b1dcf97130224bb31cfd5b", "archive_sha256": "b875412f1b284f559c7739416a754249549eb99b972714266db6485829e2f73e"}
+    ]
+  },
+  "scenario_bytes": {
+    "b_four_rounds_no_reclaim": 6163553481,
+    "b_four_rounds_only_staging_reclaimed": 3109722710,
+    "b_four_rounds_both_verified_raw_copies_reclaimed": 76229522,
+    "b_sequential_both_raw_copies_reclaimed_post_close_peak": 3150371961,
+    "a_b_sample_counts_at_7mb_per_poll_with_4_probes_and_two_raw_copies": 8288000000
+  }
+}
