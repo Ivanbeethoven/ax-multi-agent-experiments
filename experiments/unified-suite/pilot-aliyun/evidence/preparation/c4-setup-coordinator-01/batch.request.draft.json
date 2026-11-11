@@ -1,0 +1,126 @@
+{
+  "schema": "c4-fork-batch-v1",
+  "reviewed": false,
+  "control": "/srv/ax-pilot-control/fork-control-01",
+  "cell_id": "c5e97774bcffa69a-r1-juicefs",
+  "initialize_state": true,
+  "preparation_request": {
+    "path": "/srv/ax-pilot-control/preparation/c4-setup-01/drafts-01/preparation.request.draft.json",
+    "sha256": "38d71fb06c31597caa1e0b76181f9f0e3c22972583664d1c09f0e4bb0619d865"
+  },
+  "asset": "/srv/ax-client/a/c4-fork-jfs-base-01",
+  "qualification": "/srv/ax-pilot-control/fork-control-01/qualification/pool-b-fork-01",
+  "runtime_control": {
+    "path": "/srv/ax-pilot-control/fork-control-01/runtime-15-01/binding.json",
+    "sha256": null
+  },
+  "hardware": {
+    "path": "/srv/ax-pilot-control/fork-control-01/hardware-15-01/hardware.json",
+    "sha256": null
+  },
+  "cross_pool_qualification": {
+    "path": "/srv/ax-pilot-control/fork-control-01/hardware-15-01/cross-pool.json",
+    "sha256": null
+  },
+  "shared_qualification": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-b-shared-02",
+  "tools": {
+    "baseline": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py",
+      "sha256": "e5d83db08668789f6422e71f0cc31ad03430b1616cf2ae1a608f24c4c9e6abef"
+    },
+    "capacity": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py",
+      "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+    },
+    "prepare": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/prepare-c4-controller.py",
+      "sha256": "01e02a5b65d7cbe8e11d5e209fa1a05af54b939b6d851cb21833c65513cdee6a"
+    },
+    "calibrate": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4.py",
+      "sha256": "47373aebf1376ec9b2eb3d913c6928624c4f8f8c378e4484b5636c7ec53f0868"
+    },
+    "check": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/check-c4-calibration.py",
+      "sha256": "a962dba755e4105ad77c638033ce2f87870b574898cad626bbe616d77525b25a"
+    },
+    "admit": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/admit-c4.py",
+      "sha256": "7ffc4db05b3ccb0f9a90085507860a7f768e08d2a2e99ff552ab4f6ba8c18dac"
+    },
+    "run": {
+      "path": "/srv/ax-pilot-control/code-15/experiments/unified-suite/pilot-aliyun/scripts/run-c4.py",
+      "sha256": "49633522fe8ce3b413573c9918373dec5ee6d2b98c49d3bfc36e77ab08dc5c48"
+    }
+  },
+  "node_tool": {
+    "path": "/srv/ax-client/code-15/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+    "sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858"
+  },
+  "fork_tool": {
+    "path": "/srv/ax-client/code-15/experiments/unified-suite/pilot-aliyun/scripts/c4-fork-node.py",
+    "sha256": "a54246894525e12c364e97f0220e342970deeb41795802da9fb7f7b063d0f624"
+  },
+  "observer_tool_name": "make-observer.py",
+  "observer_tool_sha256": "946f8c73873d92577c686f39aa7ad3b591f052b3cac7f1b8a22581ae53355fff",
+  "objects_container": "abc0a432b493e0a820a380738e359532921693e82e015d5c9982868084e33893",
+  "collector_name": "ax-pilot-cal-pool-b-j-sf-on3-collector",
+  "collector_out": "/srv/ax-objects-0/q/cal-pool-b-j-sf-on3-collector",
+  "out": "/srv/ax-pilot-control/fork-control-01/batch-jfs-01",
+  "formal_attempt": "c4-b-jfs-formal-01",
+  "trials": [
+    {
+      "mode": "off",
+      "attempt": "c4-b-jfs-off1",
+      "out": "/srv/ax-pilot-control/fork-control-01/calibration/jfs-off1",
+      "collector_name": "ax-pilot-cal-pool-b-j-sf-on3-collector",
+      "collector_out": "/srv/ax-objects-0/q/cal-pool-b-j-sf-on3-collector"
+    },
+    {
+      "mode": "on",
+      "attempt": "c4-b-jfs-on1",
+      "out": "/srv/ax-pilot-control/fork-control-01/calibration/jfs-on1",
+      "collector_name": "ax-pilot-cal-pool-b-j-sf-on3-collector",
+      "collector_out": "/srv/ax-objects-0/q/cal-pool-b-j-sf-on3-collector",
+      "new_collector_name": "ax-pilot-c4-b-jfs-on1-collector",
+      "new_collector_out": "/srv/ax-objects-0/q/c4-b-jfs-on1-collector"
+    },
+    {
+      "mode": "on",
+      "attempt": "c4-b-jfs-on2",
+      "out": "/srv/ax-pilot-control/fork-control-01/calibration/jfs-on2",
+      "collector_name": "ax-pilot-c4-b-jfs-on1-collector",
+      "collector_out": "/srv/ax-objects-0/q/c4-b-jfs-on1-collector"
+    },
+    {
+      "mode": "off",
+      "attempt": "c4-b-jfs-off2",
+      "out": "/srv/ax-pilot-control/fork-control-01/calibration/jfs-off2",
+      "collector_name": "ax-pilot-c4-b-jfs-on1-collector",
+      "collector_out": "/srv/ax-objects-0/q/c4-b-jfs-on1-collector"
+    },
+    {
+      "mode": "off",
+      "attempt": "c4-b-jfs-off3",
+      "out": "/srv/ax-pilot-control/fork-control-01/calibration/jfs-off3",
+      "collector_name": "ax-pilot-c4-b-jfs-on1-collector",
+      "collector_out": "/srv/ax-objects-0/q/c4-b-jfs-on1-collector"
+    },
+    {
+      "mode": "on",
+      "attempt": "c4-b-jfs-on3",
+      "out": "/srv/ax-pilot-control/fork-control-01/calibration/jfs-on3",
+      "collector_name": "ax-pilot-c4-b-jfs-on1-collector",
+      "collector_out": "/srv/ax-objects-0/q/c4-b-jfs-on1-collector",
+      "new_collector_name": "ax-pilot-c4-b-jfs-on3-collector",
+      "new_collector_out": "/srv/ax-objects-0/q/c4-b-jfs-on3-collector"
+    }
+  ],
+  "pending_before_review": [
+    "Prior C3 full closure plus C2 staging",
+    "New B code15 install and actual same-boot runtime probes",
+    "New plan-bound hardware/cross-pool derivations",
+    "Recheck exact initial collector and empty DB200",
+    "New reviewed preparation reference and complete proof SHA256s"
+  ]
+}

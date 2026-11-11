@@ -1,0 +1,28 @@
+{
+  "schema": "flat-attempt-rebind-v1",
+  "reviewed": true,
+  "original_request": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/requests/pool-b-juicefs-c3-01.json",
+    "sha256": "9631077017f529ef1f443b0cbd1f2e0544c38ef4f0d6ace67eaec14fea5e059b"
+  },
+  "failed_attempt_close": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01.close.json",
+    "sha256": "3e587ff246ef538610b48609b7a58ed745ddd67ea7d2a7706dcb0a4fd2ead015"
+  },
+  "overhead": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/recheck-pool-01/result.json",
+    "sha256": "d3f20e3ac4dc7fbcba4095da182ae8cfc4834c4458d75f54838915dcdc0d381c"
+  },
+  "control": "/srv/ax-pilot-control/c3-stage-fixed-01",
+  "campaign": "c3-stage-fixed-01",
+  "remote_plan": "/srv/ax-client/plans/c3-stage-fixed-01/plan.json",
+  "remote_asset": "/srv/ax-client/a/c3-stage-fixed-jfs-view-01",
+  "run": {
+    "path": "/srv/ax-pilot-control/code-flat-stage-01/experiments/unified-suite/pilot-aliyun/scripts/run-c1.py",
+    "sha256": "cca06c6a89bf6330c9533eca0f2fe5dbd15665dc425625fb178dffc1122a0799"
+  },
+  "review": {
+    "reviewer": "pilot-operator",
+    "note": "Explicit new attempt after before-work CLI failure. Keep original prepared plan and failed DB, share physical locks, reuse identical whole cell and original base/calibration facts with explicit rebind proof. No import/producer/calibration replay."
+  }
+}

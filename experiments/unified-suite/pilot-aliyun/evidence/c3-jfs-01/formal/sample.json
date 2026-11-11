@@ -1,0 +1,376 @@
+{
+  "schema": "suite-sample-v1",
+  "plan_sha256": "54ddea371a6c1a24dec76a42e269761dfe5b5c167136dc33f3ee26e71a89e323",
+  "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+  "uninterrupted": true,
+  "recovered": false,
+  "checks": {
+    "correctness": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/verification.json",
+        "sha256": "544d977a3f535926654610d280187d4c02402a779cf8de82b58a238469e49bb5"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "16f4ac389d2a2da6-r1-juicefs"
+      }
+    },
+    "isolation": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/verification.json",
+        "sha256": "544d977a3f535926654610d280187d4c02402a779cf8de82b58a238469e49bb5"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "16f4ac389d2a2da6-r1-juicefs"
+      }
+    },
+    "remote_readback": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/verification.json",
+        "sha256": "544d977a3f535926654610d280187d4c02402a779cf8de82b58a238469e49bb5"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "16f4ac389d2a2da6-r1-juicefs"
+      }
+    },
+    "real_exit": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/verification.json",
+        "sha256": "544d977a3f535926654610d280187d4c02402a779cf8de82b58a238469e49bb5"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "16f4ac389d2a2da6-r1-juicefs"
+      }
+    },
+    "cache_policy": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/verification.json",
+        "sha256": "544d977a3f535926654610d280187d4c02402a779cf8de82b58a238469e49bb5"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "16f4ac389d2a2da6-r1-juicefs"
+      }
+    },
+    "work": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/work-check.json",
+        "sha256": "82d2b58b87e0b77b99620359c6023194ce54aa01043d3fc01c00417b1975b5e4"
+      },
+      "equals": {
+        "passed": true
+      }
+    },
+    "drain": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/closure.json",
+        "sha256": "3c1fd4d94fab15e6d55eb1d89cba54c4f3f2267173d0d9405334a8f0aeedf717"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "16f4ac389d2a2da6-r1-juicefs"
+      }
+    },
+    "observer_overhead": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/recheck-pool-01/result.json",
+        "sha256": "d3f20e3ac4dc7fbcba4095da182ae8cfc4834c4458d75f54838915dcdc0d381c"
+      },
+      "equals": {
+        "passed": true
+      }
+    }
+  },
+  "required_observer_ids": [
+    "pool-b-client",
+    "pool-b-metadata",
+    "pool-b-objects"
+  ],
+  "required_marks": [
+    "measure-start-w01",
+    "measure-end-w01",
+    "drain-end-w01",
+    "verify-end-w01"
+  ],
+  "observers": [
+    {
+      "id": "pool-b-client",
+      "directory": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/raw/client/o/c3-d909e5330618-16f4ac389d2a2da6-r1-juicefs",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start-w01",
+        "measure-end-w01",
+        "drain-end-w01",
+        "verify-end-w01"
+      ]
+    },
+    {
+      "id": "pool-b-metadata",
+      "directory": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/raw/metadata/o/c3-d909e5330618-16f4ac389d2a2da6-r1-juicefs",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start-w01",
+        "measure-end-w01",
+        "drain-end-w01",
+        "verify-end-w01"
+      ]
+    },
+    {
+      "id": "pool-b-objects",
+      "directory": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/raw/objects/o/c3-d909e5330618-16f4ac389d2a2da6-r1-juicefs",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start-w01",
+        "measure-end-w01",
+        "drain-end-w01",
+        "verify-end-w01"
+      ]
+    }
+  ],
+  "metrics": {
+    "cold-read_wall_seconds": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.cold-read_wall_seconds.value",
+      "unit": "seconds",
+      "direction": "lower"
+    },
+    "cold-read_io_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.cold-read_io_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "cold-read_application_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.cold-read_application_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "lower-prewarm_wall_seconds": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.lower-prewarm_wall_seconds.value",
+      "unit": "seconds",
+      "direction": "lower"
+    },
+    "lower-prewarm_io_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.lower-prewarm_io_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "lower-prewarm_application_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.lower-prewarm_application_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "hot-read_wall_seconds": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.hot-read_wall_seconds.value",
+      "unit": "seconds",
+      "direction": "lower"
+    },
+    "hot-read_io_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.hot-read_io_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "hot-read_application_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.hot-read_application_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "cow_wall_seconds": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.cow_wall_seconds.value",
+      "unit": "seconds",
+      "direction": "lower"
+    },
+    "cow_io_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.cow_io_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "cow_application_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.cow_application_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "upper-prewarm_wall_seconds": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.upper-prewarm_wall_seconds.value",
+      "unit": "seconds",
+      "direction": "lower"
+    },
+    "upper-prewarm_io_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.upper-prewarm_io_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "upper-prewarm_application_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.upper-prewarm_application_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "hot-write_wall_seconds": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.hot-write_wall_seconds.value",
+      "unit": "seconds",
+      "direction": "lower"
+    },
+    "hot-write_io_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.hot-write_io_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "hot-write_application_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.hot-write_application_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "upper-rewarm_wall_seconds": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.upper-rewarm_wall_seconds.value",
+      "unit": "seconds",
+      "direction": "lower"
+    },
+    "upper-rewarm_io_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.upper-rewarm_io_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "upper-rewarm_application_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.upper-rewarm_application_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "mixed_wall_seconds": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.mixed_wall_seconds.value",
+      "unit": "seconds",
+      "direction": "lower"
+    },
+    "mixed_io_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.mixed_io_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "mixed_application_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.mixed_application_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "create_and_fsync_seconds": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/io-metrics.json",
+        "sha256": "868f72b754176fe6ae0439667f89aeacf5540e7f80a892ede88d7548ddc347f4"
+      },
+      "field": "metrics.create_and_fsync_seconds.value",
+      "unit": "seconds",
+      "direction": "lower"
+    },
+    "task_wall": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/cohort/result.json",
+        "sha256": "384ae38ccf536b6cf878ed4dfad64bc45dc808fdadc6bbcb26af5f41aa3b2a51"
+      },
+      "field": "coordinator_makespan_seconds",
+      "unit": "seconds",
+      "direction": "lower"
+    }
+  },
+  "timings_seconds": {
+    "native_measure": 12.689664067
+  },
+  "limitations": [
+    "One agent, one pilot repetition; no scaling or stable speedup conclusion.",
+    "Fresh client caches; shared backend/page caches remain observed."
+  ]
+}

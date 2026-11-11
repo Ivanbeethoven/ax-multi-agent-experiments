@@ -155,6 +155,27 @@ def debt(a):
         raise
 
 
+def redis_response(stream):
+    prefix=stream.read(1);line=stream.readline()
+    if not line.endswith(b'\r\n'):raise ValueError('Truncated Redis response')
+    line=line[:-2]
+    if prefix==b'-':raise RuntimeError(line.decode())
+    if prefix in (b'+',b':'):return line
+    if prefix==b'$':
+        length=int(line)
+        if length==-1:return None
+        if length<0:raise ValueError('Invalid Redis bulk length')
+        value=stream.read(length)
+        if len(value)!=length or stream.read(2)!=b'\r\n':raise ValueError('Truncated Redis bulk response')
+        return value
+    if prefix==b'*':
+        length=int(line)
+        if length==-1:return None
+        if length<0:raise ValueError('Invalid Redis array length')
+        return [redis_response(stream) for _ in range(length)]
+    raise ValueError('Unexpected Redis administrative response')
+
+
 def redis_command(url,arguments,username=None,password=None):
     parsed=urlsplit(url)
     if parsed.scheme!='redis' or parsed.username or parsed.password or parsed.query or parsed.fragment:
@@ -163,15 +184,30 @@ def redis_command(url,arguments,username=None,password=None):
         encoded=[str(value).encode() for value in values]
         stream.write(b'*'+str(len(encoded)).encode()+b'\r\n')
         for value in encoded:stream.write(b'$'+str(len(value)).encode()+b'\r\n'+value+b'\r\n')
-        stream.flush();prefix=stream.read(1);line=stream.readline().rstrip(b'\r\n')
-        if prefix==b'-':raise RuntimeError(line.decode())
-        if prefix not in (b'+',b':'):raise ValueError('Unexpected Redis administrative response')
-        return line
+        stream.flush();return redis_response(stream)
     with socket.create_connection((parsed.hostname,parsed.port or 6379),timeout=5) as sock:
         with sock.makefile('rwb') as stream:
             if username:send(stream,['AUTH',username,password])
             if parsed.path not in ('','/','/0'):send(stream,['SELECT',int(parsed.path.lstrip('/'))])
             return send(stream,arguments)
+
+
+def redis_reader_permissions(url):
+    # CLIENT SETINFO is optional in Redis clients and absent before Redis 7.2.
+    # Grant only this exact subcommand when the actual server advertises it.
+    command=['COMMAND','INFO','client|setinfo'];reply=redis_command(url,command)
+    if not isinstance(reply,list) or len(reply)!=1:raise ValueError('Unexpected optional CLIENT capability response')
+    entry=reply[0]
+    if entry is not None and (not isinstance(entry,list) or not entry or entry[0]!=b'client|setinfo'):
+        raise ValueError('Redis advertised another command for CLIENT SETINFO')
+    grants=['+type','+get','+mget','+exists','+zscore','+zrangebylex','+strlen','+time','+evalsha','+script|load','+ping','+select']
+    if entry is not None:grants.append('+client|setinfo')
+    def serializable(value):
+        if isinstance(value,bytes):return value.decode()
+        if isinstance(value,list):return [serializable(item) for item in value]
+        return value
+    return grants,dict(query=command,response=serializable(reply),client_setinfo_available=entry is not None,
+                       granted_commands=grants,write_permissions_added=False)
 
 
 def cold_verify(a):
@@ -231,8 +267,9 @@ def cold_verify(a):
         patterns=[]
         for config in [child,base]:patterns+=['~{brewfs-entity:'+config['entity_volume_id']+'}/*','~{brewfs-ws-v1}:'+config['workspace_namespace']+':ws:v1/*']
         url=child['meta']['redis']['url']
-        redis_command(url,['ACL','SETUSER',username,'on','>'+password,*sorted(set(patterns)),
-            '+type','+get','+mget','+exists','+zscore','+zrangebylex','+strlen','+time','+evalsha','+script|load','+ping','+client|setinfo','+select'])
+        grants,capability=redis_reader_permissions(url)
+        write_new(a.out/'redis-acl-capabilities.json',capability)
+        redis_command(url,['ACL','SETUSER',username,'on','>'+password,*sorted(set(patterns)),*grants])
         registered=True
         try:redis_command(url,['SET','{brewfs-entity:'+child['entity_volume_id']+'}/must-not-write','invalid'],username,password)
         except RuntimeError as error:

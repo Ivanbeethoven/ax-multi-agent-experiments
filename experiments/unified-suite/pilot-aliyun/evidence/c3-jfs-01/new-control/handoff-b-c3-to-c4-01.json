@@ -1,0 +1,71 @@
+{
+  "schema": "c3-b-pool-handoff-v1",
+  "passed": true,
+  "at": "2026-11-11T07:20:05.811550+00:00",
+  "next_owner": "pool_b_services",
+  "states": [
+    {
+      "control": "/srv/ax-pilot-control/parallel-control-01",
+      "cells": {
+        "complete": 1,
+        "failed": 2,
+        "pending": 16
+      },
+      "pool_b_leases": []
+    },
+    {
+      "control": "/srv/ax-pilot-control/c123-control-01",
+      "cells": {
+        "complete": 7,
+        "failed": 1,
+        "pending": 11
+      },
+      "pool_b_leases": []
+    },
+    {
+      "control": "/srv/ax-pilot-control/c3-stage-fixed-01",
+      "cells": {
+        "complete": 1,
+        "pending": 3
+      },
+      "pool_b_leases": []
+    }
+  ],
+  "slot_empty": true,
+  "units": {
+    "ax-pilot-b-c3-stage-fixed-01": {
+      "MainPID": "0",
+      "ExecMainStatus": "0",
+      "ActiveState": "active",
+      "SubState": "exited"
+    },
+    "ax-pilot-b-c3-retain-original-six-01": {
+      "MainPID": "0",
+      "ExecMainStatus": "0",
+      "ActiveState": "active",
+      "SubState": "exited"
+    }
+  },
+  "formal": {
+    "path": "/srv/ax-pilot-control/c3-stage-fixed-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/result.json",
+    "sha256": "b1bf85e8859c5475c27ba12009d88596c13aeb6ca4ad19f0bc4418da60911d7f"
+  },
+  "independent_audit": {
+    "path": "/srv/ax-pilot-control/c3-stage-fixed-01/independent-close-01/result.json",
+    "sha256": "3e6b5368ebbcab7d8bc1e26a592fc6bbb24e328957bff3f4f874c7674d209aa4"
+  },
+  "historical_calibration": {
+    "path": "/srv/ax-pilot-control/c3-stage-fixed-01/retained-original-calibrations/c3-jfs-original-six-01/result.json",
+    "sha256": "1f29a855e1a64bcce9cc127c843bde020376e6011a51d8394cb934da0c81048d"
+  },
+  "historical_archive": {
+    "path": "/srv/ax-pilot-control/c3-stage-fixed-01/retained-original-calibrations/c3-jfs-original-six-01-archive-check.json",
+    "sha256": "bcdc2a7d1f5c6bd0a810ff86d8f260696c28cd6e2e9592aa03c31535e02da34e"
+  },
+  "collector": {
+    "name": "ax-pilot-cal-pool-b-j-sf-on3-collector",
+    "out": "/srv/ax-objects-0/q/cal-pool-b-j-sf-on3-collector"
+  },
+  "locks": "/srv/ax-pilot-control/parallel-control-01/runner-locks",
+  "scope": "C3 and historical-retention units exited; original observer/mount/worker boundaries independently verified. Long-lived Redis/RustFS/collector retained. All three states checked; no pool-B lease."
+}

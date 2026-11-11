@@ -1,0 +1,494 @@
+{
+  "schema": "c4-control-setup-v1",
+  "passed": true,
+  "derived_at": "2026-11-11T07:14:07.703189+00:00",
+  "source_control": "/srv/ax-pilot-control/parallel-control-01",
+  "source_runtime": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/binding.json",
+    "sha256": "bba6f0242f97a06438783d293769fa77f7de58e180c87885a6abc34f943efdde"
+  },
+  "canonical_control": "/srv/ax-pilot-control/parallel-control-01",
+  "fork_plan": {
+    "path": "/srv/ax-pilot-control/fork-control-01/suite/plan.json",
+    "sha256": "4b98ab083a06ae353806557f956a60fad8b3c29b8b43971c452cf3a7136b2a7e"
+  },
+  "retained_original_evidence": [
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/next/fork-100k-01/plan.json",
+        "sha256": "4b98ab083a06ae353806557f956a60fad8b3c29b8b43971c452cf3a7136b2a7e"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/suite/plan.json",
+        "sha256": "4b98ab083a06ae353806557f956a60fad8b3c29b8b43971c452cf3a7136b2a7e"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/provenance/build-manifest.json",
+        "sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/provenance/build-manifest.json",
+        "sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/provenance/input-manifest.json",
+        "sha256": "1377d895d40584a1cf6a3338b49cc41a733b9d0fce6b1c8c8d031e02191cb970"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/provenance/input-manifest.json",
+        "sha256": "1377d895d40584a1cf6a3338b49cc41a733b9d0fce6b1c8c8d031e02191cb970"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/provenance/inventory.json",
+        "sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/provenance/inventory.json",
+        "sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/fleet.json",
+        "sha256": "f85605a02eea141c110c79cfb794bd2acaa83fc80b081cad7619f355ebc3aef1"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/fleet.json",
+        "sha256": "f85605a02eea141c110c79cfb794bd2acaa83fc80b081cad7619f355ebc3aef1"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/allocation.json",
+        "sha256": "c63fbe9e49bec67382e2fc71f4491924e1be7c3b891a6e17d997a85ca896cc71"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/allocation.json",
+        "sha256": "c63fbe9e49bec67382e2fc71f4491924e1be7c3b891a6e17d997a85ca896cc71"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/ssh.conf",
+        "sha256": "5ed7438217586e9ac6b3af1e0f9c6755ed901b4754f07ed7ed9d2b4e526ab181"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/ssh.conf",
+        "sha256": "5ed7438217586e9ac6b3af1e0f9c6755ed901b4754f07ed7ed9d2b4e526ab181"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-client/peer.json",
+        "sha256": "d9ae95d2210feb7db43aa7d4b58a0c9942db871db622854b7c070ad95725d57e"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-client/peer.json",
+        "sha256": "d9ae95d2210feb7db43aa7d4b58a0c9942db871db622854b7c070ad95725d57e"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-client/probe.json",
+        "sha256": "75523eee39fa31d0922492660964b7a2009c0b3f93acbac23cf9969d311532ec"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-client/probe.json",
+        "sha256": "75523eee39fa31d0922492660964b7a2009c0b3f93acbac23cf9969d311532ec"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-client/request.json",
+        "sha256": "47dd561c08467341b16441e9975d773ca41347f9410d2e9f453c2a8b0220cb15"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-client/request.json",
+        "sha256": "47dd561c08467341b16441e9975d773ca41347f9410d2e9f453c2a8b0220cb15"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-client/response.json",
+        "sha256": "b40156d35e54529eb60d9e55d7f709780083f6369370779414bd090498d578be"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-client/response.json",
+        "sha256": "b40156d35e54529eb60d9e55d7f709780083f6369370779414bd090498d578be"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-client/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-client/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-client-slot/peer.json",
+        "sha256": "660dd687d31b1f80f20a4e295c9b5cced634bf9154ff24c895b441dc2ea30c65"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-client-slot/peer.json",
+        "sha256": "660dd687d31b1f80f20a4e295c9b5cced634bf9154ff24c895b441dc2ea30c65"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-client-slot/probe.json",
+        "sha256": "4a75a6c29fc69efa6662636502d5a71dd264f496782cb3d43f8a2e3a56d4179e"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-client-slot/probe.json",
+        "sha256": "4a75a6c29fc69efa6662636502d5a71dd264f496782cb3d43f8a2e3a56d4179e"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-client-slot/request.json",
+        "sha256": "500b5209896ff85a8cd76585bbd6266eb22030e3db4ae98a924f33d5b2339876"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-client-slot/request.json",
+        "sha256": "500b5209896ff85a8cd76585bbd6266eb22030e3db4ae98a924f33d5b2339876"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-client-slot/response.json",
+        "sha256": "b2878db9d5910111238d738a956726712d81f08b4d409671cacbd33a5b666c81"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-client-slot/response.json",
+        "sha256": "b2878db9d5910111238d738a956726712d81f08b4d409671cacbd33a5b666c81"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-client-slot/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-client-slot/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-metadata/peer.json",
+        "sha256": "f24fb7749b03e81a6dd5a9c8b5b17c65b3206fc644deab797fcde87ec9cccca7"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-metadata/peer.json",
+        "sha256": "f24fb7749b03e81a6dd5a9c8b5b17c65b3206fc644deab797fcde87ec9cccca7"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-metadata/probe.json",
+        "sha256": "b0d71a7f196abb3bc47be7063a9c69bfe5277eae68fc51f9c401b4250e0b29b0"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-metadata/probe.json",
+        "sha256": "b0d71a7f196abb3bc47be7063a9c69bfe5277eae68fc51f9c401b4250e0b29b0"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-metadata/request.json",
+        "sha256": "a3badbc977d489a86df409399e9f3a21df211e1a0e7b1f521253d9d07441b8c6"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-metadata/request.json",
+        "sha256": "a3badbc977d489a86df409399e9f3a21df211e1a0e7b1f521253d9d07441b8c6"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-metadata/response.json",
+        "sha256": "6d445445da1d16971af7248502cad100a9a0781d7e00268fc75fe9cd4180ed28"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-metadata/response.json",
+        "sha256": "6d445445da1d16971af7248502cad100a9a0781d7e00268fc75fe9cd4180ed28"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-metadata/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-metadata/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-objects/peer.json",
+        "sha256": "5b350edf0a533e952615054ba140243ec135dd9e0acdf6c9d31e5a63b9590687"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-objects/peer.json",
+        "sha256": "5b350edf0a533e952615054ba140243ec135dd9e0acdf6c9d31e5a63b9590687"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-objects/probe.json",
+        "sha256": "5573b079fc384b103e870df6a8d2d6c52302e2ae7285d0bc6eea6c4151348fa6"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-objects/probe.json",
+        "sha256": "5573b079fc384b103e870df6a8d2d6c52302e2ae7285d0bc6eea6c4151348fa6"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-objects/request.json",
+        "sha256": "0934386a838890e24876d16d21012d556545326e2754897106c6186fb5d69f15"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-objects/request.json",
+        "sha256": "0934386a838890e24876d16d21012d556545326e2754897106c6186fb5d69f15"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-objects/response.json",
+        "sha256": "a5073cb5b1951eb8dd8da1f19aa9bf1ae2d082a8fbba4cac252731c4f67f858f"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-objects/response.json",
+        "sha256": "a5073cb5b1951eb8dd8da1f19aa9bf1ae2d082a8fbba4cac252731c4f67f858f"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-a-objects/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-a-objects/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-client/peer.json",
+        "sha256": "202b24f77aaa8f414dfb46d907788d5f2a832a9cf57991db34bba9739ef3d4f1"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-client/peer.json",
+        "sha256": "202b24f77aaa8f414dfb46d907788d5f2a832a9cf57991db34bba9739ef3d4f1"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-client/probe.json",
+        "sha256": "1a1eff90f19c3b886ca744c5122df51034e1e6be88af6542e9891aa61b8ff8ad"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-client/probe.json",
+        "sha256": "1a1eff90f19c3b886ca744c5122df51034e1e6be88af6542e9891aa61b8ff8ad"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-client/request.json",
+        "sha256": "bf0b0d5e59b70ae681155df9d3d882eebc0eaabdee1bee9f32e0c745da416a29"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-client/request.json",
+        "sha256": "bf0b0d5e59b70ae681155df9d3d882eebc0eaabdee1bee9f32e0c745da416a29"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-client/response.json",
+        "sha256": "d7474d62b3a5348919318376c0633a244f9c360a5039faf174fd39c92a36f599"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-client/response.json",
+        "sha256": "d7474d62b3a5348919318376c0633a244f9c360a5039faf174fd39c92a36f599"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-client/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-client/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-client-slot/peer.json",
+        "sha256": "6d4fd185fa72ab53efda21528a107c02f07816917e6b174ff4df138d004da47d"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-client-slot/peer.json",
+        "sha256": "6d4fd185fa72ab53efda21528a107c02f07816917e6b174ff4df138d004da47d"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-client-slot/probe.json",
+        "sha256": "a27c2653cb732f0b9627a4295c2a715fc9bcbc25773cda37e55192390f9db05e"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-client-slot/probe.json",
+        "sha256": "a27c2653cb732f0b9627a4295c2a715fc9bcbc25773cda37e55192390f9db05e"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-client-slot/request.json",
+        "sha256": "b28f4eafca0273dec0addf240159dff0a588b7d3a69333533d7e0645a6124ccd"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-client-slot/request.json",
+        "sha256": "b28f4eafca0273dec0addf240159dff0a588b7d3a69333533d7e0645a6124ccd"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-client-slot/response.json",
+        "sha256": "7fce2b012b18dfd70f74604a273b7042e1072550aa570e13d2c9256f81728fb5"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-client-slot/response.json",
+        "sha256": "7fce2b012b18dfd70f74604a273b7042e1072550aa570e13d2c9256f81728fb5"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-client-slot/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-client-slot/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-metadata/peer.json",
+        "sha256": "29e4b347aa432bc4a89752f9f9a256d12006ca4c8e9c9f5a0307c3d4728f26e0"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-metadata/peer.json",
+        "sha256": "29e4b347aa432bc4a89752f9f9a256d12006ca4c8e9c9f5a0307c3d4728f26e0"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-metadata/probe.json",
+        "sha256": "fcbd3840f3f862717a03475acc1175b2c30dfcf0ad154a711d40ad3778140284"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-metadata/probe.json",
+        "sha256": "fcbd3840f3f862717a03475acc1175b2c30dfcf0ad154a711d40ad3778140284"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-metadata/request.json",
+        "sha256": "1c595fefbd0cc57ad98585b638a98c415d93ceae7857cddfc6c86e8ccfdec9a3"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-metadata/request.json",
+        "sha256": "1c595fefbd0cc57ad98585b638a98c415d93ceae7857cddfc6c86e8ccfdec9a3"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-metadata/response.json",
+        "sha256": "41d50906e04a1d730ff02513a49aa374a0ef53c91e69ec5eab26786a2dae8d20"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-metadata/response.json",
+        "sha256": "41d50906e04a1d730ff02513a49aa374a0ef53c91e69ec5eab26786a2dae8d20"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-metadata/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-metadata/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-objects/peer.json",
+        "sha256": "27c6187475ea8436042765aa57a2a1a7eab2578a9be3a7ed1fa84eb8cad28ba1"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-objects/peer.json",
+        "sha256": "27c6187475ea8436042765aa57a2a1a7eab2578a9be3a7ed1fa84eb8cad28ba1"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-objects/probe.json",
+        "sha256": "4370702c67eecb6b0c10e4f736a4a0c40e490be287c0496a6ad921e8adc3181b"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-objects/probe.json",
+        "sha256": "4370702c67eecb6b0c10e4f736a4a0c40e490be287c0496a6ad921e8adc3181b"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-objects/request.json",
+        "sha256": "0247a869248e06ac33817c1c600664984083949bdf75c9731b67177a76f05f37"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-objects/request.json",
+        "sha256": "0247a869248e06ac33817c1c600664984083949bdf75c9731b67177a76f05f37"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-objects/response.json",
+        "sha256": "356d1e60a6dce66193fb33b846bf467381e9b2b773d8ffebeb4cee78a1d97c9c"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-objects/response.json",
+        "sha256": "356d1e60a6dce66193fb33b846bf467381e9b2b773d8ffebeb4cee78a1d97c9c"
+      }
+    },
+    {
+      "original": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/probes/pool-b-objects/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "retained": {
+        "path": "/srv/ax-pilot-control/fork-control-01/probes/pool-b-objects/ssh.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "state_created": false,
+  "source_tool": {
+    "path": "/srv/ax-pilot-control/preparation/c4-setup-01/setup-c4-control.py",
+    "sha256": "0cfc95d7d951b15bf83a0e98c4bd6530540dfa6cada2c9acca11c4c29adb6f32"
+  },
+  "runtime_repo": "/srv/ax-pilot-control/code-15",
+  "scope": "Original observation bytes and times retained unchanged; this is a new plan binding, not a new measurement."
+}

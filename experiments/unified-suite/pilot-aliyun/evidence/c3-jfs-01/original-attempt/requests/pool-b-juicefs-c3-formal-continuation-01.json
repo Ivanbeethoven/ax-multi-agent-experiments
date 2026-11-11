@@ -1,0 +1,37 @@
+{
+  "schema": "flat-cell-check-continuation-v1",
+  "reviewed": true,
+  "original_request": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/requests/pool-b-juicefs-c3-01.json",
+    "sha256": "9631077017f529ef1f443b0cbd1f2e0544c38ef4f0d6ace67eaec14fea5e059b"
+  },
+  "original_failure": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/failed.json",
+    "sha256": "dc7c32383e0c01ec401c9336778590188a07c86bfbaccd688ee0c5945b0ba0fa"
+  },
+  "overhead": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/recheck-pool-01/result.json",
+    "sha256": "d3f20e3ac4dc7fbcba4095da182ae8cfc4834c4458d75f54838915dcdc0d381c"
+  },
+  "checker": {
+    "path": "/srv/ax-pilot-control/recheck-tools-pool-b-01/experiments/unified-suite/pilot-aliyun/scripts/check-calibration.py",
+    "sha256": "293ab55cfdb52a48a04776c9b81532fb87e933e8c3e482a279c9e3d28e619fce"
+  },
+  "checker_dependencies": {
+    "path": "/srv/ax-pilot-control/recheck-tools-pool-b-01/dependencies.json",
+    "sha256": "573c309011cc6c2b512f8fa7efa9b1fa0a3616b750b13736b1736b9e15e31548"
+  },
+  "recheck_exit": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/recheck-pool-01-command/exit.json",
+    "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+  },
+  "latest_check": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/provenance/latest-before-b-c3-formal-01.json",
+    "sha256": "648a6dad9d7ea4d5442052009d83ec5bdb73215e992ef942ba7c5ccfc1950ddc"
+  },
+  "out": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/formal-continuation-01",
+  "review": {
+    "reviewer": "pilot-operator",
+    "note": "Continue only unstarted formal cell after original six completed trials passed a pool-aware offline recheck. Preserve old failure and all original trials. No calibration replay or state reset."
+  }
+}

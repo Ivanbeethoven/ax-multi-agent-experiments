@@ -1,0 +1,523 @@
+{
+  "schema": "experiment-cohort-v1",
+  "reviewed": true,
+  "purpose": "observer-calibration-on",
+  "provider": "ssh",
+  "agents": 1,
+  "inventory": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/fleet.json",
+    "sha256": "f85605a02eea141c110c79cfb794bd2acaa83fc80b081cad7619f355ebc3aef1"
+  },
+  "metric_contract": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-b-c3-01/juicefs/metrics.json",
+    "sha256": "072e3c072f3f6040d07a1665110814a7c8ed08239038c19b4aa2b6fb1c5cd103"
+  },
+  "workload_contract": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-b-c3-01/juicefs/workload.json",
+    "sha256": "9fd2fd130d19789fb4b3a883c89f7843c3d52eec56c22f87dbefe3c7163b3a28"
+  },
+  "allocation_qualification": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/allocation.json",
+    "sha256": "c63fbe9e49bec67382e2fc71f4491924e1be7c3b891a6e17d997a85ca896cc71"
+  },
+  "hardware_qualification": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-b-c3-01/hardware.json",
+    "sha256": "1a9855f40e0424dccb9039d3d2b0f5040c024e8838de1a68fefd82afb23b40e9"
+  },
+  "input_qualification": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-b-c3-01/juicefs/input.json",
+    "sha256": "dbfe867c24c1ffe9fe8c8f63b870dd219cab38561ae991c4ce166fca6b2c1877"
+  },
+  "filesystem_qualification": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-b-c3-01/juicefs/filesystem.json",
+    "sha256": "dbfe867c24c1ffe9fe8c8f63b870dd219cab38561ae991c4ce166fca6b2c1877"
+  },
+  "workers": [
+    {
+      "id": "a01",
+      "node_id": "pool-b-client",
+      "slot_id": "pool-b-client",
+      "peer": {
+        "transport": "ssh",
+        "alias": "pool-b-client",
+        "repo": "/srv/ax-client/code-12",
+        "python": "/usr/bin/python3",
+        "ssh": {
+          "executable": {
+            "path": "/usr/bin/ssh",
+            "sha256": "fc47ea24323fdd5687c5aefae6fd0060faabfa8f2944c6a68f6a442fbe0dd131"
+          },
+          "config": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/ssh.conf",
+            "sha256": "5ed7438217586e9ac6b3af1e0f9c6755ed901b4754f07ed7ed9d2b4e526ab181"
+          },
+          "known_hosts": {
+            "path": "/srv/ax-pilot-control/ssh/known_hosts",
+            "sha256": "7eb5a2c3d6c0ca783120fc5d96754c2c8b4bc4f2d7384368cb5996dc3c9d0288"
+          }
+        },
+        "container": null,
+        "cgroup": "/sys/fs/cgroup/ax-slot-1",
+        "pins": [
+          {
+            "path": "/srv/ax-client/code-12/bench/__init__.py",
+            "sha256": "79203ec1349037dca9f7ffd39622d5addb2a578e00f4b47891a623f04939c304"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/experiment_inventory.py",
+            "sha256": "09861e5b6c6c673cf440b0a2eeb72aec7c8002b5e20af499e24b1b2962a2c91e"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/experiment_io.py",
+            "sha256": "c8d37ec3f0c08908cbd5bbf2f81f271d69a7466b653b6dd59caeb4b61fe3531a"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/experiment_step.py",
+            "sha256": "f0038b880f3bb90d2121f89711e8e11fedc3899f9a56c1e9cac6374e8760c7b4"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/__init__.py",
+            "sha256": "dfdeed17e5e59e416dceb7a304447b3c7b295a909441c066811b2f7c255a0eda"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/cohort.py",
+            "sha256": "8203e73c991b82c234665923e26eded2b623e5ad1b1f095a560b29aea1e65f11"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/common.py",
+            "sha256": "c8c9916db9f54b8203132903ebaf59b40d70a27e0f2e7d086eb6e5a446f84960"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/fleet.py",
+            "sha256": "7f874f22977aec01a289918877f1e0759edada61a72159209fcbfaf98d0ad468"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/handoff.py",
+            "sha256": "2a2b8f8e4d8bd44c678337ba6cf679f2b0d53912fc122ac38755b362a2355910"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/maintenance.py",
+            "sha256": "f06067cb58c312e01b32ff81e98b0d88e7f9d357073d4653602eee54cd074719"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/node.py",
+            "sha256": "7f42340df41a257eca4ba160de99a486f7cc8bf1e2513b93ce755c221ba81418"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/observe.py",
+            "sha256": "af4d108441150fe228868ce32916625e06a046b7b64015d185ae0951300534ef"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/pilot_context.py",
+            "sha256": "8f58aa5858d38f004056b1b08e262118bd016973e86e5619226072d5f720108d"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/pilot_pools.py",
+            "sha256": "c9a7c73b1175a971997e82efa67d6d5c9f79aa932d9a6cf3e5b5ee4c613c6bdc"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/preflight.py",
+            "sha256": "d51e4295e4f398ea53f41aa9985a0a4ebf0a772c29084051d7140819b4b5ceab"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/prepare.py",
+            "sha256": "78f58826d925eaaea023f13342e0ffd6a34c383adc6a8e8346f2c803b15ecffc"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/transport.py",
+            "sha256": "95f74f184f9dab9733d4ce56bb59b63f94d67f2caacfb94a1e89d00bcc005c63"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/workloads.py",
+            "sha256": "a6f3b73c277b32244c5914b34f46fb877dc499b5001f0ef5c3722773c2b84a70"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/session_check.py",
+            "sha256": "4b2d2fd44bed34be2369cf6780ec8acdfc423c8afb68759632996465172165e8"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/ssh_inventory.py",
+            "sha256": "b4ce0ecf490ebc8247834d3d0d05e964bfaac8b0db762cb2816e5801a707bad8"
+          },
+          {
+            "path": "/usr/bin/python3.12",
+            "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f"
+          }
+        ]
+      },
+      "spec": {
+        "path": "/srv/ax-client/w/cal-pool-b-j-sf-on3/worker.reviewed.json",
+        "sha256": "080b46de954faffd6a74cff9bfae4151d78939a901d60c5869c0250150b5de8f"
+      },
+      "output": "/srv/ax-client/j/cal-pool-b-j-sf-on3"
+    }
+  ],
+  "observers": [
+    {
+      "id": "pool-b-client",
+      "node_id": "pool-b-client",
+      "peer": {
+        "transport": "ssh",
+        "alias": "pool-b-client",
+        "repo": "/srv/ax-client/code-12",
+        "python": "/usr/bin/python3",
+        "ssh": {
+          "executable": {
+            "path": "/usr/bin/ssh",
+            "sha256": "fc47ea24323fdd5687c5aefae6fd0060faabfa8f2944c6a68f6a442fbe0dd131"
+          },
+          "config": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/ssh.conf",
+            "sha256": "5ed7438217586e9ac6b3af1e0f9c6755ed901b4754f07ed7ed9d2b4e526ab181"
+          },
+          "known_hosts": {
+            "path": "/srv/ax-pilot-control/ssh/known_hosts",
+            "sha256": "7eb5a2c3d6c0ca783120fc5d96754c2c8b4bc4f2d7384368cb5996dc3c9d0288"
+          }
+        },
+        "container": null,
+        "cgroup": null,
+        "pins": [
+          {
+            "path": "/srv/ax-client/code-12/bench/__init__.py",
+            "sha256": "79203ec1349037dca9f7ffd39622d5addb2a578e00f4b47891a623f04939c304"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/experiment_inventory.py",
+            "sha256": "09861e5b6c6c673cf440b0a2eeb72aec7c8002b5e20af499e24b1b2962a2c91e"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/experiment_io.py",
+            "sha256": "c8d37ec3f0c08908cbd5bbf2f81f271d69a7466b653b6dd59caeb4b61fe3531a"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/experiment_step.py",
+            "sha256": "f0038b880f3bb90d2121f89711e8e11fedc3899f9a56c1e9cac6374e8760c7b4"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/__init__.py",
+            "sha256": "dfdeed17e5e59e416dceb7a304447b3c7b295a909441c066811b2f7c255a0eda"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/cohort.py",
+            "sha256": "8203e73c991b82c234665923e26eded2b623e5ad1b1f095a560b29aea1e65f11"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/common.py",
+            "sha256": "c8c9916db9f54b8203132903ebaf59b40d70a27e0f2e7d086eb6e5a446f84960"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/fleet.py",
+            "sha256": "7f874f22977aec01a289918877f1e0759edada61a72159209fcbfaf98d0ad468"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/handoff.py",
+            "sha256": "2a2b8f8e4d8bd44c678337ba6cf679f2b0d53912fc122ac38755b362a2355910"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/maintenance.py",
+            "sha256": "f06067cb58c312e01b32ff81e98b0d88e7f9d357073d4653602eee54cd074719"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/node.py",
+            "sha256": "7f42340df41a257eca4ba160de99a486f7cc8bf1e2513b93ce755c221ba81418"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/observe.py",
+            "sha256": "af4d108441150fe228868ce32916625e06a046b7b64015d185ae0951300534ef"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/pilot_context.py",
+            "sha256": "8f58aa5858d38f004056b1b08e262118bd016973e86e5619226072d5f720108d"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/pilot_pools.py",
+            "sha256": "c9a7c73b1175a971997e82efa67d6d5c9f79aa932d9a6cf3e5b5ee4c613c6bdc"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/preflight.py",
+            "sha256": "d51e4295e4f398ea53f41aa9985a0a4ebf0a772c29084051d7140819b4b5ceab"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/prepare.py",
+            "sha256": "78f58826d925eaaea023f13342e0ffd6a34c383adc6a8e8346f2c803b15ecffc"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/transport.py",
+            "sha256": "95f74f184f9dab9733d4ce56bb59b63f94d67f2caacfb94a1e89d00bcc005c63"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/runtime/workloads.py",
+            "sha256": "a6f3b73c277b32244c5914b34f46fb877dc499b5001f0ef5c3722773c2b84a70"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/session_check.py",
+            "sha256": "4b2d2fd44bed34be2369cf6780ec8acdfc423c8afb68759632996465172165e8"
+          },
+          {
+            "path": "/srv/ax-client/code-12/bench/ssh_inventory.py",
+            "sha256": "b4ce0ecf490ebc8247834d3d0d05e964bfaac8b0db762cb2816e5801a707bad8"
+          },
+          {
+            "path": "/usr/bin/python3.12",
+            "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f"
+          }
+        ]
+      },
+      "directory": "/srv/ax-client/o/cal-pool-b-j-sf-on3",
+      "spec": {
+        "path": "/srv/ax-client/q/cal-pool-b-j-sf-on3-observer/observer.json",
+        "sha256": "4aacc47e3849a0398821d19e863a5d76d04b12b13b29eb19f9d1cd04536dea7b"
+      },
+      "required_live_targets": [
+        "filesystem"
+      ]
+    },
+    {
+      "id": "pool-b-metadata",
+      "node_id": "pool-b-metadata",
+      "peer": {
+        "transport": "ssh",
+        "alias": "pool-b-metadata",
+        "repo": "/srv/ax-metadata/code-12",
+        "python": "/usr/bin/python3",
+        "ssh": {
+          "executable": {
+            "path": "/usr/bin/ssh",
+            "sha256": "fc47ea24323fdd5687c5aefae6fd0060faabfa8f2944c6a68f6a442fbe0dd131"
+          },
+          "config": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/ssh.conf",
+            "sha256": "5ed7438217586e9ac6b3af1e0f9c6755ed901b4754f07ed7ed9d2b4e526ab181"
+          },
+          "known_hosts": {
+            "path": "/srv/ax-pilot-control/ssh/known_hosts",
+            "sha256": "7eb5a2c3d6c0ca783120fc5d96754c2c8b4bc4f2d7384368cb5996dc3c9d0288"
+          }
+        },
+        "container": null,
+        "cgroup": null,
+        "pins": [
+          {
+            "path": "/srv/ax-metadata/code-12/bench/__init__.py",
+            "sha256": "79203ec1349037dca9f7ffd39622d5addb2a578e00f4b47891a623f04939c304"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/experiment_inventory.py",
+            "sha256": "09861e5b6c6c673cf440b0a2eeb72aec7c8002b5e20af499e24b1b2962a2c91e"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/experiment_io.py",
+            "sha256": "c8d37ec3f0c08908cbd5bbf2f81f271d69a7466b653b6dd59caeb4b61fe3531a"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/experiment_step.py",
+            "sha256": "f0038b880f3bb90d2121f89711e8e11fedc3899f9a56c1e9cac6374e8760c7b4"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/__init__.py",
+            "sha256": "dfdeed17e5e59e416dceb7a304447b3c7b295a909441c066811b2f7c255a0eda"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/cohort.py",
+            "sha256": "8203e73c991b82c234665923e26eded2b623e5ad1b1f095a560b29aea1e65f11"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/common.py",
+            "sha256": "c8c9916db9f54b8203132903ebaf59b40d70a27e0f2e7d086eb6e5a446f84960"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/fleet.py",
+            "sha256": "7f874f22977aec01a289918877f1e0759edada61a72159209fcbfaf98d0ad468"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/handoff.py",
+            "sha256": "2a2b8f8e4d8bd44c678337ba6cf679f2b0d53912fc122ac38755b362a2355910"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/maintenance.py",
+            "sha256": "f06067cb58c312e01b32ff81e98b0d88e7f9d357073d4653602eee54cd074719"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/node.py",
+            "sha256": "7f42340df41a257eca4ba160de99a486f7cc8bf1e2513b93ce755c221ba81418"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/observe.py",
+            "sha256": "af4d108441150fe228868ce32916625e06a046b7b64015d185ae0951300534ef"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/pilot_context.py",
+            "sha256": "8f58aa5858d38f004056b1b08e262118bd016973e86e5619226072d5f720108d"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/pilot_pools.py",
+            "sha256": "c9a7c73b1175a971997e82efa67d6d5c9f79aa932d9a6cf3e5b5ee4c613c6bdc"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/preflight.py",
+            "sha256": "d51e4295e4f398ea53f41aa9985a0a4ebf0a772c29084051d7140819b4b5ceab"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/prepare.py",
+            "sha256": "78f58826d925eaaea023f13342e0ffd6a34c383adc6a8e8346f2c803b15ecffc"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/transport.py",
+            "sha256": "95f74f184f9dab9733d4ce56bb59b63f94d67f2caacfb94a1e89d00bcc005c63"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/runtime/workloads.py",
+            "sha256": "a6f3b73c277b32244c5914b34f46fb877dc499b5001f0ef5c3722773c2b84a70"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/session_check.py",
+            "sha256": "4b2d2fd44bed34be2369cf6780ec8acdfc423c8afb68759632996465172165e8"
+          },
+          {
+            "path": "/srv/ax-metadata/code-12/bench/ssh_inventory.py",
+            "sha256": "b4ce0ecf490ebc8247834d3d0d05e964bfaac8b0db762cb2816e5801a707bad8"
+          },
+          {
+            "path": "/usr/bin/python3.12",
+            "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f"
+          }
+        ]
+      },
+      "directory": "/srv/ax-metadata/o/cal-pool-b-j-sf-on3",
+      "spec": {
+        "path": "/srv/ax-metadata/q/cal-pool-b-j-sf-on3-observer/observer.json",
+        "sha256": "d28270593c2d6f36b4dbd1fcda72b8470c520025213514d905269045cec5d878"
+      },
+      "required_live_targets": [
+        "redis"
+      ]
+    },
+    {
+      "id": "pool-b-objects",
+      "node_id": "pool-b-objects",
+      "peer": {
+        "transport": "ssh",
+        "alias": "pool-b-objects",
+        "repo": "/srv/ax-objects-0/code-12",
+        "python": "/usr/bin/python3",
+        "ssh": {
+          "executable": {
+            "path": "/usr/bin/ssh",
+            "sha256": "fc47ea24323fdd5687c5aefae6fd0060faabfa8f2944c6a68f6a442fbe0dd131"
+          },
+          "config": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/ssh.conf",
+            "sha256": "5ed7438217586e9ac6b3af1e0f9c6755ed901b4754f07ed7ed9d2b4e526ab181"
+          },
+          "known_hosts": {
+            "path": "/srv/ax-pilot-control/ssh/known_hosts",
+            "sha256": "7eb5a2c3d6c0ca783120fc5d96754c2c8b4bc4f2d7384368cb5996dc3c9d0288"
+          }
+        },
+        "container": null,
+        "cgroup": null,
+        "pins": [
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/__init__.py",
+            "sha256": "79203ec1349037dca9f7ffd39622d5addb2a578e00f4b47891a623f04939c304"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/experiment_inventory.py",
+            "sha256": "09861e5b6c6c673cf440b0a2eeb72aec7c8002b5e20af499e24b1b2962a2c91e"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/experiment_io.py",
+            "sha256": "c8d37ec3f0c08908cbd5bbf2f81f271d69a7466b653b6dd59caeb4b61fe3531a"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/experiment_step.py",
+            "sha256": "f0038b880f3bb90d2121f89711e8e11fedc3899f9a56c1e9cac6374e8760c7b4"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/__init__.py",
+            "sha256": "dfdeed17e5e59e416dceb7a304447b3c7b295a909441c066811b2f7c255a0eda"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/cohort.py",
+            "sha256": "8203e73c991b82c234665923e26eded2b623e5ad1b1f095a560b29aea1e65f11"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/common.py",
+            "sha256": "c8c9916db9f54b8203132903ebaf59b40d70a27e0f2e7d086eb6e5a446f84960"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/fleet.py",
+            "sha256": "7f874f22977aec01a289918877f1e0759edada61a72159209fcbfaf98d0ad468"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/handoff.py",
+            "sha256": "2a2b8f8e4d8bd44c678337ba6cf679f2b0d53912fc122ac38755b362a2355910"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/maintenance.py",
+            "sha256": "f06067cb58c312e01b32ff81e98b0d88e7f9d357073d4653602eee54cd074719"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/node.py",
+            "sha256": "7f42340df41a257eca4ba160de99a486f7cc8bf1e2513b93ce755c221ba81418"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/observe.py",
+            "sha256": "af4d108441150fe228868ce32916625e06a046b7b64015d185ae0951300534ef"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/pilot_context.py",
+            "sha256": "8f58aa5858d38f004056b1b08e262118bd016973e86e5619226072d5f720108d"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/pilot_pools.py",
+            "sha256": "c9a7c73b1175a971997e82efa67d6d5c9f79aa932d9a6cf3e5b5ee4c613c6bdc"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/preflight.py",
+            "sha256": "d51e4295e4f398ea53f41aa9985a0a4ebf0a772c29084051d7140819b4b5ceab"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/prepare.py",
+            "sha256": "78f58826d925eaaea023f13342e0ffd6a34c383adc6a8e8346f2c803b15ecffc"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/transport.py",
+            "sha256": "95f74f184f9dab9733d4ce56bb59b63f94d67f2caacfb94a1e89d00bcc005c63"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/runtime/workloads.py",
+            "sha256": "a6f3b73c277b32244c5914b34f46fb877dc499b5001f0ef5c3722773c2b84a70"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/session_check.py",
+            "sha256": "4b2d2fd44bed34be2369cf6780ec8acdfc423c8afb68759632996465172165e8"
+          },
+          {
+            "path": "/srv/ax-objects-0/code-12/bench/ssh_inventory.py",
+            "sha256": "b4ce0ecf490ebc8247834d3d0d05e964bfaac8b0db762cb2816e5801a707bad8"
+          },
+          {
+            "path": "/usr/bin/python3.12",
+            "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f"
+          }
+        ]
+      },
+      "directory": "/srv/ax-objects-0/o/cal-pool-b-j-sf-on3",
+      "spec": {
+        "path": "/srv/ax-objects-0/q/cal-pool-b-j-sf-on3-observer/observer.json",
+        "sha256": "be50004ff1350fead8be6437e10448331a12d516e6ac6234468c4ad7d3f9f322"
+      },
+      "required_live_targets": [
+        "rustfs",
+        "collector"
+      ]
+    }
+  ],
+  "ready_timeout_seconds": 120,
+  "review": {
+    "reviewer": "pilot-operator",
+    "note": "One fixed-work files-100000-hot-1024 worker, fresh cache, original backend and reviewed metrics; no next cell or automatic retry."
+  }
+}

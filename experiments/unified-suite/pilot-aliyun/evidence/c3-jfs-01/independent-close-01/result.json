@@ -1,0 +1,352 @@
+{
+  "schema": "closed-flat-cell-independent-audit-v1",
+  "passed": true,
+  "at": "2026-11-11T07:17:46.247567+00:00",
+  "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+  "closing": {
+    "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs.close.json",
+    "sha256": "3eb929d844025a0082049748f7a67feee3136e6cb8f380ce6498bd7f03582d9a"
+  },
+  "retention": {
+    "root": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs",
+    "manifest": {
+      "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs.retention.json",
+      "sha256": "bf5874b66c3ba8928fbd0ec9a003c9a2c2a9db787e0f4e6fd880c8f704e57154"
+    }
+  },
+  "archives": [
+    {
+      "schema": "suite-archive-check-v1",
+      "passed": true,
+      "archive": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/archives/client.tar.gz",
+      "sha256": "f8d74603c8b18c972e9305b3e8a90bc72da65b5450b6c240b1e9cd17a791d397",
+      "bytes": 2329350,
+      "file_members": 3711,
+      "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+      "kind": "client",
+      "deferred": [],
+      "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+    },
+    {
+      "schema": "suite-archive-check-v1",
+      "passed": true,
+      "archive": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/archives/metadata.tar.gz",
+      "sha256": "5b88cf06510526904d51425c1838c3d438b0ab07bc3c956af6470385ad86018b",
+      "bytes": 1583556,
+      "file_members": 3625,
+      "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+      "kind": "metadata",
+      "deferred": [],
+      "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+    },
+    {
+      "schema": "suite-archive-check-v1",
+      "passed": true,
+      "archive": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/archives/objects.tar.gz",
+      "sha256": "3e744b9bec249b712f7ba90a30b8732a961da184312f635c682a405abd359d06",
+      "bytes": 11424826,
+      "file_members": 5684,
+      "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+      "kind": "objects",
+      "deferred": [],
+      "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+    }
+  ],
+  "sample": {
+    "id": "16f4ac389d2a2da6-r1-juicefs",
+    "arm": "juicefs",
+    "pool": "pool-b",
+    "metrics": {
+      "cold-read_wall_seconds": {
+        "value": 5.850454888,
+        "unit": "seconds",
+        "direction": "lower"
+      },
+      "cold-read_io_p99_ns": {
+        "value": 8985461,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "cold-read_application_p99_ns": {
+        "value": 8986863,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "lower-prewarm_wall_seconds": {
+        "value": 1.006544333,
+        "unit": "seconds",
+        "direction": "lower"
+      },
+      "lower-prewarm_io_p99_ns": {
+        "value": 6521804,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "lower-prewarm_application_p99_ns": {
+        "value": 6523805,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "hot-read_wall_seconds": {
+        "value": 3.556332212,
+        "unit": "seconds",
+        "direction": "lower"
+      },
+      "hot-read_io_p99_ns": {
+        "value": 4740277,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "hot-read_application_p99_ns": {
+        "value": 4742279,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "cow_wall_seconds": {
+        "value": 0.423427654,
+        "unit": "seconds",
+        "direction": "lower"
+      },
+      "cow_io_p99_ns": {
+        "value": 19100996,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "cow_application_p99_ns": {
+        "value": 19104827,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "upper-prewarm_wall_seconds": {
+        "value": 0.230927144,
+        "unit": "seconds",
+        "direction": "lower"
+      },
+      "upper-prewarm_io_p99_ns": {
+        "value": 4738364,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "upper-prewarm_application_p99_ns": {
+        "value": 4740321,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "hot-write_wall_seconds": {
+        "value": 0.419377687,
+        "unit": "seconds",
+        "direction": "lower"
+      },
+      "hot-write_io_p99_ns": {
+        "value": 16655764,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "hot-write_application_p99_ns": {
+        "value": 16657326,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "upper-rewarm_wall_seconds": {
+        "value": 0.280140624,
+        "unit": "seconds",
+        "direction": "lower"
+      },
+      "upper-rewarm_io_p99_ns": {
+        "value": 8047693,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "upper-rewarm_application_p99_ns": {
+        "value": 8049590,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "mixed_wall_seconds": {
+        "value": 0.914721211,
+        "unit": "seconds",
+        "direction": "lower"
+      },
+      "mixed_io_p99_ns": {
+        "value": 26435815,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "mixed_application_p99_ns": {
+        "value": 26437059,
+        "unit": "nanoseconds",
+        "direction": "lower"
+      },
+      "create_and_fsync_seconds": {
+        "value": 379.0250696380008,
+        "unit": "seconds",
+        "direction": "lower"
+      },
+      "task_wall": {
+        "value": 12.703075358,
+        "unit": "seconds",
+        "direction": "lower"
+      }
+    },
+    "timings_seconds": {
+      "native_measure": 12.689664067
+    },
+    "accepted": true,
+    "reasons": [],
+    "limitations": [
+      "One agent, one pilot repetition; no scaling or stable speedup conclusion.",
+      "Fresh client caches; shared backend/page caches remain observed."
+    ],
+    "sample": {
+      "path": "/srv/ax-pilot-control/c3-stage-fixed-01/cells/16f4ac389d2a2da6-r1-juicefs/sample.json",
+      "sha256": "e622e33075a158c4d8256e897eff6b206643486549d83b6b36827601bab83913"
+    }
+  },
+  "current_boundaries": [
+    {
+      "role": "client",
+      "alias": "pool-b-client",
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/independent-close-01/client-stdout",
+        "sha256": "27ebe050f73546b6083bee9278c09c453b6a27bcaebacf2e0897a223bb8aac8f"
+      },
+      "observed": {
+        "original_identities": [
+          {
+            "pid": 27409,
+            "start_ticks": 904618,
+            "boot_id": "b4316c9e-f7da-47dc-a443-8f4c87a6cf11",
+            "state": "R",
+            "alive": false
+          },
+          {
+            "pid": 27897,
+            "start_ticks": 943431,
+            "boot_id": "b4316c9e-f7da-47dc-a443-8f4c87a6cf11",
+            "state": "R",
+            "alive": false
+          },
+          {
+            "pid": 27896,
+            "start_ticks": 943395,
+            "boot_id": "b4316c9e-f7da-47dc-a443-8f4c87a6cf11",
+            "state": "R",
+            "alive": false
+          },
+          {
+            "pid": 27510,
+            "start_ticks": 905078,
+            "boot_id": "b4316c9e-f7da-47dc-a443-8f4c87a6cf11",
+            "state": "R",
+            "alive": false
+          },
+          {
+            "pid": 27509,
+            "start_ticks": 905042,
+            "boot_id": "b4316c9e-f7da-47dc-a443-8f4c87a6cf11",
+            "state": "R",
+            "alive": false
+          },
+          {
+            "pid": 28584,
+            "start_ticks": 945803,
+            "boot_id": "b4316c9e-f7da-47dc-a443-8f4c87a6cf11",
+            "state": "R",
+            "alive": false
+          },
+          {
+            "pid": 28583,
+            "start_ticks": 945767,
+            "boot_id": "b4316c9e-f7da-47dc-a443-8f4c87a6cf11",
+            "state": "R",
+            "alive": false
+          }
+        ],
+        "any_original_process_alive": false,
+        "original_owned_mounts": [
+          "/srv/ax-client/a/c3-stage-fixed-jfs-view-01/mnt"
+        ],
+        "current_owned_mounts": [],
+        "source": {
+          "path": "/srv/ax-client/q/c3-d909e5330618-16f4ac389d2a2da6-r1-juicefs-closure/result.json",
+          "sha256": "db782e370a8f6ee1e29a2c2811d5d54c31562c0766b1d6c73233f6cf21aaf684"
+        },
+        "slot_procs": "",
+        "passed": true
+      }
+    },
+    {
+      "role": "metadata",
+      "alias": "pool-b-metadata",
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/independent-close-01/metadata-stdout",
+        "sha256": "6208e37c859f4d820cfafc1da1159cecd7d5c72a9b86b20924fcf42f30caae5c"
+      },
+      "observed": {
+        "original_identities": [
+          {
+            "pid": 9138,
+            "start_ticks": 905809,
+            "boot_id": "166d02b4-1d08-4ee3-bb02-7d75a77e588b",
+            "state": "R"
+          }
+        ],
+        "any_original_process_alive": false,
+        "original_owned_mounts": [],
+        "current_owned_mounts": [],
+        "source": {
+          "path": "/srv/ax-metadata/q/c3-d909e5330618-16f4ac389d2a2da6-r1-juicefs-closure/result.json",
+          "sha256": "d7c2ad3dddafd0efa1f92e1c776e50db509b475a261004f103c867b1da70d845"
+        },
+        "passed": true
+      }
+    },
+    {
+      "role": "objects",
+      "alias": "pool-b-objects",
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c3-stage-fixed-01/independent-close-01/objects-stdout",
+        "sha256": "7a818e0dc8b6d3de8dbfbe4574c3f293313b4de684d277d6751443f6e86c76ef"
+      },
+      "observed": {
+        "original_identities": [
+          {
+            "pid": 14115,
+            "start_ticks": 905063,
+            "boot_id": "6382995a-7168-411b-b972-582ef75828a9",
+            "state": "R"
+          }
+        ],
+        "any_original_process_alive": false,
+        "original_owned_mounts": [],
+        "current_owned_mounts": [],
+        "source": {
+          "path": "/srv/ax-objects-0/q/c3-d909e5330618-16f4ac389d2a2da6-r1-juicefs-closure/result.json",
+          "sha256": "0be87a37ad830ebb9ad22993792a15caa69d9c2fa67e9ecf3c8de1655e28ef73"
+        },
+        "passed": true
+      }
+    }
+  ],
+  "unit": {
+    "MainPID": "0",
+    "ExecMainStatus": "0",
+    "ActiveState": "active",
+    "SubState": "exited"
+  },
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/recheck-tools-pool-b-01/experiments/unified-suite/pilot-aliyun/scripts/audit-closed-flat-cell.py",
+      "sha256": "9efd47b85753aa3287c2b16989f49c5ac13fcbc58ce9ad24ae5443acbe79691b"
+    },
+    {
+      "path": "/srv/ax-pilot-control/c3-stage-fixed-01/suite/plan.json",
+      "sha256": "5e592590920a1ab2f81dc8e93ab4b6720d7a741616ea45e8f716c8cfb3e4eff4"
+    },
+    {
+      "path": "/srv/ax-pilot-control/c3-stage-fixed-01/fleet.json",
+      "sha256": "f85605a02eea141c110c79cfb794bd2acaa83fc80b081cad7619f355ebc3aef1"
+    }
+  ],
+  "scope": "Original complete cell; independent retention/member/raw observer/check acceptance and current original process identities. No workload or sealed evidence modified."
+}

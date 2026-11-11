@@ -1,0 +1,65 @@
+{
+  "schema": "suite-cell-close-v1",
+  "plan_sha256": "0feb04c5e52a28aa26d648386a5887aaffb5a792a7c579f5da25cd78f220a108",
+  "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+  "outcome": "failed",
+  "performance_started": false,
+  "failure_reason": "Frozen controller CLI rejected create-w01 before dispatch. Only three external observers started; all were normally stopped. No filesystem work or valid performance sample exists.",
+  "closure": {
+    "processes": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01/closure.json",
+        "sha256": "dc3a70c902a0227e40d9f666729cb2e31f9c0ec50588182b856f34e5a93b33d9"
+      },
+      "equals": {
+        "all_exited": true
+      }
+    },
+    "mounts": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01/closure.json",
+        "sha256": "dc3a70c902a0227e40d9f666729cb2e31f9c0ec50588182b856f34e5a93b33d9"
+      },
+      "equals": {
+        "all_unmounted": true
+      }
+    },
+    "debt": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01/closure.json",
+        "sha256": "dc3a70c902a0227e40d9f666729cb2e31f9c0ec50588182b856f34e5a93b33d9"
+      },
+      "equals": {
+        "pending_upload_bytes": 0,
+        "pending_upload_operations": 0,
+        "debt_native_observation_applicable": false,
+        "basis": "never-started-formal-work"
+      }
+    }
+  },
+  "retention": {
+    "root": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01",
+    "manifest": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01.retention.json",
+      "sha256": "a054df679c49a743fb040e0b1bdfcc201591f365a89d11d923be9cc2e99aed73"
+    }
+  },
+  "archives": [
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01/archives/client.tar.gz",
+      "sha256": "493a219e7cad9c960125826fe72116c7ab8e8e22261263212bec800ed2ff8c95"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01/archives/metadata.tar.gz",
+      "sha256": "eb861b98e718cb6e0fafac573a7f8b00a92fa0c0d041a5e2c0f3fc423306cd5c"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01/archives/objects.tar.gz",
+      "sha256": "6d5138af8e7eef0c7e2f41ed6953a29e83a5aad39df72ae6955267d8db1f170d"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01.tar.gz",
+      "sha256": "7d13c824db59a2482dbfd00a744b7af5cef654f17b8b757efedb60f9b64932d9"
+    }
+  ]
+}

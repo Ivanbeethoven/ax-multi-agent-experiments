@@ -1,0 +1,15 @@
+--- code13/run-c1.py
++++ code-flat-stage-01/run-c1.py
+@@ -395,9 +395,11 @@
+ def main():
+     p=argparse.ArgumentParser(description=__doc__)
+     p.add_argument('--context',type=Path,required=True)
+-    p.add_argument('--stage',choices=['observe-start','create','mount','measure','drain','unmount','verify','observe-stop','archive'])
++    p.add_argument('--stage',help='One stage from the context cell in the frozen plan')
+     p.add_argument('--close-failed',help='Explicit failure reason after separately recovered offline evidence; never reruns a stage')
+     a=p.parse_args();c=Cell(a.context)
++    if a.stage and a.stage not in c.cell['stages']:
++        raise ValueError('Stage is not in this frozen cell')
+     if a.close_failed:
+         if a.stage:raise ValueError('Choose a stage or explicit failed closure')
+         close_cell(c,'failed',a.close_failed);return

@@ -1,0 +1,19 @@
+{
+  "schema": "c4-setup-request-v1",
+  "reviewed": false,
+  "control": "/srv/ax-pilot-control/fork-control-01",
+  "cell_id": "c5e97774bcffa69a-r1-juicefs",
+  "canonical_control": "/srv/ax-pilot-control/parallel-control-01",
+  "other_lease_controls": [
+    "/srv/ax-pilot-control/c123-control-01",
+    "/srv/ax-pilot-control/c3-stage-fixed-01"
+  ],
+  "code_directory": "code-15",
+  "out": "/srv/ax-pilot-control/fork-control-01/runtime-15-01",
+  "phase_barriers": [],
+  "pending_before_review": [
+    "Actual new C3 complete close receipt",
+    "Original C2 staging result receipt",
+    "Audit agent explicit B handoff; new code15 installed to B three roles"
+  ]
+}

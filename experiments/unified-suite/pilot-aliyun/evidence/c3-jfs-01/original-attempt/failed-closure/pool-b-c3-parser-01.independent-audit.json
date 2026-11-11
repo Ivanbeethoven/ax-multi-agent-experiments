@@ -1,0 +1,84 @@
+{
+  "passed": true,
+  "at": "2026-11-11T06:56:38.006410+00:00",
+  "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+  "retention": {
+    "passed": true,
+    "files": 167,
+    "manifest_sha256": "a054df679c49a743fb040e0b1bdfcc201591f365a89d11d923be9cc2e99aed73",
+    "scope": "local retained bytes only; process termination and experiment acceptance are separate"
+  },
+  "archives": [
+    {
+      "schema": "suite-archive-check-v1",
+      "passed": true,
+      "archive": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01/archives/client.tar.gz",
+      "sha256": "493a219e7cad9c960125826fe72116c7ab8e8e22261263212bec800ed2ff8c95",
+      "bytes": 807976,
+      "file_members": 2542,
+      "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+      "kind": "failed-parser-client",
+      "deferred": [],
+      "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+    },
+    {
+      "schema": "suite-archive-check-v1",
+      "passed": true,
+      "archive": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01/archives/metadata.tar.gz",
+      "sha256": "eb861b98e718cb6e0fafac573a7f8b00a92fa0c0d041a5e2c0f3fc423306cd5c",
+      "bytes": 1147891,
+      "file_members": 2666,
+      "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+      "kind": "failed-parser-metadata",
+      "deferred": [],
+      "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+    },
+    {
+      "schema": "suite-archive-check-v1",
+      "passed": true,
+      "archive": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01/archives/objects.tar.gz",
+      "sha256": "6d5138af8e7eef0c7e2f41ed6953a29e83a5aad39df72ae6955267d8db1f170d",
+      "bytes": 8436647,
+      "file_members": 4192,
+      "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+      "kind": "failed-parser-objects",
+      "deferred": [],
+      "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+    },
+    {
+      "schema": "suite-archive-check-v1",
+      "passed": true,
+      "archive": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pool-b-c3-parser-01.tar.gz",
+      "sha256": "7d13c824db59a2482dbfd00a744b7af5cef654f17b8b757efedb60f9b64932d9",
+      "bytes": 9955011,
+      "file_members": 167,
+      "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+      "kind": "failed-parser-before-formal-work",
+      "deferred": [],
+      "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+    }
+  ],
+  "source_snapshot_differences": [
+    "one-cell-runs/16f4ac389d2a2da6-r1-juicefs/parser-close-command-01/stdout"
+  ],
+  "final_cleanup_command_files": {
+    "stdout": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/parser-close-command-01/stdout",
+      "sha256": "2de052c5f5ec887c470ca2dd12696a8aba54f8e95de81e664b9fd34854ee82e9"
+    },
+    "intent.json": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/parser-close-command-01/intent.json",
+      "sha256": "643b5a2599c525c08449cfeedea33ecff27f857d38190911f6904d231dcf42a4"
+    },
+    "exit.json": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/parser-close-command-01/exit.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17"
+    },
+    "stderr": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/parser-close-command-01/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "interpretation": "Only the cleanup command logger changed after its in-progress snapshot. Original benchmark/calibration files and failure stages remain unchanged. Current final cleanup logs are separately pinned here.",
+  "performance_sample_exists": false
+}

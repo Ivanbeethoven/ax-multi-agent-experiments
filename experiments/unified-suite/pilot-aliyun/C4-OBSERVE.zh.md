@@ -34,3 +34,9 @@ python3 "$FROZEN_REPO/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batc
 正式归档只列实际observer、两个mount及supervisor、worker、leaf和已记录的clone/copy进程；核原PID/boot/start、正常退出、slot空、挂载消失、两次原生零债务。逐成员SHA校验、原始observer审计、`suite_validate`和`sample`验收全通过后才关闭原suite state。失败保留started/lease与现场，不重试、不kill；若原observer/worker/mount仍在或启动身份未知，协调者继续持canonical锁，仅重复只读退出核验。
 
 部署须冻结新代码目录，不能覆盖正在运行的code12/13或已冻结code14。旧draft-02只是code14功能预演请求，不能直接用于本formal入口。
+
+本轮coordinator已建立`/srv/ax-pilot-control/fork-control-01`，仅准备小文件，尚无state。具体请求草稿在`/srv/ax-pilot-control/preparation/c4-setup-01/drafts-01/`，待B原C3完整关闭、原始归档交接后执行。code15位于`/srv/ax-pilot-control/code-15`，manifest另存`preparation/code-15/manifest.json`；不要假定代码目录里存在`.code-manifest.json`。
+
+[setup-c4-control.py](scripts/setup-c4-control.py)的`control/runtime/hardware`动作分别保留原证据、只更新空闲本池runtime、派生代码路径变化后的硬件资格；指定`--runtime-repo /srv/ax-pilot-control/code-15`可独立分发使用。原硬件/API采样时间不改，另记派生时间和源证明；未更新的另一池不重新探测。`runtime`要求原C3关闭及C2数据准备证明，持原canonical锁，并检查`c123-control-01`、`c3-stage-fixed-01`等实际旧state。
+
+[draft-c4-requests.py](scripts/draft-c4-requests.py)从实际code manifest生成6校准+1正式的具体请求。草稿始终`reviewed=false`；先取得实际runtime、硬件及当前collector证明，再新建reviewed请求，保留原稿。coordinator准备原始回执见`evidence/preparation/c4-setup-coordinator-01/`。两项新helper的5个小回归通过；准备不计C4实验完成。
