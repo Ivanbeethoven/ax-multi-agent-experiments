@@ -59,6 +59,24 @@ fn read_checked(root: &Path, index: u64, version: u64, workspace: u64) -> Result
 fn new_file(path: &Path) -> io::Result<File> {
     OpenOptions::new().write(true).create_new(true).open(path)
 }
+fn set_dir_mode(path: &Path) -> io::Result<()> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(path, fs::Permissions::from_mode(0o755))?;
+    }
+    let _ = path;
+    Ok(())
+}
+fn set_file_mode(file: &File) -> io::Result<()> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        file.set_permissions(fs::Permissions::from_mode(0o644))?;
+    }
+    let _ = file;
+    Ok(())
+}
 fn save(path: &Path, data: &str) -> Result<()> {
     let mut f = new_file(path)?;
     f.write_all(data.as_bytes())?;
@@ -380,12 +398,18 @@ fn main_run() -> Result<()> {
     let result = match command {
         "prepare" => {
             fs::create_dir(&root)?;
-            fs::create_dir(root.join("small"))?;
+            set_dir_mode(&root)?;
+            let small = root.join("small");
+            fs::create_dir(&small)?;
+            set_dir_mode(&small)?;
             for d in 0..files.min(1024) {
-                fs::create_dir(root.join("small").join(format!("d{d:04}")))?;
+                let dir = small.join(format!("d{d:04}"));
+                fs::create_dir(&dir)?;
+                set_dir_mode(&dir)?;
             }
             for i in 0..files {
                 let mut f = new_file(&path(&root, i))?;
+                set_file_mode(&f)?;
                 f.write_all(&payload(i, 0, 0))?;
                 f.sync_all()?;
             }

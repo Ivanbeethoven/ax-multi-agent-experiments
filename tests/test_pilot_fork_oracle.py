@@ -45,6 +45,22 @@ class ForkOracle(unittest.TestCase):
                 module.derive(bad, proof, 'child', 16)
             with self.assertRaises(ValueError):module.derive(base, proof, 'child')
 
+    @unittest.skipUnless(sys.platform != 'win32', 'POSIX umask semantics')
+    def test_fixture_and_mutate_modes_are_canonical_across_umasks(self):
+        import os
+        for mask in (0o002, 0o022, 0o077):
+            with self.subTest(umask=oct(mask)), tempfile.TemporaryDirectory() as temporary:
+                previous = os.umask(mask)
+                try:
+                    root = Path(temporary)/'fixture'
+                    proof = fs_step.fixture(root, 16, 4096)
+                    base = tree(root)
+                    expected = module.derive(base, proof, 'umask-child', required_files=16)
+                    fs_step.mutate(root, 'umask-child')
+                    self.assertEqual(tree(root), expected)
+                finally:
+                    os.umask(previous)
+
 
 if __name__ == '__main__':
     unittest.main()
