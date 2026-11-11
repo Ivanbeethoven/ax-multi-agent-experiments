@@ -1,0 +1,142 @@
+{
+  "at": "2026-11-11T05:44:23.885895+00:00",
+  "currency": "CNY",
+  "cost_as_of": "2026-11-11T05:40:46.937910+00:00",
+  "estimated_new_resources_cny": 55.58406790517584,
+  "active_quoted_hourly_cny": 9.237,
+  "controllers": [
+    {
+      "control": "/srv/ax-pilot-control/c123-control-01",
+      "counts": {
+        "pending": 11,
+        "complete": 7,
+        "failed": 1
+      },
+      "accepted_formal_samples": 7,
+      "active_cell_lease_count": 0
+    },
+    {
+      "control": "/srv/ax-pilot-control/parallel-control-01",
+      "counts": {
+        "pending": 18,
+        "failed": 1
+      },
+      "accepted_formal_samples": 0,
+      "active_cell_lease_count": 0
+    }
+  ],
+  "accepted_formal_total": 7,
+  "running_request": {
+    "observed_at": "2026-11-11T05:44:23.899227+00:00",
+    "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+    "unit": "ax-pilot-pb-c3-jfs-runtime12-01.service",
+    "systemd": {
+      "exit_code": 0,
+      "stdout": "MainPID=76048\nExecMainStatus=0\nMemoryCurrent=22421504\nCPUUsageNSec=3789617000\nActiveState=active\nSubState=running\nActiveEnterTimestamp=Wed 2026-11-11 13:30:05 CST\n",
+      "stderr": ""
+    },
+    "trials": [
+      {
+        "number": 1,
+        "mode": "off",
+        "exists": true,
+        "finished_passed": true,
+        "trial_exit": {
+          "exit_code": 0
+        },
+        "latest_command": {
+          "argv": [
+            "sha256sum",
+            "/srv/ax-client/q/cal-pool-b-j-sf-off1/parent-verify/result.json"
+          ],
+          "role": "client",
+          "at": "2026-11-11T05:40:24.467469+00:00",
+          "automatic_retry": false
+        },
+        "latest_command_exit": {
+          "exit_code": 0
+        }
+      },
+      {
+        "number": 2,
+        "mode": "on",
+        "exists": true,
+        "finished_passed": null,
+        "trial_exit": null,
+        "latest_command": {
+          "argv": [
+            "python3",
+            "/srv/ax-client/code-12/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+            "copy-smallfiles",
+            "--asset",
+            "/srv/ax-client/a/parallel-c3-juicefs-01",
+            "--join-slot",
+            "--cell",
+            "16f4ac389d2a2da6-r1-juicefs",
+            "--child-name",
+            "cal-pool-b-j-sf-on1",
+            "--out",
+            "/srv/ax-client/q/cal-pool-b-j-sf-on1/copy",
+            "--workspace",
+            "1",
+            "--smallfiles-verifier",
+            "/srv/ax-client/preparation/pool-b-services-actual-01/smallfiles-verify",
+            "--smallfiles-verifier-sha256",
+            "843e4137ed6692f7b7ca9ee7961964733cfd5ebca7f75aff6d70486c646ecf95"
+          ],
+          "role": "client",
+          "at": "2026-11-11T05:40:29.295774+00:00",
+          "automatic_retry": false
+        },
+        "latest_command_exit": null
+      },
+      {
+        "number": 3,
+        "mode": "on",
+        "exists": false,
+        "finished_passed": null,
+        "trial_exit": null,
+        "latest_command": {},
+        "latest_command_exit": null
+      },
+      {
+        "number": 4,
+        "mode": "off",
+        "exists": false,
+        "finished_passed": null,
+        "trial_exit": null,
+        "latest_command": {},
+        "latest_command_exit": null
+      },
+      {
+        "number": 5,
+        "mode": "off",
+        "exists": false,
+        "finished_passed": null,
+        "trial_exit": null,
+        "latest_command": {},
+        "latest_command_exit": null
+      },
+      {
+        "number": 6,
+        "mode": "on",
+        "exists": false,
+        "finished_passed": null,
+        "trial_exit": null,
+        "latest_command": {},
+        "latest_command_exit": null
+      }
+    ]
+  },
+  "source_pins": [
+    {
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/parallel-20261111-1340-01/state-and-c3-02.json",
+      "sha256": "bb54c57973687c39c5d1c9d24ea5d0bb2fc6e3d4f07c958131666d0d20df83e6"
+    },
+    {
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/parallel-20261111-1340-01/cost-total.json",
+      "sha256": "cb0e71f3c9c45a8247527aec5f5b196c70618911edeee2447b3138c6a4cc7c73"
+    }
+  ],
+  "scope": "Old seven accepted samples remain in their original batch. No calibration or preparation counted as formal. Read-only controller audit; no claim, service change, or workload launch."
+}

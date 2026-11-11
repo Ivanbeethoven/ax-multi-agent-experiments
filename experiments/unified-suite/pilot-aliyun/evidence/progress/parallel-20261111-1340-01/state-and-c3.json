@@ -1,0 +1,708 @@
+{
+  "schema": "pilot-readonly-progress-v1",
+  "observed_at": "2026-11-11T05:42:27.347632+00:00",
+  "controllers": [
+    {
+      "control": "/srv/ax-pilot-control/c123-control-01",
+      "observed_at": "2026-11-11T05:42:27.349853+00:00",
+      "database_read_mode": "ro, consistent read transaction",
+      "plan_sha256": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e",
+      "counts": {
+        "pending": 11,
+        "complete": 7,
+        "failed": 1
+      },
+      "accepted_formal_samples": 7,
+      "active_cell_leases": [],
+      "active_cell_lease_count": 0,
+      "cells": [
+        {
+          "id": "05357b5089cd679c-r1-entity-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "trace",
+          "arm": "entity-native"
+        },
+        {
+          "id": "05357b5089cd679c-r1-juicefs",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "trace",
+          "arm": "juicefs"
+        },
+        {
+          "id": "05357b5089cd679c-r1-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "trace",
+          "arm": "native"
+        },
+        {
+          "id": "05357b5089cd679c-r1-native-workspace",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "trace",
+          "arm": "native-workspace"
+        },
+        {
+          "id": "05357b5089cd679c-r1-packed",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "trace",
+          "arm": "packed"
+        },
+        {
+          "id": "34d56abaf85454a2-r1-juicefs",
+          "status": "complete",
+          "result": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs.close.json",
+            "sha256": "bce745e859025f4375850243972c252272071cccf9fffca9c21f94c21f63f8a2"
+          },
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "juicefs",
+          "closure_outcome": "complete",
+          "closure_sha_verified": true,
+          "sample": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-juicefs/sample.json",
+            "sha256": "69d4e3cf97f15331cc82100651bd31083c53e4bf832d44fd79053d0489404cb0"
+          },
+          "uninterrupted_accepted_sample": true
+        },
+        {
+          "id": "34d56abaf85454a2-r1-native",
+          "status": "complete",
+          "result": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native.close.json",
+            "sha256": "1866678e55eea004a0f9ce5041b28fc005f5d5105cc033e8b4ae56bc5d7420fd"
+          },
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "native",
+          "closure_outcome": "complete",
+          "closure_sha_verified": true,
+          "sample": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/sample.json",
+            "sha256": "3b04ead55c62de379ee3fd99b002fa0bd006aa46c25832730791c78a160e7f8c"
+          },
+          "uninterrupted_accepted_sample": true
+        },
+        {
+          "id": "451ef1d28b5d875c-r1-juicefs",
+          "status": "complete",
+          "result": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs.close.json",
+            "sha256": "412a1a71f4f94cd66a27f2d00c5bab6e1e4b11475dc72057486cb37b4a10424d"
+          },
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "juicefs",
+          "closure_outcome": "complete",
+          "closure_sha_verified": true,
+          "sample": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-juicefs/sample.json",
+            "sha256": "4415be9d386cfa5d4110bd8deab0f66b284090fdcba3b041a90a8dfe1aa2f54a"
+          },
+          "uninterrupted_accepted_sample": true
+        },
+        {
+          "id": "451ef1d28b5d875c-r1-native",
+          "status": "failed",
+          "result": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/451ef1d28b5d875c-r1-native.close.json",
+            "sha256": "62146f33f0d77b1c34f9d88834c35f7f4844f4485579ff681696b8ed1afcc3f7"
+          },
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "native",
+          "closure_outcome": "failed",
+          "closure_sha_verified": true
+        },
+        {
+          "id": "5ca7353ba24b2a18-r1-juicefs",
+          "status": "complete",
+          "result": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs.close.json",
+            "sha256": "ac1fd4b03e69a33cde34f554e3d86cde58a2b0d62a9ab73a9bbfc4f8b77dd165"
+          },
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "juicefs",
+          "closure_outcome": "complete",
+          "closure_sha_verified": true,
+          "sample": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/sample.json",
+            "sha256": "ed593ce409141e4e992d8222a7f035771d5aafd6e85e5ebc8c67a822734376df"
+          },
+          "uninterrupted_accepted_sample": true
+        },
+        {
+          "id": "5ca7353ba24b2a18-r1-native",
+          "status": "complete",
+          "result": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native.close.json",
+            "sha256": "4ae79387b82129633c617662515b744832be54bc7c30dd4c3ef25d8d598b9e83"
+          },
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "native",
+          "closure_outcome": "complete",
+          "closure_sha_verified": true,
+          "sample": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-native/sample.json",
+            "sha256": "78fde053b7558a11994daa4f44898299dfacdf02b3d51b1b2ae6091bb668b199"
+          },
+          "uninterrupted_accepted_sample": true
+        },
+        {
+          "id": "7084af367e0bcfad-r1-juicefs",
+          "status": "complete",
+          "result": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs.close.json",
+            "sha256": "89fb76850a3919082370c30882a331899f3fe97248e743d3dcb4afd3069ad98c"
+          },
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "juicefs",
+          "closure_outcome": "complete",
+          "closure_sha_verified": true,
+          "sample": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/sample.json",
+            "sha256": "fd9f5d5b8ab385ccffcad07cb9dd3b7f33e2cd19eab0ea5c775ab323850c1171"
+          },
+          "uninterrupted_accepted_sample": true
+        },
+        {
+          "id": "7084af367e0bcfad-r1-native",
+          "status": "complete",
+          "result": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native.close.json",
+            "sha256": "09fd6fb542be737b0ff8ef0aa7f4f98b2291f1d7a68a147741f389446f193e35"
+          },
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "native",
+          "closure_outcome": "complete",
+          "closure_sha_verified": true,
+          "sample": {
+            "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-native/sample.json",
+            "sha256": "0e6236247bf9fedb0ac46f0f3b39ebfdae046ab71a8894e9814e603df7cd455a"
+          },
+          "uninterrupted_accepted_sample": true
+        },
+        {
+          "id": "8e3d340ff23c3ece-r1-juicefs",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "juicefs"
+        },
+        {
+          "id": "8e3d340ff23c3ece-r1-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "native"
+        },
+        {
+          "id": "b770794ae2ac6982-r1-entity-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "smallfiles",
+          "arm": "entity-native"
+        },
+        {
+          "id": "b770794ae2ac6982-r1-juicefs",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "smallfiles",
+          "arm": "juicefs"
+        },
+        {
+          "id": "b770794ae2ac6982-r1-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "smallfiles",
+          "arm": "native"
+        },
+        {
+          "id": "b770794ae2ac6982-r1-packed",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "smallfiles",
+          "arm": "packed"
+        }
+      ],
+      "latest_events": [
+        {
+          "sequence": 173,
+          "utc": "2026-11-11T04:09:43.626196+00:00",
+          "kind": "closed",
+          "payload": {
+            "cell": "7084af367e0bcfad-r1-juicefs",
+            "outcome": "complete",
+            "evidence": {
+              "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs.close.json",
+              "sha256": "89fb76850a3919082370c30882a331899f3fe97248e743d3dcb4afd3069ad98c"
+            }
+          }
+        },
+        {
+          "sequence": 172,
+          "utc": "2026-11-11T04:09:40.013010+00:00",
+          "kind": "stage-terminal",
+          "payload": {
+            "cell": "7084af367e0bcfad-r1-juicefs",
+            "stage": "archive",
+            "exit_code": 0,
+            "evidence": {
+              "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/stages/archive/finished.json",
+              "sha256": "0f48b8a67bc1b0c1c40a05cc8b3988c9f2928e951fd367007c26d7114ec1c636"
+            }
+          }
+        },
+        {
+          "sequence": 171,
+          "utc": "2026-11-11T04:09:26.575268+00:00",
+          "kind": "stage-intent",
+          "payload": {
+            "cell": "7084af367e0bcfad-r1-juicefs",
+            "stage": "archive",
+            "spec": {
+              "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/steps/archive.json",
+              "sha256": "8a356778c45dd98db57d17711a72ff5c5c73105ef532f7f9fc24dc976db74c46"
+            },
+            "output": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/stages/archive"
+          }
+        },
+        {
+          "sequence": 170,
+          "utc": "2026-11-11T04:09:26.552119+00:00",
+          "kind": "stage-terminal",
+          "payload": {
+            "cell": "7084af367e0bcfad-r1-juicefs",
+            "stage": "observe-stop",
+            "exit_code": 0,
+            "evidence": {
+              "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/stages/observe-stop/finished.json",
+              "sha256": "94075dabcd5c5eef7940ae64956cc3c86619f4b0758c0fb79a018fb9889352d8"
+            }
+          }
+        },
+        {
+          "sequence": 169,
+          "utc": "2026-11-11T04:09:23.027270+00:00",
+          "kind": "stage-intent",
+          "payload": {
+            "cell": "7084af367e0bcfad-r1-juicefs",
+            "stage": "observe-stop",
+            "spec": {
+              "path": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/steps/observe-stop.json",
+              "sha256": "51e3eef7dd604cd30e4659bbd9062653d4ea63fb4fb85d7dee9ed053bb958f8c"
+            },
+            "output": "/srv/ax-pilot-control/c123-control-01/cells/7084af367e0bcfad-r1-juicefs/stages/observe-stop"
+          }
+        }
+      ]
+    },
+    {
+      "control": "/srv/ax-pilot-control/parallel-control-01",
+      "observed_at": "2026-11-11T05:42:27.350741+00:00",
+      "database_read_mode": "ro, consistent read transaction",
+      "plan_sha256": "0feb04c5e52a28aa26d648386a5887aaffb5a792a7c579f5da25cd78f220a108",
+      "counts": {
+        "pending": 18,
+        "failed": 1
+      },
+      "accepted_formal_samples": 0,
+      "active_cell_leases": [],
+      "active_cell_lease_count": 0,
+      "cells": [
+        {
+          "id": "05357b5089cd679c-r1-entity-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "trace",
+          "arm": "entity-native"
+        },
+        {
+          "id": "05357b5089cd679c-r1-juicefs",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-b",
+          "workload": "trace",
+          "arm": "juicefs"
+        },
+        {
+          "id": "05357b5089cd679c-r1-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "trace",
+          "arm": "native"
+        },
+        {
+          "id": "05357b5089cd679c-r1-native-workspace",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "trace",
+          "arm": "native-workspace"
+        },
+        {
+          "id": "05357b5089cd679c-r1-packed",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "trace",
+          "arm": "packed"
+        },
+        {
+          "id": "16f4ac389d2a2da6-r1-entity-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "smallfiles",
+          "arm": "entity-native"
+        },
+        {
+          "id": "16f4ac389d2a2da6-r1-juicefs",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-b",
+          "workload": "smallfiles",
+          "arm": "juicefs"
+        },
+        {
+          "id": "16f4ac389d2a2da6-r1-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "smallfiles",
+          "arm": "native"
+        },
+        {
+          "id": "16f4ac389d2a2da6-r1-packed",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "smallfiles",
+          "arm": "packed"
+        },
+        {
+          "id": "34d56abaf85454a2-r1-juicefs",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-b",
+          "workload": "fio",
+          "arm": "juicefs"
+        },
+        {
+          "id": "34d56abaf85454a2-r1-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "native"
+        },
+        {
+          "id": "451ef1d28b5d875c-r1-juicefs",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-b",
+          "workload": "fio",
+          "arm": "juicefs"
+        },
+        {
+          "id": "451ef1d28b5d875c-r1-native",
+          "status": "failed",
+          "result": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pa-c1-rr-before-work-01.reviewed-close.json",
+            "sha256": "35d855d012ccbb0de62a8dcab081a9f557108eceaa148beee8897030a3401f0f"
+          },
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "native",
+          "closure_outcome": "failed",
+          "closure_sha_verified": true
+        },
+        {
+          "id": "5ca7353ba24b2a18-r1-juicefs",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-b",
+          "workload": "fio",
+          "arm": "juicefs"
+        },
+        {
+          "id": "5ca7353ba24b2a18-r1-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "native"
+        },
+        {
+          "id": "7084af367e0bcfad-r1-juicefs",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-b",
+          "workload": "fio",
+          "arm": "juicefs"
+        },
+        {
+          "id": "7084af367e0bcfad-r1-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "native"
+        },
+        {
+          "id": "8e3d340ff23c3ece-r1-juicefs",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-b",
+          "workload": "fio",
+          "arm": "juicefs"
+        },
+        {
+          "id": "8e3d340ff23c3ece-r1-native",
+          "status": "pending",
+          "result": null,
+          "pool": "pool-a",
+          "workload": "fio",
+          "arm": "native"
+        }
+      ],
+      "latest_events": [
+        {
+          "sequence": 7,
+          "utc": "2026-11-11T05:29:18.156200+00:00",
+          "kind": "closed",
+          "payload": {
+            "cell": "451ef1d28b5d875c-r1-native",
+            "outcome": "failed",
+            "evidence": {
+              "path": "/srv/ax-pilot-control/parallel-control-01/failed-before-work/pa-c1-rr-before-work-01.reviewed-close.json",
+              "sha256": "35d855d012ccbb0de62a8dcab081a9f557108eceaa148beee8897030a3401f0f"
+            }
+          }
+        },
+        {
+          "sequence": 6,
+          "utc": "2026-11-11T05:13:07.742707+00:00",
+          "kind": "stage-terminal",
+          "payload": {
+            "cell": "451ef1d28b5d875c-r1-native",
+            "stage": "observe-start",
+            "exit_code": 1,
+            "evidence": {
+              "path": "/srv/ax-pilot-control/parallel-control-01/cells/451ef1d28b5d875c-r1-native/stages/observe-start/finished.json",
+              "sha256": "8f7401d9427d43ba8d874fc4f40c27bda0d2d127b1230ac5076146d0629e1d42"
+            }
+          }
+        },
+        {
+          "sequence": 5,
+          "utc": "2026-11-11T05:13:07.243320+00:00",
+          "kind": "stage-intent",
+          "payload": {
+            "cell": "451ef1d28b5d875c-r1-native",
+            "stage": "observe-start",
+            "spec": {
+              "path": "/srv/ax-pilot-control/parallel-control-01/cells/451ef1d28b5d875c-r1-native/steps/observe-start.json",
+              "sha256": "51ddc43c56415c83ae8a6629f24705a44df3ddeb44e4b2dc4c05c5d9b7d027fe"
+            },
+            "output": "/srv/ax-pilot-control/parallel-control-01/cells/451ef1d28b5d875c-r1-native/stages/observe-start"
+          }
+        },
+        {
+          "sequence": 4,
+          "utc": "2026-11-11T05:13:04.462962+00:00",
+          "kind": "claimed",
+          "payload": {
+            "cell": "451ef1d28b5d875c-r1-native",
+            "owner": "pilot-operator-pool-a",
+            "pool": "pool-a"
+          }
+        },
+        {
+          "sequence": 3,
+          "utc": "2026-11-11T05:13:04.453188+00:00",
+          "kind": "asset-registered",
+          "payload": {
+            "asset": "37de6d968821c483dbd34d1f",
+            "evidence": {
+              "path": "/srv/ax-pilot-control/parallel-control-01/cells/451ef1d28b5d875c-r1-native/asset.json",
+              "sha256": "e6ffbc2a509f24fab8c801d8f5f23db8bd8098c148bdc781416cb713bcceccf0"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "running_request": {
+    "observed_at": "2026-11-11T05:42:27.360434+00:00",
+    "request": {
+      "path": "/srv/ax-pilot-control/parallel-control-01/requests/pool-b-juicefs-c3-01.json",
+      "sha256": "9631077017f529ef1f443b0cbd1f2e0544c38ef4f0d6ace67eaec14fea5e059b"
+    },
+    "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+    "pool": "pool-b",
+    "unit": "ax-pilot-pb-c3-jfs-runtime12-01.service",
+    "systemd": {
+      "exit_code": 0,
+      "stdout": "MainPID=76048\nExecMainStatus=0\nMemoryCurrent=22421504\nCPUUsageNSec=3789617000\nActiveState=active\nSubState=running\nActiveEnterTimestamp=Wed 2026-11-11 13:30:05 CST\n",
+      "stderr": ""
+    },
+    "journal": {
+      "exit_code": 0,
+      "stdout": "2026-11-11T13:30:05+08:00 ax-c1-jump systemd[1]: Started ax-pilot-pb-c3-jfs-runtime12-01.service - /usr/bin/python3 /srv/ax-pilot-control/code-13/experiments/unified-suite/pilot-aliyun/scripts/run-one-c1.py --request /srv/ax-pilot-control/parallel-control-01/requests/pool-b-juicefs-c3-01.json --sha256 9631077017f529ef1f443b0cbd1f2e0544c38ef4f0d6ace67eaec14fea5e059b.\n",
+      "stderr": ""
+    },
+    "trials": [
+      {
+        "number": 1,
+        "attempt": "cal-pool-b-j-sf-off1",
+        "mode": "off",
+        "directory": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-sf-off1",
+        "exists": true,
+        "started.json": {
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-sf-off1/started.json",
+            "sha256": "141bc799dbacc5f0e81cededf24b7e144742af304b372f8b97dabf6cdd52ca22"
+          },
+          "value": {
+            "at": "2026-11-11T05:30:07.686965+00:00",
+            "purpose": "observer-calibration-off",
+            "product": "juicefs",
+            "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+            "node_tool_sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858",
+            "automatic_retry": false
+          }
+        },
+        "stdout": {
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-juicefs/trial-1/stdout",
+            "sha256": "9c05e70ed9c7af251c43b235e3c0eb98d4e8976f86073c7eac832463dbbcc137"
+          },
+          "mtime_utc": "2026-11-11T05:40:24.954158+00:00",
+          "tail": "{\"passed\": true, \"product\": \"juicefs\", \"mode\": \"off\", \"makespan_seconds\": 13.125022599, \"collector_name\": \"ax-pilot-20261111-b-collector-01\", \"collector_out\": \"/srv/ax-objects-0/services/collector-01\", \"out\": \"/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-sf-off1\"}\n"
+        },
+        "latest_command": {
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-sf-off1/commands/027/intent.json",
+            "sha256": "3ac11c051993fb675e82f698b235280dec208262fe90b9ce47f38db815972f09"
+          },
+          "value": {
+            "argv": [
+              "sha256sum",
+              "/srv/ax-client/q/cal-pool-b-j-sf-off1/parent-verify/result.json"
+            ],
+            "role": "client",
+            "at": "2026-11-11T05:40:24.467469+00:00",
+            "automatic_retry": false
+          },
+          "exit": {
+            "exit_code": 0
+          }
+        }
+      },
+      {
+        "number": 2,
+        "attempt": "cal-pool-b-j-sf-on1",
+        "mode": "on",
+        "directory": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-sf-on1",
+        "exists": true,
+        "started.json": {
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-sf-on1/started.json",
+            "sha256": "edc76928e10eb1dee029d46e4d990303bfcd78916b4559d4f81fc61ef448cf2b"
+          },
+          "value": {
+            "at": "2026-11-11T05:40:26.003487+00:00",
+            "purpose": "observer-calibration-on",
+            "product": "juicefs",
+            "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+            "node_tool_sha256": "811e4eb2b543de9b9c0f75c0c36bb2aaf5f070486aad5aa84824b79f43dcd858",
+            "automatic_retry": false
+          }
+        },
+        "latest_command": {
+          "evidence": {
+            "path": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-sf-on1/commands/008/intent.json",
+            "sha256": "44a0ee45b583891f79ac221b92b1614a5ac93508bd10e7a95f13dc37bad652be"
+          },
+          "value": {
+            "argv": [
+              "python3",
+              "/srv/ax-client/code-12/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py",
+              "copy-smallfiles",
+              "--asset",
+              "/srv/ax-client/a/parallel-c3-juicefs-01",
+              "--join-slot",
+              "--cell",
+              "16f4ac389d2a2da6-r1-juicefs",
+              "--child-name",
+              "cal-pool-b-j-sf-on1",
+              "--out",
+              "/srv/ax-client/q/cal-pool-b-j-sf-on1/copy",
+              "--workspace",
+              "1",
+              "--smallfiles-verifier",
+              "/srv/ax-client/preparation/pool-b-services-actual-01/smallfiles-verify",
+              "--smallfiles-verifier-sha256",
+              "843e4137ed6692f7b7ca9ee7961964733cfd5ebca7f75aff6d70486c646ecf95"
+            ],
+            "role": "client",
+            "at": "2026-11-11T05:40:29.295774+00:00",
+            "automatic_retry": false
+          },
+          "exit": null
+        }
+      },
+      {
+        "number": 3,
+        "attempt": "cal-pool-b-j-sf-on2",
+        "mode": "on",
+        "directory": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-sf-on2",
+        "exists": false
+      },
+      {
+        "number": 4,
+        "attempt": "cal-pool-b-j-sf-off2",
+        "mode": "off",
+        "directory": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-sf-off2",
+        "exists": false
+      },
+      {
+        "number": 5,
+        "attempt": "cal-pool-b-j-sf-off3",
+        "mode": "off",
+        "directory": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-sf-off3",
+        "exists": false
+      },
+      {
+        "number": 6,
+        "attempt": "cal-pool-b-j-sf-on3",
+        "mode": "on",
+        "directory": "/srv/ax-pilot-control/parallel-control-01/calibration/cal-pool-b-j-sf-on3",
+        "exists": false
+      }
+    ],
+    "scope": "Trials are observation-overhead calibration; not formal accepted cells."
+  }
+}
