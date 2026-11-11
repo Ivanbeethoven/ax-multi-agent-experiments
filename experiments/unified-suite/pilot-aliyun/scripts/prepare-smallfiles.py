@@ -29,11 +29,15 @@ def main():
     p.add_argument('--node-tool-sha256',required=True)
     p.add_argument('--database',type=int,required=True)
     p.add_argument('--attempt',required=True)
+    p.add_argument('--filesystem-binary',type=Path)
+    p.add_argument('--filesystem-binary-sha256')
     p.add_argument('--copier',type=Path,help='Pinned eight-thread native C3 materializer; not used for JuiceFS')
     p.add_argument('--copier-sha256')
     p.add_argument('--verifier',type=Path,help='Pinned parallel full namespace and byte verifier')
     p.add_argument('--verifier-sha256')
     a=p.parse_args()
+    if bool(a.filesystem_binary)!=bool(a.filesystem_binary_sha256):
+        p.error('filesystem-binary requires its exact SHA256')
     if a.copier and (a.product!='brewfs' or digest(a.copier)!=a.copier_sha256):
         raise ValueError('Pinned native C3 materializer only')
     if a.verifier and digest(a.verifier)!=a.verifier_sha256:raise ValueError('Full verifier changed')
@@ -70,7 +74,8 @@ def main():
             elif v is not None:argv+=['--'+k.replace('_','-'),str(v)]
         run(name,argv)
     try:
-        helper('asset-init','asset-init',product=a.product,database=a.database,plan=a.plan,cell=cell['id'],out=a.out/'asset-init-proof')
+        helper('asset-init','asset-init',product=a.product,database=a.database,plan=a.plan,cell=cell['id'],out=a.out/'asset-init-proof',
+               filesystem_binary=a.filesystem_binary,filesystem_binary_sha256=a.filesystem_binary_sha256)
         point=Path(load(a.asset/'asset.json')['mount_point']);base=point/'base'
         helper('draft-mount','draft',cell=cell['id'],out=a.out/'mount')
         state=Path('/srv/ax-client/m')/a.attempt

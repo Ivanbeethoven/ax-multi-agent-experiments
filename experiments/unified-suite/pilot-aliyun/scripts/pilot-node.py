@@ -30,6 +30,14 @@ def ref(path):
     return dict(path=str(path),sha256=digest(path))
 
 
+def filesystem_binary(asset):
+    value=asset.get('filesystem_binary')
+    if value is None:
+        value=ref('/srv/ax-client/assets/bin/'+asset['product'])
+    pinned(value)
+    return value
+
+
 def environment(path):
     values=dict(line.split('=',1) for line in path.read_text().splitlines())
     os.environ.update(AWS_ACCESS_KEY_ID=values['RUSTFS_ACCESS_KEY'],AWS_SECRET_ACCESS_KEY=values['RUSTFS_SECRET_KEY'],
@@ -50,6 +58,8 @@ def main():
     p.add_argument('--plan',type=Path)
     p.add_argument('--cell')
     p.add_argument('--product',choices=['brewfs','juicefs'])
+    p.add_argument('--filesystem-binary',type=Path,help='Exact binary for a new asset; earlier assets retain their original binary')
+    p.add_argument('--filesystem-binary-sha256')
     p.add_argument('--database',type=int)
     p.add_argument('--mount-point',type=Path,help='Explicit canonical C4 session mount; asset initialization only')
     p.add_argument('--mount-run',type=Path)
@@ -74,12 +84,17 @@ def main():
     p.add_argument('--trace-verifier-sha256')
     p.add_argument('--cache-parent-fds',action='store_true')
     a=p.parse_args()
+    if bool(a.filesystem_binary)!=bool(a.filesystem_binary_sha256) or (a.filesystem_binary and a.action!='asset-init'):
+        p.error('filesystem-binary and its SHA256 are only valid together for asset-init')
     environment(Path('/srv/ax-client/private/rustfs.env'))
     if a.join_slot:
         Path('/sys/fs/cgroup/ax-slot-1/cgroup.procs').write_text(str(os.getpid()))
     if a.action=='asset-init':
         if a.product is None or a.database is None or not 20<=a.database<256:
             raise ValueError('Explicit product and unused pilot database 20..255 required')
+        binary=(dict(path=str(a.filesystem_binary),sha256=a.filesystem_binary_sha256) if a.filesystem_binary
+                else ref('/srv/ax-client/assets/bin/'+a.product))
+        pinned(binary)
         a.asset.mkdir(parents=True,exist_ok=False)
         redis='redis://10.20.2.162:6379/'+str(a.database)
         if subprocess.check_output(['redis-cli','-u',redis,'DBSIZE'],text=True).strip()!='0':
@@ -104,7 +119,7 @@ def main():
         if workspace_handoff:
             catalog='ax-pilot-session-'+uuid.uuid4().hex
             data_config=a.asset/'data-config.json';write_new(data_config,dict(data=config['data']))
-            prefix=['/srv/ax-client/assets/bin/brewfs','workspace','--meta-backend','redis',
+            prefix=[binary['path'],'workspace','--meta-backend','redis',
                     '--meta-url',redis,'--workspace-namespace',catalog]
             initialized=None
             for label,argv in [('init-volume',prefix+['init-volume','--data-config',str(data_config)]),
@@ -120,14 +135,14 @@ def main():
         if a.product=='juicefs':
             config=dict(cell['client_settings'],metadata_url=redis)
             with (a.asset/'format.stdout').open('xb') as out,(a.asset/'format.stderr').open('xb') as err:
-                r=subprocess.run(['/srv/ax-client/assets/bin/juicefs','format','--storage','s3','--bucket',
+                r=subprocess.run([binary['path'],'format','--storage','s3','--bucket',
                     'http://10.20.2.163:9000/'+bucket,'--block-size','4M','--compress','none','--trash-days','0',redis,'ax-pilot-'+uuid.uuid4().hex[:12]],stdout=out,stderr=err)
             write_new(a.asset/'format-exit.json',dict(exit_code=r.returncode));r.check_returncode()
         point=a.mount_point or a.asset/'mnt'
         point.mkdir(parents=True,exist_ok=a.mount_point is not None)
         if point.is_symlink() or point.resolve()!=point or os.path.ismount(point) or any(point.iterdir()):
             raise ValueError('Canonical unmounted empty directory required')
-        value=dict(product=a.product,bucket=bucket,database=a.database,seed=plan['config']['seed'],
+        value=dict(product=a.product,filesystem_binary=binary,bucket=bucket,database=a.database,seed=plan['config']['seed'],
             config=config,mount_point=str(point),plan=ref(a.plan),source=cell['workload']+' base on original shared filesystem',
             created_at=datetime.now(timezone.utc).isoformat())
         write_new(a.asset/'asset.json',value)
@@ -142,7 +157,7 @@ def main():
         config=overlay(asset['config'],cell['client_settings'])
         if asset['product']=='brewfs':config['cache']['cache_root']=str(cache)
         config_path=a.out/'native-config.json';write_new(config_path,config)
-        value=draft_mount(ref(config_path),ref('/srv/ax-client/assets/bin/'+asset['product']),asset['product'],'pool-a',
+        value=draft_mount(ref(config_path),filesystem_binary(asset),asset['product'],'pool-a',
             asset['mount_point'],str(REPO),a.out/'specs',
             ['AWS_ACCESS_KEY_ID','AWS_SECRET_ACCESS_KEY','AWS_REGION','AWS_EC2_METADATA_DISABLED','RUST_LOG','NO_COLOR','NO_PROXY','no_proxy'] if asset['product']=='brewfs' else [],
             ['fuse','fuse.brewfs','fuse.juicefs'],
@@ -189,7 +204,7 @@ def main():
             raise ValueError('Copy/clone a qualified flat C2 base only')
         source=Path(asset['mount_point'])/('base' if a.action in ('copy-smallfiles','copy-trace') else 'base-'+str(cell['params']['block_bytes']))
         a.out.mkdir(parents=True,exist_ok=False);begin=time.monotonic()
-        argv=(['/srv/ax-client/assets/bin/juicefs','clone','-p',str(source),str(root)] if asset['product']=='juicefs'
+        argv=([filesystem_binary(asset)['path'],'clone','-p',str(source),str(root)] if asset['product']=='juicefs'
               else ['/usr/bin/cp','-a','--reflink=never','--',str(source),str(root)])
         copier=None
         if a.smallfiles_copier:

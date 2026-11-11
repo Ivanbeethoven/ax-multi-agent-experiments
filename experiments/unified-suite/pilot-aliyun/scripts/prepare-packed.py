@@ -16,7 +16,7 @@ import uuid
 
 REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
-from bench.runtime.common import digest,load,write_new
+from bench.runtime.common import digest,load,write_new,pinned
 from bench.suite_mount import overlay
 
 
@@ -29,6 +29,7 @@ def main():
     p.add_argument('--node-tool-sha256',required=True)
     p.add_argument('--database',type=int,required=True)
     p.add_argument('--mount-state',type=Path,required=True)
+    p.add_argument('--build-root',type=Path,default=Path('/srv/ax-client/assets'))
     a=p.parse_args()
     if a.asset.exists() or a.out.exists() or a.mount_state.exists():raise ValueError('Fresh asset, output and supervisor required')
     if digest(a.node_tool)!=a.node_tool_sha256:raise ValueError('Helper changed')
@@ -39,6 +40,12 @@ def main():
     if source.get('passed') is not True or source.get('files')!=files or source.get('bytes_checked')!=logical_bytes:
         raise ValueError('Complete source qualification must match the declared plan size')
     if not 20<=a.database<256:raise ValueError('Explicit unused pilot database required')
+    build_manifest=a.build_root/'provenance/build-manifest.json'
+    build=load(build_manifest);binaries={}
+    for name in ('brewfs','packed_v3_snapshot_fixture'):
+        item=next(x for x in build['files'] if x['file']==name)
+        value=dict(path=str(a.build_root/'bin'/name),sha256=item['sha256'])
+        pinned(value);binaries[name]=value
     redis='redis://10.20.2.162:6379/'+str(a.database)
     if subprocess.check_output(['redis-cli','-u',redis,'DBSIZE'],text=True).strip()!='0':raise ValueError('Never overwrite metadata')
     a.out.mkdir(parents=True);a.asset.mkdir(parents=True)
@@ -75,7 +82,7 @@ def main():
         finally:client.close()
         temporary=a.asset/'producer-tmp';temporary.mkdir();env['TMPDIR']=str(temporary)
         if temporary.stat().st_dev!=a.source.stat().st_dev:raise ValueError('Producer temporary files must use the declared client data disk')
-        producer='/srv/ax-client/assets/bin/packed_v3_snapshot_fixture';manifest=a.asset/'manifest-key.txt'
+        producer=binaries['packed_v3_snapshot_fixture']['path'];manifest=a.asset/'manifest-key.txt'
         run('producer',[producer,'--source-directory',a.source,'--source-consistency','best-effort-detected',
             '--source-hardlink-policy','visible-links','--output-dir',a.asset/'producer','--manifest-output',manifest,
             '--bucket',bucket,'--endpoint','http://10.20.2.163:9000','--region','us-east-1','--force-path-style','true',
@@ -89,7 +96,8 @@ def main():
             layout={'chunk_size':4194304,'block_size':4194304},fuse={'workers':4,'max_background':512},
             workspace=namespace,workspace_namespace=catalog,entity_volume_id=volume,packed_manifest_key=key),cell['client_settings'])
         point=a.asset/'mnt';point.mkdir()
-        write_new(a.asset/'asset.json',dict(product='brewfs',arm='packed',bucket=bucket,database=a.database,
+        write_new(a.asset/'asset.json',dict(product='brewfs',arm='packed',filesystem_binary=binaries['brewfs'],
+                  build_manifest=ref(build_manifest),bucket=bucket,database=a.database,
                   seed=plan['config']['seed'],config=config,mount_point=str(point),plan=ref(a.plan),
                   producer=ref(a.out/'producer/command.json'),manifest_key=key,source='Complete immutable C3 packed base'))
         helper('draft-mount','draft',cell=cell['id'],out=a.out/'mount')

@@ -47,7 +47,11 @@ def main():
     p.add_argument('--portable-terminal-probe',action='store_true')
     p.add_argument('--cache-parent-fds',action='store_true')
     p.add_argument('--replay-binary',type=Path,default=Path('/srv/ax-client/assets/bin/full-fuse-replay'))
+    p.add_argument('--filesystem-binary',type=Path)
+    p.add_argument('--filesystem-binary-sha256')
     a=p.parse_args()
+    if bool(a.filesystem_binary)!=bool(a.filesystem_binary_sha256):
+        p.error('filesystem-binary requires its exact SHA256')
     if not re.fullmatch(r'[a-z0-9-]{3,32}',a.attempt):raise ValueError('Short explicit attempt required')
     if digest(a.node_tool)!=a.node_tool_sha256 or digest(a.qualifier)!=a.qualifier_sha256:
         raise ValueError('Preparation code changed')
@@ -75,7 +79,8 @@ def main():
         run(name,args)
     active=None;failure=None;stopped=[]
     try:
-        helper('asset-init','asset-init',product=a.product,database=a.database,plan=a.plan,cell=cell['id'],out=a.out/'asset-init-proof')
+        helper('asset-init','asset-init',product=a.product,database=a.database,plan=a.plan,cell=cell['id'],out=a.out/'asset-init-proof',
+               filesystem_binary=a.filesystem_binary,filesystem_binary_sha256=a.filesystem_binary_sha256)
         asset=load(a.asset/'asset.json');point=Path(asset['mount_point'])
         state=Path('/srv/ax-client/m')/('c2-'+arm+'-'+a.attempt)
         helper('draft-mount','draft',cell=cell['id'],out=a.out/'mount')
