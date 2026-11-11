@@ -33,6 +33,7 @@ import os
 from pathlib import Path
 import pwd
 import re
+import signal
 import socket
 import stat
 import subprocess as sp
@@ -167,7 +168,43 @@ def redis_processes():
 
 
 def redis_listening():
-    return any(row.rstrip().endswith(':6379') for row in get('ss', '-H', '-ltn').splitlines())
+    # ss lines end with users:(...), so match the address:port anywhere.
+    return any(':6379' in row for row in get('ss', '-H', '-ltn').splitlines())
+
+
+def unit_active(name):
+    result = sp.run(['systemctl', 'is-active', name], capture_output=True, text=True)
+    return result.stdout.strip() == 'active'
+
+
+def unit_exists(name):
+    result = sp.run(['systemctl', 'cat', name], capture_output=True, text=True)
+    return result.returncode == 0
+
+
+def effective(key):
+    """Read one effective Redis setting, not the file or the command line."""
+    text = get('redis-cli', '-h', REDIS_IP, 'CONFIG', 'GET', key)
+    lines = text.splitlines()
+    require(len(lines) == 2 and lines[0] == key, 'Unexpected CONFIG GET answer for '+key)
+    return lines[1]
+
+
+def verify_effective(seconds=60):
+    """Prove the serving instance really is the original configuration."""
+    deadline = time.monotonic()+seconds
+    last = {}
+    while True:
+        try:
+            last = {key: effective(key) for key in ('appendonly', 'databases', 'dir', 'bind')}
+            if (last['appendonly'] == 'yes' and last['databases'] == '256'
+                    and last['dir'] == '/srv/ax-metadata/redis' and REDIS_IP in last['bind'].split()):
+                return last
+        except Exception as error:
+            last = dict(error=repr(error))
+        require(time.monotonic() < deadline,
+                'The original Redis configuration is not the one serving: '+str(last)[:300])
+        time.sleep(2)
 
 
 def inspect_redis():
@@ -192,18 +229,72 @@ logfile ""
             'Original Redis unit or configuration differs')
     props = dict(line.split('=', 1) for line in get('systemctl', 'show', UNIT,
         '--property=ActiveState,UnitFileState,FragmentPath,DropInPaths,ExecStart,Restart').splitlines())
-    require(props['ActiveState'] == 'inactive' and props['UnitFileState'] == 'static'
+    require(props['UnitFileState'] == 'static'
             and props['FragmentPath'] == str(unit) and not props['DropInPaths'] and props['Restart'] == 'no'
             and 'argv[]=/usr/bin/redis-server '+str(CONF)+' ;' in props['ExecStart'],
-            'Redis must be the original inactive unit without overrides')
-    # A stopped-then-started node may already carry the original redis-server
-    # started outside this unit. Accept only the exact original configuration,
-    # never a foreign listener.
-    pids = redis_processes()
-    listening = redis_listening()
-    require(not listening or pids, 'A foreign process listens on port 6379')
-    require(not pids or listening, 'The original redis-server is not listening')
-    return bool(pids)
+            'Redis must be the original unit without overrides')
+    return props['ActiveState'] == 'active'
+
+
+def foreign_redis_pids():
+    """redis-server processes that are not the original configuration.
+
+    The image starts ``redis-server 127.0.0.1:6379`` from its own init rather
+    than a systemd unit, and that process holds loopback so the original unit
+    cannot bind. Only processes whose argv is not exactly this configuration
+    qualify.
+    """
+    found = []
+    for entry in Path('/proc').iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            argv = [part.decode() for part in (entry/'cmdline').read_bytes().split(b'\0') if part]
+        except OSError:
+            continue
+        if argv and Path(argv[0]).name == 'redis-server' and argv[1:] != [str(CONF)]:
+            found.append(dict(pid=int(entry.name), argv=argv))
+    return found
+
+
+def prepare_redis():
+    """Make the original Redis serve, releasing a foreign holder if needed.
+
+    A stopped-then-started node boots the image's own redis-server, which binds
+    loopback and blocks the original unit (whose configuration binds loopback
+    too). That holder is released here and the action recorded; the effective
+    configuration is then proven through CONFIG GET.
+    """
+    actions = []
+    if redis_listening() and not unit_active(UNIT):
+        for name in ('redis-server', 'redis'):
+            if unit_exists(name) and unit_active(name):
+                run('systemctl', 'stop', name)
+                actions.append(dict(stopped_unit=name))
+        for row in foreign_redis_pids():
+            os.kill(row['pid'], signal.SIGTERM)
+            actions.append(dict(terminated=row))
+        for _ in range(30):
+            if not redis_listening():
+                break
+            time.sleep(1)
+        require(not redis_listening(), 'Port 6379 is still held after releasing the foreign server')
+    if not inspect_redis():
+        run('systemctl', 'start', UNIT)
+        actions.append(dict(started_unit=UNIT))
+    try:
+        effective_config = verify_effective()
+    except Exception:
+        # Keep the reason the original unit refused to serve: the journal is
+        # the only place a failed bind or a missing dir shows up.
+        detail = {}
+        for name, argv in (('status', ['systemctl', 'status', UNIT, '--no-pager', '-l']),
+                           ('journal', ['journalctl', '-u', UNIT, '--no-pager', '-n', '40']),
+                           ('listen', ['ss', '-ltnpH'])):
+            result = sp.run(argv, capture_output=True, text=True)
+            detail[name] = (result.stdout+result.stderr).strip()[-1500:]
+        raise ValueError('Original Redis did not serve: '+json.dumps(detail)[:3000])
+    return dict(actions=actions, running=True, effective=effective_config)
 
 
 def data_path(path, device, uid):
@@ -568,6 +659,7 @@ def main():
     mounted = []
     errors = []
     started = False
+    redis_state = None
     failure = None
     data_root = None if objects else roots[0]/'redis'
     aof_baseline = redis_baseline = None
@@ -591,10 +683,8 @@ def main():
             run('docker', 'start', CID)
         else:
             data_path(data_root, roots[0].stat().st_dev, pwd.getpwnam('redis').pw_uid)
-            already = inspect_redis()
             started = True
-            if not already:
-                run('systemctl', 'start', UNIT)
+            redis_state = prepare_redis()
         last = ''
         for _ in range(30):
             try:
@@ -631,7 +721,7 @@ def main():
             require(redis_baseline['aof']['aof_enabled'] == 1, 'Original Redis AOF must be enabled')
             require(redis_baseline['aof']['aof_rewrite_in_progress'] == 0, 'Redis AOF rewrite in progress')
             require(not redis_baseline['clients']['suspect'], 'A JuiceFS/Go Redis session exists at ready')
-            ready_row.update(aof=aof_baseline, redis=redis_baseline)
+            ready_row.update(aof=aof_baseline, redis=redis_baseline, redis_preparation=redis_state)
         emit(**ready_row)
         for raw in sys.stdin:
             words = raw.split()

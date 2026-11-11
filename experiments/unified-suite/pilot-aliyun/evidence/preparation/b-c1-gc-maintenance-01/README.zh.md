@@ -51,6 +51,31 @@ JuiceFS `gc --threads 1` **尚未执行**。九次尝试都停在协调者/节�
 - 磁盘身份由 2 元组改为 3 元组（device/serial/rdev），修掉 `snapshots` 的解包错误。
 - metadata 侧允许「原配置的 redis-server 已在运行」，但拒绝任何陌生监听；就绪探测同时试私网地址与 loopback，并把最后一次应答写进错误。
 
+## gc 跑通了（第 18 次，只读，未删）
+
+根因是 `redis_listening()` 用 `ss` 行尾匹配 `:6379`，而实际行尾是 `users:(...)`，于是「有监听」永远判假、镜像自带的 redis 从未被释放，原 unit 每次都因 `bind: Address already in use` 起不来。改成按地址端口子串匹配后一次通过。
+
+第 18 次结果（`gc-18/result.json`，`passed: true`，`errors: []`）：
+
+- meta `redis://10.20.2.169:6379/61`，data `s3://10.20.2.170:9000/axp-392c124c743749b1/ax-pilot-66928d652930/` —— **db 61 确认就是原 C1 卷**（8 个 slice、70,948,978,688 B 活数据）。
+- gc 明文（`gc-18/gc.stderr`）：
+
+```
+using 8 slices (70948978688 bytes)
+scanned 20187 objects, 83 valid, 20101 pending delete (69078298624 bytes),
+0 compacted (0 bytes), 3 leaked (12582912 bytes),
+0 delslices (0 bytes), 0 delfiles (0 bytes), 0 skipped (0 bytes)
+Please add `--delete` to clean leaked objects
+```
+
+也就是：**20,101 个对象、69,078,298,624 B（约 69 GB）处于 pending delete**，真正「leaked」的只有 3 个对象 12.6 MB。四盘合计已用 170.9 GB，如果 `--delete` 把这批清掉，按均摊约可为每盘腾出 ~17 GB —— 盘 0 会从 3.06 GB 回到 20 GB 左右。这正是 C1 混合读写需要的量级。
+
+- 安全性证明齐全：AOF 前后完全一致（manifest/两个 part 的 size/mtime/sha256 全部相同，`changed: false`）；`CLIENT LIST` 无 JuiceFS/Go 会话（`peers: 0`，`suspect: []`）；gc 后无 juicefs 进程、无到 `10.20.2.169:6379` 的 established 连接；`gc-exit.json` exit 0 且未超时。
+- client 全程 `Stopped`；objects/metadata 已在 22:54 回到 `StopCharging`。
+- 唯一告警是成本报价 schema 不匹配（`Dated CNY disk quote...`），已作为 warning 记录，不影响 gc 结论。
+
+**注意：本次没有执行 `--delete`。** 69 GB 的 pending delete 是实测出来的「可回收候选」，按协议在删之前仍需一次审核过的决定。
+
 ## 只读诊断的结论（决定性）
 
 02:00 单独启动 metadata 做了一次只读诊断（`metadata-redis-diagnosis-02.json`，探针只读、实例随后回到 `StopCharging`）：
@@ -64,9 +89,9 @@ JuiceFS `gc --threads 1` **尚未执行**。九次尝试都停在协调者/节�
 
 ## 下一步的前置
 
-1. 维护窗口先做一次明确的宿主修复（需要写操作，因此必须单独审核）：`systemctl disable --now redis-server`（镜像自带）→ `systemctl start ax-pilot-redis.service` → 用 `CONFIG GET bind/databases/appendonly/dir` 核实际生效值，而不是只看进程命令行。修复前不要跑 gc，也不要删盘上任何东西。
-2. 节点脚本的「已运行」分支要改成核**生效配置**（`CONFIG GET`），而不是核命令行；否则同一个错误会静默重复。
-3. `meta_url` 的 database 仍按交接记录用 **61**；诊断显示当前根本没有 60/61/62 这些库，因此 gc 即使打通也必须先确认卷身份（`DBSIZE` 与 `INFO keyspace` 有数据）再考虑任何删除。
-4. 若原 Redis 数据目录 `/srv/ax-metadata/redis` 仍在盘上（第 14 次已核四盘重挂成功，可只读检查该目录的 `appendonlydir`），则元数据可能还在、只是服务没起；若目录为空，C1 混合读写的元数据前提就要回到原 asset 重建路径评估。
+1. **是否执行 `gc --delete` 需要一次明确审核。** 只读结果已经给出 69,078,298,624 B 的 pending delete 与 12.6 MB 的真正 leaked；按协议在删之前不动手。执行时应保留同样的 AOF 前后比对与逐盘 du 前后值。
+2. 每次开机窗口都要重复「释放镜像自带 redis → 起原 unit → `CONFIG GET` 核生效值」，因为镜像的 init 会在下次启动时再把它拉起来。若希望一次修好，需要另一次受审核的宿主改动（disable 该 init 或在镜像层去掉）。
+3. 回收之后按 `C1-B-STORAGE-STEP.zh.md` 建新 controller、重做 64 MiB 完整 CRC、六轮新校准与正式单元；本轮维护窗口不计入 C1 正式样本。
+4. `meta_url` 的 database 仍是 **61**，且已由第 18 次的 gc 明文确认是原 C1 卷（data 指向 B RustFS 桶、8 个 slice / 70.9 GB 活数据）。
 
 本轮不改变任何已验收结果，也不把维护窗口计成 C1 正式样本。B 池三台现已全部回到 `Stopped/StopCharging`。

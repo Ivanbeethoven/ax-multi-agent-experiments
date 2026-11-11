@@ -37,6 +37,20 @@ for host in ('127.0.0.1', '10.20.2.169'):
     clients = run('redis-cli', '-h', host, 'CLIENT', 'LIST')
     entry['client_list'] = dict(rc=clients['rc'], head=clients['out'][:800], err=clients['err'])
     res[key] = entry
+# Attempt the fix and keep the whole journal, so a failed start explains itself.
+res['fix'] = {}
+res['fix']['stop_foreign'] = run('systemctl', 'stop', 'redis-server')
+res['fix']['start_original'] = run('systemctl', 'start', 'ax-pilot-redis.service')
+run('sleep', '3')
+res['fix']['active'] = run('systemctl', 'is-active', 'ax-pilot-redis.service')
+res['fix']['status'] = run('systemctl', 'status', 'ax-pilot-redis.service', '--no-pager', '-l')
+res['fix']['journal'] = run('journalctl', '-u', 'ax-pilot-redis.service', '--no-pager', '-n', '60')
+res['fix']['data_dir'] = run('ls', '-ld', '/srv/ax-metadata/redis')
+res['fix']['data_listing'] = dict(rc=0, out='\n'.join(run('ls', '-la', '/srv/ax-metadata/redis')['out'].splitlines()[:15]))
+res['fix']['conf'] = run('cat', '/etc/redis/ax-pilot-20261111-b.conf')
+res['fix']['listen'] = run('ss', '-ltnpH')
+res['fix']['ping_private'] = run('redis-cli', '-h', '10.20.2.169', 'PING')
+res['fix']['config_appendonly'] = run('redis-cli', '-h', '10.20.2.169', 'CONFIG', 'GET', 'appendonly')
 print(json.dumps(res))
 '''
 
