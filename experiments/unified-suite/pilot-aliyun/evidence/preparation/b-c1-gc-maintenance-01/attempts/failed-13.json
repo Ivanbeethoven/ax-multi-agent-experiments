@@ -1,0 +1,191 @@
+{
+  "passed": false,
+  "attempt": "b-c1-gc-13",
+  "at": "2026-11-11T17:48:26.134443+00:00",
+  "error": "Command '['/mnt/c/Windows/System32/OpenSSH/ssh.exe', '-T', '-F', 'C:/Users/HXY/.cache/ax-pilot-20261111/pool-b/ssh.conf', '-oBatchMode=yes', '-oStrictHostKeyChecking=yes', '-oGlobalKnownHostsFile=none', '-oForwardAgent=no', '-oClearAllForwardings=yes', '-oServerAliveInterval=15', '-oServerAliveCountMax=3', 'pool-b-objects', \"sh -c 'umask 077; mkdir -p /var/tmp/b-c1-gc-b-c1-gc-13; cat > /var/tmp/b-c1-gc-b-c1-gc-13/juicefs; chmod 755 /var/tmp/b-c1-gc-b-c1-gc-13/juicefs'\"]' returned non-zero exit status 255.",
+  "errors": [],
+  "automatic_retry": false,
+  "cloud": {
+    "starts": {
+      "objects": {
+        "role": "objects",
+        "instance_id": "i-bp1bhdngko7nq3c3jrhp",
+        "at": "2026-11-11T17:46:55.142924+00:00",
+        "request_id": "01A1CBB8-4BBF-52C1-928A-07FEF4B65E4E"
+      },
+      "metadata": {
+        "role": "metadata",
+        "instance_id": "i-bp14nenf7osz9v1snsp2",
+        "at": "2026-11-11T17:46:56.322978+00:00",
+        "request_id": "01A1CBB8-505B-5C39-8697-D9ACF1C6CE42"
+      }
+    },
+    "running": {
+      "objects": {
+        "at": "2026-11-11T17:47:02.712707+00:00",
+        "request_id": "01A1CBB8-6849-5714-BF62-D2E68A850B92"
+      },
+      "metadata": {
+        "at": "2026-11-11T17:47:02.958690+00:00",
+        "request_id": "01A1CBB8-6947-518B-B9A5-0F7FCD59EAE6"
+      }
+    },
+    "stops": {
+      "objects": {
+        "role": "objects",
+        "instance_id": "i-bp1bhdngko7nq3c3jrhp",
+        "at": "2026-11-11T17:47:15.899030+00:00",
+        "request_id": "01A1CBB8-9CCD-5223-BD8B-25E665D92A41",
+        "readback_request_id": "01A1CBB9-6C1C-5760-ACED-1B4F324E64DB",
+        "already_stopped": false
+      },
+      "metadata": {
+        "role": "metadata",
+        "instance_id": "i-bp14nenf7osz9v1snsp2",
+        "at": "2026-11-11T17:48:09.463816+00:00",
+        "request_id": "01A1CBB9-6E02-5604-80BE-42C678C49B77",
+        "readback_request_id": "01A1CBB9-ACFC-555D-B113-B085E61AD8BD",
+        "already_stopped": false
+      }
+    },
+    "client": {
+      "moment": "after stop",
+      "at": "2026-11-11T17:48:26.102388+00:00",
+      "request_id": "01A1CBB9-ADFC-5C1E-BA5C-3D900693E133",
+      "row": {
+        "AdditionalInfo": {},
+        "AutoReleaseTime": "",
+        "ClockOptions": {},
+        "ClusterId": "",
+        "Cpu": 4,
+        "CpuOptions": {
+          "CoreCount": 2,
+          "Numa": "N/A",
+          "ThreadsPerCore": 2
+        },
+        "CreationTime": "2026-11-11T04:34Z",
+        "CreditSpecification": "",
+        "DedicatedHostAttribute": {
+          "DedicatedHostClusterId": "",
+          "DedicatedHostId": "",
+          "DedicatedHostName": ""
+        },
+        "DedicatedInstanceAttribute": {
+          "Affinity": "",
+          "Tenancy": ""
+        },
+        "DeletionProtection": false,
+        "DeploymentSetId": "",
+        "Description": "",
+        "DeviceAvailable": true,
+        "EcsCapacityReservationAttr": {
+          "CapacityReservationId": "",
+          "CapacityReservationPreference": ""
+        },
+        "EipAddress": {
+          "AllocationId": "",
+          "InternetChargeType": "",
+          "IpAddress": ""
+        },
+        "ExpiredTime": "2099-12-31T15:59Z",
+        "GPUAmount": 0,
+        "GPUSpec": "",
+        "HibernationOptions": {
+          "Configured": false
+        },
+        "HostName": "ax-pilot-20261111-b-client",
+        "ImageId": "ubuntu_24_04_x64_20G_alibase_20261016.vhd",
+        "ImageOptions": {},
+        "InnerIpAddress": {
+          "IpAddress": []
+        },
+        "InstanceChargeType": "PostPaid",
+        "InstanceId": "i-bp1fmmfkcpr8w99j2bsy",
+        "InstanceName": "ax-pilot-20261111-b-client",
+        "InstanceNetworkType": "vpc",
+        "InstanceType": "ecs.u1-c1m4.xlarge",
+        "InstanceTypeFamily": "ecs.u1",
+        "InternetChargeType": "PayByTraffic",
+        "InternetMaxBandwidthIn": -1,
+        "InternetMaxBandwidthOut": 0,
+        "IoOptimized": true,
+        "KeyPairName": "ax-c1-20261106",
+        "Memory": 16384,
+        "MetadataOptions": {
+          "HttpEndpoint": "",
+          "HttpTokens": ""
+        },
+        "NetworkInterfaces": {
+          "NetworkInterface": [
+            {
+              "MacAddress": "00:16:3e:69:ac:07",
+              "NetworkInterfaceId": "eni-bp1fmmfkcpr8w99mr08r",
+              "PrimaryIpAddress": "10.20.2.171",
+              "PrivateIpSets": {
+                "PrivateIpSet": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "10.20.2.171"
+                  }
+                ]
+              },
+              "Type": "Primary"
+            }
+          ]
+        },
+        "OSName": "Ubuntu  24.04 64\u4f4d",
+        "OSNameEn": "Ubuntu  24.04 64 bit",
+        "OSType": "linux",
+        "OperationLocks": {
+          "LockReason": []
+        },
+        "PrivateDnsNameOptions": {},
+        "PublicIpAddress": {
+          "IpAddress": []
+        },
+        "Recyclable": false,
+        "RegionId": "cn-hangzhou",
+        "ResourceGroupId": "",
+        "SaleCycle": "",
+        "SecurityGroupIds": {
+          "SecurityGroupId": [
+            "sg-bp1dj06kwe2uow3nlwsx"
+          ]
+        },
+        "SecurityOptions": {},
+        "SerialNumber": "c72b65ef-736c-4eef-a44a-6997eb705ea0",
+        "SpotPriceLimit": 0.0,
+        "SpotStrategy": "NoSpot",
+        "StartTime": "2026-11-11T04:34Z",
+        "Status": "Stopped",
+        "StoppedMode": "StopCharging",
+        "Tags": {
+          "Tag": [
+            {
+              "TagKey": "campaign",
+              "TagValue": "ax-pilot-20261111-b"
+            },
+            {
+              "TagKey": "role",
+              "TagValue": "client"
+            }
+          ]
+        },
+        "VlanId": "",
+        "VpcAttributes": {
+          "NatIpAddress": "",
+          "PrivateIpAddress": {
+            "IpAddress": [
+              "10.20.2.171"
+            ]
+          },
+          "VSwitchId": "vsw-bp1x2zf92629hnyormlcp",
+          "VpcId": "vpc-bp1cvvscvaviao4vzi6co"
+        },
+        "ZoneId": "cn-hangzhou-j"
+      }
+    }
+  },
+  "nodes": null,
+  "cost": null
+}

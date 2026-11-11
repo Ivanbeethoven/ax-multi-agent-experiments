@@ -1,0 +1,191 @@
+{
+  "passed": false,
+  "attempt": "b-c1-gc-10",
+  "at": "2026-11-11T17:38:23.181097+00:00",
+  "error": "Node closed the protocol unexpectedly: pool-b-metadata",
+  "errors": [],
+  "automatic_retry": false,
+  "cloud": {
+    "starts": {
+      "objects": {
+        "role": "objects",
+        "instance_id": "i-bp1bhdngko7nq3c3jrhp",
+        "at": "2026-11-11T17:34:14.318629+00:00",
+        "request_id": "01A1CBAC-B300-5CCD-BFD8-1A75B932C901"
+      },
+      "metadata": {
+        "role": "metadata",
+        "instance_id": "i-bp14nenf7osz9v1snsp2",
+        "at": "2026-11-11T17:34:15.438962+00:00",
+        "request_id": "01A1CBAC-B7BF-5FD4-B1EF-3BE6A66FBE32"
+      }
+    },
+    "running": {
+      "objects": {
+        "at": "2026-11-11T17:34:21.705659+00:00",
+        "request_id": "01A1CBAC-D169-583F-A3A0-6A33391C8E4B"
+      },
+      "metadata": {
+        "at": "2026-11-11T17:34:21.938402+00:00",
+        "request_id": "01A1CBAC-D266-5225-A103-59EE878C41D7"
+      }
+    },
+    "stops": {
+      "objects": {
+        "role": "objects",
+        "instance_id": "i-bp1bhdngko7nq3c3jrhp",
+        "at": "2026-11-11T17:37:47.034905+00:00",
+        "request_id": "01A1CBAF-F1D6-5651-A08C-57811793C8A8",
+        "readback_request_id": "01A1CBB0-36B0-594D-9D2D-C89842EC207A",
+        "already_stopped": false
+      },
+      "metadata": {
+        "role": "metadata",
+        "instance_id": "i-bp14nenf7osz9v1snsp2",
+        "at": "2026-11-11T17:38:03.691415+00:00",
+        "request_id": "01A1CBB0-38D4-5FDC-B5FD-18EFB474C435",
+        "readback_request_id": "01A1CBB0-7D1F-57C8-B805-677F6A3CFB2C",
+        "already_stopped": false
+      }
+    },
+    "client": {
+      "moment": "after stop",
+      "at": "2026-11-11T17:38:23.149076+00:00",
+      "request_id": "01A1CBB0-7E22-5692-AABF-A30AE6E85A9B",
+      "row": {
+        "AdditionalInfo": {},
+        "AutoReleaseTime": "",
+        "ClockOptions": {},
+        "ClusterId": "",
+        "Cpu": 4,
+        "CpuOptions": {
+          "CoreCount": 2,
+          "Numa": "N/A",
+          "ThreadsPerCore": 2
+        },
+        "CreationTime": "2026-11-11T04:34Z",
+        "CreditSpecification": "",
+        "DedicatedHostAttribute": {
+          "DedicatedHostClusterId": "",
+          "DedicatedHostId": "",
+          "DedicatedHostName": ""
+        },
+        "DedicatedInstanceAttribute": {
+          "Affinity": "",
+          "Tenancy": ""
+        },
+        "DeletionProtection": false,
+        "DeploymentSetId": "",
+        "Description": "",
+        "DeviceAvailable": true,
+        "EcsCapacityReservationAttr": {
+          "CapacityReservationId": "",
+          "CapacityReservationPreference": ""
+        },
+        "EipAddress": {
+          "AllocationId": "",
+          "InternetChargeType": "",
+          "IpAddress": ""
+        },
+        "ExpiredTime": "2099-12-31T15:59Z",
+        "GPUAmount": 0,
+        "GPUSpec": "",
+        "HibernationOptions": {
+          "Configured": false
+        },
+        "HostName": "ax-pilot-20261111-b-client",
+        "ImageId": "ubuntu_24_04_x64_20G_alibase_20261016.vhd",
+        "ImageOptions": {},
+        "InnerIpAddress": {
+          "IpAddress": []
+        },
+        "InstanceChargeType": "PostPaid",
+        "InstanceId": "i-bp1fmmfkcpr8w99j2bsy",
+        "InstanceName": "ax-pilot-20261111-b-client",
+        "InstanceNetworkType": "vpc",
+        "InstanceType": "ecs.u1-c1m4.xlarge",
+        "InstanceTypeFamily": "ecs.u1",
+        "InternetChargeType": "PayByTraffic",
+        "InternetMaxBandwidthIn": -1,
+        "InternetMaxBandwidthOut": 0,
+        "IoOptimized": true,
+        "KeyPairName": "ax-c1-20261106",
+        "Memory": 16384,
+        "MetadataOptions": {
+          "HttpEndpoint": "",
+          "HttpTokens": ""
+        },
+        "NetworkInterfaces": {
+          "NetworkInterface": [
+            {
+              "MacAddress": "00:16:3e:69:ac:07",
+              "NetworkInterfaceId": "eni-bp1fmmfkcpr8w99mr08r",
+              "PrimaryIpAddress": "10.20.2.171",
+              "PrivateIpSets": {
+                "PrivateIpSet": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "10.20.2.171"
+                  }
+                ]
+              },
+              "Type": "Primary"
+            }
+          ]
+        },
+        "OSName": "Ubuntu  24.04 64\u4f4d",
+        "OSNameEn": "Ubuntu  24.04 64 bit",
+        "OSType": "linux",
+        "OperationLocks": {
+          "LockReason": []
+        },
+        "PrivateDnsNameOptions": {},
+        "PublicIpAddress": {
+          "IpAddress": []
+        },
+        "Recyclable": false,
+        "RegionId": "cn-hangzhou",
+        "ResourceGroupId": "",
+        "SaleCycle": "",
+        "SecurityGroupIds": {
+          "SecurityGroupId": [
+            "sg-bp1dj06kwe2uow3nlwsx"
+          ]
+        },
+        "SecurityOptions": {},
+        "SerialNumber": "c72b65ef-736c-4eef-a44a-6997eb705ea0",
+        "SpotPriceLimit": 0.0,
+        "SpotStrategy": "NoSpot",
+        "StartTime": "2026-11-11T04:34Z",
+        "Status": "Stopped",
+        "StoppedMode": "StopCharging",
+        "Tags": {
+          "Tag": [
+            {
+              "TagKey": "campaign",
+              "TagValue": "ax-pilot-20261111-b"
+            },
+            {
+              "TagKey": "role",
+              "TagValue": "client"
+            }
+          ]
+        },
+        "VlanId": "",
+        "VpcAttributes": {
+          "NatIpAddress": "",
+          "PrivateIpAddress": {
+            "IpAddress": [
+              "10.20.2.171"
+            ]
+          },
+          "VSwitchId": "vsw-bp1x2zf92629hnyormlcp",
+          "VpcId": "vpc-bp1cvvscvaviao4vzi6co"
+        },
+        "ZoneId": "cn-hangzhou-j"
+      }
+    }
+  },
+  "nodes": null,
+  "cost": null
+}

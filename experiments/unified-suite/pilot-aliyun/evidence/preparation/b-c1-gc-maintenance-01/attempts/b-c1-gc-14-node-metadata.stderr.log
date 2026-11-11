@@ -1,0 +1,23 @@
+Could not connect to Redis at 10.20.2.169:6379: Connection refused
+Could not connect to Redis at 10.20.2.169:6379: Connection refused
+close verification also failed: stop-service: ValueError('Original Redis unit did not close')
+Traceback (most recent call last):
+  File "/run/b-c1-gc-b-c1-gc-14/node.py", line 705, in <module>
+    main()
+  File "/run/b-c1-gc-b-c1-gc-14/node.py", line 697, in main
+    raise failure
+  File "/run/b-c1-gc-b-c1-gc-14/node.py", line 630, in main
+    redis_baseline = dict(clients=redis_clients(), aof=redis_aof(aof_files_bytes(data_root)))
+                                  ^^^^^^^^^^^^^^^
+  File "/run/b-c1-gc-b-c1-gc-14/node.py", line 383, in redis_clients
+    lines = get('redis-cli', '-h', REDIS_IP, 'CLIENT', 'LIST').splitlines()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/run/b-c1-gc-b-c1-gc-14/node.py", line 74, in get
+    return sp.check_output(argv, text=True, timeout=20).strip()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '('redis-cli', '-h', '10.20.2.169', 'CLIENT', 'LIST')' returned non-zero exit status 1.

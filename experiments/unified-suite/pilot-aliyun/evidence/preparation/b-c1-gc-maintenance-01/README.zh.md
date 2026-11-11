@@ -4,18 +4,18 @@
 
 ## 已经拿到的实测
 
-第 06 次尝试时，objects 节点按原 serial/UUID 重挂四块整盘 ext4、重建四个 bind 并拉起原 RustFS 容器，报告 `ready`：
+第 14 次尝试时（objects boot `32e75a38…`），四块盘按原 serial/UUID 重挂、原 bind 重建、原 RustFS 容器拉起后，节点同时给出了 `statvfs` 与 `du -sx -B1` 的逐盘实测：
 
-| 盘 | 设备 | serial | 可用字节 | 可用 inode |
-| --- | --- | --- | ---: | ---: |
-| /srv/ax-objects-0 | /dev/vdb | bp1bhdngko7nq3c2i340 | 3,063,566,336 | 15,014,516 |
-| /srv/ax-objects-1 | /dev/vdc | bp1bhdngko7nq3c2i341 | 22,063,685,632 | 15,181,150 |
-| /srv/ax-objects-2 | /dev/vdd | bp1bhdngko7nq3c2i342 | 22,063,800,320 | 15,181,054 |
-| /srv/ax-objects-3 | /dev/vde | bp1bhdngko7nq3c2i343 | 22,064,414,720 | 15,181,558 |
+| 盘 | 设备 | 已分配（du） | 文件数 | 可用字节 |
+| --- | --- | ---: | ---: | ---: |
+| /srv/ax-objects-0 | /dev/vdb | 56,987,799,552 | 438,024 | 3,066,109,952 |
+| /srv/ax-objects-1 | /dev/vdc | 37,986,533,376 | 273,645 | 22,067,294,208 |
+| /srv/ax-objects-2 | /dev/vdd | 37,986,746,368 | 273,711 | 22,067,408,896 |
+| /srv/ax-objects-3 | /dev/vde | 37,986,131,968 | 273,375 | 22,068,023,296 |
 
-合计可用 **69,255,467,008 B**。逐盘原始行见 `objects-capacity-06.json`（含 `f_bfree`/`f_ffree`/`st_dev`）。
+合计已分配 **170,947,211,264 B**（1,258,755 个文件），可用 **69,268,836,352 B**。原始行见 `objects-inventory-14.json`；第 06 次只含 `statvfs` 的行见 `objects-capacity-06.json`。
 
-这与 22:35 的只读检查一致：盘 0 仍被已归档的旧观测候选占着，单清盘 0 不够；重挂本身（整盘 ext4 + 原 bind + Docker 身份）已经实际跑通。
+盘 0 用掉了 57 GB、只剩 3.06 GB，其余三盘各余 22 GB：这正是「单清盘 0 不够」的量化依据。重挂本身（整盘 ext4 + 原 bind + Docker 身份）已经实际跑通两次。
 
 ## 没有跑成的部分
 
@@ -35,8 +35,10 @@ JuiceFS `gc --threads 1` **尚未执行**。九次尝试都停在协调者/节�
 | 10 | 同 09（加长等待后确认该字段在 Redis 7 里确实不存在） | `attempts/b-c1-gc-10-node-metadata.stderr.log` |
 | 11 | 上一次失败留下的 guard 仍占着 metadata 磁盘锁 | 无（未启动实例） |
 | 12 | 改由 appendonly 目录实测大小后，Redis 报 `aof_enabled = 0` | `attempts/b-c1-gc-12-node-metadata.stderr.log` |
+| 13 | JuiceFS 二进制首次 125 MB 上传被 ssh 断开（exit 255） | `attempts/failed-13.json` |
+| 14 | objects 到 ready 并给出逐盘 du；metadata 在私网地址上 `CLIENT LIST` 返回 1 | `attempts/b-c1-gc-14-node-metadata.stderr.log` |
 
-第 12 次把问题指到根上：节点上那个「原配置的 redis-server」虽然命令行指向原 conf，但 `INFO persistence` 明确报 **AOF 未启用**，而原 conf 里是 `appendonly yes`。在把这一点查清之前，不能假设 gc 读的是原 C1 的元数据库，也不能做任何删除。
+第 12 次把问题指到根上：节点上那个「原配置的 redis-server」当时在 loopback 上 `INFO persistence` 报 **AOF 未启用**，而原 conf 里是 `appendonly yes`。第 13–14 次改到私网地址查询后 AOF 检查通过（说明原实例确实在 `10.20.2.169:6379` 上、AOF 是开的），但 `CLIENT LIST` 在该地址返回非零——同一个端口上可能同时存在只绑 loopback 的另一个实例，这一点必须在只读诊断窗口里一次看清。
 
 第 09 次之后协议层还有一个真实缺陷：节点进程已退出时 `NodeSession.wait` 仍等到 1 小时 deadline，导致锁和两台实例被多占。已改为「进程退出且队列为空即立即报错」。
 

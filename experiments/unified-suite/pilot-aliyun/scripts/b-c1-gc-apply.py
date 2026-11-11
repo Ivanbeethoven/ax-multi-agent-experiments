@@ -327,7 +327,15 @@ def upload_pinned(ssh, alias, local, remote, expected_sha, mode=0o755):
     argv = ssh_argv(ssh['binary'], ssh['config'], alias,
                     ['sh', '-c', 'umask 077; mkdir -p '+shlex.quote(str(Path(remote).parent))
                      +'; cat > '+shlex.quote(remote)+'; chmod '+format(mode, 'o')+' '+shlex.quote(remote)])
-    subprocess.run(argv, input=data, check=True)
+    # A freshly started host can drop the first large stream; the remote SHA256
+    # below still decides whether the copy is usable.
+    for attempt in range(3):
+        result = subprocess.run(argv, input=data, capture_output=True)
+        if result.returncode == 0:
+            break
+        require(attempt < 2, 'Upload to '+alias+' failed '+str(attempt+1)+' times: '
+                +result.stderr.decode('utf-8', 'replace')[-300:])
+        time.sleep(10)
     observed = remote_text(ssh, alias, ['sha256sum', remote]).split()[0]
     require(observed == expected_sha, 'Remote JuiceFS binary SHA256 differs on '+alias)
 

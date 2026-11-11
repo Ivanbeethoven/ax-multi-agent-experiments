@@ -373,13 +373,14 @@ def established_redis_sockets():
 
 
 def redis_info(section):
-    text = get('redis-cli', '-h', '127.0.0.1', 'INFO', section)
+    # Query the canonical private address: a stock instance may hold only loopback.
+    text = get('redis-cli', '-h', REDIS_IP, 'INFO', section)
     return dict(line.split(':', 1) for line in text.splitlines() if ':' in line)
 
 
 def redis_clients():
     """CLIENT LIST proof that no JuiceFS/Go session survived the maintenance."""
-    lines = get('redis-cli', '-h', '127.0.0.1', 'CLIENT', 'LIST').splitlines()
+    lines = get('redis-cli', '-h', REDIS_IP, 'CLIENT', 'LIST').splitlines()
     probe = [line for line in lines if 'cmd=client' in line]
     peers = [line for line in lines if 'cmd=client' not in line]
     suspect = [line for line in peers if any(token in line for token in

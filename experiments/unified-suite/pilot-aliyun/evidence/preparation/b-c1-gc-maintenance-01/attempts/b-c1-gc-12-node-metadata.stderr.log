@@ -1,0 +1,12 @@
+Could not connect to Redis at 10.20.2.169:6379: Connection refused
+close verification also failed: stop-service: ValueError('Original Redis unit did not close')
+Traceback (most recent call last):
+  File "/run/b-c1-gc-b-c1-gc-12/node.py", line 704, in <module>
+    main()
+  File "/run/b-c1-gc-b-c1-gc-12/node.py", line 696, in main
+    raise failure
+  File "/run/b-c1-gc-b-c1-gc-12/node.py", line 630, in main
+    require(redis_baseline['aof']['aof_enabled'] == 1, 'Original Redis AOF must be enabled')
+  File "/run/b-c1-gc-b-c1-gc-12/node.py", line 70, in require
+    raise ValueError(reason)
+ValueError: Original Redis AOF must be enabled
