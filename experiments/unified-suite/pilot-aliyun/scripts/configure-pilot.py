@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 import sys
 
@@ -25,7 +26,10 @@ def main():
     parser.add_argument('--build-manifest', type=Path)
     parser.add_argument('--input-manifest', type=Path)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--handoff-task-id',help='Actual fixed session input used by this handoff batch')
     args = parser.parse_args()
+    if args.handoff_task_id and (args.phase!='handoff' or not re.fullmatch('[a-z0-9][a-z0-9-]{2,63}',args.handoff_task_id)):
+        parser.error('handoff-task-id requires handoff phase and a simple fixed input ID')
     if any((args.inventory, args.build_manifest, args.input_manifest)) and not all((args.inventory, args.build_manifest, args.input_manifest)):
         parser.error('Provide all three actual inventory/build/input documents, or none for a draft')
     config = template()
@@ -34,6 +38,8 @@ def main():
     config['metadata_backend'] = 'redis'
     config['cases'] = [c for c in config['cases'] if (c['suite'] in ('C1','C2','C3') if args.phase=='c123'
                        else c['workload']==args.phase)]
+    if args.handoff_task_id:
+        for case in config['cases']:case['params']['trace']=args.handoff_task_id
     roles = ['client','metadata','objects'] + (['target'] if args.phase=='handoff' else [])
     pool = config['clusters'][0]
     pool.update(metadata_backend='redis', agent_slots=2 if args.phase=='handoff' else 1,

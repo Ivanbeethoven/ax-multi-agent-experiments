@@ -1,0 +1,196 @@
+{
+  "schema": "suite-sample-v1",
+  "plan_sha256": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e",
+  "cell_id": "34d56abaf85454a2-r1-native",
+  "uninterrupted": true,
+  "recovered": false,
+  "checks": {
+    "correctness": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/verification.json",
+        "sha256": "db8d31f3ddb9d8d34efaebef8ebcf6c8e4c1fe7cd9f8cfa8f4dff9f85c45c0d9"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "34d56abaf85454a2-r1-native"
+      }
+    },
+    "isolation": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/verification.json",
+        "sha256": "db8d31f3ddb9d8d34efaebef8ebcf6c8e4c1fe7cd9f8cfa8f4dff9f85c45c0d9"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "34d56abaf85454a2-r1-native"
+      }
+    },
+    "remote_readback": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/verification.json",
+        "sha256": "db8d31f3ddb9d8d34efaebef8ebcf6c8e4c1fe7cd9f8cfa8f4dff9f85c45c0d9"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "34d56abaf85454a2-r1-native"
+      }
+    },
+    "real_exit": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/verification.json",
+        "sha256": "db8d31f3ddb9d8d34efaebef8ebcf6c8e4c1fe7cd9f8cfa8f4dff9f85c45c0d9"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "34d56abaf85454a2-r1-native"
+      }
+    },
+    "cache_policy": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/verification.json",
+        "sha256": "db8d31f3ddb9d8d34efaebef8ebcf6c8e4c1fe7cd9f8cfa8f4dff9f85c45c0d9"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "34d56abaf85454a2-r1-native"
+      }
+    },
+    "work": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/work-check.json",
+        "sha256": "ef123cc92a2d9e305b54d70cf6e61da5275f39157eff8b82599febaad32be6d8"
+      },
+      "equals": {
+        "passed": true
+      }
+    },
+    "drain": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/closure.json",
+        "sha256": "c0aa8937db9aba2ef80fabbcc9810351c62f3d74b644841088820344efc982da"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "34d56abaf85454a2-r1-native"
+      }
+    },
+    "observer_overhead": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/one-cell-runs/34d56abaf85454a2-r1-native/overhead/result.json",
+        "sha256": "6a634327cd24db69e216e151841fc1e34df603f25d71615acb9be4a879e0a455"
+      },
+      "equals": {
+        "passed": true
+      }
+    }
+  },
+  "required_observer_ids": [
+    "pool-a-client",
+    "pool-a-metadata",
+    "pool-a-objects"
+  ],
+  "required_marks": [
+    "measure-start",
+    "measure-end",
+    "drain-end",
+    "verify-end"
+  ],
+  "observers": [
+    {
+      "id": "pool-a-client",
+      "directory": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/raw/client/o/c1-34d56abaf85454a2-r1-native",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    },
+    {
+      "id": "pool-a-metadata",
+      "directory": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/raw/metadata/o/c1-34d56abaf85454a2-r1-native",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    },
+    {
+      "id": "pool-a-objects",
+      "directory": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/raw/objects/o/c1-34d56abaf85454a2-r1-native",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    }
+  ],
+  "metrics": {
+    "read_bw_bytes": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/io-metrics.json",
+        "sha256": "d97304ce3c44c298b7864cac3c326631c23dc40cab3ea7495a156f11178a2121"
+      },
+      "field": "metrics.read_bw_bytes.value",
+      "unit": "bytes/second",
+      "direction": "higher"
+    },
+    "read_iops": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/io-metrics.json",
+        "sha256": "d97304ce3c44c298b7864cac3c326631c23dc40cab3ea7495a156f11178a2121"
+      },
+      "field": "metrics.read_iops.value",
+      "unit": "operations/second",
+      "direction": "higher"
+    },
+    "read_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/io-metrics.json",
+        "sha256": "d97304ce3c44c298b7864cac3c326631c23dc40cab3ea7495a156f11178a2121"
+      },
+      "field": "metrics.read_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "write_bw_bytes": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/io-metrics.json",
+        "sha256": "d97304ce3c44c298b7864cac3c326631c23dc40cab3ea7495a156f11178a2121"
+      },
+      "field": "metrics.write_bw_bytes.value",
+      "unit": "bytes/second",
+      "direction": "higher"
+    },
+    "write_iops": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/io-metrics.json",
+        "sha256": "d97304ce3c44c298b7864cac3c326631c23dc40cab3ea7495a156f11178a2121"
+      },
+      "field": "metrics.write_iops.value",
+      "unit": "operations/second",
+      "direction": "higher"
+    },
+    "task_wall": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/34d56abaf85454a2-r1-native/cohort/result.json",
+        "sha256": "d7bbc6bdd6be69ed26e662b66bac07fd06715af9a9ad6975ffe6330a4d54d643"
+      },
+      "field": "coordinator_makespan_seconds",
+      "unit": "seconds",
+      "direction": "lower"
+    }
+  },
+  "timings_seconds": {
+    "native_measure": 0.5379796180004632
+  },
+  "limitations": [
+    "One agent, one pilot repetition; no scaling or stable speedup conclusion.",
+    "Fresh client caches; shared backend/page caches remain observed."
+  ]
+}

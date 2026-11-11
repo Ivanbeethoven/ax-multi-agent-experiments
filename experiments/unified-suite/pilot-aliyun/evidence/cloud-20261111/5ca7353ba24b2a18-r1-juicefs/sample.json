@@ -1,0 +1,205 @@
+{
+  "schema": "suite-sample-v1",
+  "plan_sha256": "f1b16c09ede20a8c43ace160002dec635e494632850cf52061495d62c54e790e",
+  "cell_id": "5ca7353ba24b2a18-r1-juicefs",
+  "uninterrupted": true,
+  "recovered": false,
+  "checks": {
+    "correctness": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/verification.json",
+        "sha256": "33532dccf1ece4fd2d47a96e7e768b7d89760e01b821b9ab20f2fe2e0b515c19"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "5ca7353ba24b2a18-r1-juicefs"
+      }
+    },
+    "isolation": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/verification.json",
+        "sha256": "33532dccf1ece4fd2d47a96e7e768b7d89760e01b821b9ab20f2fe2e0b515c19"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "5ca7353ba24b2a18-r1-juicefs"
+      }
+    },
+    "remote_readback": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/verification.json",
+        "sha256": "33532dccf1ece4fd2d47a96e7e768b7d89760e01b821b9ab20f2fe2e0b515c19"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "5ca7353ba24b2a18-r1-juicefs"
+      }
+    },
+    "real_exit": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/verification.json",
+        "sha256": "33532dccf1ece4fd2d47a96e7e768b7d89760e01b821b9ab20f2fe2e0b515c19"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "5ca7353ba24b2a18-r1-juicefs"
+      }
+    },
+    "cache_policy": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/verification.json",
+        "sha256": "33532dccf1ece4fd2d47a96e7e768b7d89760e01b821b9ab20f2fe2e0b515c19"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "5ca7353ba24b2a18-r1-juicefs"
+      }
+    },
+    "work": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/work-check.json",
+        "sha256": "4a53c27ece1311cc579fee17839cf970665d59b5583407df7794be4c83550607"
+      },
+      "equals": {
+        "passed": true
+      }
+    },
+    "drain": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/closure.json",
+        "sha256": "7fb2f67a64dd60c406d7fe09a3e587c4f30ff9261b0c2dec5d84e0ed74a08133"
+      },
+      "equals": {
+        "passed": true,
+        "cell_id": "5ca7353ba24b2a18-r1-juicefs"
+      }
+    },
+    "observer_overhead": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/one-cell-runs/5ca7353ba24b2a18-r1-juicefs-q3/overhead/result.json",
+        "sha256": "60b314f670f6fa206d782fff488bc96ed65d11529995022fb7f5a71c531b7249"
+      },
+      "equals": {
+        "passed": true
+      }
+    }
+  },
+  "required_observer_ids": [
+    "pool-a-client",
+    "pool-a-metadata",
+    "pool-a-objects"
+  ],
+  "required_marks": [
+    "measure-start",
+    "measure-end",
+    "drain-end",
+    "verify-end"
+  ],
+  "observers": [
+    {
+      "id": "pool-a-client",
+      "directory": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/raw/client/o/c1-5ca7353ba24b2a18-r1-juicefs",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    },
+    {
+      "id": "pool-a-metadata",
+      "directory": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/raw/metadata/o/c1-5ca7353ba24b2a18-r1-juicefs",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    },
+    {
+      "id": "pool-a-objects",
+      "directory": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/raw/objects/o/c1-5ca7353ba24b2a18-r1-juicefs",
+      "max_gap_seconds": 30,
+      "marks": [
+        "measure-start",
+        "measure-end",
+        "drain-end",
+        "verify-end"
+      ]
+    }
+  ],
+  "metrics": {
+    "read_bw_bytes": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+        "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+      },
+      "field": "metrics.read_bw_bytes.value",
+      "unit": "bytes/second",
+      "direction": "higher"
+    },
+    "read_iops": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+        "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+      },
+      "field": "metrics.read_iops.value",
+      "unit": "operations/second",
+      "direction": "higher"
+    },
+    "write_bw_bytes": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+        "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+      },
+      "field": "metrics.write_bw_bytes.value",
+      "unit": "bytes/second",
+      "direction": "higher"
+    },
+    "write_iops": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+        "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+      },
+      "field": "metrics.write_iops.value",
+      "unit": "operations/second",
+      "direction": "higher"
+    },
+    "write_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+        "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+      },
+      "field": "metrics.write_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "sync_p99_ns": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/io-metrics.json",
+        "sha256": "f7676fe3da21f841247649ba7d78d5ef6cd0f5f6a48b8b238d7689eb7ac0bf61"
+      },
+      "field": "metrics.sync_p99_ns.value",
+      "unit": "nanoseconds",
+      "direction": "lower"
+    },
+    "task_wall": {
+      "evidence": {
+        "path": "/srv/ax-pilot-control/c123-control-01/cells/5ca7353ba24b2a18-r1-juicefs/cohort/result.json",
+        "sha256": "2c28aea406ab8541e9edef74a6aaf39014ff9e6d2cb038d2884146d298277d54"
+      },
+      "field": "coordinator_makespan_seconds",
+      "unit": "seconds",
+      "direction": "lower"
+    }
+  },
+  "timings_seconds": {
+    "native_measure": 0.985034507997625
+  },
+  "limitations": [
+    "One agent, one pilot repetition; no scaling or stable speedup conclusion.",
+    "Fresh client caches; shared backend/page caches remain observed."
+  ]
+}
