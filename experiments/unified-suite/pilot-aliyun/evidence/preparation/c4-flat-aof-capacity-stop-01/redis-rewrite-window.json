@@ -1,0 +1,181 @@
+{
+  "schema": "c4-flat-aof-rewrite-window-v1",
+  "pool": "pool-a",
+  "cell_id": "c5e97774bcffa69a-r1-native",
+  "scope": "Read-only audit. Conditional logical limit and whole-device write window; not physical allocation or capacity admission.",
+  "capacity_before": {
+    "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-before.json",
+    "sha256": "e2d38c455c5a459c706c77501ef2476de7e5af5269bbfbd8786203d9d080cf35"
+  },
+  "capacity_after": {
+    "path": "/srv/ax-pilot-control/fork-control-01/batch-a-flat-03/capacity-after.json",
+    "sha256": "7f14a3de9c86aa6c5ff94f19f78d71f5aac7b621d9bc79b543326db6f65618b7"
+  },
+  "before_aof_current_size": 431505963,
+  "observed": {
+    "raw_command": [
+      "sadf",
+      "-r",
+      "-t",
+      "-s",
+      "17:40:00",
+      "-e",
+      "19:20:30",
+      "/var/log/sysstat/sa11",
+      "--",
+      "-d",
+      "-p"
+    ],
+    "raw_vdb_lines": [
+      "17:50:05; major; 253; minor; 16; DEV; vdb; tps; 9847161; 10231267; rkB/s; 16186; 16186; wkB/s; 129020032; 133478320; dkB/s; 0; 0; rd_ticks; 96; 96; wr_ticks; 1833622; 1900680; dc_ticks; 0; 0; tot_ticks; 1699718; 1765654; aqu-sz; 2031820; 2106634;",
+      "18:00:00; major; 253; minor; 16; DEV; vdb; tps; 10231267; 11016425; rkB/s; 16186; 16186; wkB/s; 133478320; 142586344; dkB/s; 0; 0; rd_ticks; 96; 96; wr_ticks; 1900680; 2037762; dc_ticks; 0; 0; tot_ticks; 1765654; 1901488; aqu-sz; 2106634; 2259665;",
+      "18:10:05; major; 253; minor; 16; DEV; vdb; tps; 11016425; 11349617; rkB/s; 16186; 16186; wkB/s; 142586344; 147163864; dkB/s; 0; 0; rd_ticks; 96; 96; wr_ticks; 2037762; 2096915; dc_ticks; 0; 0; tot_ticks; 1901488; 1959549; aqu-sz; 2259665; 2325557;",
+      "18:20:05; major; 253; minor; 16; DEV; vdb; tps; 11349617; 11349690; rkB/s; 16186; 16186; wkB/s; 147163864; 147164640; dkB/s; 0; 0; rd_ticks; 96; 96; wr_ticks; 2096915; 2096931; dc_ticks; 0; 0; tot_ticks; 1959549; 1959561; aqu-sz; 2325557; 2325575;",
+      "18:30:00; major; 253; minor; 16; DEV; vdb; tps; 11349690; 11349760; rkB/s; 16186; 16186; wkB/s; 147164640; 147165360; dkB/s; 0; 0; rd_ticks; 96; 96; wr_ticks; 2096931; 2096946; dc_ticks; 0; 0; tot_ticks; 1959561; 1959575; aqu-sz; 2325575; 2325592;",
+      "18:40:05; major; 253; minor; 16; DEV; vdb; tps; 11349760; 11349833; rkB/s; 16186; 16186; wkB/s; 147165360; 147166136; dkB/s; 0; 0; rd_ticks; 96; 96; wr_ticks; 2096946; 2096964; dc_ticks; 0; 0; tot_ticks; 1959575; 1959587; aqu-sz; 2325592; 2325610;",
+      "18:50:00; major; 253; minor; 16; DEV; vdb; tps; 11349833; 11349906; rkB/s; 16186; 16186; wkB/s; 147166136; 147166888; dkB/s; 0; 0; rd_ticks; 96; 96; wr_ticks; 2096964; 2096979; dc_ticks; 0; 0; tot_ticks; 1959587; 1959602; aqu-sz; 2325610; 2325627;",
+      "19:00:00; major; 253; minor; 16; DEV; vdb; tps; 11349906; 11349979; rkB/s; 16186; 16186; wkB/s; 147166888; 147167664; dkB/s; 0; 0; rd_ticks; 96; 96; wr_ticks; 2096979; 2096995; dc_ticks; 0; 0; tot_ticks; 1959602; 1959617; aqu-sz; 2325627; 2325645;",
+      "19:10:05; major; 253; minor; 16; DEV; vdb; tps; 11349979; 11350049; rkB/s; 16186; 16186; wkB/s; 147167664; 147168384; dkB/s; 0; 0; rd_ticks; 96; 96; wr_ticks; 2096995; 2097010; dc_ticks; 0; 0; tot_ticks; 1959617; 1959631; aqu-sz; 2325645; 2325660;",
+      "19:20:15; major; 253; minor; 16; DEV; vdb; tps; 11350049; 11350096; rkB/s; 16186; 16186; wkB/s; 147168384; 147168992; dkB/s; 0; 0; rd_ticks; 96; 96; wr_ticks; 2097010; 2097022; dc_ticks; 0; 0; tot_ticks; 1959631; 1959636; aqu-sz; 2325660; 2325673;"
+    ],
+    "sysstat_version": "sysstat version 12.6.1",
+    "boot_id": "9a6ebc7c-3b6a-4819-8720-d8e61ff5941e",
+    "timezone": "+0800",
+    "redis_package": "redis-server\t5:7.0.15-1ubuntu0.24.04.5",
+    "redis_info": {
+      "redis_version": "7.0.15",
+      "redis_build_id": "d064f9f48c901a92",
+      "process_id": "9779"
+    },
+    "redis_executable_sha256": "8716cd03cf5a0fcd99d0e95f9b04f7983fb134345d6e5802a7f4259af3658b6d",
+    "redis_service": {
+      "MainPID": "9779",
+      "ActiveState": "active",
+      "InvocationID": "175f3fbf994641b19a6b191832799d4c"
+    },
+    "redis_persistence_config": {
+      "appendfsync": "always",
+      "appendonly": "yes",
+      "save": "",
+      "no-appendfsync-on-rewrite": "no"
+    },
+    "device": {
+      "encoded": 64784,
+      "major": 253,
+      "minor": 16,
+      "name": "vdb",
+      "device_stat": [
+        "397",
+        "10",
+        "16186",
+        "96",
+        "11349699",
+        "5573615",
+        "147168992",
+        "2097022",
+        "0",
+        "1959636",
+        "2325673",
+        "0",
+        "0",
+        "0",
+        "0",
+        "7504427",
+        "228555"
+      ],
+      "block_size": 4096,
+      "format": "ext4"
+    },
+    "journal_command": [
+      "journalctl",
+      "_SYSTEMD_UNIT=ax-pilot-redis.service",
+      "_PID=9779",
+      "--since",
+      "2026-11-11 17:40:00",
+      "--until",
+      "2026-11-11 19:20:30",
+      "--no-pager",
+      "-o",
+      "json"
+    ],
+    "journal": [
+      {
+        "__REALTIME_TIMESTAMP": "1794391433603016",
+        "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=4756;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbcd39562;t=65ffd4ffce7c8;x=9191e9c19fa580a8",
+        "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+        "_PID": "9779",
+        "MESSAGE": "9779:M 11 Nov 2026 18:03:53.602 * Starting automatic rewriting of AOF on 100% growth"
+      },
+      {
+        "__REALTIME_TIMESTAMP": "1794391433604311",
+        "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=4757;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbcd39a71;t=65ffd4ffcecd7;x=4fb2e48bd10d5531",
+        "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+        "_PID": "9779",
+        "MESSAGE": "9779:M 11 Nov 2026 18:03:53.604 * Creating AOF incr file appendonly.aof.17.incr.aof on background rewrite"
+      },
+      {
+        "__REALTIME_TIMESTAMP": "1794391433616000",
+        "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=4758;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbcd3c81a;t=65ffd4ffd1a80;x=a7f0eed17866137c",
+        "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+        "_PID": "9779",
+        "MESSAGE": "9779:M 11 Nov 2026 18:03:53.615 * Background append only file rewriting started by pid 65993"
+      },
+      {
+        "__REALTIME_TIMESTAMP": "1794391438243393",
+        "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=475b;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a63dc;t=65ffd5043b641;x=8c3c7a701dc2e930",
+        "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+        "_PID": "9779",
+        "MESSAGE": "9779:M 11 Nov 2026 18:03:58.243 * Background AOF rewrite terminated with success"
+      },
+      {
+        "__REALTIME_TIMESTAMP": "1794391438243686",
+        "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=475c;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a6500;t=65ffd5043b766;x=41eb911c4d36974d",
+        "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+        "_PID": "9779",
+        "MESSAGE": "9779:M 11 Nov 2026 18:03:58.243 * Successfully renamed the temporary AOF base file temp-rewriteaof-bg-65993.aof into appendonly.aof.17.base.rdb"
+      },
+      {
+        "__REALTIME_TIMESTAMP": "1794391438244677",
+        "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=475d;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a68df;t=65ffd5043bb45;x=5c66cea8a5541eab",
+        "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+        "_PID": "9779",
+        "MESSAGE": "9779:M 11 Nov 2026 18:03:58.244 * Removing the history file appendonly.aof.16.incr.aof in the background"
+      },
+      {
+        "__REALTIME_TIMESTAMP": "1794391438244726",
+        "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=475e;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a6910;t=65ffd5043bb76;x=267ed0987b4f1c34",
+        "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+        "_PID": "9779",
+        "MESSAGE": "9779:M 11 Nov 2026 18:03:58.244 * Removing the history file appendonly.aof.16.base.rdb in the background"
+      },
+      {
+        "__REALTIME_TIMESTAMP": "1794391438248540",
+        "__CURSOR": "s=145e74384bed4d14a970c7d42a63bdb3;i=475f;b=9a6ebc7c3b6a48198720d8e61ff5941e;m=cbd1a77f6;t=65ffd5043ca5c;x=806103f94511bf3d",
+        "_BOOT_ID": "9a6ebc7c3b6a48198720d8e61ff5941e",
+        "_PID": "9779",
+        "MESSAGE": "9779:M 11 Nov 2026 18:03:58.248 * Background AOF rewrite finished successfully"
+      }
+    ]
+  },
+  "derivation": {
+    "trigger_growth_pct": 100,
+    "logical_current_at_trigger_conditional_max": 867326985,
+    "write_window_cst": [
+      "2026-11-11T18:00:00+08:00",
+      "2026-11-11T18:10:05+08:00"
+    ],
+    "write_window_sector_counters": [
+      142586344,
+      147163864
+    ],
+    "sector_bytes": 512,
+    "write_window_device_bytes": 2343690240
+  },
+  "source_links": {
+    "redis_growth": "https://github.com/redis/redis/blob/7.0.15/src/server.c#L1248-L1259",
+    "redis_rotation": "https://github.com/redis/redis/blob/7.0.15/src/aof.c#L2251-L2269",
+    "redis_rewrite_base": "https://github.com/redis/redis/blob/7.0.15/src/aof.c#L2475-L2482",
+    "sysstat_raw": "https://github.com/sysstat/sysstat/blob/v12.6.1/raw_stats.c#L565-L572",
+    "sysstat_kernel_sectors": "https://github.com/sysstat/sysstat/blob/v12.6.1/rd_stats.c#L860-L888"
+  }
+}
