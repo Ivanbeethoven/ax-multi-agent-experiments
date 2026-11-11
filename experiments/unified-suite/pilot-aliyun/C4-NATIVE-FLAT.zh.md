@@ -50,4 +50,6 @@ systemd-run --unit=ax-pilot-pa-c4-flat-native-01 \
 
 **2026-11-11 17:19 首次启动结果**：核对分支、C3 归档、空 Redis DB 和物理锁后，code17 部署完成。三个节点 boot ID 未变，客户端和元数据节点探针通过。[对象节点探针](evidence/preparation/c4-flat-a-start-01/object-probe.json)记录对象盘空余 9,876,619,264 B（约 9.20 GiB），低于冻结门槛 10 GiB。原进程退出，未导入、未创建正式批次、未开始测量，也未增加云资源。
 
+**17:38 接续**：[回收回执](evidence/preparation/c4-flat-a-start-01/staging-reclaim.json)记录 22 个归档暂存副本，每个都与独立保存的归档逐文件核对。仅清理暂存副本，原始观测、RustFS 对象和 OSS 数据保留。对象盘实际空余恢复到 22,867,697,664 B（21.30 GiB）。[code18 的 173 个文件与 code17 一致](evidence/preparation/c4-flat-a-start-01/second-stage-check.json)，[分支再核对通过](evidence/preparation/c4-flat-a-start-01/second-latest.json)。部署、运行时及硬件探针均通过；批次入口随后因缺少 `bench.runtime.c4_verify` 在导入阶段退出。没有执行工作区导入或校准。修复运行包时须先验证完整依赖，不更改计时逻辑。
+
 本项只验 Flat 完整拷贝。`workspace-native-v2` 的空派生、Packed 的 C3 冷读，以及 OpenCode 迁移功能预演，各有原来的证据，均不计入本次 C4。
