@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build an independent million-file expected tree from source plus touched state.
+"""Build the complete declared C3 expected tree from source plus touched state.
 
 Never reads the tested output. Hashes the immutable source and computes changed
 4 KiB contents from the documented file/version/workspace generator.
@@ -37,18 +37,19 @@ def main():
     p.add_argument('--source-proof',type=Path,required=True)
     p.add_argument('--state',type=Path)
     p.add_argument('--out',type=Path,required=True)
+    p.add_argument('--files',type=int,choices=[100000,1000000],default=1000000)
     a=p.parse_args();source=load(a.source_proof)
-    if source.get('passed') is not True or source.get('files')!=1000000 or source.get('bytes_checked')!=4096000000:
+    if source.get('passed') is not True or source.get('files')!=a.files or source.get('bytes_checked')!=a.files*4096:
         raise ValueError('Full C3 source qualification required')
     versions={};workspace=None
     if a.state:
         rows=a.state.read_text().splitlines();header=rows[0].split('\t')
-        if len(header)!=3 or header[:2]!=['smallfiles-v1','1000000']:raise ValueError('Exact million-file state required')
+        if len(header)!=3 or header[:2]!=['smallfiles-v1',str(a.files)]:raise ValueError('Exact declared file-count state required')
         workspace=int(header[2])
         if not 0<workspace<=MASK:raise ValueError('Positive u64 workspace required')
         for row in rows[1:]:
             index,version=map(int,row.split('\t'))
-            if index in versions or not 0<=index<1000000 or not 0<version<=MASK:raise ValueError('Bad touched identity')
+            if index in versions or not 0<=index<a.files or not 0<version<=MASK:raise ValueError('Bad touched identity')
             versions[index]=version
     a.out.mkdir(parents=True,exist_ok=False)
     count=0;entries=0;touched=set();size=0
@@ -64,7 +65,7 @@ def main():
                     match=re.fullmatch(r'small/d([0-9]{4})/f([0-9]{7})',key)
                     if not match:raise ValueError('Unexpected C3 file '+key)
                     directory,index=map(int,match.groups())
-                    if not 0<=index<1000000 or directory!=index%1024 or stat.st_size!=4096 or stat.st_nlink!=1:
+                    if not 0<=index<a.files or directory!=index%1024 or stat.st_size!=4096 or stat.st_nlink!=1:
                         raise ValueError('Wrong C3 source identity/size/link topology')
                     data=payload(index,versions[index],workspace) if index in versions else path.read_bytes()
                     value=dict(type='file',bytes=len(data),sha256=hashlib.sha256(data).hexdigest(),mode=stat.st_mode&0o7777)
@@ -75,7 +76,7 @@ def main():
                 first=False;json.dump(key,f);f.write(':');json.dump(value,f);entries+=1
             if any((Path(root)/name).is_symlink() for name in dirs):raise ValueError('Unexpected directory link')
         f.write('}\n')
-    if count!=1000000 or entries!=1001025 or size!=4096000000 or touched!=set(versions):
+    if count!=a.files or entries!=a.files+1025 or size!=a.files*4096 or touched!=set(versions):
         raise ValueError('Incomplete independent expected view')
     write_new(a.out/'expected-hardlinks.json',dict(groups=[]))
     write_new(a.out/'result.json',dict(passed=True,files=count,entries=entries,logical_bytes=size,touched_files=len(touched),

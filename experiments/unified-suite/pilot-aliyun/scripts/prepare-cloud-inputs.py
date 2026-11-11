@@ -23,6 +23,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--assets',type=Path,required=True)
     p.add_argument('--root',type=Path,required=True)
+    p.add_argument('--files',type=int,choices=[100000,1000000],default=1000000)
+    p.add_argument('--sources-only',action='store_true',help='Prepare only C3/C4 sources, without downloading or rerunning C2')
     a=p.parse_args()
     a.root.mkdir(parents=True,exist_ok=False)
     repo=a.assets/'repo'
@@ -36,10 +38,18 @@ def main():
         (receipt/(name+'-exit.json')).write_text(json.dumps(dict(exit_code=r.returncode,wall_seconds=time.monotonic()-begin))+'\n')
         r.check_returncode()
     small=a.assets/'bin/smallfiles'
-    run([small,'prepare','--root',a.root/'million-source','--output',receipt/'c3-prepare','--files','1000000'],'c3-prepare')
-    run([small,'verify-base','--root',a.root/'million-source','--output',receipt/'c3-verify','--files','1000000'],'c3-verify')
-    run(['python3','bench/fs_step.py','fixture','--root',a.root/'fork-source','--files','1000000','--file-bytes','4096','--output',receipt/'c4-fixture.json'],'c4-fixture')
+    source=a.root/('smallfiles-source' if a.files==100000 else 'million-source')
+    run([small,'prepare','--root',source,'--output',receipt/'c3-prepare','--files',str(a.files)],'c3-prepare')
+    run([small,'verify-base','--root',source,'--output',receipt/'c3-verify','--files',str(a.files)],'c3-verify')
+    run(['python3','bench/fs_step.py','fixture','--root',a.root/'fork-source','--files',str(a.files),'--file-bytes','4096','--output',receipt/'c4-fixture.json'],'c4-fixture')
     run(['python3','bench/fs_step.py','snapshot','--root',a.root/'fork-source','--output',receipt/'c4-fixture-tree.json'],'c4-snapshot')
+    if a.sources_only:
+        with (receipt/'c4-fixture-tree.json').open('rb') as f:
+            tree_sha=hashlib.file_digest(f,'sha256').hexdigest()
+        (receipt/'result.json').write_text(json.dumps(dict(passed=True,at=datetime.now(timezone.utc).isoformat(),
+            c3_files=a.files,c4_files=a.files,bytes_per_input=a.files*4096,c4_tree_sha256=tree_sha,
+            trace=None,sources_only=True,scope=started['scope']),indent=2)+'\n')
+        return
     run(['python3','scenarios/k8s-containers/scripts/download_archives.py','--out',a.root/'archives','--cases','pytest-full-02','--internal'],'trace-download')
     cases=a.root/'cases'; cases.mkdir()
     with tarfile.open(a.root/'archives/pytest-full-02.tar.gz') as t:
@@ -50,7 +60,7 @@ def main():
     with (receipt/'c4-fixture-tree.json').open('rb') as f:
         tree_sha=hashlib.file_digest(f,'sha256').hexdigest()
     (receipt/'result.json').write_text(json.dumps(dict(passed=True,at=datetime.now(timezone.utc).isoformat(),
-        c3_files=1000000,c4_files=1000000,c4_tree_sha256=tree_sha,trace='pytest-full-02',scope=started['scope']),indent=2)+'\n')
+        c3_files=a.files,c4_files=a.files,c4_tree_sha256=tree_sha,trace='pytest-full-02',scope=started['scope']),indent=2)+'\n')
 
 
 if __name__=='__main__':

@@ -83,8 +83,9 @@ def sizing(plan):
             row.update(source_logical_bytes=p['files']*p['file_bytes'],workspaces=factor,
                        read_operations=n['verified_reads']*factor,write_operations=n['writes']*factor)
         elif kind=='fork':
-            row.update(children=p['children'],source_logical_bytes=1000000*4096,
-                       eager_base_plus_children_logical_bytes=(1+p['children'])*1000000*4096)
+            logical=p.get('files',1000000)*p.get('file_bytes',4096)
+            row.update(children=p['children'],source_logical_bytes=logical,
+                       eager_base_plus_children_logical_bytes=(1+p['children'])*logical)
         elif kind=='handoff' and cell['arm']['handoff_mode']=='move':
             row['agent_slots']=agents+p['moved_agents']  # Source + reserved target.
         row.update(reserved_cpus=row['agent_slots']*2,reserved_memory_bytes=row['agent_slots']*8*1024**3)

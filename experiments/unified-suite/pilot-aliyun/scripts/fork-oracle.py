@@ -2,7 +2,7 @@
 """Derive C4 child expectations from the closed input, before touching a filesystem.
 
 Same challenge as bench/fs_step.py mutate; no mount, copy, network or model call.
-The CLI always requires the complete million-file fork fixture.
+The CLI requires the complete explicitly selected 100k or million-file fixture.
 """
 import argparse
 from datetime import datetime, timezone
@@ -57,6 +57,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     for name in ('base-tree','base-tree-sha256','fixture-proof','fixture-proof-sha256','tag','out'):
         p.add_argument('--'+name, required=True)
+    p.add_argument('--files',type=int,choices=[100000,1000000],default=1000000)
     a = p.parse_args()
     tree_ref = dict(path=a.base_tree, sha256=a.base_tree_sha256)
     proof_ref = dict(path=a.fixture_proof, sha256=a.fixture_proof_sha256)
@@ -64,11 +65,11 @@ def main():
     out = Path(a.out)
     if not out.is_absolute() or out.exists() or out.is_symlink():
         raise ValueError('New absolute outside output directory required')
-    expected = derive(base, proof, a.tag)
+    expected = derive(base, proof, a.tag, required_files=a.files)
     out.mkdir(parents=True)
     write_new(out/'expected-tree.json', expected)
     first = base['d000000/f00000000']
-    result = dict(passed=True, at=datetime.now(timezone.utc).isoformat(), files=1000000,
+    result = dict(passed=True, at=datetime.now(timezone.utc).isoformat(), files=a.files,
         tag=a.tag, base_tree=tree_ref, fixture=proof_ref,
         expected_tree=dict(path=str(out/'expected-tree.json'), sha256=digest(out/'expected-tree.json')),
         first_read=dict(path='d000000/f00000000', bytes=first['bytes'], sha256=first['sha256']),

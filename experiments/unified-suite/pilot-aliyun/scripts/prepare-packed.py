@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish one full C3 packed base, mount it once and verify every source file.
+"""Publish the declared complete C3 packed base and verify every source file.
 
 Fresh entity namespace is used only for this immutable-base check. It does not
 prove reopening an upper, which requires the original-namespace reader.
@@ -33,9 +33,11 @@ def main():
     if a.asset.exists() or a.out.exists() or a.mount_state.exists():raise ValueError('Fresh asset, output and supervisor required')
     if digest(a.node_tool)!=a.node_tool_sha256:raise ValueError('Helper changed')
     source=load(a.source_proof);plan=load(a.plan)
-    if source.get('passed') is not True or source.get('files')!=1000000 or source.get('bytes_checked')!=4096000000:
-        raise ValueError('Complete million-file source qualification required')
     cell=next(c for c in plan['cells'] if c['workload']=='smallfiles' and c['arm_id']=='packed')
+    files=cell['params']['files'];logical_bytes=files*4096
+    if files not in (100000,1000000):raise ValueError('Declared 100k or million-file base required')
+    if source.get('passed') is not True or source.get('files')!=files or source.get('bytes_checked')!=logical_bytes:
+        raise ValueError('Complete source qualification must match the declared plan size')
     if not 20<=a.database<256:raise ValueError('Explicit unused pilot database required')
     redis='redis://10.20.2.162:6379/'+str(a.database)
     if subprocess.check_output(['redis-cli','-u',redis,'DBSIZE'],text=True).strip()!='0':raise ValueError('Never overwrite metadata')
@@ -93,9 +95,9 @@ def main():
         helper('draft-mount','draft',cell=cell['id'],out=a.out/'mount')
         helper('start','mount-start',join_slot=True,spec=a.out/'mount/mount.reviewed.json',out=a.mount_state);active=True
         run('full-base-check',['/srv/ax-client/assets/bin/smallfiles','verify-base','--root',point,
-                             '--output',a.out/'base-check','--files','1000000'])
+                             '--output',a.out/'base-check','--files',str(files)])
         checked=load(a.out/'base-check/result.json')
-        if checked.get('passed') is not True or checked.get('files')!=1000000 or checked.get('bytes_checked')!=4096000000:
+        if checked.get('passed') is not True or checked.get('files')!=files or checked.get('bytes_checked')!=logical_bytes:
             raise ValueError('Complete packed base check failed')
         helper('stop','normal-stop',mount_run=a.mount_state,out=a.out/'normal-stop.json');active=False
         write_new(a.out/'result.json',dict(passed=True,cell_id=cell['id'],asset=ref(a.asset/'asset.json'),source=ref(a.source_proof),

@@ -1,0 +1,115 @@
+{
+  "passed": true,
+  "at": "2026-11-11T03:01:09.369947+00:00",
+  "files_per_input": 100000,
+  "bytes_per_input": 409600000,
+  "cloud_performance_completed": false,
+  "source_pins": {
+    "AGENTS.md": "4c285204ef3b8f42b92274bf02b2d5b9265f8a31b5e48cac58fc3f49f78d93dc",
+    "bench/suite_catalog.py": "2edc58ddb6ba76f845213dbcfae799064212e15ecef1e15f96863d711e332539",
+    "bench/suite_plan.py": "f62e8e521aec6b53c5b678772d6506eb0fb785f71ff04d95348d15617c621435",
+    "bench/suite_support.py": "1a0378ea263dfa6c6311dbfa45f3606051b759c31681161cb9f4eaccc5228592",
+    "tests/test_pilot_file_count.py": "7602a5ab8e327ae029d1da289590f57c0dfd2185ef3373c4b1c70a8c7e6df5a6",
+    "experiments/unified-suite/pilot-aliyun/PILOT-100K.zh.md": "19fb5bb40ce30e8b80c4cad77dcc0619b06a5caa02e7651e275493ea4c872cf8",
+    "experiments/unified-suite/pilot-aliyun/scope.json": "97dca231e2da9fa9b4c4d98dc9c361bc254e58558c9fe9411bfe473c2a631034",
+    "experiments/unified-suite/pilot-aliyun/scripts/close-cloud-inputs.py": "733ed0eb411fefbfcecb0cc1dfc72a93a267eea3c15d26e38c2070823a5dfa04",
+    "experiments/unified-suite/pilot-aliyun/scripts/configure-pilot.py": "88e793b1631c3a3ae5d5ecdce9f2f538d8da972cefeb922cc0b5aa14b7f7059e",
+    "experiments/unified-suite/pilot-aliyun/scripts/fork-oracle.py": "06a226948fbae50ac3d897617530bf9829d28780f7b38257a9fe58fee3a27b00",
+    "experiments/unified-suite/pilot-aliyun/scripts/prepare-c3-controller.py": "70d750c7e3fad14e806ad00da3a7eb9c59dd86ceaee8861e2c35acae72a12daf",
+    "experiments/unified-suite/pilot-aliyun/scripts/prepare-cloud-inputs.py": "962a8b79edac2a572e5adfa6212120104eb54f0583a7664a1317481c51588871",
+    "experiments/unified-suite/pilot-aliyun/scripts/prepare-packed.py": "9f7fdbff4fc158f3066ae83668c53e3da08d90e182b2ac8e9870336627682a80",
+    "experiments/unified-suite/pilot-aliyun/scripts/prepare-smallfiles.py": "ac3f6752dbc7a362174e64c375870cea60889d630a6a794b9aecd20c904ffcae",
+    "experiments/unified-suite/pilot-aliyun/scripts/smallfiles-oracle.py": "4e4b454094aa2f78a42498b77d013b16da9fbf4a9318b671153ea2763b6a1727",
+    "experiments/unified-suite/pilot-aliyun/scripts/prepare-inputs.sh": "fa5d3e3940d7cd8ff1770f5aa450e982e8bb0fd12a99083749360a340013db7c"
+  },
+  "executed_preparation_sha256": "457db502f49979b44da6d20d370cae8a23e22e9c53a28d58a57231dcf5667ea3",
+  "preparation_failure_preserved": true,
+  "c3_independent": {
+    "passed": true,
+    "completed": true,
+    "files": 100000,
+    "bytes_checked": 409600000,
+    "touched_files": 0,
+    "workspace": 1,
+    "workers": 8,
+    "full_namespace": true,
+    "modes_owners_links": true,
+    "wall_seconds": 0.079064839
+  },
+  "c3_expected": {
+    "passed": true,
+    "files": 100000,
+    "entries": 101025,
+    "logical_bytes": 409600000,
+    "touched_files": 0,
+    "workspace": null,
+    "tree_sha256": "d7fe442bea6326f7ff4587a3b55eb395dac81502d4e5af55f8f6e1bf926b3ff5",
+    "source": "/home/hxy/ax-unified-pilot-prep/inputs/pilot-100k/smallfiles-source",
+    "source_proof": {
+      "path": "/home/hxy/ax-unified-pilot-prep/receipts/pilot-100k/c3-source-verify/result.json",
+      "sha256": "638de023a5f41224f8b3d8c2c636f372b728430e38fcac6d7965b53306e996af"
+    },
+    "state": null,
+    "scope": "Independent immutable source plus file/version/workspace expected bytes; no tested output read"
+  },
+  "c4_expected": {
+    "passed": true,
+    "at": "2026-11-11T02:58:08.158688+00:00",
+    "files": 100000,
+    "tag": "pilot-child-01",
+    "base_tree": {
+      "path": "/home/hxy/ax-unified-pilot-prep/receipts/pilot-100k/c4-fixture-tree.json",
+      "sha256": "02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13"
+    },
+    "fixture": {
+      "path": "/home/hxy/ax-unified-pilot-prep/receipts/pilot-100k/c4-fixture.json",
+      "sha256": "276cd354adbefcc7ea4aa6799038064bb77d97073a4fe999f6b46be3d7a27a55"
+    },
+    "expected_tree": {
+      "path": "/home/hxy/ax-unified-pilot-prep/checks/pilot-100k-complete-01/c4-expected/expected-tree.json",
+      "sha256": "2ea11587ad88cbe649850e871604de09abc4732f4564a5a72b38583b3f661ff8"
+    },
+    "first_read": {
+      "path": "d000000/f00000000",
+      "bytes": 4096,
+      "sha256": "0bf290b35af378e65f91b562806d1b4d4ce0743bb16efd2e858890175fc7f538"
+    },
+    "changed_operations": [
+      "overwrite",
+      "append",
+      "truncate",
+      "unlink",
+      "rename",
+      "new-file"
+    ],
+    "source_tree_mutated": false,
+    "tested_filesystem_accessed": false,
+    "source_tool_sha256": "06a226948fbae50ac3d897617530bf9829d28780f7b38257a9fe58fee3a27b00",
+    "scope": "Expected complete names/types/modes/bytes only. Actual fork timing, isolation, cold readback, ownership and durable exit require separate checks."
+  },
+  "archive": {
+    "schema": "suite-archive-check-v1",
+    "passed": true,
+    "archive": "/home/hxy/ax-unified-pilot-prep/retention/pilot-100k-01/preparation.tar.gz",
+    "sha256": "d5be0e87f143b3788cd454d525b64b5533d95190d47196c32a6c9f71a70f28d7",
+    "bytes": 13229841,
+    "file_members": 95,
+    "cell_id": "pilot-100k-preparation",
+    "kind": "local-input-proof",
+    "deferred": [],
+    "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+  },
+  "independent_copy": {
+    "schema": "suite-archive-check-v1",
+    "passed": true,
+    "archive": "/mnt/c/Users/HXY/.cache/ax-pilot-20261111/retained-pilot-100k-01/preparation.tar.gz",
+    "sha256": "d5be0e87f143b3788cd454d525b64b5533d95190d47196c32a6c9f71a70f28d7",
+    "bytes": 13229841,
+    "file_members": 95,
+    "cell_id": "pilot-100k-preparation",
+    "kind": "local-input-proof",
+    "deferred": [],
+    "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+  },
+  "scope": "Input payload remains in local pilot-100k directories; archive contains all preparation records, complete expected trees, tests and source snapshots, not the 819200000 input bytes"
+}

@@ -140,8 +140,12 @@ def validate(config):
         if c['workload']=='handoff' and (type(c['params'].get('moved_agents')) is not int or
                 not 1<=c['params']['moved_agents']<=c['params']['agents'] or not ident(c['params'].get('trace'))):
             raise ValueError('moved Agent count and complete handoff trace required')
-        if c['workload'] == 'smallfiles' and (c['params']['files'] != 1000000 or c['params']['file_bytes'] != 4096):
-            raise ValueError('C3 remains exactly 1,000,000 x 4 KiB; local tool tests are separate')
+        file_count = config.get('pilot_file_count', 1000000)
+        if type(file_count) is not int or file_count not in (100000, 1000000) or (
+                'pilot_file_count' in config and config['profile'] != 'pilot'):
+            raise ValueError('Only an explicitly sized pilot can change the million-file default')
+        if c['workload'] == 'smallfiles' and (c['params']['files'] != file_count or c['params']['file_bytes'] != 4096):
+            raise ValueError('C3 must match the exact declared file count and 4 KiB input')
         if c['workload']=='smallfiles':
             from .runtime.workloads import counts
             counts(c['params'])
@@ -149,8 +153,11 @@ def validate(config):
                 raise ValueError('positive explicit workspace count required')
         if c['workload']=='fork' and (type(c['params'].get('children')) is not int or not 1<=c['params']['children']<=c['params']['agents']):
             raise ValueError('reserve one actual agent slot per concurrent child')
-        if c['workload']=='fork' and (c['params'].get('dataset')!='fork-fixture-million-4k' or c['params'].get('creation')!='burst'):
-            raise ValueError('million-file fixture and burst fork required')
+        fork_dataset = 'fork-fixture-100k-4k' if file_count == 100000 else 'fork-fixture-million-4k'
+        if c['workload']=='fork' and (c['params'].get('dataset')!=fork_dataset or
+                c['params'].get('files',1000000)!=file_count or c['params'].get('file_bytes',4096)!=4096 or
+                c['params'].get('creation')!='burst'):
+            raise ValueError('Exact declared 4 KiB fixture and burst fork required')
     placement=config.get('placement',{'mode':'paired-pool'})
     if not isinstance(placement,dict) or placement.get('mode') not in ('paired-pool','baseline-parallel'):
         raise ValueError('placement mode must be paired-pool or baseline-parallel')
@@ -203,7 +210,9 @@ def build(config):
                 # One preparation per pool / dataset / representation/layout.
                 # Cache toggles do not duplicate immutable import artifacts.
                 formation = {k:v for k,v in route.items() if k not in ('payload_cache_bytes','role','handoff_mode')}
-                dataset = case['params'].get('dataset', case['params'].get('trace', 'million-4k' if case['workload']=='smallfiles' else f"fio-{case['params'].get('file_bytes_per_job',0)}"))
+                dataset = case['params'].get('dataset', case['params'].get('trace',
+                    ('smallfiles-100k-4k' if case['params']['files']==100000 else 'million-4k')
+                    if case['workload']=='smallfiles' else f"fio-{case['params'].get('file_bytes_per_job',0)}"))
                 if case['workload']=='fio':
                     # Verify headers depend on block size, and each job needs a
                     # separate file. Never reuse a sequential fixture as 4K IO.

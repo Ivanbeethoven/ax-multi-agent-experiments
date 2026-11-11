@@ -123,6 +123,25 @@ def small_params(tiny):
             'prewarm_passes': 2, 'mixed_read_fraction': 0.75, 'fsync_every_write': True}
 
 
+def select_pilot_files(config, files):
+    """Explicit size for a NEW pilot; the default catalog remains unchanged."""
+    if config['profile'] != 'pilot' or type(files) is not int or files not in (100000, 1000000):
+        raise ValueError('Explicit 100k or million-file pilot required')
+    config['pilot_file_count'] = files
+    for row in config['cases']:
+        if row['workload'] == 'smallfiles':
+            row['params']['files'] = files
+            row['params']['dataset'] = 'smallfiles-100k-4k' if files == 100000 else 'million-4k'
+            if files == 100000:
+                row['name'] = row['name'].replace('million-', 'files-100000-')
+            else:
+                row['name'] = row['name'].replace('files-100000-', 'million-')
+        elif row['workload'] == 'fork':
+            row['params'].update(files=files, file_bytes=4096,
+                dataset='fork-fixture-100k-4k' if files == 100000 else 'fork-fixture-million-4k')
+    return config
+
+
 def template(profile='pilot', study='systems'):
     rows=cases(profile,study)
     # Exact arm overrides can split internal native/ablation methods as well as

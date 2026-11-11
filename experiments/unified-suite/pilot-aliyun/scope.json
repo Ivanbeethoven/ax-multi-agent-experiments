@@ -2,6 +2,8 @@
   "suite": "unified-c1-c4-v1",
   "scope": "All four pilot workloads; qualify every system path and retain actual failures",
   "planned_system_cells": 28,
+  "active_pilot_file_count": 100000,
+  "file_count_note": "User requested a temporary 100k-file C3 and C4-fork pilot on 2026-11-11. Use separate explicitly sized phases; retain original million-file inputs/plans and all running C1/C2 settings.",
   "metadata_backend": "redis",
   "placement": {"mode": "baseline-parallel", "product_pools": {"brewfs": ["pool-a"], "juicefs": ["pool-a"]}},
   "placement_note": "Both products use the SAME hardware pool and run sequentially. Cell admission avoids the legacy all-arms qualification barrier; unqualified cells retain failure evidence and are never reported as accepted.",

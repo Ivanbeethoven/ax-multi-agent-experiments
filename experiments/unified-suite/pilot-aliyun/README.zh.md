@@ -1,13 +1,15 @@
 # 阿里云 C1–C4 小规模试跑
 
+用户最新决定：C3与C4派生先改为[10万文件试跑](PILOT-100K.zh.md)，每文件4KiB，另建明确标记规模的阶段。C1/C2及正在运行的校准沿用原设置，原百万文件数据和结果保留。下表C3/C4尚无正式结果，后续按新规模推进。
+
 截至北京时间2026-11-11 10:31，[协调者实际状态](evidence/cloud-20261111/status-20261111-1032.json)为5项完成、1项失败，其他尚未正式完成。当前C1–C3状态库共19项；C4的9项需在后续独立环境中执行。系统计划总计28项，另有22项消融尚无正式结果。
 
 | 实验 | 正式完成/计划 | 当前情况 |
 |---|---:|---|
 | C1 fio | 5/10 | 两边顺序读写、JuiceFS随机读完成；BrewFS随机读因归档阶段失败而排除。BrewFS随机写前5次校准通过，第6次运行中；其余随机写/混合读写待执行 |
 | C2 完整trace | 0/5 | flat BrewFS、JuiceFS均已通过174.7万次完整回放与冷读回资格，正式校准和测量未完成；其他路径尚未通过完整资格 |
-| C3 百万文件 | 0/4 | 源数据、完整预期清单及核验工具就绪，实际系统导入、容量资格、八阶段负载未完成 |
-| C4 派生 | 0/5 | 本机空版本派生、私有写入和冷读回通过；非空版本发布、百万文件派生及云上对照未完成 |
+| C3 小文件（现改10万） | 0/4 | 10万源数据、完整预期清单及独立Rust核验已完成；实际系统导入、容量资格、八阶段负载未完成 |
+| C4 派生（现改10万） | 0/5 | 本机空版本派生、私有写入和冷读回通过；10万文件输入和预期清单完成，非空版本发布及云上对照未完成 |
 | C4 流转 | 0/4 | 本机JuiceFS原会话数据库冷重开通过；BrewFS工作区重挂后写入EIO。云上跨机和真实继续任务未完成，模型调用暂停 |
 
 10:22[两条指定分支仍与构建一致](evidence/preparation/latest-progress-13.json)。[正式C1报告](evidence/cloud-20261111/c1-progress-02.json)保留五项通过及一项排除的实际指标；完整原始包已独立下载并核全部成员。每项仅1个Agent、1次pilot正式重复，不能作为扩展规模或稳定加速结论。
@@ -28,9 +30,11 @@ JuiceFS 的两次本机检查均通过完整工作区冷读回及原 OpenCode �
 05:55–05:56另核了[运行中的RustFS程序](evidence/preparation/cloud-runtime-progress-04.json)与[已部署BrewFS程序](evidence/preparation/cloud-brewfs-progress-04.json)，SHA256均与本批构建一致。执行脚本[code-02已在四个角色部署并逐文件核验](evidence/preparation/runner-code-02-deployment.json)；旧任务仍使用原脚本，不热替换。
 [code-03](evidence/preparation/runner-code-03-deployment.json)加入会话迁移准备工具；[code-04](evidence/preparation/runner-code-04-deployment.json)加入容量检查、可选完整物化工具及采集收尾修复。四个角色均逐成员核验，BrewFS/RustFS二进制未变。
 [code-05](evidence/preparation/runner-code-05-deployment.json)部署C3完整读回及单工作区执行流程，并固定导入器、只读核验器的实际二进制摘要。
-本轮已于2026-11-11启动3台私网节点，并复用原跳板和一块独立协调盘；迁移目标机尚未创建。四盘RustFS、Redis、BrewFS和JuiceFS已完成接入及小文件写入/正常卸载/重挂读回检查，C1输入也已完成完整CRC与冷重挂校验。C1两项随机读已关闭：JuiceFS全部阶段通过；BrewFS测量及数据检查通过，归档阶段失败后补收证据，仍记失败，不输出该配对的加速比。设置见[scope.json](scope.json)，路线限制见[审查记录](../PILOT-REVIEW.zh.md)。系统计划有28个单元；未通过资格的路线保留实际失败。C3仍为百万文件，C4恢复仍使用真实OpenCode原生会话。
+本轮已于2026-11-11启动3台私网节点，并复用原跳板和一块独立协调盘；迁移目标机尚未创建。四盘RustFS、Redis、BrewFS和JuiceFS已完成接入及小文件写入/正常卸载/重挂读回检查，C1输入也已完成完整CRC与冷重挂校验。C1两项随机读已关闭：JuiceFS全部阶段通过；BrewFS测量及数据检查通过，归档阶段失败后补收证据，仍记失败，不输出该配对的加速比。设置见[scope.json](scope.json)，路线限制见[审查记录](../PILOT-REVIEW.zh.md)。系统计划有28个单元；未通过资格的路线保留实际失败。C3和C4派生现按10万文件另建阶段，C4恢复仍使用真实OpenCode原生会话。
 
 本轮构建使用BrewFS `main` 的 `622736b0a31caaa9007445886e626a2458bc316a`、RustFS `feat/dynamic-block-size-rebased` 的 `f4ed202508f2153afb7956bae6f7799b60eccd00`。二者均从指定分支构建，准备期间再次核对远端最新提交；运行镜像内RustFS二进制SHA256与本机产物相同。`scripts/verify-latest.py`在新批次计时前再核一次，分支推进则先重建；开始计时的配对批次固定版本。
+
+用户另确认`rbm:/srv/build/brewfs`保持上述`origin/main`原生干净状态。配置生成、`bench/runtime/node.py`和`bench/runtime/observe.py`的修改属于实验控制脚本；rbm端新增的端口等待修改尚未取得对应提交，本轮不宣称已同步。
 
 正式C1前于北京时间2026-11-11 04:05再次核远端，两个提交仍为最新：[分支检查](evidence/preparation/latest-before-formal-c1.json)、[运行容器与二进制检查](evidence/preparation/cloud-runtime-before-formal-c1.json)。`source-versions.json`是更早的准备记录，里面的“构建中”字段保留原义。
 

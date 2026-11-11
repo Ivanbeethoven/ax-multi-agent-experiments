@@ -1,5 +1,7 @@
 # 实验 Agent 入口
 
+- 2026-11-11用户最新要求：当前阿里云试跑的C3与C4派生暂用100,000×4KiB，按`experiments/unified-suite/pilot-aliyun/PILOT-100K.zh.md`显式生成新阶段。原百万文件计划/输入保留，C1/C2及活动测量不变。通用catalog默认仍为百万文件，不能用旧输入证明新规模。
+
 - 协调者从 `experiments/unified-suite/README.md` 接入；各pool执行者从 `experiments/unified-suite/baselines/README.md` 选择JuiceFS、BrewFS native/native-workspace/entity-native/packed或消融的独立入口。C1 fio、C2 full trace、C3百万小文件、C4 fork/流转，外部baseline仅JuiceFS，native与D/P/G为内部对照/消融。共同步骤按环境→输入→冻结与领取→单步测量→证据收尾维护一份；同池一个owner，不因文档拆分重复建DB或启动任务。旧2026-10-29的C编号/证据保持原义。运行前读本批实际plan、inventory、state与资源账本。
 - 方法矩阵、节点清单、单步执行、测量程序、环境准备分别位于 `bench/scale_plan.py`（`--suite-config`）、`bench/ssh_inventory.py`、`bench/runtime/`、`tools/`、`infra/`。默认 `baseline-parallel`：按product/arm显式映射到不同集群，逐cell领取/关闭，跨池按同条件/轮次汇总配对；不把整组arms锁到同池。配置见 `experiments/unified-suite/12-parallel-baselines.zh.md`。`bench/suite.py`复用既有executor，不包办整轮。状态库留在一个协调者的本地独立盘，started不自动重放；共享host/disk/service的pool用相同resource ID。
 - 文档按实验设置、配置、方法、指标和步骤写；共用要求写一次并链接。当前入口只写实际范围，旧硬件报价和证据放在历史/参考页。

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import one complete million-file C3 base and verify its original cold reopen.
+"""Import the complete declared C3 base and verify its original cold reopen.
 
 No workload cell, retry, downsampling or cloud resource creation.
 """
@@ -42,9 +42,11 @@ def main():
     if a.asset.exists() or a.out.exists():raise ValueError('Fresh base and output required')
     plan=load(a.plan);arm='native' if a.product=='brewfs' else 'juicefs'
     cell=next(c for c in plan['cells'] if c['workload']=='smallfiles' and c['arm_id']==arm)
+    expected_files=cell['params']['files'];logical_bytes=expected_files*4096
+    if expected_files not in (100000,1000000):raise ValueError('Declared 100k or million-file base required')
     source=load(a.source_proof)
-    if source.get('passed') is not True or source.get('files')!=1000000 or source.get('bytes_checked')!=4096000000:
-        raise ValueError('Full million-file source qualification required')
+    if source.get('passed') is not True or source.get('files')!=expected_files or source.get('bytes_checked')!=logical_bytes:
+        raise ValueError('Full source qualification must match the declared plan size')
     a.out.mkdir(parents=True)
     write_new(a.out/'started.json',dict(at=datetime.now(timezone.utc).isoformat(),cell_id=cell['id'],
               source=str(a.source),source_proof=ref(a.source_proof),node_tool=ref(a.node_tool),
@@ -76,18 +78,18 @@ def main():
         argv=(['/srv/ax-client/assets/bin/juicefs','sync','--dirs','--perms','--links',str(a.source)+'/',str(base)+'/']
               if a.product=='juicefs' else ['cp','-a','--reflink=never','--',a.source,base])
         if a.copier:
-            argv=[a.copier,a.source,base,a.out/'materialize.json','1000000','8']
+            argv=[a.copier,a.source,base,a.out/'materialize.json',str(expected_files),'8']
         run('import',argv)
         begin=time.monotonic()
         if a.copier:
             copied=load(a.out/'materialize.json');files=copied['files']
-            if not copied['passed'] or copied['workers']!=8 or not copied['fsync_each_file'] or copied['actual_read_bytes']!=4096000000 or copied['actual_write_bytes']!=4096000000:
+            if not copied['passed'] or copied['workers']!=8 or not copied['fsync_each_file'] or copied['actual_read_bytes']!=logical_bytes or copied['actual_write_bytes']!=logical_bytes:
                 raise ValueError('Incomplete native import')
         else:files=fsync_import(base)
-        write_new(a.out/'import-fsync.json',dict(passed=files==1000000,files=files,
+        write_new(a.out/'import-fsync.json',dict(passed=files==expected_files,files=files,
             wall_seconds=None if a.copier else time.monotonic()-begin,workers=8,included_in_import=bool(a.copier),
             copier=ref(a.copier) if a.copier else None))
-        if files!=1000000:raise ValueError('Imported file count differs')
+        if files!=expected_files:raise ValueError('Imported file count differs')
         helper('debt','debt',cell=cell['id'],out=a.out/'debt-proof')
         helper('stop','normal-stop',mount_run=active,out=a.out/'normal-stop.json');active=None
         helper('draft-mount','cold-draft',cell=cell['id'],out=a.out/'cold-mount')
@@ -95,12 +97,12 @@ def main():
         helper('start','cold-start',spec=a.out/'cold-mount/mount.reviewed.json',out=cold,join_slot=True);active=cold
         if a.verifier:
             (a.out/'base-check').mkdir()
-            run('full-base-check',[a.verifier,base,'base',a.out/'base-check/result.json','1000000','8','1'])
+            run('full-base-check',[a.verifier,base,'base',a.out/'base-check/result.json',str(expected_files),'8','1'])
         else:
             run('full-base-check',['/srv/ax-client/assets/bin/smallfiles','verify-base','--root',base,
-                                 '--output',a.out/'base-check','--files','1000000'])
+                                 '--output',a.out/'base-check','--files',str(expected_files)])
         checked=load(a.out/'base-check/result.json')
-        if checked.get('passed') is not True or checked.get('files')!=1000000 or checked.get('bytes_checked')!=4096000000:
+        if checked.get('passed') is not True or checked.get('files')!=expected_files or checked.get('bytes_checked')!=logical_bytes:
             raise ValueError('Full original cold base differs')
         helper('stop','cold-stop',mount_run=active,out=a.out/'cold-stop.json');active=None
         write_new(a.out/'result.json',dict(passed=True,cell_id=cell['id'],asset=ref(a.asset/'asset.json'),

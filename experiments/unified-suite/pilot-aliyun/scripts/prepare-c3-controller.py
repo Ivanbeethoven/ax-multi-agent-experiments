@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect one fully checked million-file base and exact C3 contracts; no run."""
+"""Collect the complete declared C3 base and exact contracts; no run."""
 import argparse
 import json
 from pathlib import Path
@@ -27,6 +27,8 @@ def main():
     runtime=pilot_runtime.select(a.control,pilot_runtime.reference(a))
     plan=load(a.control/'suite/plan.json')
     cell=next(c for c in plan['cells'] if c['workload']=='smallfiles' and c['arm_id']==arm)
+    files=cell['params']['files'];logical_bytes=files*4096
+    if files not in (100000,1000000):raise ValueError('Declared 100k or million-file base required')
     if cell['params']['agents']!=1 or cell['params']['workspaces']!=1:raise ValueError('Exactly one complete C3 workspace required')
     capacity=load(a.capacity_check)
     if not capacity['passed'] or capacity['reserve_fraction']<.2:raise ValueError('Actual storage/RAM capacity with 20% reserve required')
@@ -55,7 +57,7 @@ def main():
         raise ValueError('Different qualified base')
     if route['full_cold_base_check']['sha256']!=digest(raw/'base-check/result.json'):
         raise ValueError('Original cold readback proof changed')
-    if not base['passed'] or base['files']!=1000000 or base['bytes_checked']!=4096000000 or not base['full_namespace'] or not base['modes_owners_links']:
+    if not base['passed'] or base['files']!=files or base['bytes_checked']!=logical_bytes or not base['full_namespace'] or not base['modes_owners_links']:
         raise ValueError('Every original file, name, byte, mode, owner and link must be checked')
     tools=load(raw/'optional-tools.json')
     if tools['verifier']!=sources['verifier'] or tools['copier']!=sources.get('copier'):
@@ -67,7 +69,7 @@ def main():
         raise ValueError('Complete durable import required')
     original_source=get(load(raw/'started.json')['source_proof']['path'],'source/proof.json')
     source=load(original_source)
-    if digest(original_source)!=load(raw/'started.json')['source_proof']['sha256'] or not source['passed'] or source['files']!=1000000 or source['bytes_checked']!=4096000000:
+    if digest(original_source)!=load(raw/'started.json')['source_proof']['sha256'] or not source['passed'] or source['files']!=files or source['bytes_checked']!=logical_bytes:
         raise ValueError('Original full input proof changed')
     if load(asset)['plan']['sha256']!=digest(a.control/'suite/plan.json'):raise ValueError('Asset prepared under another plan')
     hardware=load(a.shared_qualification/'hardware.json')
@@ -78,7 +80,7 @@ def main():
     write_new(folder/'binding.json',dict(asset=a.asset,route=ref(raw/'result.json'),smallfiles=small))
     proof=dict(passed=True,cell_id=cell['id'],complete_base=ref(raw/'result.json'),source=ref(original_source),
         cold_readback=ref(raw/'base-check/result.json'),capacity=ref(a.capacity_check),asset=ref(asset),
-        scope='One million files, complete durable import and original cold namespace/byte/mode/owner/link checks; no performance acceptance')
+        files=files,scope='Complete declared C3 base, durable import and original cold namespace/byte/mode/owner/link checks; no performance acceptance')
     write_new(folder/'input.json',proof);write_new(folder/'filesystem.json',proof)
     metrics=load(a.shared_qualification/arm/'metrics.json');metrics['source_pins'].append(ref(raw/'result.json'))
     metrics['notes']=['Eight fixed-work phases, raw operation CSVs, cold full child/parent checks; trace/FUSE/object/disk I/O are separate quantities.']
@@ -86,7 +88,7 @@ def main():
     write_new(folder/'workload.json',dict(schema='experiment-workload-contract-v1',reviewed=True,
         binary_pins=[sources['binary']],input_pins=[ref(folder/'input.json'),ref(original_source),ref(a.control/'suite/plan.json')],
         params=cell['params'],seed=plan['config']['seed'],
-        scope='One million-file workspace; unchanged native smallfiles workload, exact eight phases, all operation streams and bytes checked'))
+        scope='One workspace at the declared file count; unchanged native smallfiles workload, exact eight phases, all operation streams and bytes checked'))
     write_new(a.out/'transfers.json',transfers);print(json.dumps(dict(passed=True,cell_id=cell['id'],qualification=str(a.out))))
 
 

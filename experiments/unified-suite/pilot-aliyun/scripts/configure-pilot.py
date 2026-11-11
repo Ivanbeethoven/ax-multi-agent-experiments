@@ -9,7 +9,7 @@ import sys
 
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
-from bench.suite_catalog import template
+from bench.suite_catalog import template, select_pilot_files
 from bench.suite_plan import build
 
 
@@ -20,7 +20,9 @@ def digest(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--phase', choices=['c123','fork','handoff'], required=True)
+    parser.add_argument('--phase', choices=['c123','c3','fork','handoff'], required=True)
+    parser.add_argument('--files', type=int, choices=[100000,1000000],
+                        help='Explicit file count for a new C3/fork pilot; legacy defaults remain one million')
     parser.add_argument('--campaign', required=True)
     parser.add_argument('--inventory', type=Path, help='Actual phase inventory with roles, instance IDs and disk IDs')
     parser.add_argument('--build-manifest', type=Path)
@@ -28,6 +30,8 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--handoff-task-id',help='Actual fixed session input used by this handoff batch')
     args = parser.parse_args()
+    if args.files is not None and args.phase not in ('c3','fork'):
+        parser.error('files requires a separate C3 or fork phase; never rewrite a running C1/C2 batch')
     if args.handoff_task_id and (args.phase!='handoff' or not re.fullmatch('[a-z0-9][a-z0-9-]{2,63}',args.handoff_task_id)):
         parser.error('handoff-task-id requires handoff phase and a simple fixed input ID')
     if any((args.inventory, args.build_manifest, args.input_manifest)) and not all((args.inventory, args.build_manifest, args.input_manifest)):
@@ -37,13 +41,15 @@ def main():
     config['placement'] = json.loads((REPO/'experiments/unified-suite/pilot-aliyun/scope.json').read_text())['placement']
     config['metadata_backend'] = 'redis'
     config['cases'] = [c for c in config['cases'] if (c['suite'] in ('C1','C2','C3') if args.phase=='c123'
-                       else c['workload']==args.phase)]
+                       else c['suite']=='C3' if args.phase=='c3' else c['workload']==args.phase)]
+    if args.files is not None:
+        select_pilot_files(config, args.files)
     if args.handoff_task_id:
         for case in config['cases']:case['params']['trace']=args.handoff_task_id
     roles = ['client','metadata','objects'] + (['target'] if args.phase=='handoff' else [])
     pool = config['clusters'][0]
     pool.update(metadata_backend='redis', agent_slots=2 if args.phase=='handoff' else 1,
-                supported_suites=['C1','C2','C3'] if args.phase=='c123' else ['C4'],
+                supported_suites=['C1','C2','C3'] if args.phase=='c123' else ['C3'] if args.phase=='c3' else ['C4'],
                 observer_ids=['pool-a-'+role for role in roles])
     if args.inventory:
         inventory = json.loads(args.inventory.read_text())
@@ -66,7 +72,7 @@ def main():
         pool['resource_ids'] = ['host:unresolved-'+role for role in roles]
     config['clusters'] = [pool]
     plan = build(config)
-    expected = {'c123':19, 'fork':5, 'handoff':4}[args.phase]
+    expected = {'c123':19, 'c3':4, 'fork':5, 'handoff':4}[args.phase]
     if len(plan['cells']) != expected:
         raise ValueError('Unexpected pilot matrix; inspect catalog before changing scope')
     args.out.mkdir(parents=True, exist_ok=False)
