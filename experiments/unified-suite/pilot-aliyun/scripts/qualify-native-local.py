@@ -10,14 +10,36 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import socket
 import subprocess
 import sys
 import time
+from urllib.parse import urlsplit
 import uuid
 
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO / 'scripts'))
 from full_trace_common import tree
+
+
+def require_unused_redis(url):
+    endpoint = urlsplit(url)
+    if endpoint.scheme != 'redis' or not endpoint.hostname or endpoint.username or endpoint.password or endpoint.query or endpoint.fragment:
+        raise ValueError('Explicit plain pilot Redis endpoint required')
+    database = int(endpoint.path.lstrip('/') or '0')
+    with socket.create_connection((endpoint.hostname, endpoint.port or 6379), timeout=5) as connection:
+        with connection.makefile('rwb') as stream:
+            for command in (['SELECT', str(database)], ['DBSIZE']):
+                values = [v.encode() for v in command]
+                stream.write(b'*'+str(len(values)).encode()+b'\r\n')
+                for value in values:
+                    stream.write(b'$'+str(len(value)).encode()+b'\r\n'+value+b'\r\n')
+                stream.flush()
+                reply = stream.readline(1024)
+                if command[0] == 'SELECT' and reply != b'+OK\r\n':
+                    raise ValueError('Redis database selection failed')
+                if command[0] == 'DBSIZE' and reply != b':0\r\n':
+                    raise ValueError('Qualification needs an unused metadata DB; never reset an existing DB')
 
 
 def write_challenge(root):
@@ -80,9 +102,6 @@ def main():
     bucket = 'axp-' + uuid.uuid4().hex[:12]
     catalog = 'ax-pilot-native-' + uuid.uuid4().hex
     redis = a.redis_url or 'redis://127.0.0.1:16379/' + ('1' if a.route == 'flat' else '3')
-    if a.cloud:
-        size=subprocess.check_output(['redis-cli','-u',redis,'DBSIZE'],text=True).strip()
-        if size!='0':raise ValueError('Qualification needs an unused metadata DB, never reset an existing DB')
     binary = a.build_root / 'bin/brewfs'
     base = dict(volume_format='flat-v1' if a.route == 'flat' else 'workspace-native-v2',
         data={'backend': 's3', 's3': dict(bucket=bucket, endpoint=a.s3_endpoint,
@@ -113,6 +132,9 @@ def main():
         return (directory / 'stdout').read_text()
 
     try:
+        if a.cloud or a.route == 'flat':
+            require_unused_redis(redis)
+            result['metadata_database_empty_verified'] = True
         client.create_bucket(Bucket=bucket)
         prefix = [binary, 'workspace', '--meta-backend', 'redis', '--meta-url', redis,
             '--workspace-namespace', catalog]
@@ -190,6 +212,18 @@ def main():
         result['error'] = type(error).__name__ + ': ' + str(error)
         raise
     finally:
+        if not result['passed'] and process is not None and process.poll() is None:
+            try:
+                if os.path.ismount(mount):
+                    run('failure-normal-unmount', ['fusermount3', '-u', mount])
+                code = process.wait()
+                stdout.close(); stderr.close()
+                cleanup = dict(exit_code=code, mount_absent=not os.path.ismount(mount),
+                               scope='Original Popen normal exit after failed synchronous check; no forced unmount')
+                (directory/'failure-exit.json').write_text(json.dumps(cleanup)+'\n')
+                result['failure_cleanup'] = cleanup
+            except BaseException as error:
+                result['cleanup_error'] = type(error).__name__ + ': ' + str(error)
         client.close()
         result.update(at=datetime.now(timezone.utc).isoformat(), mount_present=os.path.ismount(mount),
             process_alive=process is not None and process.poll() is None)

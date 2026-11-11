@@ -1,0 +1,32 @@
+{
+  "at": "2026-11-11T04:08:15.762295+00:00",
+  "passed": true,
+  "scope": "Local harness checks only; running cloud code-07 remains unchanged; no BrewFS product patch",
+  "source_commit": "0b231924c4645b6d66ee0609f70a0ff36a0e0607",
+  "integrated_commit": "9114cddbf005784146b62bd4c865657a495734d4",
+  "checks": [
+    {
+      "command": "PYTHONPATH=tests python3 -m unittest test_runtime_adapters test_pilot_runtime_refresh test_pilot_observer_target test_observer_mount_lifecycle",
+      "tests": 34,
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -m unittest tests.test_observer_mount_lifecycle tests.test_pilot_file_count tests.test_pilot_nested_retention tests.test_pilot_latest_receipt",
+      "tests": 16,
+      "exit_code": 0
+    }
+  ],
+  "prior_invocation_error": {
+    "command": "python3 -m unittest tests.test_runtime_adapters tests.test_pilot_runtime_refresh tests.test_pilot_observer_target",
+    "tests": 28,
+    "errors": 1,
+    "error": "test_deployment_plans import requires tests in PYTHONPATH; corrected invocation passed"
+  },
+  "files": {
+    "bench/runtime/node.py": "7f42340df41a257eca4ba160de99a486f7cc8bf1e2513b93ce755c221ba81418",
+    "bench/runtime/observe.py": "af4d108441150fe228868ce32916625e06a046b7b64015d185ae0951300534ef",
+    "tests/test_observer_mount_lifecycle.py": "2d522fd4ee46cbf486c0745cf2e0821e62172cca6a9a4c838db5783752e9e7a9"
+  },
+  "cloud_deployed": false,
+  "brewfs_source_modified": false
+}

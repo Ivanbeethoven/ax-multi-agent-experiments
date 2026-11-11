@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "pins": {
+    "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-multi-agent-experiments/experiments/unified-suite/pilot-aliyun/scripts/qualify-native-local.py": "6d2ed20952777efd9969570b8205c76121d9b5007fa6d1553e98d419749a9a03",
+    "/home/hxy/ax-unified-pilot-prep-next-01/receipts/build-manifest.json": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e",
+    "/home/hxy/ax-unified-pilot-prep-next-01/bin/brewfs": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0"
+  },
+  "pinned_inputs_unchanged": true,
+  "checks": [
+    {
+      "name": "flat-fresh",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "passed": true,
+      "wall_seconds": 1.626728237955831,
+      "qualification": "/home/hxy/ax-unified-pilot-prep-next-01/qualification/native-flat-reopen-ca07159-03"
+    },
+    {
+      "name": "flat-occupied",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "passed": true,
+      "wall_seconds": 1.1177041729679331,
+      "qualification": "/home/hxy/ax-unified-pilot-prep-next-01/qualification/native-flat-existing-db-rejected-01"
+    },
+    {
+      "name": "workspace-failure-cleanup",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "passed": true,
+      "wall_seconds": 2.164581386023201,
+      "qualification": "/home/hxy/ax-unified-pilot-prep-next-01/qualification/native-workspace-reopen-ca07159-02"
+    }
+  ],
+  "scope": "Actual local FUSE/Redis guard checks; functional only, no cloud or model"
+}
