@@ -1,0 +1,745 @@
+{
+  "passed": true,
+  "at": "2026-11-11T04:56:05.667621+00:00",
+  "scope": "Pool-b exact-node preparation and read-only service readiness; not an experiment result or complete performance qualification",
+  "campaign": "ax-pilot-20261111-b",
+  "pool_id": "pool-b",
+  "roles": {
+    "client": {
+      "instance_id": "i-bp1fmmfkcpr8w99j2bsy",
+      "boot_id": "b4316c9e-f7da-47dc-a443-8f4c87a6cf11",
+      "disks": [
+        {
+          "id": "d-bp1fmmfkcpr8w99pwgc5",
+          "serial": "bp1fmmfkcpr8w99pwgc5",
+          "gib": 100,
+          "mount": "/srv/ax-client",
+          "st_dev": 64784,
+          "free_bytes": 97914535936,
+          "free_inodes": 26067728
+        }
+      ],
+      "steps": {
+        "authorize-key": {
+          "exit_code": 0,
+          "wall_seconds": 0.0912611090000155,
+          "at": "2026-11-11T04:44:05.826655+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/configure-node.py",
+            "authorize-key",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/client-spec.json",
+            "--public-key",
+            "/root/ax-pool-b-bootstrap-01/coordinator.pub",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/authorize-key"
+          ]
+        },
+        "brewfs-overlay": {
+          "exit_code": 0,
+          "wall_seconds": 6.538571002000026,
+          "at": "2026-11-11T04:46:20.019463+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/install-deployment.py",
+            "--archive",
+            "/srv/ax-client/preparation/binaries-ca07159-01.tar.gz",
+            "--sha256",
+            "3c383f24350e148060e594c51730acac8791ed2cb19df90fc658007bd50c40e9",
+            "--destination",
+            "/srv/ax-client/build-ca07159-01",
+            "--out",
+            "/srv/ax-client/preparation/install-brewfs-ca07159-01.json"
+          ]
+        },
+        "download-assets": {
+          "exit_code": 0,
+          "wall_seconds": 4.5317802479999045,
+          "at": "2026-11-11T04:43:26.015181+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/download-assets.py",
+            "--role",
+            "client",
+            "--manifest-sha256",
+            "5943362728cf38ac85b8fc80c3571d76f9adbf628e68b04b34890edafb7b3cb3",
+            "--destination",
+            "/srv/ax-client/assets",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/download-assets-result.json"
+          ]
+        },
+        "format": {
+          "exit_code": 0,
+          "wall_seconds": 2.1085709320000205,
+          "at": "2026-11-11T04:41:55.289153+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/provision-node.py",
+            "format",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/client-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/format"
+          ]
+        },
+        "freeze-maintenance": {
+          "exit_code": 0,
+          "wall_seconds": 0.3832556360000581,
+          "at": "2026-11-11T04:43:21.446954+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/freeze-maintenance-pool-b.py",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/client-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/freeze-maintenance"
+          ]
+        },
+        "inspect": {
+          "exit_code": 0,
+          "wall_seconds": 0.12428157100004,
+          "at": "2026-11-11T04:41:36.203437+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/provision-node.py",
+            "inspect",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/client-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/inspect"
+          ]
+        },
+        "install-code10": {
+          "exit_code": 0,
+          "wall_seconds": 0.08704215600005227,
+          "at": "2026-11-11T04:47:52.433466+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/install-code.py",
+            "--archive",
+            "/srv/ax-client/preparation/code10-runner.tar.gz",
+            "--sha256",
+            "0e05e44d19556868107b2274a71043db53d5fbe1a022a98233e0a915f5cf790a",
+            "--manifest",
+            "/srv/ax-client/preparation/code10-manifest.json",
+            "--manifest-sha256",
+            "d90a049e0dae36971aab336a540cf3693e0d489c28f28320df298c4e83a96370",
+            "--destination",
+            "/srv/ax-client/code-10"
+          ]
+        },
+        "launch-inputs": {
+          "exit_code": 0,
+          "wall_seconds": 0.06525641200005339,
+          "at": "2026-11-11T04:48:17.338285+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/launch-inputs.py"
+          ]
+        },
+        "packages": {
+          "exit_code": 0,
+          "wall_seconds": 18.581112504000032,
+          "at": "2026-11-11T04:42:24.895084+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/provision-node.py",
+            "packages",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/client-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/packages",
+            "--apt-proxy",
+            "http://10.20.0.10:3128"
+          ]
+        },
+        "slot": {
+          "exit_code": 0,
+          "wall_seconds": 0.11735085599991635,
+          "at": "2026-11-11T04:43:50.088128+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/configure-node.py",
+            "slot",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/client-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/slot"
+          ]
+        },
+        "verify-services": {
+          "exit_code": 0,
+          "wall_seconds": 4.629576301000043,
+          "at": "2026-11-11T04:50:07.922881+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/verify-services.py",
+            "--role",
+            "client"
+          ]
+        }
+      },
+      "service_read_only_probe_passed": true,
+      "remote_raw": "/root/ax-pool-b-bootstrap-01",
+      "remote_service_probe": "/srv/ax-client/preparation/pool-b-services-actual-01/service-verification",
+      "programs": {
+        "/srv/ax-client/assets/bin/brewfs": {
+          "bytes": 437228560,
+          "sha256": "98e3c0402b735830efab7c80e50d8353625b3f8cecc5343ee15c37a6a761a526"
+        },
+        "/srv/ax-client/assets/bin/entity_metadata_probe": {
+          "bytes": 29522904,
+          "sha256": "e5de5c44690e0fdc61c5a086d245f7f630dd83476935b57f9443355766d6ef54"
+        },
+        "/srv/ax-client/assets/bin/full-fuse-replay": {
+          "bytes": 773664,
+          "sha256": "4e8b0f9cf12e5f6b117e1a5a109896c1c961951602251d5c5f2cd7a5ec4db055"
+        },
+        "/srv/ax-client/assets/bin/juicefs": {
+          "bytes": 125693328,
+          "sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+        },
+        "/srv/ax-client/assets/bin/opencode": {
+          "bytes": 140844862,
+          "sha256": "025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233"
+        },
+        "/srv/ax-client/assets/bin/packed_v3_snapshot_fixture": {
+          "bytes": 47179056,
+          "sha256": "1af9604e7f9af71d42bdf8b86aba9237c699ea56838d0c0ff9a2abfde470326e"
+        },
+        "/srv/ax-client/assets/bin/smallfiles": {
+          "bytes": 674024,
+          "sha256": "8c45bca1348e936e0b8e5d01e7e8ee11f1db72120dc8aa7800aa72e1e0bcde96"
+        },
+        "/srv/ax-client/assets/bin/verify_entity_remote": {
+          "bytes": 43564168,
+          "sha256": "a42f84835ca9658a84165ddec3371b155933c41318946cc3d635471f8acf0737"
+        },
+        "/srv/ax-client/build-ca07159-01/bin/brewfs": {
+          "bytes": 437660368,
+          "sha256": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0"
+        },
+        "/srv/ax-client/build-ca07159-01/bin/entity_metadata_probe": {
+          "bytes": 29604640,
+          "sha256": "638069a5e830df03b9d92586ceb3eb1bb1164f2192e1f52459155f7ab23f7e00"
+        },
+        "/srv/ax-client/build-ca07159-01/bin/packed_v3_snapshot_fixture": {
+          "bytes": 47172456,
+          "sha256": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab"
+        },
+        "/srv/ax-client/build-ca07159-01/bin/verify_entity_remote": {
+          "bytes": 43555032,
+          "sha256": "a33d53c9f82fef76ef2cb436391a9c11ebc3e4eb93dd8ad0b7f2d6d1458e3c72"
+        }
+      },
+      "selected_brewfs": "/srv/ax-client/build-ca07159-01/bin/brewfs",
+      "selected_juicefs": "/srv/ax-client/assets/bin/juicefs",
+      "slot_before_input_preparation": {
+        "cpu.max": "200000 100000",
+        "memory.max": "8589934592",
+        "memory.swap.max": "0",
+        "pids.max": "4096",
+        "cgroup.procs": "",
+        "io.stat": ""
+      },
+      "s3_read_only_probe": {
+        "endpoint": "http://10.20.2.170:9000",
+        "http_status": 200,
+        "buckets": [],
+        "credential_mode": "0o600",
+        "credential_contents_logged": false
+      },
+      "version_stdout": {
+        "brewfs-version": "  \u001b[2m2026-11-11T04:50:07.823829Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::cli\u001b[0m\u001b[32m: \u001b[32mraised RLIMIT_NOFILE, \u001b[1;32msoft\u001b[0m\u001b[32m: 1048576, \u001b[1;32mhard\u001b[0m\u001b[32m: 1048576\u001b[0m\n    \u001b[2;3mat\u001b[0m src/cli.rs:194\n\nbrewfs 0.1.2\ncommit: ca07159f3da4b670e4aeb878faef928e69bc1634\ncommit_short: ca07159f3da4\nbranch: main\ndirty: false\nbuilt: unix:1794364866\n",
+        "juicefs-version": "juicefs version 1.4.2+2026-10-22.46af7af\n"
+      }
+    },
+    "metadata": {
+      "instance_id": "i-bp14nenf7osz9v1snsp2",
+      "boot_id": "166d02b4-1d08-4ee3-bb02-7d75a77e588b",
+      "disks": [
+        {
+          "id": "d-bp14nenf7osz9v1rkk5l",
+          "serial": "bp14nenf7osz9v1rkk5l",
+          "gib": 60,
+          "mount": "/srv/ax-metadata",
+          "st_dev": 64784,
+          "free_bytes": 60050755584,
+          "free_inodes": 15728320
+        }
+      ],
+      "steps": {
+        "authorize-key": {
+          "exit_code": 0,
+          "wall_seconds": 0.09694202400009999,
+          "at": "2026-11-11T04:44:05.788831+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/configure-node.py",
+            "authorize-key",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/metadata-spec.json",
+            "--public-key",
+            "/root/ax-pool-b-bootstrap-01/coordinator.pub",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/authorize-key"
+          ]
+        },
+        "download-assets": {
+          "exit_code": 0,
+          "wall_seconds": 0.16978826500007926,
+          "at": "2026-11-11T04:43:21.635365+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/download-assets.py",
+            "--role",
+            "metadata",
+            "--manifest-sha256",
+            "5943362728cf38ac85b8fc80c3571d76f9adbf628e68b04b34890edafb7b3cb3",
+            "--destination",
+            "/srv/ax-metadata/assets",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/download-assets-result.json"
+          ]
+        },
+        "format": {
+          "exit_code": 0,
+          "wall_seconds": 0.7976705589999824,
+          "at": "2026-11-11T04:41:53.991249+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/provision-node.py",
+            "format",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/metadata-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/format"
+          ]
+        },
+        "freeze-maintenance": {
+          "exit_code": 0,
+          "wall_seconds": 0.36515717100007805,
+          "at": "2026-11-11T04:43:21.428712+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/freeze-maintenance-pool-b.py",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/metadata-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/freeze-maintenance"
+          ]
+        },
+        "inspect": {
+          "exit_code": 0,
+          "wall_seconds": 0.09967313200002081,
+          "at": "2026-11-11T04:41:36.196133+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/provision-node.py",
+            "inspect",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/metadata-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/inspect"
+          ]
+        },
+        "packages": {
+          "exit_code": 0,
+          "wall_seconds": 17.040670877999958,
+          "at": "2026-11-11T04:42:23.234270+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/provision-node.py",
+            "packages",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/metadata-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/packages",
+            "--apt-proxy",
+            "http://10.20.0.10:3128"
+          ]
+        },
+        "redis": {
+          "exit_code": 0,
+          "wall_seconds": 0.3864110350000374,
+          "at": "2026-11-11T04:43:50.356469+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/configure-node.py",
+            "redis",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/metadata-spec.json",
+            "--inventory",
+            "/root/ax-pool-b-bootstrap-01/inventory-parallel.json",
+            "--pool",
+            "pool-b",
+            "--private-ip",
+            "10.20.2.169",
+            "--out",
+            "/srv/ax-metadata/redis-setup-01"
+          ]
+        },
+        "verify-services": {
+          "exit_code": 0,
+          "wall_seconds": 0.12485775499999363,
+          "at": "2026-11-11T04:50:03.410342+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/verify-services.py",
+            "--role",
+            "metadata"
+          ]
+        }
+      },
+      "service_read_only_probe_passed": true,
+      "remote_raw": "/root/ax-pool-b-bootstrap-01",
+      "remote_service_probe": "/srv/ax-metadata/preparation/pool-b-services-actual-01/service-verification",
+      "redis_status": {
+        "MainPID": "3585",
+        "ControlGroup": "/system.slice/ax-pilot-redis.service",
+        "CPUQuotaPerSecUSec": "3s",
+        "MemoryMax": "12884901888",
+        "MemorySwapMax": "0",
+        "ActiveState": "active",
+        "SubState": "running"
+      },
+      "config_sha256": "2900bf6cb1985687b92face7566d774cd9b3029eb90174735deae55c7fdab612"
+    },
+    "objects": {
+      "instance_id": "i-bp1bhdngko7nq3c3jrhp",
+      "boot_id": "6382995a-7168-411b-b972-582ef75828a9",
+      "disks": [
+        {
+          "id": "d-bp1bhdngko7nq3c2i340",
+          "serial": "bp1bhdngko7nq3c2i340",
+          "gib": 60,
+          "mount": "/srv/ax-objects-0",
+          "st_dev": 64784,
+          "free_bytes": 59935637504,
+          "free_inodes": 15728280
+        },
+        {
+          "id": "d-bp1bhdngko7nq3c2i341",
+          "serial": "bp1bhdngko7nq3c2i341",
+          "gib": 60,
+          "mount": "/srv/ax-objects-1",
+          "st_dev": 64800,
+          "free_bytes": 60053688320,
+          "free_inodes": 15728601
+        },
+        {
+          "id": "d-bp1bhdngko7nq3c2i342",
+          "serial": "bp1bhdngko7nq3c2i342",
+          "gib": 60,
+          "mount": "/srv/ax-objects-2",
+          "st_dev": 64816,
+          "free_bytes": 60053688320,
+          "free_inodes": 15728601
+        },
+        {
+          "id": "d-bp1bhdngko7nq3c2i343",
+          "serial": "bp1bhdngko7nq3c2i343",
+          "gib": 60,
+          "mount": "/srv/ax-objects-3",
+          "st_dev": 64832,
+          "free_bytes": 60053688320,
+          "free_inodes": 15728601
+        }
+      ],
+      "steps": {
+        "authorize-key": {
+          "exit_code": 0,
+          "wall_seconds": 0.12949036500003785,
+          "at": "2026-11-11T04:44:05.846410+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/configure-node.py",
+            "authorize-key",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/objects-spec.json",
+            "--public-key",
+            "/root/ax-pool-b-bootstrap-01/coordinator.pub",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/authorize-key"
+          ]
+        },
+        "collector-load": {
+          "exit_code": 0,
+          "wall_seconds": 4.133232859000032,
+          "at": "2026-11-11T04:45:59.697277+00:00",
+          "command": [
+            "docker",
+            "load",
+            "-i",
+            "/srv/ax-objects-0/assets/images/otel-collector-image.tar"
+          ]
+        },
+        "collector-start": {
+          "exit_code": 0,
+          "wall_seconds": 2.7005190849999963,
+          "at": "2026-11-11T04:46:02.433169+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/metric-collector.py",
+            "start",
+            "--image-receipt",
+            "/srv/ax-objects-0/assets/provenance/otel-collector.json",
+            "--name",
+            "ax-pilot-20261111-b-collector-01",
+            "--out",
+            "/srv/ax-objects-0/services/collector-01"
+          ]
+        },
+        "download-assets": {
+          "exit_code": 0,
+          "wall_seconds": 0.5051714600000423,
+          "at": "2026-11-11T04:43:21.960311+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/download-assets.py",
+            "--role",
+            "objects",
+            "--manifest-sha256",
+            "5943362728cf38ac85b8fc80c3571d76f9adbf628e68b04b34890edafb7b3cb3",
+            "--destination",
+            "/srv/ax-objects-0/assets",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/download-assets-result.json"
+          ]
+        },
+        "format": {
+          "exit_code": 0,
+          "wall_seconds": 3.3663942109999994,
+          "at": "2026-11-11T04:41:56.575966+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/provision-node.py",
+            "format",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/objects-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/format"
+          ]
+        },
+        "freeze-maintenance": {
+          "exit_code": 0,
+          "wall_seconds": 0.37529739800004336,
+          "at": "2026-11-11T04:43:21.420751+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/freeze-maintenance-pool-b.py",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/objects-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/freeze-maintenance"
+          ]
+        },
+        "inspect": {
+          "exit_code": 0,
+          "wall_seconds": 0.12158351300001868,
+          "at": "2026-11-11T04:41:36.093120+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/provision-node.py",
+            "inspect",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/objects-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/inspect"
+          ]
+        },
+        "object-paths": {
+          "exit_code": 0,
+          "wall_seconds": 0.12341970399995716,
+          "at": "2026-11-11T04:43:50.059385+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/configure-node.py",
+            "object-paths",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/objects-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/object-paths"
+          ]
+        },
+        "packages": {
+          "exit_code": 0,
+          "wall_seconds": 21.814583115999994,
+          "at": "2026-11-11T04:42:27.897781+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/provision-node.py",
+            "packages",
+            "--spec",
+            "/root/ax-pool-b-bootstrap-01/objects-spec.json",
+            "--out",
+            "/root/ax-pool-b-bootstrap-01/packages",
+            "--apt-proxy",
+            "http://10.20.0.10:3128"
+          ]
+        },
+        "rustfs": {
+          "exit_code": 1,
+          "wall_seconds": 0.10175891200003662,
+          "at": "2026-11-11T04:43:50.196215+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/deploy-objects.py",
+            "--assets",
+            "/srv/ax-objects-0/assets",
+            "--out",
+            "/srv/ax-objects-0/services/rustfs-01",
+            "--node-spec",
+            "/root/ax-pool-b-bootstrap-01/objects-spec.json",
+            "--inventory",
+            "/root/ax-pool-b-bootstrap-01/inventory-parallel.json",
+            "--pool",
+            "pool-b"
+          ]
+        },
+        "rustfs-02": {
+          "exit_code": 0,
+          "wall_seconds": 7.8488175030000775,
+          "at": "2026-11-11T04:45:07.168540+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/deploy-objects-pool-b-02.py",
+            "--assets",
+            "/srv/ax-objects-0/assets",
+            "--out",
+            "/srv/ax-objects-0/services/rustfs-01",
+            "--node-spec",
+            "/root/ax-pool-b-bootstrap-01/objects-spec.json",
+            "--inventory",
+            "/root/ax-pool-b-bootstrap-01/inventory-parallel.json",
+            "--pool",
+            "pool-b"
+          ]
+        },
+        "verify-services": {
+          "exit_code": 0,
+          "wall_seconds": 0.1971041400000786,
+          "at": "2026-11-11T04:50:03.356366+00:00",
+          "command": [
+            "python3",
+            "/root/ax-pool-b-bootstrap-01/verify-services.py",
+            "--role",
+            "objects"
+          ]
+        }
+      },
+      "service_read_only_probe_passed": true,
+      "remote_raw": "/root/ax-pool-b-bootstrap-01",
+      "remote_service_probe": "/srv/ax-objects-0/preparation/pool-b-services-actual-01/service-verification",
+      "containers": [
+        {
+          "id": "abc0a432b493e0a820a380738e359532921693e82e015d5c9982868084e33893",
+          "name": "/ax-pilot-20261111-b-pool-b-objects-01-rustfs-1",
+          "image": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+          "image_reference": "10.20.0.10:15000/ax-pilot/rustfs@sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+          "running": true,
+          "pid": 4744,
+          "cpus": 6.0,
+          "memory": 25769803776,
+          "memory_swap": 25769803776,
+          "allowed_environment": {
+            "RUSTFS_ADDRESS": "10.20.2.170:9000",
+            "RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE": "true",
+            "RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED": "true",
+            "RUSTFS_EC_READ_QUANTUM_ENABLE": "true",
+            "RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED": "true",
+            "OTEL_RESOURCE_ATTRIBUTES": "rustfs.cluster.id=ax-pilot-20261111-b-pool-b",
+            "RUSTFS_OBS_METRIC_ENDPOINT": "http://127.0.0.1:4318/v1/metrics"
+          }
+        },
+        {
+          "id": "c84cb9e7cb44ec9940393ef719e3c773d02e01d7fa102424de87543cb7caf030",
+          "name": "/ax-pilot-20261111-b-collector-01",
+          "image": "sha256:e40d61f10c9a617cca1ffd1be4d7e2b3a4b0f0001798ff07e58cabe82e618cea",
+          "image_reference": "sha256:e40d61f10c9a617cca1ffd1be4d7e2b3a4b0f0001798ff07e58cabe82e618cea",
+          "running": true,
+          "pid": 5119,
+          "cpus": 1.0,
+          "memory": 536870912,
+          "memory_swap": 1073741824,
+          "allowed_environment": {}
+        }
+      ],
+      "native_prometheus_bytes": 1213003,
+      "native_pool_label_present": true
+    }
+  },
+  "rustfs": {
+    "passed": true,
+    "at": "2026-11-11T04:45:07.156822+00:00",
+    "container_id": "abc0a432b493e0a820a380738e359532921693e82e015d5c9982868084e33893",
+    "pid": 4744,
+    "image_reference": "10.20.0.10:15000/ax-pilot/rustfs@sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "image_id": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "pool_id": "pool-b",
+    "instance_id": "i-bp1bhdngko7nq3c3jrhp",
+    "private_ip": "10.20.2.170",
+    "cluster_id": "ax-pilot-20261111-b-pool-b",
+    "project_name": "ax-pilot-20261111-b-pool-b-objects-01",
+    "binary_sha256": "7cf928734f34be79d6a41ab280113f36c06cf74f1034b66a62a95aece12623ca",
+    "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "distinct_devices": [
+      64784,
+      64800,
+      64816,
+      64832
+    ],
+    "unsafe_disk_bypass": false,
+    "compose_sha256": "e5564d6f602c61d727500e5b22f9592f67ce1205cfb024c9747af27ffcc1986e",
+    "scope": "Service startup and source identity; performance qualification separate"
+  },
+  "collector": {
+    "at": "2026-11-11T04:46:02.427594+00:00",
+    "container_id": "c84cb9e7cb44ec9940393ef719e3c773d02e01d7fa102424de87543cb7caf030",
+    "image_reference": "otel/opentelemetry-collector-contrib@sha256:e40d61f10c9a617cca1ffd1be4d7e2b3a4b0f0001798ff07e58cabe82e618cea",
+    "runtime_image": "sha256:e40d61f10c9a617cca1ffd1be4d7e2b3a4b0f0001798ff07e58cabe82e618cea",
+    "network": "host",
+    "config_sha256": "2796e3ee06f7ae1cb4ced09461a2810d8c7b234b39ebdf3a183a0ee03cabff1a",
+    "prometheus_port": 18889,
+    "otlp_http_port": 4318,
+    "source_timestamps": true,
+    "container_memory_bytes": 536870912,
+    "container_cpus": 1,
+    "limiter_mib": 256,
+    "scope": "Collector startup only; actual native series, freshness, coverage and overhead still require qualification"
+  },
+  "endpoints": {
+    "redis": "redis://10.20.2.169:6379",
+    "s3": "http://10.20.2.170:9000",
+    "native_metrics": "objects-localhost:18889/metrics"
+  },
+  "credentials": {
+    "client": "/srv/ax-client/private/rustfs.env",
+    "objects": "/srv/ax-objects-0/services/rustfs-01/private/rustfs.env",
+    "content_logged": false,
+    "private_key_copied": false
+  },
+  "artifacts": {
+    "assets_manifest_sha256": "5943362728cf38ac85b8fc80c3571d76f9adbf628e68b04b34890edafb7b3cb3",
+    "new_brewfs_archive_sha256": "3c383f24350e148060e594c51730acac8791ed2cb19df90fc658007bd50c40e9",
+    "new_brewfs_source": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+    "local_raw": "C:/Users/HXY/.cache/ax-pilot-20261111/pool-b/collected-services-01"
+  },
+  "preserved_failure": {
+    "stage": "objects rustfs",
+    "exit_code": 1,
+    "cause": "ModuleSpec.exec_module attribute typo in new identity import",
+    "mutation_before_failure": false,
+    "resolution": "Use spec.loader.exec_module, retain failed receipt, execute explicit rustfs-02 step",
+    "regression": "Actual deploy entrypoint with wrong IMDS instance refuses before subprocess or output mutation"
+  },
+  "tests": {
+    "command": "PYTHONPATH=tests python3 -m unittest test_pilot_service_pools test_pilot_disk_init test_cloud_deploy",
+    "passed": 22
+  },
+  "formal_workloads_run": false,
+  "model_calls": 0,
+  "existing_pool_a_services_modified": false
+}

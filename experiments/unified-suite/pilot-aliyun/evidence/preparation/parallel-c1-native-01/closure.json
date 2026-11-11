@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "units": [
+    {
+      "unit": "ax-pilot-c1-base-parallel-01",
+      "state": {
+        "MainPID": "0",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "invocation_id": "d4777b27b42a48b99f533f80a8498b76",
+      "journal": {
+        "path": "/srv/ax-client/preparation/parallel-c1-native-01-retention/completion-03/ax-pilot-c1-base-parallel-01-journal.jsonl",
+        "sha256": "a75a44edb2242fb5b150af4480d46a4c2b2a83abf3639a836b056e3de4058ecb"
+      }
+    },
+    {
+      "unit": "ax-pilot-native-flat-parallel-01",
+      "state": {
+        "MainPID": "0",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "invocation_id": "c66568668eb8443f8f1e7dee2645cec9",
+      "journal": {
+        "path": "/srv/ax-client/preparation/parallel-c1-native-01-retention/completion-03/ax-pilot-native-flat-parallel-01-journal.jsonl",
+        "sha256": "85d7ea1c85d5f2e6f89d81a4403087a3cb41eba01ec76fbbc335ce7e84ce8ba0"
+      }
+    }
+  ],
+  "slot_empty": true,
+  "original_mounts_absent": true,
+  "c1_six_crc_checks": true,
+  "native_three_normal_exits": true,
+  "new_cloud_instances_created": 0,
+  "original_qualification_field_note": "Original cloud_instances_started=true means the script was run with --cloud; this operation created no ECS instances.",
+  "archived": {
+    "schema": "suite-archive-check-v1",
+    "passed": true,
+    "archive": "/srv/ax-client/preparation/parallel-c1-native-01-retention/completion-03/raw.tar.gz",
+    "sha256": "1d585ebbb2fee82bcd1289ca5bcfefaa8f376f600881a00a3eadfb9e946c0809",
+    "bytes": 65950,
+    "file_members": 202,
+    "cell_id": "451ef1d28b5d875c-r1-native",
+    "kind": "c1-base-and-flat-qualification",
+    "deferred": [],
+    "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+  },
+  "excluded": [
+    "a/parallel-c1-native-01/prep-mount-01/cache",
+    "a/parallel-c1-native-01/prep-mount-02/cache",
+    "m/parallel-c1-native-01-cold/control.sock",
+    "m/parallel-c1-native-01-prepare/control.sock",
+    "qualification/parallel-native-flat-01/oracle",
+    "qualification/parallel-native-flat-01/cache-*"
+  ],
+  "scope": "Raw closed preparation receipts; not a formal performance sample"
+}

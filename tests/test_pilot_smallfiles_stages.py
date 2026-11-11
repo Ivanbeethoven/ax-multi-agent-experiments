@@ -15,9 +15,10 @@ runner=importlib.util.module_from_spec(spec);spec.loader.exec_module(runner)
 class SmallfileStages(unittest.TestCase):
     def cell(self,root,kind='smallfiles',workspaces=1):
         root=Path(root);control=root/'control';control.mkdir()
-        cell=dict(id='unit-native',arm_id='native',workload=kind,arm=dict(product='brewfs'),
+        cell=dict(id='unit-native',pool='pool-a',arm_id='native',workload=kind,arm=dict(product='brewfs'),
                   params=dict(agents=1,workspaces=workspaces,block_bytes=4096))
         (control/'suite').mkdir();(control/'suite/plan.json').write_text(json.dumps(dict(cells=[cell])))
+        (control/'fleet.json').write_text(json.dumps(dict(nodes=[])))
         context=root/'context.json';context.write_text(json.dumps(dict(out=str(root/'out'),control=str(control),
             cell_id=cell['id'],qualification=str(root/'qualification'),smallfiles=dict(
                 binary=dict(path='/original',sha256='a'*64),verifier=dict(path='/full-verifier',sha256='b'*64),
@@ -63,6 +64,15 @@ class SmallfileStages(unittest.TestCase):
             c.helper=lambda action,**fields:calls.append(action)
             c.execute('verify')
             self.assertEqual(calls,['draft-mount','start','fio','fio-base-check','stop'])
+
+    def test_same_cell_in_another_batch_never_reuses_old_worker_paths(self):
+        with tempfile.TemporaryDirectory() as first,tempfile.TemporaryDirectory() as second:
+            a=self.cell(first);b=self.cell(second)
+            self.assertEqual(a.id,b.id)
+            self.assertNotEqual(a.tag,b.tag)
+            self.assertNotEqual(a.main,b.main)
+            self.assertNotEqual(a.base,b.base)
+            self.assertEqual(a.tag,runner.Cell(Path(first)/'context.json').tag)
 
 
 if __name__=='__main__':unittest.main()

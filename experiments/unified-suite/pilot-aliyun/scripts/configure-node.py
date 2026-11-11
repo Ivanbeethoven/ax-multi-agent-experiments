@@ -2,6 +2,7 @@
 """Configure one owned pilot host after identity and new-disk preparation."""
 import argparse
 from datetime import datetime, timezone
+import hashlib
 import importlib.util
 import json
 import os
@@ -10,7 +11,11 @@ import pwd
 import re
 import socket
 import subprocess
+import sys
 import time
+
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from pilot_service_binding import bind_service,private_ipv4,require_local_address
 
 
 def main():
@@ -20,10 +25,14 @@ def main():
     p.add_argument('--out', type=Path, required=True)
     p.add_argument('--public-key', type=Path)
     p.add_argument('--private-ip')
+    p.add_argument('--inventory',type=Path,help='Actual inventory when binding a service in another pool')
+    p.add_argument('--pool',default='pool-a')
     a = p.parse_args()
     if os.geteuid() != 0 or a.out.exists():
         raise ValueError('Root and a new output directory required')
     spec = json.loads(a.spec.read_text())
+    if not re.fullmatch(r'ax-pilot-[0-9]{8}(-[a-z0-9]+)?',spec.get('campaign','')):
+        raise ValueError('Owned pilot campaign required')
     loader = importlib.util.spec_from_file_location('pilot_provision', Path(__file__).with_name('provision-node.py'))
     provision = importlib.util.module_from_spec(loader)
     loader.loader.exec_module(provision)
@@ -164,9 +173,17 @@ Restart=no
     else:
         if spec['role'] != 'metadata' or a.private_ip is None:
             raise ValueError('Metadata node private IP required')
-        import ipaddress
-        if not ipaddress.ip_address(a.private_ip).is_private:
-            raise ValueError('Private Redis listener required')
+        private_ipv4(a.private_ip)
+        if a.pool!='pool-a' and not a.inventory:
+            raise ValueError('New Redis pool requires an explicit inventory')
+        if a.inventory:
+            binding=bind_service(spec,json.loads(a.inventory.read_text()),a.pool,'metadata')
+            if binding['private_ip']!=a.private_ip:raise ValueError('Redis listener differs from inventory')
+            result.update(pool_id=a.pool,private_ip=a.private_ip,
+                inventory_sha256=hashlib.sha256(a.inventory.read_bytes()).hexdigest())
+        interfaces=json.loads(subprocess.check_output(['ip','-json','-4','address','show']))
+        require_local_address(a.private_ip,interfaces)
+        (a.out/'ip-addresses.json').write_text(json.dumps(interfaces,indent=2)+'\n')
         run(['systemctl', 'stop', 'redis-server'], 'stop-new-default-redis')
         root = Path('/srv/ax-metadata')
         if not os.path.ismount(root):
@@ -175,7 +192,7 @@ Restart=no
         (a.out / 'overcommit-before.txt').write_text(Path('/proc/sys/vm/overcommit_memory').read_text())
         run(['sysctl', '-w', 'vm.overcommit_memory=1'], 'overcommit')
         user = pwd.getpwnam('redis'); os.chown(directory, user.pw_uid, user.pw_gid)
-        config = '/etc/redis/ax-pilot-20261111.conf'
+        config = '/etc/redis/'+spec['campaign']+'.conf'
         new(config, f'''bind 127.0.0.1 {a.private_ip}
 protected-mode no
 port 6379
@@ -190,13 +207,13 @@ maxmemory 10737418240
 maxmemory-policy noeviction
 logfile ""
 ''')
-        service('ax-pilot-redis', '''[Unit]
+        service('ax-pilot-redis', f'''[Unit]
 Description=AX pilot dedicated Redis metadata
 After=network-online.target
 [Service]
 User=redis
 Group=redis
-ExecStart=/usr/bin/redis-server /etc/redis/ax-pilot-20261111.conf
+ExecStart=/usr/bin/redis-server {config}
 IOAccounting=yes
 CPUQuota=300%
 MemoryMax=12884901888

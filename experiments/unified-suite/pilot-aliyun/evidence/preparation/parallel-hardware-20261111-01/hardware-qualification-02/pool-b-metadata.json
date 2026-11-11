@@ -1,0 +1,171 @@
+{
+  "read_only": true,
+  "hostname": "ax-pilot-20261111-b-metadata",
+  "errors": {},
+  "instance_id": "i-bp14nenf7osz9v1snsp2",
+  "boot_id": "166d02b4-1d08-4ee3-bb02-7d75a77e588b",
+  "cpu_models": [
+    "Intel(R) Xeon(R) Platinum"
+  ],
+  "affinity_cpu_count": 4,
+  "memory_total_bytes": 16335253504,
+  "kernel": "6.8.0-147-generic",
+  "private_addresses": [
+    {
+      "ifindex": 1,
+      "ifname": "lo",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 65536,
+      "qdisc": "noqueue",
+      "operstate": "UNKNOWN",
+      "group": "default",
+      "txqlen": 1000,
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "127.0.0.1",
+          "prefixlen": 8,
+          "scope": "host",
+          "label": "lo",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    },
+    {
+      "ifindex": 2,
+      "ifname": "eth0",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "mq",
+      "operstate": "UP",
+      "group": "default",
+      "txqlen": 1000,
+      "altnames": [
+        "enp0s6",
+        "ens6"
+      ],
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "10.20.2.169",
+          "prefixlen": 20,
+          "metric": 100,
+          "broadcast": "10.20.15.255",
+          "scope": "global",
+          "dynamic": true,
+          "label": "eth0",
+          "valid_life_time": 1892158480,
+          "preferred_life_time": 1892158480
+        }
+      ]
+    }
+  ],
+  "block_devices": {
+    "blockdevices": [
+      {
+        "path": "/dev/vda",
+        "type": "disk",
+        "serial": "bp14nenf7osz9v1rkk5k",
+        "size": 42949672960,
+        "fstype": null,
+        "mountpoints": [
+          null
+        ]
+      },
+      {
+        "path": "/dev/vda1",
+        "type": "part",
+        "serial": null,
+        "size": 1048576,
+        "fstype": null,
+        "mountpoints": [
+          null
+        ]
+      },
+      {
+        "path": "/dev/vda2",
+        "type": "part",
+        "serial": null,
+        "size": 209715200,
+        "fstype": "vfat",
+        "mountpoints": [
+          "/boot/efi"
+        ]
+      },
+      {
+        "path": "/dev/vda3",
+        "type": "part",
+        "serial": null,
+        "size": 42737843712,
+        "fstype": "ext4",
+        "mountpoints": [
+          "/"
+        ]
+      },
+      {
+        "path": "/dev/vdb",
+        "type": "disk",
+        "serial": "bp14nenf7osz9v1rkk5l",
+        "size": 64424509440,
+        "fstype": "ext4",
+        "mountpoints": [
+          "/srv/ax-metadata"
+        ]
+      }
+    ]
+  },
+  "data_mounts": [
+    {
+      "path": "/srv/ax-metadata",
+      "is_mount": true,
+      "device": 64784
+    }
+  ],
+  "redis": {
+    "version": "7.0.15",
+    "process_id": "3585",
+    "version_output": "Redis server v=7.0.15 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d064f9f48c901a92",
+    "systemd_pid": "3585",
+    "process_executable_sha256": "8716cd03cf5a0fcd99d0e95f9b04f7983fb134345d6e5802a7f4259af3658b6d",
+    "io_accounting": "yes",
+    "active": "active",
+    "settings": {
+      "appendonly": "yes",
+      "appendfsync": "always",
+      "maxmemory": "10737418240",
+      "maxmemory-policy": "noeviction",
+      "save": "",
+      "databases": "256"
+    },
+    "cgroup": {
+      "cpu.max": "300000 100000",
+      "memory.max": "12884901888",
+      "memory.swap.max": "0"
+    },
+    "binary_sha256": "8716cd03cf5a0fcd99d0e95f9b04f7983fb134345d6e5802a7f4259af3658b6d",
+    "source": {
+      "path": "/srv/ax-metadata/redis-setup-01/result.json",
+      "sha256": "1b9fdda30ff74266b16eef6d22d8941e38aa695be04c0e70f2c59f96933fbc82",
+      "value": {
+        "at": "2026-11-11T04:43:50.054951+00:00",
+        "action": "redis",
+        "instance_id": "i-bp14nenf7osz9v1snsp2",
+        "passed": true,
+        "pool_id": "pool-b",
+        "private_ip": "10.20.2.169",
+        "inventory_sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e",
+        "service": "ax-pilot-redis"
+      }
+    }
+  }
+}

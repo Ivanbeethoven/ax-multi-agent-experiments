@@ -1,0 +1,206 @@
+{
+  "at": "2026-11-11T05:14:44.966941+00:00",
+  "inventory": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/fleet.json",
+    "sha256": "f85605a02eea141c110c79cfb794bd2acaa83fc80b081cad7619f355ebc3aef1"
+  },
+  "pool": "pool-b",
+  "nodes": {
+    "client": {
+      "boot_id": "b4316c9e-f7da-47dc-a443-8f4c87a6cf11",
+      "sampled_at": "2026-11-11T05:14:43.643663+00:00",
+      "disks": [
+        {
+          "path": "/srv/ax-client",
+          "device": 64784,
+          "serial": "bp1fmmfkcpr8w99pwgc5",
+          "device_bytes": 107374182400,
+          "total_bytes": 100056096768,
+          "used_bytes": 2376306688,
+          "available_bytes": 97663012864,
+          "total_inodes": 26214400,
+          "used_inodes": 202003,
+          "available_inodes": 26012397
+        }
+      ],
+      "preparation": {
+        "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/result.json",
+        "sha256": "2371822c563057dc10db07eb6f0da87ad8f23e062334194a0bab911e956eb54a",
+        "value": {
+          "passed": true,
+          "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+          "asset": {
+            "path": "/srv/ax-client/a/parallel-c3-juicefs-01/asset.json",
+            "sha256": "1f330f6c57e92bb9bb8e6bee094551cca366e93deb5f397541234e07d52ec65e"
+          },
+          "source": {
+            "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c3-verify/result.json",
+            "sha256": "3c3d956b23e885c34aa252f78ab7051ab36a9aca99880fbe25e7f53588da6510"
+          },
+          "full_cold_base_check": {
+            "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/base-check/result.json",
+            "sha256": "6eb2d56475523357bd3e0d83855b4be730799b2966cc703a5ea4fe54a19a05fb"
+          },
+          "files": 100000,
+          "bytes_checked": 409600000,
+          "normal_exits": [
+            {
+              "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/normal-stop.json",
+              "sha256": "12685fa3d6ec5f24b3290f580634d342fb4d005e0915cbe3ed55e6500070fe2c"
+            },
+            {
+              "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/cold-stop.json",
+              "sha256": "273a03b5fb3074856caa3bba76e3f0f9bc0f6e7b6ab0901b5c02f831a0ea46c9"
+            }
+          ],
+          "scope": "One full imported C3 base and original backend cold reopen; preparation cost, not a performance sample"
+        },
+        "normal_exits": [
+          {
+            "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/normal-stop.json",
+            "sha256": "12685fa3d6ec5f24b3290f580634d342fb4d005e0915cbe3ed55e6500070fe2c",
+            "value": {
+              "passed": true,
+              "exit_code": 0,
+              "mount_absent": true,
+              "anchor": {
+                "filesystem": "juicefs",
+                "workspace": null,
+                "namespace": null,
+                "storage_identity_sha256": "da9627f25c866a3ce22726b1f27884522e131fe8d67809b6b531c6b8ba19017e"
+              },
+              "original_mount": {
+                "mount_id": 277,
+                "point": "/srv/ax-client/a/parallel-c3-juicefs-01/mnt",
+                "filesystem": "fuse.juicefs",
+                "source": "JuiceFS:ax-pilot-53a2f254c60d",
+                "options": "rw,nosuid,nodev,relatime"
+              },
+              "active_workers": []
+            }
+          },
+          {
+            "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/cold-stop.json",
+            "sha256": "273a03b5fb3074856caa3bba76e3f0f9bc0f6e7b6ab0901b5c02f831a0ea46c9",
+            "value": {
+              "passed": true,
+              "exit_code": 0,
+              "mount_absent": true,
+              "anchor": {
+                "filesystem": "juicefs",
+                "workspace": null,
+                "namespace": null,
+                "storage_identity_sha256": "da9627f25c866a3ce22726b1f27884522e131fe8d67809b6b531c6b8ba19017e"
+              },
+              "original_mount": {
+                "mount_id": 55,
+                "point": "/srv/ax-client/a/parallel-c3-juicefs-01/mnt",
+                "filesystem": "fuse.juicefs",
+                "source": "JuiceFS:ax-pilot-53a2f254c60d",
+                "options": "rw,nosuid,nodev,relatime"
+              },
+              "active_workers": []
+            }
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "boot_id": "166d02b4-1d08-4ee3-bb02-7d75a77e588b",
+      "sampled_at": "2026-11-11T05:14:44.300085+00:00",
+      "disks": [
+        {
+          "path": "/srv/ax-metadata",
+          "device": 64784,
+          "serial": "bp14nenf7osz9v1rkk5l",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 33382400,
+          "available_bytes": 60020445184,
+          "total_inodes": 15728640,
+          "used_inodes": 507,
+          "available_inodes": 15728133
+        }
+      ],
+      "redis": {
+        "used_memory": 41243464,
+        "used_memory_rss": 55377920,
+        "maxmemory": 10737418240,
+        "aof_current_size": 28370315,
+        "process_id": 3585
+      }
+    },
+    "objects": {
+      "boot_id": "6382995a-7168-411b-b972-582ef75828a9",
+      "sampled_at": "2026-11-11T05:14:44.950364+00:00",
+      "disks": [
+        {
+          "path": "/srv/ax-objects-0",
+          "device": 64784,
+          "serial": "bp1bhdngko7nq3c2i340",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 944455680,
+          "available_bytes": 59109371904,
+          "total_inodes": 15728640,
+          "used_inodes": 200662,
+          "available_inodes": 15527978
+        },
+        {
+          "path": "/srv/ax-objects-1",
+          "device": 64800,
+          "serial": "bp1bhdngko7nq3c2i341",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 823304192,
+          "available_bytes": 59230523392,
+          "total_inodes": 15728640,
+          "used_inodes": 200163,
+          "available_inodes": 15528477
+        },
+        {
+          "path": "/srv/ax-objects-2",
+          "device": 64816,
+          "serial": "bp1bhdngko7nq3c2i342",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 823296000,
+          "available_bytes": 59230531584,
+          "total_inodes": 15728640,
+          "used_inodes": 200163,
+          "available_inodes": 15528477
+        },
+        {
+          "path": "/srv/ax-objects-3",
+          "device": 64832,
+          "serial": "bp1bhdngko7nq3c2i343",
+          "device_bytes": 64424509440,
+          "total_bytes": 60070604800,
+          "used_bytes": 823308288,
+          "available_bytes": 59230519296,
+          "total_inodes": 15728640,
+          "used_inodes": 200163,
+          "available_inodes": 15528477
+        }
+      ],
+      "container_id": "abc0a432b493e0a820a380738e359532921693e82e015d5c9982868084e33893",
+      "image": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+      "pid": 4744
+    }
+  },
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/fleet.json",
+      "sha256": "f85605a02eea141c110c79cfb794bd2acaa83fc80b081cad7619f355ebc3aef1"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/capacity-b-01/capacity-check-v2.py",
+      "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/capacity-b-01/before.json",
+      "sha256": "92eebc534da72e23c5c5022bbfda81f6182669ddd70e9b3af7ce9de0dc086500"
+    }
+  ],
+  "scope": "Actual filesystem allocation and Redis memory/AOF snapshot; no workload or object deletion"
+}

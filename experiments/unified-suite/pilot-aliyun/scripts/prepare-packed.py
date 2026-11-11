@@ -8,6 +8,7 @@ import argparse
 from datetime import datetime,timezone
 import json
 import os
+import socket
 from pathlib import Path
 import subprocess
 import sys
@@ -18,6 +19,7 @@ REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
 from bench.runtime.common import digest,load,write_new,pinned
 from bench.suite_mount import overlay
+from bench.runtime.pilot_pools import endpoint_binding,pool_of
 
 
 def ref(p):return dict(path=str(p),sha256=digest(p))
@@ -30,6 +32,7 @@ def main():
     p.add_argument('--database',type=int,required=True)
     p.add_argument('--mount-state',type=Path,required=True)
     p.add_argument('--build-root',type=Path,default=Path('/srv/ax-client/assets'))
+    p.add_argument('--inventory',type=Path)
     a=p.parse_args()
     if a.asset.exists() or a.out.exists() or a.mount_state.exists():raise ValueError('Fresh asset, output and supervisor required')
     if digest(a.node_tool)!=a.node_tool_sha256:raise ValueError('Helper changed')
@@ -39,17 +42,25 @@ def main():
     if files not in (100000,1000000):raise ValueError('Declared 100k or million-file base required')
     if source.get('passed') is not True or source.get('files')!=files or source.get('bytes_checked')!=logical_bytes:
         raise ValueError('Complete source qualification must match the declared plan size')
+    binding=endpoint_binding(plan,cell,a.inventory)
+    if binding.get('client') and socket.gethostname()!=binding['client']['hostname']:
+        raise ValueError('Packed producer host differs from explicit pool inventory')
+    object_endpoint=binding['objects']
     if not 20<=a.database<256:raise ValueError('Explicit unused pilot database required')
     build_manifest=a.build_root/'provenance/build-manifest.json'
     build=load(build_manifest);binaries={}
+    if digest(build_manifest)!=plan['config']['build_manifest_sha256']:raise ValueError('Producer build differs from frozen plan')
     for name in ('brewfs','packed_v3_snapshot_fixture'):
         item=next(x for x in build['files'] if x['file']==name)
         value=dict(path=str(a.build_root/'bin'/name),sha256=item['sha256'])
         pinned(value);binaries[name]=value
-    redis='redis://10.20.2.162:6379/'+str(a.database)
+    redis=binding['metadata']+'/'+str(a.database)
     if subprocess.check_output(['redis-cli','-u',redis,'DBSIZE'],text=True).strip()!='0':raise ValueError('Never overwrite metadata')
     a.out.mkdir(parents=True);a.asset.mkdir(parents=True)
     env=dict(os.environ,AWS_EC2_METADATA_DISABLED='true',AWS_REGION='us-east-1',RUST_LOG='error',NO_COLOR='1')
+    from urllib.parse import urlsplit
+    bypass='127.0.0.1,localhost,'+urlsplit(object_endpoint).hostname
+    env.update(NO_PROXY=bypass,no_proxy=bypass)
     values=dict(line.split('=',1) for line in Path('/srv/ax-client/private/rustfs.env').read_text().splitlines())
     env.update(AWS_ACCESS_KEY_ID=values['RUSTFS_ACCESS_KEY'],AWS_SECRET_ACCESS_KEY=values['RUSTFS_SECRET_KEY'])
     bucket='axp-'+uuid.uuid4().hex[:16];volume=str(uuid.uuid4());namespace=str(uuid.uuid4());catalog='pilot-'+uuid.uuid4().hex
@@ -75,7 +86,7 @@ def main():
     try:
         import boto3
         from botocore.config import Config
-        client=boto3.client('s3',endpoint_url='http://10.20.2.163:9000',region_name='us-east-1',
+        client=boto3.client('s3',endpoint_url=object_endpoint,region_name='us-east-1',
             aws_access_key_id=env['AWS_ACCESS_KEY_ID'],aws_secret_access_key=env['AWS_SECRET_ACCESS_KEY'],
             config=Config(signature_version='s3v4',retries={'max_attempts':0},s3={'addressing_style':'path'}))
         try:client.create_bucket(Bucket=bucket)
@@ -85,21 +96,23 @@ def main():
         producer=binaries['packed_v3_snapshot_fixture']['path'];manifest=a.asset/'manifest-key.txt'
         run('producer',[producer,'--source-directory',a.source,'--source-consistency','best-effort-detected',
             '--source-hardlink-policy','visible-links','--output-dir',a.asset/'producer','--manifest-output',manifest,
-            '--bucket',bucket,'--endpoint','http://10.20.2.163:9000','--region','us-east-1','--force-path-style','true',
+            '--bucket',bucket,'--endpoint',object_endpoint,'--region','us-east-1','--force-path-style','true',
             '--prefix','base','--metadata-codec','raw','--data-codec','raw','--inline-data','off',
             '--chunk-size','4194304','--block-size','4194304','--frame-policy','size-only',
             '--access-profile','random-small-file','--max-random-frame-raw-bytes','262144','--s3-rustfs-ec-block-size-hint','auto'])
         key=manifest.read_text().strip()
         if not key or '\n' in key:raise ValueError('Actual producer manifest key required')
         config=overlay(dict(meta={'backend':'redis','redis':{'url':redis}},
-            data={'backend':'s3','s3':dict(bucket=bucket,endpoint='http://10.20.2.163:9000',region='us-east-1',force_path_style=True)},
+            data={'backend':'s3','s3':dict(bucket=bucket,endpoint=object_endpoint,region='us-east-1',force_path_style=True)},
             layout={'chunk_size':4194304,'block_size':4194304},fuse={'workers':4,'max_background':512},
             workspace=namespace,workspace_namespace=catalog,entity_volume_id=volume,packed_manifest_key=key),cell['client_settings'])
         point=a.asset/'mnt';point.mkdir()
-        write_new(a.asset/'asset.json',dict(product='brewfs',arm='packed',filesystem_binary=binaries['brewfs'],
+        value=dict(product='brewfs',arm='packed',filesystem_binary=binaries['brewfs'],
                   build_manifest=ref(build_manifest),bucket=bucket,database=a.database,
-                  seed=plan['config']['seed'],config=config,mount_point=str(point),plan=ref(a.plan),
-                  producer=ref(a.out/'producer/command.json'),manifest_key=key,source='Complete immutable C3 packed base'))
+                  seed=plan['config']['seed'],directory=str(a.asset.resolve(strict=True)),config=config,mount_point=str(point),plan=ref(a.plan),
+                  producer=ref(a.out/'producer/command.json'),manifest_key=key,source='Complete immutable C3 packed base')
+        if a.inventory:value.update(pool=pool_of(cell),endpoint_binding=binding)
+        write_new(a.asset/'asset.json',value)
         helper('draft-mount','draft',cell=cell['id'],out=a.out/'mount')
         helper('start','mount-start',join_slot=True,spec=a.out/'mount/mount.reviewed.json',out=a.mount_state);active=True
         run('full-base-check',['/srv/ax-client/assets/bin/smallfiles','verify-base','--root',point,

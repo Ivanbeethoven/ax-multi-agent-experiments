@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Prepare one phase's actual suite config, or a clearly non-executable draft."""
 import argparse
+from copy import deepcopy
 import hashlib
 import json
 import re
@@ -11,6 +12,7 @@ REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
 from bench.suite_catalog import template, select_pilot_files
 from bench.suite_plan import build
+from bench.runtime.pilot_pools import inventories,resource_ids,alias
 
 
 def digest(path):
@@ -30,7 +32,9 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--handoff-task-id',help='Actual fixed session input used by this handoff batch')
     args = parser.parse_args()
-    if args.files is not None and args.phase not in ('c3','fork'):
+    actual = json.loads(args.inventory.read_text()) if args.inventory else None
+    multiple = actual is not None and len(inventories(actual))>1
+    if args.files is not None and args.phase not in ('c3','fork') and not (multiple and args.phase=='c123'):
         parser.error('files requires a separate C3 or fork phase; never rewrite a running C1/C2 batch')
     if args.handoff_task_id and (args.phase!='handoff' or not re.fullmatch('[a-z0-9][a-z0-9-]{2,63}',args.handoff_task_id)):
         parser.error('handoff-task-id requires handoff phase and a simple fixed input ID')
@@ -39,6 +43,10 @@ def main():
     config = template()
     config['campaign_id'] = args.campaign
     config['placement'] = json.loads((REPO/'experiments/unified-suite/pilot-aliyun/scope.json').read_text())['placement']
+    if multiple:
+        if {p['pool_id'] for p in inventories(actual)}!={'pool-a','pool-b'}:
+            raise ValueError('Default parallel pilot requires explicit pool-a and pool-b inventories')
+        config['placement']={'mode':'baseline-parallel','product_pools':{'brewfs':['pool-a'],'juicefs':['pool-b']}}
     config['metadata_backend'] = 'redis'
     config['cases'] = [c for c in config['cases'] if (c['suite'] in ('C1','C2','C3') if args.phase=='c123'
                        else c['suite']==args.phase.upper() if args.phase in ('c1','c2','c3') else c['workload']==args.phase)]
@@ -47,30 +55,27 @@ def main():
     if args.handoff_task_id:
         for case in config['cases']:case['params']['trace']=args.handoff_task_id
     roles = ['client','metadata','objects'] + (['target'] if args.phase=='handoff' else [])
-    pool = config['clusters'][0]
-    pool.update(metadata_backend='redis', agent_slots=2 if args.phase=='handoff' else 1,
+    prototype = config['clusters'][0]
+    prototype.update(metadata_backend='redis', agent_slots=2 if args.phase=='handoff' else 1,
                 supported_suites=['C1','C2','C3'] if args.phase=='c123' else [args.phase.upper()] if args.phase in ('c1','c2','c3') else ['C4'],
                 observer_ids=['pool-a-'+role for role in roles])
     if args.inventory:
-        inventory = json.loads(args.inventory.read_text())
-        if inventory['pool_id'] != 'pool-a' or set(inventory['roles']) != set(roles):
-            raise ValueError('Phase inventory must contain exactly its actual roles')
-        resources = []
-        for role in roles:
-            node = inventory['roles'][role]
-            if not node['instance_id'].startswith('i-') or not node['data_disk_ids']:
-                raise ValueError('Real instance and data disk IDs required')
-            if any(not disk.startswith('d-') for disk in node['data_disk_ids']):
-                raise ValueError('Real data disk IDs required')
-            resources += ['host:'+node['instance_id']] + ['disk:'+d for d in node['data_disk_ids']]
-        if len(resources) != len(set(resources)):
-            raise ValueError('Distinct physical role resources required in this pilot inventory')
-        pool.update(resource_ids=resources, inventory_sha256=digest(args.inventory))
+        clusters=[]
+        for inventory in inventories(actual):
+            if set(inventory['roles']) != set(roles):
+                raise ValueError('Phase inventory must contain exactly its actual roles')
+            pool=deepcopy(prototype);pool_id=inventory['pool_id']
+            pool.update(id=pool_id,resource_ids=resource_ids(inventory),inventory_sha256=digest(args.inventory),
+                        observer_ids=[alias(pool_id,role) for role in roles])
+            clusters.append(pool)
+        if not multiple and clusters[0]['id']!='pool-a':
+            raise ValueError('Legacy single-pool placement requires pool-a')
+        config['clusters']=clusters
         config['build_manifest_sha256'] = digest(args.build_manifest)
         config['input_manifest_sha256'] = digest(args.input_manifest)
     else:
-        pool['resource_ids'] = ['host:unresolved-'+role for role in roles]
-    config['clusters'] = [pool]
+        prototype['resource_ids'] = ['host:unresolved-'+role for role in roles]
+        config['clusters']=[prototype]
     plan = build(config)
     expected = {'c123':19, 'c1':10, 'c2':5, 'c3':4, 'fork':5, 'handoff':4}[args.phase]
     if len(plan['cells']) != expected:
@@ -79,7 +84,7 @@ def main():
     for name, value in [('config.json',config),('plan.json',plan)]:
         (args.out/name).write_text(json.dumps(value, indent=2)+'\n')
     print(json.dumps(dict(phase=args.phase, cells=len(plan['cells']),
-                          provenance_bound=plan['provenance_bound'], observers=pool['observer_ids'],
+                          provenance_bound=plan['provenance_bound'], observers=[o for p in config['clusters'] for o in p['observer_ids']],
                           note='Drafts cannot be claimed. Actual provenance binding does not replace per-cell qualification.')))
 
 

@@ -1,5 +1,7 @@
 # 10万文件试跑
 
+当前双组并行部署、执行和采集方式见[两组并行试跑](PARALLEL-PILOT.zh.md)。以下保留单组准备方式。
+
 2026-11-11按用户要求，C3和C4派生先使用100,000个4KiB文件，每份409,600,000B（390.625MiB，不含目录和元数据）。C1、完整C2 trace、C4原生会话恢复的设置保持原值。系统路径仍为28项，消融另计；本轮结果标为10万文件试跑。
 
 | 项目 | 本次设置 |
@@ -31,7 +33,7 @@ python3 experiments/unified-suite/pilot-aliyun/scripts/configure-pilot.py \
 
 两份草稿分别有4项和5项，尚未绑定实际输入/环境，不能直接执行。正式冻结仍须补齐现有inventory、构建和10万输入清单；当前C1/C2单元及校准结束并归档后才切换阶段，旧状态库和百万文件计划保留。
 
-若在云上重新生成输入，`prepare-cloud-inputs.py --files 100000 --sources-only`只准备C3/C4；在新目录执行，省去重复下载和回放C2。`close-cloud-inputs.py --files 100000 --sources-only`还要求显式指定实际`--preparation-unit`及本机C4完整清单摘要。该新增云端入口尚待实际执行验证。
+若在云上重新生成输入，`prepare-cloud-inputs.py --files 100000 --sources-only`只准备C3/C4；在新目录执行，省去重复下载和回放C2。`close-cloud-inputs.py --files 100000 --sources-only`还要求显式指定实际`--preparation-unit`及本机C4完整清单摘要。两组客户端均已完成该输入准备及正常收尾，C4树摘要均为`02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13`。
 
 10万规模能减少准备和容量开销；entity原生lower的32,768行限制、BrewFS工作区重挂后写入EIO仍需分别处理，不能因规模降低就认定对应路径已通过。原[256GiB扩盘备选](OBJECT-CAPACITY.zh.md)暂不执行，实际容量不足时再决定。
 

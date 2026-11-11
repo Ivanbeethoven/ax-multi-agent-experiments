@@ -1,0 +1,213 @@
+{
+  "schema": "experiment-inventory-v3",
+  "provider": "ssh",
+  "campaign_id": "ax-pilot-20261111",
+  "execution_enabled": false,
+  "nodes": [
+    {
+      "id": "pool-a-client",
+      "cluster_id": "pool-a",
+      "role": "executor",
+      "kind": "host",
+      "ssh_alias": "pool-a-client",
+      "environment_id": "i-bp1809mw7rlujtj9f705",
+      "host_id": "i-bp1809mw7rlujtj9f705",
+      "host_observer_node": "pool-a-client",
+      "host_key_verified": true,
+      "owned_by_campaign": true,
+      "repo": "/srv/ax-client/code-12",
+      "python": "/usr/bin/python3",
+      "work_root": "/srv/ax-client",
+      "data_paths": [
+        {
+          "path": "/srv/ax-client",
+          "min_free_bytes": 10737418240,
+          "min_free_inodes": 1200000
+        }
+      ],
+      "requirements": {
+        "max_agents": 1
+      },
+      "slots": [
+        {
+          "id": "pool-a-client",
+          "container": null,
+          "cgroup": "/sys/fs/cgroup/ax-slot-1"
+        }
+      ],
+      "data_disk_ids": [
+        "d-bp1809mw7rlujtjc8epi"
+      ],
+      "private_ip": "10.20.2.161",
+      "hostname": "ax-pilot-20261111-client"
+    },
+    {
+      "id": "pool-a-metadata",
+      "cluster_id": "pool-a",
+      "role": "service",
+      "kind": "host",
+      "ssh_alias": "pool-a-metadata",
+      "environment_id": "i-bp1gy3cfuj9jik0y4oc3",
+      "host_id": "i-bp1gy3cfuj9jik0y4oc3",
+      "host_observer_node": "pool-a-metadata",
+      "host_key_verified": true,
+      "owned_by_campaign": true,
+      "repo": "/srv/ax-metadata/code-12",
+      "python": "/usr/bin/python3",
+      "work_root": "/srv/ax-metadata",
+      "data_paths": [
+        {
+          "path": "/srv/ax-metadata",
+          "min_free_bytes": 10737418240,
+          "min_free_inodes": 1200000
+        }
+      ],
+      "requirements": {
+        "max_agents": 0
+      },
+      "slots": [],
+      "data_disk_ids": [
+        "d-bp1gy3cfuj9jik0upt3k"
+      ],
+      "private_ip": "10.20.2.162",
+      "hostname": "ax-pilot-20261111-metadata"
+    },
+    {
+      "id": "pool-a-objects",
+      "cluster_id": "pool-a",
+      "role": "service",
+      "kind": "host",
+      "ssh_alias": "pool-a-objects",
+      "environment_id": "i-bp1h9kaoya0predubdkn",
+      "host_id": "i-bp1h9kaoya0predubdkn",
+      "host_observer_node": "pool-a-objects",
+      "host_key_verified": true,
+      "owned_by_campaign": true,
+      "repo": "/srv/ax-objects-0/code-12",
+      "python": "/usr/bin/python3",
+      "work_root": "/srv/ax-objects-0",
+      "data_paths": [
+        {
+          "path": "/srv/ax-objects-0",
+          "min_free_bytes": 10737418240,
+          "min_free_inodes": 1200000
+        }
+      ],
+      "requirements": {
+        "max_agents": 0
+      },
+      "slots": [],
+      "data_disk_ids": [
+        "d-bp1h9kaoya0predx6kvd",
+        "d-bp1h9kaoya0predx6kve",
+        "d-bp1h9kaoya0predx6kvf",
+        "d-bp1h9kaoya0predx6kvg"
+      ],
+      "private_ip": "10.20.2.163",
+      "hostname": "ax-pilot-20261111-objects"
+    },
+    {
+      "id": "pool-b-client",
+      "cluster_id": "pool-b",
+      "role": "executor",
+      "kind": "host",
+      "ssh_alias": "pool-b-client",
+      "environment_id": "i-bp1fmmfkcpr8w99j2bsy",
+      "host_id": "i-bp1fmmfkcpr8w99j2bsy",
+      "host_observer_node": "pool-b-client",
+      "host_key_verified": true,
+      "owned_by_campaign": true,
+      "repo": "/srv/ax-client/code-12",
+      "python": "/usr/bin/python3",
+      "work_root": "/srv/ax-client",
+      "data_paths": [
+        {
+          "path": "/srv/ax-client",
+          "min_free_bytes": 10737418240,
+          "min_free_inodes": 1200000
+        }
+      ],
+      "requirements": {
+        "max_agents": 1
+      },
+      "slots": [
+        {
+          "id": "pool-b-client",
+          "container": null,
+          "cgroup": "/sys/fs/cgroup/ax-slot-1"
+        }
+      ],
+      "data_disk_ids": [
+        "d-bp1fmmfkcpr8w99pwgc5"
+      ],
+      "private_ip": "10.20.2.171",
+      "hostname": "ax-pilot-20261111-b-client"
+    },
+    {
+      "id": "pool-b-metadata",
+      "cluster_id": "pool-b",
+      "role": "service",
+      "kind": "host",
+      "ssh_alias": "pool-b-metadata",
+      "environment_id": "i-bp14nenf7osz9v1snsp2",
+      "host_id": "i-bp14nenf7osz9v1snsp2",
+      "host_observer_node": "pool-b-metadata",
+      "host_key_verified": true,
+      "owned_by_campaign": true,
+      "repo": "/srv/ax-metadata/code-12",
+      "python": "/usr/bin/python3",
+      "work_root": "/srv/ax-metadata",
+      "data_paths": [
+        {
+          "path": "/srv/ax-metadata",
+          "min_free_bytes": 10737418240,
+          "min_free_inodes": 1200000
+        }
+      ],
+      "requirements": {
+        "max_agents": 0
+      },
+      "slots": [],
+      "data_disk_ids": [
+        "d-bp14nenf7osz9v1rkk5l"
+      ],
+      "private_ip": "10.20.2.169",
+      "hostname": "ax-pilot-20261111-b-metadata"
+    },
+    {
+      "id": "pool-b-objects",
+      "cluster_id": "pool-b",
+      "role": "service",
+      "kind": "host",
+      "ssh_alias": "pool-b-objects",
+      "environment_id": "i-bp1bhdngko7nq3c3jrhp",
+      "host_id": "i-bp1bhdngko7nq3c3jrhp",
+      "host_observer_node": "pool-b-objects",
+      "host_key_verified": true,
+      "owned_by_campaign": true,
+      "repo": "/srv/ax-objects-0/code-12",
+      "python": "/usr/bin/python3",
+      "work_root": "/srv/ax-objects-0",
+      "data_paths": [
+        {
+          "path": "/srv/ax-objects-0",
+          "min_free_bytes": 10737418240,
+          "min_free_inodes": 1200000
+        }
+      ],
+      "requirements": {
+        "max_agents": 0
+      },
+      "slots": [],
+      "data_disk_ids": [
+        "d-bp1bhdngko7nq3c2i343",
+        "d-bp1bhdngko7nq3c2i342",
+        "d-bp1bhdngko7nq3c2i341",
+        "d-bp1bhdngko7nq3c2i340"
+      ],
+      "private_ip": "10.20.2.170",
+      "hostname": "ax-pilot-20261111-b-objects"
+    }
+  ],
+  "scope": "existing SSH environments; host_id groups shared capacity, not a physical-host proof"
+}

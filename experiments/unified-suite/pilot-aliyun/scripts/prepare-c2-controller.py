@@ -11,6 +11,7 @@ REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
 from bench.runtime.common import digest,load,write_new
 from bench.runtime import pilot_context as pilot_runtime
+from bench.runtime.pilot_pools import pool_of,alias,fleet_node
 
 
 def ref(p):return dict(path=str(p),sha256=digest(p))
@@ -28,14 +29,15 @@ def main():
     a=p.parse_args();arm='native' if a.product=='brewfs' else 'juicefs'
     runtime=pilot_runtime.select(a.control,pilot_runtime.reference(a))
     plan=load(a.control/'suite/plan.json');cell=next(c for c in plan['cells'] if c['workload']=='trace' and c['arm_id']==arm)
+    pool=pool_of(cell);client=fleet_node(load(runtime/'fleet.json'),pool,'client')
     if Path(a.case).name!=cell['params']['trace']:raise ValueError('Wrong complete trace')
     a.out.mkdir(parents=True,exist_ok=False);transfers=[]
     def remote(argv):
-        return subprocess.check_output(['ssh','-F',str(runtime/'ssh.conf'),'pool-a-client',shlex.join(list(map(str,argv)))],text=True)
+        return subprocess.check_output(['ssh','-F',str(runtime/'ssh.conf'),alias(pool,'client'),shlex.join(list(map(str,argv)))],text=True)
     def get(source,relative):
         target=a.out/relative;target.parent.mkdir(parents=True,exist_ok=True)
         wanted=remote(['sha256sum',source]).split()[0]
-        subprocess.run(['scp','-F',str(runtime/'ssh.conf'),'pool-a-client:'+source,str(target)],check=True)
+        subprocess.run(['scp','-F',str(runtime/'ssh.conf'),alias(pool,'client')+':'+source,str(target)],check=True)
         if digest(target)!=wanted:raise ValueError('Changed evidence transfer')
         transfers.append(dict(source=source,**ref(target)));return target
     raw=a.out/'route';raw.mkdir()
@@ -51,7 +53,7 @@ def main():
     sources={k:dict(path=value,sha256=remote(['sha256sum',value]).split()[0])
              for k,value in [('binary',a.binary),('verifier',a.verifier)]}
     # Recompute the full input inventory before any release barrier; never time it.
-    script="import sys,json,pathlib;sys.path[:0]=['/srv/ax-client/code-01','/srv/ax-client/code-01/bench'];from bench.trace_checks import inputs;print(json.dumps(inputs(pathlib.Path(CASE),pathlib.Path(MANIFEST),SHA)))"
+    script="import sys,json,pathlib;sys.path[:0]="+repr([client['repo'],client['repo']+'/bench'])+";from bench.trace_checks import inputs;print(json.dumps(inputs(pathlib.Path(CASE),pathlib.Path(MANIFEST),SHA)))"
     script=script.replace('CASE',repr(a.case)).replace('MANIFEST',repr(a.manifest)).replace('SHA',repr(digest(manifest)))
     checked=json.loads(remote(['python3','-c',script]));write_new(a.out/'source/input-check.json',checked)
     route=load(raw/'result.json');values=load(metrics);initial=load(a.out/'source/initial-tree.json')
@@ -77,11 +79,12 @@ def main():
         s=load(raw/name)
         if not s['passed'] or s['exit_code']!=0 or not s['mount_absent']:raise ValueError('Original route is not normally closed')
     if load(asset)['plan']['sha256']!=digest(a.control/'suite/plan.json'):raise ValueError('Asset uses another frozen plan')
+    if load(asset).get('pool','pool-a')!=pool:raise ValueError('Asset belongs to another physical pool')
     hardware=load(a.shared_qualification/'hardware.json')
-    if not hardware['passed'] or hardware['inventory_sha256']!=digest(runtime/'fleet.json'):raise ValueError('Actual matching hardware required')
+    if not hardware['passed'] or hardware['inventory_sha256']!=digest(runtime/'fleet.json') or hardware.get('pool','pool-a')!=pool:raise ValueError('Actual matching hardware required')
     write_new(a.out/'hardware.json',hardware)
     folder=a.out/arm;folder.mkdir()
-    binding=dict(asset=a.asset,route=ref(raw/'result.json'),trace=dict(case=a.case,
+    binding=dict(asset=a.asset,asset_manifest=ref(asset),pool=pool,route=ref(raw/'result.json'),trace=dict(case=a.case,
         manifest=dict(path=a.manifest,sha256=digest(manifest)),cache_parent_fds=a.cache_parent_fds,**sources))
     write_new(folder/'binding.json',binding)
     proof=dict(passed=True,cell_id=cell['id'],complete_route=ref(raw/'result.json'),

@@ -1,0 +1,368 @@
+{
+  "schema": "pilot-cross-pool-equivalence-v1",
+  "passed": true,
+  "plan_sha256": "0feb04c5e52a28aa26d648386a5887aaffb5a792a7c579f5da25cd78f220a108",
+  "pools": [
+    "pool-a",
+    "pool-b"
+  ],
+  "checks": {
+    "exactly_two_pools": true,
+    "pool-a/client/api_shape_known": true,
+    "pool-a/client/actual_host_identity": true,
+    "pool-a/client/no_probe_errors": true,
+    "pool-a/client/actual_private_interface": true,
+    "pool-a/client/host_capacity": true,
+    "pool-a/client/role_capacity_with_observer_headroom": true,
+    "pool-a/client/api_disks_attached": true,
+    "pool-a/client/native_data_disks_distinct": true,
+    "pool-a/client/native_disk_api_mapping": true,
+    "pool-a/client/agent_slot_2cpu_8g_swap0": true,
+    "pool-a/metadata/api_shape_known": true,
+    "pool-a/metadata/actual_host_identity": true,
+    "pool-a/metadata/no_probe_errors": true,
+    "pool-a/metadata/actual_private_interface": true,
+    "pool-a/metadata/host_capacity": true,
+    "pool-a/metadata/role_capacity_with_observer_headroom": true,
+    "pool-a/metadata/api_disks_attached": true,
+    "pool-a/metadata/native_data_disks_distinct": true,
+    "pool-a/metadata/native_disk_api_mapping": true,
+    "pool-a/metadata/redis_actual_configuration": true,
+    "pool-a/objects/api_shape_known": true,
+    "pool-a/objects/actual_host_identity": true,
+    "pool-a/objects/no_probe_errors": true,
+    "pool-a/objects/actual_private_interface": true,
+    "pool-a/objects/host_capacity": true,
+    "pool-a/objects/role_capacity_with_observer_headroom": true,
+    "pool-a/objects/api_disks_attached": true,
+    "pool-a/objects/native_data_disks_distinct": true,
+    "pool-a/objects/native_disk_api_mapping": true,
+    "pool-a/objects/rustfs_actual_configuration": true,
+    "pool-b/client/api_shape_known": true,
+    "pool-b/client/actual_host_identity": true,
+    "pool-b/client/no_probe_errors": true,
+    "pool-b/client/actual_private_interface": true,
+    "pool-b/client/host_capacity": true,
+    "pool-b/client/role_capacity_with_observer_headroom": true,
+    "pool-b/client/api_disks_attached": true,
+    "pool-b/client/native_data_disks_distinct": true,
+    "pool-b/client/native_disk_api_mapping": true,
+    "pool-b/client/agent_slot_2cpu_8g_swap0": true,
+    "pool-b/metadata/api_shape_known": true,
+    "pool-b/metadata/actual_host_identity": true,
+    "pool-b/metadata/no_probe_errors": true,
+    "pool-b/metadata/actual_private_interface": true,
+    "pool-b/metadata/host_capacity": true,
+    "pool-b/metadata/role_capacity_with_observer_headroom": true,
+    "pool-b/metadata/api_disks_attached": true,
+    "pool-b/metadata/native_data_disks_distinct": true,
+    "pool-b/metadata/native_disk_api_mapping": true,
+    "pool-b/metadata/redis_actual_configuration": true,
+    "pool-b/objects/api_shape_known": true,
+    "pool-b/objects/actual_host_identity": true,
+    "pool-b/objects/no_probe_errors": true,
+    "pool-b/objects/actual_private_interface": true,
+    "pool-b/objects/host_capacity": true,
+    "pool-b/objects/role_capacity_with_observer_headroom": true,
+    "pool-b/objects/api_disks_attached": true,
+    "pool-b/objects/native_data_disks_distinct": true,
+    "pool-b/objects/native_disk_api_mapping": true,
+    "pool-b/objects/rustfs_actual_configuration": true,
+    "all_instance_ids_distinct": true,
+    "all_data_disk_ids_distinct": true,
+    "same_zone_and_vpc": true,
+    "client/matching_api_shape": true,
+    "client/matching_actual_cpu_model": true,
+    "client/matching_kernel": true,
+    "metadata/matching_api_shape": true,
+    "metadata/matching_actual_cpu_model": true,
+    "metadata/matching_kernel": true,
+    "objects/matching_api_shape": true,
+    "objects/matching_actual_cpu_model": true,
+    "objects/matching_kernel": true,
+    "matching_redis_build": true,
+    "matching_rustfs_build": true,
+    "rustfs_matches_frozen_build": true
+  },
+  "unknown_or_failed": [],
+  "errors": {},
+  "details": {
+    "pool-a": {
+      "client": {
+        "api": {
+          "InstanceType": "ecs.u1-c1m4.xlarge",
+          "Cpu": 4,
+          "Memory": 16384,
+          "ZoneId": "cn-hangzhou-j",
+          "vpc": "vpc-bp1cvvscvaviao4vzi6co",
+          "data_disks": [
+            [
+              "cloud_essd",
+              100,
+              "PL1"
+            ]
+          ]
+        },
+        "cpu_models": [
+          "Intel(R) Xeon(R) Platinum"
+        ],
+        "kernel": "6.8.0-147-generic",
+        "memory_total_bytes": 16335245312,
+        "instance_id": "i-bp1809mw7rlujtj9f705",
+        "data_disk_ids": [
+          "d-bp1809mw7rlujtjc8epi"
+        ]
+      },
+      "metadata": {
+        "api": {
+          "InstanceType": "ecs.u1-c1m4.xlarge",
+          "Cpu": 4,
+          "Memory": 16384,
+          "ZoneId": "cn-hangzhou-j",
+          "vpc": "vpc-bp1cvvscvaviao4vzi6co",
+          "data_disks": [
+            [
+              "cloud_essd",
+              60,
+              "PL1"
+            ]
+          ]
+        },
+        "cpu_models": [
+          "Intel(R) Xeon(R) Platinum"
+        ],
+        "kernel": "6.8.0-147-generic",
+        "memory_total_bytes": 16335253504,
+        "instance_id": "i-bp1gy3cfuj9jik0y4oc3",
+        "data_disk_ids": [
+          "d-bp1gy3cfuj9jik0upt3k"
+        ]
+      },
+      "objects": {
+        "api": {
+          "InstanceType": "ecs.u1-c1m4.2xlarge",
+          "Cpu": 8,
+          "Memory": 32768,
+          "ZoneId": "cn-hangzhou-j",
+          "vpc": "vpc-bp1cvvscvaviao4vzi6co",
+          "data_disks": [
+            [
+              "cloud_essd",
+              60,
+              "PL1"
+            ],
+            [
+              "cloud_essd",
+              60,
+              "PL1"
+            ],
+            [
+              "cloud_essd",
+              60,
+              "PL1"
+            ],
+            [
+              "cloud_essd",
+              60,
+              "PL1"
+            ]
+          ]
+        },
+        "cpu_models": [
+          "Intel(R) Xeon(R) Platinum"
+        ],
+        "kernel": "6.8.0-147-generic",
+        "memory_total_bytes": 32955822080,
+        "instance_id": "i-bp1h9kaoya0predubdkn",
+        "data_disk_ids": [
+          "d-bp1h9kaoya0predx6kvd",
+          "d-bp1h9kaoya0predx6kve",
+          "d-bp1h9kaoya0predx6kvf",
+          "d-bp1h9kaoya0predx6kvg"
+        ]
+      }
+    },
+    "pool-b": {
+      "client": {
+        "api": {
+          "InstanceType": "ecs.u1-c1m4.xlarge",
+          "Cpu": 4,
+          "Memory": 16384,
+          "ZoneId": "cn-hangzhou-j",
+          "vpc": "vpc-bp1cvvscvaviao4vzi6co",
+          "data_disks": [
+            [
+              "cloud_essd",
+              100,
+              "PL1"
+            ]
+          ]
+        },
+        "cpu_models": [
+          "Intel(R) Xeon(R) Platinum"
+        ],
+        "kernel": "6.8.0-147-generic",
+        "memory_total_bytes": 16335253504,
+        "instance_id": "i-bp1fmmfkcpr8w99j2bsy",
+        "data_disk_ids": [
+          "d-bp1fmmfkcpr8w99pwgc5"
+        ]
+      },
+      "metadata": {
+        "api": {
+          "InstanceType": "ecs.u1-c1m4.xlarge",
+          "Cpu": 4,
+          "Memory": 16384,
+          "ZoneId": "cn-hangzhou-j",
+          "vpc": "vpc-bp1cvvscvaviao4vzi6co",
+          "data_disks": [
+            [
+              "cloud_essd",
+              60,
+              "PL1"
+            ]
+          ]
+        },
+        "cpu_models": [
+          "Intel(R) Xeon(R) Platinum"
+        ],
+        "kernel": "6.8.0-147-generic",
+        "memory_total_bytes": 16335253504,
+        "instance_id": "i-bp14nenf7osz9v1snsp2",
+        "data_disk_ids": [
+          "d-bp14nenf7osz9v1rkk5l"
+        ]
+      },
+      "objects": {
+        "api": {
+          "InstanceType": "ecs.u1-c1m4.2xlarge",
+          "Cpu": 8,
+          "Memory": 32768,
+          "ZoneId": "cn-hangzhou-j",
+          "vpc": "vpc-bp1cvvscvaviao4vzi6co",
+          "data_disks": [
+            [
+              "cloud_essd",
+              60,
+              "PL1"
+            ],
+            [
+              "cloud_essd",
+              60,
+              "PL1"
+            ],
+            [
+              "cloud_essd",
+              60,
+              "PL1"
+            ],
+            [
+              "cloud_essd",
+              60,
+              "PL1"
+            ]
+          ]
+        },
+        "cpu_models": [
+          "Intel(R) Xeon(R) Platinum"
+        ],
+        "kernel": "6.8.0-147-generic",
+        "memory_total_bytes": 32955822080,
+        "instance_id": "i-bp1bhdngko7nq3c3jrhp",
+        "data_disk_ids": [
+          "d-bp1bhdngko7nq3c2i343",
+          "d-bp1bhdngko7nq3c2i342",
+          "d-bp1bhdngko7nq3c2i341",
+          "d-bp1bhdngko7nq3c2i340"
+        ]
+      }
+    }
+  },
+  "scope": "Matching observed hardware, disk placement and current service settings only. This does not establish equal speed, physical-server exclusivity, or performance acceptance. Historical deployment receipts retain their original schema; current Redis PID, executable, CONFIG, version and cgroup are measured separately. Each cell still requires its own six observer-calibration trials and normal correctness/closure checks.",
+  "at": "2026-11-11T04:59:50.085548+00:00",
+  "inventory_sha256": "f85605a02eea141c110c79cfb794bd2acaa83fc80b081cad7619f355ebc3aef1",
+  "cloud_inventory_sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e",
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/suite/plan.json",
+      "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/fleet.json",
+      "sha256": "f85605a02eea141c110c79cfb794bd2acaa83fc80b081cad7619f355ebc3aef1"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/runtime-12-01/allocation.json",
+      "sha256": "c63fbe9e49bec67382e2fc71f4491924e1be7c3b891a6e17d997a85ca896cc71"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/provenance/build-manifest.json",
+      "sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/provenance/inventory.json",
+      "sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/data/api-inventory.json",
+      "sha256": "289fa672035a0f9f7bbadd74a1444716d0b4af6725e0c7c3448ce862e561abff"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/services.json",
+      "sha256": "5406e8e7355e9db9dd76eca0a6a8d1d86c08a60fbd565e0c2ada99bc6dd1ef51"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/qualify-parallel-hardware-v2.py",
+      "sha256": "f7d26b572c13df7cd0c4c750acaad677661e637d3448f7461a17ff08be2547bb"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/data/pool-a-client-spec.json",
+      "sha256": "3592411238e1af9eb21980c78d61394c24ea33f74d6452babd335a497d0b5d55"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/pool-a-client.json",
+      "sha256": "20b62a11d155c59d6abf3bb0b26d9f64234bd27e9c557447aa476bf695f33651"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/data/pool-a-metadata-spec.json",
+      "sha256": "edc06fd6b280e05c187a8aa43ff11a4dd7a1c4926a33b2c246394b1de914b108"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/pool-a-metadata.json",
+      "sha256": "122e570ef3ea8192409d5ab879252b7c2c1a256b40266f06baac5dad72d9625d"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/data/pool-a-objects-spec.json",
+      "sha256": "fd2e4bc48b6d8c7d434f4d0d8de1d68cc65fd1d30d58e1c4482f0f6f2327aae9"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/pool-a-objects.json",
+      "sha256": "277e3ff412b8b4d22f8b3329614aa094031458ec8ae0b9bb32b9d76b90257f92"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/data/pool-b-client-spec.json",
+      "sha256": "ab0ce1c04ce725d1fb54a3b0e65ddea4c7c2c7dc7a3892f0278ddeaf758afa03"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/pool-b-client.json",
+      "sha256": "f123f3353bfc0305741d2c7a581541671c83574b30e965d00826512233c0ecd6"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/data/pool-b-metadata-spec.json",
+      "sha256": "7e8afa9fe1342d5447ab83eff44c150bd5126b0938ee84f5337ccc213f1ddf3c"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/pool-b-metadata.json",
+      "sha256": "c330d3d48f91046f2c3a8f7e48bb9ce92ee55350acae4e5ca6e3106ea74bc911"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-inputs-01/data/pool-b-objects-spec.json",
+      "sha256": "02b921c0b8bdc51fbd6b43f302a413e5a41fd166f5ec68608c3d6e985bfacaa7"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/hardware-qualification-02/pool-b-objects.json",
+      "sha256": "628cf6de2e10125dbe713aab11353c060bc92c1f8a54da20bd39b232aeef42cf"
+    }
+  ],
+  "probe_source_sha256": "f7d26b572c13df7cd0c4c750acaad677661e637d3448f7461a17ff08be2547bb"
+}

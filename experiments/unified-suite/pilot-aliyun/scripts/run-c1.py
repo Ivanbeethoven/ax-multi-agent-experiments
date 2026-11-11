@@ -6,6 +6,7 @@ Failures preserve the reservation and live state for an explicit inspection.
 """
 import argparse
 from datetime import datetime, timezone
+import hashlib
 import json
 from pathlib import Path
 import shlex
@@ -20,6 +21,7 @@ from bench.runtime import cohort, fleet
 from bench import suite_state as state
 from bench import archive_check, experiment_step, suite_validate
 from bench.runtime import pilot_context as pilot_runtime
+from bench.runtime.pilot_pools import pool_of,alias,fleet_node
 
 ROOTS = dict(client='/srv/ax-client', metadata='/srv/ax-metadata', objects='/srv/ax-objects-0')
 
@@ -37,10 +39,13 @@ class Cell:
         self.runtime = pilot_runtime.select(self.control,self.s.get('runtime_control'))
         self.plan = load(self.control/'suite/plan.json')
         self.cell = next(c for c in self.plan['cells'] if c['id'] == self.s['cell_id'])
+        self.pool=pool_of(self.cell);self.fleet=load(self.runtime/'fleet.json')
         self.kind=self.cell['workload']
         if self.kind not in ('fio','trace','smallfiles') or self.cell['arm_id'] not in ('native','juicefs'):
             raise ValueError('Qualified flat C1/C2/C3 cell required')
-        self.id = self.cell['id']; self.tag = {'fio':'c1-','trace':'c2-','smallfiles':'c3-'}[self.kind]+self.id
+        self.id = self.cell['id']
+        namespace=hashlib.sha256((str(self.control.resolve())+'\0'+digest(self.control/'suite/plan.json')).encode()).hexdigest()[:12]
+        self.tag = {'fio':'c1-','trace':'c2-','smallfiles':'c3-'}[self.kind]+namespace+'-'+self.id
         self.arm = self.cell['arm_id']; self.product = self.cell['arm']['product']
         self.base = ROOTS['client']+'/q/'+self.tag
         self.main = ROOTS['client']+'/m/'+self.tag
@@ -71,7 +76,7 @@ class Cell:
         write_new(attempt/'intent.json', dict(role=role, argv=argv,
                   at=datetime.now(timezone.utc).isoformat(), automatic_retry=False))
         with (attempt/'stdout').open('xb') as out, (attempt/'stderr').open('xb') as err:
-            result = subprocess.run(['ssh', '-F', str(self.runtime/'ssh.conf'), 'pool-a-'+role,
+            result = subprocess.run(['ssh', '-F', str(self.runtime/'ssh.conf'), alias(self.pool,role),
                                      shlex.join(list(map(str, argv)))], stdout=out, stderr=err)
         write_new(attempt/'exit.json', dict(exit_code=result.returncode))
         if result.returncode:
@@ -86,7 +91,7 @@ class Cell:
         if target.exists(): raise ValueError('Never replace collected evidence')
         wanted = self.remote(role, ['sha256sum', source]).split()[0]
         subprocess.run(['scp', '-F', str(self.runtime/'ssh.conf'),
-                        'pool-a-'+role+':'+source, str(target)], check=True)
+                        alias(self.pool,role)+':'+source, str(target)], check=True)
         if digest(target) != wanted: raise ValueError('Changed evidence transfer')
         return target
 
@@ -100,6 +105,27 @@ class Cell:
     def observers(self):
         return load(self.out/'observers.json')
 
+    def check_asset_binary(self):
+        asset_path=Path(self.s.get('asset_manifest',{}).get('path',self.qualification.parent/'assets'/self.arm/'asset.json'))
+        asset=load(asset_path)
+        if self.s.get('asset_manifest') and digest(asset_path)!=self.s['asset_manifest']['sha256']:
+            raise ValueError('Qualified local asset manifest changed')
+        if self.remote('client',['sha256sum',self.asset+'/asset.json']).split()[0]!=digest(asset_path):
+            raise ValueError('Remote asset differs from qualified asset')
+        if asset.get('pool','pool-a')!=self.pool or asset['plan']['sha256']!=digest(self.control/'suite/plan.json'):
+            raise ValueError('Asset uses another pool or plan')
+        bound=asset.get('filesystem_binary')
+        binary=bound['path'] if bound else ROOTS['client']+'/assets/bin/'+self.product
+        if self.product=='brewfs':
+            expected=next(x['sha256'] for x in load(self.control/'provenance/build-manifest.json')['files'] if x['file']=='brewfs')
+        else:
+            expected='6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc'
+        if bound and bound['sha256']!=expected:
+            raise ValueError('Qualified asset binary differs from this batch')
+        if self.remote('client',['sha256sum',binary]).split()[0]!=expected:
+            raise ValueError('Deployed client binary differs from this batch')
+        return binary
+
     def mark(self, label):
         if self.kind=='smallfiles':label+='-w01'
         for o in self.observers():
@@ -112,18 +138,23 @@ class Cell:
         if stage == 'observe-start':
             observers = []
             for role, root in ROOTS.items():
-                tool = root+'/code-01/experiments/unified-suite/pilot-aliyun/scripts/'+self.s['observer_tool_name']
-                args = ['python3', tool, '--role', role, '--product', self.product,
+                node=fleet_node(self.fleet,self.pool,role)
+                tool = node['repo']+'/experiments/unified-suite/pilot-aliyun/scripts/'+self.s['observer_tool_name']
+                args = ['python3', tool, '--role', role, '--pool',self.pool,'--hostname',node.get('hostname','ax-pilot-20261111-'+role),'--product', self.product,
                         '--metric-contract-sha256', digest(self.qualification/'metrics.json'),
                         '--collector-name', self.s['collector_name'], '--out', root+'/q/'+self.tag+'-observer']
+                if role=='objects':
+                    compose=load(self.qualification/'metrics.json').get('observer_settings',{}).get('rustfs_compose')
+                    if self.pool!='pool-a' and not compose:raise ValueError('Exact RustFS deployment binding required')
+                    if compose:args+=['--rustfs-compose',compose['path'],'--rustfs-compose-sha256',compose['sha256']]
                 if role == 'client':
                     args += ['--mount-directory', self.main, '--extra-mount-directory', self.prep,
                              '--extra-mount-directory', self.verify]
                 spec = json.loads(self.remote(role, args))
-                peer = ref(self.runtime/'probes'/('pool-a-'+role)/'peer.json')
+                peer = ref(self.runtime/'probes'/alias(self.pool,role)/'peer.json')
                 directory = root+'/o/'+self.tag
                 fleet.call(peer, 'observe-start', directory, self.out/'observer-start'/role, spec)
-                observers.append(dict(id='pool-a-'+role, node_id='pool-a-'+role, peer=load(peer['path']),
+                observers.append(dict(id=alias(self.pool,role), node_id=alias(self.pool,role), peer=load(peer['path']),
                      directory=directory, spec=spec, required_live_targets={
                          'client':['filesystem'], 'metadata':['redis'], 'objects':['rustfs','collector']}[role]))
             write_new(self.out/'observers.json', observers)
@@ -149,8 +180,8 @@ class Cell:
                 hardware_qualification=ref(Path(self.s['qualification'])/'hardware.json'),
                 input_qualification=ref(self.qualification/'input.json'),
                 filesystem_qualification=ref(self.qualification/'filesystem.json'), observer_overhead=self.s['overhead'],
-                workers=[dict(id='a01',node_id='pool-a-client',slot_id='pool-a-client',
-                    peer=load(self.runtime/'probes/pool-a-client-slot/peer.json'),
+                workers=[dict(id='a01',node_id=alias(self.pool,'client'),slot_id=alias(self.pool,'client'),
+                    peer=load(self.runtime/'probes'/(alias(self.pool,'client')+'-slot')/'peer.json'),
                     spec=dict(path=worker_path,sha256=worker_sha),output=ROOTS['client']+'/j/'+self.tag)],
                 observers=self.observers(), ready_timeout_seconds=120,
                 review=dict(reviewer='pilot-operator',note='One frozen flat cell; fixed work and all three roles observed.'))
@@ -187,8 +218,8 @@ class Cell:
             for o in self.observers():
                 peer = ref(self.runtime/'probes'/o['id']/'peer.json')
                 fleet.call(peer,'observe-stop',o['directory'],self.out/'observer-stop'/o['id'])
-                role = o['id'].removeprefix('pool-a-')
-                code = ('import sys,json;sys.path.insert(0,'+repr(ROOTS[role]+'/code-01')+');'
+                role = o['id'].removeprefix(self.pool+'-')
+                code = ('import sys,json;sys.path.insert(0,'+repr(fleet_node(self.fleet,self.pool,role)['repo'])+');'
                         'from bench.runtime.observe import audit;print(json.dumps(audit('+repr(o['directory'])+
                         ',30,'+repr(c['observation_marks'])+')))')
                 checked = json.loads(self.python(role, code))
@@ -207,7 +238,7 @@ class Cell:
             if role=='client': dirs += ['q/'+self.tag,'m/'+self.tag,'m/'+self.tag+'-p','m/'+self.tag+'-v',
                                         'w/'+self.tag,'j/'+self.tag]
             script = '''import sys,json,pathlib,shutil
-root=pathlib.Path(ROOT);sys.path.insert(0,str(root/'code-01'))
+root=pathlib.Path(ROOT);sys.path.insert(0,CODE)
 from bench.runtime.common import alive,write_new,digest
 from bench.archive_check import pack
 from bench.suite_support import closure
@@ -221,7 +252,7 @@ if ROLE=='client':
   identities.extend([p['process'],p['supervisor']])
   stopped=json.loads((state/'stopped.json').read_text())
   if not stopped['passed'] or stopped['exit_code']!=0 or not stopped['mount_absent']:raise ValueError('Mount did not exit normally')
- mount_points=[json.loads((root/'a'/ASSET/'asset.json').read_text())['mount_point']]
+ mount_points=[json.loads((pathlib.Path(ASSET)/'asset.json').read_text())['mount_point']]
  if (pathlib.Path('/sys/fs/cgroup/ax-slot-1/cgroup.procs').read_text().strip()):raise ValueError('Agent slot still has processes')
  debt=[]
  for i in (0,1):
@@ -252,7 +283,8 @@ out=root/'archives';out.mkdir(exist_ok=True)
 checked=pack(staging,files,out/(tag+'-'+ROLE+'.tar.gz'),cell,ROLE)
 write_new(q/'archive.json',checked);print(json.dumps(dict(closure=result,archive=checked)))
 '''
-            variables=dict(ROOT=root,TAG=self.tag,CELL=self.id,DIRS=dirs,ROLE=role,ASSET=Path(self.asset).name)
+            variables=dict(ROOT=root,TAG=self.tag,CELL=self.id,DIRS=dirs,ROLE=role,ASSET=self.asset,
+                           CODE=fleet_node(self.fleet,self.pool,role)['repo'])
             response=json.loads(self.python(role,'\n'.join(k+'='+repr(v) for k,v in variables.items())+'\n'+script))
             closures.append(response['closure'])
             archive=self.get(role,response['archive']['archive'],'archives/'+role+'.tar.gz')
@@ -270,7 +302,7 @@ write_new(q/'archive.json',checked);print(json.dumps(dict(closure=result,archive
             observer=destination/'o'/self.tag
             from bench.runtime.observe import audit
             audit(observer,30,self.cell['observation_marks'])
-            observers.append(dict(id='pool-a-'+role,directory=str(observer),max_gap_seconds=30,marks=self.cell['observation_marks']))
+            observers.append(dict(id=alias(self.pool,role),directory=str(observer),max_gap_seconds=30,marks=self.cell['observation_marks']))
         client=self.out/'raw/client';q=client/'q'/self.tag
         draft=client/'w'/self.tag/'draft'
         work=draft/'workload'
@@ -377,16 +409,10 @@ def main():
     if c.remote('client',['sha256sum',c.s['node_tool']['path']]).split()[0]!=c.s['node_tool']['sha256']:
         raise ValueError('Node preparation tool changed')
     for role,root in ROOTS.items():
-        tool=root+'/code-01/experiments/unified-suite/pilot-aliyun/scripts/'+c.s['observer_tool_name']
+        tool=fleet_node(c.fleet,c.pool,role)['repo']+'/experiments/unified-suite/pilot-aliyun/scripts/'+c.s['observer_tool_name']
         if c.remote(role,['sha256sum',tool]).split()[0]!=c.s['observer_tool_sha256']:
             raise ValueError('Observer builder changed')
-    binary=ROOTS['client']+'/assets/bin/'+c.product
-    if c.product=='brewfs':
-        expected=next(x['sha256'] for x in load(c.control/'provenance/build-manifest.json')['files'] if x['file']=='brewfs')
-    else:
-        expected='6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc'
-    if c.remote('client',['sha256sum',binary]).split()[0]!=expected:
-        raise ValueError('Deployed client binary differs from this batch')
+    c.check_asset_binary()
     if c.kind=='trace':
         for name in ('manifest','binary','verifier'):
             binding=c.s['trace'][name]

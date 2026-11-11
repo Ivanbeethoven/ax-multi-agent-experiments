@@ -3,16 +3,31 @@
 import argparse
 from datetime import datetime, timezone
 import json
+import importlib.util
 from pathlib import Path
+import re
 import socket
 import subprocess
+
+
+def check_spec(spec, instance_id, hostname):
+    campaign=spec.get('campaign','');role=spec.get('role')
+    if spec.get('created_for_campaign') is not True or not re.fullmatch(r'ax-pilot-[0-9]{8}(-[a-z0-9]+)?',campaign) or \
+            role not in ('client','target','metadata','objects') or spec.get('hostname')!=campaign+'-'+role or \
+            spec.get('instance_id')!=instance_id or spec.get('hostname')!=hostname:
+        raise ValueError('Owned worker spec must match its actual instance and hostname')
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--out',type=Path,required=True)
+    p.add_argument('--spec',type=Path,help='Actual owned worker spec for a new campaign')
     a=p.parse_args()
-    if socket.gethostname() not in ['ax-pilot-20261111-'+r for r in ('client','target','metadata','objects')]:
+    if a.spec:
+        loader=importlib.util.spec_from_file_location('maintenance_provision',Path(__file__).with_name('provision-node.py'))
+        provision=importlib.util.module_from_spec(loader);loader.loader.exec_module(provision)
+        check_spec(json.loads(a.spec.read_text()),provision.instance_id(),socket.gethostname())
+    elif socket.gethostname() not in ['ax-pilot-20261111-'+r for r in ('client','target','metadata','objects')]:
         raise ValueError('Only newly owned worker hosts may use this script')
     a.out.mkdir(parents=True,exist_ok=False)
     for name in ('apt-daily.service','apt-daily-upgrade.service'):

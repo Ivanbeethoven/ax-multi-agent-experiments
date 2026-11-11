@@ -1,0 +1,62 @@
+{
+  "schema": "experiment-step-v1",
+  "reviewed": true,
+  "cell_id": "specs",
+  "stage": "mount",
+  "argv": [
+    "/srv/ax-client/assets/bin/juicefs",
+    "mount",
+    "redis://10.20.2.169:6379/60",
+    "/srv/ax-client/a/parallel-c3-juicefs-01/mnt",
+    "--cache-dir",
+    "memory",
+    "--cache-size",
+    "512",
+    "--buffer-size",
+    "512",
+    "--enable-xattr",
+    "--enable-cap",
+    "--attr-cache",
+    "0",
+    "--entry-cache",
+    "0",
+    "--dir-entry-cache",
+    "0",
+    "--open-cache",
+    "0",
+    "--prefetch",
+    "1",
+    "--max-readahead",
+    "128",
+    "--backup-meta",
+    "0",
+    "--verify-cache-checksum",
+    "full",
+    "--cache-large-write=true",
+    "--no-usage-report=true",
+    "--metrics",
+    "127.0.0.1:9567"
+  ],
+  "cwd": "/srv/ax-client/code-11",
+  "executable_sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+  "inputs": [
+    {
+      "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/mount/native-config.json",
+      "sha256": "dfea480b0d04a9f453087b9ed195584d1894cda4d555984baa1b1d8da391dc48"
+    },
+    {
+      "path": "/srv/ax-client/preparation/parallel-control-01/plan.json",
+      "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+    }
+  ],
+  "inherit_environment": [],
+  "review": {
+    "reviewer": "pilot-operator",
+    "note": "Reviewed fixed private endpoints, exact suite settings, fresh cache and credential environment names.",
+    "utc": "2026-11-11T04:54:53.644819+00:00",
+    "draft": {
+      "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/mount/specs/command.json",
+      "sha256": "e602f3ecc4de78156e480cf03dc5e8ccdf5fa19bf478fcf4b710c0cb4e6cc9d6"
+    }
+  }
+}

@@ -11,6 +11,7 @@ REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
 from bench.runtime.common import digest,load,pinned,write_new
 from bench.runtime import pilot_context as pilot_runtime
+from bench.runtime.pilot_pools import pool_of,alias
 
 
 def ref(path):return dict(path=str(path),sha256=digest(path))
@@ -27,6 +28,7 @@ def main():
     runtime=pilot_runtime.select(a.control,pilot_runtime.reference(a))
     plan=load(a.control/'suite/plan.json')
     cell=next(c for c in plan['cells'] if c['workload']=='smallfiles' and c['arm_id']==arm)
+    pool=pool_of(cell)
     files=cell['params']['files'];logical_bytes=files*4096
     if files not in (100000,1000000):raise ValueError('Declared 100k or million-file base required')
     if cell['params']['agents']!=1 or cell['params']['workspaces']!=1:raise ValueError('Exactly one complete C3 workspace required')
@@ -38,11 +40,11 @@ def main():
         raise ValueError('Budget six calibration children and one formal child')
     a.out.mkdir(parents=True,exist_ok=False);transfers=[]
     def remote(argv):
-        return subprocess.check_output(['ssh','-F',str(runtime/'ssh.conf'),'pool-a-client',shlex.join(list(map(str,argv)))],text=True)
+        return subprocess.check_output(['ssh','-F',str(runtime/'ssh.conf'),alias(pool,'client'),shlex.join(list(map(str,argv)))],text=True)
     def get(source,name):
         target=a.out/name;target.parent.mkdir(parents=True,exist_ok=True)
         wanted=remote(['sha256sum',source]).split()[0]
-        subprocess.run(['scp','-F',str(runtime/'ssh.conf'),'pool-a-client:'+source,str(target)],check=True)
+        subprocess.run(['scp','-F',str(runtime/'ssh.conf'),alias(pool,'client')+':'+source,str(target)],check=True)
         if digest(target)!=wanted:raise ValueError('Transferred evidence changed')
         transfers.append(dict(source=source,**ref(target)));return target
     for name in ('result.json','started.json','optional-tools.json','import/exit.json','import-fsync.json',
@@ -72,12 +74,13 @@ def main():
     if digest(original_source)!=load(raw/'started.json')['source_proof']['sha256'] or not source['passed'] or source['files']!=files or source['bytes_checked']!=logical_bytes:
         raise ValueError('Original full input proof changed')
     if load(asset)['plan']['sha256']!=digest(a.control/'suite/plan.json'):raise ValueError('Asset prepared under another plan')
+    if load(asset).get('pool','pool-a')!=pool:raise ValueError('Asset belongs to another physical pool')
     hardware=load(a.shared_qualification/'hardware.json')
-    if not hardware['passed'] or hardware['inventory_sha256']!=digest(runtime/'fleet.json'):raise ValueError('Current matching hardware qualification required')
+    if not hardware['passed'] or hardware['inventory_sha256']!=digest(runtime/'fleet.json') or hardware.get('pool','pool-a')!=pool:raise ValueError('Current matching hardware qualification required')
     write_new(a.out/'hardware.json',hardware)
     folder=a.out/arm;folder.mkdir()
     small=dict(binary=sources['binary'],verifier=sources['verifier'],copier=sources.get('copier'))
-    write_new(folder/'binding.json',dict(asset=a.asset,route=ref(raw/'result.json'),smallfiles=small))
+    write_new(folder/'binding.json',dict(asset=a.asset,asset_manifest=ref(asset),pool=pool,route=ref(raw/'result.json'),smallfiles=small))
     proof=dict(passed=True,cell_id=cell['id'],complete_base=ref(raw/'result.json'),source=ref(original_source),
         cold_readback=ref(raw/'base-check/result.json'),capacity=ref(a.capacity_check),asset=ref(asset),
         files=files,scope='Complete declared C3 base, durable import and original cold namespace/byte/mode/owner/link checks; no performance acceptance')

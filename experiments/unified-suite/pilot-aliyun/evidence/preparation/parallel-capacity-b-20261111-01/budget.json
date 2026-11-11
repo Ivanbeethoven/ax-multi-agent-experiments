@@ -1,0 +1,231 @@
+{
+  "passed": true,
+  "before": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/capacity-b-01/before.json",
+    "sha256": "92eebc534da72e23c5c5022bbfda81f6182669ddd70e9b3af7ce9de0dc086500"
+  },
+  "after": {
+    "path": "/srv/ax-pilot-control/parallel-control-01/capacity-b-01/after.json",
+    "sha256": "bd88306baa1d2773ece2d13aed0b7ab2f17dde52a2c1e73823b5e1ad6528136f"
+  },
+  "reserve_fraction": 0.2,
+  "extra_full_copies": 7,
+  "rows": [
+    {
+      "role": "client",
+      "path": "/srv/ax-client",
+      "quantity": "bytes",
+      "measurement_basis": "available-decrease",
+      "before_available": 97914535936,
+      "after_available": 97663012864,
+      "measured_base_increment": 251523072,
+      "extra_full_copies": 0,
+      "projected_available": 97663012864,
+      "total": 100056096768,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "client",
+      "path": "/srv/ax-client",
+      "quantity": "inodes",
+      "measurement_basis": "available-decrease",
+      "before_available": 26067728,
+      "after_available": 26012397,
+      "measured_base_increment": 55331,
+      "extra_full_copies": 0,
+      "projected_available": 26012397,
+      "total": 26214400,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "path": "/srv/ax-metadata",
+      "quantity": "bytes",
+      "measurement_basis": "available-decrease",
+      "before_available": 60050755584,
+      "after_available": 60020445184,
+      "measured_base_increment": 30310400,
+      "extra_full_copies": 7,
+      "projected_available": 59808272384,
+      "total": 60070604800,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "path": "/srv/ax-metadata",
+      "quantity": "inodes",
+      "measurement_basis": "available-decrease",
+      "before_available": 15728320,
+      "after_available": 15728133,
+      "measured_base_increment": 187,
+      "extra_full_copies": 7,
+      "projected_available": 15726824,
+      "total": 15728640,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "quantity": "redis-memory-bytes",
+      "measured_base_increment": 40145488,
+      "extra_full_copies": 7,
+      "projected_used": 322261880,
+      "total": 10737418240,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "metadata",
+      "quantity": "redis-aof-bytes",
+      "before": 0,
+      "after": 28370315,
+      "measured_base_increment": 28370315,
+      "extra_full_copies": 7,
+      "projected_aof_bytes": 226962520,
+      "included_in_metadata_disk_forecast": true,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-0",
+      "quantity": "bytes",
+      "measurement_basis": "available-decrease",
+      "before_available": 59935637504,
+      "after_available": 59109371904,
+      "measured_base_increment": 826265600,
+      "extra_full_copies": 7,
+      "projected_available": 53325512704,
+      "total": 60070604800,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-0",
+      "quantity": "inodes",
+      "measurement_basis": "available-decrease",
+      "before_available": 15728280,
+      "after_available": 15527978,
+      "measured_base_increment": 200302,
+      "extra_full_copies": 7,
+      "projected_available": 14125864,
+      "total": 15728640,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-1",
+      "quantity": "bytes",
+      "measurement_basis": "available-decrease",
+      "before_available": 60053688320,
+      "after_available": 59230523392,
+      "measured_base_increment": 823164928,
+      "extra_full_copies": 7,
+      "projected_available": 53468368896,
+      "total": 60070604800,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-1",
+      "quantity": "inodes",
+      "measurement_basis": "available-decrease",
+      "before_available": 15728601,
+      "after_available": 15528477,
+      "measured_base_increment": 200124,
+      "extra_full_copies": 7,
+      "projected_available": 14127609,
+      "total": 15728640,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-2",
+      "quantity": "bytes",
+      "measurement_basis": "available-decrease",
+      "before_available": 60053688320,
+      "after_available": 59230531584,
+      "measured_base_increment": 823156736,
+      "extra_full_copies": 7,
+      "projected_available": 53468434432,
+      "total": 60070604800,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-2",
+      "quantity": "inodes",
+      "measurement_basis": "available-decrease",
+      "before_available": 15728601,
+      "after_available": 15528477,
+      "measured_base_increment": 200124,
+      "extra_full_copies": 7,
+      "projected_available": 14127609,
+      "total": 15728640,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-3",
+      "quantity": "bytes",
+      "measurement_basis": "available-decrease",
+      "before_available": 60053688320,
+      "after_available": 59230519296,
+      "measured_base_increment": 823169024,
+      "extra_full_copies": 7,
+      "projected_available": 53468336128,
+      "total": 60070604800,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    },
+    {
+      "role": "objects",
+      "path": "/srv/ax-objects-3",
+      "quantity": "inodes",
+      "measurement_basis": "available-decrease",
+      "before_available": 15728601,
+      "after_available": 15528477,
+      "measured_base_increment": 200124,
+      "extra_full_copies": 7,
+      "projected_available": 14127609,
+      "total": 15728640,
+      "before_total_unknown": true,
+      "observed_allocation_decrease": false,
+      "passed": true
+    }
+  ],
+  "source_pins": [
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/capacity-b-01/before.json",
+      "sha256": "92eebc534da72e23c5c5022bbfda81f6182669ddd70e9b3af7ce9de0dc086500"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/capacity-b-01/after.json",
+      "sha256": "bd88306baa1d2773ece2d13aed0b7ab2f17dde52a2c1e73823b5e1ad6528136f"
+    },
+    {
+      "path": "/srv/ax-pilot-control/parallel-control-01/capacity-b-01/capacity-check-v2.py",
+      "sha256": "dd62c8bb893d75d314ddc93ee710f5505af11cc5de5ac84b8d435c03b867ffea"
+    }
+  ],
+  "scope": "Forecast from one measured full base, including all concurrent setup growth. Available-only before records use available decrease and after-native capacity, never invented before totals. Clone sharing and GC require separate actual proof."
+}

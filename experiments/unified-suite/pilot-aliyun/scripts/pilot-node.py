@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import socket
 import subprocess
 import sys
 import time
@@ -20,6 +21,7 @@ from bench.runtime.common import digest,identity,write_new,load,pinned
 from bench.runtime.prepare import mount as draft_mount
 from bench.runtime import node
 from bench.runtime.observe import prometheus
+from bench.runtime.pilot_pools import endpoint_binding,pool_of
 from bench.suite_mount import overlay,cell_of
 from bench.suite_support import review
 from bench.fio_workload import run as fio
@@ -38,12 +40,14 @@ def filesystem_binary(asset):
     return value
 
 
-def environment(path):
+def environment(path,object_endpoint='http://10.20.2.163:9000'):
     values=dict(line.split('=',1) for line in path.read_text().splitlines())
     os.environ.update(AWS_ACCESS_KEY_ID=values['RUSTFS_ACCESS_KEY'],AWS_SECRET_ACCESS_KEY=values['RUSTFS_SECRET_KEY'],
         ACCESS_KEY=values['RUSTFS_ACCESS_KEY'],SECRET_KEY=values['RUSTFS_SECRET_KEY'],AWS_REGION='us-east-1',
-        AWS_EC2_METADATA_DISABLED='true',RUST_LOG='error',NO_COLOR='1',NO_PROXY='127.0.0.1,localhost,10.20.2.163',
-        no_proxy='127.0.0.1,localhost,10.20.2.163')
+        AWS_EC2_METADATA_DISABLED='true',RUST_LOG='error',NO_COLOR='1')
+    from urllib.parse import urlsplit
+    bypass='127.0.0.1,localhost,'+urlsplit(object_endpoint).hostname
+    os.environ.update(NO_PROXY=bypass,no_proxy=bypass)
 
 
 def request(asset,cell,root):
@@ -56,6 +60,7 @@ def main():
     p.add_argument('--asset',type=Path,required=True)
     p.add_argument('--out',type=Path,required=True)
     p.add_argument('--plan',type=Path)
+    p.add_argument('--inventory',type=Path,help='Exact cloud inventory pinned by the plan; required for new multi-pool assets')
     p.add_argument('--cell')
     p.add_argument('--product',choices=['brewfs','juicefs'])
     p.add_argument('--filesystem-binary',type=Path,help='Exact binary for a new asset; earlier assets retain their original binary')
@@ -86,7 +91,19 @@ def main():
     a=p.parse_args()
     if bool(a.filesystem_binary)!=bool(a.filesystem_binary_sha256) or (a.filesystem_binary and a.action!='asset-init'):
         p.error('filesystem-binary and its SHA256 are only valid together for asset-init')
-    environment(Path('/srv/ax-client/private/rustfs.env'))
+    if a.inventory and a.action!='asset-init':p.error('Inventory selects a new asset only; existing assets retain their endpoints')
+    if a.action=='asset-init':
+        plan=load(a.plan)
+        cell=cell_of(plan,a.cell) if a.cell else next(c for c in plan['cells'] if c['workload']=='fio' and c['arm']['product']==a.product)
+        binding=endpoint_binding(plan,cell,a.inventory)
+        if binding.get('client') and socket.gethostname()!=binding['client']['hostname']:
+            raise ValueError('Asset initialization host differs from explicit pool inventory')
+        object_endpoint=binding['objects']
+    else:
+        asset=load(a.asset/'asset.json')
+        binding=asset.get('endpoint_binding',{})
+        object_endpoint=binding.get('objects','http://10.20.2.163:9000')
+    environment(Path('/srv/ax-client/private/rustfs.env'),object_endpoint)
     if a.join_slot:
         Path('/sys/fs/cgroup/ax-slot-1/cgroup.procs').write_text(str(os.getpid()))
     if a.action=='asset-init':
@@ -96,11 +113,9 @@ def main():
                 else ref('/srv/ax-client/assets/bin/'+a.product))
         pinned(binary)
         a.asset.mkdir(parents=True,exist_ok=False)
-        redis='redis://10.20.2.162:6379/'+str(a.database)
+        redis=binding['metadata']+'/'+str(a.database)
         if subprocess.check_output(['redis-cli','-u',redis,'DBSIZE'],text=True).strip()!='0':
             raise ValueError('Never overwrite metadata')
-        plan=load(a.plan)
-        cell=cell_of(plan,a.cell) if a.cell else next(c for c in plan['cells'] if c['workload']=='fio' and c['arm']['product']==a.product)
         workspace_handoff=(cell['workload']=='handoff' and cell['arm']['engine']=='workspace-native-v2')
         if cell['arm']['product']!=a.product or (cell['arm_id'] not in ('native','juicefs') and
                 not workspace_handoff and not (cell['workload']=='handoff' and a.product=='juicefs')):
@@ -110,11 +125,11 @@ def main():
         bucket='axp-'+uuid.uuid4().hex[:16]
         import boto3
         from botocore.config import Config
-        client=boto3.client('s3',endpoint_url='http://10.20.2.163:9000',region_name='us-east-1',
+        client=boto3.client('s3',endpoint_url=object_endpoint,region_name='us-east-1',
             config=Config(signature_version='s3v4',retries={'max_attempts':0},s3={'addressing_style':'path'}))
         client.create_bucket(Bucket=bucket);client.close()
         config=overlay(dict(meta={'backend':'redis','redis':{'url':redis}},
-            data={'backend':'s3','s3':dict(bucket=bucket,endpoint='http://10.20.2.163:9000',region='us-east-1',force_path_style=True)},
+            data={'backend':'s3','s3':dict(bucket=bucket,endpoint=object_endpoint,region='us-east-1',force_path_style=True)},
             layout={'chunk_size':67108864,'block_size':4194304},fuse={'workers':4,'max_background':512}),cell['client_settings'])
         if workspace_handoff:
             catalog='ax-pilot-session-'+uuid.uuid4().hex
@@ -136,28 +151,29 @@ def main():
             config=dict(cell['client_settings'],metadata_url=redis)
             with (a.asset/'format.stdout').open('xb') as out,(a.asset/'format.stderr').open('xb') as err:
                 r=subprocess.run([binary['path'],'format','--storage','s3','--bucket',
-                    'http://10.20.2.163:9000/'+bucket,'--block-size','4M','--compress','none','--trash-days','0',redis,'ax-pilot-'+uuid.uuid4().hex[:12]],stdout=out,stderr=err)
+                    object_endpoint+'/'+bucket,'--block-size','4M','--compress','none','--trash-days','0',redis,'ax-pilot-'+uuid.uuid4().hex[:12]],stdout=out,stderr=err)
             write_new(a.asset/'format-exit.json',dict(exit_code=r.returncode));r.check_returncode()
         point=a.mount_point or a.asset/'mnt'
         point.mkdir(parents=True,exist_ok=a.mount_point is not None)
         if point.is_symlink() or point.resolve()!=point or os.path.ismount(point) or any(point.iterdir()):
             raise ValueError('Canonical unmounted empty directory required')
         value=dict(product=a.product,filesystem_binary=binary,bucket=bucket,database=a.database,seed=plan['config']['seed'],
-            config=config,mount_point=str(point),plan=ref(a.plan),source=cell['workload']+' base on original shared filesystem',
+            directory=str(a.asset.resolve(strict=True)),config=config,mount_point=str(point),plan=ref(a.plan),source=cell['workload']+' base on original shared filesystem',
             created_at=datetime.now(timezone.utc).isoformat())
+        if a.inventory:value.update(pool=pool_of(cell),endpoint_binding=binding)
         write_new(a.asset/'asset.json',value)
         print(json.dumps(dict(passed=True,product=a.product,bucket=bucket)))
         return
     asset=load(a.asset/'asset.json')
     if a.action=='draft-mount':
         plan=load(pinned(asset['plan']));cell=cell_of(plan,a.cell)
-        if cell['arm']['product']!=asset['product']:raise ValueError('Product mismatch')
+        if cell['arm']['product']!=asset['product'] or pool_of(cell)!=asset.get('pool','pool-a'):raise ValueError('Product or pool mismatch')
         a.out.mkdir(parents=True,exist_ok=False)
         cache=a.out/'cache';cache.mkdir()
         config=overlay(asset['config'],cell['client_settings'])
         if asset['product']=='brewfs':config['cache']['cache_root']=str(cache)
         config_path=a.out/'native-config.json';write_new(config_path,config)
-        value=draft_mount(ref(config_path),filesystem_binary(asset),asset['product'],'pool-a',
+        value=draft_mount(ref(config_path),filesystem_binary(asset),asset['product'],pool_of(cell),
             asset['mount_point'],str(REPO),a.out/'specs',
             ['AWS_ACCESS_KEY_ID','AWS_SECRET_ACCESS_KEY','AWS_REGION','AWS_EC2_METADATA_DISABLED','RUST_LOG','NO_COLOR','NO_PROXY','no_proxy'] if asset['product']=='brewfs' else [],
             ['fuse','fuse.brewfs','fuse.juicefs'],

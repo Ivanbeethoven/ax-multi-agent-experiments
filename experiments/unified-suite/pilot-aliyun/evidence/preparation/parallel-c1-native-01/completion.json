@@ -1,0 +1,90 @@
+{
+  "passed": true,
+  "formal_performance_samples": 0,
+  "model_calls": 0,
+  "new_cloud_instances_created": 0,
+  "asset": "/srv/ax-client/a/parallel-c1-native-01",
+  "preparation": "/srv/ax-client/preparation/parallel-c1-native-01",
+  "filesystem_qualification": "/srv/ax-client/qualification/parallel-native-flat-01",
+  "pool": "pool-a",
+  "databases": [
+    50,
+    51
+  ],
+  "plan_sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7",
+  "brewfs_binary_sha256": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0",
+  "wrapper_sha256": "ddfc8c47fec4c6fb52a7b677ad5e451d7046ece20d3c76b22e930342daec2233",
+  "crc_checks": [
+    {
+      "member": "a/parallel-c1-native-01/base-seq-prepare/result.json",
+      "sha256": "e54a68f0c4588b43dfeedc76d6b2303b5d1041017f3f46f57e4b72cd1e12051b",
+      "phase": "prepare",
+      "block_bytes": 1048576,
+      "application_bytes": 67108864,
+      "wall_seconds": 0.6212543470028322,
+      "passed": true
+    },
+    {
+      "member": "a/parallel-c1-native-01/base-seq-verify/result.json",
+      "sha256": "cc1b66a003ba21af95e68bb2c176458f9ad62aa5f771a02b4fc71b69732e12d4",
+      "phase": "verify",
+      "block_bytes": 1048576,
+      "application_bytes": 67108864,
+      "wall_seconds": 0.3071489029971417,
+      "passed": true
+    },
+    {
+      "member": "a/parallel-c1-native-01/base-random-prepare/result.json",
+      "sha256": "37c3856cf9c4266b1f35b89e6642212fcce5ac9d3d6dffb9944c1de80a7c562a",
+      "phase": "prepare",
+      "block_bytes": 4096,
+      "application_bytes": 67108864,
+      "wall_seconds": 3.9847599389977404,
+      "passed": true
+    },
+    {
+      "member": "a/parallel-c1-native-01/base-random-verify/result.json",
+      "sha256": "c25917b2744ba9f2aa395528288b345bb166a0de64b5495bdd468f3ddec4948f",
+      "phase": "verify",
+      "block_bytes": 4096,
+      "application_bytes": 67108864,
+      "wall_seconds": 0.32728997799858917,
+      "passed": true
+    },
+    {
+      "member": "a/parallel-c1-native-01/cold-base-verify-1048576/result.json",
+      "sha256": "7d3039a2d1442ae2da9a2098b52966ec787a1b8d765425837efc43d409cfe982",
+      "phase": "verify",
+      "block_bytes": 1048576,
+      "application_bytes": 67108864,
+      "wall_seconds": 0.6203947430039989,
+      "passed": true
+    },
+    {
+      "member": "a/parallel-c1-native-01/cold-base-verify-4096/result.json",
+      "sha256": "ead07d0bbe37a7635486560bbeab060120eacb8c0f07940063be4bcfb7768899",
+      "phase": "verify",
+      "block_bytes": 4096,
+      "application_bytes": 67108864,
+      "wall_seconds": 0.6296715249991394,
+      "passed": true
+    }
+  ],
+  "native_readback_attempts": 3,
+  "normal_mount_exits": 5,
+  "independent_archive_check": {
+    "schema": "suite-archive-check-v1",
+    "passed": true,
+    "archive": "/mnt/c/Users/HXY/.cache/ax-pilot-20261111/parallel-c1-native-01/raw.tar.gz",
+    "sha256": "1d585ebbb2fee82bcd1289ca5bcfefaa8f376f600881a00a3eadfb9e946c0809",
+    "bytes": 65950,
+    "file_members": 202,
+    "cell_id": "451ef1d28b5d875c-r1-native",
+    "kind": "c1-base-and-flat-qualification",
+    "deferred": [],
+    "scope": "all archive bytes; protocol raw-data completeness is checked separately"
+  },
+  "jump_archive": "/srv/ax-pilot-control/preparation/parallel-c1-native-01/collected-client/raw.tar.gz",
+  "client_archive": "/srv/ax-client/preparation/parallel-c1-native-01-retention/completion-03/raw.tar.gz",
+  "scope": "Actual C1 input and flat filesystem qualification; raw original logs retained, no measured cell claimed"
+}

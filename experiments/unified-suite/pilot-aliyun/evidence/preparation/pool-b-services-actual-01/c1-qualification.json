@@ -1,0 +1,326 @@
+{
+  "passed": true,
+  "at": "2026-11-11T05:17:10.208099+00:00",
+  "scope": "C1 CRC base preparation and small JFS clone/reopen functionality only; no formal sample, model or cross-machine migration",
+  "c1": {
+    "reference": {
+      "path": "/srv/ax-client/preparation/parallel-c1-juicefs-01/result.json",
+      "sha256": "47dad06766e2db6ed5e381bbedd0d26aa4e119481667406b6cdba5d6c744a138"
+    },
+    "result": {
+      "passed": true,
+      "pool": "pool-b",
+      "cell_id": "451ef1d28b5d875c-r1-juicefs",
+      "asset": {
+        "path": "/srv/ax-client/a/parallel-c1-juicefs-01/asset.json",
+        "sha256": "1ea77372aafb573aa65199a6aaa37e35d2a2e21c801c316e25c833eb22a433fc"
+      },
+      "input_checks": [
+        {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/base-seq-prepare/result.json",
+          "sha256": "9f3abc892b0973faca533a63696a0548d77efae86b7a0cf86e8fc1cd572a6968"
+        },
+        {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/base-seq-verify/result.json",
+          "sha256": "292e6bf6a25bdedc3f669b8c88471ae64597d90f30b96f1e87d4e5b4877886e2"
+        },
+        {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/base-random-prepare/result.json",
+          "sha256": "5c885f2a5b3f35c2a4e7c3abf283e159aa4c7cfb363f992e1bb8305eec3d4685"
+        },
+        {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/base-random-verify/result.json",
+          "sha256": "6e5ed48e0e6444ff255efd077a0fdf8aacc9cdb93db0da5307eaded627ffc1f4"
+        },
+        {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/cold-base-verify-1048576/result.json",
+          "sha256": "d7d75dafc053760c6f0e25e5bb64b360443640eb84f16cf05fffb3994f49c7f6"
+        },
+        {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/cold-base-verify-4096/result.json",
+          "sha256": "e3e48cf53eec165cb4832e725705ab56e83b637d0e28fc6cf71fe18199796a7e"
+        }
+      ],
+      "bytes_per_geometry": 67108864,
+      "base_debt": {
+        "path": "/srv/ax-client/a/parallel-c1-juicefs-01/base-debt/result.json",
+        "sha256": "56463b6988019c289fb9a17e0012e2e0be59c8d9ba87806e9d854c7690ed06a4"
+      },
+      "native_metrics": {
+        "path": "/srv/ax-client/a/parallel-c1-juicefs-01/native-endpoint.prom",
+        "sha256": "34326483f76bca7601b54c4636d01e413cb25229da5ffc70c3d77a5c0eb9142f"
+      },
+      "normal_exits": [
+        {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/prep-exit-01.json",
+          "sha256": "f1af87421b884ca7927ca4dabe493ad376a113218904ffe36eb6a512bb275f32"
+        },
+        {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/prep-exit-02.json",
+          "sha256": "592162578d3a9a3edc6630ffd69db685596db43aab698c0e23925d0e2ac68c43"
+        }
+      ],
+      "scope": "Two complete CRC bases and fresh-cache cold reads; preparation only, no formal performance sample"
+    },
+    "crc_checks": [
+      {
+        "reference": {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/base-seq-prepare/result.json",
+          "sha256": "9f3abc892b0973faca533a63696a0548d77efae86b7a0cf86e8fc1cd572a6968"
+        },
+        "passed": true,
+        "completed": true,
+        "application_bytes": 67108864,
+        "phase": "prepare",
+        "jobs": 1,
+        "block_bytes": 1048576
+      },
+      {
+        "reference": {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/base-seq-verify/result.json",
+          "sha256": "292e6bf6a25bdedc3f669b8c88471ae64597d90f30b96f1e87d4e5b4877886e2"
+        },
+        "passed": true,
+        "completed": true,
+        "application_bytes": 67108864,
+        "phase": "verify",
+        "jobs": 1,
+        "block_bytes": 1048576
+      },
+      {
+        "reference": {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/base-random-prepare/result.json",
+          "sha256": "5c885f2a5b3f35c2a4e7c3abf283e159aa4c7cfb363f992e1bb8305eec3d4685"
+        },
+        "passed": true,
+        "completed": true,
+        "application_bytes": 67108864,
+        "phase": "prepare",
+        "jobs": 1,
+        "block_bytes": 4096
+      },
+      {
+        "reference": {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/base-random-verify/result.json",
+          "sha256": "6e5ed48e0e6444ff255efd077a0fdf8aacc9cdb93db0da5307eaded627ffc1f4"
+        },
+        "passed": true,
+        "completed": true,
+        "application_bytes": 67108864,
+        "phase": "verify",
+        "jobs": 1,
+        "block_bytes": 4096
+      },
+      {
+        "reference": {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/cold-base-verify-1048576/result.json",
+          "sha256": "d7d75dafc053760c6f0e25e5bb64b360443640eb84f16cf05fffb3994f49c7f6"
+        },
+        "passed": true,
+        "completed": true,
+        "application_bytes": 67108864,
+        "phase": "verify",
+        "jobs": 1,
+        "block_bytes": 1048576
+      },
+      {
+        "reference": {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/cold-base-verify-4096/result.json",
+          "sha256": "e3e48cf53eec165cb4832e725705ab56e83b637d0e28fc6cf71fe18199796a7e"
+        },
+        "passed": true,
+        "completed": true,
+        "application_bytes": 67108864,
+        "phase": "verify",
+        "jobs": 1,
+        "block_bytes": 4096
+      }
+    ],
+    "normal_close": {
+      "passed": true,
+      "at": "2026-11-11T05:15:47.568072+00:00",
+      "unit": "ax-pilot-b-c1-jfs-prep-01",
+      "result": {
+        "path": "/srv/ax-client/preparation/parallel-c1-juicefs-01/result.json",
+        "sha256": "47dad06766e2db6ed5e381bbedd0d26aa4e119481667406b6cdba5d6c744a138"
+      },
+      "original_proofs": {
+        "asset": {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/asset.json",
+          "sha256": "1ea77372aafb573aa65199a6aaa37e35d2a2e21c801c316e25c833eb22a433fc"
+        },
+        "base_debt": {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/base-debt/result.json",
+          "sha256": "56463b6988019c289fb9a17e0012e2e0be59c8d9ba87806e9d854c7690ed06a4"
+        },
+        "native_metrics": {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/native-endpoint.prom",
+          "sha256": "34326483f76bca7601b54c4636d01e413cb25229da5ffc70c3d77a5c0eb9142f"
+        },
+        "normal_exit_1": {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/prep-exit-01.json",
+          "sha256": "f1af87421b884ca7927ca4dabe493ad376a113218904ffe36eb6a512bb275f32"
+        },
+        "normal_exit_2": {
+          "path": "/srv/ax-client/a/parallel-c1-juicefs-01/prep-exit-02.json",
+          "sha256": "592162578d3a9a3edc6630ffd69db685596db43aab698c0e23925d0e2ac68c43"
+        }
+      },
+      "unit_properties": {
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "journal_exit": 0,
+      "journal_sha256": "50f850656cd789095f497797f0d5cf4d5f9da1b7ee00f2b8dde2d12702c93081",
+      "slot_empty": true,
+      "mounts_absent": true,
+      "automatic_retry": false,
+      "scope": "Original preparation/functional unit normal exit only; no formal performance sample"
+    }
+  },
+  "juicefs_qualification": {
+    "reference": {
+      "path": "/srv/ax-client/qualification/parallel-juicefs-regular-01/result.json",
+      "sha256": "ea03c5ef4f676b2ed1897fd04144d33cf00e338ccf9c4c596622338015479573"
+    },
+    "result": {
+      "passed": true,
+      "scope": "cloud clone/reopen feasibility only; no performance or cross-machine result",
+      "cloud_instances_started": true,
+      "bucket": "ax-pilot-juicefs-f0cfa2087dcb47118af2f034e904a051",
+      "metadata_database": 62,
+      "client_settings": {
+        "metadata_url": "redis://10.20.2.169:6379/62",
+        "writeback": false,
+        "cache_dir": "memory",
+        "cache_mib": 512,
+        "buffer_mib": 512,
+        "attr_cache_seconds": 0,
+        "entry_cache_seconds": 0,
+        "open_cache_seconds": 0,
+        "prefetch": 1,
+        "max_readahead_mib": 128,
+        "backup_meta": "0",
+        "verify_cache_checksum": "full",
+        "cache_large_write": true,
+        "no_usage_report": true
+      },
+      "fixture_hardlinks": false,
+      "mount_1_cache_counters": {
+        "juicefs_blockcache_blocks{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 11.0,
+          "after": 11.0
+        },
+        "juicefs_blockcache_bytes{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 46137344.0,
+          "after": 46137344.0
+        },
+        "juicefs_blockcache_hit_bytes{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 56623120.0,
+          "after": 56623120.0
+        },
+        "juicefs_blockcache_hits{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 30.0,
+          "after": 30.0
+        },
+        "juicefs_blockcache_miss{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 0.0,
+          "after": 0.0
+        },
+        "juicefs_blockcache_miss_bytes{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 0.0,
+          "after": 0.0
+        },
+        "juicefs_store_cache_size_bytes{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 46137344.0,
+          "after": 46137344.0
+        }
+      },
+      "mount_2_cache_counters": {
+        "juicefs_blockcache_blocks{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 11.0,
+          "after": 11.0
+        },
+        "juicefs_blockcache_bytes{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 39845888.0,
+          "after": 39845888.0
+        },
+        "juicefs_blockcache_hit_bytes{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 9437184.0,
+          "after": 9437184.0
+        },
+        "juicefs_blockcache_hits{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 4.0,
+          "after": 4.0
+        },
+        "juicefs_blockcache_miss{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 14.0,
+          "after": 14.0
+        },
+        "juicefs_blockcache_miss_bytes{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 39845888.0,
+          "after": 39845888.0
+        },
+        "juicefs_store_cache_size_bytes{instance=\"ax-pilot-20261111-b-client\",juicefs_version=\"1.4.2+2026-10-22.46af7af\",mp=\"/srv/ax-client/qualification/parallel-juicefs-regular-01/mount\",vol_name=\"ax-pilot-local-ca3aa5c883ec\"}": {
+          "before": 39845888.0,
+          "after": 39845888.0
+        }
+      },
+      "native_clone": true,
+      "parent_unchanged": true,
+      "child_tree_equal": true,
+      "hardlinks_equal": true,
+      "same_volume_reopened": true,
+      "normally_stopped": true,
+      "hardlink_clone_qualified": false,
+      "memory_cache_cli_accepted": true,
+      "actual_cache_effectiveness": "see original cache counters; CLI acceptance alone is not a hit proof",
+      "at": "2026-11-11T05:15:49.781354+00:00",
+      "mount_present": false,
+      "process_alive": false
+    },
+    "normal_close": {
+      "passed": true,
+      "at": "2026-11-11T05:16:25.000226+00:00",
+      "unit": "ax-pilot-b-jfs-qual-01",
+      "result": {
+        "path": "/srv/ax-client/qualification/parallel-juicefs-regular-01/result.json",
+        "sha256": "ea03c5ef4f676b2ed1897fd04144d33cf00e338ccf9c4c596622338015479573"
+      },
+      "original_proofs": {},
+      "unit_properties": {
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "journal_exit": 0,
+      "journal_sha256": "9da392827843fdc6f1f7aeeef36f47e97dfc4c2d25cceaa65d7105ef90089358",
+      "slot_empty": true,
+      "mounts_absent": true,
+      "automatic_retry": false,
+      "scope": "Original preparation/functional unit normal exit only; no formal performance sample"
+    },
+    "new_ecs_instances_created_by_this_step": 0,
+    "legacy_cloud_instances_started_field": "The original qualifier assigns this field from --cloud; it does not create ECS instances."
+  },
+  "idle_boundary": {
+    "at": "2026-11-11T05:16:25.006097+00:00",
+    "slot_empty": true,
+    "client_metrics_ports_absent": [
+      8910,
+      9567,
+      19567
+    ],
+    "preparation_mounts_absent": true,
+    "services_retained": [
+      "Redis",
+      "RustFS",
+      "OTLP collector"
+    ]
+  }
+}

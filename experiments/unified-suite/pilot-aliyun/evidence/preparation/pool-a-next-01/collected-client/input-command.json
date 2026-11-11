@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "systemd-run",
+    "--unit=ax-pilot-inputs-100k-01",
+    "--property=Type=exec",
+    "--property=WorkingDirectory=/srv/ax-client/code-10",
+    "--property=StandardOutput=append:/srv/ax-client/preparation/pool-a-next-01/input-preparation.stdout",
+    "--property=StandardError=append:/srv/ax-client/preparation/pool-a-next-01/input-preparation.stderr",
+    "python3",
+    "/srv/ax-client/code-10/experiments/unified-suite/pilot-aliyun/scripts/prepare-cloud-inputs.py",
+    "--assets",
+    "/srv/ax-client/assets",
+    "--root",
+    "/srv/ax-client/inputs/pilot-100k-01",
+    "--files",
+    "100000",
+    "--sources-only"
+  ],
+  "pins": {
+    "/srv/ax-client/code-10/experiments/unified-suite/pilot-aliyun/scripts/prepare-cloud-inputs.py": "962a8b79edac2a572e5adfa6212120104eb54f0583a7664a1317481c51588871",
+    "/srv/ax-client/assets/bin/smallfiles": "8c45bca1348e936e0b8e5d01e7e8ee11f1db72120dc8aa7800aa72e1e0bcde96",
+    "/srv/ax-client/assets/repo/bench/fs_step.py": "d7597b6160c48b0cd8d4642d9fc8a87a79a328e71e445b4072efe6747089c621"
+  },
+  "automatic_retry": false,
+  "at": "2026-11-11T04:32:01.648167+00:00",
+  "scope": "Source preparation only; no formal workload or model"
+}

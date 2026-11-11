@@ -14,6 +14,7 @@ sys.path.insert(0,str(REPO))
 from bench.runtime.common import digest,load,write_new
 from bench.runtime import cohort,fleet
 from bench.runtime import pilot_context as pilot_runtime
+from bench.runtime.pilot_pools import pool_of,alias,fleet_node
 
 
 def ref(path):return dict(path=str(path),sha256=digest(path))
@@ -45,11 +46,14 @@ def main():
     arm='native' if a.product=='brewfs' else 'juicefs'
     plan=load(a.control/'suite/plan.json')
     cell=next(c for c in plan['cells'] if c['case']==a.case and c['arm_id']==arm)
+    pool=pool_of(cell);actual_fleet=load(runtime/'fleet.json')
     if cell['workload'] not in ('fio','trace','smallfiles'):raise ValueError('Flat C1/C2/C3 calibration only')
     small=load(a.qualification/arm/'binding.json') if cell['workload']=='smallfiles' else None
     if small and (cell['params']['agents']!=1 or cell['params']['workspaces']!=1):raise ValueError('Exactly one C3 workspace required')
     trace=load(a.qualification/arm/'binding.json') if cell['workload']=='trace' else None
-    asset=(trace or small)['asset'] if trace or small else '/srv/ax-client/a/c1-'+arm
+    binding=load(a.qualification/arm/'binding.json') if (a.qualification/arm/'binding.json').is_file() else None
+    if len(plan['config']['clusters'])>1 and not binding:raise ValueError('Explicit pool asset binding required')
+    asset=binding['asset'] if binding else '/srv/ax-client/a/c1-'+arm
     def small_fields(copy=False):
         b=small['smallfiles'];v=b['verifier']
         fields=dict(workspace=1,smallfiles_verifier=v['path'],smallfiles_verifier_sha256=v['sha256'])
@@ -65,14 +69,14 @@ def main():
         directory=a.out/'commands'/f'{sequence:03}';sequence+=1;directory.mkdir(parents=True)
         write_new(directory/'intent.json',dict(argv=argv,role=role,at=datetime.now(timezone.utc).isoformat(),automatic_retry=False))
         with (directory/'stdout').open('xb') as out,(directory/'stderr').open('xb') as err:
-            r=subprocess.run(['ssh','-F',str(config),'pool-a-'+role,shlex.join(list(map(str,argv)))],stdout=out,stderr=err)
+            r=subprocess.run(['ssh','-F',str(config),alias(pool,role),shlex.join(list(map(str,argv)))],stdout=out,stderr=err)
         write_new(directory/'exit.json',dict(exit_code=r.returncode))
         if r.returncode:raise RuntimeError('Remote command failed; inspect '+str(directory))
         return (directory/'stdout').read_text()
     def get(role,path,name):
         target=a.out/name;target.parent.mkdir(parents=True,exist_ok=True)
         wanted=remote(role,['sha256sum',path]).split()[0]
-        subprocess.run(['scp','-F',str(config),'pool-a-'+role+':'+str(path),str(target)],check=True)
+        subprocess.run(['scp','-F',str(config),alias(pool,role)+':'+str(path),str(target)],check=True)
         if digest(target)!=wanted:raise ValueError('Changed transfer')
         return target
     def helper(action,**fields):
@@ -81,9 +85,16 @@ def main():
             if value is True:argv+=['--'+key.replace('_','-')]
             elif value is not None and value is not False:argv+=['--'+key.replace('_','-'),str(value)]
         return remote('client',argv)
-    # All source preparation shares this data disk. Do not time against a live
-    # million-file generator or trace unpacker.
-    remote('client',['test','-f','/srv/ax-client/inputs/receipts/result.json'])
+    # Exact qualification replaces the old million-file generator sentinel.
+    # The one-cell resource guard excludes concurrent preparation on this pool.
+    for name in ('input.json','filesystem.json'):
+        if load(a.qualification/arm/name)['passed'] is not True:raise ValueError('Preparation failed: '+name)
+    local_asset=a.qualification/'assets'/arm/'asset.json'
+    if remote('client',['sha256sum',asset+'/asset.json']).split()[0]!=digest(local_asset):
+        raise ValueError('Qualified asset changed')
+    actual_asset=load(local_asset)
+    if actual_asset.get('pool','pool-a')!=pool or actual_asset['plan']['sha256']!=digest(a.control/'suite/plan.json'):
+        raise ValueError('Qualified asset uses another pool or frozen plan')
     if remote('client',['sha256sum',a.node_tool]).split()[0]!=a.node_tool_sha256:
         raise ValueError('Node preparation tool changed')
     if trace:
@@ -99,7 +110,7 @@ def main():
         product=a.product,cell_id=cell['id'],node_tool_sha256=a.node_tool_sha256,automatic_retry=False))
     running=remote('objects',['docker','inspect','--format','{{.State.Running}}',a.collector_name]).strip()=='true'
     collector_name=a.collector_name;collector_out=a.collector_out
-    collector_tool='/srv/ax-objects-0/code-01/experiments/unified-suite/pilot-aliyun/scripts/metric-collector.py'
+    collector_tool=fleet_node(actual_fleet,pool,'objects')['repo']+'/experiments/unified-suite/pilot-aliyun/scripts/metric-collector.py'
     if a.mode=='off' and running:
         remote('objects',['python3',collector_tool,'stop','--name',collector_name,'--out',collector_out])
     elif a.mode=='on' and not running:
@@ -130,23 +141,28 @@ def main():
     if a.mode=='on':
         for role,root in roots.items():
             specdir=root+'/q/'+a.attempt+'-observer';state=root+'/o/'+a.attempt
-            tool=root+'/code-01/experiments/unified-suite/pilot-aliyun/scripts/'+a.observer_tool_name
+            node=fleet_node(actual_fleet,pool,role)
+            tool=node['repo']+'/experiments/unified-suite/pilot-aliyun/scripts/'+a.observer_tool_name
             if remote(role,['sha256sum',tool]).split()[0]!=a.observer_tool_sha256:raise ValueError('Observer builder changed')
-            args=['python3',tool,'--role',role,'--product',a.product,'--metric-contract-sha256',metric_ref['sha256'],
+            args=['python3',tool,'--role',role,'--pool',pool,'--hostname',node.get('hostname','ax-pilot-20261111-'+role),'--product',a.product,'--metric-contract-sha256',metric_ref['sha256'],
                 '--collector-name',collector_name,'--out',specdir]
+            if role=='objects':
+                compose=load(qualification/'metrics.json').get('observer_settings',{}).get('rustfs_compose')
+                if pool!='pool-a' and not compose:raise ValueError('Exact RustFS deployment binding required')
+                if compose:args+=['--rustfs-compose',compose['path'],'--rustfs-compose-sha256',compose['sha256']]
             if role=='client':args+=['--mount-directory',mainstate,'--extra-mount-directory',prepstate,
                                     '--extra-mount-directory',verifystate]
             spec_ref=json.loads(remote(role,args))
-            peer_ref=ref(runtime/'probes'/('pool-a-'+role)/'peer.json')
+            peer_ref=ref(runtime/'probes'/alias(pool,role)/'peer.json')
             fleet.call(peer_ref,'observe-start',state,a.out/'observer-start'/role,spec_ref)
-            observers.append(dict(id='pool-a-'+role,node_id='pool-a-'+role,peer=load(peer_ref['path']),
+            observers.append(dict(id=alias(pool,role),node_id=alias(pool,role),peer=load(peer_ref['path']),
                 directory=state,spec=spec_ref,required_live_targets={'client':['filesystem'],'metadata':['redis'],'objects':['rustfs','collector']}[role]))
     s=dict(schema='experiment-cohort-v1',reviewed=True,purpose=purpose,provider='ssh',agents=1,
         inventory=ref(runtime/'fleet.json'),metric_contract=metric_ref,workload_contract=ref(qualification/'workload.json'),
         allocation_qualification=ref(runtime/'allocation.json'),hardware_qualification=ref(a.qualification/'hardware.json'),
         input_qualification=ref(qualification/'input.json'),filesystem_qualification=ref(qualification/'filesystem.json'),
-        workers=[dict(id='a01',node_id='pool-a-client',slot_id='pool-a-client',
-            peer=load(runtime/'probes/pool-a-client-slot/peer.json'),spec=worker_ref,output='/srv/ax-client/j/'+a.attempt)],
+        workers=[dict(id='a01',node_id=alias(pool,'client'),slot_id=alias(pool,'client'),
+            peer=load(runtime/'probes'/(alias(pool,'client')+'-slot')/'peer.json'),spec=worker_ref,output='/srv/ax-client/j/'+a.attempt)],
         observers=observers,ready_timeout_seconds=120,
                 review=dict(reviewer='pilot-operator',note='One fixed-work '+a.case+' worker, fresh cache, original backend and reviewed metrics; no next cell or automatic retry.'))
     write_new(a.out/'cohort.json',s)
@@ -179,8 +195,8 @@ def main():
     for o in observers:
         peer_ref=ref(runtime/'probes'/o['id']/'peer.json')
         fleet.call(peer_ref,'observe-stop',o['directory'],a.out/'observer-stop'/o['id'])
-        role=o['id'].removeprefix('pool-a-')
-        code="import sys,json;sys.path.insert(0,"+repr(roots[role]+'/code-01')+");from bench.runtime.observe import audit;print(json.dumps(audit("+repr(o['directory'])+",30,"+repr(cell['observation_marks'])+")))"
+        role=o['id'].removeprefix(pool+'-')
+        code="import sys,json;sys.path.insert(0,"+repr(fleet_node(actual_fleet,pool,role)['repo'])+");from bench.runtime.observe import audit;print(json.dumps(audit("+repr(o['directory'])+",30,"+repr(cell['observation_marks'])+")))"
         checked=json.loads(remote(role,['python3','-c',code]))
         if not checked['passed']:raise ValueError('Raw observer audit failed')
         write_new(a.out/'observer-stop'/o['id']/'raw-audit.json',checked)

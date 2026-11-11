@@ -45,8 +45,8 @@ def disk_options(role):
 
 
 class Cloud:
-    def __init__(self, cli, out):
-        self.cli, self.out = cli, out
+    def __init__(self, cli, out, git='git'):
+        self.cli, self.out, self.git = cli, out, git
         self.scope = json.loads((ROOT / 'scope.json').read_text())
 
     def api(self, action, **params):
@@ -118,7 +118,7 @@ class Cloud:
             url, branch = expected[source['component']]
             if (source['repository'], source['branch']) != (url, branch):
                 raise ValueError('Unexpected source branch')
-            current = subprocess.check_output(['git', 'ls-remote', url, 'refs/heads/'+branch], text=True).split()
+            current = subprocess.check_output([self.git, 'ls-remote', url, 'refs/heads/'+branch], text=True,timeout=45).split()
             if len(current) != 2 or current[0] != source['source_commit']:
                 raise ValueError(source['component']+' branch advanced or unavailable; rebuild before procurement')
         self.verify_local_receipts(g)
@@ -255,6 +255,7 @@ def main():
     parser.add_argument('action', choices=['inspect','quote','create','release','start-jump','stop-jump',
         'create-control-disk','attach-control-disk','detach-control-disk','delete-control-disk'])
     parser.add_argument('--aliyun', default=shutil.which('aliyun') or shutil.which('aliyun.exe'))
+    parser.add_argument('--git',default='git',help='Git executable for the required pre-purchase branch check')
     parser.add_argument('--out', type=Path, required=True, help='New directory for API evidence')
     parser.add_argument('--roles', nargs='+', choices=list(ROLES), default=['objects','client','metadata'])
     parser.add_argument('--role', choices=list(ROLES))
@@ -268,7 +269,7 @@ def main():
         parser.error('Provide the configured Aliyun CLI executable')
     args.out.mkdir(parents=True, exist_ok=False)
     os.chmod(args.out, 0o700)
-    cloud = Cloud(args.aliyun, args.out)
+    cloud = Cloud(args.aliyun, args.out,args.git)
     if args.action == 'inspect':
         result = cloud.inventory()
     elif args.action == 'quote':

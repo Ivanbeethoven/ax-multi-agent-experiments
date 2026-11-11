@@ -9,17 +9,64 @@ from contextlib import closing
 from datetime import datetime, timezone
 import hashlib
 import importlib.util
+import ipaddress
 import json
 from pathlib import Path
 import subprocess
 import sys
 import time
 from urllib.request import ProxyHandler, build_opener
+from urllib.parse import urlsplit
 import uuid
 
-REPO = Path(__file__).resolve().parents[4]
-sys.path.insert(0, str(REPO))
-from bench.runtime.observe import prometheus
+def runtime_repo(value=None, script=__file__):
+    candidates = [value] if value is not None else Path(script).resolve().parents
+    for root in candidates:
+        root = Path(root)
+        if root.is_absolute() and (root/'bench/runtime/observe.py').is_file() and \
+                (root/'experiments/retest-2026-10-29/scripts/inspect-layout.py').is_file():
+            return root.resolve(strict=True)
+    raise ValueError('Frozen runtime repo required; use --runtime-repo for a standalone tool')
+
+
+def s3_endpoint(cloud, requested, receipt):
+    expected = 'http://127.0.0.1:19000'
+    if cloud:
+        address = receipt.get('private_ip')
+        if address is None:
+            if receipt.get('pool_id') not in (None, 'pool-a'):
+                raise ValueError('New cloud pool requires its receipt private IP')
+            address = '10.20.2.163'
+        ip = ipaddress.IPv4Address(address)
+        if not any(ip in ipaddress.IPv4Network(n) for n in ('10.0.0.0/8','172.16.0.0/12','192.168.0.0/16')):
+            raise ValueError('Cloud receipt must bind a private VPC IPv4 address')
+        expected = f'http://{ip}:9000'
+        if requested is None and (str(ip) != '10.20.2.163' or receipt.get('pool_id') not in (None, 'pool-a')):
+            raise ValueError('New cloud pool requires explicit --s3-endpoint')
+    selected = requested or expected
+    parsed = urlsplit(selected)
+    if parsed.scheme != 'http' or parsed.username or parsed.password or parsed.query or parsed.fragment or \
+            parsed.path not in ('', '/') or selected.rstrip('/') != expected:
+        raise ValueError('S3 endpoint differs from the original service receipt')
+    return expected
+
+
+def cloud_data_paths(compose, observed):
+    declared = compose['services']['rustfs']['volumes']
+    actual = observed['Mounts']
+    paths = []
+    for index in range(4):
+        target = '/data/rustfs' + str(index)
+        wanted = [v for v in declared if v.get('target') == target]
+        live = [v for v in actual if v.get('Destination') == target]
+        if len(wanted) != 1 or len(live) != 1 or wanted[0].get('type') != 'bind' or \
+                live[0].get('Type') != 'bind' or wanted[0]['source'] != live[0]['Source']:
+            raise ValueError('Compose and live data bindings differ')
+        path = Path(live[0]['Source'])
+        if not path.is_absolute() or path in paths:
+            raise ValueError('Four distinct absolute data bindings required')
+        paths.append(path)
+    return paths
 
 
 def main():
@@ -29,17 +76,38 @@ def main():
     p.add_argument('--collector-name', required=True)
     p.add_argument('--out', type=Path, required=True)
     p.add_argument('--cloud', action='store_true', help='Use the actual private four-disk deployment receipt')
+    p.add_argument('--s3-endpoint', help='New cloud pools must explicitly match their service receipt endpoint')
+    p.add_argument('--runtime-repo', type=Path, help='Frozen runtime/decoder tree when this tool is copied separately')
+    p.add_argument('--compose', type=Path, help='Actual cloud compose file; defaults under the service receipt directory')
     a = p.parse_args()
-    a.out.mkdir(parents=True, exist_ok=False)
-    receipt = json.loads((a.services / ('result.json' if a.cloud else 'receipt.json')).read_text())
+    repo = runtime_repo(a.runtime_repo)
+    sys.path.insert(0, str(repo))
+    from bench.runtime.observe import prometheus
+    receipt_path = a.services / ('result.json' if a.cloud else 'receipt.json')
+    receipt = json.loads(receipt_path.read_text())
+    endpoint = s3_endpoint(a.cloud, a.s3_endpoint, receipt)
     entry = receipt if a.cloud else next(x for x in receipt['containers'] if x['name'].endswith('-rustfs'))
     observed = json.loads(subprocess.check_output(['docker', 'inspect', entry['container_id'] if a.cloud else entry['name']]))[0]
     if observed['Id'] != entry['container_id'] or not observed['State']['Running']:
         raise ValueError('Expected the live original local service')
+    if a.cloud:
+        environment = dict(v.split('=', 1) for v in observed['Config']['Env'] if '=' in v)
+        if environment.get('RUSTFS_ADDRESS') != urlsplit(endpoint).netloc:
+            raise ValueError('Actual RustFS listener differs from the requested endpoint')
+        compose_path = a.compose or a.services/'deployment/rustfs1/compose.json'
+        compose_raw = compose_path.read_bytes()
+        compose_sha = hashlib.sha256(compose_raw).hexdigest()
+        if receipt.get('compose_sha256') and compose_sha != receipt['compose_sha256']:
+            raise ValueError('Original deployment compose changed')
+        disks = cloud_data_paths(json.loads(compose_raw), observed)
+        if not all(p.is_mount() for p in disks) or len({p.stat().st_dev for p in disks}) != 4 or \
+                any(p.stat().st_dev == Path('/').stat().st_dev for p in disks):
+            raise ValueError('Cloud probe requires four actual distinct non-system disk mounts')
     ip = '127.0.0.1' if a.cloud else observed['NetworkSettings']['Networks']['bridge']['IPAddress']
     collector = json.loads(subprocess.check_output(['docker', 'inspect', a.collector_name]))[0]
     if not collector['State']['Running'] or collector['HostConfig']['NetworkMode'] != ('host' if a.cloud else 'container:' + observed['Id']):
         raise ValueError('Expected collector in the original local RustFS network namespace')
+    a.out.mkdir(parents=True, exist_ok=False)
     url = 'http://' + ip + ':18889/metrics'
     opener = build_opener(ProxyHandler({}))
     def snapshot(name):
@@ -56,11 +124,11 @@ def main():
     from botocore.config import Config
     checksum_options = {k:'when_required' for k in ('request_checksum_calculation','response_checksum_validation')
                         if k in Config.OPTION_DEFAULTS}
-    client = boto3.client('s3', endpoint_url='http://10.20.2.163:9000' if a.cloud else 'http://127.0.0.1:19000', region_name='us-east-1',
+    client = boto3.client('s3', endpoint_url=endpoint, region_name='us-east-1',
         aws_access_key_id=secret['RUSTFS_ACCESS_KEY'], aws_secret_access_key=secret['RUSTFS_SECRET_KEY'],
         config=Config(signature_version='s3v4', retries={'max_attempts': 0}, s3={'addressing_style': 'path'},
             **checksum_options))
-    decoder_path = REPO / 'experiments/retest-2026-10-29/scripts/inspect-layout.py'
+    decoder_path = repo / 'experiments/retest-2026-10-29/scripts/inspect-layout.py'
     spec = importlib.util.spec_from_file_location('persisted_layout_decoder', decoder_path)
     decoder = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(decoder)
@@ -68,6 +136,9 @@ def main():
     payload = hashlib.shake_256(b'ax-current-layout-local-v1').digest(5 * 1024**2 + 123)
     result = dict(passed=False, bucket=bucket, objects=[], source_image=receipt['image_reference'] if a.cloud else receipt['rustfs_image'],
         decoder_sha256=hashlib.sha256(decoder_path.read_bytes()).hexdigest(),
+        s3_endpoint=endpoint, pool_id=receipt.get('pool_id'), runtime_repo=str(repo),
+        service_receipt_sha256=hashlib.sha256(receipt_path.read_bytes()).hexdigest(),
+        observer_sha256=hashlib.sha256((repo/'bench/runtime/observe.py').read_bytes()).hexdigest(),
         scope='Cloud four-disk API/layout/counter qualification' if a.cloud else 'Local API/layout/counter qualification only; four paths on one disk with explicit test bypass',
         cloud_instances_started=a.cloud)
     layout_source = a.build_root / 'src/rustfs/crates/ecstore/src/object_api/ec_block_layout.rs'
@@ -75,9 +146,7 @@ def main():
         result['source_commit']=observed['Config']['Labels']['org.opencontainers.image.revision']
         if result['source_commit'] != receipt['source_commit'] or receipt['unsafe_disk_bypass']:
             raise ValueError('Cloud source/bypass identity differs')
-        disks=[Path('/srv/ax-rustfs-data-'+str(i)) for i in range(4)]
-        if not all(p.is_mount() for p in disks) or len({p.stat().st_dev for p in disks})!=4:
-            raise ValueError('Cloud probe requires four actual distinct disk mounts')
+        result.update(data_paths=list(map(str, disks)), compose_path=str(compose_path), compose_sha256=compose_sha)
     else:
         result['layout_source_sha256'] = hashlib.sha256(layout_source.read_bytes()).hexdigest()
         result['source_commit'] = subprocess.check_output(['git', '-C', str(a.build_root / 'src/rustfs'),
@@ -114,7 +183,7 @@ def main():
                 raise ValueError('Hint outcome differs from declared enabled profile')
             shards = []
             for disk in range(4):
-                path = (Path('/srv/ax-rustfs-data-'+str(disk)) if a.cloud else a.services / f'volume-{disk}') / bucket / key / 'xl.meta'
+                path = (disks[disk] if a.cloud else a.services / f'volume-{disk}') / bucket / key / 'xl.meta'
                 decoded = decoder.decode(path)
                 if not decoded['metadata_crc_verified'] or len(decoded['versions']) != 1:
                     raise ValueError('Persisted metadata is not a single authenticated version')

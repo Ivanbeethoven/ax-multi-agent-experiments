@@ -10,17 +10,48 @@ import json
 import os
 from pathlib import Path
 import re
+import stat
 import subprocess
 import sys
 import time
 
-REPO=Path(__file__).resolve().parents[4]
+def runtime_root(argv):
+    value=next((word.split('=',1)[1] for word in argv if word.startswith('--node-tool=')),None)
+    if value is None and '--node-tool' in argv:
+        index=argv.index('--node-tool')+1
+        if index<len(argv):value=argv[index]
+    return Path(value).resolve(strict=True).parents[4] if value else Path(__file__).resolve().parents[4]
+
+
+REPO=runtime_root(sys.argv[1:])
 sys.path.insert(0,str(REPO));sys.path.insert(0,str(REPO/'scripts'))
-from bench.runtime.common import digest,load,write_new
+from bench.runtime.common import digest,load,write_new,pinned
 from full_trace_common import tree
 
 
 def ref(path):return dict(path=str(path),sha256=digest(path))
+
+
+def initial_hardlinks(root):
+    groups={};counts={}
+    for path in root.rglob('*'):
+        value=path.lstat()
+        if stat.S_ISREG(value.st_mode):
+            key=(value.st_dev,value.st_ino)
+            groups.setdefault(key,[]).append(path.relative_to(root).as_posix());counts[key]=value.st_nlink
+    if any(counts[key]!=len(names) for key,names in groups.items()):
+        raise ValueError('Initial hardlink group leaves the complete input root')
+    return sorted(sorted(names) for names in groups.values() if len(names)>1)
+
+
+def preflight_case(case):
+    """Reject a damaged local source before any asset, output or mount exists."""
+    begin=time.monotonic();expected=load(case/'initial-tree.json')
+    if tree(case/'initial')!=expected:
+        raise ValueError('Initial source tree differs; restore a new case before asset preparation')
+    links=initial_hardlinks(case/'initial')
+    return dict(passed=True,initial_tree=ref(case/'initial-tree.json'),entries=len(expected),initial_hardlink_groups=links,
+                wall_seconds=time.monotonic()-begin,scope='Read-only source paths, bytes, modes and link targets before asset creation')
 
 
 def sync_tree(root):
@@ -49,6 +80,7 @@ def main():
     p.add_argument('--replay-binary',type=Path,default=Path('/srv/ax-client/assets/bin/full-fuse-replay'))
     p.add_argument('--filesystem-binary',type=Path)
     p.add_argument('--filesystem-binary-sha256')
+    p.add_argument('--inventory',type=Path)
     a=p.parse_args()
     if bool(a.filesystem_binary)!=bool(a.filesystem_binary_sha256):
         p.error('filesystem-binary requires its exact SHA256')
@@ -58,10 +90,13 @@ def main():
     if a.asset.exists() or a.out.exists():raise ValueError('New asset and qualification output required')
     plan=load(a.plan);arm='native' if a.product=='brewfs' else 'juicefs'
     cell=next(c for c in plan['cells'] if c['workload']=='trace' and c['arm_id']==arm)
+    if a.case.name!=cell['params']['trace']:raise ValueError('Exact declared trace case name required')
+    source_check=preflight_case(a.case)
     a.out.mkdir(parents=True)
     write_new(a.out/'started.json',dict(at=datetime.now(timezone.utc).isoformat(),product=a.product,
               cell_id=cell['id'],case=str(a.case),node_tool=ref(a.node_tool),qualifier=ref(a.qualifier),
-              events=ref(a.case/'capture/events.jsonl'),automatic_retry=False,purpose='full-route-qualification'))
+              events=ref(a.case/'capture/events.jsonl'),source_preflight=source_check,
+              automatic_retry=False,purpose='full-route-qualification'))
     Path('/sys/fs/cgroup/ax-slot-1/cgroup.procs').write_text(str(os.getpid()))
     def run(name,argv):
         out=a.out/name;out.mkdir();begin=time.monotonic()
@@ -80,14 +115,15 @@ def main():
     active=None;failure=None;stopped=[]
     try:
         helper('asset-init','asset-init',product=a.product,database=a.database,plan=a.plan,cell=cell['id'],out=a.out/'asset-init-proof',
-               filesystem_binary=a.filesystem_binary,filesystem_binary_sha256=a.filesystem_binary_sha256)
+               filesystem_binary=a.filesystem_binary,filesystem_binary_sha256=a.filesystem_binary_sha256,inventory=a.inventory)
         asset=load(a.asset/'asset.json');point=Path(asset['mount_point'])
+        filesystem_binary=str(pinned(asset['filesystem_binary'])) if asset.get('filesystem_binary') else '/srv/ax-client/assets/bin/'+a.product
         state=Path('/srv/ax-client/m')/('c2-'+arm+'-'+a.attempt)
         helper('draft-mount','draft',cell=cell['id'],out=a.out/'mount')
         helper('start','mount-start',spec=a.out/'mount/mount.reviewed.json',out=state,join_slot=True);active=state
         base=point/'base';child=point/'strict-01'
         if a.product=='juicefs':
-            run('import',['/srv/ax-client/assets/bin/juicefs','sync','--dirs','--perms','--links',str(a.case/'initial')+'/',str(base)+'/'])
+            run('import',[filesystem_binary,'sync','--dirs','--perms','--links',str(a.case/'initial')+'/',str(base)+'/'])
         else:run('import',['cp','-a','--reflink=never','--',a.case/'initial',base])
         begin=time.monotonic();sync_tree(base)
         write_new(a.out/'import-sync.json',dict(passed=True,wall_seconds=time.monotonic()-begin))
@@ -96,8 +132,10 @@ def main():
             write_new(a.out/'import-tree-differences.json',{k:dict(expected=expected.get(k),actual=actual.get(k))
                       for k in sorted(actual.keys()|expected.keys()) if actual.get(k)!=expected.get(k)})
             raise ValueError('Imported full initial tree differs')
+        if initial_hardlinks(base)!=source_check['initial_hardlink_groups']:
+            raise ValueError('Imported initial hardlink topology differs from source preflight')
         write_new(a.out/'base-check.json',dict(passed=True,expected=ref(a.case/'initial-tree.json'),root=str(base)))
-        argv=(['/srv/ax-client/assets/bin/juicefs','clone','-p',base,child] if a.product=='juicefs'
+        argv=([filesystem_binary,'clone','-p',base,child] if a.product=='juicefs'
               else ['cp','-a','--reflink=never','--',base,child])
         run('create-strict-child',argv);sync_tree(child)
         portability=['--portable-terminal-probe'] if a.portable_terminal_probe else []

@@ -1,0 +1,294 @@
+{
+  "read_only": true,
+  "hostname": "ax-pilot-20261111-objects",
+  "errors": {},
+  "instance_id": "i-bp1h9kaoya0predubdkn",
+  "boot_id": "5a984d75-dca0-4921-92fa-b021d1f799e5",
+  "cpu_models": [
+    "Intel(R) Xeon(R) Platinum"
+  ],
+  "affinity_cpu_count": 8,
+  "memory_total_bytes": 32955822080,
+  "kernel": "6.8.0-147-generic",
+  "private_addresses": [
+    {
+      "ifindex": 1,
+      "ifname": "lo",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 65536,
+      "qdisc": "noqueue",
+      "operstate": "UNKNOWN",
+      "group": "default",
+      "txqlen": 1000,
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "127.0.0.1",
+          "prefixlen": 8,
+          "scope": "host",
+          "label": "lo",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    },
+    {
+      "ifindex": 2,
+      "ifname": "eth0",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "mq",
+      "operstate": "UP",
+      "group": "default",
+      "txqlen": 1000,
+      "altnames": [
+        "enp0s9",
+        "ens9"
+      ],
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "10.20.2.163",
+          "prefixlen": 20,
+          "metric": 100,
+          "broadcast": "10.20.15.255",
+          "scope": "global",
+          "dynamic": true,
+          "label": "eth0",
+          "valid_life_time": 1892124584,
+          "preferred_life_time": 1892124584
+        }
+      ]
+    },
+    {
+      "ifindex": 3,
+      "ifname": "docker0",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "noqueue",
+      "operstate": "DOWN",
+      "group": "default",
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "172.17.0.1",
+          "prefixlen": 16,
+          "broadcast": "172.17.255.255",
+          "scope": "global",
+          "label": "docker0",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    }
+  ],
+  "block_devices": {
+    "blockdevices": [
+      {
+        "path": "/dev/vda",
+        "type": "disk",
+        "serial": "bp1h9kaoya0predx6kvc",
+        "size": 42949672960,
+        "fstype": null,
+        "mountpoints": [
+          null
+        ]
+      },
+      {
+        "path": "/dev/vda1",
+        "type": "part",
+        "serial": null,
+        "size": 1048576,
+        "fstype": null,
+        "mountpoints": [
+          null
+        ]
+      },
+      {
+        "path": "/dev/vda2",
+        "type": "part",
+        "serial": null,
+        "size": 209715200,
+        "fstype": "vfat",
+        "mountpoints": [
+          "/boot/efi"
+        ]
+      },
+      {
+        "path": "/dev/vda3",
+        "type": "part",
+        "serial": null,
+        "size": 42737843712,
+        "fstype": "ext4",
+        "mountpoints": [
+          "/"
+        ]
+      },
+      {
+        "path": "/dev/vdb",
+        "type": "disk",
+        "serial": "bp1h9kaoya0predx6kvd",
+        "size": 64424509440,
+        "fstype": "ext4",
+        "mountpoints": [
+          "/srv/ax-rustfs-data-0",
+          "/srv/ax-objects-0"
+        ]
+      },
+      {
+        "path": "/dev/vdc",
+        "type": "disk",
+        "serial": "bp1h9kaoya0predx6kve",
+        "size": 64424509440,
+        "fstype": "ext4",
+        "mountpoints": [
+          "/srv/ax-rustfs-data-1",
+          "/srv/ax-objects-1"
+        ]
+      },
+      {
+        "path": "/dev/vdd",
+        "type": "disk",
+        "serial": "bp1h9kaoya0predx6kvf",
+        "size": 64424509440,
+        "fstype": "ext4",
+        "mountpoints": [
+          "/srv/ax-rustfs-data-2",
+          "/srv/ax-objects-2"
+        ]
+      },
+      {
+        "path": "/dev/vde",
+        "type": "disk",
+        "serial": "bp1h9kaoya0predx6kvg",
+        "size": 64424509440,
+        "fstype": "ext4",
+        "mountpoints": [
+          "/srv/ax-rustfs-data-3",
+          "/srv/ax-objects-3"
+        ]
+      }
+    ]
+  },
+  "data_mounts": [
+    {
+      "path": "/srv/ax-objects-0",
+      "is_mount": true,
+      "device": 64784
+    },
+    {
+      "path": "/srv/ax-objects-1",
+      "is_mount": true,
+      "device": 64800
+    },
+    {
+      "path": "/srv/ax-objects-2",
+      "is_mount": true,
+      "device": 64816
+    },
+    {
+      "path": "/srv/ax-objects-3",
+      "is_mount": true,
+      "device": 64832
+    }
+  ],
+  "rustfs": {
+    "id": "d6c8829b0026ca782efa53629e3bd9ffe8e5b9b23404b079cf35921b7b94cc6f",
+    "image_id": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "image_reference": "10.20.0.10:15000/ax-pilot/rustfs@sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "running": true,
+    "nano_cpus": 6000000000,
+    "memory_bytes": 25769803776,
+    "memory_swap_bytes": 25769803776,
+    "flags": {
+      "RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED": "true",
+      "RUSTFS_EC_READ_QUANTUM_ENABLE": "true",
+      "RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE": "true",
+      "RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED": "true"
+    },
+    "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "repo_digests": [
+      "10.20.0.10:15000/ax-pilot/rustfs@sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+    ],
+    "binary_sha256": "7cf928734f34be79d6a41ab280113f36c06cf74f1034b66a62a95aece12623ca",
+    "compose_sha256": "80d5000a9e3387a33ffef8c716c7b4310a3851c3e5ed7779994db82b2c25a3ef",
+    "source": {
+      "path": "/srv/ax-objects-0/preparation/rustfs-01/result.json",
+      "sha256": "fdffded64b4f31be6b21a5b7ed261405700151eeb0abf88d8e0e440ca85d311a",
+      "value": {
+        "passed": true,
+        "at": "2026-11-10T19:10:00.154816+00:00",
+        "container_id": "d6c8829b0026ca782efa53629e3bd9ffe8e5b9b23404b079cf35921b7b94cc6f",
+        "pid": 7170,
+        "image_reference": "10.20.0.10:15000/ax-pilot/rustfs@sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+        "image_id": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+        "binary_sha256": "7cf928734f34be79d6a41ab280113f36c06cf74f1034b66a62a95aece12623ca",
+        "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+        "distinct_devices": [
+          64784,
+          64800,
+          64816,
+          64832
+        ],
+        "unsafe_disk_bypass": false,
+        "compose_sha256": "80d5000a9e3387a33ffef8c716c7b4310a3851c3e5ed7779994db82b2c25a3ef",
+        "scope": "Service startup and source identity; performance qualification separate"
+      }
+    },
+    "image_proof": {
+      "path": "/srv/ax-objects-0/assets/provenance/rustfs-image.json",
+      "sha256": "5e541ea5db5e774857d7fd46a70da2a7ee57f6c2a593de511391519e4dfbd381",
+      "value": {
+        "resolved_at": "2026-11-10T17:59:31.405452+00:00",
+        "repository": "https://github.com/Ivanbeethoven/rustfs.git",
+        "branch": "feat/dynamic-block-size-rebased",
+        "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+        "base_image": "debian@sha256:115ea8be71229531ceb61a08a1da3bb4342d1463e0f655012d70298c0d58cf8b",
+        "binary_sha256": "7cf928734f34be79d6a41ab280113f36c06cf74f1034b66a62a95aece12623ca",
+        "image_reference": "localhost:15000/ax-pilot/rustfs@sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+        "build_attestation_sha256": "ba4153e54e57e58eefd88cf6154d84fb45a601765fbdc32c03953187991e51fc",
+        "image_digest": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+        "image_id": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+        "registry_image": "registry@sha256:a3d8aaa63ed8681a604f1dea0aa03f100d5895b6a58ace528858a7b332415373",
+        "registry_container": "ax-pilot-image-registry-01",
+        "registry_running": false,
+        "context": {
+          "rustfs": "7cf928734f34be79d6a41ab280113f36c06cf74f1034b66a62a95aece12623ca",
+          "entrypoint.sh": "21f811eefbf5f6237afed0d229af9a5337353f2183043a2ad06fc18ae44dea5d",
+          "Dockerfile": "31c452d8946be6589ac5294c5a00119e0292541b34b1fc6b864896d6995d7d7f",
+          "ca-certificates.crt": "0e4c9a8eb123513b1c131c0aec2d3f9ddaad02b77b8af53bff30e1e7fc3c6b71"
+        },
+        "archives": {
+          "registry-image.tar": {
+            "bytes": 10341376,
+            "sha256": "67179adc3a5cee1af53fc48e5bb4c67203217db7fc6c16dc503332cd95083094"
+          },
+          "registry-data.tar": {
+            "bytes": 188190720,
+            "sha256": "37c8ca09128ba8c1f4246abe4eaa1fe888a42c2318403f2f6120d501f5b58feb"
+          },
+          "rustfs-image.tar": {
+            "bytes": 188100608,
+            "sha256": "121756999eb94dd2ac9df73b97327bd9a90cd6facac3e77a4531b81b199142f0"
+          }
+        },
+        "cloud_instances_started": false,
+        "note": "Runtime version and exact binary checked; S3/layout/mount qualification remains separate."
+      }
+    }
+  }
+}

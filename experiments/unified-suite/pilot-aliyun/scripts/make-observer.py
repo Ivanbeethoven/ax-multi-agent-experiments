@@ -9,28 +9,38 @@ import sys
 
 REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
-from bench.runtime.common import digest,identity,write_new
+from bench.runtime.common import digest,identity,write_new,pinned
 from bench.runtime.observe import validate,collect_target
+from bench.runtime.pilot_pools import alias
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--role',choices=['client','target','metadata','objects'],required=True)
     p.add_argument('--product',choices=['brewfs','juicefs'],required=True)
+    p.add_argument('--pool',default='pool-a')
+    p.add_argument('--hostname',help='Expected actual hostname from the frozen runtime fleet')
     p.add_argument('--entity',action='store_true',help='Entity cache metrics; debt is checked through the original namespace')
     p.add_argument('--metric-contract-sha256',required=True)
     p.add_argument('--mount-directory',type=Path)
     p.add_argument('--extra-mount-directory',type=Path,action='append',default=[],
                    help='Additional original supervisors, for preparation and cold verification')
     p.add_argument('--collector-name',default='ax-pilot-cloud-02-collector')
+    p.add_argument('--rustfs-compose',type=Path,help='Exact live deployment used by the metrics contract')
+    p.add_argument('--rustfs-compose-sha256')
     p.add_argument('--out',type=Path,required=True)
     a=p.parse_args()
+    if bool(a.rustfs_compose)!=bool(a.rustfs_compose_sha256):p.error('RustFS compose path and SHA256 must be provided together')
+    if a.role=='objects' and a.pool!='pool-a' and not a.rustfs_compose:
+        raise ValueError('New pool requires its exact pinned RustFS compose')
     if a.entity and a.product!='brewfs':raise ValueError('Entity is a BrewFS engine')
-    if socket.gethostname()!='ax-pilot-20261111-'+a.role:raise ValueError('Wrong observer host')
+    if a.pool!='pool-a' and not a.hostname:raise ValueError('New pool observer requires its actual frozen hostname')
+    observer_id=alias(a.pool,a.role)
+    if socket.gethostname()!=(a.hostname or 'ax-pilot-20261111-'+a.role):raise ValueError('Wrong observer host')
     a.out.mkdir(parents=True,exist_ok=False)
     root={'client':'/srv/ax-client','target':'/srv/ax-target','metadata':'/srv/ax-metadata','objects':'/srv/ax-objects-0'}[a.role]
     s=dict(schema='experiment-observer-v1',reviewed=True,interval_seconds=5,metric_contract_sha256=a.metric_contract_sha256,
-        data_paths=[root],cgroups=[],processes=[],targets=[],role=a.role,
+        data_paths=[root],cgroups=[],processes=[],targets=[],role=a.role,pool=a.pool,observer_id=observer_id,
         review=dict(reviewer='pilot-operator',note='Native endpoints probed on this host; long-lived service identity and cgroups read from the running processes. Mount lifecycle is bound separately.'))
     def group(pid,tag):
         relative=next(x[3:] for x in Path(f'/proc/{pid}/cgroup').read_text().splitlines() if x.startswith('0::'))
@@ -80,7 +90,8 @@ def main():
             'used_memory','used_cpu_sys','used_cpu_user','aof_enabled','aof_last_write_status'],
             counter_names=['total_commands_processed','total_net_input_bytes','total_net_output_bytes','used_cpu_sys','used_cpu_user'])]
     else:
-        compose=Path('/srv/ax-objects-0/preparation/rustfs-01/deployment/rustfs1/compose.json')
+        compose=(pinned(dict(path=str(a.rustfs_compose),sha256=a.rustfs_compose_sha256)) if a.rustfs_compose
+                 else Path('/srv/ax-objects-0/preparation/rustfs-01/deployment/rustfs1/compose.json'))
         cid=subprocess.check_output(['docker','compose','-f',str(compose),'ps','-q','rustfs'],text=True).strip()
         rows=[json.loads(subprocess.check_output(['docker','inspect',name]))[0] for name in (cid,a.collector_name)]
         if not all(r['State']['Running'] for r in rows):raise ValueError('Expected original live services')

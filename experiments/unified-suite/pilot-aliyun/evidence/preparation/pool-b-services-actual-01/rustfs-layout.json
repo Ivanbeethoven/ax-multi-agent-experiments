@@ -1,0 +1,473 @@
+{
+  "passed": true,
+  "at": "2026-11-11T05:25:41.453170+00:00",
+  "scope": "Pool-b original service layout qualification; not a formal performance sample",
+  "source": {
+    "path": "experiments/unified-suite/pilot-aliyun/scripts/qualify-rustfs-local.py",
+    "sha256": "d4e471f09f7f8d205c5264c4775d8ab6f07725c6d4ad0e0100a82a503fea1487"
+  },
+  "tests": {
+    "command": "PYTHONPATH=tests python3 -m unittest test_rustfs_layout_pool",
+    "passed": 5
+  },
+  "remote_result": "/srv/ax-objects-0/qualification/rustfs-layout-parallel-01/result.json",
+  "remote_command": "/srv/ax-objects-0/preparation/tools-rustfs-layout-parallel-01/command.json",
+  "local_raw": "C:/Users/HXY/.cache/ax-pilot-20261111/pool-b/rustfs-layout-parallel-01",
+  "proofs": {
+    "result.json": {
+      "sha256": "2397badc69037a618a40334831c6510e1235bd92c2782ba8b993ffd359214bc8",
+      "bytes": 13415
+    },
+    "before.prom": {
+      "sha256": "25e9705990e140a26f7c28f2690559b13a790817e2e57f472bcb307bb30d88e8",
+      "bytes": 3976549
+    },
+    "after.prom": {
+      "sha256": "fe60a36201c861676b97734511d552fc9e17bf10156bc4e591c9951870f00e87",
+      "bytes": 4011293
+    },
+    "collector-self.prom": {
+      "sha256": "fde66f9fdc23c87c7f2856607ca5f6a32cd93daabb291eed306f9a0b3f3ddb1c",
+      "bytes": 6666
+    }
+  },
+  "execution": {
+    "exit_code": 0,
+    "wall_seconds": 7.856153797999923,
+    "at": "2026-11-11T05:23:12.113651+00:00"
+  },
+  "command": {
+    "argv": [
+      "python3",
+      "/root/ax-pool-b-bootstrap-01/run-step.py",
+      "--name",
+      "rustfs-layout-qualification-01",
+      "--",
+      "python3",
+      "/srv/ax-objects-0/preparation/tools-rustfs-layout-parallel-01/qualify-rustfs-local.py",
+      "--runtime-repo",
+      "/srv/ax-objects-0/code-12",
+      "--cloud",
+      "--services",
+      "/srv/ax-objects-0/services/rustfs-01",
+      "--build-root",
+      "/srv/ax-objects-0/assets",
+      "--collector-name",
+      "ax-pilot-20261111-b-collector-01",
+      "--s3-endpoint",
+      "http://10.20.2.170:9000",
+      "--compose",
+      "/srv/ax-objects-0/services/rustfs-01/deployment/rustfs1/compose.json",
+      "--out",
+      "/srv/ax-objects-0/qualification/rustfs-layout-parallel-01"
+    ],
+    "at": "2026-11-11T05:23:02.531044+00:00",
+    "pins": {
+      "/srv/ax-objects-0/preparation/tools-rustfs-layout-parallel-01/qualify-rustfs-local.py": "d4e471f09f7f8d205c5264c4775d8ab6f07725c6d4ad0e0100a82a503fea1487",
+      "/srv/ax-objects-0/code-12/bench/runtime/observe.py": "af4d108441150fe228868ce32916625e06a046b7b64015d185ae0951300534ef",
+      "/srv/ax-objects-0/code-12/experiments/retest-2026-10-29/scripts/inspect-layout.py": "a2bc1f769879994de8eb0a512b5d45fe7c2ebf46bb8145981c038adfc56592c7"
+    },
+    "instance_id": "i-bp1bhdngko7nq3c3jrhp",
+    "automatic_retry": false,
+    "service_proof_sha256": "74178ad7ebd8d36c70aa1f5d77315ab8549742e71f8ed4544ab83f3fea8ed879",
+    "compose_sha256": "e5564d6f602c61d727500e5b22f9592f67ce1205cfb024c9747af27ffcc1986e",
+    "scope": "Original pool-b service layout qualification; no formal workload or service changes"
+  },
+  "result": {
+    "passed": true,
+    "bucket": "ax-pilot-layout-aecf2d28e0f44b468de7ab2793ea0e8f",
+    "objects": [
+      {
+        "key": "object-None",
+        "requested_bytes": null,
+        "effective_bytes": 1048576,
+        "put_headers": {
+          "x-rustfs-effective-ec-block-size": "1048576"
+        },
+        "head_headers": {
+          "x-rustfs-effective-ec-block-size": "1048576"
+        },
+        "payload_bytes": 5243003,
+        "payload_sha256": "ed55b2a08a0110f6a97247556edae826f1cc115d60b657f24962919a82274020",
+        "full_and_ranges_equal": true,
+        "shards": [
+          {
+            "slot": 0,
+            "erasure_index": 3,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "8ef8f1e5d55fe3dae8c2bef22e9db42d62b27cddef6bec6df48f18d12588394b"
+          },
+          {
+            "slot": 1,
+            "erasure_index": 4,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "7efaffed950600efceb22d28d3c9f4136dc34fdfb2212a86a6ad391c8f7167d9"
+          },
+          {
+            "slot": 2,
+            "erasure_index": 1,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "fe0acdefb0f481ff15d4ca96773108b6f01a5ba922de8314bc95289225a310cf"
+          },
+          {
+            "slot": 3,
+            "erasure_index": 2,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "0ce9e40a4f75d6c524f7757313d312e1cbd24c6367c73767a2672f1908919bfd"
+          }
+        ]
+      },
+      {
+        "key": "object-65536",
+        "requested_bytes": 65536,
+        "effective_bytes": 65536,
+        "put_headers": {
+          "x-rustfs-effective-ec-block-size": "65536",
+          "x-rustfs-layout-hint-status": "applied"
+        },
+        "head_headers": {
+          "x-rustfs-effective-ec-block-size": "65536"
+        },
+        "payload_bytes": 5243003,
+        "payload_sha256": "ed55b2a08a0110f6a97247556edae826f1cc115d60b657f24962919a82274020",
+        "full_and_ranges_equal": true,
+        "shards": [
+          {
+            "slot": 0,
+            "erasure_index": 3,
+            "block_bytes": 65536,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 16384,
+            "physical_part_bytes": 2626654,
+            "xl_meta_sha256": "7ba7e58b8fe442ffb24fb82f96d5e826a3dd4a8b05d4baa601cc4462502452f8"
+          },
+          {
+            "slot": 1,
+            "erasure_index": 4,
+            "block_bytes": 65536,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 16384,
+            "physical_part_bytes": 2626654,
+            "xl_meta_sha256": "fab968d54467e6c3cefd8a4727cccd986dff0dc74f54232b6cf4a3d93a0bf7e9"
+          },
+          {
+            "slot": 2,
+            "erasure_index": 1,
+            "block_bytes": 65536,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 16384,
+            "physical_part_bytes": 2626654,
+            "xl_meta_sha256": "de289c8661ce23afcda77b3f0ea552c4a134f9559f80f46ea580237ba0054000"
+          },
+          {
+            "slot": 3,
+            "erasure_index": 2,
+            "block_bytes": 65536,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 16384,
+            "physical_part_bytes": 2626654,
+            "xl_meta_sha256": "c96c5647b5dff83684fdb248b4c125cbc42f8390493d1b6de6f695beeaced0b5"
+          }
+        ]
+      },
+      {
+        "key": "object-262144",
+        "requested_bytes": 262144,
+        "effective_bytes": 262144,
+        "put_headers": {
+          "x-rustfs-effective-ec-block-size": "262144",
+          "x-rustfs-layout-hint-status": "applied"
+        },
+        "head_headers": {
+          "x-rustfs-effective-ec-block-size": "262144"
+        },
+        "payload_bytes": 5243003,
+        "payload_sha256": "ed55b2a08a0110f6a97247556edae826f1cc115d60b657f24962919a82274020",
+        "full_and_ranges_equal": true,
+        "shards": [
+          {
+            "slot": 0,
+            "erasure_index": 1,
+            "block_bytes": 262144,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 65536,
+            "physical_part_bytes": 2622814,
+            "xl_meta_sha256": "9f44b1963c74f2e53dac8b43113a86df66db4c77b4cf5529cac3b2aee7b5ec55"
+          },
+          {
+            "slot": 1,
+            "erasure_index": 2,
+            "block_bytes": 262144,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 65536,
+            "physical_part_bytes": 2622814,
+            "xl_meta_sha256": "ae7a96b8b46abfb99d119cd0084226c0d258bb8fab82aeab72a8ea6ccb891412"
+          },
+          {
+            "slot": 2,
+            "erasure_index": 3,
+            "block_bytes": 262144,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 65536,
+            "physical_part_bytes": 2622814,
+            "xl_meta_sha256": "8b1e8d802c7ca33cae8343ff289652d33c24454cb18c29a0ddafd19a3df71654"
+          },
+          {
+            "slot": 3,
+            "erasure_index": 4,
+            "block_bytes": 262144,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 65536,
+            "physical_part_bytes": 2622814,
+            "xl_meta_sha256": "4405c04487efaa794d22b82c38c8d675ab484e1728bea2e2499b95592c6986dc"
+          }
+        ]
+      },
+      {
+        "key": "object-1048576",
+        "requested_bytes": 1048576,
+        "effective_bytes": 1048576,
+        "put_headers": {
+          "x-rustfs-effective-ec-block-size": "1048576",
+          "x-rustfs-layout-hint-status": "applied"
+        },
+        "head_headers": {
+          "x-rustfs-effective-ec-block-size": "1048576"
+        },
+        "payload_bytes": 5243003,
+        "payload_sha256": "ed55b2a08a0110f6a97247556edae826f1cc115d60b657f24962919a82274020",
+        "full_and_ranges_equal": true,
+        "shards": [
+          {
+            "slot": 0,
+            "erasure_index": 2,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "69bd0f981d745971f89204f56b3b5044fdf541befbc12a2691ce2cb97181edbd"
+          },
+          {
+            "slot": 1,
+            "erasure_index": 3,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "302fc0da769bf215a04d717b6397a8ebff06b94b483177e826428cb006fa8925"
+          },
+          {
+            "slot": 2,
+            "erasure_index": 4,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "6eb80a2dc32e35460feb7b09bb9c47fcc029a690287ea73406c28033edc2ea0a"
+          },
+          {
+            "slot": 3,
+            "erasure_index": 1,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "3f82360f02c3b7b98ddf1388ab011e97f1bb46792a59193a6919ef9f7fe441a1"
+          }
+        ]
+      },
+      {
+        "key": "object-4194304",
+        "requested_bytes": 4194304,
+        "effective_bytes": 4194304,
+        "put_headers": {
+          "x-rustfs-effective-ec-block-size": "4194304",
+          "x-rustfs-layout-hint-status": "applied"
+        },
+        "head_headers": {
+          "x-rustfs-effective-ec-block-size": "4194304"
+        },
+        "payload_bytes": 5243003,
+        "payload_sha256": "ed55b2a08a0110f6a97247556edae826f1cc115d60b657f24962919a82274020",
+        "full_and_ranges_equal": true,
+        "shards": [
+          {
+            "slot": 0,
+            "erasure_index": 4,
+            "block_bytes": 4194304,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 1048576,
+            "physical_part_bytes": 2621598,
+            "xl_meta_sha256": "2d6e411114f033adbbd6333a84846d6e8b3298126cbfa3ce4dbe5e4138c9a323"
+          },
+          {
+            "slot": 1,
+            "erasure_index": 1,
+            "block_bytes": 4194304,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 1048576,
+            "physical_part_bytes": 2621598,
+            "xl_meta_sha256": "8da3eb5136400cbfe11f7923ec3ca48cde662fbff0d18c8070f6a48eed8bdb43"
+          },
+          {
+            "slot": 2,
+            "erasure_index": 2,
+            "block_bytes": 4194304,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 1048576,
+            "physical_part_bytes": 2621598,
+            "xl_meta_sha256": "fb2d5875b66ad820362c5d66adee9f40154932873008a5783db491965c8b5a56"
+          },
+          {
+            "slot": 3,
+            "erasure_index": 3,
+            "block_bytes": 4194304,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 1048576,
+            "physical_part_bytes": 2621598,
+            "xl_meta_sha256": "fcfede7378d25707988515fba60a8e1814cd275526bc18ccaf1b5e9ee3ff8a1d"
+          }
+        ]
+      },
+      {
+        "key": "object-524288",
+        "requested_bytes": 524288,
+        "effective_bytes": 1048576,
+        "put_headers": {
+          "x-rustfs-effective-ec-block-size": "1048576",
+          "x-rustfs-layout-hint-status": "ignored",
+          "x-rustfs-layout-hint-reason": "unsupported-size"
+        },
+        "head_headers": {
+          "x-rustfs-effective-ec-block-size": "1048576"
+        },
+        "payload_bytes": 5243003,
+        "payload_sha256": "ed55b2a08a0110f6a97247556edae826f1cc115d60b657f24962919a82274020",
+        "full_and_ranges_equal": true,
+        "shards": [
+          {
+            "slot": 0,
+            "erasure_index": 3,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "70ee98128faf37316d59c073e4a7e716e65fa8df7b59b57f8f960d3f435651e9"
+          },
+          {
+            "slot": 1,
+            "erasure_index": 4,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "181f7b058d1f367b13f14b9cf0c197cd81ecaec51c7c5fd04509c9b39f74bea1"
+          },
+          {
+            "slot": 2,
+            "erasure_index": 1,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "9beee2f898c4e2842f05b51acd399a613397de72bb524e87410be7c1f8acc157"
+          },
+          {
+            "slot": 3,
+            "erasure_index": 2,
+            "block_bytes": 1048576,
+            "data_shards": 2,
+            "parity_shards": 2,
+            "read_quantum_bytes": 262144,
+            "physical_part_bytes": 2621854,
+            "xl_meta_sha256": "cbb541ce57bd3b9766c91077be185e0cf9312a507bb41f58d51cf676ef094d21"
+          }
+        ]
+      }
+    ],
+    "source_image": "10.20.0.10:15000/ax-pilot/rustfs@sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "decoder_sha256": "a2bc1f769879994de8eb0a512b5d45fe7c2ebf46bb8145981c038adfc56592c7",
+    "s3_endpoint": "http://10.20.2.170:9000",
+    "pool_id": "pool-b",
+    "runtime_repo": "/srv/ax-objects-0/code-12",
+    "service_receipt_sha256": "74178ad7ebd8d36c70aa1f5d77315ab8549742e71f8ed4544ab83f3fea8ed879",
+    "observer_sha256": "af4d108441150fe228868ce32916625e06a046b7b64015d185ae0951300534ef",
+    "scope": "Cloud four-disk API/layout/counter qualification",
+    "cloud_instances_started": true,
+    "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "data_paths": [
+      "/srv/ax-rustfs-data-0",
+      "/srv/ax-rustfs-data-1",
+      "/srv/ax-rustfs-data-2",
+      "/srv/ax-rustfs-data-3"
+    ],
+    "compose_path": "/srv/ax-objects-0/services/rustfs-01/deployment/rustfs1/compose.json",
+    "compose_sha256": "e5564d6f602c61d727500e5b22f9592f67ce1205cfb024c9747af27ffcc1986e",
+    "declared_enabled_2plus2_quantum": {
+      "65536": 16384,
+      "262144": 65536,
+      "1048576": 262144,
+      "4194304": 1048576
+    },
+    "native_http_request_delta": 42.0,
+    "expected_http_requests": 42,
+    "metric_endpoint": "http://127.0.0.1:18889/metrics",
+    "required_metric": "rustfs_s3_http_requests_total",
+    "metric_series": 7,
+    "source_point_ages_seconds": [
+      0.7699377536773682,
+      0.7699439525604248,
+      0.7699458599090576,
+      0.7699465751647949,
+      0.7699472904205322,
+      0.7699477672576904,
+      0.7699482440948486
+    ],
+    "collector_id": "c84cb9e7cb44ec9940393ef719e3c773d02e01d7fa102424de87543cb7caf030",
+    "collector_native_counters": {
+      "otelcol_receiver_accepted_metric_points{receiver=\"otlp\",transport=\"http\"}": 2679612.0,
+      "otelcol_receiver_failed_metric_points{receiver=\"otlp\",transport=\"http\"}": 0.0,
+      "otelcol_receiver_refused_metric_points{receiver=\"otlp\",transport=\"http\"}": 0.0
+    },
+    "persisted_layout_verified": true,
+    "readonly_decoder": true,
+    "at": "2026-11-11T05:23:12.062350+00:00"
+  },
+  "new_ecs_instances_created_by_this_step": 0,
+  "private_values_logged": false
+}

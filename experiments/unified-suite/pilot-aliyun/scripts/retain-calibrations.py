@@ -25,6 +25,9 @@ sys.path.insert(0, str(REPO))
 from bench import archive_check, experiment_step
 from bench.runtime.common import alive, digest, load, mounts, pinned, write_new
 from bench.runtime.observe import audit, mount_lifecycle
+if not NODE:
+    from bench.runtime.pilot_pools import (pool_of, alias, cell_resources,
+                                           active_conflicts, resource_guard)
 
 ROOTS = dict(client='/srv/ax-client', metadata='/srv/ax-metadata', objects='/srv/ax-objects-0')
 
@@ -149,7 +152,7 @@ def node_pack(s):
     before = stable_snapshot(root, files)
     checked = pack_node_files(root, files, out, s['cell_id'], 'calibration-'+tag+'-'+role)
     assert_unchanged(root, directories, files, skipped, before)
-    result = dict(passed=True, role=role, tag=tag, mode=s['mode'], archive=checked,
+    result = dict(passed=True, pool=s.get('pool', 'pool-a'), role=role, tag=tag, mode=s['mode'], archive=checked,
                   processes_and_mounts=closed, observer_audits=audits, debt_samples=debt,
                   omitted_cache_and_dead_sockets=skipped,
                   scope='Closed original calibration evidence, not a new performance trial')
@@ -157,7 +160,7 @@ def node_pack(s):
     print(json.dumps(result))
 
 
-def idle(control, unit):
+def idle(control, unit, cell=None, plan=None):
     if not re.fullmatch(r'ax-pilot-[a-z0-9-]+', unit):
         raise ValueError('Explicit owned original one-cell unit required')
     raw = subprocess.check_output(['systemctl','show',unit+'.service',
@@ -170,13 +173,46 @@ def idle(control, unit):
             (state.get('LoadState') == 'loaded' and
              (state.get('ExecMainStatus') != '0' or state.get('ExecMainCode') != '1'))):
         raise ValueError('Original one-cell service has not exited normally')
-    with sqlite3.connect((control/'state.sqlite').as_uri()+'?mode=ro', uri=True) as db:
-        if db.execute('SELECT COUNT(*) FROM cell_leases').fetchone()[0]:
-            raise ValueError('A cell remains reserved')
+    if cell is None:
+        # Keep the original conservative boundary for existing callers.
+        with sqlite3.connect((control/'state.sqlite').as_uri()+'?mode=ro', uri=True) as db:
+            if db.execute('SELECT COUNT(*) FROM cell_leases').fetchone()[0]:
+                raise ValueError('A cell remains reserved')
+    else:
+        plan = plan or load(control/'suite/plan.json')
+        matches = [candidate for candidate in plan['cells'] if candidate['id']==cell['id']]
+        if len(matches)!=1 or matches[0]!=cell:
+            raise ValueError('Retention cell differs from the frozen plan')
+        if active_conflicts(control, cell, plan):
+            raise ValueError('A cell remains reserved on this pool or shared resources')
+        resources = set(cell_resources(plan, cell))
     for started in (control/'one-cell-runs').glob('*/started.json'):
-        if not any((started.parent/name).is_file() for name in ('result.json','failed.json')):
+        other = None
+        if cell is not None:
+            value = load(started)
+            matches = [candidate for candidate in plan['cells']
+                       if isinstance(value, dict) and candidate['id']==value.get('cell_id')]
+            if len(matches)!=1:
+                raise ValueError('Unknown cell in original started invocation: '+str(started))
+            other = matches[0]
+            if value.get('pool', pool_of(other))!=pool_of(other):
+                raise ValueError('Original started invocation pool differs from the frozen plan')
+        if any((started.parent/name).is_file() for name in ('result.json','failed.json')):
+            continue
+        if (cell is None or pool_of(other)==pool_of(cell) or
+                resources.intersection(cell_resources(plan, other))):
             raise ValueError('Another original one-cell invocation remains unfinished')
     return state
+
+
+def observer_roles(cohort, pool):
+    result = {}
+    for observer in cohort['observers']:
+        role = observer['id'].removeprefix(pool+'-')
+        if role not in ROOTS or observer['id']!=alias(pool, role) or role in result:
+            raise ValueError('Original observer does not uniquely belong to the cell pool')
+        result[role] = observer
+    return result
 
 
 def main():
@@ -194,8 +230,19 @@ def main():
         raise ValueError('Original completed cell and reviewed request required')
     if load(Path(request['out'])/'started.json')['request'] != request_ref:
         raise ValueError('Completed invocation used another request')
-    idle_state = idle(control, a.unit)
-    slot = subprocess.check_output(['ssh','-F',str(control/'ssh.conf'),'pool-a-client',
+    plan = load(control/'suite/plan.json')
+    cells = [cell for cell in plan['cells'] if cell['id']==request['cell_id']]
+    if len(cells)!=1:
+        raise ValueError('Exactly one original cell in the frozen plan required')
+    cell = cells[0]
+    with resource_guard(control, cell, plan):
+        retain(a, request_ref, request, completed_ref, completed, control, cell, plan)
+
+
+def retain(a, request_ref, request, completed_ref, completed, control, cell, plan):
+    pool = pool_of(cell)
+    idle_state = idle(control, a.unit, cell, plan)
+    slot = subprocess.check_output(['ssh','-F',str(control/'ssh.conf'),alias(pool, 'client'),
         'cat /sys/fs/cgroup/ax-slot-1/cgroup.procs'], text=True)
     if slot.strip():
         raise ValueError('Agent slot remains occupied; do not start evidence hashing')
@@ -220,12 +267,11 @@ def main():
         completed=completed_ref, original_unit=a.unit, idle=idle_state, automatic_retry=False))
     source = Path(__file__).read_bytes(); results = []
     ssh_config = control/'ssh.conf'
-    cell = next(c for c in load(control/'suite/plan.json')['cells'] if c['id']==request['cell_id'])
     for name, entry in request['tools'].items():
         target = out/'executed-tools'/(name+'.py'); target.parent.mkdir(exist_ok=True)
         shutil.copyfile(pinned(entry), target)
     for trial in trials:
-        idle(control, a.unit)
+        idle(control, a.unit, cell, plan)
         tag = trial['attempt']; original = Path(trial['out'])
         if original != control/'calibration'/tag:
             raise ValueError('Original trial lies outside calibration directory')
@@ -248,17 +294,17 @@ def main():
             entry = cohort[key]; original_ref = pinned(entry)
             target = directory/'contracts'/(key+'.json'); target.parent.mkdir(exist_ok=True)
             shutil.copyfile(original_ref, target)
-        observers = {o['id'].removeprefix('pool-a-'):o for o in cohort['observers']}
+        observers = observer_roles(cohort, pool)
         roles = ['client'] if trial['mode']=='off' else list(ROOTS)
         for role in roles:
             peer = cohort['workers'][0]['peer'] if role=='client' else observers[role]['peer']
-            config = dict(code=peer['repo'], root=ROOTS[role], role=role, tag=tag, mode=trial['mode'],
+            config = dict(code=peer['repo'], pool=pool, root=ROOTS[role], role=role, tag=tag, mode=trial['mode'],
                 bundle=out.name, cell_id=request['cell_id'], marks=cell['observation_marks'],
                 code_pins=peer['pins'],
                 worker_spec=cohort['workers'][0]['spec'] if role=='client' else None,
                 observer_sha256=observers[role]['spec']['sha256'] if role in observers else None)
             encoded = base64.b64encode(json.dumps(config).encode()).decode()
-            argv = ['ssh','-F',str(ssh_config),'pool-a-'+role,
+            argv = ['ssh','-F',str(ssh_config),alias(pool, role),
                     shlex.join(['python3','-','--node-config',encoded])]
             intent = directory/(role+'-intent.json'); write_new(intent, dict(argv=argv, automatic_retry=False))
             with (directory/(role+'-stdout')).open('xb') as stdout, (directory/(role+'-stderr')).open('xb') as stderr:
@@ -268,7 +314,7 @@ def main():
                 raise RuntimeError('Retain original failure; inspect '+str(directory))
             result = json.loads((directory/(role+'-stdout')).read_text())
             archive = result['archive']; target = directory/(role+'.tar.gz')
-            subprocess.run(['scp','-F',str(ssh_config),'pool-a-'+role+':'+archive['archive'],str(target)], check=True)
+            subprocess.run(['scp','-F',str(ssh_config),alias(pool, role)+':'+archive['archive'],str(target)], check=True)
             checked = archive_check.verify(target, archive['sha256'])
             write_new(directory/(role+'-archive-check.json'), checked)
         assert_unchanged(control, ['calibration/'+tag], before_files, skipped, before)

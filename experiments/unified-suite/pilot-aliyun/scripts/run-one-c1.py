@@ -16,6 +16,7 @@ sys.path.insert(0,str(REPO))
 from bench.runtime.common import digest,load,pinned,write_new
 from bench import suite_state
 from bench.runtime import pilot_context as pilot_runtime
+from bench.runtime.pilot_pools import pool_of,alias,active_conflicts,resource_guard,cross_pool_proof
 
 
 def main():
@@ -28,6 +29,12 @@ def main():
     control=Path(s['control']);plan=load(control/'suite/plan.json')
     runtime=pilot_runtime.select(control,s.get('runtime_control'))
     cell=next(c for c in plan['cells'] if c['id']==s['cell_id'])
+    if s.get('pool',pool_of(cell))!=pool_of(cell):raise ValueError('Request pool differs from frozen cell')
+    with resource_guard(control,cell,plan):
+        execute(a,s,control,plan,runtime,cell)
+
+
+def execute(a,s,control,plan,runtime,cell):
     if cell['workload'] not in ('fio','trace','smallfiles') or cell['arm_id'] not in ('native','juicefs'):raise ValueError('Flat C1/C2/C3 only')
     latest=pinned(s['latest_check']) if s.get('latest_check') else None
     if cell['workload']!='fio' and not latest:raise ValueError('Explicit latest-branch receipt required for C2/C3')
@@ -40,11 +47,15 @@ def main():
         raise ValueError('Three predeclared counterbalanced pairs required')
     if len({t['attempt'] for t in trials})!=6 or len({t['out'] for t in trials})!=6:
         raise ValueError('Unique original trials required')
+    cross=pinned(s['cross_pool_qualification']) if s.get('cross_pool_qualification') else None
+    if 'cross-pool-hardware-equivalence' in cell['required_gates']:
+        if not cross:raise ValueError('Explicit cross-pool equivalence evidence required')
+        cross_pool_proof(cross,plan,runtime/'fleet.json')
+    if active_conflicts(control,cell,plan):raise ValueError('Another cell owns this pool or a shared physical resource')
     with suite_state.transaction(control/'state.sqlite') as db:
-        if db.execute('SELECT COUNT(*) FROM cell_leases').fetchone()[0]:raise ValueError('Another cell remains reserved')
         row=db.execute('SELECT status FROM cells WHERE id=?',(cell['id'],)).fetchone()
         if not row or row[0]!='pending':raise ValueError('Only an unstarted explicit cell may run')
-    subprocess.run(['ssh','-F',str(runtime/'ssh.conf'),'pool-a-client',
+    subprocess.run(['ssh','-F',str(runtime/'ssh.conf'),alias(pool_of(cell),'client'),
         "test -z \"$(cat /sys/fs/cgroup/ax-slot-1/cgroup.procs)\""],check=True)
     out=Path(s['out']);out.mkdir(parents=True,exist_ok=False)
     write_new(out/'started.json',dict(cell_id=cell['id'],at=datetime.now(timezone.utc).isoformat(),
@@ -78,6 +89,8 @@ def main():
                     '--observer-tool-name',s['observer_tool']['name'],'--observer-tool-sha256',s['observer_tool']['sha256'],
                     '--collector-name',s['final_collector_name'],'--out',control/'cells'/cell['id']]
         if latest:admit+=['--latest-check',latest]
+        if cross:admit+=['--cross-pool-qualification',cross]
+        if s.get('owner'):admit+=['--owner',s['owner']]
         if s.get('runtime_control'):admit+=['--runtime-control',s['runtime_control']['path'],
                 '--runtime-control-sha256',s['runtime_control']['sha256']]
         run('admit',admit)

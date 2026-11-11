@@ -1,0 +1,326 @@
+{
+  "passed": true,
+  "at": "2026-11-11T04:50:03.386359+00:00",
+  "role": "client",
+  "instance_id": "i-bp1fmmfkcpr8w99j2bsy",
+  "boot_id": "b4316c9e-f7da-47dc-a443-8f4c87a6cf11",
+  "formal_workloads": false,
+  "models": false,
+  "disks": [
+    {
+      "id": "d-bp1fmmfkcpr8w99pwgc5",
+      "serial": "bp1fmmfkcpr8w99pwgc5",
+      "gib": 100,
+      "mount": "/srv/ax-client",
+      "st_dev": 64784,
+      "free_bytes": 97914535936,
+      "free_inodes": 26067728
+    }
+  ],
+  "s3_read_only_probe": {
+    "endpoint": "http://10.20.2.170:9000",
+    "http_status": 200,
+    "buckets": [],
+    "credential_mode": "0o600",
+    "credential_contents_logged": false
+  },
+  "slot": {
+    "cpu.max": "200000 100000",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0",
+    "pids.max": "4096",
+    "cgroup.procs": "",
+    "io.stat": ""
+  },
+  "programs": {
+    "/srv/ax-client/assets/bin/brewfs": {
+      "bytes": 437228560,
+      "sha256": "98e3c0402b735830efab7c80e50d8353625b3f8cecc5343ee15c37a6a761a526"
+    },
+    "/srv/ax-client/assets/bin/entity_metadata_probe": {
+      "bytes": 29522904,
+      "sha256": "e5de5c44690e0fdc61c5a086d245f7f630dd83476935b57f9443355766d6ef54"
+    },
+    "/srv/ax-client/assets/bin/full-fuse-replay": {
+      "bytes": 773664,
+      "sha256": "4e8b0f9cf12e5f6b117e1a5a109896c1c961951602251d5c5f2cd7a5ec4db055"
+    },
+    "/srv/ax-client/assets/bin/juicefs": {
+      "bytes": 125693328,
+      "sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+    },
+    "/srv/ax-client/assets/bin/opencode": {
+      "bytes": 140844862,
+      "sha256": "025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233"
+    },
+    "/srv/ax-client/assets/bin/packed_v3_snapshot_fixture": {
+      "bytes": 47179056,
+      "sha256": "1af9604e7f9af71d42bdf8b86aba9237c699ea56838d0c0ff9a2abfde470326e"
+    },
+    "/srv/ax-client/assets/bin/smallfiles": {
+      "bytes": 674024,
+      "sha256": "8c45bca1348e936e0b8e5d01e7e8ee11f1db72120dc8aa7800aa72e1e0bcde96"
+    },
+    "/srv/ax-client/assets/bin/verify_entity_remote": {
+      "bytes": 43564168,
+      "sha256": "a42f84835ca9658a84165ddec3371b155933c41318946cc3d635471f8acf0737"
+    },
+    "/srv/ax-client/build-ca07159-01/bin/brewfs": {
+      "bytes": 437660368,
+      "sha256": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0"
+    },
+    "/srv/ax-client/build-ca07159-01/bin/entity_metadata_probe": {
+      "bytes": 29604640,
+      "sha256": "638069a5e830df03b9d92586ceb3eb1bb1164f2192e1f52459155f7ab23f7e00"
+    },
+    "/srv/ax-client/build-ca07159-01/bin/packed_v3_snapshot_fixture": {
+      "bytes": 47172456,
+      "sha256": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab"
+    },
+    "/srv/ax-client/build-ca07159-01/bin/verify_entity_remote": {
+      "bytes": 43555032,
+      "sha256": "a33d53c9f82fef76ef2cb436391a9c11ebc3e4eb93dd8ad0b7f2d6d1458e3c72"
+    }
+  },
+  "new_build_provenance": {
+    "provenance/build-manifest.json": {
+      "format": "ax-pilot-local-build-v1",
+      "resolved_at": "2026-11-11T03:47:18.261511+00:00",
+      "sources": [
+        {
+          "component": "brewfs",
+          "repository": "https://github.com/brewfs/brewfs.git",
+          "branch": "main",
+          "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634"
+        },
+        {
+          "component": "rustfs",
+          "repository": "https://github.com/Ivanbeethoven/rustfs.git",
+          "branch": "feat/dynamic-block-size-rebased",
+          "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00"
+        }
+      ],
+      "files": [
+        {
+          "file": "brewfs",
+          "bytes": 437660368,
+          "sha256": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0"
+        },
+        {
+          "file": "packed_v3_snapshot_fixture",
+          "bytes": 47172456,
+          "sha256": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab"
+        },
+        {
+          "file": "entity_metadata_probe",
+          "bytes": 29604640,
+          "sha256": "638069a5e830df03b9d92586ceb3eb1bb1164f2192e1f52459155f7ab23f7e00"
+        },
+        {
+          "file": "rustfs",
+          "bytes": 280706352,
+          "sha256": "7cf928734f34be79d6a41ab280113f36c06cf74f1034b66a62a95aece12623ca"
+        },
+        {
+          "file": "smallfiles",
+          "bytes": 674024,
+          "sha256": "8c45bca1348e936e0b8e5d01e7e8ee11f1db72120dc8aa7800aa72e1e0bcde96"
+        },
+        {
+          "file": "full-fuse-replay",
+          "bytes": 773664,
+          "sha256": "4e8b0f9cf12e5f6b117e1a5a109896c1c961951602251d5c5f2cd7a5ec4db055"
+        }
+      ],
+      "build_jobs": "2",
+      "release_debug": 0,
+      "build_attestations": [
+        {
+          "component": "brewfs",
+          "path": "/home/hxy/ax-unified-pilot-prep-next-01/logs/brewfs/20261111T030911-3521246/attestation-finished.json",
+          "sha256": "34556a78476d892faf7777a12c7c301859a42c288bed707f129f22fadbd417d5"
+        },
+        {
+          "component": "rustfs",
+          "path": "/home/hxy/ax-unified-pilot-prep/logs/rustfs/20261110T162723-3453105/attestation-finished.json",
+          "sha256": "ba4153e54e57e58eefd88cf6154d84fb45a601765fbdc32c03953187991e51fc"
+        }
+      ],
+      "cloud_instances_started": false,
+      "ready_for_deployment": false,
+      "next_check": "Retain image revision/digest, dependencies and actual native mount qualification"
+    },
+    "provenance/brewfs-build.json": {
+      "at": "2026-11-11T03:47:10.538573+00:00",
+      "component": "brewfs",
+      "source": {
+        "repository": "https://github.com/brewfs/brewfs.git",
+        "branch": "main",
+        "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+        "source_tree": "1ee7c97a427156d9c2cfe056f857e2e01efeb714"
+      },
+      "toolchain": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+      "outputs": [
+        {
+          "file": "brewfs",
+          "bytes": 437660368,
+          "sha256": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0"
+        },
+        {
+          "file": "packed_v3_snapshot_fixture",
+          "bytes": 47172456,
+          "sha256": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab"
+        },
+        {
+          "file": "entity_metadata_probe",
+          "bytes": 29604640,
+          "sha256": "638069a5e830df03b9d92586ceb3eb1bb1164f2192e1f52459155f7ab23f7e00"
+        }
+      ],
+      "build_log_sha256": "c03f45cd160cbe89c6bcda38d939f08b2903cf8c7c2872a56189a259b18b3c9c",
+      "build_command_sha256": "df56fc950b9d416268a0b2e2420be2a97c4747813301d85a6b0c2c4f72a11138",
+      "start_attestation_sha256": "4aa73fea32964529573b9d28dce8a9bc051bb40957b9a6549ed38964053c7447",
+      "passed": true,
+      "capture_scope": "source/toolchain captured by build wrapper before starting Cargo",
+      "note": "Source/toolchain unchanged from capture; exact installed outputs checked.",
+      "brewfs_library_sha256": "afff6e49f7cb18c057782a4d38f222da5fb11b7a2afef0e42e0070880b51b672"
+    },
+    "provenance/verify_entity_remote.json": {
+      "at": "2026-11-11T03:48:04.982546+00:00",
+      "argv": [
+        "/home/hxy/.cargo/bin/rustc",
+        "--edition=2024",
+        "--crate-name",
+        "verify_entity_remote",
+        "/home/hxy/ax-unified-pilot-prep-next-01/tools/verify-entity-remote-01/verify_entity_remote.rs",
+        "-C",
+        "opt-level=1",
+        "-C",
+        "debuginfo=0",
+        "-L",
+        "dependency=/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps",
+        "--extern",
+        "brewfs=/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libbrewfs.rlib",
+        "-o",
+        "/home/hxy/ax-unified-pilot-prep-next-01/tools/verify-entity-remote-01/verify_entity_remote",
+        "--extern",
+        "anyhow=/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libanyhow-9bd4c48038218476.rlib",
+        "--extern",
+        "async_trait=/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libasync_trait-be1fc114ab03d1e3.so",
+        "--extern",
+        "bytes=/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libbytes-8f80276f6c626290.rlib",
+        "--extern",
+        "futures_util=/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libfutures_util-04e69fffb3788cf1.rlib",
+        "--extern",
+        "hex=/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libhex-a832a6b033a9836e.rlib",
+        "--extern",
+        "serde_json=/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libserde_json-ac662b2a9d088e70.rlib",
+        "--extern",
+        "sha2=/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libsha2-0410be97cfde2393.rlib",
+        "--extern",
+        "tokio=/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libtokio-88a5a13f6bb99d7d.rlib",
+        "--extern",
+        "uuid=/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libuuid-56dc6968f23ad632.rlib",
+        "-L",
+        "native=/home/hxy/ax-unified-pilot-prep/targets/brewfs/release/build/aws-lc-sys-a7beef64b9b0e854/out",
+        "-L",
+        "native=/home/hxy/ax-unified-pilot-prep/targets/brewfs/release/build/blake3-434dce2f0eb4dd09/out",
+        "-L",
+        "native=/home/hxy/ax-unified-pilot-prep/targets/brewfs/release/build/libsqlite3-sys-003db42ed9141264/out",
+        "-L",
+        "native=/home/hxy/ax-unified-pilot-prep/targets/brewfs/release/build/ring-928eb4522cb01da0/out",
+        "-L",
+        "native=/home/hxy/ax-unified-pilot-prep/targets/brewfs/release/build/zstd-sys-c04e842d80f10cfb/out"
+      ],
+      "source_sha256": "680537027f474601aef51be7cb36cb3d645c471c2fc93418986e9e00aba692fd",
+      "brewfs_library_sha256": "afff6e49f7cb18c057782a4d38f222da5fb11b7a2afef0e42e0070880b51b672",
+      "brewfs_source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+      "build_attestation_sha256": "34556a78476d892faf7777a12c7c301859a42c288bed707f129f22fadbd417d5",
+      "local_modules": [
+        {
+          "file": "verify-object-cache.rs",
+          "sha256": "8938653eafc0c7723766c6d25a2453e4780fa4d7e8de33bf051579b309519004"
+        }
+      ],
+      "fingerprint_sha256": "181fb5f0f01c8b93d7e186a56ed60088ed8c4b80a5aa5a8c64dd879ce184b6d9",
+      "features": [
+        "frozen-base-metadata",
+        "fuse-io-uring-runtime",
+        "native-packed-base",
+        "observability",
+        "rustfs-ec-block-size-hint",
+        "workspace-overlay"
+      ],
+      "dependencies": {
+        "hex": {
+          "path": "/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libhex-a832a6b033a9836e.rlib",
+          "sha256": "bedaea5bdc0cc0c4578b98dc3a05bddb0c0abf8dcdf8a071e38a8d28d9fd752e"
+        },
+        "tokio": {
+          "path": "/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libtokio-88a5a13f6bb99d7d.rlib",
+          "sha256": "ac2b19ee36011e97b347f40d9ca8b93cb9bcbf54828f12c0da5ab200f6abb13a"
+        },
+        "serde_json": {
+          "path": "/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libserde_json-ac662b2a9d088e70.rlib",
+          "sha256": "72d5b723bd581646706e1884b1dc6610ef07b8f78bc113b1abd50ccc6b058426"
+        },
+        "futures_util": {
+          "path": "/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libfutures_util-04e69fffb3788cf1.rlib",
+          "sha256": "ea228f6cf9b16088df91af611e1b24997a4531275dcae677c8e15e1af64987f9"
+        },
+        "uuid": {
+          "path": "/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libuuid-56dc6968f23ad632.rlib",
+          "sha256": "84c5ce9fe32cbc5196b6ac9b692a14699cdeaa71a41e773debcc9d9f614ec04e"
+        },
+        "sha2": {
+          "path": "/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libsha2-0410be97cfde2393.rlib",
+          "sha256": "d3e6f6eb7d58a3f58f9660130966718b127bbfee282a19125e7e04ce9e2525fc"
+        },
+        "async_trait": {
+          "path": "/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libasync_trait-be1fc114ab03d1e3.so",
+          "sha256": "37c53bb7d92bec54f3b74c483fb87237aebfdf5e6d032398b0f7f679660d7fcc"
+        },
+        "bytes": {
+          "path": "/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libbytes-8f80276f6c626290.rlib",
+          "sha256": "53f7ca6b8594a15d68aa1230b2807830b5709914a78b10ccfd5e55a5cb4ccf61"
+        },
+        "anyhow": {
+          "path": "/home/hxy/ax-unified-pilot-prep-next-01/targets/brewfs/release/deps/libanyhow-9bd4c48038218476.rlib",
+          "sha256": "cc449d427b826e6f8ec79e12af4cab5dda198edd9689fb3dad1252d9c25d1e34"
+        }
+      },
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+      "exit_code": 0,
+      "binary_sha256": "a33d53c9f82fef76ef2cb436391a9c11ebc3e4eb93dd8ad0b7f2d6d1458e3c72"
+    },
+    "provenance/latest.json": {
+      "passed": true,
+      "at": "2026-11-11T04:25:46.409673+00:00",
+      "build_manifest_sha256": "d4d00a6aab0887fe86c75646ef260594587e95fb2728daaa93d3ee5ccabf1b6e",
+      "sources": [
+        {
+          "component": "brewfs",
+          "repository": "https://github.com/brewfs/brewfs",
+          "branch": "main",
+          "built_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+          "remote_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+          "matches": true,
+          "lookup_exit_code": 0,
+          "lookup_error": null
+        },
+        {
+          "component": "rustfs",
+          "repository": "https://github.com/Ivanbeethoven/rustfs",
+          "branch": "feat/dynamic-block-size-rebased",
+          "built_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+          "remote_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+          "matches": true,
+          "lookup_exit_code": 0,
+          "lookup_error": null
+        }
+      ],
+      "git_executable": "/mnt/c/Program Files/Git/cmd/git.exe",
+      "policy": "Verify before a batch. If the branch advanced during preparation, rebuild. Keep the paired measurement batch fixed after it starts."
+    }
+  }
+}

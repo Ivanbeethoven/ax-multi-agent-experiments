@@ -26,11 +26,17 @@ def main():
     plan=load(a.plan)
     cell=next(c for c in plan['cells'] if c['case']==a.case)
     if cell['workload']!='fio':raise ValueError('C1 only')
-    if not load(a.source/'hardware.json')['passed']:raise ValueError('Hardware is not qualified')
+    hardware=load(a.source/'hardware.json')
+    if not hardware['passed']:raise ValueError('Hardware is not qualified')
+    arms=[arm for arm in ('native','juicefs') if (a.source/arm).is_dir()]
+    if not arms:raise ValueError('No qualified flat route found')
+    for arm in arms:
+        assigned=next(c for c in plan['cells'] if c['case']==a.case and c['arm_id']==arm)
+        if assigned['pool']!=hardware.get('pool','pool-a'):raise ValueError('Source hardware belongs to another assigned pool')
     # Keep every original receipt intact. Only the new workload contract differs;
     # it will require its own three explicit calibration pairs before admission.
     shutil.copytree(a.source,a.out)
-    for arm in ('native','juicefs'):
+    for arm in arms:
         folder=a.out/arm
         for name in ('input.json','filesystem.json'):
             if not load(folder/name)['passed']:raise ValueError('Source route is not qualified')

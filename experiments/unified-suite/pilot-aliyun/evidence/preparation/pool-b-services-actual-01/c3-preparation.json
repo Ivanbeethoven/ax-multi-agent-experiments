@@ -1,0 +1,132 @@
+{
+  "passed": true,
+  "at": "2026-11-11T05:15:37.161903+00:00",
+  "scope": "Unmeasured C3 original full100k JFS preparation only; not a formal cell",
+  "proofs": {
+    "result": {
+      "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/result.json",
+      "sha256": "2371822c563057dc10db07eb6f0da87ad8f23e062334194a0bab911e956eb54a",
+      "value": {
+        "passed": true,
+        "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+        "asset": {
+          "path": "/srv/ax-client/a/parallel-c3-juicefs-01/asset.json",
+          "sha256": "1f330f6c57e92bb9bb8e6bee094551cca366e93deb5f397541234e07d52ec65e"
+        },
+        "source": {
+          "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c3-verify/result.json",
+          "sha256": "3c3d956b23e885c34aa252f78ab7051ab36a9aca99880fbe25e7f53588da6510"
+        },
+        "full_cold_base_check": {
+          "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/base-check/result.json",
+          "sha256": "6eb2d56475523357bd3e0d83855b4be730799b2966cc703a5ea4fe54a19a05fb"
+        },
+        "files": 100000,
+        "bytes_checked": 409600000,
+        "normal_exits": [
+          {
+            "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/normal-stop.json",
+            "sha256": "12685fa3d6ec5f24b3290f580634d342fb4d005e0915cbe3ed55e6500070fe2c"
+          },
+          {
+            "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/cold-stop.json",
+            "sha256": "273a03b5fb3074856caa3bba76e3f0f9bc0f6e7b6ab0901b5c02f831a0ea46c9"
+          }
+        ],
+        "scope": "One full imported C3 base and original backend cold reopen; preparation cost, not a performance sample"
+      }
+    },
+    "import_exit": {
+      "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/import/exit.json",
+      "sha256": "0c203c107ab24935fb8be2aaa60808302327405e09807bb7db6cd71da32da625",
+      "value": {
+        "exit_code": 0,
+        "wall_seconds": 623.548939264
+      }
+    },
+    "import_fsync": {
+      "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/import-fsync.json",
+      "sha256": "9952a8bdbd8dc62a529d91e1b687638703dff1500828ee89df9aba5aed073ef2",
+      "value": {
+        "passed": true,
+        "files": 100000,
+        "wall_seconds": 384.53528404400004,
+        "workers": 8,
+        "included_in_import": false,
+        "copier": null
+      }
+    },
+    "cold_verify_exit": {
+      "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/full-base-check/exit.json",
+      "sha256": "37936c52aa0a91fdbe2799c48acdaac9ebf902976e75e860b541f56658189fbe",
+      "value": {
+        "exit_code": 0,
+        "wall_seconds": 114.96155911400001
+      }
+    },
+    "cold_verify": {
+      "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/base-check/result.json",
+      "sha256": "6eb2d56475523357bd3e0d83855b4be730799b2966cc703a5ea4fe54a19a05fb",
+      "value": {
+        "passed": true,
+        "completed": true,
+        "files": 100000,
+        "bytes_checked": 409600000,
+        "touched_files": 0,
+        "workspace": 1,
+        "workers": 8,
+        "full_namespace": true,
+        "modes_owners_links": true,
+        "wall_seconds": 114.958571537
+      }
+    },
+    "normal_close": {
+      "path": "/srv/ax-client/preparation/pool-b-services-actual-01/c3-close/result.json",
+      "sha256": "ec027a5df151651de61127c75fabf19a2f6ebad576a7158c168065845a1886d0",
+      "value": {
+        "passed": true,
+        "at": "2026-11-11T05:14:49.707384+00:00",
+        "unit": "ax-pilot-b-c3-jfs-prep-01",
+        "result": {
+          "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/result.json",
+          "sha256": "2371822c563057dc10db07eb6f0da87ad8f23e062334194a0bab911e956eb54a"
+        },
+        "original_proofs": {
+          "asset": {
+            "path": "/srv/ax-client/a/parallel-c3-juicefs-01/asset.json",
+            "sha256": "1f330f6c57e92bb9bb8e6bee094551cca366e93deb5f397541234e07d52ec65e"
+          },
+          "source": {
+            "path": "/srv/ax-client/inputs/pilot-100k-01/receipts/c3-verify/result.json",
+            "sha256": "3c3d956b23e885c34aa252f78ab7051ab36a9aca99880fbe25e7f53588da6510"
+          },
+          "full_cold_base_check": {
+            "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/base-check/result.json",
+            "sha256": "6eb2d56475523357bd3e0d83855b4be730799b2966cc703a5ea4fe54a19a05fb"
+          },
+          "normal_exit_1": {
+            "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/normal-stop.json",
+            "sha256": "12685fa3d6ec5f24b3290f580634d342fb4d005e0915cbe3ed55e6500070fe2c"
+          },
+          "normal_exit_2": {
+            "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/cold-stop.json",
+            "sha256": "273a03b5fb3074856caa3bba76e3f0f9bc0f6e7b6ab0901b5c02f831a0ea46c9"
+          }
+        },
+        "unit_properties": {
+          "MainPID": "0",
+          "Result": "success",
+          "ExecMainStatus": "0",
+          "ActiveState": "inactive",
+          "SubState": "dead"
+        },
+        "journal_exit": 0,
+        "journal_sha256": "4eb32056ad7b0efa5799a16cae29dd8ac4e688e7384e615cbc89357102cdb3a8",
+        "slot_empty": true,
+        "mounts_absent": true,
+        "automatic_retry": false,
+        "scope": "Original preparation/functional unit normal exit only; no formal performance sample"
+      }
+    }
+  }
+}

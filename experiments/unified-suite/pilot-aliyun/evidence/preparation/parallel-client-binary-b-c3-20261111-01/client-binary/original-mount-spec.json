@@ -1,0 +1,52 @@
+{
+  "schema": "experiment-mount-v1",
+  "reviewed": true,
+  "cluster": "pool-b",
+  "filesystem": "juicefs",
+  "config": {
+    "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/mount/native-config.json",
+    "sha256": "dfea480b0d04a9f453087b9ed195584d1894cda4d555984baa1b1d8da391dc48"
+  },
+  "metrics_address": "127.0.0.1:9567",
+  "dynamic_block": null,
+  "purpose": "experiment",
+  "metadata_backend": "redis",
+  "mount_point": "/srv/ax-client/a/parallel-c3-juicefs-01/mnt",
+  "anchor": {
+    "filesystem": "juicefs",
+    "workspace": null,
+    "namespace": null,
+    "storage_identity_sha256": "da9627f25c866a3ce22726b1f27884522e131fe8d67809b6b531c6b8ba19017e"
+  },
+  "allowed_fstypes": [
+    "fuse",
+    "fuse.brewfs",
+    "fuse.juicefs"
+  ],
+  "budget": {
+    "cpus": 2.0,
+    "memory_bytes": 8589934592,
+    "swap_bytes": 0
+  },
+  "command": {
+    "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/mount/command.reviewed.json",
+    "sha256": "ca8a55f802c7ee756a05682055948b92882a21c7d252f5df1d0a81319bd7aa1b"
+  },
+  "ready_timeout_seconds": 60,
+  "suite_binding": {
+    "plan": {
+      "path": "/srv/ax-client/preparation/parallel-control-01/plan.json",
+      "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+    },
+    "cell_id": "16f4ac389d2a2da6-r1-juicefs"
+  },
+  "review": {
+    "reviewer": "pilot-operator",
+    "note": "Reviewed actual source binary and bound native command, suite identity, empty canonical mount and 2 CPU / 8 GiB slot.",
+    "utc": "2026-11-11T04:54:53.645271+00:00",
+    "draft": {
+      "path": "/srv/ax-client/preparation/parallel-c3-juicefs-01/run/mount/mount.bound.draft.json",
+      "sha256": "1769efe91b71543509b5f2b6f0970190f531e437e5ef528d5b3bec153d0d1c30"
+    }
+  }
+}

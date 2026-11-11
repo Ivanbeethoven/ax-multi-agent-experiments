@@ -15,7 +15,7 @@ import time
 
 REPO=Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO))
-from bench.runtime.common import digest,load,write_new
+from bench.runtime.common import digest,load,write_new,pinned
 from pilot_io import fsync_import
 
 
@@ -31,6 +31,7 @@ def main():
     p.add_argument('--attempt',required=True)
     p.add_argument('--filesystem-binary',type=Path)
     p.add_argument('--filesystem-binary-sha256')
+    p.add_argument('--inventory',type=Path)
     p.add_argument('--copier',type=Path,help='Pinned eight-thread native C3 materializer; not used for JuiceFS')
     p.add_argument('--copier-sha256')
     p.add_argument('--verifier',type=Path,help='Pinned parallel full namespace and byte verifier')
@@ -75,12 +76,13 @@ def main():
         run(name,argv)
     try:
         helper('asset-init','asset-init',product=a.product,database=a.database,plan=a.plan,cell=cell['id'],out=a.out/'asset-init-proof',
-               filesystem_binary=a.filesystem_binary,filesystem_binary_sha256=a.filesystem_binary_sha256)
-        point=Path(load(a.asset/'asset.json')['mount_point']);base=point/'base'
+               filesystem_binary=a.filesystem_binary,filesystem_binary_sha256=a.filesystem_binary_sha256,inventory=a.inventory)
+        asset=load(a.asset/'asset.json');point=Path(asset['mount_point']);base=point/'base'
+        filesystem_binary=str(pinned(asset['filesystem_binary'])) if asset.get('filesystem_binary') else '/srv/ax-client/assets/bin/'+a.product
         helper('draft-mount','draft',cell=cell['id'],out=a.out/'mount')
         state=Path('/srv/ax-client/m')/a.attempt
         helper('start','mount-start',spec=a.out/'mount/mount.reviewed.json',out=state,join_slot=True);active=state
-        argv=(['/srv/ax-client/assets/bin/juicefs','sync','--dirs','--perms','--links',str(a.source)+'/',str(base)+'/']
+        argv=([filesystem_binary,'sync','--dirs','--perms','--links',str(a.source)+'/',str(base)+'/']
               if a.product=='juicefs' else ['cp','-a','--reflink=never','--',a.source,base])
         if a.copier:
             argv=[a.copier,a.source,base,a.out/'materialize.json',str(expected_files),'8']

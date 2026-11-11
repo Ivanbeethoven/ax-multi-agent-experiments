@@ -1,0 +1,7 @@
+{
+  "at": "2026-11-11T04:37:40.848580+00:00",
+  "preparation_retried": false,
+  "first_guard_rejected": true,
+  "reason": "One-off closure guard required ExecMainCode=1 even after systemd garbage-collected the successful transient unit. MainPID was 0, LoadState not-found and all original four preparation stage exits were 0.",
+  "resolution": "Kept the guard failure. Verified one original journal INVOCATION_ID and its Deactivated successfully record, then invoked the existing close-cloud-inputs.py once. No input regeneration or result replacement."
+}

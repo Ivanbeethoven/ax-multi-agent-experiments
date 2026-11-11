@@ -1,0 +1,139 @@
+{
+  "read_only": true,
+  "hostname": "ax-pilot-20261111-client",
+  "errors": {},
+  "instance_id": "i-bp1809mw7rlujtj9f705",
+  "boot_id": "008082aa-bee8-46b1-b0b1-53a326efb864",
+  "cpu_models": [
+    "Intel(R) Xeon(R) Platinum"
+  ],
+  "affinity_cpu_count": 4,
+  "memory_total_bytes": 16335245312,
+  "kernel": "6.8.0-147-generic",
+  "private_addresses": [
+    {
+      "ifindex": 1,
+      "ifname": "lo",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 65536,
+      "qdisc": "noqueue",
+      "operstate": "UNKNOWN",
+      "group": "default",
+      "txqlen": 1000,
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "127.0.0.1",
+          "prefixlen": 8,
+          "scope": "host",
+          "label": "lo",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    },
+    {
+      "ifindex": 2,
+      "ifname": "eth0",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "mq",
+      "operstate": "UP",
+      "group": "default",
+      "txqlen": 1000,
+      "altnames": [
+        "enp0s6",
+        "ens6"
+      ],
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "10.20.2.161",
+          "prefixlen": 20,
+          "metric": 100,
+          "broadcast": "10.20.15.255",
+          "scope": "global",
+          "dynamic": true,
+          "label": "eth0",
+          "valid_life_time": 1892123629,
+          "preferred_life_time": 1892123629
+        }
+      ]
+    }
+  ],
+  "block_devices": {
+    "blockdevices": [
+      {
+        "path": "/dev/vda",
+        "type": "disk",
+        "serial": "bp1809mw7rlujtjc8eph",
+        "size": 42949672960,
+        "fstype": null,
+        "mountpoints": [
+          null
+        ]
+      },
+      {
+        "path": "/dev/vda1",
+        "type": "part",
+        "serial": null,
+        "size": 1048576,
+        "fstype": null,
+        "mountpoints": [
+          null
+        ]
+      },
+      {
+        "path": "/dev/vda2",
+        "type": "part",
+        "serial": null,
+        "size": 209715200,
+        "fstype": "vfat",
+        "mountpoints": [
+          "/boot/efi"
+        ]
+      },
+      {
+        "path": "/dev/vda3",
+        "type": "part",
+        "serial": null,
+        "size": 42737843712,
+        "fstype": "ext4",
+        "mountpoints": [
+          "/"
+        ]
+      },
+      {
+        "path": "/dev/vdb",
+        "type": "disk",
+        "serial": "bp1809mw7rlujtjc8epi",
+        "size": 107374182400,
+        "fstype": "ext4",
+        "mountpoints": [
+          "/srv/ax-client"
+        ]
+      }
+    ]
+  },
+  "data_mounts": [
+    {
+      "path": "/srv/ax-client",
+      "is_mount": true,
+      "device": 64784
+    }
+  ],
+  "slot": {
+    "cpu.max": "200000 100000",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0"
+  }
+}
