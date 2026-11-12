@@ -32,6 +32,8 @@ CLIENT_SLOT=Path('/sys/fs/cgroup/ax-slot-1')
 CONFIGURE_NODE=Path('/srv/ax-client/code-12/experiments/unified-suite/pilot-aliyun/scripts/configure-node.py')
 MOUNTINFO=Path('/proc/self/mountinfo')
 RESTORE_SHA='09616fb18b8f3e75ec7425d19c5171d1b138b9da00e79d15436725b028f60f3d'
+REDIS_CONFIG=('appendonly','appendfsync','maxmemory-policy')
+REDIS_INFO={'redis_version','process_id','used_memory','maxmemory','aof_enabled','aof_rewrite_in_progress'}
 FILES=(
     'intent.json','input-inventory.json','initial-tree.json','inventory.exit.json','initial-tree.exit.json',
     'asset-intent.json','producer.exit.json','init.exit.json','packed.json',
@@ -174,6 +176,46 @@ def failure_location(error):
     return dict(error_class=type(error).__name__,traceback=frames[-8:])
 
 
+def preflight_redis(ssh,out,deadline_epoch):
+    prefix=['redis-cli','-h','10.20.2.162','--raw']
+    conf=ssh('metadata',[*prefix,'CONFIG','GET',*REDIS_CONFIG],
+             capture_output=True,text=True,timeout=8).stdout.splitlines()
+    config={key:value for key,value in zip(conf[::2],conf[1::2]) if key in REDIS_CONFIG}
+    save(out/'redis-config.json',dict(at=datetime.now(timezone.utc).isoformat(),
+         reply_lines=len(conf),config=config))
+    require(len(conf)%2==0,'Unexpected Redis config response')
+    require(config.get('appendonly')=='yes' and config.get('maxmemory-policy')=='noeviction',
+            'Original persistent noeviction Redis required')
+
+    def remaining():
+        budget=deadline_epoch-time.time()
+        return min(budget,rewrite_until-time.monotonic()) if rewrite_until is not None else budget
+
+    rewrite_until=None
+    attempt=0
+    while True:
+        budget=remaining()
+        require(budget>0,'Redis preflight time exhausted')
+        info=ssh('metadata',[*prefix,'INFO'],capture_output=True,text=True,timeout=min(8,budget)).stdout.splitlines()
+        selected=dict(row.split(':',1) for row in info if ':' in row and row.split(':',1)[0] in REDIS_INFO)
+        attempt+=1
+        save(out/f'redis-info-{attempt:02d}.json',dict(at=datetime.now(timezone.utc).isoformat(),fields=selected))
+        require(set(selected)==REDIS_INFO and selected['aof_enabled']=='1'
+                and 0<int(selected['maxmemory']) and 5*int(selected['used_memory'])<4*int(selected['maxmemory']),
+                'Redis version/persistence/20 percent memory headroom could not be confirmed')
+        rewrite=selected['aof_rewrite_in_progress']
+        require(rewrite in ('0','1'),'Unexpected AOF rewrite state')
+        if rewrite=='0':
+            require(remaining()>0,'Redis preflight time exhausted')
+            save(out/'redis.json',dict(config=config,fields=selected))
+            return
+        if rewrite_until is None:
+            rewrite_until=time.monotonic()+60
+        budget=remaining()
+        require(budget>0,'Redis preflight time exhausted')
+        time.sleep(min(3,budget))
+
+
 def persist_payload(out,payload):
     manifest={}
     require(isinstance(payload,dict) and set(payload)<=set(FILES),'Unexpected evidence names')
@@ -277,20 +319,7 @@ def run(args):
         capacity['coordinator']=dict(available_bytes=sv.f_bavail*sv.f_frsize,total_bytes=sv.f_blocks*sv.f_frsize,
                                      available_inodes=sv.f_favail,total_inodes=sv.f_files)
         save(out/'capacity.json',capacity)
-        redis_prefix=['redis-cli','-h','10.20.2.162','--raw']
-        conf=ssh('metadata',[*redis_prefix,'CONFIG','GET','appendonly','appendfsync','maxmemory-policy'],
-                 capture_output=True,text=True,timeout=8).stdout.splitlines()
-        require(len(conf)%2==0,'Unexpected Redis config response')
-        redis_config=dict(zip(conf[::2],conf[1::2]))
-        require(redis_config.get('appendonly')=='yes' and redis_config.get('maxmemory-policy')=='noeviction',
-                'Original persistent noeviction Redis required')
-        info=ssh('metadata',[*redis_prefix,'INFO'],capture_output=True,text=True,timeout=8).stdout.splitlines()
-        fields={'redis_version','process_id','used_memory','maxmemory','aof_enabled','aof_rewrite_in_progress'}
-        selected=dict(row.split(':',1) for row in info if ':' in row and row.split(':',1)[0] in fields)
-        require(set(selected)==fields and selected['aof_enabled']=='1' and selected['aof_rewrite_in_progress']=='0'
-                and 0<int(selected['maxmemory']) and 5*int(selected['used_memory'])<4*int(selected['maxmemory']),
-                'Redis version/persistence/20 percent memory headroom could not be confirmed')
-        save(out/'redis.json',dict(config=redis_config,fields=selected))
+        preflight_redis(ssh,out,deadline)
         result=ssh('objects',['docker','inspect','-f','{{.Image}} {{.State.Running}} {{.State.Pid}}',CONTAINER],
                    capture_output=True,text=True,timeout=8).stdout.strip().split()
         revision=ssh('objects',['docker','image','inspect','-f','{{index .Config.Labels "org.opencontainers.image.revision"}}',IMAGE],
