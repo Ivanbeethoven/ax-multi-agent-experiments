@@ -1,6 +1,7 @@
 """Select independent functional-check blocks and preview their exact commands."""
 import argparse
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -48,6 +49,9 @@ def main():
     parser.add_argument('--out', type=Path)
     parser.add_argument('--common-args', type=Path, help='JSON array of shared experiment_smoke arguments')
     parser.add_argument('--case-overrides', type=Path, help='JSON map of case name to additional CLI arguments')
+    parser.add_argument('--scratch-parent', type=Path, help='Existing local data directory for owned per-case TMPDIR')
+    parser.add_argument('--scratch-peak-bytes', type=int, default=0, help='Additional temporary peak bytes reserved before each case')
+    parser.add_argument('--scratch-peak-inodes', type=int, default=0, help='Additional temporary peak inodes reserved before each case')
     selection = parser.add_mutually_exclusive_group()
     selection.add_argument('--block', choices=BLOCKS, action='append', help='Select an independent functional-check group')
     selection.add_argument('--only', action='append', help='Run only this case; repeat for multiple cases')
@@ -55,12 +59,14 @@ def main():
     parser.add_argument('--dry-run', action='store_true', help='Print commands without creating directories or processes')
     args, extra = parser.parse_known_args()
     if args.list_blocks:
-        if args.out or args.common_args or args.case_overrides or args.block or args.only or args.dry_run or extra:
+        if args.out or args.common_args or args.case_overrides or args.block or args.only or args.dry_run or args.scratch_parent or args.scratch_peak_bytes or args.scratch_peak_inodes or extra:
             parser.error('--list-blocks must be used alone')
         print(json.dumps({'formal_sample': False, 'blocks': BLOCKS}, ensure_ascii=False, indent=2))
         return 0
     if not args.out:
         parser.error('--out is required')
+    if min(args.scratch_peak_bytes,args.scratch_peak_inodes) < 0 or ((args.scratch_peak_bytes or args.scratch_peak_inodes) and not args.scratch_parent):
+        parser.error('nonnegative scratch estimates require --scratch-parent')
     common = read_json(args.common_args, parser) if args.common_args else []
     if not argument_list(common) or not argument_list(extra):
         parser.error('shared arguments cannot set out, experiment, mode or placement')
@@ -92,6 +98,9 @@ def main():
             'blocks': args.block or [], 'commands': commands, 'sequential': True,
             'stop_on_nonpassing_case': True, 'runtime_qualification_verified': False,
             'resource_lock': 'external lock on the complete source/backend/target pool required'}
+    plan['scratch'] = {'parent':str(args.scratch_parent) if args.scratch_parent else None,
+                       'peak_bytes':args.scratch_peak_bytes,'peak_inodes':args.scratch_peak_inodes,
+                       'reserve_fraction':0.2,'policy':'remove only passed, closed, owned scratch; retain failures'}
     if args.dry_run:
         print(json.dumps(plan, ensure_ascii=False, indent=2))
         return 0
@@ -102,9 +111,18 @@ def main():
         name, cmd = item['name'], item['argv']
         code = None
         reported = None
+        managed = None
+        cleanup = None
         try:
+            environment = None
+            if args.scratch_parent:
+                from bench.run_cleanup import create
+                managed = output/(name+'.scratch')
+                scratch = create(managed,args.scratch_parent,output/name/'receipt.json',
+                                 args.scratch_peak_bytes,args.scratch_peak_inodes)
+                environment = dict(os.environ,TMPDIR=str(scratch),TMP=str(scratch),TEMP=str(scratch))
             with (output / (name + '.log')).open('w', encoding='utf-8') as log:
-                process = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
+                process = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, env=environment)
             code = process.returncode
             receipt = json.loads((output / name / 'receipt.json').read_text(encoding='utf-8'))
             if not isinstance(receipt, dict) or receipt.get('status') not in ('passed', 'failed', 'blocked'):
@@ -116,9 +134,17 @@ def main():
                 status, reason = 'failed', 'child returned nonzero despite a passed receipt'
         except (OSError, ValueError) as error:
             receipt, status, reason = {}, 'failed', str(error)
+        if managed is not None and (managed/'owner.json').exists():
+            from bench.run_cleanup import finish
+            try:
+                cleanup = finish(managed,code)
+            except (OSError,ValueError) as error:
+                cleanup = {'passed':False,'retained':True,'reasons':[str(error)]}
+            if status == 'passed' and not cleanup['passed']:
+                status, reason = 'failed', 'scratch retained; inspect cleanup proof before the next case'
         rows.append({'name': name, 'status': status, 'reported_status': reported,
                      'elapsed_ns': receipt.get('elapsed_ns'), 'reason': reason,
-                     'exit_code': code, 'receipt': name + '/receipt.json'})
+                     'exit_code': code, 'receipt': name + '/receipt.json','scratch_cleanup':cleanup})
         (output / 'summary.json').write_text(json.dumps(rows, indent=2) + '\n', encoding='utf-8')
         print(name + ': ' + status, flush=True)
         if status != 'passed' or code != 0:

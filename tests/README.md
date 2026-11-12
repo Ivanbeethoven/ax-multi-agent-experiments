@@ -16,6 +16,7 @@ python3 -m unittest discover -s tests -v
 
 | 测试 | 内容 |
 |---|---|
+| `test_run_cleanup.py` | 容量不足不启动、成功目录删除/失败保留、所有权/活跃进程/挂载/回执变化拒绝、外部符号链接保留、Docker 故障仍停 Redis、迁移目标收尾 |
 | `test_smoke_matrix_selection.py` | 8 块覆盖、成组选择、无副作用预览、缺参数提前拒绝、失败即停和缺回执汇总 |
 | `test_unified_suite.py` | 新C1–C4计划/native消融、baseline跨池并行/独立领取关闭/跨池配对、旧同池模式、原子共享资源占用、禁止重放、失败归档/关闭、恢复与gap排除；可选fio/小文件原生验证 |
 | `test_suite_defaults.py` | 默认工作量/容量、非法参数提前拒绝、冻结缓存与pool绑定、memory store挂载参数复核、fio同字节错误参数拒绝 |

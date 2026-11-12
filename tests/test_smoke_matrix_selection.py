@@ -52,7 +52,8 @@ class MatrixSelection(unittest.TestCase):
             root=Path(folder);common=root/'common.json';common.write_text(json.dumps(COMMON))
             stream=io.StringIO()
             argv=['matrix','--block','c4-handoff','--common-args',str(common),
-                  '--out',str(root/'out'),'--dry-run']
+                  '--out',str(root/'out'),'--scratch-parent',str(root/'uncreated-temp'),
+                  '--scratch-peak-bytes','1024','--scratch-peak-inodes','10','--dry-run']
             with patch.object(sys,'argv',argv),patch('bench.experiment_smoke_matrix.subprocess.run') as run,redirect_stdout(stream):
                 self.assertEqual(main(),0)
             plan=json.loads(stream.getvalue())
@@ -60,6 +61,8 @@ class MatrixSelection(unittest.TestCase):
             self.assertFalse(plan['formal_sample'])
             self.assertFalse(plan['runtime_qualification_verified'])
             self.assertFalse((root/'out').exists())
+            self.assertFalse((root/'uncreated-temp').exists())
+            self.assertEqual(plan['scratch']['peak_bytes'],1024)
             run.assert_not_called()
 
     def test_invalid_arguments_fail_before_output_or_process(self):

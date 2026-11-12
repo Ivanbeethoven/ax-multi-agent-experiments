@@ -11,6 +11,7 @@ import tempfile
 import time
 
 from bench.runtime.tree_verify import write_probe
+from bench.runtime.smoke_cleanup import mounts_below
 
 
 def identity():
@@ -31,7 +32,48 @@ def digest(path):
 
 def mounted(point):
     # stat-based ismount() returns false for a disconnected FUSE mount.
-    return any(line.split()[4]==str(point) for line in Path('/proc/self/mountinfo').read_text().splitlines())
+    return bool(mounts_below([point]))
+
+
+def close_target(proc, point):
+    proof = dict(exit_code=None, process_exit=None, mount_absent=False, errors={})
+    try:
+        if mounted(point):
+            proof['exit_code'] = sp.run(['fusermount3','-u',str(point)],capture_output=True,timeout=30).returncode
+    except Exception as error:
+        proof['errors']['unmount'] = str(error)
+    try:
+        if proc:
+            try:
+                proof['process_exit'] = proc.wait(timeout=20)
+            except sp.TimeoutExpired:
+                proc.terminate()
+                try: proc.wait(timeout=5)
+                except sp.TimeoutExpired:
+                    proc.kill();proc.wait(timeout=5)
+    except Exception as error:
+        proof['errors']['process'] = str(error)
+    try:
+        proof['mount_absent'] = not mounted(point)
+    except Exception as error:
+        proof['errors']['mount-status'] = str(error)
+    proof['passed'] = (proof['exit_code']==0 and proof['process_exit']==0
+                       and proof['mount_absent'] and not proof['errors'])
+    return proof
+
+
+def retain_or_remove_scratch(proof, scratch):
+    proof['scratch_path'] = str(scratch)
+    if proof['passed']:
+        try:
+            if mounts_below([scratch]):
+                raise ValueError('target scratch contains a mount')
+            shutil.rmtree(scratch)
+        except Exception as error:
+            proof['scratch_cleanup_error'] = str(error)
+            proof['passed'] = False
+    proof['scratch_removed'] = not scratch.exists()
+    proof['passed'] = proof['passed'] and proof['scratch_removed']
 
 
 def execute(request):
@@ -99,32 +141,15 @@ def execute(request):
             if isinstance(error,sp.CalledProcessError):
                 proof['check_stderr']=(error.stderr or '')[-1500:]
         finally:
-            was_mounted=mounted(point)
-            rc=None
-            if was_mounted:
-                try:
-                    rc=sp.run(['fusermount3','-u',str(point)],capture_output=True,timeout=30).returncode
-                except sp.TimeoutExpired:
-                    proof['unmount_timeout']=True
-            natural=None
-            if proc:
-                try:
-                    natural=proc.wait(timeout=20)
-                except sp.TimeoutExpired:
-                    proc.terminate()
-                    try: proc.wait(timeout=5)
-                    except sp.TimeoutExpired:
-                        proc.kill();proc.wait()
-            proof['unmount']={'exit_code':rc,'process_exit':natural,'mount_absent':not mounted(point)}
-            proof['passed'] = proof['passed'] and rc==0 and natural==0 and not mounted(point)
+            signal.alarm(0)
+            proof['unmount']=close_target(proc,point)
+            proof['passed'] = proof['passed'] and proof['unmount']['passed']
             if not proof['passed']:
                 text=(scratch/'mount.log').read_text(errors='replace')[-2000:]
                 for value in request['env'].values():
                     if len(value)>12: text=text.replace(value,'[redacted]')
                 proof['log_tail']=text
-            if not mounted(point):
-                shutil.rmtree(scratch)
-            proof['scratch_removed']=not scratch.exists()
+            retain_or_remove_scratch(proof,scratch)
     return proof
 
 

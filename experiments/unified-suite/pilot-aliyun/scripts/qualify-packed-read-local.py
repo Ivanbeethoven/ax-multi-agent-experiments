@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT/'experiments/unified-suite/pilot-aliyun/evidence/preparation/c2-local-packed-warm-01'))
 from loopback_probe import meter, probe
 from bench.runtime.smoke_journal import SmokeJournal
+from bench.runtime.smoke_cleanup import close_private_services
 
 
 def main():
@@ -56,6 +57,7 @@ def main():
                 argv=sys.argv,source_bytes=77,retained_bytes=a.retained_bytes)
     redis=None
     proc=None
+    mount_processes=[]
     point=work/'mount'
     point.mkdir()
     phase='preflight'
@@ -118,7 +120,8 @@ def main():
                    RUSTFS_UNSAFE_BYPASS_DISK_CHECK='true',RUSTFS_OBS_LOG_DIRECTORY='/var/log/rustfs')
         knobs.update({f'RUSTFS_EC_{k}':'true' for k in ('BLOCK_SIZE_HINT_ENABLE','BLOCK_SIZE_HINT_FLEET_CONFIRMED','READ_QUANTUM_ENABLE','READ_QUANTUM_FLEET_CONFIRMED')})
         ef=work/'rustfs.env'; ef.write_text(''.join(f'{k}={v}\n' for k,v in knobs.items())); ef.chmod(0o600)
-        call('docker','run','--pull=never','-d','--name',owner,'--memory','2g','--cpus','2',
+        call('docker','run','--pull=never','-d','--name',owner,
+             '--label','ax.experiment.run='+owner,'--label','ax.experiment.attempt='+str(a.out.resolve()),'--memory','2g','--cpus','2',
              '-p','127.0.0.1::9000','--env-file',ef,
              *[v for i in range(4) for v in ('-v',f'{work/str(i)}:/data/d{i}')],a.rustfs_image)
         port=int(call('docker','port',owner,'9000/tcp').stdout.strip().rsplit(':',1)[1])
@@ -167,6 +170,7 @@ def main():
                                read_memory_bytes=536870912,read_ssd_bytes=0,compression='none'))))
                 with (a.out/(arm+'.log')).open('w') as log:
                     proc=sp.Popen([str(a.brewfs),'mount','--config',str(cfg),str(point)],env=env,stdout=log,stderr=sp.STDOUT)
+                    mount_processes.append(proc)
                     def mount_ready():
                         if proc.poll() is not None:
                             raise RuntimeError(arm+' mount exited; see mount log')
@@ -184,15 +188,15 @@ def main():
         signal.alarm(0)
         try: unmount(False)
         except Exception as e: result['cleanup_error']=clean(str(e))
-        call('docker','rm','-fv',owner,check=False)
-        if redis is not None:
-            redis.terminate(); redis.wait(timeout=5)
-        cleanup=dict(mount_absent=not mounted(),redis_exited=redis is None or redis.poll() is not None,
-                     rustfs_removed=call('docker','inspect',owner,check=False).returncode!=0)
-        if all(cleanup.values()): shutil.rmtree(work)
+        cleanup=close_private_services(call=call,owner=owner,out=a.out,scratch=work,
+            points=[point],redis=redis,processes=mount_processes,clean=clean)
+        result['scratch_path']=str(work)
+        if result['passed'] and cleanup['passed'] and not result.get('cleanup_error'):
+            try: shutil.rmtree(work)
+            except Exception as e: result['scratch_cleanup_error']=clean(str(e))
         cleanup['scratch_removed']=not work.exists()
         result['cleanup']=cleanup
-        result['passed']=result['passed'] and all(cleanup.values())
+        result['passed']=result['passed'] and cleanup['passed'] and cleanup['scratch_removed'] and not result.get('cleanup_error')
         for log in a.out.glob('*.log'):
             log.write_text(clean(log.read_text(errors='replace')))
         (a.out/'receipt.json').write_text(json.dumps(result,indent=2)+'\n')

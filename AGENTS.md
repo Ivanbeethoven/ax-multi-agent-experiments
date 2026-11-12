@@ -18,6 +18,7 @@
 - 用户只要本地结果，不再自动下载原 trace、完整监控或运行产物包。删除磁盘前，按实际保留范围在盘外核验不可再生证据；先取回执再停机。StopCharging 不代表磁盘免费。
 - 默认一池，最多两池；总并发≤32负载槽（C1计1槽，迁移目标替换源）。同一配对批次固定在一池，各臂顺序执行，owner 持有准备至归档的锁。共享主机、盘、服务、瓶颈链路的导入/归档/测量串行；见 [MAIN-SCALE](experiments/unified-suite/MAIN-SCALE.zh.md)。
 - 运行前读实际 plan、inventory、state 和资源账本。started 不自动重放；共享资源使用同一 resource ID。协调者本地 `state.sqlite` 仅记录调度；元数据主线 Redis，TiKV另立补充运行。
+- 每项清理按 [CLEANUP](experiments/unified-suite/current/CLEANUP.zh.md)执行。池锁覆盖收尾；小试可用 `--scratch-parent` 隔离临时目录，成功且退出证据完整才删除。失败现场和共享输入保留，不按名称前缀或时长清理。派发前核新增峰值后仍余 20% 容量及 inode。
 - 不为提高通过率修改冻结校验器或阈值；`reviewed/passed` 只能来自真实审查。旧冻结协议使用既有校验器，`bench.suite template --legacy-catalog` 仅供明确选择的历史复现。
 
 # 构建、配置与版本

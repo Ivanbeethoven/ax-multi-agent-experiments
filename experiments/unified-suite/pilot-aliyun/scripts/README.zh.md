@@ -12,6 +12,7 @@
 | Packed 关闭、全关闭 | 同上；候选源码、补丁和二进制须匹配 [write-five-smoke-provenance.py](write-five-smoke-provenance.py) 的回执。诊断候选不用于正式性能计时。 |
 | 文件系统跨机重挂 | [prepare-filesystem-handoff-input.py](prepare-filesystem-handoff-input.py) 准备小输入；上述入口执行 source/target。只核文件和后续读写，不启动 Agent。 |
 | 汇总小型证明 | [collect-five-smoke-results.py](collect-five-smoke-results.py)；保留失败和实际规模，不取整套 trace 或二进制。 |
+| 每项临时目录清理 | `bench.experiment_smoke_matrix --scratch-parent ...`；独立预览/执行用 [bench.run_cleanup](../../../../bench/run_cleanup.py)，见[清理流程](../../current/CLEANUP.zh.md)。 |
 | 一万小文件输入 | [prepare-pilot-tenk.py](prepare-pilot-tenk.py) · [生成和校验](../../current/TENK-INPUTS.zh.md) |
 | C4 原生 fork / clone | [bench/fork_burst.py](../../../../bench/fork_burst.py)；当前功能结果与尚缺的正式性能证据见[未完成项](../../current/PENDING.zh.md)。 |
 | 构建与内网分发 | [package-deployment.py](package-deployment.py)、[install-deployment.py](install-deployment.py)；固定源码、产物 SHA256 与镜像 digest。 |
