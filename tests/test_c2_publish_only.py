@@ -29,6 +29,18 @@ class PublishOnly(unittest.TestCase):
         rows[-1].update(Status='Stopped', StoppedMode='KeepCharging')
         self.assertFalse(diag.exact_status({'IDS':ids},api,{'metadata'}))
 
+    def test_container_binds_require_exact_destinations_and_writable_mode(self):
+        rows = [dict(Destination=f'/data/rustfs{i}',Source=f'/srv/ax-rustfs-data-{i}',
+                     Type='bind',RW=True) for i in range(4)]
+        self.assertEqual(diag.data_binds(rows)['/data/rustfs0'],'/srv/ax-rustfs-data-0')
+        rows[0]['RW'] = False
+        with self.assertRaises(ValueError):
+            diag.data_binds(rows)
+        rows[0]['RW'] = True
+        rows.append(dict(Destination='/data',Source='/tmp',Type='bind',RW=True))
+        with self.assertRaises(ValueError):
+            diag.data_binds(rows)
+
     @unittest.skipUnless(sys.platform=='linux', 'uses real /proc and POSIX child signals')
     def test_process_deadline_reports_timeout_not_success_even_after_reaping(self):
         with tempfile.TemporaryDirectory() as tmp:

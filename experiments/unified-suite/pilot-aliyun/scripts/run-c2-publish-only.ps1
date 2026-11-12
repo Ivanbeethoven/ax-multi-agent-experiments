@@ -65,143 +65,188 @@ $sshOpts=@('-F',$cfg,'-oBatchMode=yes','-oConnectTimeout=5','-oServerAliveInterv
 $begin=[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
 $end=$begin+720
 $workBy=$end-105
-function Now { [DateTimeOffset]::UtcNow.ToUnixTimeSeconds() }
+function Now { $begin+[long][Math]::Floor($clock.Elapsed.TotalSeconds) }
 function Write-Utf8([string]$Name,[string]$Value) {
     [IO.File]::WriteAllText((Join-Path $out $Name),$Value+[char]10,[Text.UTF8Encoding]::new($false))
 }
-$aliyun = (Get-Command aliyun -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
-function Cloud([string[]]$ArgsList) {
-    $info=[Diagnostics.ProcessStartInfo]::new($aliyun)
+$aliExe=(Get-Command aliyun -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
+$sshExe=(Get-Command ssh -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
+$scpExe=(Get-Command scp -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
+$clock=[Diagnostics.Stopwatch]::StartNew()
+
+function Native([string]$Exe,[string[]]$Argv,[long]$Until,[int]$Cap,[string]$InputText) {
+    $budget=[int][Math]::Min($Cap*1000,($Until-$begin)*1000-$clock.ElapsedMilliseconds)
+    if ($budget -le 0) { throw [TimeoutException]::new('Local operation window exhausted') }
+    $timer=[Diagnostics.Stopwatch]::StartNew()
+    $info=[Diagnostics.ProcessStartInfo]::new($Exe)
     $info.UseShellExecute=$false
     $info.RedirectStandardOutput=$true
     $info.RedirectStandardError=$true
-    foreach ($arg in @('ecs',$ArgsList[0],'--RegionId','cn-hangzhou')+@($ArgsList | Select-Object -Skip 1)) {
-        $info.ArgumentList.Add($arg)
-    }
+    $info.RedirectStandardInput=($InputText.Length -gt 0)
+    if ($info.RedirectStandardInput) { $info.StandardInputEncoding=[Text.UTF8Encoding]::new($false) }
+    foreach ($arg in $Argv) { $info.ArgumentList.Add($arg) }
     $proc=[Diagnostics.Process]::Start($info)
     try {
         $stdout=$proc.StandardOutput.ReadToEndAsync()
         $stderr=$proc.StandardError.ReadToEndAsync()
-        if (!$proc.WaitForExit(12000)) {
-            $proc.Kill($true)
-            throw 'Cloud request timed out locally; reconcile exact instance states'
+        if ($info.RedirectStandardInput) {
+            $w=$proc.StandardInput.WriteAsync($InputText)
+            if (!$w.Wait([int][Math]::Max(0,$budget-$timer.ElapsedMilliseconds))) {
+                throw [TimeoutException]::new('Native operation input timed out')
+            }
+            $proc.StandardInput.Close()
         }
-        $null=$stderr.GetAwaiter().GetResult()
+        if (!$proc.WaitForExit([int][Math]::Max(0,$budget-$timer.ElapsedMilliseconds)) -or
+            !$stdout.Wait([int][Math]::Max(0,$budget-$timer.ElapsedMilliseconds)) -or
+            !$stderr.Wait([int][Math]::Max(0,$budget-$timer.ElapsedMilliseconds))) {
+            throw [TimeoutException]::new('Native operation timed out')
+        }
         return @{raw=$stdout.GetAwaiter().GetResult();code=$proc.ExitCode}
-    } finally { $proc.Dispose() }
+    } finally {
+        if (!$proc.HasExited) {
+            try { $proc.Kill($true) } catch { Write-Warning 'Local timed command termination was not acknowledged' }
+        }
+        $proc.Dispose()
+    }
 }
-function Inspect([string[]]$Ids,[string]$Name) {
-    $got=Cloud @('DescribeInstances','--InstanceIds',(ConvertTo-Json -Compress -InputObject $Ids),'--PageSize','100')
-    $raw=$got.raw
+function Cloud([string[]]$Argv,[long]$Until) {
+    Native $aliExe (@('ecs',$Argv[0],'--RegionId','cn-hangzhou')+@($Argv | Select-Object -Skip 1)) $Until 12
+}
+function Remote([string]$Command,[long]$Until,[int]$Cap=8,[string]$InputText) {
+    Native $sshExe ($sshOpts+@('ax-pilot-jump',$Command)) $Until $Cap $InputText
+}
+function Copy-Secure([string]$Source,[string]$Destination,[long]$Until,[switch]$Tree) {
+    $flags=@('-pq')
+    if ($Tree) { $flags+= '-r' }
+    Native $scpExe ($flags+$sshOpts+@($Source,$Destination)) $Until 12
+}
+function Inspect([string[]]$Ids,[string]$Name,[long]$Until) {
+    $got=Cloud @('DescribeInstances','--InstanceIds',(ConvertTo-Json -Compress -InputObject $Ids),'--PageSize','100') $Until
     if ($got.code) { throw 'Exact instance read failed' }
-    $api=$raw | ConvertFrom-Json
+    $api=$got.raw | ConvertFrom-Json
     $rows=@($api.Instances.Instance)
     if (!$api.RequestId -or $api.TotalCount -ne $Ids.Count -or $rows.Count -ne $Ids.Count -or
         (Compare-Object $Ids @($rows.InstanceId) -CaseSensitive) -or
         ($rows | Where-Object {$_.InstanceName -cne $roles[$_.InstanceId] -or $_.ZoneId -cne 'cn-hangzhou-j'})) {
         throw 'Instance identity mismatch'
     }
-    if ($Name) { Write-Utf8 $Name $raw }
+    if ($Name) { Write-Utf8 $Name $got.raw }
     return $rows
 }
 function Stopped($Row) { $Row.Status -ceq 'Stopped' -and $Row.StoppedMode -ceq 'StopCharging' }
-function Save-Action([string]$Name,[string]$Raw,[int]$Code) {
-    Write-Utf8 "$Name.json" $Raw
-    if ($Code -or !($Raw | ConvertFrom-Json).RequestId) { throw "Unacknowledged $Name API" }
+function Save-Action([string]$Name,$Response) {
+    Write-Utf8 "$Name.json" $Response.raw
+    if ($Response.code -or !($Response.raw | ConvertFrom-Json).RequestId) { throw "Unacknowledged $Name API" }
 }
-function Upload([string]$Path,[string]$Name) {
-    scp -pq @sshOpts $Path "ax-pilot-jump:$remote/$Name"
-    if ($LASTEXITCODE) { throw "Could not stage $Name" }
+function Upload([string]$Path,[string]$Name,[long]$Until) {
+    if ((Copy-Secure $Path "ax-pilot-jump:$remote/$Name" $Until).code) { throw "Could not stage $Name" }
 }
-function Snapshot([string]$Name) {
-    $json=ssh @sshOpts ax-pilot-jump "test -s $remote/$Name.json && cat $remote/$Name.json"
-    if (!$LASTEXITCODE -and $json) {
-        $value=$json | Out-String
-        Write-Utf8 "$Name.json" $value
-        return $value | ConvertFrom-Json
+function Snapshot([string]$Name,[long]$Until) {
+    $file=Remote "test -s $remote/$Name.json && cat $remote/$Name.json" $Until
+    if (!$file.code -and $file.raw) {
+        Write-Utf8 "$Name.json" $file.raw
+        return $file.raw | ConvertFrom-Json
     }
+}
+function Sleep-Within([long]$Until,[int]$Seconds) {
+    $ms=[int][Math]::Min($Seconds*1000,($Until-$begin)*1000-$clock.ElapsedMilliseconds)
+    if ($ms -gt 0) { Start-Sleep -Milliseconds $ms }
 }
 function Wait-Stopped([string[]]$Ids,[long]$Until,[string]$Name) {
-    do {
+    while ((Now) -lt $Until) {
         try {
-            $r=@(Inspect $Ids $Name)
+            $r=@(Inspect $Ids $Name $Until)
             if (!($r | Where-Object {!(Stopped $_)})) { return $true }
-        } catch { Write-Warning 'ECS stop readback unavailable; do not release the lock' }
-        if ((Now) -ge $Until) { return $false }
-        Start-Sleep -Seconds 3
-    } while ($true)
+        } catch { Write-Warning 'ECS stop readback unavailable' }
+        Sleep-Within $Until 3
+    }
+    return $false
 }
-if ((@(Inspect $all 'all-before.json') | Where-Object {!(Stopped $_)})) { throw 'A or jump already active' }
-$jumpAttempted=$workersAttempted=$unitRequested=$false
-$workersStopped=$true
-$artifactOk=$false
+function Stall([string]$Phase,[string]$Detail) {
+    Write-Utf8 'cleanup-stalled.json' ([ordered]@{status='stalled_cleanup'; phase=$Phase; detail=$Detail;
+        attempt=$tag; jump=$jump; owned_workers=$workers; metadata_not_owned=$metadata;
+        at=[DateTimeOffset]::UtcNow.ToString('o'); formal_sample=$false} | ConvertTo-Json)
+    throw "Cleanup stalled at $Phase; see $out/cleanup-stalled.json"
+}
+if ((@(Inspect $all 'all-before.json' ($begin+15)) | Where-Object {!(Stopped $_)})) { throw 'A or jump already active' }
+$jumpAttempted=$workersAttempted=$unitRequested=$artifactOk=$false
+$ready=$null
+$stagingBy=$workBy-408
+$artifactBy=$end-80
 try {
     $jumpAttempted=$true
-    $api=Cloud @('StartInstance','--InstanceId',$jump)
-    Save-Action 'jump-start' $api.raw $api.code
-    $limit=[Math]::Min($begin+105,$workBy-425)
+    Save-Action 'jump-start' (Cloud @('StartInstance','--InstanceId',$jump) ($begin+30))
+    $limit=[Math]::Min($begin+105,$stagingBy-40)
     do {
-        $jumpRow=@(Inspect @($jump) '')[0]
-        if ($jumpRow.Status -ceq 'Running') {
-            ssh @sshOpts ax-pilot-jump true
-            if (!$LASTEXITCODE) { break }
-        }
-        if ((Now) -ge $limit) { throw 'Jump not ready within window' }
-        Start-Sleep -Seconds 3
-    } while ($true)
-    $restored=Get-Content -LiteralPath $jumpRestore -Raw -Encoding utf8 |
-        ssh @sshOpts ax-pilot-jump 'python3 - --mount'
-    if ($LASTEXITCODE -or !($restored | ConvertFrom-Json).passed) { throw 'Exact control disk is not available' }
-    Write-Utf8 'jump-restore.json' ($restored | Out-String)
-    if ((@(Inspect $a 'instances-before.json') | Where-Object {!(Stopped $_)})) { throw 'A roles are not idle' }
-    ssh @sshOpts ax-pilot-jump "mkdir -m 700 $remote"
-    if ($LASTEXITCODE) { throw 'Dedicated staging directory unavailable' }
+        $jumpRow=@(Inspect @($jump) '' $limit)[0]
+        if ($jumpRow.Status -ceq 'Running' -and !(Remote 'true' $limit).code) { break }
+        Sleep-Within $limit 3
+    } while ((Now) -lt $limit)
+    if ((Now) -ge $limit) { throw 'Jump not ready within window' }
+    $restored=Remote 'python3 - --mount' ([Math]::Min((Now)+58,$stagingBy-20)) 58 (Get-Content -LiteralPath $jumpRestore -Raw -Encoding utf8)
+    if ($restored.code -or !($restored.raw | ConvertFrom-Json).passed) { throw 'Exact control disk is not available' }
+    Write-Utf8 'jump-restore.json' $restored.raw
+    if ((@(Inspect $a 'instances-before.json' $stagingBy) | Where-Object {!(Stopped $_)})) { throw 'A roles are not idle' }
+    if ((Remote "mkdir -m 700 $remote" $stagingBy).code) { throw 'Dedicated staging directory unavailable' }
     Write-Utf8 'staged-shas.json' ([ordered]@{worker=(Hash $worker);latest=(Hash $latestPath)} | ConvertTo-Json)
-    Upload $worker 'c2-publish-only.py'
-    Upload $reference 'reference.py'
-    Upload $restore 'a-pool-up.py'
-    Upload $latestPath 'latest.json'
-    Upload (Join-Path $out 'instances-before.json') 'instances-before.json'
-    Upload (Join-Path $out 'staged-shas.json') 'staged-shas.json'
+    Upload $worker 'c2-publish-only.py' $stagingBy
+    Upload $reference 'reference.py' $stagingBy
+    Upload $restore 'a-pool-up.py' $stagingBy
+    Upload $latestPath 'latest.json' $stagingBy
+    Upload (Join-Path $out 'instances-before.json') 'instances-before.json' $stagingBy
+    Upload (Join-Path $out 'staged-shas.json') 'staged-shas.json' $stagingBy
     $unitRequested=$true
-    ssh @sshOpts ax-pilot-jump "systemd-run --quiet --unit=$tag --remain-after-exit --property=Type=exec /usr/bin/python3 -B $remote/c2-publish-only.py coordinator --tag $tag --deadline-epoch $workBy"
-    if ($LASTEXITCODE) { throw 'A lock holder launch was unacknowledged' }
-    $limit=[Math]::Min((Now)+15,$workBy-400)
-    do {
-        $armed=Snapshot 'locks-held'
-        if ($armed) { break }
-        if ((Now) -ge $limit) { throw 'No canonical A lock; no workers started' }
-        Start-Sleep -Seconds 2
-    } while ($true)
-    if ($armed.tag -cne $tag -or $armed.work_deadline_epoch -ne $workBy -or $armed.formal_sample -ne $false) {
-        throw 'Wrong A lock acknowledgment'
+    if ((Remote "systemd-run --quiet --unit=$tag --remain-after-exit --property=Type=exec /usr/bin/python3 -B $remote/c2-publish-only.py coordinator --tag $tag --deadline-epoch $workBy" $stagingBy).code) {
+        throw 'A lock holder launch was unacknowledged'
     }
-    if ((@(Inspect $a 'under-lock-before.json') | Where-Object {!(Stopped $_)})) { throw 'A hosts changed under lock' }
-    $active=ssh @sshOpts ax-pilot-jump "systemctl show $tag.service -p MainPID --value"
-    if ($LASTEXITCODE -or $active -notmatch '^[1-9][0-9]*$' -or (Now) -gt $workBy-395) { throw 'No live lock or insufficient window' }
+    $startBy=$workBy-395
+    $limit=[Math]::Min((Now)+15,$startBy-5)
+    do {
+        $armed=Snapshot 'locks-held' $limit
+        if ($armed) { break }
+        Sleep-Within $limit 2
+    } while ((Now) -lt $limit)
+    if (!$armed -or $armed.tag -cne $tag -or $armed.work_deadline_epoch -ne $workBy -or $armed.formal_sample -ne $false) {
+        throw 'Missing or wrong canonical A lock acknowledgment; no workers started'
+    }
+    if ((@(Inspect $a 'under-lock-before.json' $startBy) | Where-Object {!(Stopped $_)})) { throw 'A hosts changed under lock' }
+    $active=Remote "systemctl show $tag.service -p MainPID --value" $startBy
+    if ($active.code -or $active.raw.Trim() -notmatch '^[1-9][0-9]*$' -or (Now) -ge $startBy) {
+        throw 'No live lock or insufficient window'
+    }
     $workersAttempted=$true
-    $workersStopped=$false
-    $api=Cloud (@('StartInstances','--BatchOptimization','AllTogether')+$targets)
-    Save-Action 'workers-start' $api.raw $api.code
+    Save-Action 'workers-start' (Cloud (@('StartInstances','--BatchOptimization','AllTogether')+$targets) $startBy)
     $limit=[Math]::Min((Now)+90,$workBy-360)
     do {
-        $states=@(Inspect $a 'instances-running.json')
+        $states=@(Inspect $a 'instances-running.json' $limit)
         if (!(Stopped ($states | Where-Object InstanceId -ceq $metadata))) { throw 'Metadata unexpectedly started; stop owned nodes only' }
         if (!($states | Where-Object {$_.InstanceId -cin $workers -and $_.Status -cne 'Running'})) {
-            Upload (Join-Path $out 'instances-running.json') 'instances-running.upload'
-            ssh @sshOpts ax-pilot-jump "ln $remote/instances-running.upload $remote/instances-running.json"
-            if ($LASTEXITCODE) { throw 'Exact running acknowledgment was not installed' }
+            Upload (Join-Path $out 'instances-running.json') 'instances-running.upload' $limit
+            if ((Remote "ln $remote/instances-running.upload $remote/instances-running.json" $limit).code) {
+                throw 'Exact running acknowledgment was not installed'
+            }
             break
         }
-        if ((Now) -ge $limit) { throw 'Workers did not both become ready within the bounded window' }
-        Start-Sleep -Seconds 3
-    } while ($true)
+        Sleep-Within $limit 3
+    } while ((Now) -lt $limit)
+    if ((Now) -ge $limit) { throw 'Workers did not both become ready within the bounded window' }
+    $pollBy=$workBy+12
     do {
-        $ready=Snapshot 'ready-for-stop'
-        if ($ready) {
-            if ($ready.launched) { scp -pq -r @sshOpts "ax-pilot-jump:$remote/worker" (Join-Path $out 'worker') }
-            if ($ready.launched -and !$LASTEXITCODE -and (Test-Path -LiteralPath (Join-Path $out 'worker/result.json'))) {
-                $p=Snapshot 'worker-sha256'
+        $ready=Snapshot 'ready-for-stop' $pollBy
+        if ($ready) { break }
+        Sleep-Within $pollBy 3
+    } while ((Now) -lt $pollBy)
+    if (!$ready) { throw 'Work deadline reached before ready-for-stop' }
+} finally {
+    if ($unitRequested) {
+        try {
+            $ready=Snapshot 'ready-for-stop' $artifactBy
+            if ($ready.launched) {
+                $got=Copy-Secure "ax-pilot-jump:$remote/worker" (Join-Path $out 'worker') $artifactBy -Tree
+                if ($got.code -or !(Test-Path -LiteralPath (Join-Path $out 'worker/result.json'))) {
+                    throw 'Worker evidence pull incomplete'
+                }
+                $p=Snapshot 'worker-sha256' $artifactBy
                 if (!$p) { throw 'No worker evidence hashes' }
                 foreach ($entry in $p.PSObject.Properties) {
                     if ($entry.Name -cnotin @('initial.json','intent.json','process.ndjson','object-count.ndjson','producer-exit.json','object-count-final.json','result.json') -or
@@ -209,40 +254,48 @@ try {
                 }
                 $artifactOk=$true
             }
-            break
+        } catch {
+            try { Write-Utf8 'pre-stop-evidence-warning.json' (@{incomplete=$true; exception=$_.Exception.GetType().Name} | ConvertTo-Json) }
+            catch { Write-Warning 'Local pre-stop warning receipt could not be written' }
+            Write-Warning 'Pre-stop evidence pull incomplete; continue StopCharging'
         }
-        if ((Now) -ge $workBy+12) { throw 'Work deadline reached before ready-for-stop' }
-        Start-Sleep -Seconds 3
-    } while ($true)
-} finally {
+    }
     if ($workersAttempted) {
         try {
-            $api=Cloud (@('StopInstances','--StoppedMode','StopCharging','--ForceStop','false','--BatchOptimization','SuccessFirst')+$targets)
-            Save-Action 'workers-stop' $api.raw $api.code
-        } catch { Write-Warning 'Worker stop acknowledgement unavailable; checking live status' }
-        $workersStopped=Wait-Stopped $workers ($end-35) 'workers-final'
+            Save-Action 'workers-stop' (Cloud (@('StopInstances','--StoppedMode','StopCharging','--ForceStop','false','--BatchOptimization','SuccessFirst')+$targets) ((Now)+12))
+        } catch { Write-Warning 'Worker stop unacknowledged; checking exact A state' }
     }
-    if ($jumpAttempted -and $workersStopped) {
+    if ($unitRequested -or $workersAttempted) {
+        if (!(Wait-Stopped $a ($end-35) 'instances-after-stop.json')) {
+            Stall 'A-stop-proof' 'A client/objects/metadata not all proved StopCharging; keep coordinator and any held locks; inspect exact IDs now.'
+        }
+    }
+    if ($jumpAttempted) {
         try {
             if ($unitRequested) {
-                if ((Snapshot 'ready-for-stop') -and !( @(Inspect $a 'instances-after-stop.json') | Where-Object {!(Stopped $_)})) {
-                    Upload (Join-Path $out 'instances-after-stop.json') 'instances-after-stop.upload'
-                    ssh @sshOpts ax-pilot-jump "ln $remote/instances-after-stop.upload $remote/instances-after-stop.json"
-                    if ($LASTEXITCODE) { throw 'Stop receipt could not be bound to the held locks' }
-                    Start-Sleep -Seconds 3
+                $returnBy=$end-23
+                if ($ready) {
+                    Upload (Join-Path $out 'instances-after-stop.json') 'instances-after-stop.upload' $returnBy
+                    if ((Remote "ln $remote/instances-after-stop.upload $remote/instances-after-stop.json" $returnBy).code) {
+                        throw 'Stop receipt could not be bound to the held locks'
+                    }
+                    Sleep-Within $returnBy 3
                 }
-                scp -pq -r @sshOpts "ax-pilot-jump:$remote" (Join-Path $out 'coordinator')
-                if ($LASTEXITCODE) { Write-Warning "Coordinator readback failed; evidence retained at $remote" }
+                if ((Copy-Secure "ax-pilot-jump:$remote" (Join-Path $out 'coordinator') $returnBy -Tree).code) {
+                    throw 'Coordinator evidence pull failed'
+                }
             }
+        } catch {
+            Write-Utf8 'coordinator-evidence-warning.json' (@{incomplete=$true; exception=$_.Exception.GetType().Name} | ConvertTo-Json)
+            Write-Warning "Coordinator evidence retained at $remote"
         } finally {
             try {
-                $api=Cloud @('StopInstance','--InstanceId',$jump,'--ForceStop','false','--StoppedMode','StopCharging')
-                Save-Action 'jump-stop' $api.raw $api.code
-            } catch { Write-Warning 'Jump stop acknowledgement unavailable; checking live status' }
-            if (!(Wait-Stopped @($jump) $end 'jump-final')) { throw "Jump StopCharging not proved; inspect $out" }
+                Save-Action 'jump-stop' (Cloud @('StopInstance','--InstanceId',$jump,'--ForceStop','false','--StoppedMode','StopCharging') ((Now)+12))
+            } catch { Write-Warning 'Jump stop unacknowledged; checking exact state' }
+            if (!(Wait-Stopped @($jump) ([Math]::Max($end,(Now)+12)) 'jump-final.json')) {
+                Stall 'jump-stop-proof' 'Owned A is proved stopped where applicable; jump StopCharging not proved, inspect exact jump ID now.'
+            }
         }
-    } elseif ($jumpAttempted) {
-        throw "Workers StopCharging not proved; leave coordinator locks held and check exact instances. $out"
     }
 }
 $closedPath=Join-Path $out 'coordinator/closed.json'

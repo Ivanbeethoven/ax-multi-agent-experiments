@@ -321,6 +321,15 @@ def run_worker(tag, epoch_deadline):
     return 0 if summary['passed'] else 1
 
 
+def data_binds(mounts):
+    expected = {f'/data/rustfs{i}':f'/srv/ax-rustfs-data-{i}' for i in range(4)}
+    rows = [r for r in mounts if r['Destination']=='/data' or r['Destination'].startswith('/data/')]
+    need(len(rows)==4 and {r['Destination']:r['Source'] for r in rows}==expected and
+         all(r['Type']=='bind' and r['RW'] is True for r in rows),
+         'RustFS container must use four exact writable data binds')
+    return expected
+
+
 def exact_status(ref, data, stopped):
     rows = data.get('Instances', {}).get('Instance', [])
     return (bool(data.get('RequestId')) and data.get('TotalCount') == 3 and len(rows) == 3 and
@@ -431,7 +440,28 @@ def coordinator(tag, epoch_deadline):
         need(len(result)==3 and result[:2]==[ref['IMAGE'],'true'] and int(result[2])>1
              and revision==ref['RUSTFS'] and sorted(switches)==sorted('RUSTFS_EC_'+k+'=true' for k in ref['SWITCHES']),
              'Original RustFS identity or four layout switches differ')
-        save(out/'rustfs.json',dict(image=ref['IMAGE'],revision=revision,pid=int(result[2]),switches=switches))
+        pid = int(result[2])
+        mounts = json.loads(ssh('objects',['docker','inspect','-f','{{json .Mounts}}',ref['CONTAINER']],
+                                capture_output=True,text=True).stdout)
+        binds = data_binds(mounts)
+        volume = ssh('objects',command+' | '+join(['grep','-E','^RUSTFS_VOLUMES=']),
+                     capture_output=True,text=True).stdout.strip()
+        need(volume=='RUSTFS_VOLUMES=/data/rustfs{0...3}', 'RustFS volume layout differs')
+        probe = ('import os,sys; from pathlib import Path\n'
+                 'p=Path("/proc")/sys.argv[1]\n'
+                 'def tick(): return (p/"stat").read_text().rsplit(")",1)[1].split()[19]\n'
+                 'a=tick()\n'
+                 'assert all(os.path.samefile(src,p/"root"/dst.lstrip("/")) '
+                 'for dst,src in zip(sys.argv[2::2],sys.argv[3::2]))\n'
+                 'assert tick()==a\nprint(a)')
+        ticks = ssh('objects',['python3','-B','-c',probe,pid,*[v for row in binds.items() for v in row]],
+                    capture_output=True,text=True).stdout.strip()
+        again = ssh('objects',['docker','inspect','-f','{{.State.Pid}}',ref['CONTAINER']],
+                    capture_output=True,text=True).stdout.strip()
+        need(ticks.isdecimal() and again==str(pid), 'RustFS running mount namespace changed')
+        save(out/'rustfs.json',dict(image=ref['IMAGE'],revision=revision,pid=pid,
+             start_ticks=int(ticks),switches=switches,volumes=volume.split('=',1)[1],
+             data_binds=binds,process_mount_namespace_verified=True))
 
     need(epoch_deadline-time.time()>=PRODUCER_SECONDS+95,'Insufficient owned window')
     with ExitStack() as stack:
