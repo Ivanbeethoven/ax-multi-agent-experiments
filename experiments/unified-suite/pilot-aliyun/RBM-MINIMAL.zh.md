@@ -10,7 +10,7 @@
 - C2 Overlay 开销、Pack 同引擎消融、C4 跨机干净迁移：尚未具备运行前提，写 blocked 回执并退出 2。单机重挂不能算跨机迁移通过。
 
 BrewFS 默认 features 保留，并统一增加 workspace-overlay、observability、rustfs-ec-block-size-hint。
-代码版本来自上游 main ca07159，未混入停工的 v1 修复草稿。新产物独立复制并记录 SHA；一批模式共用同一套产物。
+C1–C3 的统一构建来自上游 main ca07159。C4 原生 fork 另用已有发布/根目录链接数补丁的候选产物，并传入构建回执；它只用于功能验证，不能冒充统一性能产物。
 
 单项示例（需 root、Docker、FUSE、Redis 和含 boto3 的 Python）：
 
@@ -35,3 +35,14 @@ C2 另外传入 `--trace experiments/unified-suite/pilot-aliyun/fixtures/synthet
 
 本轮[新二进制实测结果](evidence/preparation/rbm-unified-modes-20261112/README.zh.md)：
 26 个模式，16 通过、1 失败、9 阻塞；包含一次目录检查器修复后的独立重跑。
+
+
+C4 的旧失败已由[同步后的候选复验](evidence/preparation/rbm-c4-published-20261112/README.zh.md)解决。沿用上面命令的工具路径，改为：
+
+~~~bash
+--experiment C4-fork --mode brewfs-full \
+--brewfs /home/dev/ax-brewfs-c4-build-20261112.GWrxnDJ8/nlink-02/brewfs-linux-x86_64 \
+--brewfs-provenance experiments/unified-suite/pilot-aliyun/evidence/preparation/c4-local-packed-fork-candidate-01/root-nlink-build-receipt.json
+~~~
+
+这是替换参数片段，不是独立命令。JuiceFS 使用 `--mode juicefs`；结果目录每次换新。当前矩阵仍只有一个 `--brewfs` 输入，因此请将 C4 候选单独运行，不要用它替换整套统一构建。

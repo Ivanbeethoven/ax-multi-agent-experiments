@@ -6,6 +6,27 @@ import tempfile
 import unittest
 
 class SmokeModeContract(unittest.TestCase):
+    def test_c4_candidate_receipt_reaches_native_runner(self):
+        from unittest.mock import patch
+        from bench.experiment_smoke import main
+        with tempfile.TemporaryDirectory() as tmp:
+            out=Path(tmp)/'out'
+            provenance=Path(tmp)/'build.json'
+            argv=['experiment_smoke','--experiment','C4-fork','--mode','brewfs-full',
+                  '--brewfs','/bin/brewfs','--producer','/bin/producer',
+                  '--smallfiles','/bin/smallfiles','--juicefs','/bin/juicefs',
+                  '--brewfs-revision','test','--rustfs-image','image',
+                  '--brewfs-provenance',str(provenance),'--out',str(out)]
+            def fake_run(cmd):
+                self.assertEqual(cmd[cmd.index('--brewfs-provenance')+1],str(provenance.resolve()))
+                self.assertTrue(cmd[1].endswith('rbm-native-fork.py'))
+                folder=Path(cmd[cmd.index('--out')+1])
+                folder.mkdir()
+                (folder/'receipt.json').write_text('{"passed": true}')
+                return subprocess.CompletedProcess(cmd,0)
+            with patch.object(sys,'argv',argv), patch('bench.experiment_smoke.subprocess.run',side_effect=fake_run):
+                self.assertEqual(main(),0)
+
     def test_unimplemented_modes_write_blocked_receipt_without_mounting(self):
         for experiment, mode in [('C2-runtime','overlay-off'),('C3-smallfiles','packed-off'),
                                   ('C4-handoff','brewfs-full')]:

@@ -48,7 +48,7 @@ def resolve(design, experiment, mode, placement=None):
     if experiment == 'C2-runtime':
         blockers.append('same-mount-lower-warmth-qualification-required')
     if experiment == 'C4-fork' and engine != 'juicefs':
-        blockers.append('populated-packed-lower-fork-failed-rbm')
+        blockers.append('published-packed-carrier-candidate-qualification-required')
     if experiment == 'C4-handoff':
         blockers.append('same-workspace-handoff-qualification-required')
     if experiment == 'C2-replay' or experiment == 'C3-smallfiles':

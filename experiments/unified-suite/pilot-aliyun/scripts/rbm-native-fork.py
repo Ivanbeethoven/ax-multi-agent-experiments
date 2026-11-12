@@ -12,11 +12,16 @@ import subprocess as sp
 import tempfile
 import time
 import uuid
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+from bench.runtime.fork_candidate import verify_candidate
+from bench.runtime.smoke_tree import file_tree
 
 p = argparse.ArgumentParser(description=__doc__)
 for flag in ('brewfs', 'producer', 'juicefs', 'out'):
     p.add_argument('--'+flag, required=True, type=Path)
 p.add_argument('--brewfs-revision', required=True)
+p.add_argument('--brewfs-provenance', type=Path)
 p.add_argument('--rustfs-image', required=True)
 p.add_argument('--product', choices=('brewfs','juicefs'), required=True)
 a = p.parse_args()
@@ -25,7 +30,8 @@ result = {'brewfs_revision': a.brewfs_revision, 'formal_sample': False, 'files':
 run_id = 'ax-rbm-' + uuid.uuid4().hex[:12]
 key, secret = secrets.token_hex(12), secrets.token_hex(24)
 env = dict(os.environ, AWS_ACCESS_KEY_ID=key, AWS_SECRET_ACCESS_KEY=secret,
-           AWS_REGION='us-east-1', AWS_EC2_METADATA_DISABLED='true', NO_PROXY='127.0.0.1,localhost')
+           AWS_REGION='us-east-1', AWS_EC2_METADATA_DISABLED='true', NO_PROXY='127.0.0.1,localhost',
+           RUST_LOG='warn', NO_COLOR='1')
 def call(*argv, timeout=60, check=True):
     return sp.run(list(map(str, argv)), env=env, check=check, timeout=timeout,
                   capture_output=True, text=True)
@@ -49,8 +55,7 @@ def mounted(point):
     return call('mountpoint','-q',point,check=False).returncode == 0
 
 def tree(root):
-    return {str(f.relative_to(root)): hashlib.sha256(f.read_bytes()).hexdigest()
-            for f in root.rglob('*') if f.is_file() and f.name not in ('.stats', '.config')}
+    return {name: row['sha256'] for name, row in file_tree(root).items() if row['type']=='file'}
 
 def visit(product, point, out, cmd, arm, label, action):
     arm['phase'] = label+'-mount'
@@ -93,6 +98,8 @@ def decode(raw, kind):
             continue
         if kind == 'parent' and isinstance(obj, dict) and obj.get('workspace_id'):
             return obj
+        if kind == 'publication' and isinstance(obj, dict) and obj.get('fork_source'):
+            return obj
         if kind == 'child' and isinstance(obj,list) and len(obj)==1 and isinstance(obj[0],dict) and obj[0].get('workspace_id'):
             return obj[0]
     raise RuntimeError(f'No {kind} workspace in BrewFS output')
@@ -100,6 +107,12 @@ def decode(raw, kind):
 def run(work):
     from boto3 import client
     from botocore.config import Config
+    if a.product == 'brewfs':
+        if a.brewfs_provenance is None:
+            raise ValueError('C4 requires --brewfs-provenance for the qualified publication candidate')
+        result['build_provenance'] = verify_candidate(a.brewfs, a.brewfs_provenance, a.brewfs_revision)
+        if '--require-packed-carrier' not in call(a.brewfs,'workspace','fork','--help').stdout:
+            raise ValueError('C4 candidate lacks --require-packed-carrier')
     result['binary_sha256'] = {}
     for name in ('brewfs','producer','juicefs'):
         with getattr(a,name).open('rb') as f:
@@ -149,7 +162,7 @@ def run(work):
         result['phase'] = 'workload'
         source = work/'source'
         (source/'sub').mkdir(parents=True)
-        (source/'base.txt').write_bytes(b'parent bytes\\n')
+        (source/'base.txt').write_bytes(b'parent bytes\n')
         (source/'sub'/'keep.bin').write_bytes(bytes(range(64)))
         expected = result['source'] = tree(source)
         for product, db in [(a.product, 0)]:
@@ -170,7 +183,7 @@ def run(work):
                          work/'objects','--manifest-output',manifest,'--bucket',bucket,'--endpoint',ep,
                          '--region','us-east-1','--force-path-style','true','--prefix','base',
                          '--metadata-codec','raw','--data-codec','raw','--inline-data','off',
-                         '--chunk-size','67108864','--block-size','4194304',
+                         '--chunk-size','4194304','--block-size','4194304',
                          '--s3-rustfs-ec-block-size-hint','auto')
                     data = dict(backend='s3',s3=dict(bucket=bucket,endpoint=ep,region='us-east-1',
                                 force_path_style=True,rustfs_ec_block_size_hint='auto'))
@@ -189,7 +202,7 @@ def run(work):
                         mount_cfg.write_text(json.dumps(dict(volume_format='workspace-v1',
                             volume={'format':'workspace-v1'},workspace=workspace['workspace_id'],
                             workspace_namespace=run_id,data=data,meta=dict(backend='redis',redis={'url':url}),
-                            layout=dict(chunk_size=67108864,block_size=4194304),
+                            layout=dict(chunk_size=4194304,block_size=4194304),
                             fuse=dict(cache_ttl_ms=0,keep_cache=False),
                             cache=dict(cache_root=str(work/cache),writeback_mode='upload_before_commit'))))
                         return [a.brewfs,'mount','--config',mount_cfg,point]
@@ -197,12 +210,35 @@ def run(work):
                           lambda: arm.update(parent_before=tree(point)))
                     if arm['parent_before'] != expected:
                         raise RuntimeError('BrewFS parent readback differs from source')
+                    arm['phase'] = 'reject-unpublished-import'
+                    def buckets():
+                        return {item['Name'] for item in s3.list_buckets().get('Buckets',[])}
+                    before = buckets()
+                    rejected = call(*prefix,'fork',revision,'--require-packed-carrier','--data-config',cfg,check=False)
+                    arm['import_rejected_without_bucket_create'] = rejected.returncode != 0 and buckets()==before
+                    if not arm['import_rejected_without_bucket_create']:
+                        raise RuntimeError('Unpublished import was accepted or allocated a bucket')
+                    arm['phase'] = 'publish-packed-snapshot'
+                    published = decode(call(*prefix,'publish-packed-snapshot',parent['workspace_id'],
+                        '--config',work/'parent-before.json','--scratch',work,'--name','rbm-c4-carrier',
+                        '--snapshot-id',uuid.uuid4(),'--journal-id',uuid.uuid4(),'--lease-id',uuid.uuid4(),
+                        '--next-head',uuid.uuid4()).stdout,'publication')
+                    arm['publication'] = published
+                    carrier = published['fork_source']
+                    if carrier in (revision,published['native_sealed_source']):
+                        raise RuntimeError('Publication did not create a distinct Packed carrier')
                     arm['phase'] = 'native-fork'
-                    child = decode(call(*prefix,'fork',revision,'--count','1','--data-config',cfg).stdout,'child')
+                    child = decode(call(*prefix,'fork',carrier,'--require-packed-carrier',
+                                        '--count','1','--data-config',cfg).stdout,'child')
                     arm['separate_ids'] = child['workspace_id'] != parent['workspace_id']
                     if not arm['separate_ids']:
                         raise RuntimeError('Fork returned the parent workspace ID')
-                    arm['same_revision'] = child['fork_base'] == rev
+                    cr = child['fork_base']
+                    arm['same_published_carrier'] = f"{cr['layer_id']}:{cr['sealed_version']}:{bytes(cr['root_hash']).hex()}" == carrier
+                    arm['separate_upper_buckets'] = child['upper_bucket'] != parent['upper_bucket']
+                    arm['child_upper_initially_empty'] = not s3.list_objects_v2(Bucket=child['upper_bucket']).get('Contents',[])
+                    if not all(arm[k] for k in ('same_published_carrier','separate_upper_buckets','child_upper_initially_empty')):
+                        raise RuntimeError('Child does not have the published lower and a new empty upper')
                     for label, record in [('parent',parent),('child',child)]:
                         keys = call('redis-cli','-p',rp,'-n',db,'--scan','--pattern',
                                     '*packed/v3/current/'+record['workspace_id']).stdout.splitlines()
@@ -231,6 +267,8 @@ def run(work):
                 def modify_child():
                     arm['child_before'] = tree(child_path)
                     arm['inherited_all'] = arm['child_before'] == expected
+                    if not arm['inherited_all']:
+                        raise RuntimeError('Child does not inherit the full parent before writing')
                     for name, payload in changed.items():
                         with (child_path/name).open('wb') as stream:
                             stream.write(payload)

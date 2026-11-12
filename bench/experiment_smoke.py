@@ -16,12 +16,13 @@ def main():
     p.add_argument('--smallfiles', type=Path, required=True)
     p.add_argument('--juicefs', type=Path, required=True)
     p.add_argument('--brewfs-revision', required=True)
+    p.add_argument('--brewfs-provenance', type=Path)
     p.add_argument('--rustfs-image', required=True)
     p.add_argument('--trace', type=Path)
     p.add_argument('--replay', type=Path)
     p.add_argument('--out', type=Path, required=True)
     a = p.parse_args()
-    for name in ('brewfs','producer','smallfiles','juicefs','trace','replay','out'):
+    for name in ('brewfs','producer','smallfiles','juicefs','trace','replay','out','brewfs_provenance'):
         value = getattr(a,name)
         if value is not None:
             setattr(a,name,value.resolve())
@@ -48,6 +49,8 @@ def main():
                 cmd += ['--trace',str(a.trace),'--replay',str(a.replay)]
         else:
             cmd += ['--brewfs-revision' ,a.brewfs_revision]
+            if a.brewfs_provenance:
+                cmd += ['--brewfs-provenance',str(a.brewfs_provenance)]
         cmd += ['--out',str(a.out/'run')]
         receipt['argv'] = cmd
         # The child owns service teardown; don't kill its cleanup with an outer timeout.
