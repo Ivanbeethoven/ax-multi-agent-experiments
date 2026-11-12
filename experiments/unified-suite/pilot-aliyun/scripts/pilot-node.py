@@ -95,6 +95,9 @@ def main():
     if a.action=='asset-init':
         plan=load(a.plan)
         cell=cell_of(plan,a.cell) if a.cell else next(c for c in plan['cells'] if c['workload']=='fio' and c['arm']['product']==a.product)
+        if cell['workload']=='fork':
+            from bench.c4_dispatch import require_allowed
+            require_allowed(cell)
         binding=endpoint_binding(plan,cell,a.inventory)
         if binding.get('client') and socket.gethostname()!=binding['client']['hostname']:
             raise ValueError('Asset initialization host differs from explicit pool inventory')

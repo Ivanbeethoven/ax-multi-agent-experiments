@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 REPO=Path(__file__).resolve().parents[4];sys.path.insert(0,str(REPO))
 from bench.runtime.common import load,pinned,digest,write_new
+from bench.c4_dispatch import require_allowed
 from bench.runtime.pilot_pools import cross_pool_proof
 from bench import suite_state
 
@@ -126,6 +127,7 @@ def validate(s, *, require_overhead=True):
 
 def admit(request):
     s=load(pinned(request));control,plan,cell,q,gates,verified_route=validate(s)
+    require_allowed(cell)
     out=Path(s['out']);out.mkdir(parents=True,exist_ok=False)
     write_new(out/'route-check.json',verified_route)
     qualification=dict(schema='suite-qualification-v1',plan_sha256=plan['plan_sha256'],cell_id=cell['id'],

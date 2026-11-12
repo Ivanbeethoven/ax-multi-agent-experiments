@@ -21,6 +21,7 @@ import time
 from types import SimpleNamespace
 
 REPO=Path(__file__).resolve().parents[4];sys.path.insert(0,str(REPO))
+from bench.c4_dispatch import require_allowed
 from bench.runtime.common import load,pinned,digest,write_new
 from bench.runtime import c4_verify,pilot_context
 from bench.runtime.pilot_pools import active_conflicts,resource_guard,alias,cell_resources,fleet_node
@@ -435,6 +436,7 @@ def main():
     baseline=module(pinned(s['tools']['baseline']))
     validated=baseline_context(s,baseline,reuse)
     canonical=validated['control'];plan=validated['plan'];cell=validated['cell'];pool=cell['pool']
+    require_allowed(cell)
     control=Path(s['control']).resolve(strict=True)
     if (control==canonical or check_plan(load(control/'suite/plan.json'))!=plan or
             digest(control/'provenance/inventory.json')!=validated['s']['inventory']['sha256']):

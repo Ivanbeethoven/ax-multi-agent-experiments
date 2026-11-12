@@ -13,6 +13,7 @@ REPO=Path(__file__).resolve().parents[4];sys.path.insert(0,str(REPO))
 loader=importlib.util.spec_from_file_location('c4_common_runner',Path(__file__).with_name('run-c1.py'))
 common=importlib.util.module_from_spec(loader);loader.loader.exec_module(common)
 from bench.runtime.common import digest,load,pinned,write_new
+from bench.c4_dispatch import require_allowed
 from bench.runtime import c4_verify,cohort,fleet,pilot_context
 from bench.runtime.pilot_pools import pool_of,alias,fleet_node
 from bench import suite_state,suite_validate,suite_report,archive_check,experiment_step
@@ -66,6 +67,7 @@ class Fork(common.Cell):
         return self.remote('client',argv)
 
     def execute(self,stage):
+        require_allowed(self.cell, stage)
         if stage=='observe-start' and self.purpose=='observer-calibration-off':
             write_new(self.out/'observers.json',[]);return
         if stage=='create':
@@ -235,6 +237,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--context',type=Path,required=True);p.add_argument('--stage')
     a=p.parse_args();c=Fork(a.context)
     if a.stage:c.execute(a.stage);return
+    require_allowed(c.cell)
     lease=load(c.out/'lease.json')
     if lease['already_claimed'] or lease['cell']!=c.cell:raise ValueError('Only a newly claimed explicit C4 cell may run')
     c.check_sources()

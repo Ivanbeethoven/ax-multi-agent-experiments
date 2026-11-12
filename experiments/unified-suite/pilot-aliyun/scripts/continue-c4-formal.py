@@ -13,6 +13,7 @@ import time
 
 REPO=Path(__file__).resolve().parents[4];sys.path.insert(0,str(REPO))
 from bench.runtime import pilot_context
+from bench.c4_dispatch import require_allowed
 from bench.runtime.common import digest,load,pinned,write_new
 from bench.runtime.pilot_pools import active_conflicts,alias,fleet_node,resource_guard
 from bench.suite_plan import check_plan
@@ -138,6 +139,7 @@ def run(request):
     if s.get('schema')!='c4-admit-continuation-v1' or s.get('reviewed') is not True:
         raise ValueError('Separate reviewed C4 admit-only continuation required')
     old,control,batch_dir,plan,cell,canonical,controls,runtime=batch(s['original_request']);out=Path(s['out'])
+    require_allowed(cell)
     if out.exists() or (control/'cells'/cell['id']).exists() or (batch_dir/'result.json').exists():
         raise ValueError('Original formal never started and a fresh continuation path required')
     checked=load(pinned(s['preflight']))

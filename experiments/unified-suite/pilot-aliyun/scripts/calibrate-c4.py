@@ -10,6 +10,7 @@ REPO=Path(__file__).resolve().parents[4];sys.path.insert(0,str(REPO))
 loader=importlib.util.spec_from_file_location('c4_trial_runner',Path(__file__).with_name('run-c4.py'))
 runner=importlib.util.module_from_spec(loader);loader.loader.exec_module(runner)
 from bench.runtime.common import load,pinned,write_new,digest
+from bench.c4_dispatch import require_allowed
 from bench.runtime.pilot_pools import fleet_node
 
 
@@ -20,8 +21,9 @@ def run(request):
     s=load(pinned(request))
     if s.get('reviewed') is not True or s.get('purpose') not in ('observer-calibration-on','observer-calibration-off'):
         raise ValueError('Reviewed explicit on/off C4 trial required')
+    c=runner.Fork(pinned(request));require_allowed(c.cell)
     out=Path(s['out']);out.mkdir(parents=True,exist_ok=False)
-    write_new(out/'request.json',s);c=runner.Fork(out/'request.json')
+    write_new(out/'request.json',s)
     c.check_sources()
     old=s['collector_name'];old_out=s['collector_out']
     running=c.remote('objects',['docker','inspect','--format','{{.State.Running}}',old]).strip()=='true'

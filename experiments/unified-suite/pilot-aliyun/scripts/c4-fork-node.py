@@ -13,6 +13,7 @@ import time
 REPO=Path(__file__).resolve().parents[4]
 sys.path[:0]=[str(REPO),str(REPO/'bench'),str(REPO/'scripts'),str(Path(__file__).parent)]
 from bench.runtime.common import digest,load,pinned,write_new,spec
+from bench.c4_dispatch import require_allowed
 from bench.runtime.prepare import AGENT_BUDGET
 from bench.runtime.fork_work import WORK_TAG,logical_work,validate_result
 from bench.runtime import c4_verify
@@ -118,8 +119,14 @@ def main():
     p.add_argument('--full-reference');p.add_argument('--full-reference-sha256')
     p.add_argument('--purpose',choices=['experiment','observer-calibration-on','observer-calibration-off'],default='experiment')
     a=p.parse_args()
-    if a.action=='measure':measure(dict(path=a.request,sha256=a.sha256),a.out);return
+    if a.action=='measure':
+        request=dict(path=a.request,sha256=a.sha256)
+        s=spec(request,'c4-fork-leaf-v1')
+        _,cell,_,_=binding(s['asset'],s['cell_id'],s['child_name'])
+        require_allowed(cell)
+        measure(request,a.out);return
     value,cell,base,child=binding(a.asset,a.cell,a.child_name)
+    if a.action=='worker':require_allowed(cell)
     prepared,oracle=checked_preparation(dict(path=a.preparation,sha256=a.preparation_sha256),a.asset,cell)
     if a.action=='draft':
         if a.out.exists() or child.exists() or child.is_symlink():raise ValueError('New draft and child required')

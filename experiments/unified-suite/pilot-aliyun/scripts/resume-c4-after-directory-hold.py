@@ -21,6 +21,7 @@ import time
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
 from bench.runtime import c4_verify
+from bench.c4_dispatch import require_allowed
 from bench.runtime.common import digest, load, pinned, write_new
 from bench.runtime.pilot_pools import cell_resources, resource_guard
 
@@ -473,6 +474,7 @@ def run(request, validate_only=False):
     original = cont.module(s['original_batch_tool'])
     source = s['original_request']
     old, control, batch, plan, cell, canonical, controls, runtime = cont.batch(source)
+    if not validate_only:require_allowed(cell)
     require(cell['pool']=='pool-a' and cell['arm_id']=='native' and cell['params']['files']==100000 and
             old['calibration_verification']==c4_verify.TOUCHED,
             'Only the frozen A 100k native/touched C4 hold is eligible')

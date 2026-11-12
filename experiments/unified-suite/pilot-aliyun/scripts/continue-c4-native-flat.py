@@ -154,6 +154,8 @@ def preflight(ssh, database, collector, rustfs):
 
 def execute(s, req, repo):
     draft, canonical, control, manifest, plan, cell, controls = shape(s, repo)
+    if cell['id'] == C4:
+        raise ValueError('Historical C4 BrewFS Flat full-copy dispatch is retired; existing evidence remains readable')
     suffix = s['attempt_suffix']
     out = Path(s['out'])
     if not out.is_absolute() or not out.is_relative_to(canonical.parent/'preparation') or out.exists():
