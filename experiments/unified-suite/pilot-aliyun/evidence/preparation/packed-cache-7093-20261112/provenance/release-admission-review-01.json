@@ -1,0 +1,189 @@
+{
+  "schema": "independent-packed-release-admission-v1",
+  "reviewed_at": "2026-11-12T20:13:59.395810+00:00",
+  "scope": "Read-only final PR/CI/source qualification audit; no cloud visits, builds, FUSE or repeated performance runs",
+  "source_commit": "7093f141d8081e6b96cd0a80814876aed5a3b577",
+  "source_tree": "6a14aabea9a36693edea67dad39722db468123e6",
+  "reviewed_pr_body_sha256": "9ebc0468793a4179e81ef19767e76fcfe557d54f90716a47f94410d8023c7348",
+  "decision": {
+    "may_submit_packed_pr_independently": true,
+    "must_wait_for_cbu_cleanup": false,
+    "new_blocking_gate_gaps": [],
+    "qualification": "Matched explicit-budget, read-focused Packed experiment under user-authorized overall E2E acceptance; not default-budget or generic write correctness qualification"
+  },
+  "integrity": {
+    "ci_release_files_verified": 62,
+    "independent_review_artifacts_verified": 9,
+    "existing_fact_checks": 1778,
+    "existing_head_diagnostic_checks": 91,
+    "final_commit_patch_equal_full_ci_tested_patch": true,
+    "ci_source_patch_sha256": "2ffef62dca5f831bc2190845ca32eed3a6e47b776ed51589ee27e7431fbe6b5a"
+  },
+  "feature_scope": {
+    "cargo_defaults": [
+      "fuse-io-uring-runtime",
+      "gateway-s3",
+      "gateway-webdav"
+    ],
+    "extra_features": [
+      "workspace",
+      "observability",
+      "rustfs-ec-block-size-hint"
+    ],
+    "actual_test_command": "CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 RUST_TEST_THREADS=4 cargo test --locked --workspace --lib --bins --features workspace,observability,rustfs-ec-block-size-hint",
+    "release_command": "CARGO_INCREMENTAL=0 CARGO_PROFILE_RELEASE_DEBUG=0 cargo build --locked --release --features workspace,observability,rustfs-ec-block-size-hint --bin brewfs --bin packed_snapshot_fixture",
+    "same_feature_selection": true,
+    "no_default_features_was_used": false,
+    "release_profile": "standard opt-level3, release debug overridden0; toolchain1.99.1; no reduced optimization",
+    "runtime_alternative_scope": "Separate no-default fuse-tokio-runtime and fuse-io-uring-runtime cargo checks passed; not counted as full runtime-feature test suites",
+    "rfuse3_conditional_checks": "Not applicable: rfuse3 is not a workspace member"
+  },
+  "tests": {
+    "actual-feature-tests": {
+      "per_binary": [
+        {
+          "passed": 2830,
+          "failed": 0,
+          "ignored": 483
+        },
+        {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 15,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "passed": 2847,
+      "ignored": 483,
+      "log_sha256": "fa053588ec70f87624f3c8c7962826fb3ce44cf93f6cec82a6b8f4d60b6f693f"
+    },
+    "workspace-tests": {
+      "per_binary": [
+        {
+          "passed": 1354,
+          "failed": 0,
+          "ignored": 265
+        },
+        {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "passed": 1356,
+      "ignored": 265,
+      "log_sha256": "8632bf16144dd2d60f535b0f543c8380b308e3cd5441cd82228c11fb191de383"
+    }
+  },
+  "required_local_ci": {
+    "all_passed": true,
+    "gates": [
+      "actual-features-typecheck",
+      "actual-feature-tests",
+      "fmt",
+      "scripts",
+      "workspace-check",
+      "workspace-build",
+      "fuse-tokio",
+      "fuse-uring",
+      "workspace-tests",
+      "clippy",
+      "ci-clippy-all-targets",
+      "diff-check"
+    ],
+    "exact_logged_commands": [
+      "cargo check --locked --workspace --all-targets --features workspace\\,observability\\,rustfs-ec-block-size-hint",
+      "timeout -k 15 1800 cargo test --locked --workspace --lib --bins --features workspace\\,observability\\,rustfs-ec-block-size-hint",
+      "cargo fmt --all --check",
+      "bash -c for\\ f\\ in\\ run_perf_in_container.sh\\ run_redis_perf.sh\\ run_juicefs_perf_in_container.sh\\ run_juicefs_perf.sh\\;\\ do\\ bash\\ -n\\ docker/compose-xfstests/\\$f\\ \\|\\|\\ exit\\;\\ done\\;\\ for\\ f\\ in\\ test_perf_report_delta.sh\\ test_juicefs_direct_matrix.sh\\ test_juicefs_perf_report.sh\\;\\ do\\ bash\\ docker/compose-xfstests/\\$f\\ \\|\\|\\ exit\\;\\ done",
+      "cargo check --locked --workspace",
+      "cargo build --locked --workspace",
+      "cargo check --locked -p brewfs --no-default-features --features fuse-tokio-runtime",
+      "cargo check --locked -p brewfs --no-default-features --features fuse-io-uring-runtime",
+      "timeout -k 15 1800 cargo test --locked --workspace --lib --bins",
+      "cargo clippy --locked --workspace",
+      "cargo clippy --locked --workspace --all-targets -- -D warnings",
+      "git diff --check"
+    ],
+    "strict_clippy_command": "cargo clippy --locked --workspace --all-targets -- -D warnings",
+    "test_scope": "Workspace lib and bins, no claim that ignored integration tests ran",
+    "earlier_failed_attempts": "Retained: missing512B fixture formula corrected; unmodified200ms entity staging test passed10 same-exe repetitions and complete four-thread rerun without assertion/timeout changes."
+  },
+  "cbu_defect_scope": {
+    "exists_in_original_writer_path": true,
+    "writer_equal_to_ca_after_name_only_replacements": true,
+    "normalization": [
+      [
+        "workspace-overlay",
+        "workspace"
+      ],
+      [
+        "workspace_overlay",
+        "workspace"
+      ],
+      [
+        "packed_v3",
+        "packed"
+      ],
+      [
+        "wire005",
+        "snapshot"
+      ],
+      [
+        "V3BudgetLimits",
+        "SnapshotBudgetLimits"
+      ],
+      [
+        "V3BudgetPool",
+        "SnapshotBudgetPool"
+      ],
+      [
+        "V3MountBudget",
+        "SnapshotMountBudget"
+      ]
+    ],
+    "formal_reads": "Eight measured pairs read immutable prebuilt Packed lower objects; no concurrent overwrite or writeback publication is part of these measured visits. The independently known stale-sealed CBU writeback race does not invalidate their verified content/counter/E2E results.",
+    "private_check": "One length-preserving4KiB private overwrite with fsync, a fresh-cache remount, and unchanged parent was verified. This is a narrow isolation check and does not qualify random overlapping writes or eliminate the existing CBU defect.",
+    "issue_stack": "ca/7b generic write qualification remains HOLD pending corrected baseline/candidate validation; do not use Packed acceptance to release Issue445-447."
+  },
+  "pr_body_assessment": {
+    "all_required_local_ci_gates_claim": "Accurate for AGENTS/ci.yml command scope verified here",
+    "test_counts": "Accurate across all binaries: default1356/265ignored and release-feature2847/483ignored",
+    "results": "E2E and request/byte figures agree with unchanged reviewed aggregates; readdir regression and explicit-budget/host boundaries are disclosed",
+    "optional_precision": "Spell out defaults + workspace,observability,rustfs-ec-block-size-hint beside actual-feature count to eliminate ambiguity; this is a wording improvement, not a missing gate."
+  },
+  "sources": {
+    "ci_directory": "/home/dev/ax-packed-build/packed-stats-wiring-validation-7093f141",
+    "performance_directory": "/home/dev/ax-packed-build/evidence-final-7093f141",
+    "review_artifact_hashes": {
+      "review.json": "4c17864966785128b18bdb35e3fe8e3c12e5b69a70dfc1954f9cf0e5dcaeb8f6",
+      "review.md": "286006f02812a5a24128ba789f328fc263c88be35d53f93b56efaee1e1043fc8",
+      "analyze.py": "d9732ccf4fb2a9b373fd5630b887d2e9271dafac7ddb927bfbbbdd59865a5e54",
+      "checks.json": "7ec14bbc8fc44231686b82932fa8ef2f171da0fbc3675f5ab022f895267e5ad1",
+      "source-followups.json": "d17c401e99568d947d21031915c418fdd828cdbe75e6afc3fda1a072887e945a",
+      "head-review.json": "2b76fca8564cfeb2a2ff4c8923b874fbf187d395024460f1441d73b1e97a93f8",
+      "head-review.md": "83e744c0c21df99e09fcbee62186c4d971e2c4aa18533d4e3e67d7ffc1c2d220",
+      "head-review-checks.json": "1c4c583792a373ffe082a8fba24680dda1e0d0bb3f131df28085540e470f1a49",
+      "analyze-head.py": "69447dd5bf54f3cd259bf2eec9fac8fc6aec0b881b55a4fdd5c4c7d17f25136f"
+    },
+    "ci_gates_sha256": "992302089472a1b0a05dbea6b2062871788bba5a2879aab03263a2c2f1cf9bbe",
+    "ci_driver_sha256": "9189463b2d47167cdf503f1afddd664a854becbaff1dbdcd2dae7c7085b845ef",
+    "release_driver_sha256": "5f13a1cc1289f0b9d3de5cce61f5dd3e336132ff567786a7dd9b255a407c2930",
+    "release_log_sha256": "2e44388e4b8ed6b3df3c9cd65ab1a298ccfe45e04b3c275680d4b4087393e58b",
+    "source_identity_sha256": "6bbada9b95f1e75f6bc17bf473a117d828d015ed7df156908c994a75401316f0"
+  }
+}
