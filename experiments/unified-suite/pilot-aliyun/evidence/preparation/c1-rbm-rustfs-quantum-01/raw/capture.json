@@ -1,0 +1,119 @@
+{
+  "schema": "ax-c1-rustfs-quantum-local-capture-v1",
+  "completed": true,
+  "scope": "single-host S3 mechanism qualification; not C1 FUSE performance",
+  "started_utc": "2026-11-12T09:39:42.534532+00:00",
+  "image_sha256": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+  "branch": "feat/dynamic-block-size-rebased",
+  "branch_tip": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "arms": {
+    "block-only": {
+      "container": "ax-c1-rustfs-q-21a52fdcd58742acaeee6972c970ca9f",
+      "flags": {
+        "RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE": "true",
+        "RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED": "true",
+        "RUSTFS_EC_READ_QUANTUM_ENABLE": "false",
+        "RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED": "false"
+      },
+      "phase": "collected",
+      "runtime_image_sha256": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+      "runtime_binary_sha256": "1996d66c8d6e322a1e1ac8b398b7d236e1548f74fee4aed2266425c5216c0374",
+      "network_mode": "none",
+      "bound_to": "127.0.0.1:19939",
+      "memory_limit_bytes": 2147483648,
+      "cpu_limit": 2,
+      "shards": [
+        {
+          "path": "shard-0.xl.meta",
+          "xl_meta_sha256": "8e4dd8ae670e2b3e94de7359cd7fc0d7ef4c91a9759c698e0fe728ff89e834b5",
+          "external_part_sizes": [
+            2099200
+          ]
+        },
+        {
+          "path": "shard-1.xl.meta",
+          "xl_meta_sha256": "349f25fec4100100b681e2bfb80249c0d8ab72e615e2a2bddd50b0d6d3385de0",
+          "external_part_sizes": [
+            2099200
+          ]
+        },
+        {
+          "path": "shard-2.xl.meta",
+          "xl_meta_sha256": "d1def81eeb91e0cfb136452923d9ff805ef0165954baaa0f8f443245a2f05bbd",
+          "external_part_sizes": [
+            2099200
+          ]
+        },
+        {
+          "path": "shard-3.xl.meta",
+          "xl_meta_sha256": "624458e22754d3e050337a814d619f06ef47e3988526ef22dfb5d2ba4c3b8170",
+          "external_part_sizes": [
+            2099200
+          ]
+        }
+      ],
+      "cleanup": {
+        "graceful_stop_exit": 0,
+        "removal_exit": 0,
+        "owned_container_absent": true
+      }
+    },
+    "enabled": {
+      "container": "ax-c1-rustfs-q-bc9f22ba5adf4dc1815ab72b6d016c22",
+      "flags": {
+        "RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE": "true",
+        "RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED": "true",
+        "RUSTFS_EC_READ_QUANTUM_ENABLE": "true",
+        "RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED": "true"
+      },
+      "phase": "collected",
+      "runtime_image_sha256": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+      "runtime_binary_sha256": "1996d66c8d6e322a1e1ac8b398b7d236e1548f74fee4aed2266425c5216c0374",
+      "network_mode": "none",
+      "bound_to": "127.0.0.1:19939",
+      "memory_limit_bytes": 2147483648,
+      "cpu_limit": 2,
+      "shards": [
+        {
+          "path": "shard-0.xl.meta",
+          "xl_meta_sha256": "17f79596d4ec95fc3f4437af6868fcdea9093e3f8fbdbc86ac46932fbc7802e0",
+          "external_part_sizes": [
+            2101248
+          ]
+        },
+        {
+          "path": "shard-1.xl.meta",
+          "xl_meta_sha256": "8bc5a376faeeb0365c3b054277305f29955a87f5fc3c0b62c8f1279f3b759a4a",
+          "external_part_sizes": [
+            2101248
+          ]
+        },
+        {
+          "path": "shard-2.xl.meta",
+          "xl_meta_sha256": "70fb001658209634ffc56511ce2774ce71f135c6dd113c8b6996b7b9c155bb13",
+          "external_part_sizes": [
+            2101248
+          ]
+        },
+        {
+          "path": "shard-3.xl.meta",
+          "xl_meta_sha256": "778fd7a54cdf733d4fee831229a0b1fb2a31bf63973a74baf1288d6de892ae88",
+          "external_part_sizes": [
+            2101248
+          ]
+        }
+      ],
+      "cleanup": {
+        "graceful_stop_exit": 0,
+        "removal_exit": 0,
+        "owned_container_absent": true
+      }
+    }
+  },
+  "source_head": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "source_clean": true,
+  "image_revision": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "owned_scratch_removed": true,
+  "elapsed_seconds": 9.295,
+  "finished_utc": "2026-11-12T09:39:51.829370+00:00"
+}

@@ -1,0 +1,77 @@
+{
+  "schema": "ax-c1-rustfs-quantum-local-verification-v1",
+  "passed": true,
+  "formal_sample": false,
+  "performance_accepted": false,
+  "scope": "single-host S3 mechanism qualification; not C1 FUSE performance",
+  "image_sha256": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+  "image_revision": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "decoder_sha256": "a2bc1f769879994de8eb0a512b5d45fe7c2ebf46bb8145981c038adfc56592c7",
+  "capture_sha256": "586329aa365265799a7945f279c6ca9539a6569747eab7957d715f061a675442",
+  "arms": {
+    "block-only": {
+      "payload_sha256": "6f7b2e232b961f39247d40093e208d657588052776bee7c6f753c4e37aa8292b",
+      "full_gets": 1,
+      "range_gets": 5,
+      "client_response_body_bytes": 4214784,
+      "shards": [
+        {
+          "erasure_index": 3,
+          "B_bytes": 65536,
+          "q_bytes": null,
+          "physical_part_file_bytes": 2099200
+        },
+        {
+          "erasure_index": 4,
+          "B_bytes": 65536,
+          "q_bytes": null,
+          "physical_part_file_bytes": 2099200
+        },
+        {
+          "erasure_index": 1,
+          "B_bytes": 65536,
+          "q_bytes": null,
+          "physical_part_file_bytes": 2099200
+        },
+        {
+          "erasure_index": 2,
+          "B_bytes": 65536,
+          "q_bytes": null,
+          "physical_part_file_bytes": 2099200
+        }
+      ]
+    },
+    "enabled": {
+      "payload_sha256": "6f7b2e232b961f39247d40093e208d657588052776bee7c6f753c4e37aa8292b",
+      "full_gets": 1,
+      "range_gets": 5,
+      "client_response_body_bytes": 4214784,
+      "shards": [
+        {
+          "erasure_index": 2,
+          "B_bytes": 65536,
+          "q_bytes": 16384,
+          "physical_part_file_bytes": 2101248
+        },
+        {
+          "erasure_index": 3,
+          "B_bytes": 65536,
+          "q_bytes": 16384,
+          "physical_part_file_bytes": 2101248
+        },
+        {
+          "erasure_index": 4,
+          "B_bytes": 65536,
+          "q_bytes": 16384,
+          "physical_part_file_bytes": 2101248
+        },
+        {
+          "erasure_index": 1,
+          "B_bytes": 65536,
+          "q_bytes": 16384,
+          "physical_part_file_bytes": 2101248
+        }
+      ]
+    }
+  }
+}
