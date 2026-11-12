@@ -1,0 +1,42 @@
+# captured from the objects node console, 2026-11-12 09:29-09:30 +08:00
+# python3 pack-c4-observer-split.py --root /srv/ax-c4-observer-scratch --tag c4-a-flat-on1
+#   --role objects --cell-id c5e97774bcffa69a-r1-native --include q/c4-a-flat-on1-closure
+#   --out-dir /var/tmp/c4-split-01 --code /srv/ax-objects-0/code-19
+EXIT=0
+{
+  "schema": "c4-observer-split-v1",
+  "passed": true,
+  "tag": "c4-a-flat-on1",
+  "role": "objects",
+  "cell_id": "c5e97774bcffa69a-r1-native",
+  "root": "/srv/ax-c4-observer-scratch",
+  "observer": {
+    "path": "/var/tmp/c4-split-01/c4-a-flat-on1-objects-observer.tar.gz",
+    "bytes": 379794692,
+    "sha256": "504e8450b20fd032053b0fd6e161035db300fc0508ad88251e725d304901236c",
+    "members": 132939,
+    "index_schema": "suite-observer-index-v1"
+  },
+  "evidence": {
+    "path": "/var/tmp/c4-split-01/c4-a-flat-on1-objects.tar.gz",
+    "bytes": 552,
+    "sha256": "7327fd1fcb11755ffda3f597f81eb937ebccea69490dd316103f46b42f97c4c2",
+    "members": 1
+  },
+  "includes": [
+    "q/c4-a-flat-on1-closure"
+  ],
+  "scope": "split packaging only: the original observer bytes are unchanged and no evidence was deleted"
+}
+--- time ---
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 6:51.95
+	Maximum resident set size (kbytes): 269316
+--- sizes ---
+total 370916
+-rw------- 1 root root 379794692 Nov 12 09:29 c4-a-flat-on1-objects-observer.tar.gz
+-rw-r--r-- 1 root root       818 Nov 12 09:30 c4-a-flat-on1-objects-split.json
+-rw------- 1 root root       552 Nov 12 09:30 c4-a-flat-on1-objects.tar.gz
+-rw-r--r-- 1 root root       818 Nov 12 09:30 stdout.txt
+-rw-r--r-- 1 root root      1006 Nov 12 09:30 time.txt
+--- disk after packing, before moving ---
+35104403456 (avail /var/tmp)
