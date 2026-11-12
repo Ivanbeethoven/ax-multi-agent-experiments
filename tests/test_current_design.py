@@ -62,6 +62,7 @@ class CurrentDesignTests(unittest.TestCase):
         self.rejected(lambda c: c['ablations'][0]['workloads'].append('C4-fork'))
         self.rejected(lambda c: c['workloads']['C2']['overlay_runtime'].update(warmup_scope=['metadata']))
         self.rejected(lambda c: c['workloads']['C2']['overlay_runtime'].update(max_lower_backend_read_bytes=1))
+        self.rejected(lambda c: c['workloads']['C2']['overlay_runtime'].update(userspace_path_required=False))
         self.rejected(lambda c: c['workloads']['C2']['overlay_runtime'].update(prepare_and_warmup_outside_timer=False))
 
     def test_no_silent_scale_reduction_or_growth(self):

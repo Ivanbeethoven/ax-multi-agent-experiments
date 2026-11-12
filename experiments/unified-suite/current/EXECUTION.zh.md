@@ -47,7 +47,7 @@ python3 scenarios/k8s-containers/scripts/download_archives.py \
 
 命令结构来自已核对源码；省略号由本批私有配置填充。保存原生 `--help` 和完整解析设置后再生成 argv。新 route、全局槽位和采集适配尚待接入 suite，旧 planner 不接受新规划。
 
-Overlay 热态回执至少含 `input_sha256`、两臂共同的 lower 工作集清单 SHA、各臂真实开关状态、实际缓存预算、挂载身份、每遍操作数和末遍 lower 元数据缺失及后端读取字节差值。协调者保存本臂预热结束、验证通过和计时放行的顺序。末遍缺字段、计数重置、发生 remount 或预热没有覆盖计时段的 lower 工作集时，结果不进入热态对照。
+Overlay 热态回执至少含 `input_sha256`、两臂共同的 lower 工作集清单 SHA、各臂真实开关状态、实际缓存预算、挂载身份、每遍操作数和末遍 lower 的后端请求及读字节差值。Packed wire005 从同一挂载的 `.stats` 读取 `brewfs_packed_v3_runtime_backend_range_gets_total` 和 `brewfs_packed_v3_runtime_backend_received_bytes_total`；它们覆盖运行时 metadata 和 payload，不能用 HTTP 中缺失的指标当作零。先用独立冷读验证计数会动。当前普通读取路径未证明帧数据可在直读下驻留；达不到热态，就只报告卡点，不用页缓存掩盖 Overlay。协调者保存本臂预热结束、验证通过和计时放行的顺序。末遍缺字段、计数重置、发生 remount 或预热没有覆盖计时段的 lower 工作集时，结果不进入热态对照。
 
 ## 指标收集
 
