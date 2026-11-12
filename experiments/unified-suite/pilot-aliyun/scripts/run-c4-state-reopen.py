@@ -10,6 +10,46 @@ import shlex
 import subprocess
 import sys
 import time
+import uuid
+
+
+CURRENT_BOOTS = 'c4-state-reopen-current-boots-v1'
+SIDES = ('source', 'target')
+SLOT = {'cpu.max':'200000 100000', 'memory.max':'8589934592', 'memory.swap.max':'0', 'cgroup.procs':''}
+CLIENT_PROBE = r'''
+import json, os, socket, subprocess
+from pathlib import Path
+from urllib.request import ProxyHandler, Request, build_opener
+
+root = Path('/srv/ax-client')
+if root.resolve() != root or not os.path.ismount(root):
+    raise ValueError('Original client data disk must be mounted')
+status = root.stat()
+major_minor = f'{os.major(status.st_dev)}:{os.minor(status.st_dev)}'
+devices = json.loads(subprocess.check_output(
+    ['lsblk','--json','--paths','--output','PATH,TYPE,SERIAL,MAJ:MIN,MOUNTPOINTS'], text=True, timeout=5))
+matches = [row for row in devices['blockdevices'] if row['type']=='disk'
+           and row['maj:min']==major_minor and str(root) in row.get('mountpoints', [])]
+if len(matches)!=1 or not matches[0].get('serial'):
+    raise ValueError('Original client data mount must bind one identifiable disk')
+serial = matches[0]['serial'].strip()
+disk_id = serial if serial.startswith('d-') else 'd-'+serial
+
+opener = build_opener(ProxyHandler({}))
+with opener.open(Request('http://100.100.100.200/latest/api/token', method='PUT',
+    headers={'X-aliyun-ecs-metadata-token-ttl-seconds':'60'}), timeout=3) as response:
+    token = response.read().decode()
+with opener.open(Request('http://100.100.100.200/latest/meta-data/instance-id',
+    headers={'X-aliyun-ecs-metadata-token':token}), timeout=3) as response:
+    instance_id = response.read().decode().strip()
+
+slot = Path('/sys/fs/cgroup/ax-slot-1')
+print(json.dumps(dict(hostname=socket.gethostname(), instance_id=instance_id,
+    boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
+    data_disk_ids=[disk_id], work_root=str(root), device=major_minor,
+    slot={name:(slot/name).read_text().strip() for name in
+          ('cpu.max','memory.max','memory.swap.max','cgroup.procs')})))
+'''
 
 
 def require_grant(presented, current, side):
@@ -17,7 +57,96 @@ def require_grant(presented, current, side):
         raise PermissionError('Old/other executor grant rejected before transport')
 
 
+def checked_client(row, frozen):
+    if (not isinstance(row, dict) or set(row) != {
+            'hostname','instance_id','boot_id','data_disk_ids','work_root','device','slot'}
+            or any(row[key] != frozen[key] for key in ('hostname','instance_id','data_disk_ids'))
+            or len(row['data_disk_ids']) != 1 or row['work_root'] != '/srv/ax-client'
+            or not isinstance(row['device'], str) or not re.fullmatch(r'[1-9][0-9]*:[0-9]+', row['device'])
+            or row['slot'] != SLOT):
+        raise ValueError('Frozen client host/instance, mounted data disk and original empty 2-CPU/8-GiB slot required')
+    boot = row['boot_id']
+    if not isinstance(boot, str) or not uuid.UUID(boot).int or str(uuid.UUID(boot)) != boot:
+        raise ValueError('Live canonical client boot identity required')
+    return row
+
+
+def check_current_boots(value, draft_ref, route, frozen, *, now=None):
+    if (not isinstance(value, dict) or set(value) != {
+            'schema','read_only','at','draft','original_inventory','clients'}
+            or value['schema'] != CURRENT_BOOTS or value['read_only'] is not True
+            or value['draft'] != draft_ref or value['original_inventory'] != route['original_inventory']
+            or not isinstance(value['clients'], dict) or set(value['clients']) != set(SIDES)):
+        raise ValueError('Current boot evidence must bind the reviewed draft and frozen inventory')
+    recorded = datetime.fromisoformat(value['at'])
+    now = now or datetime.now(timezone.utc)
+    if recorded.tzinfo is None or not 0 <= (now-recorded).total_seconds() <= 900:
+        raise ValueError('Current client boot evidence is older than 900 seconds or in the future')
+    rows = {side:checked_client(value['clients'][side],frozen[side]) for side in SIDES}
+    for key in ('instance_id','boot_id'):
+        if rows['source'][key]==rows['target'][key]:
+            raise ValueError('Current boot evidence must identify two distinct executors')
+    return rows
+
+
+def frozen_clients(route, inventory, original):
+    from bench.runtime.pilot_pools import pool_inventory, resource_ids
+    if {route[side+'_pool'] for side in SIDES} != {'pool-a','pool-b'}:
+        raise ValueError('Two frozen A/B client roles required')
+    pools = {side:pool_inventory(inventory,route[side+'_pool']) for side in SIDES}
+    clusters = {value['id']:value for value in original['config']['clusters']}
+    for pool in pools.values():
+        cluster = clusters[pool['pool_id']]
+        if (cluster['inventory_sha256']!=route['original_inventory']['sha256']
+                or set(cluster['resource_ids'])!=set(resource_ids(pool))):
+            raise ValueError('Original inventory differs from the canonical resource locks')
+    rows = {side:pool['roles']['client'] for side,pool in pools.items()}
+    if any(route[side+'_host']!=rows[side] or route[side+'_ssh']!=route[side+'_pool']+'-client' for side in SIDES):
+        raise ValueError('Draft SSH roles or clients differ from the frozen inventory')
+    return rows
+
+
+def current_identity(observed, expected, frozen):
+    checked_client(observed,frozen)
+    if observed != expected:
+        raise ValueError('Current client boot, device or empty slot changed after review')
+    return {key:observed[key] for key in ('hostname','boot_id')}
+
+
+def probe_current_boots(argv):
+    p = argparse.ArgumentParser(description='Read both live client identities without launching any mounts')
+    for name in ('draft','draft-sha256','runtime-repo','out'):
+        p.add_argument('--'+name, required=True)
+    a = p.parse_args(argv)
+    sys.path.insert(0,a.runtime_repo)
+    from bench.runtime.common import load, pinned, write_new
+    from bench.suite_plan import check_plan
+    draft_ref = dict(path=a.draft,sha256=a.draft_sha256)
+    route = load(pinned(draft_ref))
+    if route.get('schema')!='pilot-c4-state-reopen-draft-v1' or route.get('model_calls_allowed')!=0:
+        raise ValueError('Exact no-model C4 draft required')
+    original = check_plan(load(pinned(route['original_plan'])))
+    frozen = frozen_clients(route,load(pinned(route['original_inventory'])),original)
+    config = pinned(route['ssh'])
+    output = Path(a.out)
+    if (not output.is_absolute() or output.resolve()!=output or not output.parent.is_dir()
+            or output.exists() or output.is_symlink()):
+        raise ValueError('New canonical absolute current-boot output required')
+    began = datetime.now(timezone.utc)
+    rows = {}
+    for side in SIDES:
+        result = subprocess.check_output(['ssh','-F',str(config),'-o','BatchMode=yes','-o','ConnectTimeout=6',
+            route[side+'_ssh'],'python3 -'],input=CLIENT_PROBE.encode(),timeout=22)
+        rows[side] = checked_client(json.loads(result),frozen[side])
+    value = dict(schema=CURRENT_BOOTS,read_only=True,at=began.isoformat(),draft=draft_ref,
+                 original_inventory=route['original_inventory'],clients=rows)
+    check_current_boots(value,draft_ref,route,frozen)
+    write_new(output,value)
+
+
 def main():
+    if sys.argv[1:2] == ['probe-current-boots']:
+        return probe_current_boots(sys.argv[2:])
     p = argparse.ArgumentParser(description=__doc__)
     for name in ('request', 'runtime-repo', 'out'):
         p.add_argument('--'+name, type=Path, required=True)
@@ -42,6 +171,11 @@ def main():
     ids = {side:s[side+'_pool'] for side in ('source','target')}
     pools = sorted(ids.values())
     cells = {pool:next(c for c in original['cells'] if c['pool']==pool) for pool in pools}
+    boot_pin = request.get('current_boots')
+    live_boots, frozen = None, None
+    if 'current_boots' in request:
+        frozen = frozen_clients(s,load(pinned(s['original_inventory'])),original)
+        live_boots = check_current_boots(load(pinned(boot_pin)),request['draft'],s,frozen)
     if set(request['handoffs']) != set(pools):
         raise ValueError('Both existing pools require actual explicit handoffs')
     for pool in pools:
@@ -77,23 +211,28 @@ def main():
                 if active_conflicts(state.parent, cells[pool], original):
                     raise ValueError('Active original lease on '+pool+' in '+str(state))
         a.out.mkdir(parents=True, exist_ok=False)
-        write_new(a.out/'started.json', dict(request=ref(a.request), handoffs=request['handoffs'],
-            canonical_control=str(control), qualification_only=True, model_calls=0, no_automatic_retry=True))
+        started = dict(request=ref(a.request), handoffs=request['handoffs'], canonical_control=str(control),
+                       qualification_only=True, model_calls=0, no_automatic_retry=True)
+        if live_boots is not None:
+            started['current_boots'] = boot_pin
+        write_new(a.out/'started.json', started)
 
-        def run(label, argv, data=None):
+        def run(label, argv, data=None, *, timeout=None):
             directory = a.out/label
             directory.mkdir()
             argv = list(map(str,argv))
             write_new(directory/'intent.json', dict(argv=argv))
             with (directory/'stdout').open('xb') as stdout, (directory/'stderr').open('xb') as stderr:
-                status = subprocess.run(argv, input=data, stdout=stdout, stderr=stderr).returncode
+                status = subprocess.run(argv, input=data, stdout=stdout, stderr=stderr, timeout=timeout).returncode
             write_new(directory/'exit.json', dict(exit_code=status))
             if status:
                 raise ValueError('Inspect original failed step '+str(directory))
             return (directory/'stdout').read_bytes()
 
-        def ssh(side, label, argv, data=None):
-            return run(label, ['ssh','-F',ssh_config,s[side+'_ssh'],shlex.join(list(map(str,argv)))], data)
+        def ssh(side, label, argv, data=None, *, timeout=None):
+            options = ['-o','BatchMode=yes','-o','ConnectTimeout=6'] if timeout else []
+            return run(label, ['ssh','-F',ssh_config,*options,s[side+'_ssh'],shlex.join(list(map(str,argv)))],
+                       data,timeout=timeout)
 
         def put(side, label, path, target):
             run(label, ['scp','-F',ssh_config,path,s[side+'_ssh']+':'+str(target)])
@@ -107,20 +246,28 @@ def main():
             return target
 
         def ensure_slot(side):
-            frozen = load(control/'probes'/(ids[side]+'-client')/'probe.json')
+            if live_boots is not None:
+                # Recheck the exact live disk and boot while owning the existing
+                # guard, before transferring a checkpoint or mounting anything.
+                check_current_boots(load(pinned(boot_pin)),request['draft'],s,frozen)
+                observed = json.loads(ssh(side,'check-'+side,['python3','-'],CLIENT_PROBE.encode(),timeout=22))
+                return current_identity(observed,live_boots[side],frozen[side])
+            original_probe = load(control/'probes'/(ids[side]+'-client')/'probe.json')
             code = ('from pathlib import Path; import json,socket; '
                     'print(json.dumps(dict(hostname=socket.gethostname(),'
                     'boot_id=Path("/proc/sys/kernel/random/boot_id").read_text().strip(),'
                     'slot=Path("/sys/fs/cgroup/ax-slot-1/cgroup.procs").read_text().strip())))')
             actual = json.loads(ssh(side,'check-'+side,['python3','-c',code]))
-            want = dict(hostname=s[side+'_host']['hostname'],boot_id=frozen['boot_id'])
+            want = dict(hostname=s[side+'_host']['hostname'],boot_id=original_probe['boot_id'])
             if actual != dict(want,slot=''):
                 raise ValueError('Original actual empty executor slot required: '+side)
             return want
 
         try:
+            current_identities = ({side:ensure_slot(side) for side in SIDES}
+                                  if live_boots is not None else None)
             for side in ('source','target'):
-                identity = ensure_slot(side)
+                identity = ensure_slot(side) if current_identities is None else current_identities[side]
                 remote = request['peers'][side]
                 path = Path(remote['repo'])
                 if not path.is_absolute():
