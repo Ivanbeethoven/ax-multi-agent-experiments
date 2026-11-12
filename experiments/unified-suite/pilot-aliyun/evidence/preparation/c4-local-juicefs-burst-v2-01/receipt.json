@@ -1,0 +1,212 @@
+{
+  "schema": "c4-local-juicefs-fork-burst-integration-v1",
+  "passed": true,
+  "scope": "One real local FUSE JuiceFS clone through the suite runner. Correctness and integration only.",
+  "formal_sample": false,
+  "performance_accepted": false,
+  "no_cloud": true,
+  "no_model": true,
+  "runner_commit": "7a4cc0274340961fbaee7e7daddc4c2f959d936f",
+  "runner_code_sha256": "fa363f4fe98665920c133e06454deb2dfbc7e57d1c44c9f7889d529561b2e582",
+  "published_setup_sha256": "9029aeacce345514ca48b01b7c4cd203fa0c5353b64b45e06bad1367ba299b5f",
+  "published_qualification_sha256": "f89d4e9aec9e10d3d20837db46ffce0645a56989967d7863dedfc4dbfdd4fe1a",
+  "run_id": "ax-c4-jfs-clone-a1adcfa68f",
+  "utc": "2026-11-12T05:34:02.577051+00:00",
+  "wsl_boot_id": "ff8368ab-c1e6-43f5-a0cb-6c383097bdb2",
+  "fixture_only": true,
+  "juicefs_binary_sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+  "juicefs_version": "juicefs version 1.4.2+2026-10-22.46af7af",
+  "image_sha256": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "rustfs_image_revision": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "step_spec_sha256": "a09cd4655f2f2f0100f2f744a8e578f1674e74b877f051b1d549437b4530f684",
+  "burst_spec_sha256": "e6a30cbba6fefa137243856f2b7afdf5bbdd423ce26803e8c61e46a6e68d5dc1",
+  "native_argv": [
+    "juicefs",
+    "clone",
+    "-p",
+    "--threads",
+    "4",
+    "<mount>/parent",
+    "<mount>/children/child-01"
+  ],
+  "native_command_exit_code": 0,
+  "native_mount_stable": true,
+  "input_manifest_sha256": "33955d84712735777e5daff33441c0b866a3fa36172dfc5b3182e4939d77cea5",
+  "input_manifest_json": "{\n  \"schema\": \"c4-local-fixture-input-tree-v1\",\n  \"files\": {\n    \"a.txt\": {\n      \"bytes\": 13,\n      \"sha256\": \"882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9\"\n    },\n    \"sub/b.txt\": {\n      \"bytes\": 64,\n      \"sha256\": \"fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108\"\n    }\n  },\n  \"directories\": [\n    \"sub\"\n  ]\n}\n",
+  "runner_result_sha256": "6de9bbad62f05967a4fdfb6007a3b47017114266207e9f3dfea6c869ba153cc8",
+  "runner_result_json": "{\n  \"schema\": \"suite-fork-burst-native-result-v2\",\n  \"cell_id\": \"c4-local-juicefs-burst-v2-smoke\",\n  \"completed\": true,\n  \"passed\": true,\n  \"children\": 1,\n  \"parallelism\": 1,\n  \"release_ns\": 9891850135,\n  \"wall_seconds\": 0.053145376,\n  \"results\": [\n    {\n      \"id\": \"child-01\",\n      \"exit_code\": 0,\n      \"passed\": true,\n      \"launch_ns\": 9891899072,\n      \"exit_ns\": 9944995511,\n      \"start_offset_seconds\": 4.8937e-05,\n      \"seconds\": 0.053096439,\n      \"receipt_sha256\": \"49996987715991e1c8d85880d3b5037afd4ccc9ab53b7ec79276306d1eef2287\"\n    }\n  ],\n  \"method\": \"juicefs-clone\",\n  \"input_tree\": {\n    \"path\": \"/tmp/ax-c4-jfs-clone-a1adcfa68f-4txfagco/input-tree.json\",\n    \"sha256\": \"33955d84712735777e5daff33441c0b866a3fa36172dfc5b3182e4939d77cea5\"\n  },\n  \"binary\": {\n    \"path\": \"/home/hxy/ax-unified-pilot-prep-next-01/bin/juicefs\",\n    \"sha256\": \"6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc\"\n  },\n  \"mount_before\": {\n    \"mount_id\": 592,\n    \"point\": \"/tmp/ax-c4-jfs-clone-a1adcfa68f-4txfagco/live\",\n    \"filesystem\": \"fuse.juicefs\",\n    \"source\": \"JuiceFS:c4-jfs-burst-a1adcfa68f\",\n    \"options\": \"rw,nosuid,nodev,relatime\"\n  },\n  \"mount_after\": [\n    {\n      \"mount_id\": 592,\n      \"point\": \"/tmp/ax-c4-jfs-clone-a1adcfa68f-4txfagco/live\",\n      \"filesystem\": \"fuse.juicefs\",\n      \"source\": \"JuiceFS:c4-jfs-burst-a1adcfa68f\",\n      \"options\": \"rw,nosuid,nodev,relatime\"\n    }\n  ],\n  \"performance_accepted\": false,\n  \"scope\": \"creation command only; first verified read, isolation and durable closure are measured separately\"\n}\n",
+  "child_finished_sha256": "49996987715991e1c8d85880d3b5037afd4ccc9ab53b7ec79276306d1eef2287",
+  "child_finished_json": "{\n  \"id\": \"child-01\",\n  \"exit_code\": 0,\n  \"passed\": true,\n  \"launch_ns\": 9891899072,\n  \"exit_ns\": 9944995511,\n  \"start_offset_seconds\": 4.8937e-05,\n  \"seconds\": 0.053096439\n}\n",
+  "source_equals_published_fixture": true,
+  "child_equals_source": true,
+  "source_unchanged": true,
+  "readbacks": {
+    "verified_source": {
+      "passed": true,
+      "trees": {
+        "parent": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 2,
+            "a.txt": 4,
+            "sub": 3,
+            "sub/b.txt": 5
+          }
+        }
+      },
+      "distinct_corresponding_inodes": true
+    },
+    "verified_child": {
+      "passed": true,
+      "trees": {
+        "parent": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 2,
+            "a.txt": 4,
+            "sub": 3,
+            "sub/b.txt": 5
+          }
+        },
+        "children/child-01": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 7,
+            "a.txt": 8,
+            "sub": 9,
+            "sub/b.txt": 10
+          }
+        }
+      },
+      "distinct_corresponding_inodes": true
+    },
+    "verified_child_cold": {
+      "passed": true,
+      "trees": {
+        "parent": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 2,
+            "a.txt": 4,
+            "sub": 3,
+            "sub/b.txt": 5
+          }
+        },
+        "children/child-01": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 7,
+            "a.txt": 8,
+            "sub": 9,
+            "sub/b.txt": 10
+          }
+        }
+      },
+      "distinct_corresponding_inodes": true
+    }
+  },
+  "mounts": {
+    "live": {
+      "mount_id": 592,
+      "filesystem": "fuse.juicefs",
+      "foreground_pid": 1023,
+      "foreground_start_ticks": 908,
+      "point": "live",
+      "cache_size_mib": 0,
+      "prefetch_blocks": 0
+    },
+    "cold": {
+      "mount_id": 592,
+      "filesystem": "fuse.juicefs",
+      "foreground_pid": 1079,
+      "foreground_start_ticks": 1015,
+      "point": "cold",
+      "cache_size_mib": 0,
+      "prefetch_blocks": 0
+    }
+  },
+  "mount_exits": {
+    "live": {
+      "normal_unmount_exit_code": 0,
+      "foreground_exit_code": 0,
+      "mount_absent": true,
+      "cleanup_signal_needed": false
+    },
+    "cold": {
+      "normal_unmount_exit_code": 0,
+      "foreground_exit_code": 0,
+      "mount_absent": true,
+      "cleanup_signal_needed": false
+    }
+  },
+  "cleanup": {
+    "owned_containers_absent": true,
+    "mount_points_absent": true,
+    "loopback_ports_released": true,
+    "scratch_absent": true,
+    "errors": []
+  }
+}
