@@ -6,9 +6,9 @@
 
 复用 B/A 的现有 client、B 的 Redis/RustFS，以及原物理锁目录。协调机已恢复检查点并逐文件验证（894 项）；草稿没有联系任何 worker。数据库 210 只是候选，使用前要求实际为空。两组仍有工作时不执行本检查。
 
-## C1 收尾后跑一次 A→B
+## 两池交接后跑一次 A→B
 
-1. 等 C1 正常关挂载、取回原始证据并释放 A/B 资源。取得两池本轮实际交接回执，核对各控制目录的 `cell_leases`。本次只用 A 客户端、A Redis、A RustFS 和 B 客户端；B 的 Redis、RustFS 保持关机。A 对象端用已核 SHA 的 [恢复脚本](../../scripts/a-pool-up.py)执行 `objects --without-legacy-observer-scratch --out "$A_OBJECTS_UP"`，只恢复四块原 RustFS 数据盘。A/B 客户端分别用对应的 [A](../../scripts/a-pool-up.py) / [B](../../scripts/b-pool-up.py) 脚本恢复原 `/srv/ax-client`。
+1. 等 C1/C2 等任务正常关挂载、取回原始证据并释放 A/B 资源。取得两池本轮实际交接回执，核对各控制目录的 `cell_leases`。本次只用 A 客户端、A Redis、A RustFS 和 B 客户端；B 的 Redis、RustFS 保持关机。A 对象端用已核 SHA 的 [恢复脚本](../../scripts/a-pool-up.py)执行 `objects --without-legacy-observer-scratch --out "$A_OBJECTS_UP"`，只恢复四块原 RustFS 数据盘。A/B 客户端分别用对应的 [A](../../scripts/a-pool-up.py) / [B](../../scripts/b-pool-up.py) 脚本恢复原 `/srv/ax-client`。
 2. 在两客户端核原实例、数据盘、空的 `/srv/ax-pilot-session` 和相同 JuiceFS、原 OpenCode 的二进制 SHA。重启后恢复磁盘不会重建执行槽；仅在槽不存在时用 [`configure-node.py slot`](../../scripts/configure-node.py) 和该客户端原 `hardware-inputs-01/data/pool-a-client-spec.json` 或 `pool-b-client-spec.json` 恢复，使用新输出目录。已有槽只读核对 2 CPU、8 GiB、无 swap 且无进程。两端都须能通过私网访问 A Redis/RustFS；源端另核私有对象凭证、服务身份、当前容量和候选 Redis DB 确实为空。DB 210 被占用就另选空 DB，禁止清空旧 DB。
 3. 在协调机生成 A→B 路线，复用原 894 项检查点。下面 `SCRIPTS` 指向本轮已核 SHA 的脚本目录；`ROUTE`、`CURRENT_BOOTS` 为新的绝对路径。`RUNTIME_REPO` 使用已部署的兼容运行目录（如 `/srv/ax-pilot-control/code-15`）。执行器的 `pilot-node.py`、`prepare-session-input.py`、`package-session-checkpoint.py`、`draft-handoff-target.py` 四份 SHA 必须与该协调机运行目录一致。缺的代码或二进制只从协调机私网分发到新目录。
 
@@ -32,7 +32,7 @@ python3 "$RUNNER" probe-current-boots --draft "$DRAFT" --draft-sha256 "$(sha "$D
 python3 "$SCRIPTS/verify-latest.py" --manifest "$CTRL/provenance/build-manifest.json" --out "$LATEST"
 ```
 
-5. 人工审阅后另存 `pilot-c4-state-reopen-request-v1` 请求，设置 `reviewed: true` 和唯一 `attempt`。执行器在物理资源锁内重新读两客户端，比对实例、数据盘、boot 和空槽；探针超过 900 秒、资源改变或槽被占用时停止。旧请求未带 `current_boots` 时仍严格匹配原 boot 证据。
+5. 写 `pilot-c4-state-reopen-request-v2` 请求，设置唯一 `attempt`，不填 `reviewed`。本条诊断的授权记录引用本任务已有用户指令，绑定请求、执行脚本、运行目录、输出路径和本次 attempt；它不签审正式实验。执行器在物理资源锁内重新读两客户端，比对实例、数据盘、boot 和空槽；探针超过 900 秒、资源改变或槽被占用时停止。旧 v1 仍要求原人工签审；旧请求未带 `current_boots` 时仍严格匹配原 boot 证据。
 
 请求字段：
 
@@ -44,12 +44,17 @@ python3 "$SCRIPTS/verify-latest.py" --manifest "$CTRL/provenance/build-manifest.
 | `worker` | `c4-state-reopen-node.py` 的实际文件引用 |
 | `verified_checkpoint`、`source_tree` | `$INPUT/verified-checkpoint/checkpoint.json`、`source-tree.json` |
 | `peers.source`、`peers.target` | 各含实际 `repo`、`opencode`、`juicefs` 引用 |
-| `current_boots` | 两端本轮只读探针回执，重启后必填 |
+| `current_boots` | 两端本轮只读探针回执，v2 必填 |
 
 ```bash
+python3 "$RUNNER" record-launch-authorization --request "$REQUEST" --sha256 "$(sha "$REQUEST")" \
+  --runtime-repo "$RUNTIME_REPO" --out "$FRESH_OUT" --authorization-out "$AUTHORIZATION"
 python3 "$RUNNER" --request "$REQUEST" --sha256 "$(sha "$REQUEST")" \
+  --authorization "$AUTHORIZATION" --authorization-sha256 "$(sha "$AUTHORIZATION")" \
   --runtime-repo "$RUNTIME_REPO" --out "$FRESH_OUT"
 ```
+
+`AUTHORIZATION` 是新的绝对文件路径。第一条只写本地授权记录；第二条才会检查现场并执行。
 
 执行时安排值守：当前 SSH 阶段和原生 export 没有硬超时。卡住时检查两端进程、挂载和槽，按原 supervisor 正常停止并核验；不要直接杀协调器释放锁，也不要自动重试。
 
