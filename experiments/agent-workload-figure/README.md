@@ -1,51 +1,36 @@
-# Opening workload figure
+# Background workload figure
 
-One compact figure combines the eight-task capture and the five toolchain
-profiles. It supports one observation: agent workflows generate substantial
-metadata demand, mixed request lengths, and concentrated activity.
+Figure 2 asks which filesystem demands the design must address. It uses two
+panels in one column, rather than one panel for every available statistic.
 
-## Inputs and panels
+- **a — Metadata requests:** percentage of all calls in each of the five
+  archived agent/model profiles. All five profiles remain present; no pooled
+  cross-profile estimate or speed ranking is drawn.
+- **b — Request sizes:** eight task runs, with initial and extended groups
+  kept separate. Each read/write row sums to 100%. Bins are (0,4], (4,64],
+  and (64,infinity) KiB.
 
-- **a — Call mix:** all eight tasks, pooled separately within the initial and
-  extended capture groups. Denominator: every call in that group, all statuses.
-  Hatching identifies errors within each category.
-- **b — Request lengths:** the same two groups; each read/write distribution
-  has its own denominator. Intervals are (0,4], (4,64], and (64,infinity) KiB.
-- **c — Burstiness:** each of the eight tasks separately. Select ceil(10% ×
-  number of one-second windows), retaining idle and final partial windows.
-- **d — Toolchain calls:** all five archived agent/model profiles, with the
-  same six-method metadata definition. Absolute counts; labels are each
-  profile's metadata percentage.
-- **e — Recorded bytes:** read/write byte totals for the same five profiles.
+Inputs are `../agent-fuse-observations/derived/` and the pinned
+`../agent-toolchain-observations/data.json`. Both use the same six-method
+metadata definition. Each task/profile has one observation, so no replicate
+intervals are drawn. The captures retain their own denominators.
 
-Inputs are `../agent-fuse-observations/derived/` and the pinned snapshot
-`../agent-toolchain-observations/data.json`. The two captures remain distinct;
-they are neither pooled together nor a controlled comparison of agent speed.
-Each task/profile has one observation; no replicate-based uncertainty is drawn.
-The original data and standalone renderers remain available.
-
-## Render
+The old task call-mix chart repeated panel a's argument. Its metadata share
+remains in the paper's prose. Burstiness is also summarized in prose. Absolute
+profile call counts and bytes remain in the numeric ledger. The full source
+records and standalone renderers are preserved.
 
 ```powershell
 python experiments/agent-workload-figure/render.py --paper paper
 ```
 
-The output is `paper/figures/background/agent-workloads.{pdf,svg,png}`;
-the numeric ledger and checks go to `paper/validation/agent-workloads/`.
-Use `--qa-scripts` to locate the figure-audit helpers when needed.
+Exports: `paper/figures/background/agent-workloads.{pdf,svg,png}`.
+Checks and numeric ledger: `paper/validation/agent-workloads/`.
+`--qa-scripts` can specify the figure-audit helper directory.
 
-## Figure contract
-
-- Quantitative grid, structurally adapted from the two existing Python plots.
-- Final canvas: **504 × 150 pt** (177.8 × 52.9 mm), full USENIX text width.
-  The independent 240 × 144 pt scenario is placed at 96% of a column.
-- Arial, 7.8 pt minimum, 8.2 pt ticks/labels, 8.6 pt panel titles. SVG text
-  remains editable; PDF is vector; PNG is a 600 dpi preview.
-- Scoped legends separate the capture groups from operation categories.
-  Panels d/e share dimensions and rows; a/b share plot width and left edge.
-- Learn layout proportions, not content, from Oxbow Fig. 2 and CoPilotIO
-  Fig. 2 (OSDI 2026), and Okapi Figs. 1–2 (OSDI 2025): use a column for a
-  focused schematic, and a shallow multi-panel strip for related measurements.
-  No published artwork is copied.
-- Reconcile every count before rendering, audit alignment before export, then
-  audit PDF text/collisions and inspect the compiled manuscript at final size.
+The 240 × 172 pt canvas uses Arial at 7.8–8.6 pt and is placed at column width.
+The two plot areas share their left edge and width. SVG retains editable text;
+PDF is vector, the exported PNG is 600 dpi, and the QA preview is 300 dpi.
+The renderer reconciles every source count and runs the panel-alignment check
+before export. Run PDF text/collision audits and inspect the compiled page
+following layout changes.
