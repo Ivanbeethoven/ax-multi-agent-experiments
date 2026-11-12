@@ -1,0 +1,993 @@
+{
+  "source": "read-only loopback proxy before RustFS; GET bytes and HEAD request count",
+  "working_set": [
+    {
+      "path": "a.txt",
+      "offset": 0,
+      "length": 13,
+      "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+    },
+    {
+      "path": "sub/b.txt",
+      "offset": 0,
+      "length": 64,
+      "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+    }
+  ],
+  "points": [
+    {
+      "brewfs_fuse_read_ops_total": 0,
+      "brewfs_fuse_read_bytes_total": 0,
+      "gets": 7,
+      "ranges": 7,
+      "heads": 0,
+      "bytes": 28254,
+      "errors": 0
+    },
+    {
+      "brewfs_fuse_read_ops_total": 2,
+      "brewfs_fuse_read_bytes_total": 77,
+      "gets": 14,
+      "ranges": 14,
+      "heads": 0,
+      "bytes": 41663,
+      "errors": 0
+    },
+    {
+      "brewfs_fuse_read_ops_total": 4,
+      "brewfs_fuse_read_bytes_total": 154,
+      "gets": 14,
+      "ranges": 14,
+      "heads": 0,
+      "bytes": 41663,
+      "errors": 0
+    }
+  ],
+  "first": {
+    "brewfs_fuse_read_ops_total": 2,
+    "brewfs_fuse_read_bytes_total": 77,
+    "gets": 7,
+    "ranges": 7,
+    "heads": 0,
+    "bytes": 13409,
+    "errors": 0
+  },
+  "second": {
+    "brewfs_fuse_read_ops_total": 2,
+    "brewfs_fuse_read_bytes_total": 77,
+    "gets": 0,
+    "ranges": 0,
+    "heads": 0,
+    "bytes": 0,
+    "errors": 0
+  },
+  "qualified": true,
+  "hot": true,
+  "native": {
+    "passed": true,
+    "reasons": [],
+    "cold": {
+      "range_requests": 7,
+      "received_bytes": 13409,
+      "failures": 0,
+      "logical_bytes": 77
+    },
+    "second_pass": {
+      "range_requests": 0,
+      "received_bytes": 0,
+      "failures": 0,
+      "logical_bytes": 77
+    }
+  },
+  "native_points": [
+    {
+      "range_requests": 6,
+      "received_bytes": 22759,
+      "failures": 0,
+      "logical_bytes": 0
+    },
+    {
+      "range_requests": 13,
+      "received_bytes": 36168,
+      "failures": 0,
+      "logical_bytes": 77
+    },
+    {
+      "range_requests": 13,
+      "received_bytes": 36168,
+      "failures": 0,
+      "logical_bytes": 154
+    }
+  ],
+  "retention_hits": [
+    0,
+    0,
+    2
+  ],
+  "retained_bytes": 8388608,
+  "extent_arm": "overlay-read",
+  "extent_points": [
+    {
+      "queries": 0,
+      "bypasses": 0
+    },
+    {
+      "queries": 2,
+      "bypasses": 0
+    },
+    {
+      "queries": 4,
+      "bypasses": 0
+    }
+  ],
+  "readonly_mount": {
+    "mount_id": 592,
+    "point": "/tmp/ax-c4-packed-fork-qj0mpqm6/mount",
+    "filesystem": "fuse",
+    "source": "brewfs",
+    "options": "ro,nosuid,nodev,relatime"
+  },
+  "writable_open": "EROFS",
+  "expected_extent_path": true,
+  "namespace_points": [
+    {
+      "lookup_queries": 2,
+      "lookup_cache_hits": 0,
+      "lookup_bypasses": 0,
+      "getattr_queries": 1,
+      "getattr_cache_hits": 0,
+      "getattr_bypasses": 0,
+      "directory_probe_queries": 0,
+      "directory_probe_cache_hits": 0,
+      "directory_probe_bypasses": 0
+    },
+    {
+      "lookup_queries": 4,
+      "lookup_cache_hits": 4,
+      "lookup_bypasses": 0,
+      "getattr_queries": 3,
+      "getattr_cache_hits": 24,
+      "getattr_bypasses": 0,
+      "directory_probe_queries": 8,
+      "directory_probe_cache_hits": 0,
+      "directory_probe_bypasses": 0
+    },
+    {
+      "lookup_queries": 4,
+      "lookup_cache_hits": 10,
+      "lookup_bypasses": 0,
+      "getattr_queries": 3,
+      "getattr_cache_hits": 50,
+      "getattr_bypasses": 0,
+      "directory_probe_queries": 14,
+      "directory_probe_cache_hits": 0,
+      "directory_probe_bypasses": 0
+    }
+  ],
+  "expected_namespace_path": true,
+  "timed_extent_reads": {
+    "passed": true,
+    "status": "hot",
+    "scope": "Read-only data extent, lookup, non-root attributes and directory opening",
+    "passes": 128,
+    "elapsed_ns": 1329033464,
+    "pread_ns": [
+      905667,
+      729485,
+      702805,
+      725856,
+      891952,
+      673722,
+      1049574,
+      890406,
+      737923,
+      736969,
+      809122,
+      775624,
+      838760,
+      907636,
+      835266,
+      950186,
+      929870,
+      843185,
+      847884,
+      923777,
+      892029,
+      884617,
+      1042126,
+      822270,
+      849172,
+      806534,
+      925795,
+      794272,
+      1054551,
+      890123,
+      1039519,
+      970299,
+      823214,
+      867595,
+      1016762,
+      942126,
+      1148047,
+      927277,
+      981249,
+      1171401,
+      1150499,
+      904390,
+      976245,
+      921231,
+      950009,
+      941240,
+      961386,
+      891269,
+      1158715,
+      867100,
+      1100673,
+      961858,
+      867802,
+      1001904,
+      1229888,
+      846803,
+      1109820,
+      826651,
+      1097845,
+      905171,
+      831768,
+      979726,
+      981413,
+      987277,
+      990821,
+      837974,
+      832895,
+      820449,
+      931165,
+      891632,
+      801846,
+      786061,
+      919093,
+      969119,
+      952235,
+      899100,
+      912000,
+      941164,
+      875452,
+      862618,
+      778067,
+      960345,
+      1083830,
+      1012241,
+      914150,
+      915652,
+      950072,
+      929707,
+      955438,
+      846562,
+      863679,
+      835411,
+      1019328,
+      911141,
+      900626,
+      1011275,
+      1038594,
+      890805,
+      783403,
+      913966,
+      923718,
+      886650,
+      988719,
+      1006767,
+      955434,
+      854303,
+      1018624,
+      1033818,
+      949163,
+      852994,
+      950300,
+      953320,
+      907247,
+      879524,
+      1071699,
+      871587,
+      835716,
+      751826,
+      962839,
+      870356,
+      860853,
+      817990,
+      941934,
+      945944,
+      853615,
+      901926,
+      967302,
+      856823,
+      979180,
+      872515,
+      907934,
+      872744,
+      1160507,
+      864205,
+      928235,
+      956746,
+      961997,
+      699421,
+      1002159,
+      896170,
+      976335,
+      918658,
+      851886,
+      961138,
+      857487,
+      836981,
+      895999,
+      724718,
+      888267,
+      919894,
+      844912,
+      969903,
+      1020280,
+      855265,
+      838718,
+      882574,
+      791675,
+      887521,
+      889591,
+      928345,
+      982074,
+      960178,
+      927513,
+      825217,
+      974187,
+      786604,
+      825687,
+      876727,
+      953202,
+      858256,
+      852139,
+      879398,
+      844343,
+      984049,
+      1007975,
+      809705,
+      846570,
+      862855,
+      755251,
+      775015,
+      1006987,
+      877706,
+      820195,
+      837824,
+      795467,
+      851144,
+      1032973,
+      939531,
+      931578,
+      966937,
+      923605,
+      835645,
+      896017,
+      814559,
+      845841,
+      960937,
+      1091710,
+      860720,
+      855300,
+      788480,
+      891003,
+      867887,
+      968547,
+      865028,
+      930659,
+      931743,
+      872623,
+      886486,
+      884234,
+      842610,
+      867133,
+      896241,
+      929469,
+      911419,
+      904245,
+      802516,
+      854417,
+      918750,
+      955266,
+      884027,
+      970361,
+      842114,
+      930751,
+      1064272,
+      861208,
+      1083942,
+      901088,
+      872274,
+      1126672,
+      842639,
+      916132,
+      929710,
+      1065202,
+      824866,
+      936434,
+      855092,
+      904353,
+      920766,
+      978537,
+      878033,
+      998490,
+      774171,
+      821815,
+      967226,
+      945631,
+      888175,
+      1003781,
+      843493,
+      823852,
+      883673,
+      1027974,
+      886134,
+      973311,
+      841640,
+      996330,
+      992870
+    ],
+    "final_independent": {
+      "brewfs_fuse_read_ops_total": 260,
+      "brewfs_fuse_read_bytes_total": 10010,
+      "gets": 14,
+      "ranges": 14,
+      "heads": 0,
+      "bytes": 41663,
+      "errors": 0
+    },
+    "final_native": {
+      "range_requests": 13,
+      "received_bytes": 36168,
+      "failures": 0,
+      "logical_bytes": 10010
+    },
+    "final_extent": {
+      "queries": 260,
+      "bypasses": 0
+    },
+    "final_retention_hits": 258,
+    "native_delta": {
+      "range_requests": 0,
+      "received_bytes": 0,
+      "failures": 0,
+      "logical_bytes": 9856
+    },
+    "independent_delta": {
+      "brewfs_fuse_read_ops_total": 256,
+      "brewfs_fuse_read_bytes_total": 9856,
+      "gets": 0,
+      "ranges": 0,
+      "heads": 0,
+      "bytes": 0,
+      "errors": 0
+    },
+    "namespace_ns": [
+      {
+        "open_and_list_ns": 3336329,
+        "lookup_and_stat_ns": 441873
+      },
+      {
+        "open_and_list_ns": 3139775,
+        "lookup_and_stat_ns": 411127
+      },
+      {
+        "open_and_list_ns": 3410955,
+        "lookup_and_stat_ns": 405027
+      },
+      {
+        "open_and_list_ns": 3329430,
+        "lookup_and_stat_ns": 377812
+      },
+      {
+        "open_and_list_ns": 3148590,
+        "lookup_and_stat_ns": 452233
+      },
+      {
+        "open_and_list_ns": 3242625,
+        "lookup_and_stat_ns": 392649
+      },
+      {
+        "open_and_list_ns": 3686794,
+        "lookup_and_stat_ns": 474631
+      },
+      {
+        "open_and_list_ns": 3780128,
+        "lookup_and_stat_ns": 566099
+      },
+      {
+        "open_and_list_ns": 4344677,
+        "lookup_and_stat_ns": 515130
+      },
+      {
+        "open_and_list_ns": 3657000,
+        "lookup_and_stat_ns": 540185
+      },
+      {
+        "open_and_list_ns": 4004607,
+        "lookup_and_stat_ns": 497249
+      },
+      {
+        "open_and_list_ns": 4603004,
+        "lookup_and_stat_ns": 595806
+      },
+      {
+        "open_and_list_ns": 3739025,
+        "lookup_and_stat_ns": 529789
+      },
+      {
+        "open_and_list_ns": 3819098,
+        "lookup_and_stat_ns": 502996
+      },
+      {
+        "open_and_list_ns": 3868573,
+        "lookup_and_stat_ns": 519646
+      },
+      {
+        "open_and_list_ns": 3807695,
+        "lookup_and_stat_ns": 487628
+      },
+      {
+        "open_and_list_ns": 3796981,
+        "lookup_and_stat_ns": 505897
+      },
+      {
+        "open_and_list_ns": 4227517,
+        "lookup_and_stat_ns": 550750
+      },
+      {
+        "open_and_list_ns": 3979769,
+        "lookup_and_stat_ns": 550884
+      },
+      {
+        "open_and_list_ns": 4170217,
+        "lookup_and_stat_ns": 451467
+      },
+      {
+        "open_and_list_ns": 4513143,
+        "lookup_and_stat_ns": 562376
+      },
+      {
+        "open_and_list_ns": 3978299,
+        "lookup_and_stat_ns": 482873
+      },
+      {
+        "open_and_list_ns": 4249569,
+        "lookup_and_stat_ns": 707907
+      },
+      {
+        "open_and_list_ns": 4158477,
+        "lookup_and_stat_ns": 519264
+      },
+      {
+        "open_and_list_ns": 3802751,
+        "lookup_and_stat_ns": 552567
+      },
+      {
+        "open_and_list_ns": 4158113,
+        "lookup_and_stat_ns": 532234
+      },
+      {
+        "open_and_list_ns": 3647300,
+        "lookup_and_stat_ns": 488902
+      },
+      {
+        "open_and_list_ns": 3800253,
+        "lookup_and_stat_ns": 594090
+      },
+      {
+        "open_and_list_ns": 3961969,
+        "lookup_and_stat_ns": 551640
+      },
+      {
+        "open_and_list_ns": 3750078,
+        "lookup_and_stat_ns": 483696
+      },
+      {
+        "open_and_list_ns": 4168685,
+        "lookup_and_stat_ns": 471814
+      },
+      {
+        "open_and_list_ns": 3825496,
+        "lookup_and_stat_ns": 634356
+      },
+      {
+        "open_and_list_ns": 3961040,
+        "lookup_and_stat_ns": 566455
+      },
+      {
+        "open_and_list_ns": 3500887,
+        "lookup_and_stat_ns": 365040
+      },
+      {
+        "open_and_list_ns": 3595973,
+        "lookup_and_stat_ns": 489283
+      },
+      {
+        "open_and_list_ns": 3746857,
+        "lookup_and_stat_ns": 489113
+      },
+      {
+        "open_and_list_ns": 3818079,
+        "lookup_and_stat_ns": 439669
+      },
+      {
+        "open_and_list_ns": 3899774,
+        "lookup_and_stat_ns": 447718
+      },
+      {
+        "open_and_list_ns": 4053451,
+        "lookup_and_stat_ns": 561543
+      },
+      {
+        "open_and_list_ns": 3883650,
+        "lookup_and_stat_ns": 610966
+      },
+      {
+        "open_and_list_ns": 3531604,
+        "lookup_and_stat_ns": 530701
+      },
+      {
+        "open_and_list_ns": 3694273,
+        "lookup_and_stat_ns": 548095
+      },
+      {
+        "open_and_list_ns": 3698906,
+        "lookup_and_stat_ns": 491897
+      },
+      {
+        "open_and_list_ns": 3599678,
+        "lookup_and_stat_ns": 639047
+      },
+      {
+        "open_and_list_ns": 3549122,
+        "lookup_and_stat_ns": 520812
+      },
+      {
+        "open_and_list_ns": 3603441,
+        "lookup_and_stat_ns": 367620
+      },
+      {
+        "open_and_list_ns": 3937259,
+        "lookup_and_stat_ns": 482329
+      },
+      {
+        "open_and_list_ns": 3538370,
+        "lookup_and_stat_ns": 379703
+      },
+      {
+        "open_and_list_ns": 3927973,
+        "lookup_and_stat_ns": 451669
+      },
+      {
+        "open_and_list_ns": 3858347,
+        "lookup_and_stat_ns": 624594
+      },
+      {
+        "open_and_list_ns": 3660205,
+        "lookup_and_stat_ns": 369489
+      },
+      {
+        "open_and_list_ns": 3464596,
+        "lookup_and_stat_ns": 384655
+      },
+      {
+        "open_and_list_ns": 3539557,
+        "lookup_and_stat_ns": 547750
+      },
+      {
+        "open_and_list_ns": 3780712,
+        "lookup_and_stat_ns": 476620
+      },
+      {
+        "open_and_list_ns": 3743942,
+        "lookup_and_stat_ns": 420657
+      },
+      {
+        "open_and_list_ns": 4156320,
+        "lookup_and_stat_ns": 506679
+      },
+      {
+        "open_and_list_ns": 3704440,
+        "lookup_and_stat_ns": 407589
+      },
+      {
+        "open_and_list_ns": 3859234,
+        "lookup_and_stat_ns": 459014
+      },
+      {
+        "open_and_list_ns": 3956220,
+        "lookup_and_stat_ns": 534579
+      },
+      {
+        "open_and_list_ns": 3784380,
+        "lookup_and_stat_ns": 455642
+      },
+      {
+        "open_and_list_ns": 3254205,
+        "lookup_and_stat_ns": 555438
+      },
+      {
+        "open_and_list_ns": 3571183,
+        "lookup_and_stat_ns": 633958
+      },
+      {
+        "open_and_list_ns": 3979454,
+        "lookup_and_stat_ns": 458680
+      },
+      {
+        "open_and_list_ns": 4010209,
+        "lookup_and_stat_ns": 505336
+      },
+      {
+        "open_and_list_ns": 3787119,
+        "lookup_and_stat_ns": 548570
+      },
+      {
+        "open_and_list_ns": 3619431,
+        "lookup_and_stat_ns": 559074
+      },
+      {
+        "open_and_list_ns": 4033441,
+        "lookup_and_stat_ns": 593694
+      },
+      {
+        "open_and_list_ns": 4046952,
+        "lookup_and_stat_ns": 463369
+      },
+      {
+        "open_and_list_ns": 3943334,
+        "lookup_and_stat_ns": 529661
+      },
+      {
+        "open_and_list_ns": 3662961,
+        "lookup_and_stat_ns": 456279
+      },
+      {
+        "open_and_list_ns": 4240498,
+        "lookup_and_stat_ns": 558327
+      },
+      {
+        "open_and_list_ns": 3534915,
+        "lookup_and_stat_ns": 476841
+      },
+      {
+        "open_and_list_ns": 3769115,
+        "lookup_and_stat_ns": 486231
+      },
+      {
+        "open_and_list_ns": 4039571,
+        "lookup_and_stat_ns": 491201
+      },
+      {
+        "open_and_list_ns": 3819314,
+        "lookup_and_stat_ns": 500371
+      },
+      {
+        "open_and_list_ns": 3407439,
+        "lookup_and_stat_ns": 472741
+      },
+      {
+        "open_and_list_ns": 3749512,
+        "lookup_and_stat_ns": 618071
+      },
+      {
+        "open_and_list_ns": 3626670,
+        "lookup_and_stat_ns": 573063
+      },
+      {
+        "open_and_list_ns": 3666872,
+        "lookup_and_stat_ns": 517720
+      },
+      {
+        "open_and_list_ns": 3798522,
+        "lookup_and_stat_ns": 428422
+      },
+      {
+        "open_and_list_ns": 4081185,
+        "lookup_and_stat_ns": 640574
+      },
+      {
+        "open_and_list_ns": 3685204,
+        "lookup_and_stat_ns": 589138
+      },
+      {
+        "open_and_list_ns": 3857318,
+        "lookup_and_stat_ns": 485292
+      },
+      {
+        "open_and_list_ns": 3483640,
+        "lookup_and_stat_ns": 381956
+      },
+      {
+        "open_and_list_ns": 3649016,
+        "lookup_and_stat_ns": 460663
+      },
+      {
+        "open_and_list_ns": 3862851,
+        "lookup_and_stat_ns": 520726
+      },
+      {
+        "open_and_list_ns": 3686012,
+        "lookup_and_stat_ns": 405571
+      },
+      {
+        "open_and_list_ns": 3983890,
+        "lookup_and_stat_ns": 651400
+      },
+      {
+        "open_and_list_ns": 3738625,
+        "lookup_and_stat_ns": 591647
+      },
+      {
+        "open_and_list_ns": 3689249,
+        "lookup_and_stat_ns": 514424
+      },
+      {
+        "open_and_list_ns": 3498018,
+        "lookup_and_stat_ns": 340035
+      },
+      {
+        "open_and_list_ns": 3960881,
+        "lookup_and_stat_ns": 348417
+      },
+      {
+        "open_and_list_ns": 3489671,
+        "lookup_and_stat_ns": 493283
+      },
+      {
+        "open_and_list_ns": 3484936,
+        "lookup_and_stat_ns": 466782
+      },
+      {
+        "open_and_list_ns": 3889198,
+        "lookup_and_stat_ns": 332817
+      },
+      {
+        "open_and_list_ns": 4104617,
+        "lookup_and_stat_ns": 425628
+      },
+      {
+        "open_and_list_ns": 3736592,
+        "lookup_and_stat_ns": 585640
+      },
+      {
+        "open_and_list_ns": 3714552,
+        "lookup_and_stat_ns": 499652
+      },
+      {
+        "open_and_list_ns": 4506201,
+        "lookup_and_stat_ns": 1072974
+      },
+      {
+        "open_and_list_ns": 3484069,
+        "lookup_and_stat_ns": 537295
+      },
+      {
+        "open_and_list_ns": 3516004,
+        "lookup_and_stat_ns": 372486
+      },
+      {
+        "open_and_list_ns": 3731472,
+        "lookup_and_stat_ns": 535930
+      },
+      {
+        "open_and_list_ns": 4090601,
+        "lookup_and_stat_ns": 536899
+      },
+      {
+        "open_and_list_ns": 3650089,
+        "lookup_and_stat_ns": 494940
+      },
+      {
+        "open_and_list_ns": 3752705,
+        "lookup_and_stat_ns": 389724
+      },
+      {
+        "open_and_list_ns": 3803223,
+        "lookup_and_stat_ns": 439632
+      },
+      {
+        "open_and_list_ns": 3903080,
+        "lookup_and_stat_ns": 507976
+      },
+      {
+        "open_and_list_ns": 3899337,
+        "lookup_and_stat_ns": 402813
+      },
+      {
+        "open_and_list_ns": 3868851,
+        "lookup_and_stat_ns": 446785
+      },
+      {
+        "open_and_list_ns": 3674245,
+        "lookup_and_stat_ns": 436781
+      },
+      {
+        "open_and_list_ns": 3945368,
+        "lookup_and_stat_ns": 490525
+      },
+      {
+        "open_and_list_ns": 3695087,
+        "lookup_and_stat_ns": 489748
+      },
+      {
+        "open_and_list_ns": 3994128,
+        "lookup_and_stat_ns": 516768
+      },
+      {
+        "open_and_list_ns": 3721383,
+        "lookup_and_stat_ns": 496703
+      },
+      {
+        "open_and_list_ns": 4498911,
+        "lookup_and_stat_ns": 556128
+      },
+      {
+        "open_and_list_ns": 3697217,
+        "lookup_and_stat_ns": 552793
+      },
+      {
+        "open_and_list_ns": 3975858,
+        "lookup_and_stat_ns": 517418
+      },
+      {
+        "open_and_list_ns": 3889423,
+        "lookup_and_stat_ns": 373250
+      },
+      {
+        "open_and_list_ns": 3176613,
+        "lookup_and_stat_ns": 513942
+      },
+      {
+        "open_and_list_ns": 3779757,
+        "lookup_and_stat_ns": 491318
+      },
+      {
+        "open_and_list_ns": 3767877,
+        "lookup_and_stat_ns": 464374
+      },
+      {
+        "open_and_list_ns": 3754006,
+        "lookup_and_stat_ns": 465041
+      },
+      {
+        "open_and_list_ns": 3642482,
+        "lookup_and_stat_ns": 568822
+      },
+      {
+        "open_and_list_ns": 3916208,
+        "lookup_and_stat_ns": 787211
+      },
+      {
+        "open_and_list_ns": 3557258,
+        "lookup_and_stat_ns": 548953
+      },
+      {
+        "open_and_list_ns": 3890364,
+        "lookup_and_stat_ns": 407715
+      },
+      {
+        "open_and_list_ns": 3710023,
+        "lookup_and_stat_ns": 470008
+      },
+      {
+        "open_and_list_ns": 3583834,
+        "lookup_and_stat_ns": 489621
+      }
+    ],
+    "final_namespace": {
+      "lookup_queries": 4,
+      "lookup_cache_hits": 651,
+      "lookup_bypasses": 0,
+      "getattr_queries": 3,
+      "getattr_cache_hits": 3378,
+      "getattr_bypasses": 0,
+      "directory_probe_queries": 784,
+      "directory_probe_cache_hits": 0,
+      "directory_probe_bypasses": 0
+    }
+  }
+}
