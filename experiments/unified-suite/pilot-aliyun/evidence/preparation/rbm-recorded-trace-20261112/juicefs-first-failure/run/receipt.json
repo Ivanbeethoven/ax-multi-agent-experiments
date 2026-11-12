@@ -1,0 +1,47 @@
+{
+  "formal_sample": false,
+  "workload": "c2",
+  "engine": "workspace-v1",
+  "hint": "auto",
+  "layout": "enabled",
+  "arms": {
+    "juicefs": {
+      "phase": "run",
+      "passed": false,
+      "verify_base": {
+        "passed": true,
+        "entries": 2
+      },
+      "initial_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "error": "Command '['timeout', '--signal=TERM', '--kill-after=5s', '90', '/srv/ax-data/workspace-adapter-20261111/venv/bin/python', '/tmp/ax-feature-align/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py', '--case', '/var/tmp/ax-recorded-smoke-20261112-02', '--binary', '/var/tmp/ax-full-replay-20261112/release/full-fuse-replay', '--root', '/tmp/ax-rbm-cf8822be9e08-qdgy4ano/juicefs', '--out', '/var/tmp/ax-c2-recorded-juicefs-20261112-01/run/juicefs/run', '--portable-terminal-probe', '--cache-parent-fds', '--juicefs-controls', '--prepared-root']' returned non-zero exit status 1. Traceback (most recent call last):\n  File \"/tmp/ax-feature-align/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py\", line 168, in <module>\n    main()\n  File \"/tmp/ax-feature-align/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py\", line 110, in main\n    raise RuntimeError('Strict replay failed; original output retained')\nRuntimeError: Strict replay failed; original output retained\n",
+      "log_tails": {
+        "initial.log": "uicefs/ax-smoke/ [mount@mount.go:620]\n2026/11/12 18:26:06.579943 juicefs[348369] <INFO>: JuiceFS version 1.4.2+2026-10-22.46af7af [mount@mount.go:663]\n2026/11/12 18:26:06.582203 juicefs[348369] <INFO>: Disk cache (/tmp/ax-rbm-cf8822be9e08-qdgy4ano/initial-juicefs/06defd4e-f51a-4b68-a3e9-b57f7580656e/): used ratio - [space 37.4%, inode 2.1%] [newCacheStore@disk_cache.go:154]\n2026/11/12 18:26:06.582301 juicefs[348369] <INFO>: Adjusted max items based on freeratio: from 0 to 56505137 items [setLimitByFreeRatio@disk_cache.go:191]\n2026/11/12 18:26:06.585771 juicefs[348369] <INFO>: Create session 1 OK with version: 1.4.2+2026-10-22.46af7af [NewSession@base.go:816]\n2026/11/12 18:26:06.588128 juicefs[348369] <INFO>: Prometheus metrics listening on \"127.0.0.1:9567\" [exposeMetrics@mount.go:137]\n2026/11/12 18:26:06.589358 juicefs[348369] <INFO>: Mounting volume ax-smoke at \"/tmp/ax-rbm-cf8822be9e08-qdgy4ano/juicefs\" ... [mountMain@mount_unix.go:1165]\n2026-11-12 18:26:06.916266 I | Unimplemented opcode OPCODE-52\n2026/11/12 18:26:06.955207 juicefs[348369] <INFO>: flush buffered data in 1.518\u00b5s: <nil> [FlushAll@vfs.go:1330]\n2026/11/12 18:26:06.956546 juicefs[348369] <INFO>: flush session 1: [FlushSession@base.go:1027]\n2026/11/12 18:26:06.957140 juicefs[348369] <INFO>: close session 1: <nil> [CloseSession@base.go:1016]\n2026/11/12 18:26:06.968188 juicefs[348369] <INFO>: The juicefs mount process exit successfully, mountpoint: \"/tmp/ax-rbm-cf8822be9e08-qdgy4ano/juicefs\" [mount@mount.go:698]\n. "
+      }
+    }
+  },
+  "binary_sha256": {
+    "brewfs": "b0480e4502548ec161651cdbae4ec593ba3fd7ae42b54481c9af5ff8ee981630",
+    "producer": "ddfb003a2fefb95d9e8381248626db5fb85d2042f42a01a97a23dd0186dec8f8",
+    "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+    "smallfiles": "1e27cb2204dff633aea1d21a61a6fa740cfe9aa2afdb501bc41eca33cb8fd62f",
+    "replay": "fb0a17674c7a4f64e6fd5cf0f21437ebd51ec8354eece4a82bcdd3084a612fba"
+  },
+  "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+  "phase": "workload",
+  "trace_sha256": "886dee138cc5c1378ef885274cbce84238bd087f32f1c2c5bd504dcd49e9a9a1",
+  "trace_kind": "full-fuse-input",
+  "trace_callbacks": 367,
+  "source": {
+    "passed": true,
+    "entries": 2
+  },
+  "mounts_absent": true,
+  "rustfs_removed": true,
+  "redis_exited": true,
+  "scratch_removed": true,
+  "passed": false
+}

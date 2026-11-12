@@ -1,0 +1,103 @@
+{
+  "callbacks": 367,
+  "operations_by_type": {
+    "init": 1,
+    "getattr": 188,
+    "open": 5,
+    "ioctl": 4,
+    "read": 21,
+    "flush": 9,
+    "release": 9,
+    "mkdir": 1,
+    "create": 4,
+    "getxattr": 45,
+    "chown": 3,
+    "write": 51,
+    "fsync": 9,
+    "opendir": 2,
+    "fsyncdir": 2,
+    "releasedir": 2,
+    "unlink": 3,
+    "truncate": 2,
+    "rename": 2,
+    "symlink": 1,
+    "chmod": 1,
+    "readlink": 1,
+    "destroy": 1
+  },
+  "errors_by_errno": {
+    "25": 4,
+    "2": 15,
+    "61": 45
+  },
+  "actual_read_bytes": 82192,
+  "actual_write_bytes": 107307,
+  "requested_read_bytes": 86016,
+  "requested_write_bytes": 107307,
+  "repeated_read_bytes": 12281,
+  "repeated_read_ratio": 0.14941843488417364,
+  "namespaces": {
+    "seed": {
+      "actual_read_bytes": 12288,
+      "actual_write_bytes": 7,
+      "repeated_read_bytes": 8185,
+      "repeated_read_ratio": 0.6660970052083334
+    },
+    "state": {
+      "actual_read_bytes": 61712,
+      "actual_write_bytes": 107300,
+      "repeated_read_bytes": 0,
+      "repeated_read_ratio": 0.0
+    },
+    "seed-alias": {
+      "actual_read_bytes": 4096,
+      "actual_write_bytes": 0,
+      "repeated_read_bytes": 0,
+      "repeated_read_ratio": 0.0
+    },
+    "renamed": {
+      "actual_read_bytes": 4096,
+      "actual_write_bytes": 0,
+      "repeated_read_bytes": 4096,
+      "repeated_read_ratio": 1.0
+    }
+  },
+  "subtrees": {
+    "repo": {
+      "actual_read_bytes": 20480,
+      "actual_write_bytes": 7,
+      "repeated_read_bytes": 12281
+    },
+    "state/opencode.db-journal": {
+      "actual_read_bytes": 0,
+      "actual_write_bytes": 524,
+      "repeated_read_bytes": 0
+    },
+    "state/opencode.db": {
+      "actual_read_bytes": 0,
+      "actual_write_bytes": 32768,
+      "repeated_read_bytes": 0
+    },
+    "state/opencode.db-shm": {
+      "actual_read_bytes": 32768,
+      "actual_write_bytes": 8,
+      "repeated_read_bytes": 0
+    },
+    "state/opencode.db-wal": {
+      "actual_read_bytes": 28944,
+      "actual_write_bytes": 41232,
+      "repeated_read_bytes": 0
+    },
+    "state/.fuse_hidden0000000700000001": {
+      "actual_read_bytes": 0,
+      "actual_write_bytes": 32768,
+      "repeated_read_bytes": 0
+    }
+  },
+  "distinct_request_pids": 3,
+  "capture_elapsed_s": 0.316129825,
+  "scope": "FUSE callback bytes; excludes kernel cache hits, local lock handling, image runtime and /tmp",
+  "repeat_definition": "same file identity and offset already read since last overwrite; rename/link preserve identity",
+  "physical_device_bytes": null,
+  "application_syscall_bytes": null
+}

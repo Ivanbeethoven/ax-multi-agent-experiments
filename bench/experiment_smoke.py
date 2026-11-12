@@ -21,6 +21,8 @@ def main():
     p.add_argument('--rustfs-revision', default='f4ed202508f2153afb7956bae6f7799b60eccd00')
     p.add_argument('--trace', type=Path)
     p.add_argument('--replay', type=Path)
+    p.add_argument('--full-trace', action='store_true', help='Use complete trace counts, links and SQLite verification')
+    p.add_argument('--trace-timeout', type=int, default=300, help='Seconds for each full trace qualification step')
     p.add_argument('--out', type=Path, required=True)
     a = p.parse_args()
     for name in ('brewfs','producer','smallfiles','juicefs','trace','replay','out','brewfs_provenance'):
@@ -64,6 +66,8 @@ def main():
                 if not a.trace or not a.replay:
                     p.error('C2 requires --trace and --replay')
                 cmd += ['--trace',str(a.trace),'--replay',str(a.replay)]
+                if a.full_trace:
+                    cmd += ['--full-trace','--trace-timeout',str(a.trace_timeout)]
         else:
             cmd += ['--brewfs-revision' ,a.brewfs_revision]
             if a.brewfs_provenance:

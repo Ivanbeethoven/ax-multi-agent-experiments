@@ -24,10 +24,14 @@ p.add_argument('--workload', choices=('c1','c2','c3'), default='c3')
 p.add_argument('--engine', choices=('flat-v1','workspace-v1'), default='workspace-v1')
 p.add_argument('--trace', type=Path)
 p.add_argument('--replay', type=Path)
+p.add_argument('--full-trace', action='store_true')
+p.add_argument('--trace-timeout', type=int, default=300)
 p.add_argument('--hint', default='auto')
 p.add_argument('--layout', choices=('enabled','disabled','block-only'), default='enabled')
 p.add_argument('--product', choices=('brewfs','juicefs'), required=True)
 a = p.parse_args()
+if a.trace_timeout <= 0:
+    p.error('--trace-timeout must be positive')
 a.out.mkdir(mode=0o700)
 result = {'formal_sample': False, 'workload': a.workload, 'engine': a.engine, 'hint': a.hint, 'layout': a.layout, 'arms': {}}
 run_id = 'ax-rbm-' + uuid.uuid4().hex[:12]
@@ -65,11 +69,36 @@ def workload(stage, root, out, *extra):
             events = a.trace/'capture/events.jsonl'
             with events.open() as stream:
                 callbacks = sum(1 for _ in stream)
-            if callbacks != 140:
+            if not a.full_trace and callbacks != 140:
                 raise ValueError('this minimal C2 adapter requires the frozen 140-callback fixture')
-            shutil.copytree(a.trace/'initial',root,symlinks=True)
-            result['trace_sha256'] = hashlib.sha256((a.trace/'capture/events.jsonl').read_bytes()).hexdigest()
-            result['trace_kind'] = 'synthetic-140-callback-smoke-not-full-agent'
+            call('cp','-a','--',a.trace/'initial',root)
+            with events.open('rb') as stream:
+                result['trace_sha256'] = hashlib.file_digest(stream,'sha256').hexdigest()
+            result['trace_kind'] = 'full-fuse-input' if a.full_trace else 'synthetic-140-callback-smoke-not-full-agent'
+            result['trace_callbacks'] = callbacks
+            if a.full_trace:
+                metrics = json.loads((a.trace/'metrics.json').read_text())
+                if callbacks != metrics['callbacks']:
+                    raise ValueError('trace callbacks differ from metrics')
+                for name in ('initial-tree.json','final-tree.json','hardlink-check.json'):
+                    if not (a.trace/name).is_file():
+                        raise ValueError('full trace input missing '+name)
+        elif a.full_trace and stage in ('run','verify-touched'):
+            command = ['timeout','--signal=TERM','--kill-after=5s',str(a.trace_timeout),
+                       sys.executable,Path(__file__).with_name('qualify-trace.py'),
+                       '--case',a.trace,'--binary',a.replay,'--root',root,'--out',out,
+                       '--portable-terminal-probe','--cache-parent-fds']
+            if a.product == 'juicefs':
+                command.append('--juicefs-controls')
+            if stage == 'run':
+                command.append('--prepared-root')
+            else:
+                command += ['--verify-only','--replay-result',out.parent/'run/replay.json']
+            call(*command,timeout=a.trace_timeout+15)
+            proof = json.loads((out/'verification.json').read_text())
+            if stage == 'run':
+                result['replay'] = json.loads((out/'replay.json').read_text())
+            return proof
         elif stage == 'run':
             out.mkdir()
             call(a.replay,a.trace/'capture/events.jsonl',a.trace/'capture/blobs',root,out/'replay.json')
@@ -145,7 +174,7 @@ def visit(product, point, work, out, cmd, arm, reopen=False):
                 if product == 'juicefs' or a.engine == 'flat-v1':
                     import shutil
                     if a.workload == 'c2':
-                        shutil.copytree(work/'source',point,dirs_exist_ok=True,symlinks=True)
+                        call('cp','-a','--',str(work/'source')+'/.',str(point)+'/')
                     else:
                         shutil.copytree(work/'source'/'small',point/'small')
                 arm['verify_base'] = workload('verify-base',point,out/'verify-base')
@@ -295,7 +324,8 @@ def run(work):
                     call(a.juicefs,'format','--storage','s3','--bucket',ep+'/'+bucket,
                          '--access-key',key,'--secret-key',secret,url,'ax-smoke')
                     def command(cache):
-                        return [a.juicefs,'mount','--cache-dir',work/cache,url,point]
+                        return [a.juicefs,'mount','--enable-xattr','--enable-cap',
+                                '--cache-dir',work/cache,url,point]
                 visit(product,point,work,out,command('initial-'+product),arm)
                 visit(product,point,work,out,command('reopen-'+product),arm,reopen=True)
                 arm.update(phase='complete',passed=True)

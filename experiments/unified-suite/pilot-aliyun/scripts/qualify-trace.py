@@ -16,6 +16,8 @@ import time
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO/'scripts'))
 from full_trace_common import tree
+sys.path.insert(0, str(REPO))
+from bench.runtime.smoke_tree import file_tree
 
 
 def digest(path):
@@ -29,9 +31,19 @@ def save(path, value):
         stream.write('\n')
 
 
-def hardlinks(root):
+def paths(root, juicefs_controls=False):
+    for folder, dirs, files in os.walk(root, followlinks=False):
+        if juicefs_controls and Path(folder) == root:
+            excluded = {'.stats','.config','.accesslog','.trash'}
+            dirs[:] = [name for name in dirs if name not in excluded]
+            files = [name for name in files if name not in excluded]
+        for name in dirs + files:
+            yield Path(folder) / name
+
+
+def hardlinks(root, juicefs_controls=False):
     groups = {}
-    for path in root.rglob('*'):
+    for path in paths(root, juicefs_controls):
         st = path.lstat()
         if path.is_file() and not path.is_symlink():
             groups.setdefault((st.st_dev, st.st_ino), []).append(path.relative_to(root).as_posix())
@@ -50,7 +62,9 @@ def main():
     parser.add_argument('--portable-terminal-probe',action='store_true',help='Only allow TCGETS ENOTTY to EOPNOTSUPP; retain all byte checks')
     parser.add_argument('--performance-readback',action='store_true',help='Verify final content after a performance replay; does not validate intermediate read bytes')
     parser.add_argument('--cache-parent-fds',action='store_true',help='Reuse bounded directory FDs; invalidate around namespace and permission changes')
+    parser.add_argument('--juicefs-controls',action='store_true',help='Exclude JuiceFS root control entries from tree checks')
     args = parser.parse_args()
+    check_tree = file_tree if args.juicefs_controls else tree
     case = args.case.resolve(strict=True)
     root = args.root.absolute()
     out = args.out.absolute()
@@ -72,9 +86,9 @@ def main():
                                   events_sha256=digest(case/'capture/events.jsonl'), automatic_retry=False))
     if not args.prepared_root and not args.verify_only:
         subprocess.run(['cp', '-a', '--', str(case/'initial'), str(root)], check=True)
-    if not args.verify_only and tree(root) != json.loads((case/'initial-tree.json').read_text()):
+    if not args.verify_only and check_tree(root) != json.loads((case/'initial-tree.json').read_text()):
         raise ValueError('Initial tree differs')
-    if not args.verify_only and hardlinks(root) != hardlinks(case/'initial'):
+    if not args.verify_only and hardlinks(root, args.juicefs_controls) != hardlinks(case/'initial'):
         raise ValueError('Initial hardlink topology differs')
     command = [str(args.binary.resolve()), str(case/'capture/events.jsonl'),
                str(case/'capture/blobs'), str(root), str(out/'replay.json')]
@@ -109,14 +123,16 @@ def main():
                              ('actual_write_bytes','actual_write_bytes')]:
         if report[actual] != metrics[expected]:
             raise ValueError('Replay work differs: '+actual)
-    if tree(root) != json.loads((case/'final-tree.json').read_text()):
+    if check_tree(root) != json.loads((case/'final-tree.json').read_text()):
         raise ValueError('Final tree differs')
     expected_links = json.loads((case/'hardlink-check.json').read_text())['groups']
-    if hardlinks(root) != expected_links:
+    if hardlinks(root, args.juicefs_controls) != expected_links:
         raise ValueError('Final hardlink topology differs')
     databases = []
     # Never open the replay DB itself: SQLite recovery can modify it.
-    for db in root.rglob('opencode.db'):
+    for db in paths(root, args.juicefs_controls):
+        if db.name != 'opencode.db':
+            continue
         if db.is_symlink():
             raise ValueError('Unexpected DB symlink')
         before = digest(db)
@@ -142,6 +158,7 @@ def main():
          hardlink_topology_equal=True, databases=databases, callbacks=report['operations'],
          actual_read_bytes=report['actual_read_bytes'], actual_write_bytes=report['actual_write_bytes'],
          captured_repeated_read_ratio=metrics['repeated_read_ratio'],
+         juicefs_controls_excluded=args.juicefs_controls,
          purpose=purpose,replayed=not args.verify_only,
          scope='Exact callback/byte counts and final file bytes, modes, links and copied SQLite integrity. Intermediate reads are byte-checked only in strict replay modes; no Agent resume or performance acceptance claim'))
     print((out/'verification.json').read_text())

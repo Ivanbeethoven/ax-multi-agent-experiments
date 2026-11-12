@@ -4,7 +4,7 @@
 模式参数由 `bench.experiment_modes` 解析，运行入口把 engine、hint、RustFS layout 和原生 fork/clone 传入真实探针。
 
 - C1：1 MiB 顺序写读、16 个 4 KiB 随机读写、75:25 混合读写，写后 fsync，重挂后 SHA256。配置切换成功不等于实际 B/q 已生效；本探针不作布局或性能验收。
-- C2：140 条合成回调的 Rust 严格回放，核初始树、最终树与重挂树。此输入不是完整 pytest trace，不作真实 Agent 工作量结果。
+- C2：默认使用 140 条合成回调；传 `--full-trace` 后按输入清单核全部回调、读写量、树、硬链接和 SQLite，并做冷重挂校验。已用 [367 次真实 FUSE 小负载](evidence/preparation/rbm-recorded-trace-20261112/README.zh.md)验证两文件系统；该输入无模型调用。
 - C3：128 × 4 KiB，核初始文件、执行固定读写、重挂核修改文件。
 - C4 派生：两文件 77 字节，原生 fork/clone、子读、覆盖及新建、父读回、子重挂。错误仍输出失败回执。
 - C2 只读上层对照：传入已通过的候选摘要后，两种模式会实际挂载并验证 FUSE、热态和路径计数。可写 Overlay、Pack 同引擎消融及 C4 跨机干净迁移仍需接线；单机重挂不能算跨机迁移通过。
@@ -57,3 +57,7 @@ C2 只读模式已在 [rbm 通过](evidence/preparation/rbm-c2-read-controls-202
 ~~~
 
 这是替换参数片段。跳过上层的组用 `--mode overlay-off`。需要同一工作区顺序验证两组时，使用 `scripts/qualify-packed-read-local.py --arm both`；完整实际命令见回执的 argv。该候选与 C4 候选是不同产物，应分别运行。
+
+完整格式的 C2 输入：在单项命令中传 `--full-trace --trace /path/to/case --replay /path/to/current/full-fuse-replay --trace-timeout 300`。输入须含 initial、capture/events.jsonl、capture/blobs、initial-tree.json、final-tree.json、metrics.json、hardlink-check.json；回放器由当前 `tools/full-fuse-replay` 构建。超时停止本轮回放并正常清理，不截断输入凑通过。
+
+要重新生成无模型小输入，安装 fusepy 后运行 `python3 experiments/unified-suite/pilot-aliyun/scripts/capture-smoke-trace.py --out /new/case`。SQLite 只是测试数据，不是 OpenCode 的真实会话。
