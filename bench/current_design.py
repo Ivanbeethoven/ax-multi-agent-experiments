@@ -73,9 +73,13 @@ def validate(config):
     require(fork['arms'] == ['brewfs-full', 'juicefs'] and
             fork.get('creation_methods') == {'brewfs-full': 'native-fork', 'juicefs': 'native-clone'}
             and set(fork) == {'arms', 'agents', 'files', 'file_bytes', 'fixture',
-                              'creation', 'source', 'creation_methods', 'mutations'}
+                              'creation', 'source', 'creation_methods', 'required_evidence', 'mutations'}
             and fork['source'] == 'exact-immutable-revision' and fork['creation'] == 'burst',
             'C4 derivation is exclusively BrewFS native fork versus JuiceFS native clone')
+    require(set(fork['required_evidence']) ==
+            {'same-nonempty-parent-content', 'brewfs-child-inherits-packed-lower', 'child-first-correct-read',
+             'parent-sibling-isolation', 'full-cold-readback-after-drain'},
+            'Qualify a populated lower before a C4 timed run; a successful command alone is insufficient')
     overlay = ablations['overlay-off']
     require(overlay.get('workloads') == ['C2-runtime']
             and overlay.get('protocol') == 'warm-lower-runtime-only'
