@@ -16,3 +16,17 @@
 [与 JuiceFS 对照一致的 root 身份测试](root-principal-smoke-receipt.json)用同一二进制与同样的两个文件确认：六次挂载中，根目录为 `0:0`、`0755`，`sub` 保留输入的 `1000:1000`、`0755`。在第一个子工作区创建文件并 `fsync`，卸载后以新的缓存目录重挂，文件哈希一致；重新挂载兄弟和父工作区均看不到该文件。两个子工作区共享同一 Packed 版本，各有独立的写入桶。
 
 这两次测试都只用了一个 WSL 主机与临时 Redis、RustFS；全部卸载并清理。通过的是本地原生派生及写入隔离资格，未测跨机恢复或性能。
+
+复现：在 Linux 或 WSL 中使用本机 Docker、`/dev/fuse`、`fusermount3`，以及安装了 `boto3` 的 Python 3.11 或更新版本。Redis 和 RustFS 镜像须已在本机，镜像 ID 见结果；脚本不会拉镜像。准备好由该补丁构建的 BrewFS 及固定哈希的 `packed_v3_snapshot_fixture`。从实验仓库根目录运行：
+
+```bash
+P=experiments/unified-suite/pilot-aliyun
+E="$P/evidence/preparation/c4-local-packed-fork-candidate-01"
+sudo -n timeout -k 15s 180s /absolute/path/to/python3 "$P/scripts/qualify-c4-packed-fork-local.py" \
+  --candidate /absolute/path/to/brewfs \
+  --provenance "$E/root-nlink-build-receipt.json" \
+  --producer /absolute/path/to/packed_v3_snapshot_fixture \
+  --out /absolute/path/to/new-smoke.json
+```
+
+若从同一补丁重新构建，用对应的成功构建收据替换 `--provenance`，其中记录 `source_commit`、`source_tree`、`candidate_patch_sha256`、`artifact_sha256` 与 `passed: true`。脚本会在启动服务前核对二进制哈希，且只使用本机 Docker 和回环端口。
