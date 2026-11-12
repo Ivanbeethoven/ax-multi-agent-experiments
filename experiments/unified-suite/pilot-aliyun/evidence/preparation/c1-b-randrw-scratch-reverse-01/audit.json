@@ -1,0 +1,96 @@
+{
+  "schema": "b-c1-randrw-scratch-audit-v1",
+  "utc": "2026-11-12T08:21:38.879469+00:00",
+  "run": "ax-c1b-06341b7b39",
+  "source_pins": [
+    {
+      "file": "plan.json",
+      "sha256": "2a918fcb29919d66314c73232bf62b4c6a55342fcccde806b57463a804a43170"
+    },
+    {
+      "file": "summary.json",
+      "sha256": "b7f39de8303c3389edbc70a75a6b43d5ea4a9a1a7a63b7ceb43b3b9326a7784b"
+    },
+    {
+      "file": "client-evidence.tar.gz",
+      "sha256": "bf7ef897510f477b88a056bceff68f09946f5c794d894aec5bef8a0d9b7b337a"
+    },
+    {
+      "file": "objects-evidence.tar.gz",
+      "sha256": "7335e262fc11eb49cf9c169fea87acbd7cc10d6220f122ab7164fd9cc57f2222"
+    },
+    {
+      "file": "metadata-evidence.tar.gz",
+      "sha256": "f363fbc4fa05b79511d16b7041d55e0b2235f83ac930180c360471a899fca9a3"
+    },
+    {
+      "file": "brewfs-headroom.json",
+      "sha256": "301b9c2e0842e946b9083ebe94f62aa4e5fd558cfe15f6fe90203a391205cbea"
+    },
+    {
+      "file": "stopped.json",
+      "sha256": "915c98967404acc802a1f21a6fb57ece6f0f4c47065845f7c8d8820ae36355bd"
+    },
+    {
+      "file": "released.json",
+      "sha256": "8877a37f0b29972c7c6963ae2a7da58ce6fa9800ee583c91ce95a33a7221dca2"
+    }
+  ],
+  "phase_order": [
+    "brewfs",
+    "juicefs"
+  ],
+  "completed": {},
+  "partial_measures": {
+    "brewfs": {
+      "bytes": 67108864,
+      "read_bytes": 50479104,
+      "write_bytes": 16629760,
+      "seconds": 42.63395460500001,
+      "raw_fio_sha256": "1daf0822349668211ed302a5e09f55ba6c279a9757d9868d52c6a04687aca14a",
+      "scope": "fio exit and native JSON only; durable cold closure is absent"
+    }
+  },
+  "failed": [
+    "ValueError('Arm terminal receipt is not a successful cold close')"
+  ],
+  "performance_calibrated": false,
+  "historical_acceptance_delta": 0,
+  "object_capacity": {
+    "samples": 27,
+    "clocks_synchronized": false,
+    "reserve_stop_observed": false,
+    "disks": [
+      {
+        "device": "253:80",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039245824,
+        "minimum_free_bytes": 99955183616,
+        "final_free_bytes": 99955183616
+      },
+      {
+        "device": "253:96",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039245824,
+        "minimum_free_bytes": 99955183616,
+        "final_free_bytes": 99955183616
+      },
+      {
+        "device": "253:112",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039245824,
+        "minimum_free_bytes": 99955183616,
+        "final_free_bytes": 99955183616
+      },
+      {
+        "device": "253:128",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039241728,
+        "minimum_free_bytes": 99955183616,
+        "final_free_bytes": 99955183616
+      }
+    ]
+  },
+  "resources_closed": true,
+  "paired_diagnostic": false
+}
