@@ -1,0 +1,1489 @@
+{
+  "schema": "ax-pilot-scoped-daily-billing-v1",
+  "queried_from_utc": "2026-11-12T10:52:44.3567418Z",
+  "queried_through_utc": "2026-11-12T10:52:51.3055285Z",
+  "api": "DescribeInstanceBill",
+  "region": "cn-hangzhou",
+  "currency": "CNY",
+  "scope": "Exact dedicated pilot resource IDs only. No account-wide query, jump/EIP allocation or OSS. Daily billed PretaxAmount received at query time; not a payment receipt. 2026-11-12 may continue posting.",
+  "no_rows_handling": "Do not interpret empty rows as zero: six system disks appear as SystemDiskSize on their associated worker ID. The On1 disk returned no rows on 2026-11-11.",
+  "queries": 68,
+  "returned_item_rows": 79,
+  "query_status_count": {
+    "no_rows_returned": 13,
+    "rows_returned": 55
+  },
+  "daily": {
+    "2026-11-11": {
+      "by_kind": {
+        "attached-disk": "27.353503338",
+        "coordinator-data-disk": "2.22462912",
+        "worker-compute": "107.7715008",
+        "worker-image": "0.0",
+        "worker-system-disk": "4.102956690"
+      },
+      "subtotal_pretax_cny": "141.452589948"
+    },
+    "2026-11-12": {
+      "by_kind": {
+        "attached-disk": "28.560",
+        "c1-scratch": "0.71312472",
+        "coordinator-data-disk": "1.785",
+        "on1-scratch": "1.672008345",
+        "worker-compute": "32.7274947",
+        "worker-image": "0.0",
+        "worker-system-disk": "4.283999874"
+      },
+      "subtotal_pretax_cny": "69.741627639"
+    }
+  },
+  "observed_dedicated_subtotal_pretax_cny": "211.194217587",
+  "rows": [
+    {
+      "resource_id": "d-bp14nenf7osz9v1rkk5k",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9ECB-5FD9-A19C-D73FB5EFB1DA",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp14nenf7osz9v1rkk5l",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9DB2-5011-820D-E55043BC1C3C",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 1.440284958,
+          "after_discount": 1.440284958,
+          "pretax_payable": 1.440284958
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1809mw7rlujtjc8eph",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-A4C1-591E-99AF-A59ADF067162",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp1809mw7rlujtjc8epi",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-A3CB-5207-974D-EBD71411650E",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 4.43875824,
+          "after_discount": 4.43875824,
+          "pretax_payable": 4.43875824
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1bhdngko7nq3c2i33z",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9D50-556C-BE75-26DB5E51B782",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp1bhdngko7nq3c2i340",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9C71-5DB1-889D-868B3CA5907B",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 1.440040014,
+          "after_discount": 1.440040014,
+          "pretax_payable": 1.440040014
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1bhdngko7nq3c2i341",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9BBE-5D96-A403-FAD6266A1BDC",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 1.440075042,
+          "after_discount": 1.440075042,
+          "pretax_payable": 1.440075042
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1bhdngko7nq3c2i342",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9AE2-561D-B22E-F4C371AB3F21",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 1.440075042,
+          "after_discount": 1.440075042,
+          "pretax_payable": 1.440075042
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1bhdngko7nq3c2i343",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9A8A-5658-89B4-BD6BBF6836C5",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 1.440075042,
+          "after_discount": 1.440075042,
+          "pretax_payable": 1.440075042
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1fmmfkcpr8w99pwgc4",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9962-562B-950F-18DE1E984113",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp1fmmfkcpr8w99pwgc5",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9945-59FC-BF22-727D40ACF591",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.399775,
+          "after_discount": 2.399775,
+          "pretax_payable": 2.399775
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1gy3cfuj9jik0upt3j",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-A343-5627-85BF-CC412AF7F0CD",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp1gy3cfuj9jik0upt3k",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-A279-5E60-831A-7BCE2D3F8E7D",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.663080056,
+          "after_discount": 2.663080056,
+          "pretax_payable": 2.663080056
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1h9kaoya0predx6kvc",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-A226-5EE2-9D91-2C760B799BA8",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp1h9kaoya0predx6kvd",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-A154-555C-825F-D64DB8B29574",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.662834986,
+          "after_discount": 2.662834986,
+          "pretax_payable": 2.662834986
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1h9kaoya0predx6kve",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-A0FC-57D4-94B2-7CEC5D5BA806",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.662834986,
+          "after_discount": 2.662834986,
+          "pretax_payable": 2.662834986
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1h9kaoya0predx6kvf",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-A022-5D71-ABD1-D0022F553D3B",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.662834986,
+          "after_discount": 2.662834986,
+          "pretax_payable": 2.662834986
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1h9kaoya0predx6kvg",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9F09-5BF7-B49B-99812B3DD686",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.662834986,
+          "after_discount": 2.662834986,
+          "pretax_payable": 2.662834986
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp166nue4ac1q7e5oar2",
+      "resource_kind": "coordinator-data-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-A50D-5876-BC0F-C7FEE6EB44C2",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.22462912,
+          "after_discount": 2.22462912,
+          "pretax_payable": 2.22462912
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp16jaiu2fcmbij8mg7i",
+      "resource_kind": "on1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c4-on1-scratch-retirement-01",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-A5E8-5DA8-B871-F7EA1921F441",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "i-bp14nenf7osz9v1snsp2",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-956F-582F-9FAB-02F3B8D49C6E",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.480071676,
+          "after_discount": 0.480071676,
+          "pretax_payable": 0.480071676
+        },
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 7.8617502,
+          "after_discount": 7.8617502,
+          "pretax_payable": 7.8617502
+        },
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        }
+      ]
+    },
+    {
+      "resource_id": "i-bp1809mw7rlujtj9f705",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-976C-5D4B-A76D-07DE73CF1B47",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 19.0227501,
+          "after_discount": 19.0227501,
+          "pretax_payable": 19.0227501
+        },
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.887728338,
+          "after_discount": 0.887728338,
+          "pretax_payable": 0.887728338
+        },
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        }
+      ]
+    },
+    {
+      "resource_id": "i-bp1bhdngko7nq3c3jrhp",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-934C-56E4-AE28-2B5CEC3BAFFF",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.479989986,
+          "after_discount": 0.479989986,
+          "pretax_payable": 0.479989986
+        },
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        },
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 15.9724998,
+          "after_discount": 15.9724998,
+          "pretax_payable": 15.9724998
+        }
+      ]
+    },
+    {
+      "resource_id": "i-bp1fmmfkcpr8w99j2bsy",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-934A-5B41-8866-45C602FD64E5",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        },
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.479920014,
+          "after_discount": 0.479920014,
+          "pretax_payable": 0.479920014
+        },
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 7.8537501,
+          "after_discount": 7.8537501,
+          "pretax_payable": 7.8537501
+        }
+      ]
+    },
+    {
+      "resource_id": "i-bp1gy3cfuj9jik0y4oc3",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9747-572C-8F17-FCC7ECBB9268",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 19.0212498,
+          "after_discount": 19.0212498,
+          "pretax_payable": 19.0212498
+        },
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        },
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.887658324,
+          "after_discount": 0.887658324,
+          "pretax_payable": 0.887658324
+        }
+      ]
+    },
+    {
+      "resource_id": "i-bp1h9kaoya0predubdkn",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-11",
+      "api_request_id": "01A1CF63-9587-5E20-B410-C973E08A0476",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        },
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 38.0395008,
+          "after_discount": 38.0395008,
+          "pretax_payable": 38.0395008
+        },
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.887588352,
+          "after_discount": 0.887588352,
+          "pretax_payable": 0.887588352
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp14nenf7osz9v1rkk5k",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-9F01-5B57-AD68-06391EC2635C",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp14nenf7osz9v1rkk5l",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-9EC3-53A3-8E8E-3D968AA5CCC0",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.142,
+          "after_discount": 2.142,
+          "pretax_payable": 2.142
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1809mw7rlujtjc8eph",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A4D7-552D-9313-79DBFFE9AB97",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp1809mw7rlujtjc8epi",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A474-5F32-9F90-1B90DD9287B3",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 3.57,
+          "after_discount": 3.57,
+          "pretax_payable": 3.57
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1bhdngko7nq3c2i33z",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-9DA9-5A00-8FD1-13A3FD44C46C",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp1bhdngko7nq3c2i340",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-9CD0-521B-A0CD-5F2711ACB990",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.142,
+          "after_discount": 2.142,
+          "pretax_payable": 2.142
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1bhdngko7nq3c2i341",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-9C02-5685-88D4-F9543E74FDEB",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.142,
+          "after_discount": 2.142,
+          "pretax_payable": 2.142
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1bhdngko7nq3c2i342",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-9B13-535B-9888-B8B21FF0CA69",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.142,
+          "after_discount": 2.142,
+          "pretax_payable": 2.142
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1bhdngko7nq3c2i343",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-9AAD-5B3F-982B-6F37F8899EAC",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.142,
+          "after_discount": 2.142,
+          "pretax_payable": 2.142
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1fmmfkcpr8w99pwgc4",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-996B-5CE4-BD49-A5A64DD8F906",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp1fmmfkcpr8w99pwgc5",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-994B-5D45-8D8A-BF73F68BCDD2",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 3.57,
+          "after_discount": 3.57,
+          "pretax_payable": 3.57
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1gy3cfuj9jik0upt3j",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A394-5097-8A76-243B57F72D47",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp1gy3cfuj9jik0upt3k",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A320-50D5-A4F6-8FA03CC66C0F",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.142,
+          "after_discount": 2.142,
+          "pretax_payable": 2.142
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1h9kaoya0predx6kvc",
+      "resource_kind": "worker-system-disk-id",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A272-5E5D-949C-F913ECD7D4F1",
+      "status": "no_rows_returned",
+      "items": []
+    },
+    {
+      "resource_id": "d-bp1h9kaoya0predx6kvd",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A1E6-53AB-9CA7-6907F8316F30",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.142,
+          "after_discount": 2.142,
+          "pretax_payable": 2.142
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1h9kaoya0predx6kve",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A145-5A3E-9C82-30AE1A26215F",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.142,
+          "after_discount": 2.142,
+          "pretax_payable": 2.142
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1h9kaoya0predx6kvf",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A0B1-5B51-B730-ACFECB751A8B",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.142,
+          "after_discount": 2.142,
+          "pretax_payable": 2.142
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1h9kaoya0predx6kvg",
+      "resource_kind": "attached-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-9FF0-5716-9AD2-11BB24E5E50A",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 2.142,
+          "after_discount": 2.142,
+          "pretax_payable": 2.142
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1080ymi8seli3emwsk",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-reverse-02",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-AB63-5D35-ADCD-6933ADA4E886",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05553324,
+          "after_discount": 0.05553324,
+          "pretax_payable": 0.05553324
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp11691cf3tw5m75oxg8",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-02",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A8EF-5AC5-BDD2-7DC38A2E03AF",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05699169,
+          "after_discount": 0.05699169,
+          "pretax_payable": 0.05699169
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp11f8s9i5mfc2ntpona",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-01",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A767-5139-A8CB-5BFDCC1DB16E",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05605824,
+          "after_discount": 0.05605824,
+          "pretax_payable": 0.05605824
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp13j2q366wffsflhrsk",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-01",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A6F6-5528-AAF3-2068B733DD50",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05611662,
+          "after_discount": 0.05611662,
+          "pretax_payable": 0.05611662
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp16jaiu2fcmmd7czove",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-02",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A8BD-5542-8681-29E8A59F02A9",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05699169,
+          "after_discount": 0.05699169,
+          "pretax_payable": 0.05699169
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp16qx1zi8gvuprmqr8w",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-01",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A67B-5D9C-AD3A-44F959262F25",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05600007,
+          "after_discount": 0.05600007,
+          "pretax_payable": 0.05600007
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp172x8c1ontuye59z6l",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-01",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A7A3-53F3-ACEE-44B12BE25849",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05611662,
+          "after_discount": 0.05611662,
+          "pretax_payable": 0.05611662
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp18px53xacdf5uarryg",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-reverse-01",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A995-5601-9E9C-A452C6987254",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.00962493,
+          "after_discount": 0.00962493,
+          "pretax_payable": 0.00962493
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp18px53xacdf9sczwue",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-reverse-02",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-AB63-58C0-938C-CFF40B59B98D",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05559162,
+          "after_discount": 0.05559162,
+          "pretax_payable": 0.05559162
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp19r04ck7c3msgqiszb",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-reverse-01",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A9F7-5428-B4B2-4C4DE5B2218D",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.00974169,
+          "after_discount": 0.00974169,
+          "pretax_payable": 0.00974169
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp19sevhhesq8kiy7e84",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-reverse-02",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-AAC1-5F72-9121-18629836DAD2",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05541669,
+          "after_discount": 0.05541669,
+          "pretax_payable": 0.05541669
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1acn69vvzi5bhvqqy4",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-reverse-01",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-AA31-560D-93E8-42C32DC46C4F",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.00974169,
+          "after_discount": 0.00974169,
+          "pretax_payable": 0.00974169
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1afgmeoawe50sa0u2s",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-reverse-02",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-AB29-5808-A22C-B70245A5032C",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05559162,
+          "after_discount": 0.05559162,
+          "pretax_payable": 0.05559162
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1bmair9yfuyzw67b9t",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-02",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A8DD-5ACF-AAFE-AE30C94064BF",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05705007,
+          "after_discount": 0.05705007,
+          "pretax_payable": 0.05705007
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1he3w3jhdhdapf2myy",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-02",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A7FB-5D9B-BB7A-F434F6751C46",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.05687493,
+          "after_discount": 0.05687493,
+          "pretax_payable": 0.05687493
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp1igme5qezisrpmelop",
+      "resource_kind": "c1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c1-b-randrw-scratch-reverse-01",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-AA2B-5467-9B67-1DAD876CC276",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 0.00968331,
+          "after_discount": 0.00968331,
+          "pretax_payable": 0.00968331
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp166nue4ac1q7e5oar2",
+      "resource_kind": "coordinator-data-disk",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A5B7-5F0E-8E1A-B39C4BFEDDBC",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 1.785,
+          "after_discount": 1.785,
+          "pretax_payable": 1.785
+        }
+      ]
+    },
+    {
+      "resource_id": "d-bp16jaiu2fcmbij8mg7i",
+      "resource_kind": "on1-scratch",
+      "scope": "pilot-dedicated",
+      "source": "c4-on1-scratch-retirement-01",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-A671-5B82-BCBD-6394EAD9BC69",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "Disk",
+          "item_name": "磁盘容量",
+          "product_code": "yundisk",
+          "currency": "CNY",
+          "pretax_gross": 1.672008345,
+          "after_discount": 1.672008345,
+          "pretax_payable": 1.672008345
+        }
+      ]
+    },
+    {
+      "resource_id": "i-bp14nenf7osz9v1snsp2",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-9579-5EBF-83ED-E89C353EF446",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        },
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.713999874,
+          "after_discount": 0.713999874,
+          "pretax_payable": 0.713999874
+        },
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 1.5127506,
+          "after_discount": 1.5127506,
+          "pretax_payable": 1.5127506
+        }
+      ]
+    },
+    {
+      "resource_id": "i-bp1809mw7rlujtj9f705",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-9766-54AE-8578-4A8FA9944130",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.714000084,
+          "after_discount": 0.714000084,
+          "pretax_payable": 0.714000084
+        },
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        },
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 6.421752,
+          "after_discount": 6.421752,
+          "pretax_payable": 6.421752
+        }
+      ]
+    },
+    {
+      "resource_id": "i-bp1bhdngko7nq3c3jrhp",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-934F-5506-9F6C-2B4748BFCB4B",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.713999958,
+          "after_discount": 0.713999958,
+          "pretax_payable": 0.713999958
+        },
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 2.8749978,
+          "after_discount": 2.8749978,
+          "pretax_payable": 2.8749978
+        },
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        }
+      ]
+    },
+    {
+      "resource_id": "i-bp1fmmfkcpr8w99j2bsy",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-934E-5818-A190-3C21E6954337",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.713999958,
+          "after_discount": 0.713999958,
+          "pretax_payable": 0.713999958
+        },
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        },
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.7125003,
+          "after_discount": 0.7125003,
+          "pretax_payable": 0.7125003
+        }
+      ]
+    },
+    {
+      "resource_id": "i-bp1gy3cfuj9jik0y4oc3",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-976D-51DE-8F9D-AF7F51864567",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.714,
+          "after_discount": 0.714,
+          "pretax_payable": 0.714
+        },
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 6.4215,
+          "after_discount": 6.4215,
+          "pretax_payable": 6.4215
+        },
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        }
+      ]
+    },
+    {
+      "resource_id": "i-bp1h9kaoya0predubdkn",
+      "resource_kind": "worker",
+      "scope": "pilot-dedicated",
+      "source": "resource-audit-20261111-1610-01.json",
+      "billing_date": "2026-11-12",
+      "api_request_id": "01A1CF63-9588-55BB-A426-5D102D7E54E7",
+      "status": "rows_returned",
+      "items": [
+        {
+          "item_code": "InstanceType",
+          "item_name": "云服务器配置",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 14.783994,
+          "after_discount": 14.783994,
+          "pretax_payable": 14.783994
+        },
+        {
+          "item_code": "SystemDiskSize",
+          "item_name": "系统盘",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.714,
+          "after_discount": 0.714,
+          "pretax_payable": 0.714
+        },
+        {
+          "item_code": "ImageOS",
+          "item_name": "ImageOS",
+          "product_code": "ecs",
+          "currency": "CNY",
+          "pretax_gross": 0.0,
+          "after_discount": 0.0,
+          "pretax_payable": 0.0
+        }
+      ]
+    }
+  ]
+}
