@@ -12,7 +12,7 @@ import time
 
 @contextmanager
 def meter(rustfs_port):
-    counters = dict(gets=0, ranges=0, bytes=0, errors=0)
+    counters = dict(gets=0, ranges=0, heads=0, bytes=0, errors=0)
     lock = Lock()
 
     class Handler(BaseHTTPRequestHandler):
@@ -33,6 +33,7 @@ def meter(rustfs_port):
                     raise ValueError('Response too large for local fixture')
                 with lock:
                     counters['errors'] += response.status >= 400
+                    counters['heads'] += self.command == 'HEAD'
                     if self.command == 'GET' and response.status in (200,206):
                         counters['gets'] += 1
                         counters['ranges'] += response.status == 206
@@ -83,7 +84,8 @@ def extent_pass(first, second, arm):
             delta['queries'] == 0 and delta['bypasses'] > 0)
 
 
-def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=None, timed_passes=0):
+def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=None, timed_passes=0,
+          mount_alive=None):
     from bench.warm_lower import assess, check_ranges, parse, read_range
     from bench.runtime.common import mounts
     check_ranges(rows)
@@ -111,6 +113,8 @@ def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=N
             raise ValueError('Extent control did not reject a writable open')
 
     def collect(label):
+        if mount_alive is not None and not mount_alive():
+            raise ValueError('Original FUSE process exited before the counter sample')
         if original_mount is not None and mounts(mount)!=[original_mount]:
             raise ValueError('Extent control mount changed')
         raw = (mount/'.stats').read_text()
@@ -144,9 +148,9 @@ def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=N
     qualified = all(p['brewfs_fuse_read_bytes_total'] == expected and
                     p['brewfs_fuse_read_ops_total'] >= len(rows) and p['errors'] == 0
                     for p in (first,second)) and first['ranges'] > 0 and first['bytes'] > 0
-    out = dict(source='read-only loopback proxy before RustFS; successful GET body bytes',
+    out = dict(source='read-only loopback proxy before RustFS; GET bytes and HEAD request count',
                working_set=rows,points=points,first=first,second=second,qualified=qualified,
-               hot=qualified and second['gets'] == 0 and second['bytes'] == 0)
+               hot=qualified and all(second[k]==0 for k in ('gets','ranges','heads','bytes')))
     if retained_bytes is not None:
         native = assess(native_points,expected)
         retention_proved = retention_hits[0] <= retention_hits[1] < retention_hits[2]
@@ -172,7 +176,7 @@ def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=N
                 os.close(fd)
             timed = {k:last[k]-points[-1][k] for k in last}
             native_timed = {k:native_points[-1][k]-native_points[-2][k] for k in native_points[-1]}
-            passed = (all(timed[k] == 0 for k in ('gets','ranges','bytes','errors')) and
+            passed = (all(timed[k] == 0 for k in ('gets','ranges','heads','bytes','errors')) and
                       timed['brewfs_fuse_read_ops_total'] == len(latencies) and
                       timed['brewfs_fuse_read_bytes_total'] == expected * timed_passes and
                       all(native_timed[k] == 0 for k in ('range_requests','received_bytes','failures')) and

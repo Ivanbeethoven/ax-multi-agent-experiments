@@ -1,0 +1,1815 @@
+diff --git a/src/cli.rs b/src/cli.rs
+index 98a4845..5be6fe3 100644
+--- a/src/cli.rs
++++ b/src/cli.rs
+@@ -391,6 +391,12 @@ fn init_tracing() {
+ }
+ 
+ async fn mount_cmd(mut args: MountConfig) -> anyhow::Result<()> {
++    #[cfg(feature = "workspace-overlay")]
++    if args.volume_format != VolumeFormat::WorkspaceV1
++        && std::env::var_os(workspace_overlay::meta_layer::PACKED_READ_CONTROL_ENV).is_some()
++    {
++        anyhow::bail!("Packed read control is restricted to workspace-v1");
++    }
+     #[cfg(feature = "workspace-overlay")]
+     if args.volume_format == VolumeFormat::WorkspaceEntityV1 && args.experimental_entity_mount {
+         return entity_mount::mount(args).await;
+@@ -1909,6 +1915,7 @@ where
+     S: BlockStore + Send + Sync + 'static,
+     W: workspace_overlay::lifecycle::PackedMountCatalog,
+ {
++    let read_control = workspace_overlay::meta_layer::PackedReadControl::from_env()?;
+     let workspace_id = args.workspace.map(WorkspaceId::from_uuid).ok_or_else(|| {
+         anyhow::anyhow!("--workspace is required when volume_format is workspace-v1")
+     })?;
+@@ -2067,6 +2074,9 @@ where
+             }
+         }
+         meta_layer.initialize().await?;
++        if let Some(mode) = read_control {
++            meta_layer.enable_packed_read_control(mode).await?;
++        }
+         let writeback_root = crate::workspace_overlay::cache_scope::writeback_root(
+             &args.cache.cache_root,
+             header.volume_id,
+@@ -2081,9 +2091,8 @@ where
+         let fs = VFS::from_workspace_components(vfs_config, block_store, meta_layer.clone())?
+             .with_fuse_keep_cache(args.fuse_keep_cache);
+         fs.set_fuse_cache_ttl(Duration::from_millis(args.fuse_cache_ttl_ms));
+-        meta_layer.install_row_cache_stats(fs.stats());
++        meta_layer.install_workspace_stats(fs.stats());
+         if packed {
+-            meta_layer.install_packed_lower_stats(fs.stats());
+             packed_vfs = Some(fs.clone());
+         }
+         let concurrency = FuseConcurrencyConfig {
+@@ -2350,12 +2359,28 @@ where
+             .ok()
+             .and_then(|value| value.parse::<u64>().ok())
+             .unwrap_or(256 << 20);
+-        let lower = Arc::new(PackedV3ReadonlyMeta::from_v3_budget(
++        // The hot-lower qualification uses its own mount budget; VFS read
++        // cache settings do not retain authenticated wire005 frames.
++        let retained_payload = match std::env::var("BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES") {
++            Ok(raw) => raw.parse::<u64>()?,
++            Err(std::env::VarError::NotPresent) => 0,
++            Err(error) => return Err(error.into()),
++        };
++        if retained_payload > 0
++            && !matches!(
++                std::env::var("BREWFS_PACKED_VERIFY_MEMO").as_deref(),
++                Ok("0")
++            )
++        {
++            anyhow::bail!("retained Packed payload requires BREWFS_PACKED_VERIFY_MEMO=0");
++        }
++        let lower = Arc::new(PackedV3ReadonlyMeta::from_v3_budget_with_payload_retention(
+             client,
+             snapshot,
+             layout.chunk_size,
+             metadata_bytes,
+             budget,
++            retained_payload,
+         )?);
+         workspace_overlay::meta_layer::WorkspacePackedBindingAuthority::validate(
+             authority.as_ref(),
+diff --git a/src/fuse/mount.rs b/src/fuse/mount.rs
+index fff59f7..5e831e6 100644
+--- a/src/fuse/mount.rs
++++ b/src/fuse/mount.rs
+@@ -63,6 +63,9 @@ where
+     if fs.requires_packed_mutation_drain() {
+         options.write_back(false);
+     }
++    if fs.meta_layer().force_read_only_fuse_mount() {
++        options.read_only(true).write_back(false);
++    }
+     options.posix_acl(
+         fs.meta_layer().posix_acl_capability()
+             != crate::meta::layer::PosixAclCapability::Unsupported,
+diff --git a/src/meta/layer.rs b/src/meta/layer.rs
+index c55eb40..a229c2a 100644
+--- a/src/meta/layer.rs
++++ b/src/meta/layer.rs
+@@ -51,6 +51,11 @@ pub enum MetadataMemoryKind {
+ #[async_trait]
+ #[allow(dead_code)]
+ pub trait MetaLayer: Send + Sync {
++    /// Require an OS read-only mount independently of ACL capabilities.
++    fn force_read_only_fuse_mount(&self) -> bool {
++        false
++    }
++
+     /// Deadline of a remotely checked metadata generation. All replies share
+     /// the deadline: cache hits must never slide it forward. Refreshing an
+     /// expired generation must discard stale mutable rows before returning.
+diff --git a/src/workspace_overlay/meta_layer/mod.rs b/src/workspace_overlay/meta_layer/mod.rs
+index a49d596..ea6c85a 100644
+--- a/src/workspace_overlay/meta_layer/mod.rs
++++ b/src/workspace_overlay/meta_layer/mod.rs
+@@ -51,6 +51,7 @@ mod packed_enumeration;
+ pub mod packed_lower;
+ mod packed_paths;
+ mod packed_permissions;
++mod packed_read_control;
+ mod row_cache;
+ pub use packed_lower::{
+     CatalogPackedBindingAuthority, PinnedCatalogPackedBindingAuthority,
+@@ -58,7 +59,8 @@ pub use packed_lower::{
+ };
+ use packed_lower::{WorkspaceLower, WorkspacePackedLower};
+ use packed_permissions::MutationVersion;
+-use row_cache::{RowCacheCounters, RowCacheStatsExtension};
++pub(crate) use packed_read_control::{PACKED_READ_CONTROL_ENV, PackedReadControl};
++use row_cache::{RowCacheCounters, WorkspaceStatsExtension};
+ 
+ type PermissionInode = (
+     InodeDelta,
+@@ -101,6 +103,7 @@ pub struct WorkspaceMetaLayer<W> {
+     metrics: Arc<WorkspaceMetrics>,
+     row_cache_counters: Arc<RowCacheCounters>,
+     lower: WorkspaceLower,
++    packed_read_control: std::sync::OnceLock<Arc<packed_read_control::PackedReadControlWitness>>,
+ }
+ 
+ fn validate_fixed_layer_pair(chain: &[LayerRecord]) -> Result<(), WorkspaceError> {
+@@ -275,6 +278,7 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+             metrics: global_workspace_metrics(),
+             row_cache_counters: Arc::new(RowCacheCounters::default()),
+             lower: WorkspaceLower::Native,
++            packed_read_control: std::sync::OnceLock::new(),
+         }
+     }
+ 
+@@ -305,8 +309,21 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+     /// Install mount-local row-cache counters into the FUSE `.stats` file so
+     /// metadata experiments can separate cache hits from backend fills.
+     pub fn install_row_cache_stats(&self, stats: &crate::vfs::stats::FsStats) -> bool {
+-        stats.set_extension(Arc::new(RowCacheStatsExtension {
++        stats.set_extension(Arc::new(WorkspaceStatsExtension {
+             counters: self.row_cache_counters.clone(),
++            packed: None,
++            read_control: None,
++        }))
++    }
++
++    /// Register one extension because the mount's stats slot is write-once.
++    pub fn install_workspace_stats(&self, stats: &crate::vfs::stats::FsStats) -> bool {
++        stats.set_extension(Arc::new(WorkspaceStatsExtension {
++            counters: self.row_cache_counters.clone(),
++            packed: self
++                .packed_lower()
++                .map(|lower| lower.metadata.stats_extension()),
++            read_control: self.packed_read_control.get().cloned(),
+         }))
+     }
+ 
+@@ -564,7 +581,7 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+     /// read-observer counters in the mount's `.stats` file.
+     pub fn install_packed_lower_stats(&self, stats: &crate::vfs::stats::FsStats) -> bool {
+         self.packed_lower()
+-            .is_some_and(|lower| lower.metadata.install_stats(stats))
++            .is_some_and(|lower| stats.set_extension(lower.metadata.stats_extension()))
+     }
+ 
+     pub(crate) fn packed_lower(&self) -> Option<&Arc<WorkspacePackedLower>> {
+@@ -754,12 +771,34 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+     async fn resolve_inode_delta_state(
+         &self,
+         ino: i64,
++    ) -> Result<Resolution<InodeDelta>, MetaError> {
++        self.resolve_inode_delta_state_observed(ino, None).await
++    }
++
++    async fn resolve_inode_delta_state_observed(
++        &self,
++        ino: i64,
++        control: Option<&packed_read_control::PackedReadControlWitness>,
+     ) -> Result<Resolution<InodeDelta>, MetaError> {
+         let chain = self.chain().await?;
+         let cache = self.upper_row_cache();
+         let rows = match cache.and_then(|cache| cache.get(&row_cache::RowKey::Inode(ino))) {
+-            Some(row_cache::RowValue::Inode(rows)) => rows,
++            Some(row_cache::RowValue::Inode(rows)) => {
++                if let Some(control) = control {
++                    control.record_namespace_resolution(
++                        packed_read_control::NamespaceRead::Getattr,
++                        true,
++                    );
++                }
++                rows
++            }
+             _ => {
++                if let Some(control) = control {
++                    control.record_namespace_resolution(
++                        packed_read_control::NamespaceRead::Getattr,
++                        false,
++                    );
++                }
+                 let ticket = cache.map(row_cache::UpperRowCache::ticket);
+                 let rows = std::sync::Arc::new(
+                     self.store
+@@ -1016,50 +1055,72 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         parent: i64,
+         name: &[u8],
+     ) -> Result<Option<ResolvedDentry>, MetaError> {
++        use packed_read_control::NamespaceRead;
+         let fence = self.packed_metadata_fence().await?;
+-        let chain = self.chain().await?;
+-        let cache = self.upper_row_cache();
+-        let key = row_cache::RowKey::Dentry(parent, name.to_vec());
+-        let rows = match cache.and_then(|cache| cache.get(&key)) {
+-            Some(row_cache::RowValue::Dentry(rows)) => rows,
+-            _ => {
+-                let ticket = cache.map(row_cache::UpperRowCache::ticket);
+-                let rows = std::sync::Arc::new(
+-                    self.store
+-                        .get_dentry_deltas(DentryQuery {
+-                            layer_ids: chain.iter().map(|layer| layer.layer_id).collect(),
+-                            parent_ino: parent,
+-                            name: Some(name.to_vec()),
+-                        })
+-                        .await
+-                        .map_err(workspace_to_meta)?,
+-                );
+-                if let (Some(cache), Some(ticket)) = (cache, ticket) {
+-                    cache.insert(ticket, key, row_cache::RowValue::Dentry(rows.clone()));
+-                }
+-                rows
+-            }
++        let control = match &fence {
++            Some((guard, layers, _)) => self.packed_namespace_read_control(guard, layers).await?,
++            None => None,
+         };
+-        let result =
+-            match resolve_dentry_state(&chain, &rows, parent, name).map_err(workspace_to_meta)? {
+-                Resolution::Present(entry) => Ok(Some(entry)),
+-                Resolution::Masked => Ok(None),
+-                Resolution::Absent => {
+-                    let Some(lower) = self.packed_lower() else {
+-                        return Ok(None);
+-                    };
+-                    let entry = lower.metadata.lookup_with_attr_bytes(parent, name).await?;
+-                    Ok(entry.map(|(ino, attr)| ResolvedDentry {
+-                        layer_id: lower.binding.base_layer_id,
+-                        parent_ino: parent,
+-                        name: name.to_vec(),
+-                        ino,
+-                        entry_type: file_type_code(attr.kind),
+-                        sequence: 0,
+-                    }))
++        let state = if control
++            .is_some_and(|control| control.record_namespace_bypass(NamespaceRead::Lookup, 1))
++        {
++            Resolution::Absent
++        } else {
++            let chain = self.chain().await?;
++            let cache = self.upper_row_cache();
++            let key = row_cache::RowKey::Dentry(parent, name.to_vec());
++            let rows = match cache.and_then(|cache| cache.get(&key)) {
++                Some(row_cache::RowValue::Dentry(rows)) => {
++                    if let Some(control) = control {
++                        control.record_namespace_resolution(NamespaceRead::Lookup, true);
++                    }
++                    rows
++                }
++                _ => {
++                    if let Some(control) = control {
++                        control.record_namespace_resolution(NamespaceRead::Lookup, false);
++                    }
++                    let ticket = cache.map(row_cache::UpperRowCache::ticket);
++                    let rows = std::sync::Arc::new(
++                        self.store
++                            .get_dentry_deltas(DentryQuery {
++                                layer_ids: chain.iter().map(|layer| layer.layer_id).collect(),
++                                parent_ino: parent,
++                                name: Some(name.to_vec()),
++                            })
++                            .await
++                            .map_err(workspace_to_meta)?,
++                    );
++                    if let (Some(cache), Some(ticket)) = (cache, ticket) {
++                        cache.insert(ticket, key, row_cache::RowValue::Dentry(rows.clone()));
++                    }
++                    rows
+                 }
+             };
++            resolve_dentry_state(&chain, &rows, parent, name).map_err(workspace_to_meta)?
++        };
++        let result = match state {
++            Resolution::Present(entry) => Ok(Some(entry)),
++            Resolution::Masked => Ok(None),
++            Resolution::Absent => {
++                let Some(lower) = self.packed_lower() else {
++                    return Ok(None);
++                };
++                let entry = lower.metadata.lookup_with_attr_bytes(parent, name).await?;
++                Ok(entry.map(|(ino, attr)| ResolvedDentry {
++                    layer_id: lower.binding.base_layer_id,
++                    parent_ino: parent,
++                    name: name.to_vec(),
++                    ino,
++                    entry_type: file_type_code(attr.kind),
++                    sequence: 0,
++                }))
++            }
++        };
+         if result.is_ok() {
++            if let Some(control) = control {
++                self.validate_packed_namespace_read_control(control).await?;
++            }
+             self.validate_packed_metadata_fence(fence).await?;
+         }
+         result
+@@ -1142,6 +1203,8 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+     }
+ 
+     async fn mutation_version(&self) -> Result<MutationVersion, MetaError> {
++        self.refuse_packed_read_control_mutation()
++            .map_err(MetaError::Io)?;
+         self.retain_mutation_version().await
+     }
+ 
+@@ -2065,6 +2128,10 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+ 
+ #[async_trait]
+ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
++    fn force_read_only_fuse_mount(&self) -> bool {
++        self.packed_read_control.get().is_some()
++    }
++
+     async fn kernel_metadata_cache_deadline(
+         &self,
+         ttl: std::time::Duration,
+@@ -2343,7 +2410,20 @@ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
+ 
+     async fn stat(&self, ino: i64) -> Result<Option<FileAttr>, MetaError> {
+         let fence = self.packed_metadata_fence().await?;
+-        let result = match self.resolve_inode_delta_state(ino).await? {
++        let control = match &fence {
++            Some((guard, layers, _)) => self.packed_namespace_read_control(guard, layers).await?,
++            None => None,
++        };
++        let eligible = control.filter(|control| !control.preserve_root_inode(ino, self.root_ino()));
++        let state = if eligible.is_some_and(|control| {
++            control.record_namespace_bypass(packed_read_control::NamespaceRead::Getattr, 1)
++        }) {
++            Resolution::Absent
++        } else {
++            self.resolve_inode_delta_state_observed(ino, eligible)
++                .await?
++        };
++        let result = match state {
+             Resolution::Present(inode) => file_attr(&inode).map(Some),
+             Resolution::Masked => Ok(None),
+             Resolution::Absent => {
+@@ -2355,6 +2435,9 @@ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
+             }
+         };
+         if result.is_ok() {
++            if let Some(control) = control {
++                self.validate_packed_namespace_read_control(control).await?;
++            }
+             self.validate_packed_metadata_fence(fence).await?;
+         }
+         result
+@@ -2373,6 +2456,10 @@ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
+         _append: bool,
+     ) -> Result<(), MetaError> {
+         let _mutation_guard = self.mutation_gate.lock().await;
++        if _write || _append {
++            self.refuse_packed_read_control_mutation()
++                .map_err(MetaError::Io)?;
++        }
+         let actor = crate::meta::layer::namespace_actor();
+         let created = actor.is_some() && crate::meta::layer::take_created_inode_open_authority(ino);
+         // A frozen-base read-only open changes no state, so it does not pay
+@@ -3419,6 +3506,8 @@ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
+         slice: SliceDesc,
+         new_size: u64,
+     ) -> Result<(), MetaError> {
++        self.refuse_packed_read_control_mutation()
++            .map_err(MetaError::Io)?;
+         Self::validate_write(ino, chunk_id, &slice, new_size, self.chunk_size)?;
+         let (sender, mut receiver) = tokio::sync::oneshot::channel();
+         {
+@@ -3472,6 +3561,8 @@ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
+     }
+ 
+     async fn next_id(&self, key: &str) -> Result<i64, MetaError> {
++        self.refuse_packed_read_control_mutation()
++            .map_err(MetaError::Io)?;
+         let allocator = match key {
+             crate::meta::INODE_ID_KEY => "inode",
+             crate::meta::SLICE_ID_KEY => "slice",
+@@ -4227,6 +4318,8 @@ impl<W: WorkspaceStore + 'static> WorkspaceReadPlanProvider for WorkspaceMetaLay
+     }
+ 
+     async fn record_orphan_slice(&self, slice_id: u64, slice_end: u64) -> Result<(), MetaError> {
++        self.refuse_packed_read_control_mutation()
++            .map_err(MetaError::Io)?;
+         self.store
+             .record_orphan_slice(RecordOrphanSlice {
+                 orphan_layer_id: super::ids::LayerId::new(),
+diff --git a/src/workspace_overlay/meta_layer/packed_enumeration.rs b/src/workspace_overlay/meta_layer/packed_enumeration.rs
+index 3b1d550..cdbd37a 100644
+--- a/src/workspace_overlay/meta_layer/packed_enumeration.rs
++++ b/src/workspace_overlay/meta_layer/packed_enumeration.rs
+@@ -407,14 +407,26 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         } else {
+             None
+         };
++        use packed_read_control::NamespaceRead;
++        let control = self.packed_namespace_read_control(&guard, &layers).await?;
+         let mut native_empty = true;
+-        for layer in &layers {
+-            let page = self
+-                .store
+-                .get_dentry_delta_page(layer.layer_id, ino, None, lower.budget.clone())
+-                .await
+-                .map_err(workspace_to_meta)?;
+-            native_empty &= page.rows.is_empty();
++        if !control.is_some_and(|control| {
++            control.record_namespace_bypass(NamespaceRead::DirectoryProbe, layers.len() as u64)
++        }) {
++            for layer in &layers {
++                if let Some(control) = control {
++                    control.record_namespace_resolution(NamespaceRead::DirectoryProbe, false);
++                }
++                let page = self
++                    .store
++                    .get_dentry_delta_page(layer.layer_id, ino, None, lower.budget.clone())
++                    .await
++                    .map_err(workspace_to_meta)?;
++                native_empty &= page.rows.is_empty();
++            }
++        }
++        if let Some(control) = control {
++            self.validate_packed_namespace_read_control(control).await?;
+         }
+         let view = EnumerationView {
+             store: self.store.clone(),
+diff --git a/src/workspace_overlay/meta_layer/packed_lower.rs b/src/workspace_overlay/meta_layer/packed_lower.rs
+index 5b264ee..9b8edfd 100644
+--- a/src/workspace_overlay/meta_layer/packed_lower.rs
++++ b/src/workspace_overlay/meta_layer/packed_lower.rs
+@@ -165,7 +165,7 @@ impl<W: WorkspaceStore + 'static> WorkspacePackedBindingAuthority
+ #[async_trait]
+ pub(crate) trait PackedLowerOperations: MetaLayer + WorkspaceReadPlanProvider {
+     /// Expose the lower's packed index/budget/observer metrics in `.stats`.
+-    fn install_stats(&self, stats: &crate::vfs::stats::FsStats) -> bool;
++    fn stats_extension(&self) -> Arc<dyn crate::vfs::stats::FsStatsExtension>;
+     async fn drain_packed_transport(&self) -> Result<(), MetaError>;
+     async fn frozen_reverse_names_page_owned(
+         &self,
+@@ -192,8 +192,8 @@ pub(crate) trait PackedLowerOperations: MetaLayer + WorkspaceReadPlanProvider {
+ impl<B: ObjectBackend + Clone + Send + Sync + 'static> PackedLowerOperations
+     for PackedV3ReadonlyMeta<B>
+ {
+-    fn install_stats(&self, stats: &crate::vfs::stats::FsStats) -> bool {
+-        self.install_v3_stats(stats)
++    fn stats_extension(&self) -> Arc<dyn crate::vfs::stats::FsStatsExtension> {
++        self.v3_stats_extension()
+     }
+     async fn frozen_reverse_names_page_owned(
+         &self,
+@@ -743,6 +743,7 @@ pub(super) async fn begin_request<W: WorkspaceStore + 'static>(
+         .map_err(budget_to_meta)?;
+     let (guard, layers, reader_owner, inodes, fused) =
+         capture_inode_fence(meta, &lower, ino).await?;
++    meta.packed_read_control_for_view(&guard, &layers)?;
+     let file_size =
+         match resolve_inode_state(&layers, &inodes, ino).map_err(read_workspace_error)? {
+             Resolution::Present(inode) => {
+@@ -1013,6 +1014,7 @@ pub(super) async fn prepare<W: WorkspaceStore + 'static>(
+             .await
+             .map_err(fetch_to_meta)?,
+     };
++    let read_control = meta.packed_read_control_for_view(&guard, &layers)?;
+     // Reserve all bounded upper preparation/bookkeeping before backend query.
+     // This read holds no other Plans charge yet, so it waits for sibling
+     // arenas (which shrink before lower preparation) instead of failing.
+@@ -1066,26 +1068,31 @@ pub(super) async fn prepare<W: WorkspaceStore + 'static>(
+             crate::chunk::read_plan::ReadRequestBeyondView.into(),
+         ));
+     }
+-    let rows = meta
+-        .store
+-        .get_extent_deltas_bounded(
+-            ExtentQuery {
+-                layer_ids: layers.iter().map(|layer| layer.layer_id).collect(),
+-                ino,
+-                chunk_index,
+-                range_start: offset,
+-                range_end: end,
+-            },
+-            MAX_UPPER_EXTENT_ROWS,
+-        )
+-        .await
+-        .map_err(read_workspace_to_meta)?;
+-    let coverage = resolve_extent_coverage(&layers, &rows, ino, chunk_index, offset..end)
+-        .map_err(read_workspace_to_meta)?;
+-    // Backend rows are dropped here. Only resolved upper segments, their gaps
+-    // and per-gap bookkeeping stay live; each segment yields at most one gap.
+-    let retained_rows = rows.len() as u64 + 2;
+-    drop(rows);
++    let bypass_extent_resolution =
++        read_control.is_some_and(|control| control.record_extent_resolution());
++    let (covered, retained_rows) = if bypass_extent_resolution {
++        (Vec::new(), 2)
++    } else {
++        let rows = meta
++            .store
++            .get_extent_deltas_bounded(
++                ExtentQuery {
++                    layer_ids: layers.iter().map(|layer| layer.layer_id).collect(),
++                    ino,
++                    chunk_index,
++                    range_start: offset,
++                    range_end: end,
++                },
++                MAX_UPPER_EXTENT_ROWS,
++            )
++            .await
++            .map_err(read_workspace_to_meta)?;
++        let coverage = resolve_extent_coverage(&layers, &rows, ino, chunk_index, offset..end)
++            .map_err(read_workspace_to_meta)?;
++        // Only resolved upper segments, gaps, and per-gap bookkeeping outlive
++        // the backend rows; each segment yields at most one gap.
++        (coverage.covered, rows.len() as u64 + 2)
++    };
+     arena
+         .shrink(
+             V3BudgetPool::Plans,
+@@ -1096,7 +1103,7 @@ pub(super) async fn prepare<W: WorkspaceStore + 'static>(
+         )
+         .map_err(budget_to_meta)?;
+     permits.push(arena);
+-    let upper = coverage.covered.into_iter().map(|extent| LogicalSegment {
++    let upper = covered.into_iter().map(|extent| LogicalSegment {
+         logical_offset: extent.logical_offset,
+         length: extent.length,
+         source: match extent.kind {
+diff --git a/src/workspace_overlay/meta_layer/packed_permissions.rs b/src/workspace_overlay/meta_layer/packed_permissions.rs
+index 402c305..7bdefba 100644
+--- a/src/workspace_overlay/meta_layer/packed_permissions.rs
++++ b/src/workspace_overlay/meta_layer/packed_permissions.rs
+@@ -250,6 +250,8 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         request: VersionedMutation,
+         written: super::RowsWritten,
+     ) -> Result<super::super::catalog::MutationResult, WorkspaceError> {
++        self.refuse_packed_read_control_mutation()
++            .map_err(WorkspaceError::Io)?;
+         // Before and after: an uncertain/failed commit may still have
+         // applied, and no concurrent read may cache pre-commit rows. Only
+         // the keys this commit writes are dropped.
+diff --git a/src/workspace_overlay/meta_layer/row_cache.rs b/src/workspace_overlay/meta_layer/row_cache.rs
+index e70b51a..6f54491 100644
+--- a/src/workspace_overlay/meta_layer/row_cache.rs
++++ b/src/workspace_overlay/meta_layer/row_cache.rs
+@@ -84,13 +84,27 @@ pub(super) struct RowCacheCounters {
+ }
+ 
+ #[derive(Debug)]
+-pub(super) struct RowCacheStatsExtension {
++pub(super) struct WorkspaceStatsExtension {
+     pub counters: Arc<RowCacheCounters>,
++    pub packed: Option<Arc<dyn crate::vfs::stats::FsStatsExtension>>,
++    pub read_control: Option<Arc<super::packed_read_control::PackedReadControlWitness>>,
+ }
+ 
+-impl crate::vfs::stats::FsStatsExtension for RowCacheStatsExtension {
++impl crate::vfs::stats::FsStatsExtension for WorkspaceStatsExtension {
++    fn begin_stats_observation(&self) -> Option<crate::cadapter::read_observer::TerminalGuard> {
++        self.packed
++            .as_ref()
++            .and_then(|packed| packed.begin_stats_observation())
++    }
++
+     fn render_max_bytes(&self) -> usize {
+-        256
++        256usize
++            .saturating_add(
++                self.packed
++                    .as_ref()
++                    .map_or(0, |packed| packed.render_max_bytes()),
++            )
++            .saturating_add(self.read_control.as_ref().map_or(0, |_| 2048))
+     }
+ 
+     fn render_into(&self, output: &mut dyn std::fmt::Write) {
+@@ -105,6 +119,12 @@ impl crate::vfs::stats::FsStatsExtension for RowCacheStatsExtension {
+         let _ = writeln!(output, "brewfs_workspace_row_cache_hits_total {hits}");
+         let _ = writeln!(output, "brewfs_workspace_row_cache_misses_total {misses}");
+         let _ = writeln!(output, "brewfs_workspace_row_cache_hit_ratio {ratio:.6}");
++        if let Some(packed) = &self.packed {
++            packed.render_into(output);
++        }
++        if let Some(read_control) = &self.read_control {
++            read_control.render_into(output);
++        }
+     }
+ }
+ 
+diff --git a/src/workspace_overlay/meta_layer/tests/packed_lower_tests.rs b/src/workspace_overlay/meta_layer/tests/packed_lower_tests.rs
+index 6344866..837b372 100644
+--- a/src/workspace_overlay/meta_layer/tests/packed_lower_tests.rs
++++ b/src/workspace_overlay/meta_layer/tests/packed_lower_tests.rs
+@@ -18,7 +18,9 @@ use crate::workspace_overlay::catalog::{
+     HeadGuard, PackedLowerBinding, VersionedMutation, WorkspaceStore,
+ };
+ use crate::workspace_overlay::error::WorkspaceError;
+-use crate::workspace_overlay::meta_layer::{WorkspaceMetaLayer, WorkspacePackedBindingAuthority};
++use crate::workspace_overlay::meta_layer::{
++    PackedReadControl, WorkspaceMetaLayer, WorkspacePackedBindingAuthority,
++};
+ use crate::workspace_overlay::model::{
+     AclDelta, DataExtentDelta, DentryDelta, InodeDelta, InodeState, ValueOp, XattrDelta,
+ };
+@@ -37,6 +39,112 @@ mod default_reader_attach_contracts;
+ #[path = "packed_lower_tests/performance_tests.rs"]
+ mod performance_tests;
+ 
++#[tokio::test]
++async fn workspace_stats_include_both_row_cache_and_packed_lower() {
++    let f = fixture().await;
++    let stats = crate::vfs::stats::FsStats::new();
++    assert!(f.meta.install_workspace_stats(&stats));
++    let before = f.gets.load(Ordering::SeqCst);
++    let rendered = stats
++        .render_bounded(stats.render_allocation_limit())
++        .unwrap();
++    assert_eq!(
++        rendered
++            .matches("brewfs_workspace_row_cache_hits_total ")
++            .count(),
++        1
++    );
++    assert_eq!(
++        rendered
++            .matches("brewfs_packed_v3_runtime_backend_range_gets_total ")
++            .count(),
++        1
++    );
++    assert_eq!(f.gets.load(Ordering::SeqCst), before);
++}
++
++#[tokio::test]
++async fn packed_read_extent_control_preserves_lower_bytes_and_rejects_writes() {
++    for (mode, queries, bypasses) in [
++        (PackedReadControl::Overlay, 1, 0),
++        (PackedReadControl::LowerOnly, 0, 1),
++    ] {
++        let f = fixture().await;
++        f.meta.enable_packed_read_control(mode).await.unwrap();
++        assert!(f.meta.force_read_only_fuse_mount());
++        assert!(matches!(
++            f.meta.create_file(1, "must-not-exist".into()).await,
++            Err(MetaError::Io(error)) if error.raw_os_error() == Some(libc::EROFS)
++        ));
++        let attr = f.meta.stat(400).await.unwrap().unwrap();
++        assert!(matches!(
++            f.meta.record_open(400, attr.clone(), false, true, false).await,
++            Err(MetaError::Io(error)) if error.raw_os_error() == Some(libc::EROFS)
++        ));
++        f.meta
++            .record_open(400, attr, true, false, false)
++            .await
++            .unwrap();
++
++        let fence = f
++            .meta
++            .begin_unified_read_request(400)
++            .await
++            .unwrap()
++            .unwrap();
++        let prepared = f
++            .meta
++            .prepare_unified_read(400, 0, 9, 55)
++            .await
++            .unwrap()
++            .unwrap();
++        let mut output = [0; 55];
++        execute_unified_into(prepared.fetcher.as_ref(), 9, &prepared.plan, &mut output)
++            .await
++            .unwrap();
++        fence.ensure_current().await.unwrap();
++        f.meta.record_close(400).await.unwrap();
++        assert_eq!(&output, &f.payload[9..64]);
++        assert_eq!(f.upper.reads.load(Ordering::SeqCst), 0);
++
++        let stats = crate::vfs::stats::FsStats::new();
++        assert!(f.meta.install_workspace_stats(&stats));
++        let rendered = stats
++            .render_bounded(stats.render_allocation_limit())
++            .unwrap();
++        assert!(rendered.contains(&format!(
++            "brewfs_workspace_read_extent_control_queries_total {queries}\n"
++        )));
++        assert!(rendered.contains(&format!(
++            "brewfs_workspace_read_extent_control_bypasses_total {bypasses}\n"
++        )));
++    }
++}
++
++#[tokio::test]
++async fn packed_read_extent_control_refuses_dirty_or_replaced_layer_view() {
++    let f = fixture().await;
++    f.meta
++        .enable_packed_read_control(PackedReadControl::LowerOnly)
++        .await
++        .unwrap();
++    // Simulate a conflicting catalog writer with direct test-only access to
++    // the store. Normal operations on this mount cannot commit any mutation.
++    let head = f.head().await;
++    f.copy_up(vec![DataExtentDelta::hole(head, 400, 0, 0, 4096, 0)])
++        .await;
++    assert!(matches!(
++        f.meta.prepare_unified_read(400, 0, 0, 16).await,
++        Err(MetaError::Io(error)) if error.raw_os_error() == Some(libc::ESTALE)
++    ));
++    assert!(matches!(
++        f.meta
++            .enable_packed_read_control(PackedReadControl::Overlay)
++            .await,
++        Err(MetaError::NotSupported(_))
++    ));
++}
++
+ #[derive(Clone)]
+ struct CountedBackend {
+     inner: LocalFsBackend,
+diff --git a/src/workspace_overlay/packed_v3/readonly.rs b/src/workspace_overlay/packed_v3/readonly.rs
+index 8f2c4a9..64d24ae 100644
+--- a/src/workspace_overlay/packed_v3/readonly.rs
++++ b/src/workspace_overlay/packed_v3/readonly.rs
+@@ -275,6 +275,7 @@ impl crate::vfs::stats::FsStatsExtension for V3StatsExtension {
+     fn render_max_bytes(&self) -> usize {
+         super::wire005::V3MountBudget::STATS_EXTENSION_RENDER_MAX_BYTES
+             .saturating_add(self.observer.render_max_bytes())
++            .saturating_add(1024) // Retained payload counters.
+     }
+     fn begin_stats_observation(&self) -> Option<crate::cadapter::read_observer::TerminalGuard> {
+         Some(self.observer.start(
+@@ -312,6 +313,7 @@ impl crate::vfs::stats::FsStatsExtension for V3StatsExtension {
+         }
+         self.budget.render_into(output);
+         self.index.render_into(output);
++        self.index.render_payload_retention(output);
+         self.observer.render_into(output);
+     }
+ }
+@@ -698,6 +700,24 @@ impl<B: ObjectBackend + Clone + 'static> PackedV3ReadonlyMeta<B> {
+         chunk_size: u64,
+         metadata_bytes: u64,
+         budget: Arc<super::wire005::V3MountBudget>,
++    ) -> Result<Self, PackedWireError> {
++        Self::from_v3_budget_with_payload_retention(
++            client,
++            snapshot,
++            chunk_size,
++            metadata_bytes,
++            budget,
++            0,
++        )
++    }
++
++    pub(crate) fn from_v3_budget_with_payload_retention(
++        client: crate::cadapter::client::ObjectClient<B>,
++        snapshot: super::wire005::AuthenticatedV3Snapshot,
++        chunk_size: u64,
++        metadata_bytes: u64,
++        budget: Arc<super::wire005::V3MountBudget>,
++        payload_retention: u64,
+     ) -> Result<Self, PackedWireError> {
+         let source = snapshot.manifest();
+         budget.validate_frame_capability(
+@@ -722,7 +742,8 @@ impl<B: ObjectBackend + Clone + 'static> PackedV3ReadonlyMeta<B> {
+                 metadata_bytes,
+                 budget.clone(),
+                 source.profile,
+-            ),
++            )
++            .with_payload_retention(payload_retention)?,
+             client,
+             snapshot,
+             metrics,
+@@ -740,7 +761,11 @@ impl<B: ObjectBackend + Clone + 'static> PackedV3ReadonlyMeta<B> {
+     }
+ 
+     pub fn install_v3_stats(&self, stats: &crate::vfs::stats::FsStats) -> bool {
+-        stats.set_extension(Arc::new(V3StatsExtension {
++        stats.set_extension(self.v3_stats_extension())
++    }
++
++    pub(crate) fn v3_stats_extension(&self) -> Arc<dyn crate::vfs::stats::FsStatsExtension> {
++        Arc::new(V3StatsExtension {
+             metrics: Arc::clone(&self.context.metrics),
+             budget: Arc::clone(&self.context.budget),
+             index: self.context.reader.cache_stats(),
+@@ -749,7 +774,7 @@ impl<B: ObjectBackend + Clone + 'static> PackedV3ReadonlyMeta<B> {
+                 .client
+                 .read_observer()
+                 .expect("v3 context carries its observer"),
+-        }))
++        })
+     }
+ 
+     pub fn block_store(&self, block_size: u32) -> Result<PackedV3BlockStore<B>, MetaError> {
+diff --git a/src/workspace_overlay/packed_v3/wire005.rs b/src/workspace_overlay/packed_v3/wire005.rs
+index 65620fa..7f1de8b 100644
+--- a/src/workspace_overlay/packed_v3/wire005.rs
++++ b/src/workspace_overlay/packed_v3/wire005.rs
+@@ -25,6 +25,7 @@ mod manifest;
+ #[cfg(test)]
+ mod metadata_cache_tests;
+ mod native_placement;
++mod payload_retention;
+ mod pipeline;
+ #[cfg(test)]
+ pub(crate) fn verify_memo_reservation_bytes() -> PackedResult<u64> {
+diff --git a/src/workspace_overlay/packed_v3/wire005/index.rs b/src/workspace_overlay/packed_v3/wire005/index.rs
+index 4661786..1e9b9a9 100644
+--- a/src/workspace_overlay/packed_v3/wire005/index.rs
++++ b/src/workspace_overlay/packed_v3/wire005/index.rs
+@@ -509,6 +509,7 @@ pub struct V3IndexReader<B: ObjectBackend + Clone> {
+     group_directories:
+         super::read_cache::RetainedMetadata<V3Owned<super::super::meta::directory::GroupDirectory>>,
+     frame_directories: super::read_cache::RetainedMetadata<V3Owned<super::V3FrameDirectoryPage>>,
++    payload_retention: Option<Arc<super::payload_retention::PayloadRetention>>,
+ }
+ 
+ struct V3ReaderRuntime<B: ObjectBackend + Clone> {
+@@ -520,7 +521,21 @@ pub(crate) struct V3IndexCacheStats {
+     pages: Cache<([u8; 32], V3ObjectKind, u64), Arc<V3RetainedIndexPage>>,
+     cache_ownership: Arc<V3IndexCacheOwnership>,
+     configured_bytes: u64,
++    payload_retention: Option<Arc<super::payload_retention::PayloadRetention>>,
+ }
++impl V3IndexCacheStats {
++    pub(crate) fn render_payload_retention(&self, output: &mut dyn std::fmt::Write) {
++        if let Some(cache) = &self.payload_retention {
++            cache.render_into(output);
++        } else {
++            let _ = writeln!(
++                output,
++                "brewfs_packed_v3_payload_retention_capacity_bytes 0"
++            );
++        }
++    }
++}
++
+ impl std::fmt::Debug for V3IndexCacheStats {
+     fn fmt(&self, output: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+         output
+@@ -679,6 +694,7 @@ impl<B: ObjectBackend + Clone + 'static> V3IndexReader<B> {
+                 budget.clone(),
+             ),
+             budget,
++            payload_retention: None,
+             demand_pipeline: tokio::sync::Mutex::new(V3ReaderRuntime {
+                 closed: false,
+                 coordinator: None,
+@@ -686,6 +702,21 @@ impl<B: ObjectBackend + Clone + 'static> V3IndexReader<B> {
+         }
+     }
+ 
++    pub(crate) fn with_payload_retention(mut self, capacity: u64) -> PackedResult<Self> {
++        if capacity > 0 {
++            self.payload_retention = Some(Arc::new(
++                super::payload_retention::PayloadRetention::new(capacity, self.budget.clone())?,
++            ));
++        }
++        Ok(self)
++    }
++
++    pub(super) fn payload_retention(
++        &self,
++    ) -> Option<Arc<super::payload_retention::PayloadRetention>> {
++        self.payload_retention.clone()
++    }
++
+     pub fn budget(&self) -> &Arc<V3MountBudget> {
+         &self.budget
+     }
+@@ -832,6 +863,7 @@ impl<B: ObjectBackend + Clone + 'static> V3IndexReader<B> {
+             pages: self.pages.clone(),
+             cache_ownership: self.cache_ownership.clone(),
+             configured_bytes: self.configured_bytes,
++            payload_retention: self.payload_retention(),
+         }
+     }
+ 
+@@ -1462,6 +1494,9 @@ impl<B: ObjectBackend + Clone + 'static> V3IndexReader<B> {
+     pub(crate) async fn close(&self) {
+         let mut runtime = self.demand_pipeline.lock().await;
+         runtime.closed = true;
++        if let Some(cache) = &self.payload_retention {
++            cache.close();
++        }
+         if let Some(pipeline) = &runtime.coordinator {
+             pipeline.shutdown().await;
+         }
+diff --git a/src/workspace_overlay/packed_v3/wire005/manifest.rs b/src/workspace_overlay/packed_v3/wire005/manifest.rs
+index a7b5e89..ebc1144 100644
+--- a/src/workspace_overlay/packed_v3/wire005/manifest.rs
++++ b/src/workspace_overlay/packed_v3/wire005/manifest.rs
+@@ -32,6 +32,7 @@ pub struct V3ReadRange {
+ struct PlanPreparationOwner {
+     limit: usize,
+     permit: super::V3OwnedPermit,
++    payload_epoch: u64,
+ }
+ 
+ struct CachedFrameDirectory {
+@@ -1075,6 +1076,7 @@ impl AuthenticatedV3Snapshot {
+         allocation_limit: usize,
+         delivery: Option<std::sync::Arc<crate::cadapter::read_observer::OperationDelivery>>,
+     ) -> PackedResult<crate::chunk::read_plan::PreparedUnifiedRead> {
++        let payload_epoch = reader.budget().read_cache_epoch();
+         let V3ReadRange { offset, length } = range;
+         // Keep bounded preparation room for independent readers and the
+         // mount coordinator. Reserving the entire Plans pool for each read
+@@ -1132,6 +1134,7 @@ impl AuthenticatedV3Snapshot {
+             PlanPreparationOwner {
+                 limit: plan_limit,
+                 permit: plan_permit,
++                payload_epoch,
+             },
+         )
+         .await
+@@ -1146,6 +1149,7 @@ impl AuthenticatedV3Snapshot {
+         delivery: Option<std::sync::Arc<crate::cadapter::read_observer::OperationDelivery>>,
+         input: V3ReadPlacementInput,
+     ) -> PackedResult<crate::chunk::read_plan::PreparedUnifiedRead> {
++        let payload_epoch = reader.budget().read_cache_epoch();
+         let V3ReadRange { length, .. } = range;
+         if length > allocation_limit {
+             return Err(PackedWireError::LimitExceeded(
+@@ -1165,6 +1169,7 @@ impl AuthenticatedV3Snapshot {
+             PlanPreparationOwner {
+                 limit: plan_limit,
+                 permit: plan_permit,
++                payload_epoch,
+             },
+         )
+         .await
+@@ -1184,10 +1189,19 @@ impl AuthenticatedV3Snapshot {
+             LogicalSegment, ReadSource, UnifiedReadPlan, UnifiedReadSourceFetcher,
+         };
+         use std::collections::HashMap;
++
++        fn retained_read_error(error: PackedWireError) -> anyhow::Error {
++            match error {
++                PackedWireError::ReadViewChanged => crate::chunk::read_plan::ReadViewChanged.into(),
++                error => error.into(),
++            }
++        }
++
+         let V3ReadRange { offset, length } = range;
+         let PlanPreparationOwner {
+             limit: plan_limit,
+             permit: mut plan_permit,
++            payload_epoch,
+         } = preparation;
+         let V3ReadPlacementInput {
+             group_id,
+@@ -1467,6 +1481,10 @@ impl AuthenticatedV3Snapshot {
+             frame_policy: super::V3FramePolicy,
+             budget: std::sync::Arc<super::V3MountBudget>,
+             active: tokio::sync::Mutex<ActiveFrame>,
++            retained_payload: Option<(
++                std::sync::Arc<super::payload_retention::PayloadRetention>,
++                u64,
++            )>,
+             delivery: Option<std::sync::Arc<crate::cadapter::read_observer::OperationDelivery>>,
+             inline_coverage: tokio::sync::Mutex<Option<crate::cadapter::read_observer::RawLease>>,
+             _inline_permit: Option<super::V3OwnedPermit>,
+@@ -1535,6 +1553,35 @@ impl AuthenticatedV3Snapshot {
+                                     class,
+                                 },
+                             );
++                            let retention = self.retained_payload.as_ref().map(|(cache, epoch)| {
++                                let identity = super::payload_retention::frame_key(
++                                    self.generation,
++                                    container,
++                                    descriptor,
++                                );
++                                (cache, *epoch, identity)
++                            });
++                            if let Some((cache, epoch, identity)) = &retention
++                                && cache
++                                    .copy_range(*epoch, identity, *raw_offset as usize, output)
++                                    .map_err(retained_read_error)?
++                            {
++                                if let Some(observer) = self.client.read_observer() {
++                                    observer.event(
++                                        context,
++                                        crate::cadapter::read_observer::ReadEvent::CacheHit,
++                                    );
++                                }
++                                return Ok(());
++                            }
++                            if retention.is_some()
++                                && let Some(observer) = self.client.read_observer()
++                            {
++                                observer.event(
++                                    context,
++                                    crate::cadapter::read_observer::ReadEvent::CacheLookupMiss,
++                                );
++                            }
+                             let waiter = self
+                                 ._pipeline
+                                 .as_ref()
+@@ -1557,6 +1604,13 @@ impl AuthenticatedV3Snapshot {
+                                 .await
+                                 .map_err(|error| anyhow::Error::new((*error).clone()))?;
+                             drop(waiter);
++                            if let Some((cache, epoch, identity)) = retention
++                                && frame.authenticated_this_fetch
++                            {
++                                cache
++                                    .remember(epoch, identity, &frame.raw)
++                                    .map_err(retained_read_error)?;
++                            }
+                             *active = Some((key, frame));
+                         }
+                         let frame = &active.as_ref().unwrap().1;
+@@ -1619,7 +1673,12 @@ impl AuthenticatedV3Snapshot {
+                 Ok(())
+             }
+             async fn ensure_generation(&self, generation: ReadGeneration) -> anyhow::Result<()> {
+-                if generation != self.generation {
++                if generation != self.generation
++                    || self
++                        .retained_payload
++                        .as_ref()
++                        .is_some_and(|(_, epoch)| *epoch != self.budget.read_cache_epoch())
++                {
+                     return Err(crate::chunk::read_plan::ReadViewChanged.into());
+                 }
+                 Ok(())
+@@ -1700,6 +1759,9 @@ impl AuthenticatedV3Snapshot {
+                 frame_policy: self.manifest.build.policy.frames,
+                 budget: reader.budget().clone(),
+                 active: tokio::sync::Mutex::new(None),
++                retained_payload: reader
++                    .payload_retention()
++                    .map(|cache| (cache, payload_epoch)),
+                 delivery,
+                 inline_coverage: tokio::sync::Mutex::new(inline_coverage),
+                 _inline_permit: inline_permit,
+diff --git a/src/workspace_overlay/packed_v3/wire005/metadata_cache_tests.rs b/src/workspace_overlay/packed_v3/wire005/metadata_cache_tests.rs
+index baefd69..137c105 100644
+--- a/src/workspace_overlay/packed_v3/wire005/metadata_cache_tests.rs
++++ b/src/workspace_overlay/packed_v3/wire005/metadata_cache_tests.rs
+@@ -52,6 +52,15 @@ impl ObjectBackend for CountingBackend {
+ 
+ #[tokio::test]
+ async fn repeated_authenticated_inode_read_fetches_only_payload() {
++    assert_repeated_authenticated_inode_read(0, 1).await;
++}
++
++#[tokio::test]
++async fn retained_authenticated_inode_frame_needs_no_second_backend_get() {
++    assert_repeated_authenticated_inode_read(1 << 20, 0).await;
++}
++
++async fn assert_repeated_authenticated_inode_read(retention_bytes: u64, repeat_gets: usize) {
+     let objects = tempfile::tempdir().unwrap();
+     let scratch = tempfile::tempdir().unwrap();
+     let gets = Arc::new(AtomicUsize::new(0));
+@@ -114,13 +123,17 @@ async fn repeated_authenticated_inode_read_fetches_only_payload() {
+     let snapshot = AuthenticatedV3Snapshot::open(&client, &reference)
+         .await
+         .unwrap();
+-    let reader = V3IndexReader::new(client.clone(), 8 << 20);
++    let reader = V3IndexReader::new(client.clone(), 8 << 20)
++        .with_payload_retention(retention_bytes)
++        .unwrap();
++    let before = gets.load(Ordering::SeqCst);
+     let mut output = [0; 4096];
+     snapshot
+         .read_inode_range(&client, &reader, 2, 0, &mut output, 32 << 20)
+         .await
+         .unwrap();
+     assert_eq!(output, [0x5a; 4096]);
++    assert!(gets.load(Ordering::SeqCst) > before);
+     let before = gets.load(Ordering::SeqCst);
+     snapshot
+         .read_inode_range(&client, &reader, 2, 4096, &mut output, 32 << 20)
+@@ -129,9 +142,14 @@ async fn repeated_authenticated_inode_read_fetches_only_payload() {
+     assert_eq!(output, [0x5a; 4096]);
+     assert_eq!(
+         gets.load(Ordering::SeqCst) - before,
+-        1,
+-        "only the payload is fetched again"
++        repeat_gets,
++        "repeat fetches only the payload when retention is disabled"
+     );
++    if retention_bytes > 0 {
++        let mut stats = String::new();
++        reader.cache_stats().render_payload_retention(&mut stats);
++        assert!(stats.contains("brewfs_packed_v3_payload_retention_hits_total 1\n"));
++    }
+     let before = gets.load(Ordering::SeqCst);
+     reader.budget().invalidate_read_caches();
+     snapshot
+diff --git a/src/workspace_overlay/packed_v3/wire005/pipeline/coordinator.rs b/src/workspace_overlay/packed_v3/wire005/pipeline/coordinator.rs
+index 6acf72b..2c5e5d1 100644
+--- a/src/workspace_overlay/packed_v3/wire005/pipeline/coordinator.rs
++++ b/src/workspace_overlay/packed_v3/wire005/pipeline/coordinator.rs
+@@ -12,6 +12,7 @@ mod tests;
+ #[derive(Debug)]
+ pub(crate) struct V3SharedFrame {
+     pub raw: Vec<u8>,
++    pub authenticated_this_fetch: bool,
+     pub coverage: Option<Arc<SharedRawCoverage>>,
+     _control: V3OwnedPermit,
+ }
+@@ -605,6 +606,7 @@ async fn fetch_batch<B: ObjectBackend + Clone, const MEMO: bool>(
+                         V3Owned::new(
+                             V3SharedFrame {
+                                 raw,
++                                authenticated_this_fetch: needs_verification,
+                                 coverage,
+                                 _control: control,
+                             },
+diff --git a/src/workspace_overlay/stores/kv_store/packed_reader_pins/packed_enumeration_tests.rs b/src/workspace_overlay/stores/kv_store/packed_reader_pins/packed_enumeration_tests.rs
+index 3276cd0..ef8bd4c 100644
+--- a/src/workspace_overlay/stores/kv_store/packed_reader_pins/packed_enumeration_tests.rs
++++ b/src/workspace_overlay/stores/kv_store/packed_reader_pins/packed_enumeration_tests.rs
+@@ -4,6 +4,109 @@ use super::*;
+ use crate::workspace_overlay::packed_v3::wire005::V3BudgetPool;
+ use futures::{FutureExt, StreamExt};
+ 
++#[tokio::test]
++async fn packed_namespace_control_keeps_permissions_root_and_paged_directory() {
++    use crate::workspace_overlay::lifecycle::LeaseValidity;
++    use crate::workspace_overlay::meta_layer::PackedReadControl;
++
++    let mut baseline = None;
++    for mode in [PackedReadControl::OverlayRead, PackedReadControl::LowerRead] {
++        let lease = Arc::new(LeaseValidity::new(
++            std::time::Instant::now(),
++            std::time::Duration::from_secs(60),
++        ));
++        let f = fixture_with_lease(false, packed().await, Some(lease.clone())).await;
++        let original_root = f.meta.stat(1).await.unwrap().unwrap();
++        f.meta.enable_packed_read_control(mode).await.unwrap();
++
++        let mut attrs = Vec::new();
++        for _ in 0..2 {
++            let (ino, attr) = f
++                .meta
++                .lookup_with_attr_bytes(1, b"nonzero")
++                .await
++                .unwrap()
++                .unwrap();
++            assert_eq!(ino, attr.ino);
++            attrs.push((ino, attr.mode, attr.uid, attr.gid, attr.size));
++        }
++        assert!(
++            f.meta
++                .lookup_with_attr_bytes(1, b"not-present")
++                .await
++                .unwrap()
++                .is_none()
++        );
++        let root = f.meta.stat(1).await.unwrap().unwrap();
++        assert_eq!(
++            (root.mode, root.uid, root.gid),
++            (original_root.mode, original_root.uid, original_root.gid)
++        );
++        let permission = f.meta.inode_permissions(attrs[0].0).await.unwrap().unwrap();
++        assert_eq!(
++            (permission.attr.ino, permission.attr.mode),
++            (attrs[0].0, attrs[0].1)
++        );
++        let dir = f.meta.opendir(1).await.unwrap();
++        let first = dir.get_entries_page_raw_owned(0, 1).await.unwrap().entries;
++        assert_eq!(first[0].name, b"nonzero");
++        assert!(
++            dir.get_entries_page_raw_owned(1, 1)
++                .await
++                .unwrap()
++                .entries
++                .is_empty()
++        );
++        assert_eq!(
++            dir.get_entries_page_raw_owned(0, 1).await.unwrap().entries,
++            first
++        );
++        let observed = (attrs, first);
++        if let Some(baseline) = &baseline {
++            assert_eq!(&observed, baseline);
++        } else {
++            baseline = Some(observed);
++        }
++
++        let stats = crate::vfs::stats::FsStats::new();
++        assert!(f.meta.install_workspace_stats(&stats));
++        let rendered = stats
++            .render_bounded(stats.render_allocation_limit())
++            .unwrap();
++        let metric = |name: &str| -> u64 {
++            let prefix = format!("brewfs_workspace_read_namespace_control_{name} ");
++            rendered
++                .lines()
++                .find_map(|line| line.strip_prefix(prefix.as_str()))
++                .unwrap()
++                .parse()
++                .unwrap()
++        };
++        assert!(metric("root_preserved_total") > 0);
++        if mode == PackedReadControl::OverlayRead {
++            for op in ["lookup", "getattr"] {
++                assert!(metric(&format!("{op}_queries_total")) > 0);
++                assert!(metric(&format!("{op}_cache_hits_total")) > 0);
++                assert_eq!(metric(&format!("{op}_bypasses_total")), 0);
++            }
++            assert_eq!(metric("directory_probe_queries_total"), 2);
++            assert_eq!(metric("directory_probe_bypasses_total"), 0);
++        } else {
++            for op in ["lookup", "getattr", "directory_probe"] {
++                assert_eq!(metric(&format!("{op}_queries_total")), 0);
++                assert_eq!(metric(&format!("{op}_cache_hits_total")), 0);
++                assert!(metric(&format!("{op}_bypasses_total")) > 0);
++            }
++        }
++
++        lease.revoke();
++        assert!(f.meta.lookup_with_attr_bytes(1, b"nonzero").await.is_err());
++        assert!(dir.get_entries_page_raw_owned(0, 1).await.is_err());
++        drop(dir);
++        f.reader.shutdown().await.unwrap();
++    }
++}
++
+ #[tokio::test]
+ async fn packed_directory_lease_fence_ignores_attribute_commits_but_not_namespace_changes() {
+     use crate::workspace_overlay::lifecycle::LeaseValidity;
+diff --git a/src/workspace_overlay/meta_layer/packed_read_control.rs b/src/workspace_overlay/meta_layer/packed_read_control.rs
+new file mode 100644
+index 0000000..51c88d2
+--- /dev/null
++++ b/src/workspace_overlay/meta_layer/packed_read_control.rs
+@@ -0,0 +1,328 @@
++//! Read-only ablations on the same WorkspaceMetaLayer, lease, permissions
++//! and wire005 lower. The read-data pair omits the empty extent resolver;
++//! the broader read pair also omits proved-empty namespace queries.
++
++use std::sync::Arc;
++use std::sync::atomic::{AtomicU64, Ordering};
++
++use super::{
++    HeadGuard, InodeState, LayerRecord, MetaError, WorkspaceError, WorkspaceMetaLayer,
++    WorkspaceStore, validate_fixed_layer_pair, workspace_to_meta,
++};
++use crate::meta::MetaLayer;
++use crate::workspace_overlay::digest::{CanonicalLayerDelta, delta_digest, root_hash};
++
++pub(crate) const PACKED_READ_CONTROL_ENV: &str = "BREWFS_PACKED_WORKSPACE_READ_CONTROL";
++
++#[derive(Clone, Copy, Debug, Eq, PartialEq)]
++pub(crate) enum PackedReadControl {
++    Overlay,
++    LowerOnly,
++    OverlayRead,
++    LowerRead,
++}
++
++impl PackedReadControl {
++    pub(crate) fn from_env() -> anyhow::Result<Option<Self>> {
++        match std::env::var(PACKED_READ_CONTROL_ENV) {
++            Ok(mode) if mode == "overlay" => Ok(Some(Self::Overlay)),
++            Ok(mode) if mode == "lower-only" => Ok(Some(Self::LowerOnly)),
++            Ok(mode) if mode == "overlay-read" => Ok(Some(Self::OverlayRead)),
++            Ok(mode) if mode == "lower-read" => Ok(Some(Self::LowerRead)),
++            Err(std::env::VarError::NotPresent) => Ok(None),
++            _ => anyhow::bail!(
++                "{PACKED_READ_CONTROL_ENV} must be overlay, lower-only, overlay-read, or lower-read"
++            ),
++        }
++    }
++
++    fn name(self) -> &'static str {
++        match self {
++            Self::Overlay => "overlay",
++            Self::LowerOnly => "lower-only",
++            Self::OverlayRead => "overlay-read",
++            Self::LowerRead => "lower-read",
++        }
++    }
++
++    fn measures_namespace(self) -> bool {
++        matches!(self, Self::OverlayRead | Self::LowerRead)
++    }
++}
++
++#[derive(Clone, Copy)]
++pub(super) enum NamespaceRead {
++    Lookup = 0,
++    Getattr = 1,
++    DirectoryProbe = 2,
++}
++
++#[derive(Debug, Default)]
++struct NamespaceCounters {
++    queries: AtomicU64,
++    cache_hits: AtomicU64,
++    bypasses: AtomicU64,
++}
++
++#[derive(Debug)]
++pub(super) struct PackedReadControlWitness {
++    mode: PackedReadControl,
++    guard: HeadGuard,
++    layers: [LayerRecord; 2],
++    extent_queries: AtomicU64,
++    extent_bypasses: AtomicU64,
++    native_root: i64,
++    root_preserved: AtomicU64,
++    namespace: [NamespaceCounters; 3],
++}
++
++impl PackedReadControlWitness {
++    pub(super) fn record_extent_resolution(&self) -> bool {
++        let bypass = matches!(
++            self.mode,
++            PackedReadControl::LowerOnly | PackedReadControl::LowerRead
++        );
++        let counter = if bypass {
++            &self.extent_bypasses
++        } else {
++            &self.extent_queries
++        };
++        counter.fetch_add(1, Ordering::Relaxed);
++        bypass
++    }
++
++    pub(super) fn record_namespace_bypass(&self, op: NamespaceRead, count: u64) -> bool {
++        if self.mode != PackedReadControl::LowerRead {
++            return false;
++        }
++        self.namespace[op as usize]
++            .bypasses
++            .fetch_add(count, Ordering::Relaxed);
++        true
++    }
++
++    pub(super) fn record_namespace_resolution(&self, op: NamespaceRead, cache_hit: bool) {
++        let counters = &self.namespace[op as usize];
++        let counter = if cache_hit {
++            &counters.cache_hits
++        } else {
++            &counters.queries
++        };
++        counter.fetch_add(1, Ordering::Relaxed);
++    }
++
++    pub(super) fn preserve_root_inode(&self, ino: i64, view_root: i64) -> bool {
++        if ino != self.native_root && ino != view_root {
++            return false;
++        }
++        self.root_preserved.fetch_add(1, Ordering::Relaxed);
++        true
++    }
++
++    pub(super) fn render_into(&self, output: &mut dyn std::fmt::Write) {
++        let _ = writeln!(
++            output,
++            "brewfs_workspace_read_extent_control_info{{mode=\"{}\"}} 1",
++            self.mode.name()
++        );
++        let _ = writeln!(
++            output,
++            "brewfs_workspace_read_extent_control_queries_total {}",
++            self.extent_queries.load(Ordering::Relaxed)
++        );
++        let _ = writeln!(
++            output,
++            "brewfs_workspace_read_extent_control_bypasses_total {}",
++            self.extent_bypasses.load(Ordering::Relaxed)
++        );
++        if !self.mode.measures_namespace() {
++            return;
++        }
++        let _ = writeln!(
++            output,
++            "brewfs_workspace_read_namespace_control_root_preserved_total {}",
++            self.root_preserved.load(Ordering::Relaxed)
++        );
++        for (op, counters) in ["lookup", "getattr", "directory_probe"]
++            .into_iter()
++            .zip(&self.namespace)
++        {
++            for (kind, value) in [
++                ("queries", &counters.queries),
++                ("cache_hits", &counters.cache_hits),
++                ("bypasses", &counters.bypasses),
++            ] {
++                let _ = writeln!(
++                    output,
++                    "brewfs_workspace_read_namespace_control_{op}_{kind}_total {}",
++                    value.load(Ordering::Relaxed)
++                );
++            }
++        }
++    }
++}
++
++fn no_native_rows_except_inode(delta: &CanonicalLayerDelta) -> bool {
++    delta.dentries.is_empty()
++        && delta.extents.is_empty()
++        && delta.xattrs.is_empty()
++        && delta.acls.is_empty()
++}
++
++impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
++    /// Called once, after regular packed mount admission and before exposing
++    /// FUSE. The small native root stub is expected for initial packed seeds.
++    pub(crate) async fn enable_packed_read_control(
++        &self,
++        mode: PackedReadControl,
++    ) -> Result<(), MetaError> {
++        let invalid = || {
++            MetaError::NotSupported(
++                "Packed read control requires a fresh empty upper and sealed root-only stub".into(),
++            )
++        };
++        let lower = self.packed_lower().ok_or_else(invalid)?;
++        let guard = self.guard().await;
++        let layers: [LayerRecord; 2] = self
++            .store
++            .load_layer_chain(guard.expected_head_layer_id)
++            .await
++            .map_err(workspace_to_meta)?
++            .try_into()
++            .map_err(|_| invalid())?;
++        validate_fixed_layer_pair(&layers).map_err(workspace_to_meta)?;
++        let [head, base] = &layers;
++        if head.owner_workspace_id != Some(guard.workspace_id)
++            || head.next_sequence != 1
++            || head.owned_slice_count != 0
++            || head.owned_bytes != 0
++            || base.layer_id != lower.binding.base_layer_id
++            || base.owner_workspace_id.is_some()
++            || base.sealed_version != Some(1)
++            || base.next_sequence != 2
++            || base.owned_slice_count != 0
++            || base.owned_bytes != 0
++        {
++            return Err(invalid());
++        }
++        let upper_delta = self
++            .store
++            .load_layer_delta(head.layer_id)
++            .await
++            .map_err(workspace_to_meta)?;
++        if upper_delta != CanonicalLayerDelta::default() {
++            return Err(invalid());
++        }
++        let stub = self
++            .store
++            .load_layer_delta(base.layer_id)
++            .await
++            .map_err(workspace_to_meta)?;
++        let [root] = stub.inodes.as_slice() else {
++            return Err(invalid());
++        };
++        if !no_native_rows_except_inode(&stub)
++            || root.layer_id != base.layer_id
++            || root.ino != self.root_ino()
++            || root.kind != super::file_type_code(crate::meta::store::FileType::Dir)
++            || root.state != InodeState::Present
++            || root.sequence != 1
++        {
++            return Err(invalid());
++        }
++        let digest = delta_digest(&stub).map_err(workspace_to_meta)?;
++        if base.delta_digest != Some(digest) || base.root_hash != Some(root_hash([0; 32], digest)) {
++            return Err(invalid());
++        }
++        // Scans occurred under the already-acquired exclusive writer lease.
++        // Recheck the exact guard and both unchanged layer records afterwards.
++        self.store
++            .validate_read_fence(guard.clone(), layers.clone())
++            .await
++            .map_err(workspace_to_meta)?;
++        self.packed_read_control
++            .set(Arc::new(PackedReadControlWitness {
++                mode,
++                guard: guard.clone(),
++                layers: layers.clone(),
++                extent_queries: AtomicU64::new(0),
++                extent_bypasses: AtomicU64::new(0),
++                native_root: root.ino,
++                root_preserved: AtomicU64::new(0),
++                namespace: Default::default(),
++            }))
++            .map_err(|_| MetaError::Internal("Packed read control was already installed".into()))?;
++        tracing::info!(
++            mode = mode.name(),
++            workspace = %guard.workspace_id,
++            head = %head.layer_id,
++            base = %base.layer_id,
++            packed_manifest_digest = %hex::encode(lower.binding.manifest.digest),
++            "Packed read control admitted: empty native upper and sealed root-only stub"
++        );
++        Ok(())
++    }
++
++    pub(super) fn packed_read_control_for_view(
++        &self,
++        guard: &HeadGuard,
++        layers: &[LayerRecord; 2],
++    ) -> Result<Option<&PackedReadControlWitness>, MetaError> {
++        let Some(witness) = self.packed_read_control.get().map(Arc::as_ref) else {
++            return Ok(None);
++        };
++        if &witness.guard != guard || &witness.layers != layers {
++            return Err(workspace_to_meta(WorkspaceError::Fenced));
++        }
++        Ok(Some(witness))
++    }
++
++    /// Both namespace arms prove the same empty-layer view before looking
++    /// at the native cache or lower. A local lease, when configured, may
++    /// authorize it only while the exact mount view remains authoritative.
++    pub(super) async fn packed_namespace_read_control(
++        &self,
++        guard: &HeadGuard,
++        layers: &[LayerRecord; 2],
++    ) -> Result<Option<&PackedReadControlWitness>, MetaError> {
++        if !self
++            .packed_read_control
++            .get()
++            .is_some_and(|control| control.mode.measures_namespace())
++        {
++            return Ok(None);
++        }
++        let Some(witness) = self.packed_read_control_for_view(guard, layers)? else {
++            return Err(workspace_to_meta(WorkspaceError::Fenced));
++        };
++        self.validate_packed_namespace_read_control(witness).await?;
++        Ok(Some(witness))
++    }
++
++    pub(super) async fn validate_packed_namespace_read_control(
++        &self,
++        witness: &PackedReadControlWitness,
++    ) -> Result<(), MetaError> {
++        if self.guard().await != witness.guard {
++            return Err(workspace_to_meta(WorkspaceError::Fenced));
++        }
++        if let Some(lease) = &self.lease_validity {
++            return if lease.authoritative() {
++                Ok(())
++            } else {
++                Err(workspace_to_meta(WorkspaceError::Fenced))
++            };
++        }
++        self.store
++            .validate_read_fence(witness.guard.clone(), witness.layers.clone())
++            .await
++            .map_err(workspace_to_meta)
++    }
++
++    pub(super) fn refuse_packed_read_control_mutation(&self) -> Result<(), std::io::Error> {
++        if self.packed_read_control.get().is_some() {
++            return Err(std::io::Error::from_raw_os_error(libc::EROFS));
++        }
++        Ok(())
++    }
++}
+diff --git a/src/workspace_overlay/packed_v3/wire005/payload_retention.rs b/src/workspace_overlay/packed_v3/wire005/payload_retention.rs
+new file mode 100644
+index 0000000..264d4b7
+--- /dev/null
++++ b/src/workspace_overlay/packed_v3/wire005/payload_retention.rs
+@@ -0,0 +1,223 @@
++//! Mount-local copies of authenticated payload frames, separate from transient
++//! Raw and observer coverage ownership. Cache consumers never retain a frame
++//! after dropping the lock, so eviction immediately releases its byte charge.
++
++use std::collections::{BTreeMap, BTreeSet};
++use std::sync::{Arc, Mutex, MutexGuard};
++
++use super::{V3MountBudget, V3ObjectRef};
++use crate::chunk::read_plan::ReadGeneration;
++use crate::workspace_overlay::packed_v3::PackedFrameDescriptor;
++use crate::workspace_overlay::packed_v3::wire::{PackedResult, PackedWireError};
++
++// Conservative charge for the two bounded tree entries and allocation overhead.
++const ENTRY_BYTES: u64 = 512;
++const MAX_BYTES: u64 = 64 << 20;
++
++type FrameKey = [u8; 32];
++
++pub(super) fn frame_key(
++    generation: ReadGeneration,
++    container: &V3ObjectRef,
++    frame: &PackedFrameDescriptor,
++) -> FrameKey {
++    let mut key = blake3::Hasher::new();
++    key.update(b"brewfs/wire005/retained-payload/v1");
++    key.update(&generation.lower_snapshot);
++    key.update(&generation.workspace_head_epoch.to_le_bytes());
++    key.update(&generation.workspace_mutation_sequence.to_le_bytes());
++    key.update(&[container.kind as u8]);
++    key.update(&container.digest);
++    key.update(&container.object_len.to_le_bytes());
++    key.update(&(container.key.len() as u64).to_le_bytes());
++    key.update(container.key.as_bytes());
++    key.update(&frame.frame_ordinal.to_le_bytes());
++    key.update(&frame.object_offset.to_le_bytes());
++    key.update(&frame.stored_len.to_le_bytes());
++    key.update(&frame.raw_len.to_le_bytes());
++    key.update(&[frame.size_class as u8, frame.codec]);
++    key.update(&frame.frame_digest);
++    key.update(&frame.first_file_slot.to_le_bytes());
++    key.update(&frame.last_file_slot.to_le_bytes());
++    key.finalize().into()
++}
++
++struct Entry {
++    raw: Box<[u8]>,
++    accessed: u64,
++}
++
++#[derive(Default)]
++struct State {
++    epoch: u64,
++    closed: bool,
++    clock: u64,
++    bytes: u64,
++    hits: u64,
++    misses: u64,
++    evictions: u64,
++    entries: BTreeMap<FrameKey, Entry>,
++    lru: BTreeSet<(u64, FrameKey)>,
++}
++
++impl State {
++    fn clear(&mut self) {
++        self.entries.clear();
++        self.lru.clear();
++        self.bytes = 0;
++    }
++
++    fn touch(&mut self, key: FrameKey) {
++        let entry = self.entries.get_mut(&key).expect("retained entry exists");
++        self.lru.remove(&(entry.accessed, key));
++        self.clock = self.clock.saturating_add(1);
++        entry.accessed = self.clock;
++        self.lru.insert((self.clock, key));
++    }
++}
++
++pub(super) struct PayloadRetention {
++    capacity: u64,
++    budget: Arc<V3MountBudget>,
++    state: Mutex<State>,
++}
++
++impl PayloadRetention {
++    pub(super) fn new(capacity: u64, budget: Arc<V3MountBudget>) -> PackedResult<Self> {
++        if !(ENTRY_BYTES + 1..=MAX_BYTES).contains(&capacity) {
++            return Err(PackedWireError::LimitExceeded(
++                "wire005 retained payload capacity must be 513 bytes through 64 MiB".into(),
++            ));
++        }
++        Ok(Self {
++            capacity,
++            state: Mutex::new(State {
++                epoch: budget.read_cache_epoch(),
++                ..State::default()
++            }),
++            budget,
++        })
++    }
++
++    fn current(&self, expected_epoch: u64) -> PackedResult<MutexGuard<'_, State>> {
++        let mut state = self.state.lock().unwrap();
++        let current = self.budget.read_cache_epoch();
++        if state.epoch != current {
++            state.clear();
++            state.epoch = current;
++        }
++        if state.closed || current != expected_epoch || self.budget.state().closed {
++            return Err(PackedWireError::ReadViewChanged);
++        }
++        Ok(state)
++    }
++
++    pub(super) fn copy_range(
++        &self,
++        epoch: u64,
++        key: &FrameKey,
++        start: usize,
++        output: &mut [u8],
++    ) -> PackedResult<bool> {
++        let mut state = self.current(epoch)?;
++        if let Some(entry) = state.entries.get(key) {
++            let end = start.checked_add(output.len()).ok_or_else(|| {
++                PackedWireError::Invalid("retained frame output range overflows".into())
++            })?;
++            output.copy_from_slice(entry.raw.get(start..end).ok_or_else(|| {
++                PackedWireError::Invalid("retained frame output range exceeds source".into())
++            })?);
++            if self.budget.read_cache_epoch() != epoch {
++                return Err(PackedWireError::ReadViewChanged);
++            }
++            state.hits = state.hits.saturating_add(1);
++            state.touch(*key);
++            Ok(true)
++        } else {
++            state.misses = state.misses.saturating_add(1);
++            Ok(false)
++        }
++    }
++
++    /// Called only after the fetched stored frame was hashed and decoded
++    /// successfully. In-flight observer accounting stays with the live frame.
++    pub(super) fn remember(&self, epoch: u64, key: FrameKey, raw: &[u8]) -> PackedResult<()> {
++        let mut state = self.current(epoch)?;
++        let charge = raw.len() as u64 + ENTRY_BYTES;
++        if raw.is_empty() || charge > self.capacity || state.entries.contains_key(&key) {
++            return Ok(());
++        }
++        while state.bytes + charge > self.capacity {
++            let (_, oldest) = state.lru.pop_first().expect("byte charge has an owner");
++            let removed = state.entries.remove(&oldest).expect("LRU entry exists");
++            state.bytes -= removed.raw.len() as u64 + ENTRY_BYTES;
++            state.evictions = state.evictions.saturating_add(1);
++        }
++        state.bytes += charge;
++        state.clock = state.clock.saturating_add(1);
++        let accessed = state.clock;
++        state.entries.insert(
++            key,
++            Entry {
++                raw: raw.into(),
++                accessed,
++            },
++        );
++        state.lru.insert((accessed, key));
++        Ok(())
++    }
++
++    pub(super) fn close(&self) {
++        let mut state = self.state.lock().unwrap();
++        state.closed = true;
++        state.clear();
++    }
++
++    pub(super) fn render_into(&self, output: &mut dyn std::fmt::Write) {
++        let state = self.state.lock().unwrap();
++        for (name, value) in [
++            ("capacity_bytes", self.capacity),
++            ("resident_charge_bytes", state.bytes),
++            ("entries", state.entries.len() as u64),
++            ("hits_total", state.hits),
++            ("misses_total", state.misses),
++            ("evictions_total", state.evictions),
++        ] {
++            let _ = writeln!(output, "brewfs_packed_v3_payload_retention_{name} {value}");
++        }
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn payload_byte_cap_eviction_and_epoch_do_not_serve_old_bytes() {
++        let budget = V3MountBudget::defaults();
++        let cache = PayloadRetention::new(ENTRY_BYTES + 4, budget.clone()).unwrap();
++        let epoch = budget.read_cache_epoch();
++        let mut output = [0; 2];
++        assert!(!cache.copy_range(epoch, &[1; 32], 1, &mut output).unwrap());
++        cache.remember(epoch, [1; 32], b"data").unwrap();
++        assert!(cache.copy_range(epoch, &[1; 32], 1, &mut output).unwrap());
++        assert_eq!(&output, b"at");
++        cache.remember(epoch, [2; 32], b"01234").unwrap();
++        assert!(!cache.copy_range(epoch, &[2; 32], 1, &mut output).unwrap());
++        cache.remember(epoch, [3; 32], b"more").unwrap();
++        assert!(!cache.copy_range(epoch, &[1; 32], 1, &mut output).unwrap());
++        assert_eq!(cache.state.lock().unwrap().bytes, ENTRY_BYTES + 4);
++        budget.invalidate_read_caches();
++        assert!(matches!(
++            cache.copy_range(epoch, &[3; 32], 1, &mut output),
++            Err(PackedWireError::ReadViewChanged)
++        ));
++        assert_eq!(cache.state.lock().unwrap().bytes, 0);
++        cache.close();
++        assert!(
++            cache
++                .remember(budget.read_cache_epoch(), [3; 32], b"late")
++                .is_err()
++        );
++    }
++}

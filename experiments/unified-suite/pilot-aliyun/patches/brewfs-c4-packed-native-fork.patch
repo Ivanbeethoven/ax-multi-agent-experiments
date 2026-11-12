@@ -1,0 +1,522 @@
+diff --git a/src/cli.rs b/src/cli.rs
+index 98a4845..5976634 100644
+--- a/src/cli.rs
++++ b/src/cli.rs
+@@ -22,6 +22,8 @@ pub(crate) mod packed_mount_cutoff;
+ mod packed_mount_recovery;
+ #[cfg(all(test, feature = "workspace-overlay", target_os = "linux"))]
+ mod packed_mount_session_tests;
++#[cfg(all(feature = "workspace-overlay", target_os = "linux"))]
++mod packed_snapshot_publish;
+ #[cfg(feature = "workspace-overlay")]
+ mod workspace_bucket;
+ #[cfg(feature = "workspace-overlay")]
+@@ -2475,7 +2477,7 @@ async fn workspace_cmd(args: WorkspaceArgs) -> anyhow::Result<()> {
+                 return init_native_volume_with_catalog(catalog, control, &workspace_namespace)
+                     .await;
+             }
+-            workspace_cmd_with_catalog(command, catalog).await
++            workspace_cmd_with_kv_catalog(command, catalog, packed_budget).await
+         }
+         WorkspaceMetaBackendKind::TiKv => {
+             let backend = connect_workspace_tikv(
+@@ -2508,9 +2510,13 @@ async fn workspace_cmd(args: WorkspaceArgs) -> anyhow::Result<()> {
+                     )
+                     .await;
+                 }
+-                workspace_cmd_with_catalog(command, catalog.clone()).await
++                workspace_cmd_with_kv_catalog(command, catalog.clone(), packed_budget).await
+             }
+             .await;
++            #[cfg(target_os = "linux")]
++            if packed_snapshot_publish::requires_retention(&result) {
++                return result;
++            }
+             let shutdown = catalog.shutdown_metadata_backend().await;
+             result?;
+             shutdown?;
+@@ -2519,6 +2525,41 @@ async fn workspace_cmd(args: WorkspaceArgs) -> anyhow::Result<()> {
+     }
+ }
+ 
++#[cfg(feature = "workspace-overlay")]
++async fn workspace_cmd_with_kv_catalog<
++    B: crate::workspace_overlay::stores::kv_backend::WorkspaceKvBackend,
++>(
++    command: WorkspaceCommand,
++    store: Arc<KvWorkspaceStore<B>>,
++    #[cfg_attr(not(target_os = "linux"), allow(unused_variables))] packed_budget: Arc<
++        workspace_overlay::packed_v3::wire005::V3MountBudget,
++    >,
++) -> anyhow::Result<()> {
++    match command {
++        WorkspaceCommand::Fork {
++            source,
++            count,
++            owner,
++            data_config,
++            require_packed_carrier: true,
++        } => {
++            validate_workspace_header(&store).await?;
++            let config = workspace_bucket::config(&data_config)?;
++            let children = workspace_bucket::fork_packed(&store, source, count, owner, |id| {
++                workspace_bucket::create(&config, id)
++            })
++            .await?;
++            print_json(&children)
++        }
++        #[cfg(target_os = "linux")]
++        WorkspaceCommand::PublishPackedSnapshot(arguments) => {
++            validate_workspace_header(&store).await?;
++            packed_snapshot_publish::run(store, packed_budget, *arguments).await
++        }
++        command => workspace_cmd_with_catalog(command, store).await,
++    }
++}
++
+ /// Create a workspace-v1 volume whose default workspace's sealed base is an
+ /// authenticated packed-v3 lower. The manifest is opened and verified through
+ /// the selected object store before any binding is written; the install lease
+@@ -2685,6 +2726,10 @@ where
+                 "packed-v3 mounted recovery requires its concrete Redis/TiKV and original PVC driver"
+             );
+         }
++        #[cfg(target_os = "linux")]
++        WorkspaceCommand::PublishPackedSnapshot(_) => {
++            anyhow::bail!("Packed snapshot publication requires Redis or TiKV metadata");
++        }
+         WorkspaceCommand::InitVolume { owner, data_config } => {
+             if store.load_volume_header().await?.is_some() {
+                 anyhow::bail!("workspace volume is already initialized")
+@@ -2753,7 +2798,11 @@ where
+             count,
+             owner,
+             data_config,
++            require_packed_carrier,
+         } => {
++            if require_packed_carrier {
++                anyhow::bail!("Packed carrier fork requires Redis or TiKV metadata");
++            }
+             validate_workspace_header(&store).await?;
+             if count == 0 {
+                 anyhow::bail!("--count must be greater than zero")
+diff --git a/src/cli/packed_mount_cutoff/packed_headless_snapshot_tests.rs b/src/cli/packed_mount_cutoff/packed_headless_snapshot_tests.rs
+index 4639cd7..6412493 100644
+--- a/src/cli/packed_mount_cutoff/packed_headless_snapshot_tests.rs
++++ b/src/cli/packed_mount_cutoff/packed_headless_snapshot_tests.rs
+@@ -95,6 +95,7 @@ pub(super) async fn consume<B, F>(
+     connect: Arc<F>,
+     bare: Arc<B>,
+     admin: Arc<KvWorkspaceStore<B>>,
++    admin_budget: Arc<V3MountBudget>,
+     ticket: PackedCleanSourceTicket<B>,
+     fixture: OriginalSnapshotFixture,
+     released: PackedReleasedMountReference,
+@@ -121,6 +122,23 @@ pub(super) async fn consume<B, F>(
+     );
+     let original_objects = original_object_bytes(&client, &object_keys).await;
+     let original_reference = original.manifest_reference().clone();
++    let imported = admin
++        .inspect_packed_workspace_binding(released.guard.workspace_id)
++        .await
++        .unwrap()
++        .unwrap();
++    assert_eq!(imported.binding.manifest, original_reference);
++    let create_count = std::sync::atomic::AtomicUsize::new(0);
++    assert!(
++        crate::cli::workspace_bucket::fork_packed(&admin, imported.base_revision, 1, None, |_| {
++            create_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
++            std::future::ready(Ok(None))
++        },)
++        .await
++        .is_err(),
++        "a workspace-local import is not an immutable Packed carrier"
++    );
++    assert_eq!(create_count.load(std::sync::atomic::Ordering::Relaxed), 0);
+     let scratch = tempfile::tempdir().unwrap();
+     let snapshot_id = SnapshotId::new();
+     let journal_id = JournalId::new();
+@@ -172,17 +190,18 @@ pub(super) async fn consume<B, F>(
+     request.max_logical_bytes = SCRATCH_BYTES;
+     request.max_data_bytes = SCRATCH_BYTES;
+     request.scratch_disk_bytes = SCRATCH_BYTES;
+-    let result = match admin
+-        .publish_clean_packed_snapshot(ticket, client.clone(), upper, layout, request)
+-        .await
+-    {
+-        Ok(result) => result,
+-        Err(failure) => panic!(
+-            "actual original-to-packed-v3 publisher failed: {} (committed={})",
+-            failure.error(),
+-            failure.committed_result().is_some()
+-        ),
+-    };
++    drop(ticket);
++    let result = crate::cli::packed_snapshot_publish::publish_released(
++        admin,
++        admin_budget,
++        released.guard.workspace_id,
++        client.clone(),
++        upper,
++        layout,
++        request,
++    )
++    .await
++    .unwrap();
+     assert_eq!(result.snapshot_id, snapshot_id);
+     assert_eq!(result.packed_carrier_revision, result.binding.base_revision);
+     assert_ne!(
+@@ -237,23 +256,30 @@ pub(super) async fn consume<B, F>(
+         .await
+         .unwrap();
+     assert_eq!(repeated.revision, result.packed_carrier_revision);
+-    let fork_id = crate::workspace_overlay::ids::WorkspaceId::new();
+-    observer
+-        .create_workspace_from_packed_carrier(crate::workspace_overlay::catalog::CreateWorkspace {
+-            upper_bucket: None,
+-            workspace_id: fork_id,
+-            head_layer_id: LayerId::new(),
+-            base_revision: result.packed_carrier_revision.clone(),
+-            owner_id: None,
+-        })
+-        .await
+-        .unwrap();
++    let children = crate::cli::workspace_bucket::fork_packed(
++        &observer,
++        result.packed_carrier_revision.clone(),
++        2,
++        None,
++        |workspace_id| std::future::ready(Ok(Some(format!("upper-{workspace_id}")))),
++    )
++    .await
++    .unwrap();
++    assert_ne!(children[0].upper_bucket, children[1].upper_bucket);
++    let fork_id = children[0].workspace_id;
+     let untouched = observer
+         .inspect_unmounted_packed_source(fork_id)
+         .await
+         .unwrap()
+         .expect("actual empty fork with no writable lease history");
+     assert_eq!(untouched.base_revision, result.packed_carrier_revision);
++    assert_eq!(untouched.binding.manifest, result.binding.binding.manifest);
++    let sibling = observer
++        .inspect_unmounted_packed_source(children[1].workspace_id)
++        .await
++        .unwrap()
++        .unwrap();
++    assert_eq!(sibling.binding.manifest, untouched.binding.manifest);
+     let first_fork_snapshot = observer
+         .pin_clean_packed_snapshot(
+             fork_id,
+@@ -275,7 +301,7 @@ pub(super) async fn consume<B, F>(
+     let current = PackedLowerBindingRecord::decode(current_rows[0].as_ref().unwrap()).unwrap();
+     assert_eq!(current, result.binding);
+ 
+-    let authenticated = AuthenticatedV3Snapshot::open(&client, &result.binding.binding.manifest)
++    let authenticated = AuthenticatedV3Snapshot::open(&client, &untouched.binding.manifest)
+         .await
+         .unwrap();
+     assert_ne!(authenticated.manifest_reference(), &original_reference);
+diff --git a/src/cli/packed_mount_cutoff/packed_original_shutdown_tests.rs b/src/cli/packed_mount_cutoff/packed_original_shutdown_tests.rs
+index 2023ec0..43e065f 100644
+--- a/src/cli/packed_mount_cutoff/packed_original_shutdown_tests.rs
++++ b/src/cli/packed_mount_cutoff/packed_original_shutdown_tests.rs
+@@ -1578,6 +1578,7 @@ where
+                         connect.clone(),
+                         bare.clone(),
+                         admin,
++                        admin_budget,
+                         ticket,
+                         packed_headless_snapshot_tests::OriginalSnapshotFixture {
+                             client: actual_client.clone(),
+diff --git a/src/cli/workspace_bucket.rs b/src/cli/workspace_bucket.rs
+index a81a591..161d88e 100644
+--- a/src/cli/workspace_bucket.rs
++++ b/src/cli/workspace_bucket.rs
+@@ -1,3 +1,4 @@
++use std::future::Future;
+ use std::path::Path;
+ use std::sync::Arc;
+ 
+@@ -8,6 +9,8 @@ use crate::config::{Cli, Command, DataBackendKind, MountConfig};
+ use crate::workspace_overlay::catalog::{CreateWorkspace, WorkspaceStore};
+ use crate::workspace_overlay::ids::WorkspaceId;
+ use crate::workspace_overlay::model::{BaseRevision, WorkspaceRecord};
++use crate::workspace_overlay::stores::kv_backend::WorkspaceKvBackend;
++use crate::workspace_overlay::stores::kv_store::KvWorkspaceStore;
+ 
+ pub fn config(path: &Path) -> anyhow::Result<MountConfig> {
+     let cli = Cli::try_parse_from([
+@@ -79,6 +82,43 @@ pub async fn fork<W: WorkspaceStore + 'static>(
+     Ok(rows)
+ }
+ 
++pub(super) async fn fork_packed<B, F, Fut>(
++    store: &KvWorkspaceStore<B>,
++    revision: BaseRevision,
++    count: usize,
++    owner: Option<String>,
++    mut create_upper: F,
++) -> anyhow::Result<Vec<WorkspaceRecord>>
++where
++    B: WorkspaceKvBackend,
++    F: FnMut(WorkspaceId) -> Fut,
++    Fut: Future<Output = anyhow::Result<Option<String>>>,
++{
++    if !(1..=512).contains(&count) {
++        anyhow::bail!("--count for a Packed carrier fork must be between 1 and 512");
++    }
++    // Reject a non-carrier before even creating an S3 upper bucket. Child
++    // creation checks the proof again in the same CAS as workspace birth.
++    store.inspect_packed_carrier_revision(&revision).await?;
++    let mut rows = Vec::with_capacity(count);
++    for _ in 0..count {
++        let workspace_id = WorkspaceId::new();
++        let upper_bucket = create_upper(workspace_id).await?;
++        rows.push(
++            store
++                .create_workspace_from_packed_carrier(CreateWorkspace {
++                    workspace_id,
++                    head_layer_id: crate::workspace_overlay::ids::LayerId::new(),
++                    base_revision: revision.clone(),
++                    owner_id: owner.clone(),
++                    upper_bucket,
++                })
++                .await?,
++        );
++    }
++    Ok(rows)
++}
++
+ pub async fn drop_bucket<W: WorkspaceStore + 'static>(
+     store: Arc<W>,
+     workspace: WorkspaceId,
+diff --git a/src/config.rs b/src/config.rs
+index 6aeb158..4b551a9 100644
+--- a/src/config.rs
++++ b/src/config.rs
+@@ -472,6 +472,32 @@ pub struct PackedMountRecoveryArgs {
+     pub ttl_seconds: u64,
+ }
+ 
++#[cfg(all(feature = "workspace-overlay", target_os = "linux"))]
++#[derive(Args, Debug, Clone)]
++pub struct PublishPackedSnapshotArgs {
++    pub workspace: crate::workspace_overlay::ids::WorkspaceId,
++    /// The original mount configuration, selecting its shared lower store and chunk layout.
++    #[arg(long)]
++    pub config: PathBuf,
++    /// Existing directory for this bounded publication's private scratch space.
++    #[arg(long)]
++    pub scratch: PathBuf,
++    #[arg(long)]
++    pub name: String,
++    #[arg(long)]
++    pub snapshot_id: crate::workspace_overlay::ids::SnapshotId,
++    #[arg(long)]
++    pub journal_id: crate::workspace_overlay::ids::JournalId,
++    #[arg(long)]
++    pub lease_id: crate::workspace_overlay::ids::LeaseId,
++    #[arg(long)]
++    pub next_head: crate::workspace_overlay::ids::LayerId,
++    #[arg(long)]
++    pub owner: Option<String>,
++    #[arg(long, default_value_t = 300, value_parser = clap::value_parser!(u64).range(1..=900))]
++    pub ttl_seconds: u64,
++}
++
+ #[cfg(feature = "workspace-overlay")]
+ #[derive(Args, Debug, Clone)]
+ pub struct NativeReverseIndexArgs {
+@@ -499,6 +525,10 @@ pub enum WorkspaceCommand {
+     /// Recover an expired packed mount from its original persistent cache.
+     /// Metadata and PVC checks authorize replay; arguments only route it.
+     RecoverPackedMount(Box<PackedMountRecoveryArgs>),
++    /// Publish a bounded Packed snapshot from a cleanly unmounted workspace.
++    /// Prints the exact immutable revision to pass to fork --require-packed-carrier.
++    #[cfg(target_os = "linux")]
++    PublishPackedSnapshot(Box<PublishPackedSnapshotArgs>),
+     /// Initialize a new workspace-v1 volume and its default workspace.
+     InitVolume {
+         #[arg(long)]
+@@ -546,6 +576,9 @@ pub enum WorkspaceCommand {
+         count: usize,
+         #[arg(long)]
+         owner: Option<String>,
++        /// Refuse a revision without a retained immutable Packed lower.
++        #[arg(long)]
++        require_packed_carrier: bool,
+     },
+     /// List workspaces.
+     List,
+diff --git a/src/cli/packed_snapshot_publish.rs b/src/cli/packed_snapshot_publish.rs
+new file mode 100644
+index 0000000..982c715
+--- /dev/null
++++ b/src/cli/packed_snapshot_publish.rs
+@@ -0,0 +1,165 @@
++//! Operator entry point for the trusted, bounded Packed publication driver.
++
++use super::*;
++use crate::workspace_overlay::packed_v3::wire005::V3MountBudget;
++use crate::workspace_overlay::stores::kv_backend::WorkspaceKvBackend;
++use crate::workspace_overlay::stores::kv_store::packed_admin::{
++    PackedCleanAdmission, PackedHeadlessSnapshotDescription, PackedHeadlessSnapshotFailure,
++    PackedHeadlessSnapshotRequest, PackedSnapshotResult,
++};
++
++// Keep an unresolved publication's runtime and scratch owner alive with the
++// returned error. The committed revision, if any, does not prove clean finish.
++struct PublicationFailure(Mutex<PackedHeadlessSnapshotFailure>);
++
++impl std::fmt::Display for PublicationFailure {
++    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++        let failure = self.0.lock().unwrap_or_else(|error| error.into_inner());
++        if let Some(result) = failure.committed_result() {
++            write!(
++                f,
++                "Packed snapshot {} committed as {}, but clean completion failed: {}",
++                result.snapshot_id,
++                result.packed_carrier_revision,
++                failure.error(),
++            )
++        } else {
++            write!(f, "Packed snapshot publication failed: {}", failure.error())
++        }
++    }
++}
++
++impl std::fmt::Debug for PublicationFailure {
++    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++        std::fmt::Display::fmt(self, f)
++    }
++}
++
++impl std::error::Error for PublicationFailure {}
++
++pub(super) fn requires_retention(result: &anyhow::Result<()>) -> bool {
++    result
++        .as_ref()
++        .err()
++        .is_some_and(|error| error.is::<PublicationFailure>())
++}
++
++pub(super) async fn run<B: WorkspaceKvBackend>(
++    catalog: Arc<KvWorkspaceStore<B>>,
++    budget: Arc<V3MountBudget>,
++    args: PublishPackedSnapshotArgs,
++) -> anyhow::Result<()> {
++    let config = workspace_bucket::config(&args.config)?;
++    if config.volume_format != VolumeFormat::WorkspaceV1
++        || config
++            .workspace
++            .is_some_and(|workspace| workspace != *args.workspace.as_uuid())
++    {
++        anyhow::bail!("Packed publication requires the source workspace-v1 mount configuration");
++    }
++    if args.name.trim().is_empty() {
++        anyhow::bail!("--name must not be empty");
++    }
++    let layout = ChunkLayout {
++        chunk_size: config.chunk_size,
++        block_size: config.block_size,
++    };
++    let workspace = catalog.load_workspace(args.workspace).await?;
++    let temporary = Arc::new(
++        tempfile::Builder::new()
++            .prefix("brewfs-packed-publish-")
++            .tempdir_in(args.scratch)?,
++    );
++    let request = PackedHeadlessSnapshotRequest::bounded_operator(
++        PackedHeadlessSnapshotDescription {
++            snapshot_id: args.snapshot_id,
++            snapshot_name: args.name,
++            owner_id: args.owner,
++        },
++        args.lease_id,
++        args.journal_id,
++        args.next_head,
++        args.ttl_seconds * 1_000_000_000,
++        temporary.path().to_path_buf(),
++    )
++    .with_temporary_owner(temporary.clone())?;
++    let mut block_cache = config.cache.clone();
++    block_cache.cache_root = temporary.path().join("upper-cache");
++    let result = match config.data_backend {
++        DataBackendKind::LocalFs => {
++            if workspace.upper_bucket.is_some() {
++                anyhow::bail!("source has an S3 upper bucket; LocalFS config does not match");
++            }
++            let client = create_localfs_client(&config)?;
++            let upper =
++                Arc::new(create_object_store(client.clone(), layout, &block_cache, true).await?);
++            publish_released(
++                catalog,
++                budget,
++                args.workspace,
++                client,
++                upper,
++                layout,
++                request,
++            )
++            .await?
++        }
++        DataBackendKind::S3 => {
++            let client = create_s3_client(&config).await?;
++            let mut upper_config = config;
++            if let Some(bucket) = workspace.upper_bucket {
++                upper_config.s3_bucket = Some(bucket);
++            }
++            let upper_client = create_s3_client(&upper_config).await?;
++            let upper =
++                Arc::new(create_object_store(upper_client, layout, &block_cache, true).await?);
++            publish_released(
++                catalog,
++                budget,
++                args.workspace,
++                client,
++                upper,
++                layout,
++                request,
++            )
++            .await?
++        }
++    };
++    print_json(&serde_json::json!({
++        "snapshot_id": result.snapshot_id,
++        "fork_source": result.packed_carrier_revision.to_string(),
++        "native_sealed_source": result.native_sealed_source_revision.to_string(),
++        "manifest_key": result.binding.binding.manifest.key,
++        "manifest_sha256": hex::encode(result.binding.binding.manifest.digest),
++    }))
++}
++
++pub(super) async fn publish_released<B, O, S>(
++    catalog: Arc<KvWorkspaceStore<B>>,
++    budget: Arc<V3MountBudget>,
++    workspace: WorkspaceId,
++    client: ObjectClient<O>,
++    upper: Arc<S>,
++    layout: ChunkLayout,
++    request: PackedHeadlessSnapshotRequest,
++) -> anyhow::Result<PackedSnapshotResult>
++where
++    B: WorkspaceKvBackend,
++    O: ObjectBackend + Clone + 'static,
++    S: BlockStore + Send + Sync + 'static,
++{
++    let release = catalog
++        .inspect_original_clean_packed_mount(workspace)
++        .await?
++        .ok_or_else(|| anyhow::anyhow!("source has no current clean Packed unmount receipt"))?;
++    let ticket = match catalog.admit_clean_packed_source(release, budget).await? {
++        PackedCleanAdmission::Ready(ticket) => ticket,
++        PackedCleanAdmission::RequiresRecovery => {
++            anyhow::bail!("source needs Packed mount recovery before publication")
++        }
++    };
++    catalog
++        .publish_clean_packed_snapshot(ticket, client, upper, layout, request)
++        .await
++        .map_err(|failure| PublicationFailure(Mutex::new(failure)).into())
++}

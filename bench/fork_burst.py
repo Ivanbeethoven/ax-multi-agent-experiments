@@ -148,6 +148,9 @@ def run_native(s, ref, commands, out, source=None):
         results = [future.result() for future in futures]
     final_mount = mounts(root) if root is not None else None
     mount_stable = root is None or final_mount == [original_mount]
+    if source is not None and root is not None:
+        from .fork_source import alive
+        mount_stable = mount_stable and alive(source['measurement_mount']['process'])
     passed = all(row['passed'] for row in results) and mount_stable
     result = {'schema':'suite-fork-burst-native-result-v2' if source is None else 'suite-fork-burst-native-result-v3',
             'cell_id':s['cell_id'],
