@@ -30,6 +30,10 @@ def run(args):
     tag = out.name
     if not 0 <= args.workers <= 32 or not 60 <= args.verify_seconds <= 900:
         raise ValueError('Bounded verifier workers and duration required')
+    if args.packed_output_mib and (not args.trace_packed_budget or args.workers != 32):
+        raise ValueError('The 128 MiB probe requires budget tracing and 32 workers')
+    if args.packed_control_mib and (not args.parallel_sha256 or args.packed_output_mib != 128):
+        raise ValueError('The 8 MiB control probe requires the diagnostic verifier and 128 MiB output')
     worker = out/'qualify-c3-workspace-base.py'
     script = worker.read_bytes()
     if hashlib.sha256(script).hexdigest()!=args.worker_sha256:
@@ -106,11 +110,15 @@ def run(args):
             cmd.extend(('--parallel-sha256',args.parallel_sha256))
         if args.trace_packed_budget:
             cmd.append('--trace-packed-budget')
+        if args.packed_output_mib:
+            cmd.extend(('--packed-output-mib',str(args.packed_output_mib)))
+        if args.packed_control_mib:
+            cmd.extend(('--packed-control-mib',str(args.packed_control_mib)))
         try:
             with (out/'worker.log').open('xb') as stream:
                 ssh('client',shlex.join(cmd),stdout=stream,stderr=subprocess.STDOUT,timeout=args.verify_seconds+140)
         finally:
-            for name in ('intent.json','init.stdout','init.stderr','ready.json','mount.log','mount-exit.json','verify.log',
+            for name in ('intent.json','init.stdout','init.stderr','ready.json','mount.log','mount-exit.json','verify.log','verify-aborted.json',
                          'verify/result.json','result.json'):
                 source = '/srv/ax-client/preparation/'+tag+'/'+name
                 proc = subprocess.run(['ssh',*FLAGS,'pool-a-client','test -f '+source+' && cat '+source],
@@ -127,4 +135,6 @@ if __name__=='__main__':
     p.add_argument('--verify-seconds',type=int,default=480)
     p.add_argument('--parallel-sha256')
     p.add_argument('--trace-packed-budget',action='store_true')
+    p.add_argument('--packed-output-mib',type=int,choices=(0,128),default=0)
+    p.add_argument('--packed-control-mib',type=int,choices=(0,8),default=0)
     run(p.parse_args())
