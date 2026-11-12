@@ -96,6 +96,14 @@ def select_cell(plan, cell_id, pool, product):
     return cell
 
 
+def require_dispatch(cell):
+    # This leaf also runs standalone against a pinned historical runtime.
+    arm = cell.get('arm') or {}
+    if (cell.get('suite'), cell.get('workload'), cell.get('arm_id'),
+            arm.get('product'), arm.get('engine')) == ('C4', 'fork', 'native', 'brewfs', 'flat-v1'):
+        raise ValueError('Historical C4 BrewFS Flat full-copy dispatch is retired; existing evidence remains readable')
+
+
 def creation_argv(product, binary, base, child):
     base, child = Path(base), Path(child)
     if not base.is_absolute() or base.parent != child.parent or base == child:
@@ -153,6 +161,7 @@ def worker(s):
     from bench.suite_plan import check_plan
     plan_path, inventory = pinned(s['plan']), pinned(s['inventory'])
     plan = check_plan(load(plan_path)); cell = select_cell(plan, s['cell_id'], s['pool'], s['product'])
+    require_dispatch(cell)
     binding = endpoint_binding(plan, cell, inventory)
     if socket.gethostname() != binding['client']['hostname']:
         raise ValueError('Worker is not on the frozen client')
@@ -391,6 +400,7 @@ def coordinator(args):
     from bench.runtime.pilot_pools import resource_guard
     context=validate_request(args)
     control,cell,plan=(context[k] for k in ('control','cell','plan'))
+    require_dispatch(cell)
     with resource_guard(control, cell, plan):
         run_remote_locked(context)
 
@@ -410,6 +420,7 @@ def run_remote_locked(context):
 
 
 def _run_remote_locked(s,control,cell,wanted,w,config,out,request_path):
+    require_dispatch(cell)
     from bench.runtime.pilot_pools import alias
     out.mkdir(parents=True, mode=0o700)
     write(out/'request.json', s)

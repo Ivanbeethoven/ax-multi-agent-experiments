@@ -11,6 +11,7 @@ import time
 
 REPO=Path(__file__).resolve().parents[4];sys.path.insert(0,str(REPO))
 from bench.runtime import c4_verify
+from bench.c4_dispatch import require_allowed
 from bench.runtime.common import digest,load,pinned,write_new
 from bench.runtime.pilot_pools import resource_guard
 
@@ -55,6 +56,7 @@ def run(request):
     tools=s['tools'];cont=module(tools['continuation']);admit=module(tools['admit']);runner=module(tools['run'])
     original=module(s['original_batch_tool']);checker=module(tools['check']);pinned(tools['calibrate'])
     old,control,batch,plan,cell,canonical,controls,runtime=cont.batch(s['original_request']);out=Path(s['out'])
+    require_allowed(cell)
     pool=cell['pool'];formal=control/'cells'/cell['id'];paths=[t['out'] for t in old['trials']]
     if any(Path(p).exists() for p in paths[1:]) or out.exists() or formal.exists():
         raise ValueError('Only original unstarted later trials and formal are eligible')

@@ -13,6 +13,7 @@ from pathlib import Path
 import secrets
 import sqlite3
 
+from .c4_dispatch import retired_flat_fork, require_allowed
 from .experiment_io import digest, load
 from .suite_plan import check_plan, fingerprint, parallel
 
@@ -144,16 +145,22 @@ def claim(path, pool, owner):
         if occupied:
             if occupied['owner'] != owner: raise ValueError('pool reserved by another operator; no automatic lease expiry')
             candidates = [b for b in candidates if b['id'] == occupied['id']]
+        cells = {c['id']:c for c in plan['cells']}
+        retirement_blocked = False
         for block in candidates:
             state = db.execute('SELECT * FROM blocks WHERE id=?',(block['id'],)).fetchone()
             if state['status'] == 'done': continue
             pending = db.execute("SELECT * FROM cells WHERE block_id=? AND status NOT IN ('complete','failed') ORDER BY position",(block['id'],)).fetchall()
             if not pending: continue
             cell_state = pending[0]
-            cell = next(c for c in plan['cells'] if c['id'] == cell_state['id'])
+            cell = cells[cell_state['id']]
             if cell_state['status'] == 'claimed':
                 return {'cell':cell,'owner':owner,'token':state['token'], 'already_claimed':True,
                         'instruction':'inspect original stage receipts; never re-execute a started stage'}
+            # The original pair cannot start if any required arm is retired.
+            if any(retired_flat_fork(cells[row['id']]) for row in pending):
+                retirement_blocked = True
+                continue
             # Qualify the whole block before consuming any comparison arm.
             if any(not db.execute('SELECT 1 FROM qualifications WHERE cell_id=?',(c,)).fetchone() for c in block['cells']):
                 continue
@@ -174,7 +181,9 @@ def claim(path, pool, owner):
             db.execute("UPDATE cells SET status='claimed' WHERE id=?",(cell['id'],))
             event(db,'claimed',{'cell':cell['id'],'owner':owner,'pool':pool})
             return {'cell':cell,'owner':owner,'token':token,'already_claimed':False}
-        return {'cell':None,'reason':'no qualified, prepared, unreserved complete block fits this pool'}
+        reason = ('a pending retired C4 BrewFS Flat full-copy arm prevents the frozen pair from running'
+                  if retirement_blocked else 'no qualified, prepared, unreserved complete block fits this pool')
+        return {'cell':None,'reason':reason}
 
 
 def claim_cell(db, plan, pool, owner):
@@ -191,9 +200,13 @@ def claim_cell(db, plan, pool, owner):
         cell=next(c for c in candidates if c['id']==occupied['cell_id'])
         return {'cell':cell,'owner':owner,'token':occupied['token'],'already_claimed':True,
                 'instruction':'inspect original stage receipts; never re-execute a started stage'}
+    retirement_blocked = False
     for cell in candidates:
         row=db.execute('SELECT status FROM cells WHERE id=?',(cell['id'],)).fetchone()
         if row[0]!='pending':continue
+        if retired_flat_fork(cell):
+            retirement_blocked = True
+            continue
         qref=db.execute('SELECT receipt FROM qualifications WHERE cell_id=?',(cell['id'],)).fetchone()
         aref=db.execute('SELECT receipt FROM assets WHERE id=?',(cell['asset_id'],)).fetchone()
         if not qref or not aref:continue
@@ -210,7 +223,9 @@ def claim_cell(db, plan, pool, owner):
         db.execute("UPDATE blocks SET status='claimed' WHERE id=?",(cell['paired_block'],))
         event(db,'claimed',{'cell':cell['id'],'owner':owner,'pool':pool})
         return {'cell':cell,'owner':owner,'token':token,'already_claimed':False}
-    return {'cell':None,'reason':'no qualified, prepared, unreserved cell assigned to this pool'}
+    reason = ('retired C4 BrewFS Flat full-copy cell is not eligible for a new lease' if retirement_blocked
+              else 'no qualified, prepared, unreserved cell assigned to this pool')
+    return {'cell':None,'reason':reason}
 
 
 def admitted(db, lease):
@@ -239,6 +254,7 @@ def run_stage(path, lease, stage, spec_ref, output):
     output = str(Path(output).absolute())
     with transaction(path) as db:
         cell = admitted(db,lease)
+        require_allowed(cell, stage)
         if stage not in cell['stages'] or command['cell_id']!=cell['id'] or command['stage']!=stage:
             raise ValueError('command is not the reserved cell/stage')
         if Path(output).exists(): raise ValueError('new stage output required')

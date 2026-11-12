@@ -209,6 +209,13 @@ def run(request):
     trial = load(pinned(s['trial']))
     require(trial['reviewed'] is True and trial['purpose']=='observer-calibration-on',
             'Packing overlay only applies to an original observer-on calibration')
+    plan = load(Path(trial['control'])/'suite/plan.json')
+    # The overlay can be installed independently of the original runtime.
+    cell = next(c for c in plan['cells'] if c['id']==trial['cell_id'])
+    arm = cell.get('arm') or {}
+    if (cell.get('suite'), cell.get('workload'), cell.get('arm_id'),
+            arm.get('product'), arm.get('engine')) == ('C4', 'fork', 'native', 'brewfs', 'flat-v1'):
+        raise ValueError('Historical C4 BrewFS Flat full-copy dispatch is retired; existing evidence remains readable')
     original = import_original(calibrate)
     require(Path(original.runner.__file__).resolve()==runner and digest(runner)==s['runner']['sha256'] and
             Path(original.runner.suite_state.__file__).resolve()==original.runner.REPO/'bench/suite_state.py',
