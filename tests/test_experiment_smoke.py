@@ -60,3 +60,22 @@ class SmokeModeContract(unittest.TestCase):
                     return subprocess.CompletedProcess(cmd,0)
                 with patch.object(sys,'argv',argv), patch('bench.experiment_smoke.subprocess.run',side_effect=fake_run):
                     self.assertEqual(main(),0)
+
+
+    def test_control_streams_are_not_read_or_traversed(self):
+        import os
+        if not hasattr(os,'mkfifo'):
+            self.skipTest('Linux FIFO regression')
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            os.mkfifo(root/'.accesslog')
+            (root/'.trash').mkdir()
+            os.mkfifo(root/'.trash'/'stream')
+            (root/'.hidden').write_bytes(b'user data')
+            (root/'sub').mkdir()
+            (root/'sub'/'.accesslog').write_bytes(b'user data')
+            code = "from pathlib import Path; from bench.runtime.smoke_tree import file_tree; import sys,json; print(json.dumps(file_tree(Path(sys.argv[1]))))"
+            proc=subprocess.run([sys.executable,'-c',code,str(root)],
+                                capture_output=True,text=True,timeout=3,check=True)
+            tree=json.loads(proc.stdout)
+            self.assertEqual(set(tree),{'.hidden','sub','sub/.accesslog'})

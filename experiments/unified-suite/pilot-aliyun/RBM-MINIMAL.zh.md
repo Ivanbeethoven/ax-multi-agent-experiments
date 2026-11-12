@@ -28,3 +28,10 @@ sudo /srv/ax-data/workspace-adapter-20261111/venv/bin/python -m bench.experiment
 C2 另外传入 `--trace experiments/unified-suite/pilot-aliyun/fixtures/synthetic-140 --replay /srv/ax-bin/full-fuse-replay`。
 相对输入路径请先转换为绝对路径。输出的 `receipt.json` 标记 passed / failed / blocked，原始日志在同一目录。
 该状态仅指最小功能探针；不会修改正式 suite 的准入、计时条件或完成数。
+
+整套串行运行用 python3 -m bench.experiment_smoke_matrix，传入相同的二进制、版本、镜像参数、
+--trace（合成输入）及 --replay（回放器），并指定新的 --out；不再传 --experiment、--mode 或 --placement。
+每项独立保留回执；任意 failed/blocked 时矩阵最终退出码为 2，但仍执行后续子项。
+
+本轮[新二进制实测结果](evidence/preparation/rbm-unified-modes-20261112/README.zh.md)：
+26 个模式，16 通过、1 失败、9 阻塞；包含一次目录检查器修复后的独立重跑。

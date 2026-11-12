@@ -1,0 +1,63 @@
+{
+  "plan": {
+    "experiment": "C2-replay",
+    "mode": "juicefs",
+    "placement": null,
+    "engine": "juicefs",
+    "mechanisms": {
+      "overlay": null,
+      "packed_metadata": null,
+      "dynamic_block": null
+    },
+    "rustfs_layout_profile": "enabled",
+    "brewfs_hint": null,
+    "brewfs_cargo_default_features": true,
+    "brewfs_cargo_features": [
+      "workspace-overlay",
+      "observability",
+      "rustfs-ec-block-size-hint"
+    ],
+    "native_action": null,
+    "runtime_qualification_blockers": [
+      "current-suite-workload-adapter-qualification-required"
+    ],
+    "dispatch_enabled": false
+  },
+  "formal_sample": false,
+  "status": "failed",
+  "argv": [
+    "/srv/ax-data/workspace-adapter-20261111/venv/bin/python",
+    "/tmp/ax-feature-align/experiments/unified-suite/pilot-aliyun/scripts/rbm-lifecycle.py",
+    "--product",
+    "juicefs",
+    "--brewfs",
+    "/var/tmp/ax-mode-suite-20261112/bin/brewfs",
+    "--producer",
+    "/var/tmp/ax-mode-suite-20261112/bin/packed_v3_snapshot_fixture",
+    "--juicefs",
+    "/srv/ax-bin/juicefs",
+    "--rustfs-image",
+    "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+    "--smallfiles",
+    "/srv/ax-bin/smallfiles",
+    "--workload",
+    "c2",
+    "--hint",
+    "auto",
+    "--layout",
+    "enabled",
+    "--engine",
+    "workspace-v1",
+    "--trace",
+    "/srv/ax-data/inputs/pytest-full-02",
+    "--replay",
+    "/srv/ax-bin/full-fuse-replay",
+    "--out",
+    "/var/tmp/ax-mode-suite-20261112/C2-replay-juicefs/run"
+  ],
+  "exit_code": -15,
+  "evidence": {
+    "passed": false,
+    "error": "[Errno 2] No such file or directory: '/var/tmp/ax-mode-suite-20261112/C2-replay-juicefs/run/receipt.json'"
+  }
+}

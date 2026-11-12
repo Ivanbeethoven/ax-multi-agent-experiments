@@ -1,0 +1,27 @@
+{
+  "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "default_features": true,
+  "extra_features": [
+    "workspace-overlay",
+    "observability",
+    "rustfs-ec-block-size-hint"
+  ],
+  "cargo_argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--locked",
+    "-j",
+    "8",
+    "--features",
+    "workspace-overlay,observability,rustfs-ec-block-size-hint",
+    "--bin",
+    "brewfs",
+    "--bin",
+    "packed_v3_snapshot_fixture"
+  ],
+  "binaries": {
+    "brewfs": "b0480e4502548ec161651cdbae4ec593ba3fd7ae42b54481c9af5ff8ee981630",
+    "packed_v3_snapshot_fixture": "ddfb003a2fefb95d9e8381248626db5fb85d2042f42a01a97a23dd0186dec8f8"
+  }
+}

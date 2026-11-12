@@ -1,0 +1,30 @@
+{
+  "plan": {
+    "experiment": "C3-smallfiles",
+    "mode": "packed-off",
+    "placement": null,
+    "engine": "workspace-v1",
+    "mechanisms": {
+      "overlay": true,
+      "packed_metadata": false,
+      "dynamic_block": true
+    },
+    "rustfs_layout_profile": "enabled",
+    "brewfs_hint": "auto",
+    "brewfs_cargo_default_features": true,
+    "brewfs_cargo_features": [
+      "workspace-overlay",
+      "observability",
+      "rustfs-ec-block-size-hint"
+    ],
+    "native_action": null,
+    "runtime_qualification_blockers": [
+      "same-engine-runtime-adapter-required",
+      "current-suite-workload-adapter-qualification-required"
+    ],
+    "dispatch_enabled": false
+  },
+  "formal_sample": false,
+  "status": "blocked",
+  "reason": "same-engine toggle not implemented"
+}

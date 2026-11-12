@@ -35,3 +35,5 @@ cargo build --release --locked --features workspace-overlay,observability,rustfs
 ```
 
 保留 Cargo 默认 features。这里打开的是实验需要的三项能力；不额外开启实验未使用的网关替代路径、profiling 或其他挂载格式。rbm 已用现有二进制复验 128 文件的挂载、读写和冷客户端重挂，见 [回执](../pilot-aliyun/evidence/preparation/rbm-experiment-modes-20261112/lifecycle.json)。这份回执不证明统一构建或尚未接通的消融可用。
+
+统一 feature 新产物及真实 flag 路由的[rbm 最小验证结果](../pilot-aliyun/evidence/preparation/rbm-unified-modes-20261112/README.zh.md)已归档；正式实验仍按各子项资格准入。

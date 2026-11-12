@@ -1,0 +1,133 @@
+{
+  "plan": {
+    "experiment": "C2-replay",
+    "mode": "dynamic-off",
+    "placement": null,
+    "engine": "workspace-v1",
+    "mechanisms": {
+      "overlay": true,
+      "packed_metadata": true,
+      "dynamic_block": false
+    },
+    "rustfs_layout_profile": "disabled",
+    "brewfs_hint": "off",
+    "brewfs_cargo_default_features": true,
+    "brewfs_cargo_features": [
+      "workspace-overlay",
+      "observability",
+      "rustfs-ec-block-size-hint"
+    ],
+    "native_action": null,
+    "runtime_qualification_blockers": [
+      "current-suite-workload-adapter-qualification-required"
+    ],
+    "dispatch_enabled": false
+  },
+  "formal_sample": false,
+  "status": "passed",
+  "argv": [
+    "/srv/ax-data/workspace-adapter-20261111/venv/bin/python",
+    "/tmp/ax-feature-align/experiments/unified-suite/pilot-aliyun/scripts/rbm-lifecycle.py",
+    "--product",
+    "brewfs",
+    "--brewfs",
+    "/var/tmp/ax-mode-suite-20261112/bin/brewfs",
+    "--producer",
+    "/var/tmp/ax-mode-suite-20261112/bin/packed_v3_snapshot_fixture",
+    "--juicefs",
+    "/srv/ax-bin/juicefs",
+    "--rustfs-image",
+    "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+    "--smallfiles",
+    "/srv/ax-bin/smallfiles",
+    "--workload",
+    "c2",
+    "--hint",
+    "off",
+    "--layout",
+    "disabled",
+    "--engine",
+    "workspace-v1",
+    "--trace",
+    "/srv/ax-data/inputs/pytest-full-02",
+    "--replay",
+    "/srv/ax-bin/full-fuse-replay",
+    "--out",
+    "/var/tmp/ax-mode-suite-20261112/C2-replay-dynamic-off/run"
+  ],
+  "exit_code": 0,
+  "evidence": {
+    "formal_sample": false,
+    "workload": "c2",
+    "engine": "workspace-v1",
+    "hint": "off",
+    "layout": "disabled",
+    "arms": {
+      "brewfs": {
+        "phase": "complete",
+        "passed": true,
+        "verify_base": {
+          "passed": true,
+          "entries": 4
+        },
+        "run": {
+          "passed": true,
+          "entries": 23
+        },
+        "initial_unmount": {
+          "unmount_exit": 0,
+          "mount_exit": 0,
+          "mount_absent": true
+        },
+        "verify_touched": {
+          "passed": true,
+          "entries": 23
+        },
+        "reopen_unmount": {
+          "unmount_exit": 0,
+          "mount_exit": 0,
+          "mount_absent": true
+        }
+      }
+    },
+    "binary_sha256": {
+      "brewfs": "b0480e4502548ec161651cdbae4ec593ba3fd7ae42b54481c9af5ff8ee981630",
+      "producer": "ddfb003a2fefb95d9e8381248626db5fb85d2042f42a01a97a23dd0186dec8f8",
+      "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+      "smallfiles": "1e27cb2204dff633aea1d21a61a6fa740cfe9aa2afdb501bc41eca33cb8fd62f",
+      "replay": "b870a0377210478ffd5759e1a51f4ae613d2920d97bfe98fcb84cf6c2109bcbd"
+    },
+    "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+    "phase": "workload",
+    "trace_sha256": "277300c17b804cfbf682a19c2ab481341c1ac29beb8e566fe36f734c8e75d847",
+    "trace_kind": "synthetic-140-callback-smoke-not-full-agent",
+    "source": {
+      "passed": true,
+      "entries": 4
+    },
+    "replay": {
+      "active_replay_seconds": 1.321300846,
+      "actual_read_bytes": 98442,
+      "actual_write_bytes": 98365,
+      "completed": true,
+      "execution_seconds": 1.321300846,
+      "expected_errors": 0,
+      "mode": "strict",
+      "operations": 140,
+      "probe_errno_differences": 0,
+      "remaining_handles": 0,
+      "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+      "think_time": {
+        "actual_sleep_seconds": 0.0,
+        "enabled": false,
+        "planned_total_ms": 0
+      },
+      "valid": true
+    },
+    "mounts_absent": true,
+    "rustfs_removed": true,
+    "redis_exited": true,
+    "scratch_removed": true,
+    "passed": true
+  }
+}

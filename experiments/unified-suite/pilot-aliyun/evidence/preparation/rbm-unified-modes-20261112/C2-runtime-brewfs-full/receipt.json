@@ -1,0 +1,29 @@
+{
+  "plan": {
+    "experiment": "C2-runtime",
+    "mode": "brewfs-full",
+    "placement": null,
+    "engine": "workspace-v1",
+    "mechanisms": {
+      "overlay": true,
+      "packed_metadata": true,
+      "dynamic_block": true
+    },
+    "rustfs_layout_profile": "enabled",
+    "brewfs_hint": "auto",
+    "brewfs_cargo_default_features": true,
+    "brewfs_cargo_features": [
+      "workspace-overlay",
+      "observability",
+      "rustfs-ec-block-size-hint"
+    ],
+    "native_action": null,
+    "runtime_qualification_blockers": [
+      "same-mount-lower-warmth-qualification-required"
+    ],
+    "dispatch_enabled": false
+  },
+  "formal_sample": false,
+  "status": "blocked",
+  "reason": "this workload adapter is not yet implemented in the minimal runner"
+}

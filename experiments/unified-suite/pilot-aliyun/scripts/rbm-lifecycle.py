@@ -12,6 +12,9 @@ import subprocess as sp
 import tempfile
 import time
 import uuid
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+from bench.runtime.smoke_tree import file_tree
 
 p = argparse.ArgumentParser(description=__doc__)
 for flag in ('brewfs', 'producer', 'juicefs', 'smallfiles', 'out'):
@@ -52,25 +55,6 @@ def local_port():
     with socket.socket() as s:
         s.bind(('127.0.0.1',0))
         return s.getsockname()[1]
-
-def file_tree(root):
-    import stat
-    entries = {}
-    for path in sorted(root.rglob('*')):
-        key = str(path.relative_to(root))
-        if key in ('.stats', '.config'):
-            continue
-        info = path.lstat()
-        if stat.S_ISLNK(info.st_mode):
-            value = {'type':'link','target':os.readlink(path)}
-        elif stat.S_ISDIR(info.st_mode):
-            value = {'type':'directory'}
-        else:
-            value = {'type':'file','bytes':info.st_size,
-                     'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
-        value['mode'] = info.st_mode & 0o7777
-        entries[key] = value
-    return entries
 
 def workload(stage, root, out, *extra):
     if a.workload == 'c2':
@@ -315,7 +299,7 @@ def run(work):
                 visit(product,point,work,out,command('initial-'+product),arm)
                 visit(product,point,work,out,command('reopen-'+product),arm,reopen=True)
                 arm.update(phase='complete',passed=True)
-            except Exception as e:
+            except (Exception, KeyboardInterrupt) as e:
                 arm['error'] = error(e)
                 arm['log_tails'] = {p.name:error(RuntimeError(p.read_text(errors='replace')[-1500:]))
                                     for p in out.glob('*.log')}
