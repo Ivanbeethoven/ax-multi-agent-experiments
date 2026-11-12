@@ -28,6 +28,7 @@ resume = module('resume-c4-after-directory-hold')
 overlay = module('calibrate-c4-closed-observer')
 original = module('run-c4-batch')
 continuation = module('continue-c4-formal')
+recovery = module('recover-c4-on1-archive')
 
 
 def doc(path, value):
@@ -84,6 +85,139 @@ class EmptyStop(unittest.TestCase):
             reviewed=True,verification_policy='touched-cold-v1',full_reference=full))
         with self.assertRaisesRegex(ValueError,'collector'):
             resume.trial_body(old,core,2,dict(collector_name='other',collector_out='/other'),full,original)
+
+
+class HistoricalOn1(unittest.TestCase):
+    def setUp(self):
+        tmp = TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+        self.old = dict(control=str(root/'control'))
+        self.cell = dict(id='frozen-cell',pool='pool-a')
+        self.original = root/'original-on1'
+        self.cont = root/'failed-continuation'
+        self.out = root/'recovered-on1'
+        self.source = doc(root/'batch.json',self.old)
+        self.off = doc(root/'off1/finished.json',dict(passed=True))
+        self.plan = doc(Path(self.old['control'])/'suite/plan.json',{})
+        self.full = dict(path='/original/full',sha256='0'*64)
+        self.body = dict(out=str(self.original),attempt='historical-on1',purpose='observer-calibration-on',
+                         new_collector_name='on1',new_collector_out='/objects/on1')
+        self.context = dict(full_reference=self.full)
+        doc(self.original/'request.json',self.body)
+        self.original_request = dict(original_request=self.source,archive_overlay={})
+        self.cohort = doc(self.original/'cohort/result.json',dict(passed=True))
+        self.lineage = dict(original_trial=doc(self.original/'context.json',self.context),
+                            original_cohort=self.cohort,original_exit=doc(self.cont/'trial/exit.json',dict(exit_code=1)))
+        self.request = dict(schema=recovery.SCHEMA,reviewed=True,out=str(self.out),off1_finished=self.off,plan=self.plan,
+            original_continuation=doc(self.cont/'request.json',self.original_request),
+            **{k:doc(root/(k+'.json'),{}) for k in ('inventory','objects_pack','objects_retained')})
+        self.receipt = dict(schema=resume.RECOVERED_ON1,source_original_exit_code=1,
+            **{k:False for k in ('automatic_retry','new_measurement','formal_acceptance')},
+            **{k:self.request[k] for k in ('inventory','objects_pack','objects_retained')},**self.lineage)
+        self.route = dict(recovery_tool=resume.ref(SCRIPTS/'recover-c4-on1-archive.py'),
+                          reader=resume.ref(resume.REPO/'bench/runtime/observe_ndjson.py'))
+        self.end = dict(passed=True,automatic_retry=False,pool='pool-a',purpose=self.body['purpose'],
+                        cohort=self.cohort,collector_name='on1',collector_out='/objects/on1',
+                        closure=doc(self.out/'closure.json',dict(passed=True,all_exited=True,all_unmounted=True,
+                                                                pending_upload_bytes=0,pending_upload_operations=0)),
+                        work=doc(self.out/'work-check.json',dict(passed=True)))
+        self.inv = dict(roles={},checks={})
+        q = self.out/'raw/client/q'/self.body['attempt']
+        for key,tag,name in (('client_verify','cold_child','verify/result.json'),
+                             ('parent_verify','cold_parent','verify/parent.json'),
+                             ('native_exit','native_exit','exit.json'),('verify_exit','verify_exit','verify-exit.json')):
+            self.end[key] = self.inv['checks'][tag] = doc(q/name,dict(passed=True,full_reference=self.full))
+        self.observed = [dict(id='pool-a-'+r) for r in resume.WORKERS]
+        doc(self.out/'observers.json',self.observed)
+        self.package = {}
+        self.objects = {}
+        self.receipt.update(current_archives=[],observer_audits={})
+        for r in resume.WORKERS:
+            archive = doc(self.out/'archives'/(r+'.tar.gz'),dict(role=r))
+            self.receipt['current_archives'].append(archive)
+            evidence = self.objects if r=='objects' else self.inv['roles'].setdefault(r,{})
+            evidence['archive'] = dict(archive, path=str(self.original/'archives'/(r+'.tar.gz')))
+            doc(self.out/'archives'/(r+'-check.json'),dict(schema='suite-archive-check-v1',passed=True,
+                archive=archive['path'],sha256=archive['sha256'],bytes=Path(archive['path']).stat().st_size,
+                cell_id=self.cell['id'],kind=r,deferred=[]))
+            o = self.out/'raw'/r/'o'/self.body['attempt']
+            finished = doc(o/'finished.json',dict(passed=True,stream={'samples':1}) if r=='objects' else dict(passed=True))
+            self.receipt['observer_audits'][r] = dict(passed=True,finished_sha256=finished['sha256'])
+            if r=='objects':
+                self.package.update(folded_finished=finished,original_finished=doc(o/'legacy-finished.json',{}))
+                doc(o/'samples.ndjson',{})
+        self.end['archives'] = doc(self.out/'archives.json',self.receipt['current_archives'])
+
+    def seal(self):
+        # The producer stores an exact request copy under a different path.
+        self.receipt['request'] = doc(self.out.parent/'approved.json',self.request)
+        doc(self.out/'archive-recovery-request.json',self.request)
+        self.route['receipt'] = self.end['recovery'] = doc(self.out/'recovery.json',self.receipt)
+        doc(self.out/'finished.json',self.end)
+
+    def check(self):
+        self.seal()
+        history = (self.original,self.cont,None,None,None,self.cell,self.inv,self.context,None,
+                   self.observed,None,self.lineage)
+        with patch.object(resume,'tool',return_value=recovery), patch.object(recovery,'exact_history',return_value=history), \
+                patch.object(recovery,'objects_input',return_value=(self.package,self.objects)):
+            return resume.recovered_on1(self.route,self.source,self.old,self.cell,dict(first=self.off),
+                                        self.full,self.body,continuation)
+
+    def test_validates_recovery_without_rewriting_the_original_failure(self):
+        self.assertEqual(self.check(),(self.out,self.end))
+        self.assertFalse((self.original/'finished.json').exists())
+        self.assertFalse((self.cont/'result.json').exists())
+        self.assertEqual(resume.load(self.cont/'trial/exit.json'),dict(exit_code=1))
+
+    def test_route_requires_explicit_prefix_and_same_legacy_reader(self):
+        self.seal()
+        fmt = dict(producer='legacy-fold',audit_module=self.route['reader'])
+        s = dict(step=3,prefix=[self.route['receipt']],historical_on1=self.route,
+                 archive_overlay=dict(observer_format=fmt))
+        self.assertEqual(resume.historical_on1_format(s,'on'),self.route)
+        self.assertEqual(resume.historical_on1_format(s,'formal'),self.route)
+        self.assertEqual(resume.historical_on1_format(dict(s,archive_overlay=None),'off'),self.route)
+        self.assertIsNone(resume.historical_on1_format(dict(step=3,prefix=s['prefix']),'on'))
+        with self.assertRaisesRegex(ValueError,'first continuation prefix'):
+            resume.historical_on1_format(dict(s,prefix=[]),'on')
+        for replacement in (dict(fmt,producer='ndjson'),dict(fmt,audit_module={})):
+            with self.assertRaisesRegex(ValueError,'legacy-fold reader'):
+                resume.historical_on1_format(dict(s,archive_overlay=dict(observer_format=replacement)),'formal')
+
+    def test_declines_unreviewed_request_or_other_off1(self):
+        self.request['reviewed'] = False
+        with self.assertRaisesRegex(ValueError,'reviewed archival request'):
+            self.check()
+        self.request['reviewed'] = True
+        self.request['off1_finished'] = dict(self.off,sha256='0'*64)
+        with self.assertRaisesRegex(ValueError,'original Off1'):
+            self.check()
+
+    def test_declines_changed_lineage_or_exit_zero(self):
+        original_exit = self.receipt['original_exit']
+        self.receipt['original_exit'] = dict(original_exit,sha256='0'*64)
+        with self.assertRaisesRegex(ValueError,'original measured lineage'):
+            self.check()
+        self.receipt['original_exit'] = original_exit
+        self.receipt['source_original_exit_code'] = 0
+        with self.assertRaisesRegex(ValueError,'original exit 1'):
+            self.check()
+
+    def test_declines_changed_archive_or_direct_writer(self):
+        archive = self.out/'archives/client.tar.gz'
+        old = archive.read_bytes()
+        archive.write_bytes(b'different')
+        with self.assertRaisesRegex(ValueError,'Changed pinned evidence'):
+            self.check()
+        archive.write_bytes(old)
+        path = self.out/'raw/objects/o'/self.body['attempt']/'finished.json'
+        direct = doc(path,dict(passed=True,observer_format_sha256=self.route['reader']['sha256']))
+        self.receipt['observer_audits']['objects']['finished_sha256'] = direct['sha256']
+        self.package['folded_finished'] = direct
+        with self.assertRaisesRegex(ValueError,'direct NDJSON'):
+            self.check()
 
 
 class StageCapacity(unittest.TestCase):

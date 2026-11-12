@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Continue one exact C4 step after a real Off1 exit and empty trial-2 fence.
 
-The request selects trial 2..6, or formal, and pins each prior successful
-continuation result in order. Fresh reviewed capacity is required per step.
-No failed or existing attempt is retried and the old fence remains untouched.
+The request selects trial 2..6, or formal, and pins the preceding trials in
+order. Only the historical On1 archive recovery can replace a successful
+continuation result, through explicit opt-in. Fresh reviewed capacity is
+required per step. Failed attempts are preserved and never retried.
 """
 import argparse
 from contextlib import nullcontext
@@ -34,6 +35,7 @@ ROOTS = {'client': '/srv/ax-client', 'metadata': '/srv/ax-metadata', 'objects': 
 SCRATCH_ROOT = '/srv/ax-c4-observer-scratch'
 SCRATCH_SCHEMA = 'c4-observer-scratch-snapshot-v1'
 SCRATCH_TREES = ('o', 'q', 'archives', 'evidence')
+RECOVERED_ON1 = 'c4-on1-archival-recovery-v1'
 
 
 def require(ok, message):
@@ -98,6 +100,125 @@ def good_trial(trial, body, finished, pool, cont):
         expected = {k: body['new_'+k] for k in COLLECTOR}
     require(current(end)==expected, 'Completed collector chain changed')
     return end
+
+
+def historical_on1_format(s, mode):
+    """Pin one reader throughout the historical route, including Off steps."""
+    if 'historical_on1' not in s:
+        return None
+    route = s['historical_on1']
+    require(isinstance(route, dict) and set(route)=={'receipt','recovery_tool','reader'} and
+            s['step']>=3 and s['prefix'][:1]==[route['receipt']],
+            'Explicit historical On1 recovery receipt must be the first continuation prefix')
+    require(pinned(route['recovery_tool'])==Path(__file__).resolve().with_name('recover-c4-on1-archive.py') and
+            pinned(route['reader'])==REPO/'bench/runtime/observe_ndjson.py',
+            'Historical On1 requires the pinned local recovery tool and reader')
+    overlay = s.get('archive_overlay')
+    if mode in ('on','formal'):
+        format_spec = (overlay or {}).get('observer_format') or {}
+        require(format_spec.get('producer')=='legacy-fold' and format_spec.get('audit_module')==route['reader'],
+                'Historical On1 requires the pinned legacy-fold reader; direct NDJSON cannot be mixed')
+    else:
+        require(not overlay, 'Off steps must not introduce an observer overlay on the historical route')
+    return route
+
+
+def historical_observer_layout(root, attempt):
+    """Require the actual archive layout as well as the requested producer."""
+    for role in WORKERS:
+        directory = root/'raw'/role/'o'/attempt
+        end = load(directory/'finished.json')
+        stream = directory/'samples.ndjson'
+        legacy = directory/'legacy-finished.json'
+        require(not end.get('observer_format_sha256'),
+                'Historical C4 must not contain direct NDJSON observation: '+role)
+        if role=='objects':
+            require(end.get('stream') and all(p.is_file() and not p.is_symlink() for p in (stream,legacy)),
+                    'Historical C4 objects must retain the original legacy fold')
+        else:
+            require('stream' not in end and not os.path.lexists(stream),
+                    'Historical C4 client and metadata must remain original legacy directories')
+
+
+def recovered_on1(route, source, old, cell, stop, full, body, cont):
+    """Validate the replacement evidence without changing the original exit or root."""
+    recovery = tool(pinned(route['recovery_tool']), 'historical_on1_recovery')
+    receipt = load(pinned(route['receipt']))
+    require(receipt.get('schema')==RECOVERED_ON1 and type(receipt['source_original_exit_code']) is int and
+            receipt['source_original_exit_code']==1 and all(receipt[k] is False for k in
+                ('automatic_retry','new_measurement','formal_acceptance')),
+            'Historical On1 must be archival recovery only, with original exit 1')
+    request = receipt['request']
+    s = load(pinned(request))
+    require(set(s)==recovery.KEYS and s['schema']==recovery.SCHEMA and s['reviewed'] is True and
+            s['off1_finished']==stop['first'] and s['plan']==ref(Path(old['control'])/'suite/plan.json') and
+            all(receipt[k]==s[k] for k in ('inventory','objects_pack','objects_retained')),
+            'Recovered On1 must bind the reviewed archival request, frozen plan and original Off1')
+    original = load(pinned(s['original_continuation']))
+    original_format = (original.get('archive_overlay') or {}).get('observer_format')
+    require(original['original_request']==source and
+            (original_format is None or original_format.get('producer')=='legacy-fold'),
+            'Recovered On1 must come from this original batch and a legacy observer')
+    root, continuation, _, _, _, frozen, inv, context, _, observers, _, lineage = recovery.exact_history(s)
+    require(root==Path(body['out']) and frozen==cell and load(root/'request.json')==body and
+            context['full_reference']==full and all(receipt[k]==v for k,v in lineage.items()),
+            'Recovered On1 does not match the original measured lineage and Off1 proof')
+    out = Path(s['out'])
+    require(out.is_absolute() and out.resolve(strict=True)==out and out.is_dir() and
+            not any(out.is_relative_to(p) or p.is_relative_to(out) for p in
+                    (root,continuation,Path(old['control'])/'cells')) and
+            route['receipt']==recovery.ref(out/'recovery.json') and
+            recovery.source(out/'archive-recovery-request.json')==s,
+            'Recovered On1 output must be separate from the original evidence')
+    end = recovery.source(out/'finished.json')
+    expected = {k:body['new_'+k] for k in COLLECTOR}
+    require(end['passed'] is True and end['automatic_retry'] is False and end['pool']==cell['pool'] and
+            end['purpose']==body['purpose'] and current(end)==expected and
+            end['recovery']==route['receipt'] and end['cohort']==lineage['original_cohort'],
+            'Recovered On1 finished evidence or collector differs')
+    for key in (*cont.PROOFS,'cohort'):
+        require(recovery.proof(end[key])['passed'] is True, 'Recovered On1 proof did not pass: '+key)
+    closed = recovery.proof(end['closure'],out/'closure.json')
+    require(closed['all_exited'] is True and closed['all_unmounted'] is True and
+            closed['pending_upload_bytes']==closed['pending_upload_operations']==0 and
+            recovery.proof(end['work'],out/'work-check.json')['passed'] is True,
+            'Recovered On1 is missing closed work and zero debt')
+    proof_keys = dict(client_verify='cold_child',parent_verify='cold_parent',
+                      native_exit='native_exit',verify_exit='verify_exit')
+    q = out/'raw/client/q'/body['attempt']
+    proofs = dict(client_verify=q/'verify/result.json',parent_verify=q/'verify/parent.json',
+                  native_exit=q/'exit.json',verify_exit=q/'verify-exit.json')
+    require(all(recovery.ref(proofs[k])==end[k] and end[k]['sha256']==inv['checks'][v]['sha256']
+                for k,v in proof_keys.items()) and recovery.proof(end['client_verify'])['full_reference']==full,
+            'Recovered On1 cold proofs must be byte-identical and retain the original Off1')
+    package, objects = recovery.objects_input(s)
+    archives = recovery.proof(end['archives'],out/'archives.json')
+    require(len(archives)==len(WORKERS) and archives==receipt['current_archives'] and
+            {Path(a['path']).name for a in archives}=={r+'.tar.gz' for r in WORKERS} and
+            recovery.source(out/'observers.json')==observers and set(receipt['observer_audits'])==set(WORKERS),
+            'Recovered On1 is missing the original role archives or observers')
+    historical_observer_layout(out,body['attempt'])
+    for row in archives:
+        name = Path(row['path']).name
+        role = name.removesuffix('.tar.gz')
+        original_archive = objects if role=='objects' else inv['roles'][role]
+        path = recovery.pin(row,out/'archives'/name)
+        check = recovery.source(path.with_name(role+'-check.json'))
+        require(check['schema']=='suite-archive-check-v1' and check['passed'] is True and
+                check['sha256']==row['sha256']==original_archive['archive']['sha256'] and
+                check['archive']==str(path) and check['bytes']==path.stat().st_size and
+                check['cell_id']==cell['id'] and check['kind']==role and check['deferred']==[],
+                'Recovered On1 role archive changed: '+role)
+        observer_dir = out/'raw'/role/'o'/body['attempt']
+        finished = recovery.ref(observer_dir/'finished.json')
+        audit = receipt['observer_audits'][role]
+        require(audit['passed'] is True and audit['finished_sha256']==finished['sha256'],
+                'Recovered On1 observer audit does not bind the archived evidence: '+role)
+        if role=='objects':
+            require(finished['sha256']==package['folded_finished']['sha256'] and
+                    recovery.ref(observer_dir/'legacy-finished.json')['sha256']==package['original_finished']['sha256'],
+                    'Recovered On1 objects stream must be the original legacy fold')
+    return out, end
 
 
 def first_reference(old, cell, preparation, first):
@@ -574,6 +695,7 @@ def run(request, validate_only=False):
     require(len(s['prefix'])==step-2, 'All prior continuation results, in order, are required')
     overlay = s.get('archive_overlay')
     format_spec = (overlay or {}).get('observer_format')
+    historical = historical_on1_format(s, mode)
     # A formal run can route scratch only with the pinned observer-format
     # wrapper at both observe-start and archive.
     require(not scratch_overlay(load(pinned(s['capacity']))) or mode=='on' or mode=='formal' and format_spec,
@@ -601,10 +723,20 @@ def run(request, validate_only=False):
         require(load(pinned(stop['trial2_request']))==trial_body(old,core,2,collector,full,original),
                 'Old parent did not generate the exact next request from original Off1')
         prior = []
+        calibration_roots = [Path(t['out']) for t in old['trials']]
         for n,p in enumerate(s['prefix'],2):
-            doc = load(pinned(p))
             body = trial_body(old,core,n,collector,full,original)
+            if n==2 and historical:
+                calibration_roots[1], end = recovered_on1(historical,source,old,cell,stop,full,body,cont)
+                collector = current(end)
+                prior.append(p)
+                continue
+            doc = load(pinned(p))
+            require(doc.get('schema')!=RECOVERED_ON1, 'Archived On1 is not an original continuation result')
             prior_request = load(pinned(doc['continuation_request']))
+            prior_mode = old['trials'][n-1]['mode']
+            require(historical_on1_format(prior_request, prior_mode)==historical,
+                    'Historical On1 opt-in and pinned reader must stay the same throughout the prefix')
             prior_dir = Path(prior_request['out'])
             trial_request = ref(prior_dir/'trial.request.json')
             prior_overlay = prior_request.get('archive_overlay')
@@ -618,12 +750,15 @@ def run(request, validate_only=False):
                     doc['passed'] is True and doc['step']==prior_request['step']==n and
                     doc['original_request']==prior_request['original_request']==source and
                     doc['first']==stop['first'] and doc['prefix']==prior_request['prefix']==prior and
+                    doc.get('historical_on1')==historical and
                     doc['full_reference']==full and doc['automatic_retry'] is False and
                     load(pinned(doc['exit']))==dict(exit_code=0) and load(pinned(trial_request))==body and
                     load(prior_dir/'trial/intent.json')==dict(argv=[sys.executable, executable['path'],
                         '--request',invoked['path'],'--sha256',invoked['sha256']],automatic_retry=False),
                     'Prior step did not follow the original continuation chain')
             end = good_trial(old['trials'][n-1],body,doc['finished'],cell['pool'],cont)
+            if historical and prior_mode=='on':
+                historical_observer_layout(calibration_roots[n-1],body['attempt'])
             collector = current(end)
             prior.append(p)
         body = trial_body(old,core,step,collector,full,original) if step<7 else None
@@ -650,6 +785,8 @@ def run(request, validate_only=False):
         result = dict(passed=True, step=step, pool=cell['pool'], cell_id=cell['id'], original_request=source,
                       continuation_request=request, first=stop['first'], full_reference=full, prefix=prior,
                       capacity=s['capacity'], archive_mode=archive_mode, automatic_retry=False)
+        if historical:
+            result['historical_on1'] = historical
         if format_bundle:
             result['observer_producer'] = format_bundle['producer']
             result['observer_format_sha256'] = format_bundle['audit_module']['sha256']
@@ -680,12 +817,14 @@ def run(request, validate_only=False):
                 exit_pin = substep(out,'trial',executable,arguments)
                 finished = ref(Path(body['out'])/'finished.json')
                 good_trial(old['trials'][step-1],body,finished,cell['pool'],cont)
+                if historical and mode=='on':
+                    historical_observer_layout(Path(body['out']),body['attempt'])
                 result.update(trial_request=ref(p),exit=exit_pin,finished=finished)
             else:
                 qual=Path(old['qualification'])/cell['arm_id']
                 audit = format_adapter.archive_audit(archive_source,format_bundle,checker) if format_bundle else nullcontext()
                 with audit:
-                    overhead=checker.check([Path(t['out']) for t in old['trials']],qual/'metrics.json',
+                    overhead=checker.check(calibration_roots,qual/'metrics.json',
                                            qual/'workload.json',out/'overhead',old['calibration_verification'])
                 body=dict(admission,**collector,out=str(formal),formal_attempt=old['formal_attempt'],overhead=overhead)
                 substep(out,'admit',old['tools']['admit'],arg_request(out/'admit.request.json',body))
