@@ -11,8 +11,9 @@ from unittest.mock import patch
 from bench.warm_lower import KEYS, assess, check_ranges, parse, read_range
 
 
-def counters(gets, byte_count, logical, failures=0):
-    return dict(range_requests=gets,received_bytes=byte_count,logical_bytes=logical,failures=failures)
+def counters(gets, byte_count, logical, failures=0, full=0, heads=0):
+    return dict(range_requests=gets,received_bytes=byte_count,logical_bytes=logical,
+                failures=failures,full_requests=full,head_requests=heads)
 
 
 def fixture_meter():
@@ -38,11 +39,37 @@ class WarmLowerTest(unittest.TestCase):
                 self.assertFalse(result['passed'])
                 self.assertTrue(any(reason in s for s in result['reasons']))
 
+    def test_whole_object_download_can_warm_the_lower_without_range_gets(self):
+        result = assess([counters(0,0,0),counters(0,128,16,full=1,heads=1),
+                         counters(0,128,32,full=1,heads=1)],16)
+        self.assertTrue(result['passed'])
+        self.assertEqual(result['cold']['full_requests'],1)
+        self.assertEqual(result['second_pass']['head_requests'],0)
+
+    def test_full_get_or_head_during_second_pass_rejects_hot_lower(self):
+        for full,heads in [(1,0),(0,1)]:
+            with self.subTest(full=full,heads=heads):
+                result = assess([counters(0,0,0),counters(1,128,16),
+                                 counters(1,128,32,full=full,heads=heads)],16)
+                self.assertFalse(result['passed'])
+                self.assertTrue(any('still reads' in s for s in result['reasons']))
+
+    def test_head_alone_does_not_prove_cold_payload_reads(self):
+        result = assess([counters(0,0,0),counters(0,0,16,heads=1),
+                         counters(0,0,32,heads=1)],16)
+        self.assertFalse(result['passed'])
+        self.assertTrue(any('cold pass' in s for s in result['reasons']))
+
     def test_parse_requires_all_native_counters_without_duplicates(self):
         raw = ''.join(f'{name} {i}\n' for i,name in enumerate(KEYS.values())).encode()
         self.assertEqual(parse(raw)['logical_bytes'],3)
         with self.assertRaisesRegex(ValueError,'Missing'):
             parse(b'# no packed mount\n')
+        for key in ('full_requests', 'head_requests'):
+            missing = b''.join(line for line in raw.splitlines(keepends=True)
+                               if not line.startswith(KEYS[key].encode()+b' '))
+            with self.subTest(missing=key), self.assertRaisesRegex(ValueError,'Missing'):
+                parse(missing)
         with self.assertRaisesRegex(ValueError,'Duplicate'):
             parse(raw+raw)
 

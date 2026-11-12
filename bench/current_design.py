@@ -93,10 +93,10 @@ def validate(config):
             and runtime.get('working_set') == 'all-lower-metadata-and-data-ranges-touched-by-timed-ops'
             and type(runtime.get('warmup_passes_per_arm')) is int and runtime['warmup_passes_per_arm'] == 2
             and runtime.get('warmup_scope') == ['metadata', 'data'] and runtime.get('warmup_read_only') is True
-            and runtime.get('verify') == 'same-mount-native-lower-range-deltas-on-final-pass'
+            and runtime.get('verify') == 'same-mount-native-lower-backend-deltas-on-final-pass'
             and runtime.get('userspace_path_required') is True and runtime.get('cold_probe_confirms_counters') is True
             and all(type(runtime.get(k)) is int and runtime[k] == 0 for k in
-                    ('max_lower_backend_range_requests', 'max_lower_backend_read_bytes'))
+                    ('max_lower_backend_requests', 'max_lower_backend_read_bytes'))
             and runtime.get('cache_policy') == 'same-budget-no-remount-or-reset-after-warmup'
             and runtime.get('cache_overflow') == 'freeze-a-smaller-warm-trace-separately'
             and runtime.get('prepare_and_warmup_outside_timer') is True

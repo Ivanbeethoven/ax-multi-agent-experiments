@@ -53,11 +53,11 @@ C4 先用 `python3 -m bench.fork_source --request SOURCE.json --sha256 SHA256 --
 
 并发命令用 `python3 -m bench.fork_burst --spec REQUEST.json --sha256 SHA256 --output OUT`，见[v3 请求草稿](../examples/fork-burst-native-source-bound.json)。每臂绑定源树核验回执、二进制 SHA 和逐 child 审阅的命令；1/8/16/32 个请求在全部就绪后同时放行。BrewFS 每个请求 fork 1 个 child，`method` 为 `brewfs-fork`，`native` 记录 `binary/redis_url/namespace/revision/data_config`，`source_qualification.measurement` 为 `null`。JuiceFS 用 `clone -p --threads 4`（原生默认线程数）。工具只收原生命令完成时间和原始输出；首读、完整树、隔离、关闭与冷验另收。v2 仅用于历史命令回执；没有实际源树验证的 v2 结果不能代替 v3 的配对计时。BrewFS 入口要求可验证 Packed carrier 的 CLI，尚未合入上游。
 
-Overlay 热态回执至少含 `input_sha256`、两臂共同的 lower 工作集清单 SHA、各臂真实开关状态、实际缓存预算、挂载身份、每遍操作数和末遍 lower 的后端请求及读字节差值。Packed wire005 从同一挂载的 `.stats` 读取 `brewfs_packed_runtime_backend_range_gets_total` 和 `brewfs_packed_runtime_backend_received_bytes_total`；它们覆盖运行时 metadata 和 payload，不能用 HTTP 中缺失的指标当作零。先用独立冷读验证计数会动。当前普通读取路径未证明帧数据可在直读下驻留；达不到热态，就只报告卡点，不用页缓存掩盖 Overlay。协调者保存本臂预热结束、验证通过和计时放行的顺序。末遍缺字段、计数重置、发生 remount 或预热没有覆盖计时段的 lower 工作集时，结果不进入热态对照。
+Overlay 热态回执至少含 `input_sha256`、两臂共同的 lower 工作集清单 SHA、各臂真实开关状态、实际缓存预算、挂载身份、每遍操作数和末遍 lower 的后端请求及读字节差值。Packed 快照读路径从同一挂载的 `.stats` 读取 `brewfs_packed_runtime_backend_full_gets_total`、`brewfs_packed_runtime_backend_range_gets_total`、`brewfs_packed_runtime_backend_heads_total` 和 `brewfs_packed_runtime_backend_received_bytes_total`，同时核验失败数及逻辑读取字节。活动入口要求这些计数全部存在，缺失不能当作零；历史回执保持当时的原始字段。独立冷读必须观察到 Full GET 或 Range GET 及响应体字节增加；末遍 Full GET、Range GET、HEAD 和响应体字节增量都必须为零。当前需求管道不跨请求保留已解码 payload 帧，整包本地缓存的热态也必须经过上述检查；达不到热态就报告卡点。协调者保存本臂预热结束、验证通过和计时放行的顺序。末遍缺字段、计数重置、发生 remount 或预热没有覆盖计时段的 lower 工作集时，结果不进入热态对照。
 
 用 `python3 -m bench.warm_lower --mount MOUNT --working-set RANGES.json --working-set-sha256 SHA256 --out OUT` 检查本臂。清单记录每段的 `path`、`offset`、`length`、`sha256`。在[本地两文件诊断](../pilot-aliyun/evidence/preparation/c2-local-packed-warm-01/README.zh.md)中，当前 workspace 的 `.stats` 缺这组 Packed 计数。独立检查对象端请求发现，两遍都经 FUSE 读出同样的 77 B，第二遍仍从 RustFS 取回全部 77 B（2 次 Range）。这个配置不能进入热态计时。该诊断未比较两臂或测量 Overlay 开销。
 
-两个只读候选共用 wire005 lower 的字节限额缓存和读计数。现有 `read_memory_bytes` 和旧版 frame 缓存不能预热这条路径。空 upper 下，`--extent-pair` 只核数据区间，`--namespace-pair` 加上路径查找、非根 inode 属性和目录打开。两臂都走只读 FUSE；预热和计时结束时都核实际走过的代码路径，以及 lower 后端请求和字节。首次修改仍需同引擎的可写对照。这两个本机入口及计数要求见[热 lower 回执](../pilot-aliyun/evidence/preparation/c2-local-packed-warm-01/README.zh.md)。
+两个只读候选共用 Packed lower 的字节限额缓存和读计数。普通 `read_memory_bytes` 不等同于 Packed 已解码帧留存；整包本地缓存由 `packed_cache_bytes` 单独限额，两臂固定同样的配置预算。空 upper 下，`--extent-pair` 只核数据区间，`--namespace-pair` 加上路径查找、非根 inode 属性和目录打开。两臂都走只读 FUSE；预热和计时结束时都核实际走过的代码路径，以及 lower 后端请求和字节。首次修改仍需同引擎的可写对照。历史本机入口及检查方法见[热 lower 回执](../pilot-aliyun/evidence/preparation/c2-local-packed-warm-01/README.zh.md)，其原始测量不改写为整包缓存结果。
 
 ## 指标收集
 

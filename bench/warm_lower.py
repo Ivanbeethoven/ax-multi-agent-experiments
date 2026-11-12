@@ -15,6 +15,8 @@ KEYS = dict(
     received_bytes='brewfs_packed_runtime_backend_received_bytes_total',
     failures='brewfs_packed_runtime_backend_failures_total',
     logical_bytes='brewfs_packed_logical_bytes_total',
+    full_requests='brewfs_packed_runtime_backend_full_gets_total',
+    head_requests='brewfs_packed_runtime_backend_heads_total',
 )
 MAX_STATS_BYTES = 4 * 1024**2
 
@@ -31,7 +33,7 @@ def parse(raw):
             raise ValueError('Duplicate or malformed native counter: '+fields[0])
         counters[key] = int(fields[1])
     if counters.keys() != KEYS.keys():
-        raise ValueError('Missing Packed wire005 native counters')
+        raise ValueError('Missing Packed snapshot native counters')
     return counters
 
 
@@ -47,9 +49,10 @@ def assess(rows, expected_bytes):
         reasons.append('native backend reported a failure')
     if any(change['logical_bytes'] != expected_bytes for change in changes):
         reasons.append('Packed logical bytes do not match the read working set on both passes')
-    if first['range_requests'] <= 0 or first['received_bytes'] <= 0:
+    if first['range_requests'] + first['full_requests'] <= 0 or first['received_bytes'] <= 0:
         reasons.append('cold pass did not show native backend reads')
-    if warm['range_requests'] != 0 or warm['received_bytes'] != 0:
+    if any(warm[key] != 0 for key in
+           ('range_requests', 'full_requests', 'head_requests', 'received_bytes')):
         reasons.append('second pass still reads the Packed lower backend')
     return dict(passed=not reasons,reasons=reasons,cold=first,second_pass=warm)
 
