@@ -22,8 +22,10 @@ ROLES = {
         {f'bp1bhdngko7nq3c2i34{i}': uuid for i, uuid in enumerate((
          '96ee330f-4aa4-499a-89ce-3e236e63a6ce', '43dd6857-2704-43cf-83d7-25271f91c12a',
          '282adf59-0059-4164-b424-39f905afe916', '9f11a3e6-3a71-40d7-8e30-a46c89cbdcdf'))}),
-    'metadata': ('i-bp14nenf7osz9v1snsp2', 'bp14nenf7osz9v1rkk5k', {'bp14nenf7osz9v1rkk5l': None}),
-    'client': ('i-bp1fmmfkcpr8w99j2bsy', 'bp1fmmfkcpr8w99pwgc4', {'bp1fmmfkcpr8w99pwgc5': None}),
+    'metadata': ('i-bp14nenf7osz9v1snsp2', 'bp14nenf7osz9v1rkk5k',
+                 {'bp14nenf7osz9v1rkk5l': '24381dda-bee5-43bf-933b-fed798d36fbe'}),
+    'client': ('i-bp1fmmfkcpr8w99j2bsy', 'bp1fmmfkcpr8w99pwgc4',
+               {'bp1fmmfkcpr8w99pwgc5': 'e2cb49e2-f4d5-464c-889f-2bdfe29e6b43'}),
 }
 PENDING = {
     'objects': ['o/cal-pool-b-j-mx-mxb01-on1', 'q/cal-pool-b-j-mx-mxb01-on1-observer',
@@ -123,19 +125,22 @@ def live_mount_devices():
 
 def disk_rows(role):
     _, system_serial, data = ROLES[role]
-    rows = json.loads(command('lsblk', '--json', '--bytes', '--paths', '-o',
+    rows = json.loads(command('lsblk', '--tree', '--json', '--bytes', '--paths', '-o',
                               'PATH,TYPE,SERIAL,SIZE,UUID,FSTYPE,MAJ:MIN,MOUNTPOINTS'))['blockdevices']
     disks = [x for x in rows if x['type'] == 'disk']
     by_serial = {str(x.get('serial') or '').strip(): x for x in disks}
     need(len(disks) == len(by_serial) and set(by_serial) == {system_serial, *data}, 'Exact B disk set differs')
-    need(any('/' in (c.get('mountpoints') or []) for c in by_serial[system_serial].get('children', [])),
+    root_dev = command('findmnt', '-n', '-o', 'MAJ:MIN', '/').strip()
+    need(by_serial[system_serial]['size'] == 40*1024**3 and any(
+         '/' in (c.get('mountpoints') or []) and c['maj:min'] == root_dev
+         for c in by_serial[system_serial].get('children', [])),
          'Expected B system disk mounted as root')
     host_mounted = live_mount_devices()
     for serial, uuid in data.items():
         d = by_serial[serial]
         actual = os.stat(d['path'], follow_symlinks=False)
         need(d['size'] == (100 if role == 'client' else 60)*1024**3 and d['fstype'] == 'ext4' and d['uuid']
-             and (uuid is None or d['uuid'] == uuid) and not d.get('children')
+             and d['uuid'] == uuid and not d.get('children')
              and not any(d.get('mountpoints') or []) and d['maj:min'] not in host_mounted
              and stat.S_ISBLK(actual.st_mode)
              and d['maj:min'] == f'{os.major(actual.st_rdev)}:{os.minor(actual.st_rdev)}',
@@ -174,8 +179,12 @@ def walk(root, prefix, dev, files, unknown, skipped):
             walk(child, prefix+'/'+child.name, dev, files, unknown, skipped)
     elif stat.S_ISREG(st.st_mode):
         files.append((prefix, root, st))
-    elif stat.S_ISSOCK(st.st_mode) and root.name == 'observer.sock':
+    elif stat.S_ISSOCK(st.st_mode) and (root.name == 'observer.sock' or (
+          root.name == 'control.sock' and prefix.split('/')[1:2] == ['m'])):
         skipped.append(prefix)
+    elif stat.S_ISLNK(st.st_mode) and prefix.endswith(
+          '/qualification/parallel-juicefs-regular-01/oracle/symbolic'):
+        skipped.append(prefix+' -> '+os.readlink(root))
     else:
         unknown.append(prefix)
 
@@ -252,7 +261,8 @@ def service_config(role):
     if role == 'objects':
         name = 'ax-pilot-20261111-b-pool-b-objects-01-rustfs-1'
         x = json.loads(command('docker','inspect',name))[0]
-        mounts = [m for m in x['Mounts'] if m.get('Type') == 'bind']
+        mounts = sorted((m for m in x['Mounts'] if m.get('Type') == 'bind'),
+                        key=lambda m: (m['Source'], m['Destination']))
         return {'container': name, 'image': x['Image'],
                 'image_reference': x['Config']['Image'],
                 'mounts': [{'source': m['Source'], 'destination': m['Destination']} for m in mounts],
@@ -383,8 +393,11 @@ def main():
         if args.action == 'scan':
             write(out/'inventory.json', value)
         else:
-            need(json.loads((out/'inventory.json').read_bytes()) == value and not unknown
-                 and total <= args.max_source_bytes, 'Cold scan changed, has unknown paths, or exceeds approved budget')
+            original = json.loads((out/'inventory.json').read_bytes())
+            changed = sorted(key for key in set(original) | set(value) if original.get(key) != value.get(key))
+            need(not changed and not unknown and total <= args.max_source_bytes,
+                 'Cold pack refused; changed fields: '+','.join(changed)
+                 +f'; unknown={len(unknown)}; bytes={total}; budget={args.max_source_bytes}')
             need(not (out/'evidence.tar.gz').exists(), 'Archive already exists; never overwrite')
             proof = pack(out/'evidence.tar.gz', files, value, diagnostics(args.role))
     result = {'role': args.role, 'tag': args.tag, 'out': str(out), 'all_data_disks_unmounted': True,
