@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fold a closed sample tree into one NDJSON stream, byte for byte.
+"""Fold a closed sample tree into one NDJSON stream, byte for byte, as a stream.
 
 A finished observation lives as ``sample-<%06d>/`` directories holding about 45
 files each, so a five-hour series is 132,939 archive members and the frozen
@@ -8,6 +8,15 @@ a single ``samples.ndjson`` where each line holds the sample record and every
 retained payload verbatim, then updates ``finished.json`` with the stream hash
 and the per-line hashes. Every source byte is hashed before and after, and any
 disagreement stops the fold without touching the tree.
+
+The fold is deliberately streaming. Each sample is read, turned into one line and
+appended straight to ``samples.ndjson`` while an incremental SHA-256 and byte
+counter follow it; nothing ever accumulates a whole-file buffer or a
+``b''.join`` of the stream. Per-sample detail (including each member hash) is
+written to ``fold-receipt.ndjson`` one line at a time instead of being held in
+memory, and ``fold-receipt.json`` keeps only the summary. The one input-sized
+structure that stays in memory is ``finished.json``'s own ``history`` list, whose
+per-line hashes are small (about 200 bytes per line) and are required there.
 
 The result is what ``bench.runtime.observe_ndjson.audit`` reads, and the
 directory then holds a handful of members instead of 132,939.
@@ -22,6 +31,8 @@ import sys
 
 STREAM = 'samples.ndjson'
 RECEIPT = 'fold-receipt.json'
+RECEIPT_DETAIL = 'fold-receipt.ndjson'
+STAGING = '.fold-staging'
 HISTORY_KEYS = ('index', 'monotonic_start_ns', 'monotonic_end_ns', 'passed', 'errors')
 
 
@@ -80,61 +91,126 @@ def fold(directory, now=None, dry_run=False):
                     payload_bytes=total,
                     scope='verification only: nothing was written, moved or removed')
 
-    lines, records = [], []
-    staging = directory/'.fold-staging'
-    require(not staging.exists(), 'stale fold staging directory')
-    staging.mkdir()
+    # A crashed earlier attempt can leave the old staging directory behind; it is
+    # residue, not input, so clear it and record the fact in the receipt.
+    staging = directory/STAGING
+    stale_staging_removed = staging.exists()
+    if stale_staging_removed:
+        shutil.rmtree(staging)
+    require(not staging.exists(), 'stale fold staging directory could not be removed')
+
+    detail_path = directory/RECEIPT_DETAIL
+    stream_hash = hashlib.sha256()
+    stream_bytes = 0
+    source_members = 0
+    stream_committed = False
+    stream_created = False
     try:
-        for index, sample in enumerate(tree):
-            raw = {}
-            for path in sorted(sample.iterdir()):
-                require(path.is_file() and not path.is_symlink(), 'unexpected telemetry path')
-                raw[path.name] = path.read_bytes()
-            record = json.loads(raw['sample.json'].decode())
-            require(record['index'] == index, 'sample record index differs from its directory')
-            for name, expected in record['files'].items():
-                body = raw.get(name)
-                require(body is not None, 'recorded payload missing: '+name)
-                require(len(body) == expected['bytes'] and sha(body) == expected['sha256'],
-                        'payload bytes changed: '+name)
-            row = {key: record[key] for key in HISTORY_KEYS}
-            row['files'] = {name: {'sha256': sha(raw[name]), 'bytes': len(raw[name]),
-                                   'text': raw[name].decode('utf-8', 'surrogateescape')}
-                            for name in raw}
-            row['capacity'] = record.get('capacity') or {}
-            row['counters'] = record.get('counters') or {}
-            row['target_states'] = record.get('target_states') or {}
-            row['scope'] = 'folded from the closed sample directory; payload bytes are verbatim'
-            line = json.dumps(row, sort_keys=True, separators=(',', ':')).encode()
-            lines.append(line)
-            records.append(dict(index=index, directory=sample.name,
-                                members={name: file_sha(sample/name) for name in raw},
-                                line_sha256=sha(line), line_bytes=len(line)))
-            (staging/('%06d.ndjson' % index)).write_bytes(line+b'\n')
-        data = b''.join(line+b'\n' for line in lines)
-        with stream_path.open('xb') as sink:
-            sink.write(data)
+        # One append handle for the stream, one line per sample for the detail
+        # receipt. Neither is ever buffered as a whole file in memory.
+        sink = stream_path.open('xb')
+        stream_created = True
+        with sink, detail_path.open('w', encoding='utf-8') as detail:
+            for index, sample in enumerate(tree):
+                raw = {}
+                for path in sorted(sample.iterdir()):
+                    require(path.is_file() and not path.is_symlink(), 'unexpected telemetry path')
+                    raw[path.name] = path.read_bytes()
+                record = json.loads(raw['sample.json'].decode())
+                require(record['index'] == index, 'sample record index differs from its directory')
+                digests = {name: sha(body) for name, body in raw.items()}
+                for name, expected in record['files'].items():
+                    body = raw.get(name)
+                    require(body is not None, 'recorded payload missing: '+name)
+                    require(len(body) == expected['bytes'] and digests[name] == expected['sha256'],
+                            'payload bytes changed: '+name)
+                row = {key: record[key] for key in HISTORY_KEYS}
+                row['files'] = {name: {'sha256': digests[name], 'bytes': len(raw[name]),
+                                       'text': raw[name].decode('utf-8', 'surrogateescape')}
+                                for name in raw}
+                row['capacity'] = record.get('capacity') or {}
+                row['counters'] = record.get('counters') or {}
+                row['target_states'] = record.get('target_states') or {}
+                row['scope'] = 'folded from the closed sample directory; payload bytes are verbatim'
+                line = json.dumps(row, sort_keys=True, separators=(',', ':')).encode()
+                chunk = line+b'\n'
+                sink.write(chunk)
+                stream_hash.update(chunk)
+                stream_bytes += len(chunk)
+                line_digest = sha(line)
+                # Fold the per-line hashes into the parsed history rows in place:
+                # one small string per line, no second list and no per-sample
+                # counters/target states kept for the finished receipt.
+                history[index]['line_sha256'] = line_digest
+                history[index]['line_bytes'] = len(line)
+                source_members += len(digests)
+                detail.write(json.dumps(dict(index=index, directory=sample.name,
+                                             line_sha256=line_digest, line_bytes=len(line),
+                                             members=digests),
+                                        sort_keys=True, separators=(',', ':'))+'\n')
+                # Hand each finished sample to the OS now: the stream is an
+                # append-only prefix at every point, never a buffered batch.
+                sink.flush()
+                detail.flush()
             sink.flush()
             os.fsync(sink.fileno())
-        require(file_sha(stream_path) == sha(data), 'stream write differs from the computed bytes')
-        updated = dict(finished)
-        updated['history'] = [dict({key: history[row['index']][key] for key in HISTORY_KEYS if key in history[row['index']]},
-                                   line_sha256=row['line_sha256'], line_bytes=row['line_bytes'])
-                              for row in records]
-        updated['stream'] = {'name': STREAM, 'sha256': sha(data), 'bytes': len(data)}
-        updated['folded'] = {'source_samples': len(tree), 'source_members': sum(len(r['members']) for r in records),
-                             'scope': 'closed tree rewritten into one stream; source bytes preserved verbatim'}
-        finished_path.write_bytes(json.dumps(updated).encode())
-    finally:
-        shutil.rmtree(staging, ignore_errors=True)
+        require(stream_path.stat().st_size == stream_bytes,
+                'stream length differs from the computed bytes')
+        require(file_sha(stream_path) == stream_hash.hexdigest(),
+                'stream write differs from the computed bytes')
+        stream_committed = True
 
+        # Only after the stream is durable and re-verified is finished.json
+        # pointed at it. The history rows are trimmed and extended in place so
+        # their per-line hashes stay without a second copy of the whole list.
+        for row in history:
+            kept = {key: row[key] for key in HISTORY_KEYS if key in row}
+            kept['line_sha256'] = row['line_sha256']
+            kept['line_bytes'] = row['line_bytes']
+            row.clear()
+            row.update(kept)
+        updated = dict(finished)
+        updated['history'] = history
+        updated['stream'] = {'name': STREAM, 'sha256': stream_hash.hexdigest(),
+                             'bytes': stream_bytes}
+        updated['folded'] = {'source_samples': len(tree), 'source_members': source_members,
+                             'stale_staging_removed': stale_staging_removed,
+                             'scope': 'closed tree rewritten into one stream; '
+                                      'source bytes preserved verbatim'}
+        # Serialize straight to a sibling file and rename into place: no single
+        # string or byte buffer of the whole finished.json is ever built.
+        finished_tmp = directory/'.finished.json.tmp'
+        with finished_tmp.open('w', encoding='utf-8') as sink:
+            json.dump(updated, sink)
+            sink.flush()
+            os.fsync(sink.fileno())
+        os.replace(finished_tmp, finished_path)
+    except BaseException:
+        # The sample tree is untouched. An incomplete (or unverified) stream and
+        # its detail receipt are removed rather than left as a half-made fold.
+        if not stream_committed and stream_created:
+            for path in (stream_path, detail_path):
+                try:
+                    path.unlink()
+                except FileNotFoundError:
+                    pass
+        try:
+            (directory/'.finished.json.tmp').unlink()
+        except FileNotFoundError:
+            pass
+        raise
+
+    # The stream is durable and published; only now remove the sources.
     for sample in tree:
         shutil.rmtree(sample)
     receipt = dict(schema='c4-observer-fold-v1', passed=True, directory=str(directory),
-                   stream={'name': STREAM, 'sha256': sha(data), 'bytes': len(data)},
-                   samples=len(records), source_members=sum(len(r['members']) for r in records),
-                   records=records,
-                   scope='fold only; the sample directories were removed after every byte was retained')
+                   stream={'name': STREAM, 'sha256': stream_hash.hexdigest(),
+                           'bytes': stream_bytes},
+                   samples=len(tree), source_members=source_members,
+                   detail={'name': RECEIPT_DETAIL, 'lines': len(tree)},
+                   stale_staging_removed=stale_staging_removed,
+                   scope='fold only; the sample directories were removed after every byte '
+                         'was retained')
     with (directory/RECEIPT).open('x', encoding='utf-8') as sink:
         json.dump(receipt, sink, indent=2)
         sink.write('\n')
