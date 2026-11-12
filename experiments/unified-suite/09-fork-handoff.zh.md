@@ -1,6 +1,7 @@
 # C4：fork 与跨机流转
 
 > 历史协议，仅用于原冻结计划；新实验见[当前方案](current/README.zh.md)。
+> 表中 Flat 完整拷贝已撤出；原操作仅用于解释历史数据，不再派发。
 
 ## F：固定 revision 的批量派生
 
@@ -15,7 +16,7 @@ python3 bench/fs_step.py snapshot --root "$DATA/fork-source" --output "$OUT/fork
 
 | 路径 | 原生操作 |
 |---|---|
-| flat native | 物化完整独立拷贝；若用cp则固定 `--reflink=never -a`，不用硬链接树冒充copy |
+| flat native（已撤出） | 历史操作为完整独立拷贝，`cp --reflink=never -a` |
 | native-workspace | 本批 `workspace ... fork REVISION --count 1 --data-config ...`，记录实际返回workspace ID |
 | entity native / packed | 从同一冻结manifest建立fresh namespace；包括首次绑定/挂载就绪，保留fresh-only限制 |
 | JuiceFS | `juicefs clone -p BASE NEW_CHILD`，等原生命令真正完成 |

@@ -1,5 +1,7 @@
 # A 组 C4：BrewFS Flat 完整拷贝
 
+> **已撤出，仅供查档。** 本页保留 `c5e97774bcffa69a-r1-native` 的原参数、命令和回执。不要为该臂生成新请求、启动实例、续跑或补测。新实验见[当前方案](../current/README.zh.md)。
+
 > 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
 
 回答一个具体问题：一个 Agent 要从同一份已持久化的工作区开始独立工作时，BrewFS Flat 完整拷贝要等多久、读写多少数据？它是工作区共享派生的对照。`cp -a --reflink=never` 与 B 组 JuiceFS `clone -p` 比较的是两种实际创建方式；两者的差值不能单独归因到 BrewFS 或某个设计。若要比较文件系统在完整拷贝上的成本，还须单独登记 JuiceFS 同命令的对照。
@@ -20,7 +22,7 @@ python3 draft-c4-native-flat.py \
 
 A 组 C3 正式关闭后，才在原物理锁下确认现行 collector、空 Redis DB、新目录和容量；重新核当前分支与冻结二进制，刷新 A 的 runtime 和硬件绑定。使用含 C4 卸载退出竞态修复和缩减冷验的冻结代码，保留已有计时逻辑；勿直接用旧 code15 请求重现 B 组已查明的归档问题。导入前后量容量，必须容纳额外 7 份完整拷贝并留 20% 余量。只复用原 A 的 client、metadata、objects 和协调者；失败保留现场，不重跑抢位。可执行请求及收尾见 [C4 执行与观测](C4-OBSERVE.zh.md)。
 
-## 交接后启动
+## 历史启动命令
 
 协调节点已经核对 `/srv/ax-pilot-control/preparation/c4-native-flat-run-02/request.staged.json`，SHA256 `7125cd10b0b95927253bdfa849a98439ce76ba207317a361870a14965571deca`。`stage-check.json` 证明 173 个文件按清单逐项通过 SHA256 校验，计时函数与原 C4 相同；A 的工作节点还未接触。冻结目录为 `/srv/ax-pilot-control/code-17`，只在协调节点安装。相对旧 code16，只改归档时的 slot 等待：在原 10 秒内等进程退出，仍要求 slot 空且原进程全部消失，不向任何进程发信号。实跑入口是 [continue-c4-native-flat.py](scripts/continue-c4-native-flat.py)。
 
@@ -35,7 +37,7 @@ A 组 C3 正式关闭后，才在原物理锁下确认现行 collector、空 Red
 | `c3.run_request` | 原 `preparation/c3-flat-native-01/continuation-02/run.request.json` 的绝对路径及实际 SHA256，必须匹配该运行的 `started.json` |
 | `c3.retention_decision` | `verified-before-c4`（另附已通过的 `c3.retention_verification` 路径及 SHA256），或明确决定在 C4 期间原地保留 C3 时用 `preserve-local-through-c4` |
 
-如启动前新增了阶段数据库，按协调节点现状更新 `other_lease_controls`；入口会拒绝漏列。确认上述回执后，在协调节点执行：
+以下为原协调节点的启动方式，保留以便核对旧回执：
 
 ```bash
 root=/srv/ax-pilot-control

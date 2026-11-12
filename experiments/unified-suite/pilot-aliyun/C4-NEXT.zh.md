@@ -1,22 +1,23 @@
-# C4：先跑100k派生基线
+# C4：原 100k 派生基线
 
 > 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
+> BrewFS Flat 完整拷贝已撤出。保留原计划和数据；下列执行入口只供 JuiceFS 原路线参考，不再派发 Flat 臂。
 
-11 月 11 日 17:45，[B 组 JuiceFS](evidence/c4-jfs-01/README.zh.md)的 10 万文件派生已正式验收：六轮校准、正式计时、排空、父子工作区全量冷读、退出和归档均通过。校准的退出竞态只补收原档，没有重跑计时。[A 组 BrewFS flat](C4-NATIVE-FLAT.zh.md)正在导入原工作区。C4 派生为 1/5，跨机流转为 0/4。两组均复用原有机器，没有调用模型。
+11 月 11 日 17:45，[B 组 JuiceFS](evidence/c4-jfs-01/README.zh.md)的 10 万文件派生已正式验收：六轮校准、正式计时、排空、父子工作区全量冷读、退出和归档均通过。校准的退出竞态只补收原档，没有重跑计时。[A 组 BrewFS Flat](C4-NATIVE-FLAT.zh.md)的导入和校准另有历史记录。原计划 C4 派生为 1/5，跨机流转为 0/4。两组均复用原有机器，没有调用模型。
 
 完整入口为[run-c4-batch.py](scripts/run-c4-batch.py)，包含一次基线准备、六次校准及一个正式派生，参数和收尾见[C4-OBSERVE.zh.md](C4-OBSERVE.zh.md)。下文的code14/draft-02是历史功能预演，用五文件检查了23个场景。
 
 | 路线 | 当前能做什么 | 未完成条件 |
 |---|---|---|
 | JuiceFS `clone -p` | 十万文件派生已验收，[原始数据可下载](evidence/c4-jfs-01/oss/index.json) | 本轮已完成 |
-| BrewFS `flat-v1`完整拷贝 | 同一入口，明确禁用 reflink；正在导入父工作区 | 实测容量、六轮校准和正式样本；这是完整拷贝对照，不能作为共享基线优势 |
+| BrewFS `flat-v1`完整拷贝 | 已撤出；仅保留历史记录 | 未完成的校准与正式轮不补跑 |
 | BrewFS `workspace-native-v2`派生 | 仅空revision派生与父子独立写入/冷读通过 | 非空100k发布→派生缺实验适配；dirty reopen后写/fsync仍EIO |
 | `entity-native` | 尚不能执行100k | native lower的32768行上限未解决 |
 | `packed` | 已有十万文件独立工作区读写和远端只读核验 | 原 C4 包含跨目录重命名，当前 Entity FUSE 缺此操作；另需父子隔离和完整生命周期证据 |
 | JuiceFS handoff | 原共享会话冷读、空HOME恢复状态已有证明 | 真实resume尚无新tool完成；多池源准备、目标节点映射缺适配 |
 | BrewFS handoff | 暂不执行 | workspace-native-v2 dirty reopen写入EIO |
 
-另有[JuiceFS 无模型跨机检查草稿](evidence/c4-state-reopen-draft-01/)，复用 B 组源客户端和 A 组目标客户端。先等 A 组 C4 和 B 组 C2→C1 队列均关闭，再取得两组新的交接回执；此前 B 组转交 C2 的回执不能复用。该检查验证空 HOME 能否从同一工作区重开原 OpenCode 状态，不验证模型继续生成工具调用，也不把协调器拒绝旧授权写成 JuiceFS 自身的写入隔离。
+另有[JuiceFS 无模型跨机检查草稿](evidence/c4-state-reopen-draft-01/)，复用 B 组源客户端和 A 组目标客户端。先确认两池的共享资源空闲，再取得新的交接回执；此前 B 组转交 C2 的回执不能复用。该检查验证空 HOME 能否从同一工作区重开原 OpenCode 状态，不验证模型继续生成工具调用，也不把协调器拒绝旧授权写成 JuiceFS 自身的写入隔离。
 
 现有五个阶段的状态库还没有初始化四个正式 `handoff-1` 单元（两种文件系统，各做原机接续和跨机接续）。诊断草稿里的四个单元只用于绑定原计划，不能作为正式样本。JuiceFS 仍需要实际恢复后完成原定工具操作的证据；BrewFS 工作区重挂后写入和 fsync 的 EIO 仍待解除。没有独立的第三台目标客户端。
 
@@ -27,7 +28,7 @@
 - 文件SHA256：`4b98ab083a06ae353806557f956a60fad8b3c29b8b43971c452cf3a7136b2a7e`。
 - `plan_sha256`字段：`efc24682894f6863e55cf7646e352a2418a8c6ac629a4934af3a95a6ef7f992d`。
 - JuiceFS：`c5e97774bcffa69a-r1-juicefs`，pool-b。
-- flat对照：`c5e97774bcffa69a-r1-native`，pool-a。
+- 已撤出的 Flat 对照：`c5e97774bcffa69a-r1-native`，pool-a；保留原 ID 供查档。
 - 其余三臂保留在计划中，新入口直接拒绝。未修改现有C1–C3的19项计划或state。
 
 每池已有源：`/srv/ax-client/inputs/pilot-100k-01/fork-source`，100,000×4096B、100个目录。原树为同目录`receipts/c4-fixture-tree.json`，SHA256固定为`02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13`。`smallfiles-source`使用另一套字节公式，不能替代。
@@ -64,7 +65,7 @@ client还须实际通过：原slot空、8910/9567无人监听、新asset/输出/
 | `build_manifest` | 原control下`provenance/build-manifest.json`及实际SHA，须匹配fork plan |
 | `ssh_config` | 已核主机key的现有SSH配置及SHA |
 | `latest_check` | 本配对批实际分支检查：passed、两组件matches、对应本计划build manifest SHA；不热换正在运行的版本 |
-| `pool` / `product` / `cell_id` | 上述明确cell；两种baseline分别提交 |
+| `pool` / `product` / `cell_id` | 仅原 JuiceFS 路线：`pool-b` / `juicefs` / `c5e97774bcffa69a-r1-juicefs` |
 | `other_lease_controls` | 仍可能持有同批资源的其它原control绝对路径列表；没有则`[]` |
 | `out` | 协调者全新证据目录 |
 | `worker` | 下列client字段 |
@@ -79,7 +80,7 @@ B的具体draft和只读证明已存协调者`/srv/ax-pilot-control/parallel-con
 
 `worker`其它字段：`source`为上述fork-source；`asset`为`/srv/ax-client/a/`下全新目录；`out`为`/srv/ax-client/preparation/`下全新目录；`database`为现场检查为空的20–255独占DB；`attempt`为3–32字符小写字母/数字/连字符。不要复用C3 asset、旧attempt或已用DB。
 
-协调者在本池阶段收尾后运行：
+以下是原 JuiceFS 预演命令；已验收的单元无需重跑：
 
 ```bash
 python3 "$NEW_TOOLS/run-c4-fork-baseline.py" run \

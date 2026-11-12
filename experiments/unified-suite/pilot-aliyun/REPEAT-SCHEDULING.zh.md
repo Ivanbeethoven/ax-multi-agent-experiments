@@ -4,6 +4,8 @@
 
 给复跑 Agent。先读本批的 plan、inventory、SQLite 和资源账本。下面是调度规则；[历史试跑](PARALLEL-PILOT.zh.md)里的 IP、版本和费用不可直接照搬。默认只设 JuiceFS 外部对照；BrewFS 各方法和消融分开登记。当前小规模 C3、C4 派生为十万 × 4 KiB，C2 用完整 trace。
 
+C4 BrewFS Flat 完整拷贝已撤出。旧计划中的该臂只供查档，不再排队、领取租约或为它开机；C1–C3 的 Flat 对照不受影响。
+
 如果要让 C1–C4 本身同时跑，直接看[按实验分池的两池和四池排法](WORKLOAD-PARALLEL.zh.md)。
 
 ## 1. 选择机器和并行方式
