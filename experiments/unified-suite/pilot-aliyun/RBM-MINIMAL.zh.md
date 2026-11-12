@@ -1,5 +1,7 @@
 # rbm：统一构建与最小模式验证
 
+后续[五个剩余入口](evidence/preparation/rbm-five-checks-20261112/README.zh.md)已全部通过最小检查。迁移按用户最新要求只核文件系统，不再启动 Agent；新说明见 [FIVE-CHECKS.zh.md](FIVE-CHECKS.zh.md)。下面的 21/26 和 OpenCode 导出流程保留为旧批次记录。
+
 最新[脚本复验](evidence/preparation/rbm-script-check-20261112/README.zh.md)：26 个入口最终 21 通过、5 阻塞。新增 `--tiny`（8 文件）、矩阵 `--only CASE`、`--case-overrides JSON` 和逐阶段记录；修复了回放继承启动器 umask 的问题。正式规模未改。下文旧批次数字保留其历史含义。
 
 入口：从仓库根运行 `python3 -m bench.experiment_smoke`。所有输出目录必须是新路径。

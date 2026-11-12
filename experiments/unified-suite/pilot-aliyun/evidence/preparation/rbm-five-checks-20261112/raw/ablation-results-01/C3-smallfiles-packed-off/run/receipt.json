@@ -1,0 +1,59 @@
+{
+  "formal_sample": false,
+  "workload": "c3",
+  "engine": "workspace-v1",
+  "hint": "auto",
+  "layout": "enabled",
+  "arms": {
+    "brewfs": {
+      "phase": "initial-mount",
+      "passed": false,
+      "manifest_key": "base/objects/0/1f636921ae1d60071cd0faef899186f7adeee31d3245b3b7d9d51ec83560164e",
+      "lower_preparation": "packed-data-unchanged-kv-metadata",
+      "initial_unmount": {
+        "unmount_exit": null,
+        "mount_exit": null,
+        "mount_absent": true
+      },
+      "error": "brewfs mount exited 1 ",
+      "log_tails": {
+        "initial.log": "[1;32mbrewfs::workspace_overlay::packed_v3::wire005::pipeline\u001b[0m\u001b[32m: \u001b[32mpacked frame verification memo (requires immutable objects), \u001b[1;32menabled\u001b[0m\u001b[32m: true, \u001b[1;32mcapacity_entries\u001b[0m\u001b[32m: 8192, \u001b[1;32mmetadata_reservation_bytes\u001b[0m\u001b[32m: 1572864, \u001b[1;32mpayload_cache_bytes\u001b[0m\u001b[32m: 0\u001b[0m\n    \u001b[2;3mat\u001b[0m src/workspace_overlay/packed_v3/wire005/pipeline.rs:32\n\n  \u001b[2m2026-11-12T14:43:07.284440Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::cli\u001b[0m\u001b[32m: \u001b[32mselected workspace upper bucket, \u001b[1;32mworkspace\u001b[0m\u001b[32m: 01a1d036-5ff6-7fc0-bc99-e7b211fedc27, \u001b[1;32mbucket\u001b[0m\u001b[32m: \"ax-rbm-1809671b8115-brewfs-01a1d036-5ff6-7fc0-bc99-e7b211fedc27\"\u001b[0m\n    \u001b[2;3mat\u001b[0m src/cli.rs:1972\n\n  \u001b[2m2026-11-12T14:43:07.286807Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::cadapter::s3\u001b[0m\u001b[32m: \u001b[32ms3 backend aws config load begin, \u001b[1;32mendpoint\u001b[0m\u001b[32m: Some(\"http://127.0.0.1:32835\"), \u001b[1;32mregion\u001b[0m\u001b[32m: Some(\"us-east-1\"), \u001b[1;32mbucket\u001b[0m\u001b[32m: ax-rbm-1809671b8115-brewfs\u001b[0m\n    \u001b[2;3mat\u001b[0m src/cadapter/s3.rs:386\n\n  \u001b[2m2026-11-12T14:43:07.287745Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::cadapter::s3\u001b[0m\u001b[32m: \u001b[32ms3 backend aws config load complete\u001b[0m\n    \u001b[2;3mat\u001b[0m src/cadapter/s3.rs:396\n\n  \u001b[2m2026-11-12T14:43:07.288459Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::cadapter::s3\u001b[0m\u001b[32m: \u001b[32ms3 backend client ready\u001b[0m\n    \u001b[2;3mat\u001b[0m src/cadapter/s3.rs:444\n\nError: packed v3 object limit exceeded: mount decode_workspace budget temporarily exhausted: used=6291456, requested=2101248, limit=8388608\n "
+      }
+    }
+  },
+  "packed_metadata": "off",
+  "eager_workspace": false,
+  "smallfiles_options": [
+    "--files",
+    "8",
+    "--hot-files",
+    "4",
+    "--workers",
+    "1",
+    "--read-ops",
+    "8",
+    "--cow-files",
+    "2",
+    "--write-ops",
+    "4",
+    "--mixed-ops",
+    "8"
+  ],
+  "binary_sha256": {
+    "brewfs": "b602f9a10c3601d1038f77faa9c9db7cd6165daa702b4c059000aba654b2f1e1",
+    "producer": "64958c570df7c86809303e89daf073a54d01f5b1d5ea6cf3969d36ba243f1d3a",
+    "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+    "smallfiles": "1e27cb2204dff633aea1d21a61a6fa740cfe9aa2afdb501bc41eca33cb8fd62f"
+  },
+  "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+  "phase": "workload",
+  "source": {
+    "passed": true,
+    "files": 8
+  },
+  "mounts_absent": true,
+  "rustfs_removed": true,
+  "redis_exited": true,
+  "scratch_removed": true,
+  "passed": false
+}

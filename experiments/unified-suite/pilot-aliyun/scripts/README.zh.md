@@ -2,6 +2,8 @@
 
 **实验已暂停，原 A/B 测试机已释放，原跳板机保留。** [结果表](../../current/results-20261112/RESULT.zh.md)只含指标和关键回执。下列运行入口留待恢复时使用；旧机器 ID、盘和锁配置不可直接复用。
 
+最小脚本检查入口见 [FIVE-CHECKS.zh.md](../FIVE-CHECKS.zh.md)：`bench.experiment_smoke` 运行五项检查；`prepare-filesystem-handoff-input.py` 明确生成小输入；`collect-five-smoke-results.py` 只收集小型证明文件。C4 当前不再运行 Agent。原跨机节点已停机。
+
 ## 准备输入
 
 已有输入先按清单核对，匹配就直接复用。需要补 `pytest-full-02` 时，只在杭州跳板机下载一次，再从跳板通过私网 SSH 分发到缺输入的 worker；[归档、SHA-256 和其他用例](../../../../scenarios/k8s-containers/archives.json)均在清单。

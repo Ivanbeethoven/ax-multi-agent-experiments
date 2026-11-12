@@ -1,0 +1,77 @@
+{"id": 1, "event": "start", "name": "verify-tool-sha256", "monotonic_ns": 173101109850259, "details": {}}
+{"id": 1, "event": "end", "name": "verify-tool-sha256", "elapsed_ns": 6184122699, "status": "passed"}
+{"id": 2, "event": "start", "name": "command:docker", "monotonic_ns": 173107294186780, "details": {"argv": ["docker", "image", "inspect", "-f", "{{.Id}}", "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 2, "event": "end", "name": "command:docker", "elapsed_ns": 70960603, "status": "passed"}
+{"id": 3, "event": "start", "name": "command:redis-cli", "monotonic_ns": 173107365909769, "details": {"argv": ["redis-cli", "-p", "53469", "ping"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 1}
+{"id": 3, "event": "end", "name": "command:redis-cli", "elapsed_ns": 10316459, "status": "passed"}
+{"id": 4, "event": "start", "name": "command:redis-cli", "monotonic_ns": 173107476481783, "details": {"argv": ["redis-cli", "-p", "53469", "ping"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 4, "event": "end", "name": "command:redis-cli", "elapsed_ns": 10711518, "status": "passed"}
+{"id": 5, "event": "start", "name": "command:docker", "monotonic_ns": 173107487908251, "details": {"argv": ["docker", "run", "--pull=never", "-d", "--name", "ax-rbm-9f6e79648374", "--cpus", "2", "--memory", "2g", "-p", "127.0.0.1::9000", "--env-file", "/tmp/ax-rbm-9f6e79648374-6t0fkxwz/rustfs.env", "-v", "/tmp/ax-rbm-9f6e79648374-6t0fkxwz/0:/data/d0", "-v", "/tmp/ax-rbm-9f6e79648374-6t0fkxwz/1:/data/d1", "-v", "/tmp/ax-rbm-9f6e79648374-6t0fkxwz/2:/data/d2", "-v", "/tmp/ax-rbm-9f6e79648374-6t0fkxwz/3:/data/d3", "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 5, "event": "end", "name": "command:docker", "elapsed_ns": 993213191, "status": "passed"}
+{"id": 6, "event": "start", "name": "command:docker", "monotonic_ns": 173108481341285, "details": {"argv": ["docker", "port", "ax-rbm-9f6e79648374", "9000/tcp"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 6, "event": "end", "name": "command:docker", "elapsed_ns": 38882197, "status": "passed"}
+{"id": 7, "event": "start", "name": "rustfs-readiness", "monotonic_ns": 173108712025589, "details": {}}
+{"id": 7, "event": "end", "name": "rustfs-readiness", "elapsed_ns": 437192554, "status": "passed"}
+{"id": 8, "event": "start", "name": "workload:prepare", "monotonic_ns": 173109149463278, "details": {}}
+{"id": 9, "event": "start", "name": "command:cp", "monotonic_ns": 173109150179085, "details": {"argv": ["cp", "-a", "--", "/home/dev/ax-five-fixes-20261112/fs-input/workspace", "/tmp/ax-rbm-9f6e79648374-6t0fkxwz/source/workspace"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 9, "event": "end", "name": "command:cp", "elapsed_ns": 35689071, "status": "passed"}
+{"id": 8, "event": "end", "name": "workload:prepare", "elapsed_ns": 166572751, "status": "passed"}
+{"id": 10, "event": "start", "name": "command:mountpoint", "monotonic_ns": 173109316639378, "details": {"argv": ["mountpoint", "-q", "/srv/ax-pilot-session"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 10, "event": "end", "name": "command:mountpoint", "elapsed_ns": 3684302, "status": "passed"}
+{"id": 11, "event": "start", "name": "create-bucket", "monotonic_ns": 173109320551193, "details": {}}
+{"id": 11, "event": "end", "name": "create-bucket", "elapsed_ns": 265831836, "status": "passed"}
+{"id": 12, "event": "start", "name": "command:juicefs", "monotonic_ns": 173109586648773, "details": {"argv": ["/home/dev/ax-five-fixes-20261112/move-tools/juicefs", "format", "--storage", "s3", "--bucket", "http://127.0.0.1:32845/ax-rbm-9f6e79648374-juicefs", "--access-key", "[redacted]", "--secret-key", "[redacted]", "redis://127.0.0.1:53469/0", "ax-smoke"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 12, "event": "end", "name": "command:juicefs", "elapsed_ns": 934951630, "status": "passed"}
+{"id": 13, "event": "start", "name": "command:mountpoint", "monotonic_ns": 173110522926621, "details": {"argv": ["mountpoint", "-q", "/srv/ax-pilot-session"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 13, "event": "end", "name": "command:mountpoint", "elapsed_ns": 4746071, "status": "passed"}
+{"id": 14, "event": "start", "name": "command:mountpoint", "monotonic_ns": 173110628159855, "details": {"argv": ["mountpoint", "-q", "/srv/ax-pilot-session"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 14, "event": "end", "name": "command:mountpoint", "elapsed_ns": 6572318, "status": "passed"}
+{"id": 15, "event": "start", "name": "command:mountpoint", "monotonic_ns": 173110735127498, "details": {"argv": ["mountpoint", "-q", "/srv/ax-pilot-session"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 15, "event": "end", "name": "command:mountpoint", "elapsed_ns": 3685319, "status": "passed"}
+{"id": 16, "event": "start", "name": "command:mountpoint", "monotonic_ns": 173110839142308, "details": {"argv": ["mountpoint", "-q", "/srv/ax-pilot-session"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 16, "event": "end", "name": "command:mountpoint", "elapsed_ns": 3715296, "status": "passed"}
+{"id": 17, "event": "start", "name": "import-workspace", "monotonic_ns": 173110842985384, "details": {"timeout_seconds": 180}}
+{"id": 18, "event": "start", "name": "command:stdbuf", "monotonic_ns": 173110843234969, "details": {"argv": ["stdbuf", "-oL", "cp", "-av", "--", "/tmp/ax-rbm-9f6e79648374-6t0fkxwz/source/.", "/srv/ax-pilot-session/"], "timeout_seconds": 180, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 18, "event": "end", "name": "command:stdbuf", "elapsed_ns": 6710382855, "status": "passed"}
+{"id": 17, "event": "end", "name": "import-workspace", "elapsed_ns": 6710879465, "status": "passed"}
+{"id": 19, "event": "start", "name": "workload:verify-base", "monotonic_ns": 173117554046233, "details": {}}
+{"id": 19, "event": "end", "name": "workload:verify-base", "elapsed_ns": 427059649, "status": "passed"}
+{"id": 20, "event": "start", "name": "workload:run", "monotonic_ns": 173117981399730, "details": {}}
+{"id": 20, "event": "end", "name": "workload:run", "elapsed_ns": 324170644, "status": "passed"}
+{"id": 21, "event": "start", "name": "command:mountpoint", "monotonic_ns": 173118305803532, "details": {"argv": ["mountpoint", "-q", "/srv/ax-pilot-session"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 21, "event": "end", "name": "command:mountpoint", "elapsed_ns": 9674620, "status": "passed"}
+{"id": 22, "event": "start", "name": "command:fusermount3", "monotonic_ns": 173118315699719, "details": {"argv": ["fusermount3", "-u", "/srv/ax-pilot-session"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 22, "event": "end", "name": "command:fusermount3", "elapsed_ns": 3388893, "status": "passed"}
+{"id": 23, "event": "start", "name": "command:mountpoint", "monotonic_ns": 173118350872891, "details": {"argv": ["mountpoint", "-q", "/srv/ax-pilot-session"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 23, "event": "end", "name": "command:mountpoint", "elapsed_ns": 4282775, "status": "passed"}
+{"id": 24, "event": "start", "name": "command:mountpoint", "monotonic_ns": 173118355335767, "details": {"argv": ["mountpoint", "-q", "/srv/ax-pilot-session"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 24, "event": "end", "name": "command:mountpoint", "elapsed_ns": 6330411, "status": "passed"}
+{"id": 25, "event": "start", "name": "command:mountpoint", "monotonic_ns": 173348880043750, "details": {"argv": ["mountpoint", "-q", "/srv/ax-pilot-session"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 25, "event": "end", "name": "command:mountpoint", "elapsed_ns": 5179165, "status": "passed"}
+{"id": 26, "event": "start", "name": "command:docker", "monotonic_ns": 173348885524572, "details": {"argv": ["docker", "logs", "--tail", "25", "ax-rbm-9f6e79648374"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 26, "event": "end", "name": "command:docker", "elapsed_ns": 39092736, "status": "passed"}
+{"id": 27, "event": "start", "name": "command:docker", "monotonic_ns": 173348925216651, "details": {"argv": ["docker", "rm", "-fv", "ax-rbm-9f6e79648374"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 27, "event": "end", "name": "command:docker", "elapsed_ns": 1023459396, "status": "passed"}
+{"id": 28, "event": "start", "name": "command:docker", "monotonic_ns": 173349948907380, "details": {"argv": ["docker", "inspect", "ax-rbm-9f6e79648374"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 1}
+{"id": 28, "event": "end", "name": "command:docker", "elapsed_ns": 57185082, "status": "passed"}

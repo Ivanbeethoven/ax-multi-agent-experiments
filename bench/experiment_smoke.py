@@ -28,6 +28,10 @@ def main():
     p.add_argument('--prepare-timeout',type=int,default=60,help='Seconds for importing a preexisting workspace')
     p.add_argument('--checkpoint',type=Path)
     p.add_argument('--opencode',type=Path)
+    for flag in ('ssh-config','target-repo','target-tools'):
+        p.add_argument('--'+flag,type=Path)
+    p.add_argument('--target-host')
+    p.add_argument('--target-check-timeout',type=int,default=300)
     p.add_argument('--out', type=Path, required=True)
     a = p.parse_args()
     for name in ('brewfs','producer','smallfiles','juicefs','trace','replay','out','brewfs_provenance','checkpoint','opencode'):
@@ -40,9 +44,24 @@ def main():
         p.error(str(e))
     a.out.mkdir(mode=0o700)
     receipt = {'plan':plan, 'formal_sample':False, 'status':'blocked'}
+    is_metadata_control = a.experiment in ('C2-replay','C3-smallfiles') and a.mode in ('packed-off','all-off')
+    if is_metadata_control:
+        from bench.runtime.unified_candidate import verify
+        try:
+            if not a.brewfs_provenance:
+                raise ValueError('Metadata controls require --brewfs-provenance')
+            receipt['candidate_pins']=verify(a.brewfs,a.producer,a.brewfs_provenance,a.brewfs_revision,
+                'eager-workspace' if a.mode=='all-off' else 'packed-metadata-off')
+        except (OSError,ValueError) as error:
+            receipt['reason']=str(error)
+            (a.out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+            return 2
     scripts = CONFIG.parent.parent / 'pilot-aliyun/scripts'
     supported = (a.mode in ('brewfs-full','juicefs') and a.experiment in ('C3-smallfiles','C4-fork')) or a.experiment in ('C1-io','C1-layout') or (a.experiment == 'C2-replay' and a.mode in ('brewfs-basic','brewfs-full','juicefs','dynamic-off'))
-    supported = supported or (a.experiment=='C4-handoff' and a.placement=='stay' and a.checkpoint and a.opencode)
+    supported = supported or (a.experiment=='C4-handoff' and a.placement=='stay' and a.checkpoint)
+    supported = supported or (a.experiment=='C4-handoff' and a.placement=='move' and
+        all((a.checkpoint,a.ssh_config,a.target_host,a.target_repo,a.target_tools)))
+    supported = supported or is_metadata_control
     if a.experiment=='C2-runtime' and a.brewfs_provenance:
         from bench.runtime.packed_read_candidate import verify
         try:
@@ -71,10 +90,20 @@ def main():
                 cmd.append('--tiny')
             cmd += ['--smallfiles',str(a.smallfiles), '--workload', 'c1' if a.experiment.startswith('C1') else 'c2' if a.experiment == 'C2-replay' else 'c3', '--hint', plan['brewfs_hint'] or 'auto', '--layout', plan['rustfs_layout_profile']]
             cmd += ['--engine', 'flat-v1' if plan['engine'] == 'flat-v1' else 'workspace-v1']
+            if is_metadata_control:
+                cmd += ['--packed-metadata','off']
+                if a.mode=='all-off':
+                    cmd.append('--eager-workspace')
+                    receipt['runtime_scope']='eager private workspace-v1, no shared data lower; fixed catalog root stub remains'
             if a.experiment=='C4-handoff':
                 cmd[cmd.index('--workload')+1]='c4-stay'
-                cmd += ['--checkpoint',str(a.checkpoint),'--opencode',str(a.opencode)]
-                receipt['runtime_scope']='same-host OpenCode state reopen with empty HOME; no model continuation'
+                cmd += ['--checkpoint',str(a.checkpoint)]
+                receipt['runtime_scope']='filesystem-only workspace reopen; agent state is opaque data; no agent process'
+                if a.placement=='move':
+                    for name in ('ssh_config','target_host','target_repo','target_tools'):
+                        cmd += ['--'+name.replace('_','-'),str(getattr(a,name))]
+                    cmd += ['--target-check-timeout',str(a.target_check_timeout)]
+                    receipt['runtime_scope']='filesystem-only distinct-host shared-volume reopen; no agent process or forced-failure fencing'
             if a.experiment == 'C2-replay':
                 if not a.trace or not a.replay:
                     p.error('C2 requires --trace and --replay')

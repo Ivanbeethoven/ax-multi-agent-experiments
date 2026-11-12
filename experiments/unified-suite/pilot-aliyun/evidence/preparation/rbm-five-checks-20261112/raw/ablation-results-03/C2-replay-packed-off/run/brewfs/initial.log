@@ -1,0 +1,274 @@
+  [2m2026-11-12T15:31:11.565616Z[0m [32m INFO[0m [1;32mbrewfs::cli[0m[32m: [32mraised RLIMIT_NOFILE, [1;32msoft[0m[32m: 1048576, [1;32mhard[0m[32m: 1048576[0m
+    [2;3mat[0m src/cli.rs:196
+
+  [2m2026-11-12T15:31:11.570584Z[0m [32m INFO[0m [1;32mbrewfs::cli[0m[32m: [32mmount startup begin, [1;32mmount_point[0m[32m: /tmp/ax-rbm-5098eeb8d3ac-fkxcavyy/brewfs, [1;32mmeta_backend[0m[32m: Redis, [1;32mdata_backend[0m[32m: S3[0m
+    [2;3mat[0m src/cli.rs:441
+
+  [2m2026-11-12T15:31:11.570881Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend aws config load begin, [1;32mendpoint[0m[32m: Some("http://127.0.0.1:32846"), [1;32mregion[0m[32m: Some("us-east-1"), [1;32mbucket[0m[32m: ax-rbm-5098eeb8d3ac-brewfs[0m
+    [2;3mat[0m src/cadapter/s3.rs:386
+
+  [2m2026-11-12T15:31:11.585921Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend aws config load complete[0m
+    [2;3mat[0m src/cadapter/s3.rs:396
+
+  [2m2026-11-12T15:31:11.586949Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend client ready[0m
+    [2;3mat[0m src/cadapter/s3.rs:444
+
+  [2m2026-11-12T15:31:11.587097Z[0m [32m INFO[0m [1;32mbrewfs::cli[0m[32m: [32mmount startup s3 client ready[0m
+    [2;3mat[0m src/cli.rs:470
+
+  [2m2026-11-12T15:31:11.587350Z[0m [32m INFO[0m [1;32mbrewfs::chunk::cache[0m[32m: [32mCreating cache directory: "/tmp/ax-rbm-5098eeb8d3ac-fkxcavyy/initial-brewfs/workspace-blocks/01a1d062-6310-7ad0-a0e3-b05553ccbaf3/chunks/v2-crc32c"[0m
+    [2;3mat[0m src/chunk/cache.rs:419
+
+  [2m2026-11-12T15:31:11.588884Z[0m [32m INFO[0m [1;32mbrewfs::chunk::cache[0m[32m: [32mCreating Policy with configuration: base_threshold=5.00, short_weight=0.75, medium_weight=0.25, adaptive=true[0m
+    [2;3mat[0m src/chunk/cache.rs:1821
+
+  [2m2026-11-12T15:31:11.589205Z[0m [32m INFO[0m [1;32mbrewfs::chunk::cache[0m[32m: [32mChunksCache created successfully[0m
+    [2;3mat[0m src/chunk/cache.rs:2191
+
+  [2m2026-11-12T15:31:11.590947Z[0m [32m INFO[0m [1;32mbrewfs::workspace_overlay::packed_v3::wire005::pipeline[0m[32m: [32mpacked frame verification memo (requires immutable objects), [1;32menabled[0m[32m: true, [1;32mcapacity_entries[0m[32m: 8192, [1;32mmetadata_reservation_bytes[0m[32m: 1572864, [1;32mpayload_cache_bytes[0m[32m: 0[0m
+    [2;3mat[0m src/workspace_overlay/packed_v3/wire005/pipeline.rs:32
+
+  [2m2026-11-12T15:31:11.601545Z[0m [32m INFO[0m [1;32mbrewfs::cli[0m[32m: [32mselected workspace upper bucket, [1;32mworkspace[0m[32m: 01a1d062-6310-7ad0-a0e3-b05553ccbaf3, [1;32mbucket[0m[32m: "ax-rbm-5098eeb8d3ac-brewfs-01a1d062-6310-7ad0-a0e3-b05553ccbaf3"[0m
+    [2;3mat[0m src/cli.rs:1972
+
+  [2m2026-11-12T15:31:11.604869Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend aws config load begin, [1;32mendpoint[0m[32m: Some("http://127.0.0.1:32846"), [1;32mregion[0m[32m: Some("us-east-1"), [1;32mbucket[0m[32m: ax-rbm-5098eeb8d3ac-brewfs[0m
+    [2;3mat[0m src/cadapter/s3.rs:386
+
+  [2m2026-11-12T15:31:11.605780Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend aws config load complete[0m
+    [2;3mat[0m src/cadapter/s3.rs:396
+
+  [2m2026-11-12T15:31:11.611879Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend client ready[0m
+    [2;3mat[0m src/cadapter/s3.rs:444
+
+  [2m2026-11-12T15:31:11.714031Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 0, [1;32mfuse_rd_bytes[0m[32m: 0, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+mounted workspace 01a1d062-6310-7ad0-a0e3-b05553ccbaf3 at /tmp/ax-rbm-5098eeb8d3ac-fkxcavyy/brewfs
+  [2m2026-11-12T15:31:11.736275Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 1, [1;32mname[0m[32m: .Trash[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:11.739317Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 1, [1;32mname[0m[32m: .Trash-1000[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:11.797430Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=2, ino=1, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:11.814215Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 0, [1;32mfuse_rd_bytes[0m[32m: 0, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:11.913995Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 2, [1;32mfuse_rd_bytes[0m[32m: 8192, [1;32mavg_read_sz[0m[32m: 4096, [1;32mavg_read_lat_us[0m[32m: 10348[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:11.998062Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=5, ino=1, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:12.008601Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=6, ino=1, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:12.013627Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 2, [1;32mfuse_rd_bytes[0m[32m: 8192, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:12.073812Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=9, ino=1, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:12.113822Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 4, [1;32mfuse_rd_bytes[0m[32m: 16384, [1;32mavg_read_sz[0m[32m: 4096, [1;32mavg_read_lat_us[0m[32m: 5936[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:12.137328Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 1, [1;32mname[0m[32m: state[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.139515Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 1, [1;32mname[0m[32m: state[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.163645Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.169839Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.173016Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.177918Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.203179Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-journal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.208225Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-wal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.213884Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 5, [1;32mfuse_rd_bytes[0m[32m: 20480, [1;32mavg_read_sz[0m[32m: 4096, [1;32mavg_read_lat_us[0m[32m: 5739[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:12.216412Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-journal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.221404Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-wal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.236834Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-journal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.240327Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-journal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.242169Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-journal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.283426Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 12, [1;32mino[0m[32m: 5[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:31:12.314015Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 65536, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 5, [1;32mfuse_rd_bytes[0m[32m: 20480, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:12.348693Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=13, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:12.354916Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 12, [1;32mino[0m[32m: 5[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:31:12.413894Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 65536, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 2, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 5, [1;32mfuse_rd_bytes[0m[32m: 20480, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:12.423042Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 11, [1;32mino[0m[32m: 4[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:31:12.497595Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-journal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.502437Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-wal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.513579Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 3, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 5, [1;32mfuse_rd_bytes[0m[32m: 20480, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:12.518945Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-wal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.521971Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-wal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.523692Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-wal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.559046Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-shm[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.562584Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-shm[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.566265Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-shm[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:12.613857Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 3, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 5, [1;32mfuse_rd_bytes[0m[32m: 20480, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:12.657289Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 14, [1;32mino[0m[32m: 6[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:31:12.714398Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 65536, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 3, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 6, [1;32mfuse_rd_bytes[0m[32m: 36864, [1;32mavg_read_sz[0m[32m: 16384, [1;32mavg_read_lat_us[0m[32m: 1274[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:12.759261Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=16, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:12.797253Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 14, [1;32mino[0m[32m: 6[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:31:12.814133Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 65536, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 4, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 6, [1;32mfuse_rd_bytes[0m[32m: 36864, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:12.912960Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 14, [1;32mino[0m[32m: 6[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:31:12.914286Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 65536, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 5, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 7, [1;32mfuse_rd_bytes[0m[32m: 53248, [1;32mavg_read_sz[0m[32m: 16384, [1;32mavg_read_lat_us[0m[32m: 2203[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:12.976525Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 14, [1;32mino[0m[32m: 6[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:31:13.013845Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 4, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 4, [1;32mhit_pct[0m[32m: 100.0, [1;32mdirty_bytes[0m[32m: 65536, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 6, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 10, [1;32mfuse_rd_bytes[0m[32m: 82192, [1;32mavg_read_sz[0m[32m: 9648, [1;32mavg_read_lat_us[0m[32m: 1564[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:13.058280Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 11, [1;32mino[0m[32m: 4[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:31:13.067976Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: .fuse_hidden0000000700000001[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:13.072506Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: .fuse_hidden0000000700000001[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:13.114319Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 4, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 4, [1;32mhit_pct[0m[32m: 100.0, [1;32mdirty_bytes[0m[32m: 65536, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 7, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 10, [1;32mfuse_rd_bytes[0m[32m: 82192, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:13.213727Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 4, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 4, [1;32mhit_pct[0m[32m: 100.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 8, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 10, [1;32mfuse_rd_bytes[0m[32m: 82192, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:13.247171Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 17, [1;32mino[0m[32m: 2[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:31:13.313831Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 4, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 4, [1;32mhit_pct[0m[32m: 100.0, [1;32mdirty_bytes[0m[32m: 65536, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 8, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 10, [1;32mfuse_rd_bytes[0m[32m: 82192, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:13.359427Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 1, [1;32mname[0m[32m: renamed[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:13.363834Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 1, [1;32mname[0m[32m: renamed[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:13.373450Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 1, [1;32mname[0m[32m: link[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:13.375568Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 1, [1;32mname[0m[32m: link[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:13.413824Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 6, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 6, [1;32mhit_pct[0m[32m: 100.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 9, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 12, [1;32mfuse_rd_bytes[0m[32m: 90384, [1;32mavg_read_sz[0m[32m: 4096, [1;32mavg_read_lat_us[0m[32m: 6785[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:13.512411Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=21, ino=1, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:13.513656Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 8, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 8, [1;32mhit_pct[0m[32m: 100.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 9, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 14, [1;32mfuse_rd_bytes[0m[32m: 98576, [1;32mavg_read_sz[0m[32m: 4096, [1;32mavg_read_lat_us[0m[32m: 6133[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:13.523222Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=22, ino=1, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:13.532688Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=23, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:13.541980Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=24, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:13.613610Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 11, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 11, [1;32mhit_pct[0m[32m: 100.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 9, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 17, [1;32mfuse_rd_bytes[0m[32m: 135440, [1;32mavg_read_sz[0m[32m: 12288, [1;32mavg_read_lat_us[0m[32m: 4546[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:13.624645Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=28, ino=1, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:13.655572Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=29, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:13.688425Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=30, ino=1, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:13.699114Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=31, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:31:13.713850Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 12, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 12, [1;32mhit_pct[0m[32m: 100.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 9, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 18, [1;32mfuse_rd_bytes[0m[32m: 164112, [1;32mavg_read_sz[0m[32m: 28672, [1;32mavg_read_lat_us[0m[32m: 1181[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:13.728235Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-wal[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:13.730683Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 3, [1;32mname[0m[32m: opencode.db-shm[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:31:13.814139Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 14, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 14, [1;32mhit_pct[0m[32m: 100.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 9, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 20, [1;32mfuse_rd_bytes[0m[32m: 221456, [1;32mavg_read_sz[0m[32m: 28672, [1;32mavg_read_lat_us[0m[32m: 1194[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:31:13.913754Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 14, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 14, [1;32mhit_pct[0m[32m: 100.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 9, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 20, [1;32mfuse_rd_bytes[0m[32m: 221456, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+

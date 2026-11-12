@@ -1,0 +1,30 @@
+{
+  "passed": false,
+  "formal_sample": false,
+  "target_identity": {
+    "machine": "7c92d10a1e79333eb290befaf095d19d2562aa18f7c6044d3a4c42e36af88045",
+    "boot": "227ece0c27b95cd3cc9f378b2dd9bad7e388680bd1bb698b7f91b2d814c08059"
+  },
+  "workspace_payload_copied": false,
+  "real_resume": false,
+  "native_model_calls": 0,
+  "verifier_sha256": "98db2235a3a5727f6c6d5231c310a85579a3eb9e7f7687eed6ab7f5e0d9b9f1d",
+  "target_script_sha256": "05b56b3ae5cbeb38787f1363846486c266eba6c9e54389fdc7c2a2b9bfd446b2",
+  "mount_seconds": 5.615741413,
+  "error": "Command '['/usr/bin/python3', '-m', 'bench.runtime.tree_verify', '/srv/ax-pilot-session/workspace']' timed out after 300 seconds",
+  "unmount": {
+    "exit_code": 0,
+    "process_exit": 0,
+    "mount_absent": true
+  },
+  "log_tail": "://127.0.0.1:32833/ax-rbm-634538c355f6-juicefs/ax-smoke/ [mount@mount.go:620]\n2026/11/12 22:36:01.174909 juicefs[4255] <INFO>: JuiceFS version 1.4.2+2026-10-22.46af7af [mount@mount.go:663]\n2026/11/12 22:36:01.175642 juicefs[4255] <INFO>: Disk cache (/tmp/ax-five-move-_wo_ixa3/cache/35e672fe-1db0-44fe-9192-a110cf8a1c70/): used ratio - [space 30.8%, inode 12.4%] [newCacheStore@disk_cache.go:154]\n2026/11/12 22:36:01.175676 juicefs[4255] <INFO>: Adjusted cache capacity based on freeratio: from 107374182400 to 37694648140 bytes [setLimitByFreeRatio@disk_cache.go:177]\n2026/11/12 22:36:01.175695 juicefs[4255] <INFO>: Adjusted max items based on freeratio: from 0 to 2347329 items [setLimitByFreeRatio@disk_cache.go:191]\n..2026/11/12 22:36:02.198385 juicefs[4255] <INFO>: Create session 2 OK with version: 1.4.2+2026-10-22.46af7af [NewSession@base.go:816]\n2026/11/12 22:36:02.362360 juicefs[4255] <INFO>: Prometheus metrics listening on \"127.0.0.1:9567\" [exposeMetrics@mount.go:137]\n2026/11/12 22:36:02.362998 juicefs[4255] <INFO>: Mounting volume ax-smoke at \"/srv/ax-pilot-session\" ... [mountMain@mount_unix.go:1165]\n2026/11/12 22:36:02.897495 juicefs[4246] <INFO>: \u001b[92mOK\u001b[0m, ax-smoke is ready at \"/srv/ax-pilot-session\" [checkMountpoint@mount_unix.go:327]\n2026-11-12 22:36:04.689038 I | Unimplemented opcode POLL\n2026/11/12 22:36:04.689597 juicefs[4246] <INFO>: watching \"/srv/ax-pilot-session\", pid 4255 [watchdog@mount_unix.go:237]\n2026-11-12 22:41:10.403230 I | writer: Write/Writev failed, err: 2=no such file or directory. opcode: READ\n2026/11/12 22:41:10.403466 juicefs[4255] <INFO>: flush buffered data in 934ns: <nil> [FlushAll@vfs.go:1330]\n2026/11/12 22:41:10.403511 juicefs[4255] <INFO>: flush session 2: [FlushSession@base.go:1027]\n2026/11/12 22:41:13.448263 juicefs[4255] <INFO>: close session 2: <nil> [CloseSession@base.go:1016]\n2026/11/12 22:41:13.448316 juicefs[4255] <INFO>: The juicefs mount process exit successfully, mountpoint: \"/srv/ax-pilot-session\" [mount@mount.go:698]\n",
+  "scratch_removed": true,
+  "source_identity": {
+    "machine": "48f0f278c11cda0f7807b82b984ff7fc26b86869f70aa1a854e484ed426f7624",
+    "boot": "1d520f9534d2ee08983e1105ab4064e7a23140267adc07a4b3ccbcf5bd71992a"
+  },
+  "transport": "SSH reverse loopback forwards",
+  "physical_move": true,
+  "controller_elapsed_seconds": 320.780608132,
+  "tunnel_exited": true
+}

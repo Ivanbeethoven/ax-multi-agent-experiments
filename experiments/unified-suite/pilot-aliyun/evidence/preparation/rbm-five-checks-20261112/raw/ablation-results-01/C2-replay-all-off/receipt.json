@@ -1,0 +1,237 @@
+{
+  "plan": {
+    "experiment": "C2-replay",
+    "mode": "all-off",
+    "placement": null,
+    "engine": "workspace-v1",
+    "mechanisms": {
+      "overlay": false,
+      "packed_metadata": false,
+      "dynamic_block": false
+    },
+    "rustfs_layout_profile": "disabled",
+    "brewfs_hint": "off",
+    "brewfs_cargo_default_features": true,
+    "brewfs_cargo_features": [
+      "workspace-overlay",
+      "observability",
+      "rustfs-ec-block-size-hint"
+    ],
+    "native_action": null,
+    "read_only_control": false,
+    "runtime_qualification_blockers": [
+      "same-engine-runtime-adapter-required",
+      "current-suite-workload-adapter-qualification-required"
+    ],
+    "dispatch_enabled": false
+  },
+  "formal_sample": false,
+  "status": "passed",
+  "candidate_pins": {
+    "brewfs": "b602f9a10c3601d1038f77faa9c9db7cd6165daa702b4c059000aba654b2f1e1",
+    "producer": "64958c570df7c86809303e89daf073a54d01f5b1d5ea6cf3969d36ba243f1d3a"
+  },
+  "runtime_scope": "eager private workspace-v1, no shared data lower; fixed catalog root stub remains",
+  "argv": [
+    "/srv/ax-data/workspace-adapter-20261111/venv/bin/python",
+    "/home/dev/ax-five-fixes-20261112/ax/experiments/unified-suite/pilot-aliyun/scripts/rbm-lifecycle.py",
+    "--product",
+    "brewfs",
+    "--brewfs",
+    "/home/dev/ax-five-fixes-20261112/bin/brewfs",
+    "--producer",
+    "/home/dev/ax-five-fixes-20261112/bin/packed_v3_snapshot_fixture",
+    "--juicefs",
+    "/srv/ax-bin/juicefs",
+    "--rustfs-image",
+    "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+    "--prepare-timeout",
+    "60",
+    "--tiny",
+    "--smallfiles",
+    "/srv/ax-bin/smallfiles",
+    "--workload",
+    "c2",
+    "--hint",
+    "off",
+    "--layout",
+    "disabled",
+    "--engine",
+    "workspace-v1",
+    "--packed-metadata",
+    "off",
+    "--eager-workspace",
+    "--trace",
+    "/var/tmp/ax-recorded-smoke-20261112-02",
+    "--replay",
+    "/var/tmp/ax-full-replay-20261112/release/full-fuse-replay",
+    "--full-trace",
+    "--trace-timeout",
+    "300",
+    "--out",
+    "/home/dev/ax-five-fixes-20261112/ablation-results-01/C2-replay-all-off/run"
+  ],
+  "elapsed_ns": 9347326370,
+  "exit_code": 0,
+  "evidence": {
+    "formal_sample": false,
+    "workload": "c2",
+    "engine": "workspace-v1",
+    "hint": "off",
+    "layout": "disabled",
+    "arms": {
+      "brewfs": {
+        "phase": "complete",
+        "passed": true,
+        "lower_preparation": "eager-private-workspace-no-packed-binding",
+        "import_entries_reported": 2,
+        "verify_base": {
+          "passed": true,
+          "entries": 2
+        },
+        "run": {
+          "passed": true,
+          "strict": false,
+          "byte_validation": true,
+          "final_byte_validation": true,
+          "replay_mode": "strict-portable-terminal-probe",
+          "path_resolution": "parent-fd-cache",
+          "portable_terminal_probe": true,
+          "probe_errno_differences": 4,
+          "initial_tree_equal": true,
+          "final_tree_equal": true,
+          "hardlink_topology_equal": true,
+          "databases": [
+            {
+              "path": "state/opencode.db",
+              "sha256": "8c795dfbe7dcd59bb834a59f964b8a21b23841728778fc494a1f2daa1826b828",
+              "quick_check": "ok",
+              "rows": {
+                "session": 1,
+                "message": 1,
+                "part": 1
+              }
+            }
+          ],
+          "callbacks": 367,
+          "actual_read_bytes": 82192,
+          "actual_write_bytes": 107307,
+          "captured_repeated_read_ratio": 0.14941843488417364,
+          "juicefs_controls_excluded": false,
+          "purpose": "filesystem-route-qualification",
+          "replayed": true,
+          "scope": "Exact callback/byte counts and final file bytes, modes, links and copied SQLite integrity. Intermediate reads are byte-checked only in strict replay modes; no Agent resume or performance acceptance claim"
+        },
+        "initial_unmount": {
+          "unmount_exit": 0,
+          "mount_exit": 0,
+          "mount_absent": true
+        },
+        "verify_touched": {
+          "passed": true,
+          "strict": false,
+          "byte_validation": true,
+          "final_byte_validation": true,
+          "replay_mode": "strict-portable-terminal-probe",
+          "path_resolution": "parent-fd-cache",
+          "portable_terminal_probe": true,
+          "probe_errno_differences": 4,
+          "initial_tree_equal": null,
+          "final_tree_equal": true,
+          "hardlink_topology_equal": true,
+          "databases": [
+            {
+              "path": "state/opencode.db",
+              "sha256": "8c795dfbe7dcd59bb834a59f964b8a21b23841728778fc494a1f2daa1826b828",
+              "quick_check": "ok",
+              "rows": {
+                "session": 1,
+                "message": 1,
+                "part": 1
+              }
+            }
+          ],
+          "callbacks": 367,
+          "actual_read_bytes": 82192,
+          "actual_write_bytes": 107307,
+          "captured_repeated_read_ratio": 0.14941843488417364,
+          "juicefs_controls_excluded": false,
+          "purpose": "cold-readback",
+          "replayed": false,
+          "scope": "Exact callback/byte counts and final file bytes, modes, links and copied SQLite integrity. Intermediate reads are byte-checked only in strict replay modes; no Agent resume or performance acceptance claim"
+        },
+        "reopen_unmount": {
+          "unmount_exit": 0,
+          "mount_exit": 0,
+          "mount_absent": true
+        }
+      }
+    },
+    "packed_metadata": "off",
+    "eager_workspace": true,
+    "smallfiles_options": [
+      "--files",
+      "8",
+      "--hot-files",
+      "4",
+      "--workers",
+      "1",
+      "--read-ops",
+      "8",
+      "--cow-files",
+      "2",
+      "--write-ops",
+      "4",
+      "--mixed-ops",
+      "8"
+    ],
+    "binary_sha256": {
+      "brewfs": "b602f9a10c3601d1038f77faa9c9db7cd6165daa702b4c059000aba654b2f1e1",
+      "producer": "64958c570df7c86809303e89daf073a54d01f5b1d5ea6cf3969d36ba243f1d3a",
+      "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+      "smallfiles": "1e27cb2204dff633aea1d21a61a6fa740cfe9aa2afdb501bc41eca33cb8fd62f",
+      "replay": "fb0a17674c7a4f64e6fd5cf0f21437ebd51ec8354eece4a82bcdd3084a612fba"
+    },
+    "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+    "phase": "workload",
+    "trace_sha256": "886dee138cc5c1378ef885274cbce84238bd087f32f1c2c5bd504dcd49e9a9a1",
+    "trace_kind": "full-fuse-input",
+    "trace_callbacks": 367,
+    "source": {
+      "passed": true,
+      "entries": 2
+    },
+    "replay": {
+      "active_replay_seconds": 1.290293465,
+      "actual_read_bytes": 82192,
+      "actual_write_bytes": 107307,
+      "completed": true,
+      "execution_seconds": 1.290293465,
+      "expected_errors": 64,
+      "mode": "strict-portable-terminal-probe",
+      "operations": 367,
+      "parent_fds": {
+        "capacity": 256,
+        "hits": 161,
+        "invalidations": 30,
+        "misses": 38,
+        "peak": 2
+      },
+      "path_resolution": "parent-fd-cache",
+      "probe_errno_differences": 4,
+      "remaining_handles": 0,
+      "scope": "serialized FUSE callback operations replayed via POSIX; no process scheduling or local lock replay",
+      "think_time": {
+        "actual_sleep_seconds": 0.0,
+        "enabled": false,
+        "planned_total_ms": 0
+      },
+      "valid": true
+    },
+    "mounts_absent": true,
+    "rustfs_removed": true,
+    "redis_exited": true,
+    "scratch_removed": true,
+    "passed": true
+  }
+}

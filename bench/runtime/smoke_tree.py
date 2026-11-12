@@ -2,11 +2,15 @@ import hashlib
 import os
 from pathlib import Path
 
+def _walk_error(error):
+    # os.walk otherwise swallows OSError, including a deadline's TimeoutError.
+    raise error
+
 def file_tree(root):
     import stat
     entries = {}
     paths = []
-    for directory, dirs, files in os.walk(root, followlinks=False):
+    for directory, dirs, files in os.walk(root, followlinks=False, onerror=_walk_error):
         if Path(directory) == root:
             dirs[:] = [name for name in dirs if name not in ('.trash',)]
             files = [name for name in files if name not in ('.stats','.config','.accesslog')]

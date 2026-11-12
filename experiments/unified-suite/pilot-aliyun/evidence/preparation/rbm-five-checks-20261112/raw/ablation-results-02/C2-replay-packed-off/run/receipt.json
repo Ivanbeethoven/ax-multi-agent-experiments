@@ -1,0 +1,67 @@
+{
+  "formal_sample": false,
+  "workload": "c2",
+  "engine": "workspace-v1",
+  "hint": "auto",
+  "layout": "enabled",
+  "arms": {
+    "brewfs": {
+      "phase": "run",
+      "passed": false,
+      "manifest_key": "base/objects/0/ffb51b381ffde9cee9d666c2d6a12bbcfd9743702b0485fa218303e1f879a3b5",
+      "lower_preparation": "packed-data-unchanged-kv-metadata",
+      "verify_base": {
+        "passed": true,
+        "entries": 2
+      },
+      "initial_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "error": "Command '['timeout', '--signal=TERM', '--kill-after=5s', '300', '/srv/ax-data/workspace-adapter-20261111/venv/bin/python', '/home/dev/ax-five-fixes-20261112/ax/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py', '--case', '/var/tmp/ax-recorded-smoke-20261112-02', '--binary', '/var/tmp/ax-full-replay-20261112/release/full-fuse-replay', '--root', '/tmp/ax-rbm-b8b56705277b-on4fj3e9/brewfs', '--out', '/home/dev/ax-five-fixes-20261112/ablation-results-02/C2-replay-packed-off/run/brewfs/run', '--portable-terminal-probe', '--cache-parent-fds', '--prepared-root']' returned non-zero exit status 1. Traceback (most recent call last):\n  File \"/home/dev/ax-five-fixes-20261112/ax/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py\", line 172, in <module>\n    main()\n  File \"/home/dev/ax-five-fixes-20261112/ax/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py\", line 114, in main\n    raise RuntimeError('Strict replay failed; original output retained')\nRuntimeError: Strict replay failed; original output retained\n",
+      "log_tails": {
+        "initial.log": "\u001b[0m\u001b[32m: opencode.db-journal\u001b[0m\n    \u001b[2;3mat\u001b[0m src/fuse/mod.rs:3826\n\n  \u001b[2m2026-11-12T15:00:54.014091Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::fuse\u001b[0m\u001b[32m: \u001b[32mfuse.lookup ENOENT, \u001b[1;32mparent\u001b[0m\u001b[32m: 3, \u001b[1;32mname\u001b[0m\u001b[32m: opencode.db-wal\u001b[0m\n    \u001b[2;3mat\u001b[0m src/fuse/mod.rs:3826\n\n  \u001b[2m2026-11-12T15:00:54.028081Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::fuse\u001b[0m\u001b[32m: \u001b[32mfuse.lookup ENOENT, \u001b[1;32mparent\u001b[0m\u001b[32m: 3, \u001b[1;32mname\u001b[0m\u001b[32m: opencode.db-journal\u001b[0m\n    \u001b[2;3mat\u001b[0m src/fuse/mod.rs:3826\n\n  \u001b[2m2026-11-12T15:00:54.035051Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::fuse\u001b[0m\u001b[32m: \u001b[32mfuse.lookup ENOENT, \u001b[1;32mparent\u001b[0m\u001b[32m: 3, \u001b[1;32mname\u001b[0m\u001b[32m: opencode.db-journal\u001b[0m\n    \u001b[2;3mat\u001b[0m src/fuse/mod.rs:3826\n\n  \u001b[2m2026-11-12T15:00:54.036763Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::fuse\u001b[0m\u001b[32m: \u001b[32mfuse.lookup ENOENT, \u001b[1;32mparent\u001b[0m\u001b[32m: 3, \u001b[1;32mname\u001b[0m\u001b[32m: opencode.db-journal\u001b[0m\n    \u001b[2;3mat\u001b[0m src/fuse/mod.rs:3826\n\n  \u001b[2m2026-11-12T15:00:54.068192Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::vfs::fs\u001b[0m\u001b[32m: \u001b[32mstats, \u001b[1;32mhits\u001b[0m\u001b[32m: 0, \u001b[1;32mmisses\u001b[0m\u001b[32m: 0, \u001b[1;32mtotal\u001b[0m\u001b[32m: 0, \u001b[1;32mhit_pct\u001b[0m\u001b[32m: 0.0, \u001b[1;32mdirty_bytes\u001b[0m\u001b[32m: 0, \u001b[1;32mread_buffer_bytes\u001b[0m\u001b[32m: 0, \u001b[1;32ms3_get_ops\u001b[0m\u001b[32m: 0, \u001b[1;32ms3_put_ops\u001b[0m\u001b[32m: 0, \u001b[1;32ms3_del_ops\u001b[0m\u001b[32m: 0, \u001b[1;32mfuse_reads\u001b[0m\u001b[32m: 5, \u001b[1;32mfuse_rd_bytes\u001b[0m\u001b[32m: 20480, \u001b[1;32mavg_read_sz\u001b[0m\u001b[32m: 0, \u001b[1;32mavg_read_lat_us\u001b[0m\u001b[32m: 0\u001b[0m\n    \u001b[2;3mat\u001b[0m src/vfs/fs/mod.rs:1676\n\n "
+      }
+    }
+  },
+  "packed_metadata": "off",
+  "eager_workspace": false,
+  "smallfiles_options": [
+    "--files",
+    "8",
+    "--hot-files",
+    "4",
+    "--workers",
+    "1",
+    "--read-ops",
+    "8",
+    "--cow-files",
+    "2",
+    "--write-ops",
+    "4",
+    "--mixed-ops",
+    "8"
+  ],
+  "binary_sha256": {
+    "brewfs": "8082c8a7c9104719dbd6983bea632275f0075c46607262d4bfdee55ed1f145a5",
+    "producer": "13ee3e67814389c17e5aef82f46e523e0f281618257e8c64326bdc92da4b06b1",
+    "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+    "smallfiles": "1e27cb2204dff633aea1d21a61a6fa740cfe9aa2afdb501bc41eca33cb8fd62f",
+    "replay": "fb0a17674c7a4f64e6fd5cf0f21437ebd51ec8354eece4a82bcdd3084a612fba"
+  },
+  "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+  "phase": "workload",
+  "trace_sha256": "886dee138cc5c1378ef885274cbce84238bd087f32f1c2c5bd504dcd49e9a9a1",
+  "trace_kind": "full-fuse-input",
+  "trace_callbacks": 367,
+  "source": {
+    "passed": true,
+    "entries": 2
+  },
+  "mounts_absent": true,
+  "rustfs_removed": true,
+  "redis_exited": true,
+  "scratch_removed": true,
+  "passed": false
+}
