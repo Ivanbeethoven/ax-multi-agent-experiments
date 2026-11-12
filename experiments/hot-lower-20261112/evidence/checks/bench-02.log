@@ -1,0 +1,12 @@
+2026-11-12T15:03:32+00:00
++ timeout --signal=INT --kill-after=30s 600s /home/hxy/.cache/brewfs-entity-validation-venv/bin/python /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/run_local.py --binary /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/bin/brewfs-candidate01 --producer /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/bin/producer-candidate01 --source-commit ca07159f3da4b670e4aeb878faef928e69bc1634 --source-patch /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/source-candidate01-normalized.patch --out /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/evidence/run-02 --pairs 3 --passes 128
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/run_local.py", line 453, in <module>
+    main()
+  File "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/run_local.py", line 334, in main
+    parent = json.loads(invoke([args.binary, 'workspace', '--meta-backend', 'redis', '--meta-url', rurl,
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/run_local.py", line 229, in invoke
+    raise RuntimeError(f'{argv[0]} exited {done.returncode}: {done.stderr[-2000:]}')
+RuntimeError: /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/bin/brewfs-candidate01 exited 1: Error: workspace bucket template rendered invalid S3 bucket name "brewfs-hot-f05578564d-two-files-01a1d049-345e-79f3-8aa1-626f92b9afc0"
+

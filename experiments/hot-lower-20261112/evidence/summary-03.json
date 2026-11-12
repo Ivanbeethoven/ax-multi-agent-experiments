@@ -1,0 +1,198 @@
+[
+  {
+    "scenario": "two-files",
+    "off": {
+      "total_ms": 744.006476,
+      "pread_median_us": 653.883,
+      "open_list_median_us": 2816.5119999999997,
+      "extent_queries": [
+        256.0,
+        256.0,
+        256.0
+      ],
+      "extent_hits": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "directory_queries": [
+        512.0,
+        512.0,
+        512.0
+      ],
+      "directory_hits": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "redis_calls": [
+        3584.0,
+        3584.0,
+        3584.0
+      ],
+      "redis_zrangebylex": [
+        1024.0,
+        1024.0,
+        1024.0
+      ],
+      "rustfs_requests": [
+        0,
+        0,
+        0
+      ],
+      "rustfs_received_bytes": [
+        0,
+        0,
+        0
+      ]
+    },
+    "on": {
+      "total_ms": 464.882857,
+      "pread_median_us": 117.5795,
+      "open_list_median_us": 1823.4335,
+      "extent_queries": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "extent_hits": [
+        256.0,
+        256.0,
+        256.0
+      ],
+      "directory_queries": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "directory_hits": [
+        256.0,
+        256.0,
+        256.0
+      ],
+      "redis_calls": [
+        2048.0,
+        2048.0,
+        2048.0
+      ],
+      "redis_zrangebylex": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rustfs_requests": [
+        0,
+        0,
+        0
+      ],
+      "rustfs_received_bytes": [
+        0,
+        0,
+        0
+      ]
+    },
+    "paired_time_reduction_pct": [
+      35.417825997065854,
+      39.06067882129564,
+      33.31713975480321
+    ]
+  },
+  {
+    "scenario": "modified-upper",
+    "off": {
+      "total_ms": 1425.229686,
+      "pread_median_us": 660.331,
+      "open_list_median_us": 3829.6355000000003,
+      "extent_queries": [
+        640.0,
+        640.0,
+        640.0
+      ],
+      "extent_hits": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "directory_queries": [
+        512.0,
+        512.0,
+        512.0
+      ],
+      "directory_hits": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "redis_calls": [
+        9344.0,
+        9344.0,
+        9344.0
+      ],
+      "redis_zrangebylex": [
+        2432.0,
+        2432.0,
+        2432.0
+      ],
+      "rustfs_requests": [
+        0,
+        0,
+        0
+      ],
+      "rustfs_received_bytes": [
+        0,
+        0,
+        0
+      ]
+    },
+    "on": {
+      "total_ms": 1235.334053,
+      "pread_median_us": 157.723,
+      "open_list_median_us": 3979.933,
+      "extent_queries": [
+        256.0,
+        256.0,
+        256.0
+      ],
+      "extent_hits": [
+        384.0,
+        384.0,
+        384.0
+      ],
+      "directory_queries": [
+        512.0,
+        512.0,
+        512.0
+      ],
+      "directory_hits": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "redis_calls": [
+        8576.0,
+        8576.0,
+        8576.0
+      ],
+      "redis_zrangebylex": [
+        1664.0,
+        1664.0,
+        1664.0
+      ],
+      "rustfs_requests": [
+        0,
+        0,
+        0
+      ],
+      "rustfs_received_bytes": [
+        0,
+        0,
+        0
+      ]
+    },
+    "paired_time_reduction_pct": [
+      15.022012237863802,
+      13.323861751220923,
+      3.2235567830686485
+    ]
+  }
+]

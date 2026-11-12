@@ -1,0 +1,310 @@
+[
+  {
+    "scenario": "two-files",
+    "off": {
+      "total_ms": 697.6398225,
+      "pread_median_us": 606.744,
+      "pread_by_path_us": {
+        "a.txt": 607.3725,
+        "sub/b.txt": 608.0025
+      },
+      "logical_read_bytes_per_run": [
+        9856,
+        9856,
+        9856,
+        9856
+      ],
+      "fuse_reads": [
+        256.0,
+        256.0,
+        256.0,
+        256.0
+      ],
+      "open_list_median_us": 2589.6440000000002,
+      "extent_queries": [
+        256.0,
+        256.0,
+        256.0,
+        256.0
+      ],
+      "extent_hits": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "directory_queries": [
+        512.0,
+        512.0,
+        512.0,
+        512.0
+      ],
+      "directory_hits": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "redis_calls": [
+        3584.0,
+        3584.0,
+        3584.0,
+        3584.0
+      ],
+      "redis_zrangebylex": [
+        1024.0,
+        1024.0,
+        1024.0,
+        1024.0
+      ],
+      "rustfs_requests": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "rustfs_received_bytes": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "on": {
+      "total_ms": 445.5682495,
+      "pread_median_us": 113.332,
+      "pread_by_path_us": {
+        "a.txt": 115.03999999999999,
+        "sub/b.txt": 110.76375
+      },
+      "logical_read_bytes_per_run": [
+        9856,
+        9856,
+        9856,
+        9856
+      ],
+      "fuse_reads": [
+        256.0,
+        256.0,
+        256.0,
+        256.0
+      ],
+      "open_list_median_us": 1674.80575,
+      "extent_queries": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "extent_hits": [
+        256.0,
+        256.0,
+        256.0,
+        256.0
+      ],
+      "directory_queries": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "directory_hits": [
+        256.0,
+        256.0,
+        256.0,
+        256.0
+      ],
+      "redis_calls": [
+        2048.0,
+        2048.0,
+        2048.0,
+        2048.0
+      ],
+      "redis_zrangebylex": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rustfs_requests": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "rustfs_received_bytes": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "n_pairs": 4,
+    "included_runs": [
+      "run-04"
+    ],
+    "paired_time_reduction_pct": [
+      38.8578246161669,
+      33.28974877896451,
+      40.59116881378992,
+      31.7940796536335
+    ]
+  },
+  {
+    "scenario": "modified-upper",
+    "off": {
+      "total_ms": 1531.2258305,
+      "pread_median_us": 726.84775,
+      "pread_by_path_us": {
+        "a.txt": 669.4417500000001,
+        "sub/b.txt": 658.0799999999999,
+        "sub/edit.bin": 915.86275,
+        "stable.bin": 645.5417500000001,
+        "sub/renamed.txt": 858.5595000000001
+      },
+      "logical_read_bytes_per_run": [
+        1060224,
+        1060224,
+        1060224,
+        1060224
+      ],
+      "fuse_reads": [
+        640.0,
+        640.0,
+        640.0,
+        640.0
+      ],
+      "open_list_median_us": 4222.40575,
+      "extent_queries": [
+        640.0,
+        640.0,
+        640.0,
+        640.0
+      ],
+      "extent_hits": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "directory_queries": [
+        512.0,
+        512.0,
+        512.0,
+        512.0
+      ],
+      "directory_hits": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "redis_calls": [
+        9344.0,
+        9344.0,
+        9344.0,
+        9344.0
+      ],
+      "redis_zrangebylex": [
+        2432.0,
+        2432.0,
+        2432.0,
+        2432.0
+      ],
+      "rustfs_requests": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "rustfs_received_bytes": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "on": {
+      "total_ms": 1225.1257784999998,
+      "pread_median_us": 146.18975,
+      "pread_by_path_us": {
+        "a.txt": 126.78775,
+        "sub/b.txt": 115.82325,
+        "sub/edit.bin": 872.05575,
+        "stable.bin": 117.80425,
+        "sub/renamed.txt": 814.40825
+      },
+      "logical_read_bytes_per_run": [
+        1060224,
+        1060224,
+        1060224,
+        1060224
+      ],
+      "fuse_reads": [
+        640.0,
+        640.0,
+        640.0,
+        640.0
+      ],
+      "open_list_median_us": 3839.0255,
+      "extent_queries": [
+        256.0,
+        256.0,
+        256.0,
+        256.0
+      ],
+      "extent_hits": [
+        384.0,
+        384.0,
+        384.0,
+        384.0
+      ],
+      "directory_queries": [
+        512.0,
+        512.0,
+        512.0,
+        512.0
+      ],
+      "directory_hits": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "redis_calls": [
+        8576.0,
+        8576.0,
+        8576.0,
+        8576.0
+      ],
+      "redis_zrangebylex": [
+        1664.0,
+        1664.0,
+        1664.0,
+        1664.0
+      ],
+      "rustfs_requests": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "rustfs_received_bytes": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "n_pairs": 4,
+    "included_runs": [
+      "run-04"
+    ],
+    "paired_time_reduction_pct": [
+      17.79855321033501,
+      22.024987025006084,
+      28.64955696158582,
+      6.875547640797796
+    ]
+  }
+]

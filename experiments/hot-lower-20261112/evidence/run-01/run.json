@@ -1,0 +1,113 @@
+{
+  "schema": "hot-overlay-local-v1",
+  "passed": false,
+  "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "owner": "brewfs-hot-778921f569",
+  "temporary_directory": "/tmp/brewfs-hot-local-856ynwdb",
+  "containers": [
+    "brewfs-hot-778921f569-redis",
+    "brewfs-hot-778921f569-rustfs"
+  ],
+  "started_unix_ns": 1794495725584039371,
+  "host": {
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "machine": "x86_64",
+    "cpu_count": 16,
+    "python": "3.12.3",
+    "swaps": "Filename\t\t\t\tType\t\tSize\t\tUsed\t\tPriority\n",
+    "loadavg": [
+      1.4873046875,
+      3.15625,
+      3.1845703125
+    ]
+  },
+  "source_patch_sha256": "1eaec2f299948b0862b5727a65d4bd1d1bb84bf7d67845e0db000dec0e03df2e",
+  "binary_sha256": "f8dd086dafb8ae044f80931f883313d573581b4a4525f8edce66b424742f925d",
+  "producer_sha256": "584818b11a978fa101a09f014b1bb125f579a2da040d1ebabc4d708a0456e1aa",
+  "images": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "argv": [
+    "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/run_local.py",
+    "--binary",
+    "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/bin/brewfs-candidate01",
+    "--producer",
+    "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/bin/producer-candidate01",
+    "--source-commit",
+    "ca07159f3da4b670e4aeb878faef928e69bc1634",
+    "--source-patch",
+    "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/source-candidate01-normalized.patch",
+    "--out",
+    "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/evidence/run-01",
+    "--pairs",
+    "3",
+    "--passes",
+    "128"
+  ],
+  "cells": [],
+  "commands": [
+    [
+      "docker",
+      "image",
+      "inspect",
+      "--format",
+      "{{.Id}}",
+      "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43"
+    ],
+    [
+      "docker",
+      "image",
+      "inspect",
+      "--format",
+      "{{.Id}}",
+      "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+    ],
+    [
+      "git",
+      "ls-remote",
+      "https://github.com/Ivanbeethoven/rustfs.git",
+      "refs/heads/feat/dynamic-block-size-rebased"
+    ],
+    [
+      "docker",
+      "inspect",
+      "--format",
+      "{{index .Config.Labels \"brewfs.hot.owner\"}}",
+      "brewfs-hot-778921f569-redis"
+    ],
+    [
+      "docker",
+      "inspect",
+      "brewfs-hot-778921f569-redis"
+    ],
+    [
+      "docker",
+      "inspect",
+      "--format",
+      "{{index .Config.Labels \"brewfs.hot.owner\"}}",
+      "brewfs-hot-778921f569-rustfs"
+    ],
+    [
+      "docker",
+      "inspect",
+      "brewfs-hot-778921f569-rustfs"
+    ]
+  ],
+  "runtime_env": {
+    "AWS_EC2_METADATA_DISABLED": "true",
+    "RUST_LOG": "warn",
+    "BREWFS_PACKED_VERIFY_MEMO": "0",
+    "BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES": "8388608",
+    "BREWFS_FUSE_READ_DIRECT_IO": "1",
+    "BREWFS_WORKSPACE_ROW_CACHE_TTL_MS": "600000"
+  },
+  "comparison": "same optimized binary; new empty-query cache disabled/enabled; writable Overlay in both arms",
+  "error": "TimeoutExpired: Command '['git', 'ls-remote', 'https://github.com/Ivanbeethoven/rustfs.git', 'refs/heads/feat/dynamic-block-size-rebased']' timed out after 30 seconds",
+  "cleanup": {
+    "brewfs-hot-778921f569-redis": true,
+    "brewfs-hot-778921f569-rustfs": true,
+    "mount_absent": true
+  },
+  "finished_unix_ns": 1794495757460611762
+}
