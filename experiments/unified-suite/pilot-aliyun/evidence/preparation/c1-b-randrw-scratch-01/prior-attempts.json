@@ -1,0 +1,136 @@
+{
+  "schema": "b-c1-scratch-provisioning-history-v1",
+  "prior_attempts": [
+    {
+      "attempt": 1,
+      "started_nodes": 0,
+      "measured_arms": 0,
+      "attach_error": {
+        "schemaVersion": "v1",
+        "message": "ecs task is conflicted.",
+        "error_code": "InvalidOperation.Conflict",
+        "status_code": 403,
+        "request_id": "01A1CE6E-413C-52BD-ADAC-192D890D9A18",
+        "recovery": {
+          "action": "diagnose_error_code",
+          "command": "aliyun openapiexplorer GetErrorCodeSolutions --errorCode 'InvalidOperation.Conflict' --product Ecs --acceptLanguage en-US --region cn-hangzhou",
+          "hint": "Look up diagnostic solutions for error code InvalidOperation.Conflict."
+        }
+      },
+      "exact_evidence": [
+        {
+          "path": "/home/hxy/ax-c1-b-scratch-real-01/summary.json",
+          "sha256": "8d92fee92de1dab825f899f9ed7ada94acb86b37c4d820a416414f2567475d97"
+        },
+        {
+          "path": "/home/hxy/ax-c1-b-scratch-real-01/api/1794464694418971426-AttachDisk.response.json",
+          "sha256": "ffcbac2a89914375f468acc1d7be0aa019ba31806d7b48b6708745bb96e338b2"
+        }
+      ]
+    },
+    {
+      "attempt": 2,
+      "started_nodes": 3,
+      "measured_arms": 0,
+      "fixed_fixture_bytes": 67108864,
+      "mount_id_reused": [
+        {
+          "label": "prepare-mounted",
+          "utc_ns": 1794464924707523444,
+          "monotonic_ns": 21762310885,
+          "mount": {
+            "id": 64,
+            "device": "0:47",
+            "filesystem": "fuse.juicefs",
+            "source": "JuiceFS:ax-c1b-b282ca8f0f-juicefs"
+          },
+          "pid": 1689
+        },
+        {
+          "label": "prepare-unmounted",
+          "utc_ns": 1794464925323207914,
+          "monotonic_ns": 22377995815,
+          "exit_code": 0,
+          "pid": 1689
+        },
+        {
+          "label": "measure-mounted",
+          "utc_ns": 1794464925574105695,
+          "monotonic_ns": 22628893162,
+          "mount": {
+            "id": 64,
+            "device": "0:47",
+            "filesystem": "fuse.juicefs",
+            "source": "JuiceFS:ax-c1b-b282ca8f0f-juicefs"
+          },
+          "pid": 1726
+        }
+      ],
+      "all_nodes_stopped": {
+        "i-bp1fmmfkcpr8w99j2bsy": [
+          "Stopped",
+          "StopCharging"
+        ],
+        "i-bp1bhdngko7nq3c3jrhp": [
+          "Stopped",
+          "StopCharging"
+        ],
+        "i-bp14nenf7osz9v1snsp2": [
+          "Stopped",
+          "StopCharging"
+        ]
+      },
+      "scratch_released": {
+        "disks": [
+          "d-bp19hb202qlih9s9bz8z",
+          "d-bp15kcfzh6fkf343o4ji",
+          "d-bp1h9bu64mz8jl5qyqb5",
+          "d-bp12j8enkssqnhatgsa7"
+        ],
+        "available": [],
+        "confirmed_at": "2026-11-12T06:29:52.405341+00:00"
+      },
+      "exact_evidence": [
+        {
+          "path": "/home/hxy/ax-c1-b-scratch-real-02/summary.json",
+          "sha256": "284da8fc97cb3ad2c28a84828e727cca236ba2bccfe0ea463e6cbe41245b7910"
+        },
+        {
+          "path": "/home/hxy/ax-c1-b-scratch-real-02/client-evidence.tar.gz",
+          "sha256": "6cc5f8861741e7bf2aa0cf36ab79e27ee93084d7f54682bef3bca5feefd14aa6"
+        },
+        {
+          "path": "/home/hxy/ax-c1-b-scratch-real-02/objects-evidence.tar.gz",
+          "sha256": "557d5c9ca749e200c57aee301b886b9d207f30f41a7b842dd219786771decb6e"
+        },
+        {
+          "path": "/home/hxy/ax-c1-b-scratch-real-02/stopped.json",
+          "sha256": "915c98967404acc802a1f21a6fb57ece6f0f4c47065845f7c8d8820ae36355bd"
+        },
+        {
+          "path": "/home/hxy/ax-c1-b-scratch-real-02/released.json",
+          "sha256": "729f547ccb945542ebfb7a8dee5ae48cd4dbb66823619188269573a47d563b14"
+        }
+      ]
+    }
+  ],
+  "cost": {
+    "disk_cny": 0.070040753475,
+    "compute_cny": 0.074733437,
+    "incremental_cny": 0.144774190475,
+    "scope": "duration estimate using latest StopCharging confirmation; excludes existing idle disks/jump; not a bill"
+  },
+  "checked_quote": {
+    "hourly_cny": {
+      "objects": 2.346,
+      "client": 1.152,
+      "metadata": 1.068,
+      "temporary_pl1_100_gib": 0.21
+    },
+    "request_ids": [
+      "01A1CE79-32F2-54F0-8716-B54EC001D7AF",
+      "01A1CE79-3607-5429-AB5A-73A13C6AE9AA",
+      "01A1CE79-38B9-5FE1-BE98-940ADE232EF6"
+    ]
+  }
+}
