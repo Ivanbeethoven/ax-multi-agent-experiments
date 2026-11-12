@@ -55,7 +55,7 @@ Overlay 热态回执至少含 `input_sha256`、两臂共同的 lower 工作集�
 
 用 `python3 -m bench.warm_lower --mount MOUNT --working-set RANGES.json --working-set-sha256 SHA256 --out OUT` 检查本臂。清单记录每段的 `path`、`offset`、`length`、`sha256`。在[本地两文件诊断](../pilot-aliyun/evidence/preparation/c2-local-packed-warm-01/README.zh.md)中，当前 workspace-v1 的 `.stats` 缺这组 Packed 计数。独立检查对象端请求发现，两遍都经 FUSE 读出同样的 77 B，第二遍仍从 RustFS 取回全部 77 B（2 次 Range）。这个配置不能进入热态计时。该诊断未比较两臂或测量 Overlay 开销。
 
-实现上先让两个开关状态共用同一套 wire005 lower 读路径：为 `V3IndexReader` 加按字节限额的已校验数据缓存，并在 `.stats` 同时保留行缓存与 Packed 读计数。现有 `read_memory_bytes` 和旧版 frame 缓存不能预热这条路径。第一步只测同一 `WorkspaceMetaLayer` 在空 upper 上查询数据区间的成本，两臂都走只读 FUSE。这一步不回答路径查找、首次修改或整段任务的开销。正式窗口结束还要核 lower 计数，出现意外后端读的试次单列。首次修改要等同引擎的可写对照实现后再测。
+两个只读候选共用 wire005 lower 的字节限额缓存和读计数。现有 `read_memory_bytes` 和旧版 frame 缓存不能预热这条路径。空 upper 下，`--extent-pair` 只核数据区间，`--namespace-pair` 加上路径查找、非根 inode 属性和目录打开。两臂都走只读 FUSE；预热和计时结束时都核实际走过的代码路径，以及 lower 后端请求和字节。首次修改仍需同引擎的可写对照。这两个本机入口及计数要求见[热 lower 回执](../pilot-aliyun/evidence/preparation/c2-local-packed-warm-01/README.zh.md)。
 
 ## 指标收集
 
@@ -67,6 +67,8 @@ Overlay 热态回执至少含 `input_sha256`、两臂共同的 lower 工作集�
 ~~~
 
 各宿主在 Agent cgroup 外运行 `bench.runtime.observe`，5秒采样，保存原始文本和 sample.json。只需采集端，不强制部署 Prometheus/Grafana。当前 command target 支持 `redis-cli INFO ALL`；Redis 延迟直方图需额外原生采集或固定版本 exporter，不能假定 INFO 已包含全部延迟指标。
+
+只做端到端资格验证时，可只收本机单调时钟、进程与挂载身份、原生命令输出和冷读回。这样的试次只回答完成时间与正确性；不用于解释后端 I/O、缓存命中或正式性能归因。正式试次仍按下列采集和校准要求执行。
 
 | 层 | 指标与来源 |
 |---|---|

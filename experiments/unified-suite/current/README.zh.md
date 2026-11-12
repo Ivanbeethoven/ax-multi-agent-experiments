@@ -43,7 +43,16 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 
 ## 实现状态
 
-已有输入下载、Rust 回放、原始采集和旧套件工具。新路线仍需 suite 适配、同引擎消融、多机/全局槽位调度、四节点观测，以及完整输入的导入、冷重开、隔离和干净迁移验证。C4 原生 fork 的[非空 lower 本机验证](../pilot-aliyun/evidence/preparation/c4-workspace-v1-packed-fork-01/README.zh.md)未通过。Overlay 同引擎开关仍缺；有开关后还要核实 lower 数据确实热驻留。指标缺口见[执行文档](EXECUTION.zh.md#验收与交接)。
+已有输入下载、Rust 回放、原始采集和旧套件工具。新路线仍需 suite 适配、可写 Overlay 消融、多机调度、四节点观测和跨机恢复验证。最近的小试：
+
+| 项目 | 已验证 | 还缺 |
+|---|---|---|
+| C1 | [64 MiB 同步混合读写](../pilot-aliyun/evidence/preparation/c1-b-randrw-scratch-02/README.zh.md)完成一组配对，两边均通过冷挂载 CRC | 重复与反向顺序；布局开关的单独影响 |
+| C2 | [真实 trace 入口](../pilot-aliyun/evidence/preparation/c2-current-trace-a-draft-01/README.zh.md)和[热 lower 检查](../pilot-aliyun/evidence/preparation/c2-local-packed-warm-01/README.zh.md)已准备 | 完整回放与冷验；候选只读对照需证明两臂均为热态 |
+| C3 | [十万文件资格探针](../pilot-aliyun/evidence/preparation/c3-current-workspace-budget-default-01/README.zh.md)记录了默认 Packed 预算拒绝；[调整输出预算](../pilot-aliyun/evidence/preparation/c3-current-workspace-budget-output128-01/README.zh.md)消除了该类拒绝，暴露控制预算上限 | 完整读回；同样设置下的性能对照 |
+| C4 | [JuiceFS 原生 clone](../pilot-aliyun/evidence/preparation/c4-workspace-v1-packed-fork-01/README.zh.md)本机通过父子隔离和冷读；BrewFS 原生 fork 已定位导入根目录链接数问题 | BrewFS 修复版的非空 lower 子卷读回、配对计时、跨机续跑 |
+
+小试用于排除实现和部署问题，独立保存，不回填旧套件的正式验收。
 
 先做1 Agent/100k功能验证，再做百万文件/最高32并发正式条件。旧 `bench.suite template` 只有显式 `--legacy-catalog` 才生成旧协议；它不生成本方案。
 
