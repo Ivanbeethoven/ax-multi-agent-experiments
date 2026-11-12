@@ -49,6 +49,22 @@ grep -n "objects-observer.tar.gz\|observer.tar.gz" $CODE/experiments/unified-sui
 2. 让观察者直接写单个 NDJSON 流而不是 132,939 个文件。成员数从 13 万降到个位数，原单包格式与冻结验收器都不用动；代价是观察输出格式变了，属于新的观测合同。
 3. 缩短观察窗口或放粗采样间隔，使成员数回到 16 MiB 清单以内。不改任何代码，但改变 C4 On1 的观测强度，需要重新论证"最短可测窗口"。
 
+**已选定路线 2（2026-11-12，用户决定）。** 下面 0.9 记这次改动的设计边界。
+
+### 0.9 路线 2 的设计边界（实施前先看）
+
+现状：`bench/runtime/observe.py:112` 的 `snapshot()` 每个采样写一个 `sample-<%06d>/` 目录，内含 `host-*`、cgroup、`pid-*`、target 原文，合计约 **45 个文件/采样**（实测 2,954 采样 → 132,939 个文件）。`audit()` 在 `:262` 按目录遍历、比较相邻采样间隔与 marker。
+
+新合同（必须是**新模块 + 新 SHA**，不改冻结的 `observe.py`）：
+
+- 每次采样只向 `o/<tag>/samples.ndjson` **追加一行**，字段至少含 `index`、`begin_ns`、`end_ns`、`errors`、`capacity`、`target_states`、`counters`，以及原先逐文件保留的原文内容（嵌套字典）。
+- `ready.json`、`finished.json` 与三个 marker 文件保持原样，因此 `archive_check` 看到的成员数降到 **个位数**，16 MiB 清单问题消失。
+- `audit` 改为逐行解析同一个文件：判定条件不变（采样间隔 ≤ `max_gap_seconds`、marker 齐全、计数器单调不回退），只是数据源从目录变成流。
+- 首行之前必须能证明"流是完整的"：最后一行的 `index` 与 `finished.json` 的 `samples` 必须一致，且 `finished.json` 的 `stream_sha256` 必须等于该文件的 SHA256。
+- 体积预估：约 50 KB/采样 × 3,601 采样 ≈ **180 MB** 未压缩，落在采样盘预算内；压缩后归档显著更小。
+- `plan-c4-observer-budget.py` 的 `MEMBERS_PER_SAMPLE` 届时改为 0（每采样不再是独立成员），只剩 marker 与两个 JSON。
+
+
 在选定之前，On1 的 5 小时窗口**不具备开跑条件**；本仓库只保证拆包工具本身在真实 13.3 万成员上可用。
 
 
