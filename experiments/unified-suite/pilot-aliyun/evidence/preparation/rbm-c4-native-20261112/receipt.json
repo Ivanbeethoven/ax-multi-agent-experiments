@@ -1,0 +1,122 @@
+{
+  "brewfs_revision": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "formal_sample": false,
+  "files": 2,
+  "arms": {
+    "brewfs": {
+      "phase": "complete",
+      "passed": false,
+      "revision": "01a1ce3c-d108-72c0-b29e-575c0898a7da:1:df322fd8434801fe82dac4e732b8221bcfaf2a6e3597f7ff914cf3d0dba5d406",
+      "parent_before": {
+        "base.txt": "af62d394bb67e9c54847b6472d337a1b93d8c89b2a5333d8563b3157c83cc06c",
+        "sub/keep.bin": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+      },
+      "parent-before_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "separate_ids": true,
+      "same_revision": true,
+      "parent_packed_binding": true,
+      "child_packed_binding": false,
+      "child_before": {},
+      "inherited_all": false,
+      "child_after_write": {
+        "base.txt": "cbb729d0c4292e14bb0222086c903c8a5f206bf386a2e4ff4db75d6838d796ca",
+        "child.txt": "101a1d3a8d347f37fb3ff2be99d545ae142e624cccbade940744c4266763bf14"
+      },
+      "child-write_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "parent_after": {
+        "base.txt": "af62d394bb67e9c54847b6472d337a1b93d8c89b2a5333d8563b3157c83cc06c",
+        "sub/keep.bin": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+      },
+      "parent-after_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "child_reopened": {
+        "base.txt": "cbb729d0c4292e14bb0222086c903c8a5f206bf386a2e4ff4db75d6838d796ca",
+        "child.txt": "101a1d3a8d347f37fb3ff2be99d545ae142e624cccbade940744c4266763bf14"
+      },
+      "child-reopen_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "parent_unchanged": true,
+      "child_writes_persist": true,
+      "full_reopen_match": false
+    },
+    "juicefs": {
+      "phase": "complete",
+      "passed": true,
+      "parent_before": {
+        "base.txt": "af62d394bb67e9c54847b6472d337a1b93d8c89b2a5333d8563b3157c83cc06c",
+        "sub/keep.bin": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+      },
+      "clone_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "child_before": {
+        "base.txt": "af62d394bb67e9c54847b6472d337a1b93d8c89b2a5333d8563b3157c83cc06c",
+        "sub/keep.bin": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+      },
+      "inherited_all": true,
+      "child_after_write": {
+        "base.txt": "cbb729d0c4292e14bb0222086c903c8a5f206bf386a2e4ff4db75d6838d796ca",
+        "child.txt": "101a1d3a8d347f37fb3ff2be99d545ae142e624cccbade940744c4266763bf14",
+        "sub/keep.bin": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+      },
+      "child-write_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "parent_after": {
+        "base.txt": "af62d394bb67e9c54847b6472d337a1b93d8c89b2a5333d8563b3157c83cc06c",
+        "sub/keep.bin": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+      },
+      "parent-after_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "child_reopened": {
+        "base.txt": "cbb729d0c4292e14bb0222086c903c8a5f206bf386a2e4ff4db75d6838d796ca",
+        "child.txt": "101a1d3a8d347f37fb3ff2be99d545ae142e624cccbade940744c4266763bf14",
+        "sub/keep.bin": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+      },
+      "child-reopen_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "parent_unchanged": true,
+      "child_writes_persist": true,
+      "full_reopen_match": true
+    }
+  },
+  "binary_sha256": {
+    "brewfs": "29dee6fcca1c70f90fbb853a9578b18530e1ba385eefa758ade13a17cc1a19da",
+    "producer": "ff1384013ee69d6327efd54845850e92b5eacc5828bbfe279367489e0fb59ac4",
+    "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+  },
+  "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+  "phase": "workload",
+  "source": {
+    "base.txt": "af62d394bb67e9c54847b6472d337a1b93d8c89b2a5333d8563b3157c83cc06c",
+    "sub/keep.bin": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+  },
+  "mounts_absent": true,
+  "rustfs_removed": true,
+  "scratch_removed": true,
+  "passed": false
+}
