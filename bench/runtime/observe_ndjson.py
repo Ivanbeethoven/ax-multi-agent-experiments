@@ -70,6 +70,8 @@ def snapshot_ndjson(s, output, index, previous=None):
                                                'passed', 'errors')}
         summary['line_sha256'] = hashlib.sha256(line).hexdigest()
         summary['line_bytes'] = len(line)
+        summary['counters'] = value['counters']
+        summary['target_states'] = value['target_states']
         return summary
     finally:
         shutil.rmtree(staging, ignore_errors=True)
@@ -88,7 +90,9 @@ def serve(ref, output):
     def sample():
         nonlocal count, last
         value = snapshot_ndjson(s, output, count, last['counters'] if last else None)
-        history.append(value)
+        history.append({key: value[key] for key in ('index', 'monotonic_start_ns',
+                                                      'monotonic_end_ns', 'passed', 'errors',
+                                                      'line_sha256', 'line_bytes')})
         last = value
         count += 1
         return value
