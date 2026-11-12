@@ -59,6 +59,7 @@ if ($LASTEXITCODE -or !$jumpCheck -or !(($jumpCheck | ConvertFrom-Json).passed))
 $jumpCheck | Set-Content -Encoding utf8NoBOM (Join-Path $local 'jump-control.json')
 $files = [ordered]@{
     'run-c2-current-a.py'=$controller; 'qualify-c2-current-a.py'=$worker
+    'a-pool-up.py'=(Join-Path $PSScriptRoot '../../../scripts/a-pool-up.py')
     'latest.json'=$Latest; 'instances-before.json'=$InstancesBefore; 'operator.reviewed.json'=$OperatorReview
 }
 foreach ($file in $files.GetEnumerator()) {

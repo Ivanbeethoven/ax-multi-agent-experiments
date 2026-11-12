@@ -13,7 +13,7 @@ import tempfile
 import time
 import types
 import unittest
-from contextlib import ExitStack, redirect_stdout
+from contextlib import ExitStack, redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -266,6 +266,25 @@ class BringObjectsTest(PoolTest):
         self.assertIn(['docker', 'start', pool.OBJECTS['container']], self.fake.calls)
         self.assertEqual(actions[-1], dict(container=pool.OBJECTS['container'], started=True))
 
+    def test_opt_in_brings_four_data_disks_up_with_observer_disk_absent(self):
+        disks, scratch = self.objects()
+        self.fake.blocks.pop()  # The fifth, legacy-only observer disk is detached.
+        actions = []
+        pool.bring_objects(actions, without_legacy_observer_scratch=True)
+        disk_mounts = [c[-1] for c in self.fake.calls if c[:3] == ['mount', '-t', 'ext4']]
+        self.assertEqual(disk_mounts, [target for _serial, target in disks])
+        self.assertFalse(any(str(scratch) in c for c in self.fake.calls))
+        self.assertEqual(len([c for c in self.fake.calls if c[:2] == ['mount', '--bind']]), 4)
+        self.assertIn(dict(legacy_observer_scratch='skipped'), actions)
+        self.assertEqual(actions[-1], dict(container=pool.OBJECTS['container'], started=True))
+
+    def test_default_still_requires_the_historical_observer_disk(self):
+        self.objects()
+        self.fake.blocks.pop()
+        with self.assertRaisesRegex(ValueError, 'original whole disk not unique: '+pool.OBJECTS['scratch'][0]):
+            pool.bring_objects([])
+        self.assertNotIn(['docker', 'start', pool.OBJECTS['container']], self.fake.calls)
+
     def test_already_mounted_bind_is_not_recreated_nor_remounted(self):
         self.objects()
         self.fake.mounted.add('/srv/ax-rustfs-data-0')
@@ -440,10 +459,10 @@ class MainTest(PoolTest):
         patcher.start()
         self.addCleanup(patcher.stop)
 
-    def args(self, role='client', out=None):
+    def args(self, role='client', out=None, *extra):
         out = out or (self.root/'out')
         self.enter(patch.object(sys, 'argv',
-                                ['a-pool-up.py', role, '--out', str(out)]))
+                                ['a-pool-up.py', role, '--out', str(out), *extra]))
         return out
 
     def identity(self, euid, nodename):
@@ -474,6 +493,14 @@ class MainTest(PoolTest):
         with self.assertRaisesRegex(ValueError, 'fresh receipt directory required'):
             pool.main()
         self.assertEqual([c for c in self.fake.calls if c[0] == 'mount'], [])
+
+    def test_skip_option_is_refused_for_client_before_any_actions(self):
+        out = self.args('client', None, '--without-legacy-observer-scratch')
+        with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+            pool.main()
+        self.assertEqual(error.exception.code, 2)
+        self.assertEqual(self.fake.calls, [])
+        self.assertFalse(out.exists())
 
     def test_successful_client_bringup_writes_the_receipt(self):
         self.identity(0, pool.CLIENT['hostname'])

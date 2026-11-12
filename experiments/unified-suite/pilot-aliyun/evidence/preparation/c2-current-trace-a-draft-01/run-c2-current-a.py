@@ -27,6 +27,7 @@ CONTAINER='ax-pilot-20261111-objects-01-rustfs-1'
 SWITCHES=('BLOCK_SIZE_HINT_ENABLE','BLOCK_SIZE_HINT_FLEET_CONFIRMED',
           'READ_QUANTUM_ENABLE','READ_QUANTUM_FLEET_CONFIRMED')
 SLOT_SHA='3592411238e1af9eb21980c78d61394c24ea33f74d6452babd335a497d0b5d55'
+RESTORE_SHA='09616fb18b8f3e75ec7425d19c5171d1b138b9da00e79d15436725b028f60f3d'
 FILES=(
     'intent.json','input-inventory.json','initial-tree.json','inventory.exit.json','initial-tree.exit.json',
     'asset-intent.json','producer.exit.json','init.exit.json','packed.json',
@@ -121,6 +122,27 @@ def review_ok(value,tag,database,*,controller_sha,worker_sha,latest_sha,before_s
         and value.get('latest_sha256')==latest_sha and value.get('before_sha256')==before_sha
 
 
+def restore_payload(path):
+    require(path.is_file() and not path.is_symlink(),'Staged A restore helper missing')
+    payload=path.read_bytes()
+    require(hashlib.sha256(payload).hexdigest()==RESTORE_SHA,'Staged A restore helper SHA differs')
+    return payload
+
+
+def restore_command(role,tag):
+    require(role in IDS and re.fullmatch(r'c2-current-a-[0-9]{8}t[0-9]{6}z',tag),'Invalid restore role or tag')
+    stage='/srv/ax-receipts/'+tag+'-restore'
+    helper=stage+'/a-pool-up.py'
+    argv=['timeout','--kill-after=8s','105s','python3','-B',helper,role,
+          '--out','/srv/ax-receipts/a-pool-up/'+role+'-'+tag]
+    if role=='objects':
+        argv.append('--without-legacy-observer-scratch')
+    return ('set -euC; umask 077; '+shlex.join(['mkdir','-m','700',stage])
+            +'; cat > '+shlex.quote(helper)
+            +'; '+shlex.join(['printf','%s  %s\\n',RESTORE_SHA,helper])+' | sha256sum -c --status'
+            +'; exec '+shlex.join(argv))
+
+
 def persist_payload(out,payload):
     manifest={}
     require(isinstance(payload,dict) and set(payload)<=set(FILES),'Unexpected evidence names')
@@ -173,6 +195,7 @@ def run(args):
     require(latest_ok(read(latest),datetime.now(timezone.utc)),'Fresh matching build branch tips required')
     require(exact_stopped(read(before)) and 0<=time.time()-before.stat().st_mtime<=300,
             'Fresh API receipt for exactly three stopped original A hosts required')
+    restore_source=restore_payload(out/'a-pool-up.py')
     sys.path.insert(0,str(CONTROL/'code-12'))
     from bench.runtime.pilot_pools import active_conflicts,cell_resources,resource_guard
     plan=read(CANON/'suite/plan.json')
@@ -200,8 +223,7 @@ def run(args):
         else:
             raise ValueError(role+' did not become reachable')
         with (out/(role+'-restore.log')).open('xb') as f:
-            ssh(role,['timeout','--kill-after=8s','105s','python3','/srv/ax-receipts/a-pool-up/a-pool-up.py',
-                     role,'--out','/srv/ax-receipts/a-pool-up/'+role+'-'+tag],
+            ssh(role,restore_command(role,tag),input=restore_source,
                 stdout=f,stderr=subprocess.STDOUT,timeout=119)
 
     def preflight():

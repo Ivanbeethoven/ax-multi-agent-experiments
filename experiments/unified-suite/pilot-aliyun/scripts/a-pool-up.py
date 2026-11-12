@@ -82,7 +82,7 @@ def mount_disk(serial, target, actions):
     return row
 
 
-def bring_objects(actions):
+def bring_objects(actions, *, without_legacy_observer_scratch=False):
     for serial, target in OBJECTS['disks']:
         mount_disk(serial, target, actions)
     for index, (_serial, target) in enumerate(OBJECTS['disks']):
@@ -93,8 +93,11 @@ def bring_objects(actions):
             bind.mkdir(exist_ok=True)
             run(['mount', '--bind', str(data), str(bind)])
             actions.append(dict(bind=str(bind), source=str(data)))
-    serial, target = OBJECTS['scratch']
-    mount_disk(serial, target, actions)
+    if without_legacy_observer_scratch:
+        actions.append(dict(legacy_observer_scratch='skipped'))
+    else:
+        serial, target = OBJECTS['scratch']
+        mount_disk(serial, target, actions)
     run(['docker', 'start', OBJECTS['container']])
     for _ in range(60):
         if run(['docker', 'inspect', '--format', '{{.State.Running}}', OBJECTS['container']]).strip() == 'true':
@@ -171,14 +174,18 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('role', choices=('objects', 'metadata', 'client'))
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--without-legacy-observer-scratch', action='store_true',
+                        help='Restore the four RustFS data disks, without the old On1 observer disk')
     args = parser.parse_args()
+    if args.without_legacy_observer_scratch and args.role != 'objects':
+        parser.error('--without-legacy-observer-scratch requires objects')
     expected = OBJECTS if args.role == 'objects' else (METADATA if args.role == 'metadata' else CLIENT)
     require(os.geteuid() == 0 and os.uname().nodename == expected['hostname'], 'wrong A host')
     require(not args.out.exists(), 'fresh receipt directory required')
     args.out.mkdir(parents=True)
     actions = []
     if args.role == 'objects':
-        bring_objects(actions)
+        bring_objects(actions, without_legacy_observer_scratch=args.without_legacy_observer_scratch)
     elif args.role == 'metadata':
         bring_metadata(actions)
     else:
