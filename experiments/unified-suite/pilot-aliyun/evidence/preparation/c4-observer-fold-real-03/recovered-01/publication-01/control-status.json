@@ -1,0 +1,156 @@
+{
+  "controls": {
+    "c1-native-randread-rebind-01": {
+      "status_counts": {
+        "complete": 1,
+        "pending": 1
+      },
+      "leases": 0
+    },
+    "c123-control-01": {
+      "status_counts": {
+        "complete": 7,
+        "failed": 1,
+        "pending": 11
+      },
+      "leases": 0
+    },
+    "c3-stage-fixed-01": {
+      "status_counts": {
+        "complete": 1,
+        "pending": 3
+      },
+      "leases": 0
+    },
+    "fork-control-01": {
+      "status_counts": {
+        "complete": 1,
+        "pending": 4
+      },
+      "leases": 0
+    },
+    "parallel-control-01": {
+      "status_counts": {
+        "complete": 4,
+        "failed": 2,
+        "pending": 13
+      },
+      "leases": 0
+    }
+  },
+  "completed_count": 14,
+  "completed": {
+    "451ef1d28b5d875c-r1-native": {
+      "suite": "C1",
+      "case": "fio-randread",
+      "arm": "native",
+      "controls": [
+        "c1-native-randread-rebind-01"
+      ]
+    },
+    "34d56abaf85454a2-r1-juicefs": {
+      "suite": "C1",
+      "case": "fio-read",
+      "arm": "juicefs",
+      "controls": [
+        "c123-control-01"
+      ]
+    },
+    "34d56abaf85454a2-r1-native": {
+      "suite": "C1",
+      "case": "fio-read",
+      "arm": "native",
+      "controls": [
+        "c123-control-01"
+      ]
+    },
+    "451ef1d28b5d875c-r1-juicefs": {
+      "suite": "C1",
+      "case": "fio-randread",
+      "arm": "juicefs",
+      "controls": [
+        "c123-control-01"
+      ]
+    },
+    "5ca7353ba24b2a18-r1-juicefs": {
+      "suite": "C1",
+      "case": "fio-write",
+      "arm": "juicefs",
+      "controls": [
+        "c123-control-01"
+      ]
+    },
+    "5ca7353ba24b2a18-r1-native": {
+      "suite": "C1",
+      "case": "fio-write",
+      "arm": "native",
+      "controls": [
+        "c123-control-01"
+      ]
+    },
+    "7084af367e0bcfad-r1-juicefs": {
+      "suite": "C1",
+      "case": "fio-randwrite",
+      "arm": "juicefs",
+      "controls": [
+        "c123-control-01"
+      ]
+    },
+    "7084af367e0bcfad-r1-native": {
+      "suite": "C1",
+      "case": "fio-randwrite",
+      "arm": "native",
+      "controls": [
+        "c123-control-01"
+      ]
+    },
+    "16f4ac389d2a2da6-r1-juicefs": {
+      "suite": "C3",
+      "case": "files-100000-hot-1024",
+      "arm": "juicefs",
+      "controls": [
+        "c3-stage-fixed-01"
+      ]
+    },
+    "c5e97774bcffa69a-r1-juicefs": {
+      "suite": "C4",
+      "case": "fork-1",
+      "arm": "juicefs",
+      "controls": [
+        "fork-control-01"
+      ]
+    },
+    "05357b5089cd679c-r1-juicefs": {
+      "suite": "C2",
+      "case": "pytest-full-02-n1",
+      "arm": "juicefs",
+      "controls": [
+        "parallel-control-01"
+      ]
+    },
+    "05357b5089cd679c-r1-native": {
+      "suite": "C2",
+      "case": "pytest-full-02-n1",
+      "arm": "native",
+      "controls": [
+        "parallel-control-01"
+      ]
+    },
+    "16f4ac389d2a2da6-r1-native": {
+      "suite": "C3",
+      "case": "files-100000-hot-1024",
+      "arm": "native",
+      "controls": [
+        "parallel-control-01"
+      ]
+    },
+    "8e3d340ff23c3ece-r1-native": {
+      "suite": "C1",
+      "case": "fio-randrw",
+      "arm": "native",
+      "controls": [
+        "parallel-control-01"
+      ]
+    }
+  }
+}

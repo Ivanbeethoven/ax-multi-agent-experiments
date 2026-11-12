@@ -16,7 +16,7 @@ C1 BrewFS [随机读](evidence/c1-native-randread-02/oss/index.json)和[混合�
 
 C4 JuiceFS 十万文件的[正式结果](evidence/c4-jfs-01/README.zh.md)已验收。三类节点原始记录、验收与关闭回执共 **36,536,477 字节**，见[下载清单](evidence/c4-jfs-01/oss/index.json)。
 
-C4 BrewFS flat 的 [Off1 完整校准记录](evidence/preparation/a-c4-flat-off1-closed-01/README.zh.md)已公开，20,647 字节、57 个成员；这是首轮校准，不计入正式完成数。
+C4 BrewFS flat 的 [Off1 完整校准记录](evidence/preparation/a-c4-flat-off1-closed-01/README.zh.md)已公开，20,647 字节、57 个成员；这是首轮校准，不计入正式完成数。历史 On1 的[三角色归档](evidence/preparation/c4-observer-fold-real-03/recovered-01/publication-01/README.zh.md)也已公开：743,397,253 字节，OSS 下载副本全部成员独立核对通过。
 
 C4 JuiceFS 第一轮关采集校准的[原始记录和关闭回执](evidence/c4-juicefs-calibration-off1-01/oss/index.json)已公开。该轮在冷读通过后补收原档，没有重跑。两轮[开采集校准原档](evidence/c4-juicefs-calibration-on12-01/oss/index.json)也已公开。第四轮[关采集校准原档和补收回执](evidence/c4-juicefs-calibration-off2-01/oss/index.json)也已公开，没有重跑。[第五轮（关采集）](evidence/c4-juicefs-calibration-off3-01/oss/index.json)和[第六轮（开采集）](evidence/c4-juicefs-calibration-on3-01/oss/index.json)的原始记录与关闭回执已公开。校准均未计入正式结果。
 
