@@ -1,0 +1,83 @@
+{
+  "scope": "Read-only clarification of historical CI labels; raw receipts unchanged",
+  "candidate": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3",
+  "records": [
+    {
+      "path": "/home/dev/ax-perf-issues-validation/full-gates.sh",
+      "sha256": "05bc88d738aaf5b0eda7821e20a6c5939b653341beaed0c417935467a321a83a",
+      "selected_lines": [
+        {
+          "line": 23,
+          "text": "run_gate fill-harness cargo test --offline --manifest-path /home/dev/ax-issue-445-harness/Cargo.toml"
+        },
+        {
+          "line": 24,
+          "text": "run_gate actual-features cargo test --locked --workspace --lib --bins --features workspace-overlay,observability,rustfs-ec-block-size-hint"
+        },
+        {
+          "line": 25,
+          "text": "run_gate row-bytes-evidence cargo test --locked --workspace --lib --bins --features workspace-overlay,observability,rustfs-ec-block-size-hint row_cache_byte_budget_evidence -- --nocapture --test-threads=1"
+        },
+        {
+          "line": 26,
+          "text": "run_gate row-hit-benchmark cargo test --locked --workspace --lib --bins --features workspace-overlay,observability,rustfs-ec-block-size-hint small_row_cache_hit_benchmark -- --ignored --nocapture --test-threads=1"
+        },
+        {
+          "line": 27,
+          "text": "run_gate writer-benchmark cargo test --locked --workspace --lib --bins --features workspace-overlay,observability,rustfs-ec-block-size-hint cached_watermark_filewriter_comparison -- --ignored --nocapture --test-threads=1"
+        },
+        {
+          "line": 39,
+          "text": "run_gate tests cargo test --locked --workspace --lib --bins"
+        },
+        {
+          "line": 40,
+          "text": "run_gate clippy cargo clippy --locked --workspace"
+        }
+      ]
+    },
+    {
+      "path": "/home/dev/ax-perf-issues-validation/attempt-06/full-outcome.json",
+      "sha256": "ad6201524b34989ec5dbc596ea2657e456be521313062dbc06b3c6511ba6b0d4",
+      "selected_lines": [
+        {
+          "line": 5,
+          "text": "  \"actual_features\": {"
+        },
+        {
+          "line": 6,
+          "text": "    \"passed\": 2855,"
+        },
+        {
+          "line": 11,
+          "text": "    \"passed\": 1359,"
+        }
+      ]
+    },
+    {
+      "path": "/home/dev/ax-perf-issues-integration/Cargo.toml",
+      "sha256": "f978c2037ac74f2e0de2878744668105e105d328694d26832303a7026ab4b17c",
+      "selected_lines": [
+        {
+          "line": 349,
+          "text": "default = [\"fuse-io-uring-runtime\", \"gateway-s3\", \"gateway-webdav\"]"
+        }
+      ]
+    },
+    {
+      "path": "/home/dev/ax-perf-issues-integration/.github/workflows/ci.yml",
+      "sha256": "1855984f3ee2286d8897fe7436c66f3d6609c5434cc1425377bcec3aa00fabaa",
+      "selected_lines": [
+        {
+          "line": 51,
+          "text": "        run: cargo test --workspace --lib"
+        },
+        {
+          "line": 53,
+          "text": "        run: cargo clippy --workspace --all-targets -- -D warnings"
+        }
+      ]
+    }
+  ],
+  "conclusion": "The historical actual-features test command retained Cargo defaults, including gateway-s3 and gateway-webdav. The measured release binary disabled defaults and selected fuse-io-uring-runtime,workspace-overlay,observability,rustfs-ec-block-size-hint. New corrected heads require exact-release-feature workspace tests in addition to default CI before performance qualification."
+}

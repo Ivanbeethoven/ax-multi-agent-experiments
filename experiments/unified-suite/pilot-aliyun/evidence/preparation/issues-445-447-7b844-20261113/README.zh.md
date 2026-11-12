@@ -1,6 +1,6 @@
 # Issues #445–#447：冻结候选的收益与随机写阻塞
 
-`7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3` 的三个修复通过完整 CI，针对各自路径的收益和预算检查也已复核，但这一冻结版本**未获整组 PR 资格**：标准随机写在基线和候选中都出现旧缓存与冷重挂内容不同。后续正确性修复和新产物的验证另行记录，不改写本批结果。Packed `7093f141` 的[整包缓存对照](../packed-cache-7093-20261112/README.zh.md)独立验收。
+`7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3` 的三个修复通过默认配置及启用工作区的测试，针对各自路径的收益和预算检查也已复核，但这一冻结版本**未获整组 PR 资格**：标准随机写在基线和候选中都出现旧缓存与冷重挂内容不同。后续正确性修复和新产物的验证另行记录，不改写本批结果。Packed `7093f141` 的[整包缓存对照](../packed-cache-7093-20261112/README.zh.md)独立验收。
 
 ## 已证实的局部结果
 
@@ -23,6 +23,8 @@
 ## 环境与批次边界
 
 两臂基于 `ca07159f3da4b670e4aeb878faef928e69bc1634`，同一阿里云 r7 8 CPU / 64 GiB 主机，固定工具链、release 参数、4 个 Cargo features、服务镜像、预算与脚本。此历史候选实际 feature 仍叫 `workspace-overlay`，不回填新名称。服务为 RustFS `f4ed2025`，四个动态开关开启、客户端 hint=auto；四个逻辑目录共用一块 SSD，并显式跳过磁盘身份检查。本批不验证独立磁盘容错或分布式 C3/C4。
+
+[CI 范围复核](ci-feature-scope-review.json)澄清原脚本的 `actual-features` 标签：2,855 项通过、485 项忽略的命令保留了默认网关 features；1,359 项通过、266 项忽略的是默认配置。性能二进制则关闭默认 features，只选择 `fuse-io-uring-runtime,workspace-overlay,observability,rustfs-ec-block-size-hint`。原 clippy 命令也没有 workflow 的 `--all-targets -- -D warnings`。这些旧回执保持原样，新修复轮补跑精确被测 feature 组合的完整测试和默认配置的严格 clippy，不能把此前记录描述成精确复现了全部 workflow 命令。
 
 早先单 `/data` 配置在较大对象上实际返回 InternalError，即使 dirty=0 也不具备正确性资格；该批旧 CPU 数字全部作废。后来的 EC4 结果独立记录。历史重复 fio job、代理写方法、准备阶段提前打开目标文件等脚本问题的失败证据同样保留。
 
