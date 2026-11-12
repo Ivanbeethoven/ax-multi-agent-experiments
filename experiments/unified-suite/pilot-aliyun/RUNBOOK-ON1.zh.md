@@ -39,6 +39,19 @@ grep -n "objects-observer.tar.gz\|observer.tar.gz" $CODE/experiments/unified-sui
 
 两条都必须命中。若第一条没有，objects 仍会打 132,939 个成员的单一 tar，4.5 小时后以同一个 `ValueError: unbounded internal manifest` 失败；若第二条没有，拆包后协调者的 `audit(raw/objects/o/$TAG, ...)` 会因目录不存在失败。**任一不满足：不启动 unit，本窗口只做前置链并按失败记录**。
 
+### 0.8 验收侧同样不认识拆包（2026-11-12 补充核实）
+
+除了归档入口，**验收器**也要改：`check-c4-calibration.py:61` 才是执行 `raw/<role>` 解包后 `audit(raw/<role>/o/<tag>, 30, marks)` 的地方（`retain-calibrations.py:115` 同形），它只认 `archives/<role>.tar.gz` 这一种形状。
+
+因此"观察原文单独 tar"不是加个工具就能落地的事，它同时改动**验收判据**。三条可行路线，任选其一都必须作为**新一批**记录：
+
+1. 新批次的 `check-c4-calibration.py` 同时接受 `archives/<role>.tar.gz` 与 `archives/<role>-observer.tar.gz`，先解小包再解观察包，audit 不变。改动最小，但要重新声明验收规则并给新 checker 固定 SHA。
+2. 让观察者直接写单个 NDJSON 流而不是 132,939 个文件。成员数从 13 万降到个位数，原单包格式与冻结验收器都不用动；代价是观察输出格式变了，属于新的观测合同。
+3. 缩短观察窗口或放粗采样间隔，使成员数回到 16 MiB 清单以内。不改任何代码，但改变 C4 On1 的观测强度，需要重新论证"最短可测窗口"。
+
+在选定之前，On1 的 5 小时窗口**不具备开跑条件**；本仓库只保证拆包工具本身在真实 13.3 万成员上可用。
+
+
 ## 1. 启动实例并恢复 A 池现场
 
 数据盘重启后**不会自动挂载**，必须显式恢复。
