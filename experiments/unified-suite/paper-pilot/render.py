@@ -96,10 +96,12 @@ def phase_panel(ax,b,j):
     ratios=[b[p]['wall_seconds']/j[p]['wall_seconds'] for p in PHASES]
     ax.barh(range(8),ratios,height=.64,color=ACCENT,edgecolor=INK,linewidth=.65,zorder=3)
     ax.axvline(1,color=CONTROL,lw=.85,ls=(0,(3,2)),zorder=2)
-    ceiling=max(1.45,max(ratios)*1.32)
-    for y,r in enumerate(ratios):
-        ax.text(ceiling-.05,y,f'{r:.2f}',ha='right',va='center',color=INK,fontsize=8.5,zorder=4)
-    ax.set_yticks(range(8),list(PHASES.values()));ax.set_ylim(7.55,-.55)
+    ceiling=max(1.25,max(ratios)*1.15)
+    # Short labels leave room for the measurements at single-column width.
+    # Full stage names and every unrounded value remain in plot-data.json.
+    display=['Initial R','Warm-up','Hot R','First W','R after W',
+             'Hot W','Reread','Mixed R/W']
+    ax.set_yticks(range(8),display);ax.set_ylim(7.55,-.55)
     ax.set_xlim(0,ceiling);ax.set_xticks([0,.5,1])
     ax.set_xlabel('Elapsed time / JuiceFS',fontsize=8.6,labelpad=3)
     plain_axes(ax)
@@ -124,7 +126,10 @@ def paired_panel(ax,times):
         ax.barh([i+(-.18 if si==0 else .18) for i,_ in points],
                 [v for _,v in points],height=.30,color=color,edgecolor=INK,
                 linewidth=.65,label=name,zorder=3)
-    ax.set_yticks(range(6),labels);ax.set_ylim(5.55,-.55)
+    short_cases={'fio-read':'R','fio-randrw':'R/W','pytest-full-02-n1':'replay'}
+    display=[('Redis' if backend=='redis' else 'TiKV')+' '+short_cases[case]
+             for backend,case in keys]
+    ax.set_yticks(range(6),display);ax.set_ylim(5.55,-.55)
     highest=max(v for values in ratios.values() for v in values if v is not None)
     ax.set_xlim(0,max(3.3,highest*1.12));ax.set_xticks([0,1,2,3])
     ax.set_xlabel('Elapsed time / JuiceFS',fontsize=8.6,labelpad=3)
@@ -137,15 +142,17 @@ def paired_panel(ax,times):
 
 
 def comparison_plot(out,qa,b,j,times,qa_tools):
-    """Stack two matched plot areas at single-column size; keep all text sizes."""
-    fig,axes=plt.subplots(2,1,figsize=(240/72,236/72))
-    fig.subplots_adjust(left=.355,right=.99,top=.88,bottom=.10,hspace=.40)
+    """Two equal plot areas in one row within one manuscript column."""
+    fig,axes=plt.subplots(1,2,figsize=(240/72,136/72))
+    fig.subplots_adjust(left=.20,right=.99,top=.75,bottom=.18,wspace=1.1082)
     phase=phase_panel(axes[0],b,j)
     paired=paired_panel(axes[1],times)
-    # Both panels share the same quantity and units; label the bottom axis once.
-    axes[0].set_xlabel('')
-    for ax,title in zip(axes,['(a) Small-file phases','(b) I/O and replay']):
-        ax.set_title(title,loc='left',fontsize=9.5,pad=5)
+    # One axis label serves both panels; titles align above their label columns.
+    for ax in axes:
+        ax.set_xlabel('')
+    for x,title in zip([.005,.535],['(a) Small-file phases','(b) I/O and replay']):
+        fig.text(x,.815,title,ha='left',va='bottom',fontsize=9.5)
+    fig.text(.52,.015,'Elapsed time / JuiceFS',ha='center',va='bottom',fontsize=8.6)
     fig.legend(*axes[1].get_legend_handles_labels(),loc='upper center',
                bbox_to_anchor=(.52,1.015),ncol=2,frameon=False,
                handlelength=.9,handleheight=.75,handletextpad=.4,

@@ -8,7 +8,7 @@
 
     python render.py --data data/2026-11-11 --paper <论文仓库根目录>
 
-输出到论文 figures/pilot/：正文数值宏、单栏 smallfile-costs 和 access-comparison 的 PDF / SVG / PNG。后者将八阶段 (a) 和配对配置 (b) 上下排列，共用图例和横轴名称；时间除以同条件 JuiceFS 时间，虚线为 1，越低越好。准备/执行/核验仍采用三个独立秒数轴。未测 packed 配置不画柱；每配置一次观测，不绘制误差条。
+输出到论文 figures/pilot/：正文数值宏、单栏 smallfile-costs 和 access-comparison 的 PDF / SVG / PNG。后者将八阶段 (a) 和配对配置 (b) 在一栏内左右并排，共用图例和横轴名称；时间除以同条件 JuiceFS 时间，虚线为 1，越低越好。准备/执行/核验仍采用三个独立秒数轴。未测 packed 配置不画柱；每配置一次观测，不绘制误差条。
 
 扩大规模时新建日期目录，保留三份 JSON 的字段和单位，传入新的 --data；不要覆盖旧批次。数据中规模、线程数、操作数、时间和比率会一起更新。当前脚本遇到重复配对块会停止；加入重复实验后需先实现按块统计及置信区间，不能将单次图当作重复实验汇总。本批 10K、下一批 100K、之后 1M 保持独立记录。
 
@@ -36,6 +36,8 @@
 ## 检查
 
 源账本与服务器 SHA256 一致。生成器校验操作数匹配、正数计时、完整配对和账本比率；同批数值只在数据中维护。
-smallfile-costs 为 240 × 72 pt，按 90% 栏宽插入，最小实际字号 7.65 pt（原 7.14 pt）；access-comparison 为 240 × 236 pt，按单栏宽插入，最小字号 8.5 pt。矢量 PDF 为论文输出，SVG 保留可编辑文字，300 dpi PNG 为预览。可传 --qa-tools <nature-figure/scripts> 指定对齐检查工具；本地没有该工具时只生成图，不声称通过审计。审计和全部 39 个原始秒数见论文 validation/paper-pilot/；正文引用 access-comparison 的 (a)/(b)，旧 standalone 图不再插入正文。
+smallfile-costs 为 240 × 72 pt，按 90% 栏宽插入，最小实际字号 7.65 pt（原 7.14 pt）；access-comparison 为 240 × 136 pt，按单栏宽插入，最小字号 8.6 pt。矢量 PDF 为论文输出，SVG 保留可编辑文字，300 dpi PNG 为预览。可传 --qa-tools <nature-figure/scripts> 指定对齐检查工具；本地没有该工具时只生成图，不声称通过审计。审计和全部 39 个原始秒数见论文 validation/paper-pilot/；正文引用 access-comparison 的 (a)/(b)，旧 standalone 图不再插入正文。
 
 配色与论文 Figure 2 一致：BrewFS native 用 #D55E00，JuiceFS 用 #595959，ext4 用 #BDBDBD，packed 用白底空心柱；柱边与坐标轴为 #222222、0.65 pt。压缩留白，不缩小字号；PDF、SVG 均保留可编辑文字。
+
+Figure 8 两个面板已改为单栏内同一行，高度较上下版减少 42.4%。R/W 缩写见图注；移除柱旁重复数值标注，完整阶段名和所有数值保留在 plot-data.json，不减少观测。
