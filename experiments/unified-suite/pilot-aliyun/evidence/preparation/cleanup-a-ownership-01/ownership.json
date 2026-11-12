@@ -1,0 +1,215 @@
+{
+  "schema": "ax-pilot-cleanup-a-ownership-v1",
+  "observed_at_utc": "2026-11-12T12:08:49.4396168Z",
+  "region": "cn-hangzhou",
+  "zone": "cn-hangzhou-j",
+  "campaign": "ax-pilot-20261111",
+  "source_revision": "6253311812c6d0c64739fb73abab1ca608ef78e3",
+  "instance_request_id": "01A1CFA9-39F1-5D4F-8F9E-98E908ADFA78",
+  "historical_owned_sets": {
+    "path": "experiments/unified-suite/pilot-aliyun/evidence/preparation/release-owned-sets-02.json",
+    "sha256": "67bf821aba9785740b7841aa7c4612a46a1f990d53139b0e2e185e48fc3b1920"
+  },
+  "retirement_performed": false,
+  "backup_verified": false,
+  "release_candidates": [
+    {
+      "role": "client",
+      "instance_id": "i-bp1809mw7rlujtj9f705",
+      "instance_name": "ax-pilot-20261111-client",
+      "instance_status": "Stopped",
+      "stopped_mode": "StopCharging",
+      "api_creation_time": "2026-11-10T18:51Z",
+      "disks_request_id": "01A1CFA9-3B87-5B25-937D-AF803E1F1AD8",
+      "disks": [
+        {
+          "disk_id": "d-bp1809mw7rlujtjc8eph",
+          "type": "system",
+          "size_gib": 40,
+          "category": "cloud_essd",
+          "performance_level": "PL0",
+          "status": "In_use",
+          "charge_type": "PostPaid",
+          "delete_with_instance": true
+        },
+        {
+          "disk_id": "d-bp1809mw7rlujtjc8epi",
+          "type": "data",
+          "size_gib": 100,
+          "category": "cloud_essd",
+          "performance_level": "PL1",
+          "status": "In_use",
+          "charge_type": "PostPaid",
+          "delete_with_instance": true
+        }
+      ],
+      "creation_receipt": {
+        "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/parallel-20261111-1340-01/cost-sources-a/client.created.json",
+        "sha256": "84fa03cf9747c493372300b8dc0ea8c4fa8f29969b9240bfaa5c6ae218c20a3a",
+        "create_request_id": "01A1C6CD-4A98-52B9-9EBF-E76119F85E7A",
+        "request_sha256": "71e06afa39c9bcaaf1fc61646bd253c6a879b9a77d70c5597bd8f4dca1fecbbb",
+        "preexisting": false
+      },
+      "original_node_spec": {
+        "path": "/home/hxy/ax-unified-pilot-prep/cloud/client-spec.json",
+        "sha256": "3592411238e1af9eb21980c78d61394c24ea33f74d6452babd335a497d0b5d55"
+      }
+    },
+    {
+      "role": "metadata",
+      "instance_id": "i-bp1gy3cfuj9jik0y4oc3",
+      "instance_name": "ax-pilot-20261111-metadata",
+      "instance_status": "Stopped",
+      "stopped_mode": "StopCharging",
+      "api_creation_time": "2026-11-10T18:51Z",
+      "disks_request_id": "01A1CFA9-3CC1-5E49-A06F-43AAF6F97B0B",
+      "disks": [
+        {
+          "disk_id": "d-bp1gy3cfuj9jik0upt3j",
+          "type": "system",
+          "size_gib": 40,
+          "category": "cloud_essd",
+          "performance_level": "PL0",
+          "status": "In_use",
+          "charge_type": "PostPaid",
+          "delete_with_instance": true
+        },
+        {
+          "disk_id": "d-bp1gy3cfuj9jik0upt3k",
+          "type": "data",
+          "size_gib": 60,
+          "category": "cloud_essd",
+          "performance_level": "PL1",
+          "status": "In_use",
+          "charge_type": "PostPaid",
+          "delete_with_instance": true
+        }
+      ],
+      "creation_receipt": {
+        "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/parallel-20261111-1340-01/cost-sources-a/metadata.created.json",
+        "sha256": "e60d11086881fcb3024e7f8153d8df3835607cc39f3316471d6dcf468061174a",
+        "create_request_id": "01A1C6CD-62F9-5FCD-B2C8-A0FBD8D134E8",
+        "request_sha256": "793603f00ac4fe67c4eb0ba78eccc8c1ec69c6d5147f1a9646b05550e175481f",
+        "preexisting": false
+      },
+      "original_node_spec": {
+        "path": "/home/hxy/ax-unified-pilot-prep/cloud/metadata-spec.json",
+        "sha256": "edc06fd6b280e05c187a8aa43ff11a4dd7a1c4926a33b2c246394b1de914b108"
+      }
+    },
+    {
+      "role": "objects",
+      "instance_id": "i-bp1h9kaoya0predubdkn",
+      "instance_name": "ax-pilot-20261111-objects",
+      "instance_status": "Stopped",
+      "stopped_mode": "StopCharging",
+      "api_creation_time": "2026-11-10T18:51Z",
+      "disks_request_id": "01A1CFA9-3DBE-5A1B-9634-479D943BDB81",
+      "disks": [
+        {
+          "disk_id": "d-bp1h9kaoya0predx6kvc",
+          "type": "system",
+          "size_gib": 40,
+          "category": "cloud_essd",
+          "performance_level": "PL0",
+          "status": "In_use",
+          "charge_type": "PostPaid",
+          "delete_with_instance": true
+        },
+        {
+          "disk_id": "d-bp1h9kaoya0predx6kvd",
+          "type": "data",
+          "size_gib": 60,
+          "category": "cloud_essd",
+          "performance_level": "PL1",
+          "status": "In_use",
+          "charge_type": "PostPaid",
+          "delete_with_instance": true
+        },
+        {
+          "disk_id": "d-bp1h9kaoya0predx6kve",
+          "type": "data",
+          "size_gib": 60,
+          "category": "cloud_essd",
+          "performance_level": "PL1",
+          "status": "In_use",
+          "charge_type": "PostPaid",
+          "delete_with_instance": true
+        },
+        {
+          "disk_id": "d-bp1h9kaoya0predx6kvf",
+          "type": "data",
+          "size_gib": 60,
+          "category": "cloud_essd",
+          "performance_level": "PL1",
+          "status": "In_use",
+          "charge_type": "PostPaid",
+          "delete_with_instance": true
+        },
+        {
+          "disk_id": "d-bp1h9kaoya0predx6kvg",
+          "type": "data",
+          "size_gib": 60,
+          "category": "cloud_essd",
+          "performance_level": "PL1",
+          "status": "In_use",
+          "charge_type": "PostPaid",
+          "delete_with_instance": true
+        }
+      ],
+      "creation_receipt": {
+        "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/parallel-20261111-1340-01/cost-sources-a/objects.created.json",
+        "sha256": "2362e96ee0fdc5cffdb1f5c4f35c07bded0ab226e3ff4e6e0f1d19c0f53b8c94",
+        "create_request_id": "01A1C6CD-79E2-590E-A61D-BFD3C87E1737",
+        "request_sha256": "b6d791d6726a22f6323f23d2e2919dec25b8cacb5d220406afaa69732fe0f05f",
+        "preexisting": false
+      },
+      "original_node_spec": {
+        "path": "/home/hxy/ax-unified-pilot-prep/cloud/objects-spec.json",
+        "sha256": "fd2e4bc48b6d8c7d434f4d0d8de1d68cc65fd1d30d58e1c4482f0f6f2327aae9"
+      }
+    }
+  ],
+  "protected": {
+    "jump": {
+      "role": "jump",
+      "instance_id": "i-bp1cp8ccqor34u2bo5os",
+      "instance_name": "ax-c1-jump",
+      "instance_status": "Stopped",
+      "stopped_mode": "StopCharging",
+      "api_creation_time": "2026-11-06T02:53Z",
+      "disks_request_id": "01A1CFA9-3ED3-57AA-BD2D-64D8254BAAC4",
+      "disks": [
+        {
+          "disk_id": "d-bp166nue4ac1q7e5oar2",
+          "type": "data",
+          "size_gib": 100,
+          "category": "cloud_essd",
+          "performance_level": "PL0",
+          "status": "In_use",
+          "charge_type": "PostPaid",
+          "delete_with_instance": false
+        },
+        {
+          "disk_id": "d-bp1cp8ccqor34u2bn4ib",
+          "type": "system",
+          "size_gib": 40,
+          "category": "cloud_essd",
+          "performance_level": "PL1",
+          "status": "In_use",
+          "charge_type": "PostPaid",
+          "delete_with_instance": true
+        }
+      ]
+    },
+    "network": {
+      "eip_allocation_id": "eip-bp1xv5vm3nqtbj7lemsx1",
+      "vpc_id": "vpc-bp1cvvscvaviao4vzi6co",
+      "vswitch_id": "vsw-bp1x2zf92629hnyormlcp",
+      "security_group_id": "sg-bp1dj06kwe2uow3nlwsx",
+      "key_pair_name": "ax-c1-20261106"
+    }
+  },
+  "candidate_disk_count": 9,
+  "candidate_capacity_gib": 520.0
+}
