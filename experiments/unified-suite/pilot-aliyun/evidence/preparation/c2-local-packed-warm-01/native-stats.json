@@ -1,0 +1,51 @@
+{
+  "schema": "c2-local-brewfs-packed-warm-fixture-v1",
+  "passed": false,
+  "files": 2,
+  "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "binary_sha256": {
+    "brewfs": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0",
+    "packed_v3_snapshot_fixture": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab"
+  },
+  "image_sha256": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "no_model": true,
+  "no_cloud": true,
+  "no_copy_baseline": true,
+  "formal_sample": false,
+  "readbacks": {},
+  "scope": "One WSL FUSE host, two passes through a framed Packed lower; no performance timing.",
+  "expected_files": {
+    "a.txt": {
+      "bytes": 13,
+      "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+    },
+    "sub/b.txt": {
+      "bytes": 64,
+      "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+    }
+  },
+  "manifest_key": "base/objects/0/ece01128b17d8c493ab2f5f83de379f4411284a46ad504b756916fdb52622e8e",
+  "parent_workspace_id": "01a1ce27-cb22-7172-9ca3-f23a2b849b14",
+  "exact_revision": "01a1ce27-cb75-72e2-afca-30d5cf80d229:1:0be603c83fdc13d65eb08b63fa686e069f62f8e5af4bb1210a7b52e54c7e0a96",
+  "parent_binding": true,
+  "failed_phase": "parent-readback",
+  "error": "ValueError: Missing Packed wire005 native counters",
+  "mount_exits": {
+    "parent": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    }
+  },
+  "cleanup": {
+    "mount_absent": true,
+    "owned_containers_absent": {
+      "rustfs": true,
+      "redis": true
+    },
+    "scratch_removed": true
+  }
+}

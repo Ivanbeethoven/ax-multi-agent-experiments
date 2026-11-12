@@ -1,0 +1,110 @@
+{
+  "schema": "c2-local-brewfs-packed-warm-fixture-v1",
+  "passed": false,
+  "files": 2,
+  "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "binary_sha256": {
+    "brewfs": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0",
+    "packed_v3_snapshot_fixture": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab"
+  },
+  "image_sha256": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "no_model": true,
+  "no_cloud": true,
+  "no_copy_baseline": true,
+  "formal_sample": false,
+  "readbacks": {},
+  "scope": "One WSL FUSE host, two passes through a framed Packed lower; no performance timing.",
+  "expected_files": {
+    "a.txt": {
+      "bytes": 13,
+      "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+    },
+    "sub/b.txt": {
+      "bytes": 64,
+      "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+    }
+  },
+  "manifest_key": "base/objects/0/3ec4aceb45ac6b978377447bb0fb5f39049ee66c64f99bbf8160747be5ee271e",
+  "parent_workspace_id": "01a1ce2c-5ef8-7872-8780-f5e0f05eea01",
+  "exact_revision": "01a1ce2c-5f3f-7af3-bf72-7616eca18811:1:c7b25cb11502772328a714c979efad0b557a76eaef64cc36fab49d26801cc3ad",
+  "parent_binding": true,
+  "lower_warmth": {
+    "source": "read-only loopback proxy before RustFS; successful GET body bytes",
+    "working_set": [
+      {
+        "path": "a.txt",
+        "offset": 0,
+        "length": 13,
+        "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+      },
+      {
+        "path": "sub/b.txt",
+        "offset": 0,
+        "length": 64,
+        "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+      }
+    ],
+    "points": [
+      {
+        "brewfs_fuse_read_ops_total": 0,
+        "brewfs_fuse_read_bytes_total": 0,
+        "gets": 3,
+        "ranges": 3,
+        "bytes": 14251,
+        "errors": 0
+      },
+      {
+        "brewfs_fuse_read_ops_total": 2,
+        "brewfs_fuse_read_bytes_total": 77,
+        "gets": 13,
+        "ranges": 13,
+        "bytes": 41522,
+        "errors": 0
+      },
+      {
+        "brewfs_fuse_read_ops_total": 4,
+        "brewfs_fuse_read_bytes_total": 154,
+        "gets": 15,
+        "ranges": 15,
+        "bytes": 41599,
+        "errors": 0
+      }
+    ],
+    "first": {
+      "brewfs_fuse_read_ops_total": 2,
+      "brewfs_fuse_read_bytes_total": 77,
+      "gets": 10,
+      "ranges": 10,
+      "bytes": 27271,
+      "errors": 0
+    },
+    "second": {
+      "brewfs_fuse_read_ops_total": 2,
+      "brewfs_fuse_read_bytes_total": 77,
+      "gets": 2,
+      "ranges": 2,
+      "bytes": 77,
+      "errors": 0
+    },
+    "qualified": true,
+    "hot": false
+  },
+  "mount_exits": {
+    "parent": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    }
+  },
+  "cleanup": {
+    "mount_absent": true,
+    "owned_containers_absent": {
+      "rustfs": true,
+      "redis": true
+    },
+    "scratch_removed": true
+  }
+}
