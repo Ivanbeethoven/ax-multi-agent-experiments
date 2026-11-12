@@ -1,6 +1,7 @@
 """Verify the frozen delivery and every archived file without extracting it."""
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
 import sys
@@ -28,6 +29,9 @@ def check_bytes(data, record):
 
 
 def verify(root):
+    root = Path(root).resolve()
+    if os.name == 'nt' and not str(root).startswith('\\\\?\\'):
+        root = Path('\\\\?\\' + str(root))
     manifest_bytes = (root / 'manifest.json').read_bytes()
     if hashlib.sha256(manifest_bytes).hexdigest() != MANIFEST_SHA256:
         raise ValueError('Frozen package manifest SHA differs')
