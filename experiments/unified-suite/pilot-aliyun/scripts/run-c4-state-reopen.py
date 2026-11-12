@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Run one reviewed model-free qualification only after both actual pool handoffs."""
+"""Run one authorized model-free qualification only after both actual pool handoffs."""
 import argparse
 from contextlib import ExitStack
 from datetime import datetime, timezone
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -14,6 +15,12 @@ import uuid
 
 
 CURRENT_BOOTS = 'c4-state-reopen-current-boots-v1'
+REQUEST_V1 = 'pilot-c4-state-reopen-request-v1'
+REQUEST_V2 = 'pilot-c4-state-reopen-request-v2'
+AUTHORIZATION = 'pilot-c4-state-reopen-launch-authorization-v1'
+EXPORT_WORKER_SHA = 'ae48f43d2cfe54d9b29e021f5e9e3f767bdac7271644120b1d61c370555c5a37'
+V2_FIELDS = {'schema','attempt','draft','handoffs','latest','worker','verified_checkpoint',
+             'source_tree','peers','current_boots'}
 SIDES = ('source', 'target')
 SLOT = {'cpu.max':'200000 100000', 'memory.max':'8589934592', 'memory.swap.max':'0', 'cgroup.procs':''}
 CLIENT_PROBE = r'''
@@ -55,6 +62,85 @@ print(json.dumps(dict(hostname=socket.gethostname(), instance_id=instance_id,
 def require_grant(presented, current, side):
     if presented != current or current['side'] != side:
         raise PermissionError('Old/other executor grant rejected before transport')
+
+
+def sha256(path):
+    with Path(path).open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def read_pin(pin):
+    """Read launch authority before importing runtime code or starting SSH."""
+    path = Path(pin['path'])
+    if not path.is_absolute() or path.is_symlink():
+        raise ValueError('Absolute pinned launch file required')
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != pin['sha256']:
+        raise ValueError('Pinned launch file changed')
+    return json.loads(raw.decode('utf-8-sig'))
+
+
+def launch_identity(request, route, request_sha, runner_sha, runtime_repo, output):
+    boot = request.get('current_boots')
+    attempt = request.get('attempt')
+    worker = request.get('worker')
+    if (request.get('schema') != REQUEST_V2 or set(request) != V2_FIELDS
+            or not isinstance(attempt, str) or not re.fullmatch('[a-z0-9-]{3,24}', attempt)
+            or not isinstance(boot, dict) or set(boot) != {'path','sha256'}
+            or not isinstance(boot['path'], str) or not Path(boot['path']).is_absolute()
+            or not isinstance(boot['sha256'], str) or not re.fullmatch('[0-9a-f]{64}', boot['sha256'])):
+        raise ValueError('Exact v2 request with current boot proof and unique attempt required')
+    if (not isinstance(worker, dict) or set(worker) != {'path','sha256'}
+            or not isinstance(worker['path'], str) or not Path(worker['path']).is_absolute()
+            or worker['sha256'] != EXPORT_WORKER_SHA):
+        raise ValueError('V2 requires the pinned no-model OpenCode export worker')
+    if (route.get('schema') != 'pilot-c4-state-reopen-draft-v1'
+            or route.get('source_pool') != 'pool-a' or route.get('target_pool') != 'pool-b'
+            or route.get('qualification_only') is not True or route.get('reviewed') is not False
+            or route.get('execution_enabled') is not False or type(route.get('model_calls_allowed')) is not int
+            or route['model_calls_allowed'] != 0):
+        raise ValueError('Launch authorization covers only the A-to-B no-model qualification draft')
+    if (not runtime_repo.is_absolute() or runtime_repo.resolve() != runtime_repo or not runtime_repo.is_dir()
+            or not output.is_absolute() or output.resolve() != output or not output.parent.is_dir()
+            or output.exists() or output.is_symlink()):
+        raise ValueError('Canonical runtime directory and fresh absolute output required')
+    return dict(schema=AUTHORIZATION, source='conversation-user-instruction',
+                user_instruction='设定目标 完成所有的c1~c4的小规模实验吧', user_followup='继续完成实验',
+                scope='A-to-B JuiceFS shared workspace OpenCode export qualification',
+                source_pool='pool-a', target_pool='pool-b', formal_sample=False, model_calls_allowed=0,
+                attempt=attempt, request_sha256=request_sha, runner_sha256=runner_sha,
+                runtime_repo=str(runtime_repo), output=str(output))
+
+
+def verify_launch(request, route, authorization, request_sha, runner_sha, runtime_repo, output):
+    if request.get('schema') == REQUEST_V1:
+        if (authorization is not None or request.get('reviewed') is not True
+                or route.get('schema') != 'pilot-c4-state-reopen-draft-v1' or route['model_calls_allowed'] != 0):
+            raise ValueError('Explicit reviewed execution, storage qualification only')
+        return
+    expected = launch_identity(request, route, request_sha, runner_sha, runtime_repo, output)
+    if (authorization != expected or authorization['formal_sample'] is not False
+            or type(authorization['model_calls_allowed']) is not int):
+        raise ValueError('Recorded user authorization must bind this exact diagnostic launch')
+
+
+def record_launch_authorization(argv):
+    p = argparse.ArgumentParser(description='Record existing user authorization without contacting workers')
+    for name in ('request','runtime-repo','out','authorization-out'):
+        p.add_argument('--'+name,type=Path,required=True)
+    p.add_argument('--sha256',required=True)
+    a = p.parse_args(argv)
+    request = read_pin(dict(path=str(a.request),sha256=a.sha256))
+    route = read_pin(request['draft'])
+    value = launch_identity(request,route,a.sha256,sha256(__file__),a.runtime_repo,a.out)
+    path = a.authorization_out
+    if (not path.is_absolute() or path.resolve() != path or not path.parent.is_dir()
+            or path.exists() or path.is_symlink() or path == a.out):
+        raise ValueError('New canonical absolute authorization file required')
+    with path.open('x',encoding='utf-8') as stream:
+        json.dump(value,stream,ensure_ascii=False,indent=2)
+        stream.write('\n')
+    print(sha256(path),path)
 
 
 def checked_client(row, frozen):
@@ -106,6 +192,14 @@ def frozen_clients(route, inventory, original):
     return rows
 
 
+def check_authorized_storage(original_inventory, diagnostic_inventory):
+    from bench.runtime.pilot_pools import pool_inventory
+    source = pool_inventory(original_inventory,'pool-a')['roles']
+    target = pool_inventory(original_inventory,'pool-b')['roles']['client']
+    if diagnostic_inventory != {'pools':[dict(pool_id='pool-c4-state',roles={**source,'target':target})]}:
+        raise ValueError('V2 requires A storage and the two original A/B clients')
+
+
 def current_identity(observed, expected, frozen):
     checked_client(observed,frozen)
     if observed != expected:
@@ -147,11 +241,26 @@ def probe_current_boots(argv):
 def main():
     if sys.argv[1:2] == ['probe-current-boots']:
         return probe_current_boots(sys.argv[2:])
+    if sys.argv[1:2] == ['record-launch-authorization']:
+        return record_launch_authorization(sys.argv[2:])
     p = argparse.ArgumentParser(description=__doc__)
     for name in ('request', 'runtime-repo', 'out'):
         p.add_argument('--'+name, type=Path, required=True)
     p.add_argument('--sha256', required=True)
+    p.add_argument('--authorization', type=Path)
+    p.add_argument('--authorization-sha256')
     a = p.parse_args()
+    if (a.authorization is None) != (a.authorization_sha256 is None):
+        p.error('Supply both launch authorization path and SHA-256')
+    request_ref = dict(path=str(a.request),sha256=a.sha256)
+    request = read_pin(request_ref)
+    s = read_pin(request['draft'])
+    authorization_ref = (dict(path=str(a.authorization),sha256=a.authorization_sha256)
+                         if a.authorization is not None else None)
+    if request.get('schema') == REQUEST_V2 and authorization_ref is None:
+        raise ValueError('Exact v2 launch authorization reference required')
+    authorization = read_pin(authorization_ref) if authorization_ref is not None else None
+    verify_launch(request,s,authorization,a.sha256,sha256(__file__),a.runtime_repo,a.out)
     sys.path[:0] = [str(a.runtime_repo), str(a.runtime_repo/'bench')]
     from bench.runtime.common import digest, load, pinned, write_new
     from bench.runtime.pilot_pools import active_conflicts, resource_guard
@@ -160,11 +269,6 @@ def main():
     def ref(path):
         return dict(path=str(Path(path).resolve(strict=True)), sha256=digest(path))
 
-    request = load(pinned(dict(path=str(a.request), sha256=a.sha256)))
-    s = load(pinned(request['draft']))
-    if (request.get('schema') != 'pilot-c4-state-reopen-request-v1' or request.get('reviewed') is not True or
-            s.get('schema') != 'pilot-c4-state-reopen-draft-v1' or s['model_calls_allowed'] != 0):
-        raise ValueError('Explicit reviewed execution, storage qualification only')
     control = Path(s['canonical_control'])
     original = check_plan(load(pinned(s['original_plan'])))
     plan = check_plan(load(pinned(s['plan'])))
@@ -174,8 +278,11 @@ def main():
     boot_pin = request.get('current_boots')
     live_boots, frozen = None, None
     if 'current_boots' in request:
-        frozen = frozen_clients(s,load(pinned(s['original_inventory'])),original)
+        original_inventory = load(pinned(s['original_inventory']))
+        frozen = frozen_clients(s,original_inventory,original)
         live_boots = check_current_boots(load(pinned(boot_pin)),request['draft'],s,frozen)
+        if authorization_ref is not None:
+            check_authorized_storage(original_inventory,load(pinned(s['inventory'])))
     if set(request['handoffs']) != set(pools):
         raise ValueError('Both existing pools require actual explicit handoffs')
     for pool in pools:
@@ -211,10 +318,13 @@ def main():
                 if active_conflicts(state.parent, cells[pool], original):
                     raise ValueError('Active original lease on '+pool+' in '+str(state))
         a.out.mkdir(parents=True, exist_ok=False)
-        started = dict(request=ref(a.request), handoffs=request['handoffs'], canonical_control=str(control),
+        started = dict(request=request_ref if authorization_ref is not None else ref(a.request),
+                       handoffs=request['handoffs'], canonical_control=str(control),
                        qualification_only=True, model_calls=0, no_automatic_retry=True)
         if live_boots is not None:
             started['current_boots'] = boot_pin
+        if authorization_ref is not None:
+            started['launch_authorization'] = authorization_ref
         write_new(a.out/'started.json', started)
 
         def run(label, argv, data=None, *, timeout=None):
@@ -357,12 +467,15 @@ def main():
                     final['export']['export']['sha256']!=source['export']['export']['sha256'] or final['target_workspace_copy_bytes']!=0):
                 raise ValueError('Target did not reopen exact original state')
             write_new(a.out/'target-result.json',final)
-            write_new(a.out/'result.json',dict(passed=True, qualification_only=True, formal_sample=False,
+            result = dict(passed=True, qualification_only=True, formal_sample=False,
                 source=ref(source_result), target=ref(a.out/'target-result.json'),
                 old_grant=ref(a.out/'old-grant-fenced.json'), same_workspace=True, different_executor=True,
                 native_model_calls=0, native_session_json_transferred_bytes=0, target_workspace_copy_bytes=0,
                 source_close_to_target_complete_ack_seconds=(time.monotonic_ns()-state_ready_begin)/1e9,
-                scope='Coordinator interval includes metadata transfer, target mount, export, fsync, drain and close; no formal resume latency.'))
+                scope='Coordinator interval includes metadata transfer, target mount, export, fsync, drain and close; no formal resume latency.')
+            if authorization_ref is not None:
+                result['launch_authorization'] = authorization_ref
+            write_new(a.out/'result.json',result)
         except Exception as error:
             write_new(a.out/'failed.json',dict(passed=False,error=str(error),automatic_retry=False,
                 handoff_permitted=False,note='Inspect original cgroup, mount supervisor and native debt before pool reuse.'))

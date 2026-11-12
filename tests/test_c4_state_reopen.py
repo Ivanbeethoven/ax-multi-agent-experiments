@@ -1,6 +1,9 @@
 """The storage-only path fences the old grant and rejects networking."""
 from copy import deepcopy
+from contextlib import redirect_stdout
 from datetime import datetime, timedelta, timezone
+import io
+import json
 import os
 from pathlib import Path
 import runpy
@@ -8,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 SCRIPTS = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts'
 RUNNER = runpy.run_path(str(SCRIPTS/'run-c4-state-reopen.py'))
@@ -16,6 +20,83 @@ NETWORK = runpy.run_path(str(SCRIPTS/'c4-state-reopen-node.py'))['NETWORK_WRAPPE
 
 
 class StateReopen(unittest.TestCase):
+    def test_local_authorization_binds_exact_v2_launch_without_ssh(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            draft, request, authorization, output = [root/name for name in
+                                                     ('draft.json','request.json','authorization.json','run')]
+            route = dict(schema='pilot-c4-state-reopen-draft-v1', source_pool='pool-a',target_pool='pool-b',
+                         reviewed=False, execution_enabled=False, qualification_only=True, model_calls_allowed=0)
+            draft.write_text(json.dumps(route),encoding='utf-8')
+            pin = dict(path=str(draft),sha256=RUNNER['sha256'](draft))
+            spec = {field:pin for field in RUNNER['V2_FIELDS']}
+            export_worker = SCRIPTS/'c4-state-reopen-node.py'
+            spec.update(schema=RUNNER['REQUEST_V2'],attempt='c4-ab-check',
+                        worker=dict(path=str(export_worker),sha256=RUNNER['sha256'](export_worker)))
+            request.write_text(json.dumps(spec),encoding='utf-8')
+            req_sha, runner_sha = RUNNER['sha256'](request), RUNNER['sha256'](SCRIPTS/'run-c4-state-reopen.py')
+            with patch('subprocess.check_output') as ssh, redirect_stdout(io.StringIO()):
+                RUNNER['record_launch_authorization']([
+                    '--request',str(request),'--sha256',req_sha,'--runtime-repo',str(root),
+                    '--out',str(output),'--authorization-out',str(authorization)])
+                ssh.assert_not_called()
+            auth_ref = dict(path=str(authorization),sha256=RUNNER['sha256'](authorization))
+            value = RUNNER['read_pin'](auth_ref)
+            self.assertNotIn('reviewed',value)
+            self.assertIs(value['formal_sample'],False)
+            self.assertFalse(output.exists())
+            verify = RUNNER['verify_launch']
+            verify(spec,route,value,req_sha,runner_sha,root,output)
+            for altered in (None, {**value,'formal_sample':True}, {**value,'model_calls_allowed':False},
+                            {**value,'reviewed':True}, {**value,'attempt':'different-attempt'}):
+                with self.subTest(altered=altered), self.assertRaisesRegex(ValueError,'exact diagnostic launch'):
+                    verify(spec,route,altered,req_sha,runner_sha,root,output)
+            for different in (
+                    ('0'*64,runner_sha,root,output),
+                    (req_sha,'0'*64,root,output),
+                    (req_sha,runner_sha,root,root/'other-output')):
+                with self.subTest(different=different), self.assertRaisesRegex(ValueError,'exact diagnostic launch'):
+                    verify(spec,route,value,*different)
+            for wrong in ({**route,'source_pool':'pool-b','target_pool':'pool-a'},
+                          {**route,'model_calls_allowed':1}, {**route,'model_calls_allowed':False}):
+                with self.subTest(wrong=wrong), self.assertRaisesRegex(ValueError,'only the A-to-B no-model'):
+                    verify(spec,wrong,value,req_sha,runner_sha,root,output)
+            for wrong in ({k:v for k,v in spec.items() if k!='current_boots'}, {**spec,'reviewed':True}):
+                with self.subTest(wrong=wrong), self.assertRaisesRegex(ValueError,'current boot proof'):
+                    verify(wrong,route,value,req_sha,runner_sha,root,output)
+            with self.assertRaisesRegex(ValueError,'pinned no-model OpenCode export worker'):
+                verify({**spec,'worker':pin},route,value,req_sha,runner_sha,root,output)
+            authorization.write_text('{}',encoding='utf-8')
+            with self.assertRaisesRegex(ValueError,'Pinned launch file changed'):
+                RUNNER['read_pin'](auth_ref)
+
+    def test_v1_still_requires_explicit_review_and_refuses_v2_auth(self):
+        route = dict(schema='pilot-c4-state-reopen-draft-v1',model_calls_allowed=0,
+                     source_pool='pool-b',target_pool='pool-a')
+        verify = RUNNER['verify_launch']
+        spec = dict(schema=RUNNER['REQUEST_V1'],reviewed=True)
+        verify(spec,route,None,None,None,None,None)
+        with self.assertRaisesRegex(ValueError,'Explicit reviewed execution'):
+            verify(dict(spec,reviewed=False),route,None,None,None,None,None)
+        with self.assertRaisesRegex(ValueError,'Explicit reviewed execution'):
+            verify(spec,route,{},None,None,None,None)
+
+    def test_v2_uses_only_a_storage_and_the_two_original_clients(self):
+        def pool(letter, subnet):
+            roles = {role:dict(instance_id=f'i-{letter}-{role}', hostname=f'{letter}-{role}',
+                              data_disk_ids=[f'd-{letter}-{role}'], private_ip=f'10.20.{subnet}.{index}')
+                     for index,role in enumerate(('client','metadata','objects'),1)}
+            return dict(pool_id='pool-'+letter,roles=roles)
+        a, b = pool('a',2), pool('b',3)
+        original = {'pools':[a,b]}
+        roles = {**a['roles'],'target':b['roles']['client']}
+        route = lambda selected: {'pools':[dict(pool_id='pool-c4-state',roles=selected)]}
+        check = RUNNER['check_authorized_storage']
+        check(original,route(roles))
+        for key in ('metadata','objects'):
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError,'requires A storage'):
+                check(original,route({**roles,key:b['roles'][key]}))
+
     def boot_evidence(self):
         now = datetime(2026, 11, 12, 8, 0, tzinfo=timezone.utc)
         draft = dict(path='/draft.json',sha256='0'*64)
