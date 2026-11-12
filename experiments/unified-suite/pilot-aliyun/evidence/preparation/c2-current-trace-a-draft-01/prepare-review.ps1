@@ -1,4 +1,4 @@
-# Make an unsigned local review packet. Only Git tip reads and ECS DescribeInstances are allowed.
+# Record the existing user instruction and exact C2 inputs. This does not launch a run.
 [CmdletBinding(DefaultParameterSetName='Refresh')]
 param(
     [Parameter(Mandatory)][string]$PacketRoot,
@@ -25,7 +25,7 @@ if ((Hash $manifest) -cne $manifestSha -or $draft.reviewed -ne $false -or $draft
     throw 'Frozen build manifest or unsigned draft differs'
 }
 $ids = @($draft.instance_ids.client,$draft.instance_ids.metadata,$draft.instance_ids.objects)
-$tag = 'c2-current-a-' + [DateTime]::UtcNow.ToString('yyyyMMddtHHmmss') + 'z'
+$tag = 'c2-current-a-' + [DateTime]::UtcNow.ToString("yyyyMMdd't'HHmmss'z'", [Globalization.CultureInfo]::InvariantCulture)
 $out = Join-Path (Resolve-Path -LiteralPath $PacketRoot).Path $tag
 New-Item -ItemType Directory -Path $out -ErrorAction Stop | Out-Null
 $latest = Join-Path $out 'latest.json'
@@ -39,7 +39,8 @@ if ($PSCmdlet.ParameterSetName -eq 'FromReceipts') {
     Copy-Item -LiteralPath $InstancesBeforeReceipt -Destination $before
     (Get-Item -LiteralPath $before).LastWriteTimeUtc = $old.LastWriteTimeUtc
 } else {
-    $null = wsl.exe -d Ubuntu-24.04 -u hxy -- python3 -B (WslPath $verifier) --manifest (WslPath $manifest) --out (WslPath $latest)
+    $git = (Get-Command git.exe -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
+    $null = wsl.exe -d Ubuntu-24.04 -u hxy -- python3 -B (WslPath $verifier) --manifest (WslPath $manifest) --out (WslPath $latest) --git (WslPath $git)
     if ($LASTEXITCODE) { throw "Cannot prove both built commits still equal branch tips; inspect $latest" }
     $idJson = ConvertTo-Json -Compress -InputObject $ids
     $raw = aliyun ecs DescribeInstances --RegionId cn-hangzhou --InstanceIds $idJson
@@ -72,15 +73,16 @@ if (!$api.RequestId -or $api.TotalCount -ne 3 -or $rows.Count -ne 3 -or (Compare
     ($rows | Where-Object {$_.ZoneId -cne 'cn-hangzhou-j' -or $_.Status -cne 'Stopped' -or $_.StoppedMode -cne 'StopCharging'})) {
     throw 'All three exact A hosts must be Stopped/StopCharging in cn-hangzhou-j'
 }
-$template = Join-Path $out 'operator.review.template.json'
+$authorization = Join-Path $out 'launch.authorization.json'
 [ordered]@{
-    schema='c2-current-a-operator-review-v1'; reviewed=$false; reviewer=$null
+    schema='c2-current-a-launch-authorization-v1'; source='conversation-user-instruction'
+    user_instruction='设定目标 完成所有的c1~c4的小规模实验吧'; user_followup='继续完成实验'; formal_sample=$false
     scope='A-only stock workspace-v1 Packed C2 qualification, 45 minute cap'; tag=$tag; database=$Database
     controller_sha256=(Hash (Join-Path $PSScriptRoot 'run-c2-current-a.py'))
     worker_sha256=(Hash (Join-Path $PSScriptRoot 'qualify-c2-current-a.py'))
     latest_sha256=(Hash $latest); before_sha256=(Hash $before)
-} | ConvertTo-Json | Set-Content -LiteralPath $template -Encoding utf8NoBOM
-[ordered]@{packet=$out; tag=$tag; reviewed=$false; runnable=$false; template=$template;
+} | ConvertTo-Json | Set-Content -LiteralPath $authorization -Encoding utf8NoBOM
+[ordered]@{packet=$out; tag=$tag; started=$false; formal_sample=$false; authorization=$authorization;
     draft_sha256=(Hash $draftPath); expires_utc=(@(([DateTimeOffset]$version.at).AddSeconds(900),
         ([DateTimeOffset](Get-Item -LiteralPath $before).LastWriteTimeUtc).AddSeconds(300)) |
         Sort-Object | Select-Object -First 1).ToString('o')} | ConvertTo-Json

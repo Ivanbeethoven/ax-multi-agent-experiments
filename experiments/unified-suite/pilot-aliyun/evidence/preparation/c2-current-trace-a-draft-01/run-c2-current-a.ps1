@@ -1,32 +1,38 @@
-# Run only with an operator-reviewed packet. Keeps the coordinator lock until exact StopCharging evidence.
+# Bind the recorded user instruction to the exact C2 inputs and keep the lock until StopCharging evidence.
 param(
     [Parameter(Mandatory)][string]$SshConfig,
     [Parameter(Mandatory)][string]$ReceiptRoot,
     [Parameter(Mandatory)][string]$Latest,
     [Parameter(Mandatory)][string]$InstancesBefore,
-    [Parameter(Mandatory)][string]$OperatorReview
+    [Parameter(Mandatory)][string]$LaunchAuthorization
 )
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $false
-$review = Get-Content -LiteralPath $OperatorReview -Raw | ConvertFrom-Json
-$tag = $review.tag
-$db = $review.database
-if ($review.schema -ne 'c2-current-a-operator-review-v1' -or $review.reviewed -isnot [bool] -or
-    !$review.reviewed -or [string]::IsNullOrWhiteSpace($review.reviewer) -or
-    $review.scope -ne 'A-only stock workspace-v1 Packed C2 qualification, 45 minute cap' -or
+$authorization = Get-Content -LiteralPath $LaunchAuthorization -Raw | ConvertFrom-Json
+$tag = $authorization.tag
+$db = $authorization.database
+$authFields = @('schema','source','user_instruction','user_followup','formal_sample','scope','tag','database',
+    'controller_sha256','worker_sha256','latest_sha256','before_sha256')
+if ($authorization.schema -cne 'c2-current-a-launch-authorization-v1' -or
+    $authorization.source -cne 'conversation-user-instruction' -or
+    $authorization.user_instruction -cne '设定目标 完成所有的c1~c4的小规模实验吧' -or
+    $authorization.user_followup -cne '继续完成实验' -or
+    $authorization.formal_sample -isnot [bool] -or $authorization.formal_sample -or
+    (Compare-Object $authFields @($authorization.PSObject.Properties.Name) -CaseSensitive) -or
+    $authorization.scope -cne 'A-only stock workspace-v1 Packed C2 qualification, 45 minute cap' -or
     $tag -cnotmatch '^c2-current-a-[0-9]{8}t[0-9]{6}z$' -or $db -isnot [long] -and $db -isnot [int] -or
-    $db -lt 20 -or $db -gt 255 -or $db -in @(54,70,243)) { throw 'Exact external operator review required' }
+    $db -lt 20 -or $db -gt 255 -or $db -in @(54,70,243)) { throw 'Exact C2 user authorization record required' }
 
 $controller = Join-Path $PSScriptRoot 'run-c2-current-a.py'
 $worker = Join-Path $PSScriptRoot 'qualify-c2-current-a.py'
 function Hash([string]$Path) { (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant() }
-if ((Hash $controller) -cne $review.controller_sha256 -or (Hash $worker) -cne $review.worker_sha256 -or
-    (Hash $Latest) -cne $review.latest_sha256 -or (Hash $InstancesBefore) -cne $review.before_sha256) {
-    throw 'Operator review does not bind the supplied files'
+if ((Hash $controller) -cne $authorization.controller_sha256 -or (Hash $worker) -cne $authorization.worker_sha256 -or
+    (Hash $Latest) -cne $authorization.latest_sha256 -or (Hash $InstancesBefore) -cne $authorization.before_sha256) {
+    throw 'Launch authorization does not bind the supplied files'
 }
 $beforeAge = ([DateTime]::UtcNow-(Get-Item -LiteralPath $InstancesBefore).LastWriteTimeUtc).TotalSeconds
 if ($beforeAge -lt 0 -or $beforeAge -gt 300) {
-    throw 'Obtain a current before-state read and bind it in the review'
+    throw 'Obtain a current before-state read and refresh the launch authorization record'
 }
 $local = Join-Path (Resolve-Path -LiteralPath $ReceiptRoot) $tag
 New-Item -ItemType Directory -Path $local -ErrorAction Stop | Out-Null
@@ -60,7 +66,7 @@ $jumpCheck | Set-Content -Encoding utf8NoBOM (Join-Path $local 'jump-control.jso
 $files = [ordered]@{
     'run-c2-current-a.py'=$controller; 'qualify-c2-current-a.py'=$worker
     'a-pool-up.py'=(Join-Path $PSScriptRoot '../../../scripts/a-pool-up.py')
-    'latest.json'=$Latest; 'instances-before.json'=$InstancesBefore; 'operator.reviewed.json'=$OperatorReview
+    'latest.json'=$Latest; 'instances-before.json'=$InstancesBefore; 'launch.authorization.json'=$LaunchAuthorization
 }
 foreach ($file in $files.GetEnumerator()) {
     scp -pq @sshArgs $file.Value "ax-pilot-jump:$dest/$($file.Key)"
