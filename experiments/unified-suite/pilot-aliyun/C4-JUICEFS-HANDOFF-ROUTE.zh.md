@@ -22,3 +22,5 @@ python3 experiments/unified-suite/pilot-aliyun/scripts/draft-c4-juicefs-handoff-
 后续已验证另一条可表达的办法：[新建单逻辑池](C4-SINGLE-POOL-DRAFT.zh.md)，把 A/B 两台客户端各列为一个槽，并用原规划器生成新的四单元草稿。仍须接入正式运行和收尾，不把结果回写旧计划。
 
 协调端现在可用 [`run_guarded`](../../../bench/pilot_handoff_closure_bridge.py) 把迁移、目标挂载核验、卸载与归档放在同一把物理资源锁内。调用方要提供已认领单元的 owner/token、独立审阅的目标请求，以及取回原始归档并核对哈希的回调。失败时保留已认领记录和原始回执，先核状态再决定如何继续。WSL 验证了锁和回执检查；实际卷、双机 SSH 和归档回调仍待验证。
+
+归档可用 [`archive_handoff`](../../../bench/pilot_handoff_archive.py)：`archive=lambda ctx: archive_handoff(ctx, output / "archive")`。它在原目标 SSH 上只读回有 SHA 的 ready/process、两份零债务采样和卸载回执；再把协调端的完整 handoff 输出与审阅请求打包，用清单逐文件回读核对。归档留在协调者私有目录，不上传、不修改账本。真实双机仍待验证；WSL 已用本地传输替身执行原读回脚本，篡改远端回执会失败且不会写通过凭据。
