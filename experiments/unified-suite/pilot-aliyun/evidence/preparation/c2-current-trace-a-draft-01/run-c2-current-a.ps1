@@ -24,7 +24,8 @@ if ((Hash $controller) -cne $review.controller_sha256 -or (Hash $worker) -cne $r
     (Hash $Latest) -cne $review.latest_sha256 -or (Hash $InstancesBefore) -cne $review.before_sha256) {
     throw 'Operator review does not bind the supplied files'
 }
-if (((Get-Date).ToUniversalTime()-(Get-Item -LiteralPath $InstancesBefore).LastWriteTimeUtc).TotalSeconds -gt 300) {
+$beforeAge = ([DateTime]::UtcNow-(Get-Item -LiteralPath $InstancesBefore).LastWriteTimeUtc).TotalSeconds
+if ($beforeAge -lt 0 -or $beforeAge -gt 300) {
     throw 'Obtain a current before-state read and bind it in the review'
 }
 $local = Join-Path (Resolve-Path -LiteralPath $ReceiptRoot) $tag
@@ -49,14 +50,19 @@ function Save-Cloud([string]$Name) {
     return @($rows | Where-Object {$_.Status -ne 'Stopped' -or $_.StoppedMode -ne 'StopCharging'})
 }
 
-ssh @sshArgs ax-pilot-jump "mkdir -m 700 $dest"
-if ($LASTEXITCODE) { throw 'New staging directory required' }
+# Never stage into a shadow directory on the jump system disk. This call is read-only.
+$jumpCheck = Get-Content -LiteralPath (Join-Path $PSScriptRoot '../../../scripts/restore-existing-jump-control.py') -Raw -Encoding utf8 |
+    ssh @sshArgs ax-pilot-jump "python3 - && mkdir -m 700 $dest"
+if ($LASTEXITCODE -or !$jumpCheck -or !(($jumpCheck | ConvertFrom-Json).passed)) {
+    throw 'Exact jump control disk or fresh staging directory not proved; no A workers started'
+}
+$jumpCheck | Set-Content -Encoding utf8NoBOM (Join-Path $local 'jump-control.json')
 $files = [ordered]@{
     'run-c2-current-a.py'=$controller; 'qualify-c2-current-a.py'=$worker
     'latest.json'=$Latest; 'instances-before.json'=$InstancesBefore; 'operator.reviewed.json'=$OperatorReview
 }
 foreach ($file in $files.GetEnumerator()) {
-    scp -q @sshArgs $file.Value "ax-pilot-jump:$dest/$($file.Key)"
+    scp -pq @sshArgs $file.Value "ax-pilot-jump:$dest/$($file.Key)"
     if ($LASTEXITCODE) { throw 'C2 staging failed before any ECS action' }
 }
 ssh @sshArgs ax-pilot-jump "systemd-run --unit=$tag --remain-after-exit --property=Type=exec /usr/bin/python3 -B $dest/run-c2-current-a.py --database $db"
