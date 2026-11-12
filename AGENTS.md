@@ -1,5 +1,9 @@
 # 实验 Agent 入口
 
+- 2026-11-12 后续最小复验已补齐原先 5 个阻塞入口，见[结果与复现](experiments/unified-suite/pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md)。用户最新决定：不再实际运行 Agent 或验证 OpenCode resume；C4 只核工作区文件树、重挂及后续文件读写。三个消融用同一诊断候选；两个跨机用 113 项独立小输入。原 21 项和失败证据不改写，不把功能通过当正式性能验收。jump 已恢复 StopCharging，无新增实例或盘；本任务临时访问规则、密钥和挂载已清理，正式实验仍暂停。
+
+- 2026-11-12 用户重新授权的 `ssh rbm` 最小脚本检查已完成：26 个入口最终 21 通过、5 阻塞，见 [结果与卡点](experiments/unified-suite/pilot-aliyun/evidence/preparation/rbm-script-check-20261112/README.zh.md)。临时服务及挂载已清理，未启动阿里云机器。正式规模和历史结果未改；跨机与尚未实现的接口未验证。`--tiny` 只用于明确选择的脚本小试，不改变常规参数。
+
 - 2026-11-12 用户已清除持续目标并要求暂停实验。只完成已开始任务的归档、按创建回执清理本任务创建的非 jump 资源，以及整理脚本和困难；不得启动新实验。jump、其证据盘及任何不能证明由本任务创建的资源保留。恢复实验须有新的用户指令及新的资源清单。
 
 - 2026-11-12 用户明确跳过 JuiceFS 混合读写（C1 `randrw`）：本轮不再补跑或补验收，原结果保留，不改成 passed。后续工作集中 C2–C4；当前未完成项见 [清单](experiments/unified-suite/current/PENDING.zh.md)。

@@ -2,11 +2,15 @@
 
 **实验已暂停，清理已完成。** [C1–C4 结果表与关键指标](results-20261112/RESULT.zh.md) · [脚本入口](../pilot-aliyun/scripts/README.zh.md)
 
+最新[五项补充小试](../pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md)已通过：Packed 元数据关闭两项、全关闭一项、文件系统跨机两项。仅复用 jump，已恢复 StopCharging。功能入口已接通，正式规模、性能对照和故障切换仍按各自资格执行。
+
+随后按用户要求，仅在 rbm 做了[最小脚本复验](../pilot-aliyun/evidence/preparation/rbm-script-check-20261112/README.zh.md)：26 个入口最终 21 通过、5 阻塞。修复回放权限掩码、补充导入超时参数，逐阶段定位等待。没有新开云机，临时服务已清理；正式规模和历史结果未改，正式实验仍暂停。
+
 本轮按用户要求跳过 JuiceFS 混合读写，不再补跑或补验收，原有结果保留。[C2–C4 未完成清单](PENDING.zh.md)按当前方案列项；旧 14/28 只用于解释历史账本，不能代表已删除完整复制实验后的当前进度。
 
 各子项的工作区格式、构建 feature、运行开关与开跑条件见[统一对照表](FEATURES.zh.md)。
 
-目标：测量云上多 Agent 共享初始数据、独立修改及换机器继续任务的性能与正确性。主体使用固定文件访问 trace，C4 用少量真实 OpenCode resume 验证状态恢复。
+目标：测量云上多 Agent 共享初始数据、独立修改及工作区迁移的文件系统性能与正确性。按用户最新要求，全部使用固定文件操作；C4 只核文件状态、重挂和后续读写，Agent 状态按普通文件处理，不再运行 OpenCode 或验证对话恢复。
 
 | 文档 | 内容 |
 |---|---|

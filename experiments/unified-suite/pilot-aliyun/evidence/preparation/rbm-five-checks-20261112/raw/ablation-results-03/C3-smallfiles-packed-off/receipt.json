@@ -1,0 +1,157 @@
+{
+  "plan": {
+    "experiment": "C3-smallfiles",
+    "mode": "packed-off",
+    "placement": null,
+    "engine": "workspace-v1",
+    "mechanisms": {
+      "overlay": true,
+      "packed_metadata": false,
+      "dynamic_block": true
+    },
+    "rustfs_layout_profile": "enabled",
+    "brewfs_hint": "auto",
+    "brewfs_cargo_default_features": true,
+    "brewfs_cargo_features": [
+      "workspace-overlay",
+      "observability",
+      "rustfs-ec-block-size-hint"
+    ],
+    "native_action": null,
+    "read_only_control": false,
+    "runtime_qualification_blockers": [
+      "same-engine-runtime-adapter-required",
+      "current-suite-workload-adapter-qualification-required"
+    ],
+    "dispatch_enabled": false
+  },
+  "formal_sample": false,
+  "status": "passed",
+  "candidate_pins": {
+    "brewfs": "36f9149094f688fac925167e73ab4cccc6e484f046c417ed85c3252bcf454004",
+    "producer": "f11c96ef4795255ed9dddc8048d1e8dc8cf74b0cabed2bda32ee53f655c350a7"
+  },
+  "argv": [
+    "/srv/ax-data/workspace-adapter-20261111/venv/bin/python",
+    "/home/dev/ax-five-fixes-20261112/ax/experiments/unified-suite/pilot-aliyun/scripts/rbm-lifecycle.py",
+    "--product",
+    "brewfs",
+    "--brewfs",
+    "/home/dev/ax-five-fixes-20261112/candidate-03/bin/brewfs",
+    "--producer",
+    "/home/dev/ax-five-fixes-20261112/candidate-03/bin/packed_v3_snapshot_fixture",
+    "--juicefs",
+    "/srv/ax-bin/juicefs",
+    "--rustfs-image",
+    "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+    "--prepare-timeout",
+    "60",
+    "--tiny",
+    "--smallfiles",
+    "/srv/ax-bin/smallfiles",
+    "--workload",
+    "c3",
+    "--hint",
+    "auto",
+    "--layout",
+    "enabled",
+    "--engine",
+    "workspace-v1",
+    "--packed-metadata",
+    "off",
+    "--out",
+    "/home/dev/ax-five-fixes-20261112/ablation-results-03/C3-smallfiles-packed-off/run"
+  ],
+  "elapsed_ns": 16462613154,
+  "exit_code": 0,
+  "evidence": {
+    "formal_sample": false,
+    "workload": "c3",
+    "engine": "workspace-v1",
+    "hint": "auto",
+    "layout": "enabled",
+    "arms": {
+      "brewfs": {
+        "phase": "complete",
+        "passed": true,
+        "manifest_key": "base/objects/0/5c2627ceb1a0d2be7a9fdd6a70835b3956a23f80876b075335f0c6e960c04d43",
+        "lower_preparation": "packed-data-unchanged-kv-metadata",
+        "verify_base": {
+          "passed": true,
+          "files": 8,
+          "bytes_checked": 32768
+        },
+        "run": {
+          "passed": true,
+          "files": 8,
+          "verified_reads": 38,
+          "writes": 8,
+          "actual_read_bytes": 155648,
+          "actual_write_bytes": 32768
+        },
+        "initial_metadata_path": {
+          "runtime_kv_operations": 1469,
+          "runtime_namespace_object_reads": 0
+        },
+        "initial_unmount": {
+          "unmount_exit": 0,
+          "mount_exit": 0,
+          "mount_absent": true
+        },
+        "verify_touched": {
+          "passed": true,
+          "checked_files": 2
+        },
+        "reopen_metadata_path": {
+          "runtime_kv_operations": 65,
+          "runtime_namespace_object_reads": 0
+        },
+        "reopen_unmount": {
+          "unmount_exit": 0,
+          "mount_exit": 0,
+          "mount_absent": true
+        },
+        "lower_objects": {
+          "unchanged": true,
+          "count": 27,
+          "identity_sha256": "c712c952fc9f7318591cac8ed645477f5f8a2b5628d9fc18aaeaae57503cb93a"
+        }
+      }
+    },
+    "packed_metadata": "off",
+    "eager_workspace": false,
+    "smallfiles_options": [
+      "--files",
+      "8",
+      "--hot-files",
+      "4",
+      "--workers",
+      "1",
+      "--read-ops",
+      "8",
+      "--cow-files",
+      "2",
+      "--write-ops",
+      "4",
+      "--mixed-ops",
+      "8"
+    ],
+    "binary_sha256": {
+      "brewfs": "36f9149094f688fac925167e73ab4cccc6e484f046c417ed85c3252bcf454004",
+      "producer": "f11c96ef4795255ed9dddc8048d1e8dc8cf74b0cabed2bda32ee53f655c350a7",
+      "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+      "smallfiles": "1e27cb2204dff633aea1d21a61a6fa740cfe9aa2afdb501bc41eca33cb8fd62f"
+    },
+    "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+    "phase": "workload",
+    "source": {
+      "passed": true,
+      "files": 8
+    },
+    "mounts_absent": true,
+    "rustfs_removed": true,
+    "redis_exited": true,
+    "scratch_removed": true,
+    "passed": true
+  }
+}

@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT/'experiments/unified-suite/pilot-aliyun/evidence/preparation/c2-local-packed-warm-01'))
 from loopback_probe import meter, probe
+from bench.runtime.smoke_journal import SmokeJournal
 
 
 def main():
@@ -43,6 +44,7 @@ def main():
     # BrewFS appends '-' and a 36-character workspace UUID to the bucket.
     owner='ax-pr-'+uuid.uuid4().hex[:12]
     access,secret=secrets.token_hex(12),secrets.token_hex(24)
+    journal=SmokeJournal(a.out/'stages.jsonl',(access,secret))
     env=dict(os.environ,AWS_ACCESS_KEY_ID=access,AWS_SECRET_ACCESS_KEY=secret,AWS_REGION='us-east-1',
              AWS_EC2_METADATA_DISABLED='true',RUST_LOG='warn',NO_COLOR='1',NO_PROXY='127.0.0.1,localhost',
              BREWFS_FUSE_READ_DIRECT_IO='1',BREWFS_PACKED_VERIFY_MEMO='0',
@@ -62,7 +64,7 @@ def main():
         return text.replace(access,'[redacted]').replace(secret,'[redacted]')
 
     def call(*argv,check=True,timeout=20):
-        r=sp.run(list(map(str,argv)),env=env,text=True,capture_output=True,timeout=timeout)
+        r=journal.run(argv,env=env,text=True,capture_output=True,timeout=timeout)
         if check and r.returncode:
             raise RuntimeError(str(argv[0])+': '+clean(r.stderr+r.stdout)[-3000:])
         return r
@@ -171,8 +173,9 @@ def main():
                         return mounted()
                     wait_for(mount_ready)
                     phase='probe-'+arm
-                    result['arms'][arm]=probe(point,rows,snapshot,a.out/arm,retained_bytes=a.retained_bytes,
-                         extent_arm=arm,timed_passes=a.timed_passes,mount_alive=lambda:proc is not None and proc.poll() is None)
+                    with journal.stage('warm-lower:'+arm):
+                        result['arms'][arm]=probe(point,rows,snapshot,a.out/arm,retained_bytes=a.retained_bytes,
+                             extent_arm=arm,timed_passes=a.timed_passes,mount_alive=lambda:proc is not None and proc.poll() is None)
                     unmount(True)
         result['passed']=all(row['hot'] and (not a.timed_passes or row['timed_extent_reads']['passed']) for row in result['arms'].values())
     except Exception as e:

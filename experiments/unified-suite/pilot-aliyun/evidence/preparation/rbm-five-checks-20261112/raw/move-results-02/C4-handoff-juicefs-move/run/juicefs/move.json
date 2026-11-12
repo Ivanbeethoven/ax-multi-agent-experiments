@@ -1,0 +1,41 @@
+{
+  "passed": false,
+  "formal_sample": false,
+  "target_identity": {
+    "machine": "7c92d10a1e79333eb290befaf095d19d2562aa18f7c6044d3a4c42e36af88045",
+    "boot": "227ece0c27b95cd3cc9f378b2dd9bad7e388680bd1bb698b7f91b2d814c08059"
+  },
+  "workspace_payload_copied": false,
+  "real_resume": false,
+  "native_model_calls": 0,
+  "verifier_sha256": "05bd7afec599658a6dbced731f0a5cd4b9d8914a18029dd478909801252d909e",
+  "target_script_sha256": "14a0b75cb73a70a7c9e2adb015d4251f4fb3a6cae70d4a5f120a5128bfa4a26a",
+  "check_timeout_seconds": 900,
+  "mount_seconds": 5.716009648,
+  "tree_verification": {
+    "passed": true,
+    "entries": 893,
+    "directories": 86,
+    "workers": 16,
+    "cached_parent_descriptors": true
+  },
+  "tree_check_seconds": 197.781809278,
+  "source_tree_equal": true,
+  "tree_entries": 893,
+  "error": "Native export parent did not exit by its deadline",
+  "unmount": {
+    "exit_code": 1,
+    "process_exit": null,
+    "mount_absent": true
+  },
+  "log_tail": "ewCacheStore@disk_cache.go:154]\n2026/11/12 22:54:05.521119 juicefs[5536] <INFO>: Adjusted cache capacity based on freeratio: from 107374182400 to 37694648140 bytes [setLimitByFreeRatio@disk_cache.go:177]\n2026/11/12 22:54:05.521137 juicefs[5536] <INFO>: Adjusted max items based on freeratio: from 0 to 2347329 items [setLimitByFreeRatio@disk_cache.go:191]\n.2026/11/12 22:54:06.180380 juicefs[5536] <INFO>: Create session 2 OK with version: 1.4.2+2026-10-22.46af7af [NewSession@base.go:816]\n.2026/11/12 22:54:06.714889 juicefs[5536] <INFO>: Prometheus metrics listening on \"127.0.0.1:9567\" [exposeMetrics@mount.go:137]\n2026/11/12 22:54:06.715497 juicefs[5536] <INFO>: Mounting volume ax-smoke at \"/srv/ax-pilot-session\" ... [mountMain@mount_unix.go:1165]\n2026/11/12 22:54:07.195047 juicefs[5527] <INFO>: \u001b[92mOK\u001b[0m, ax-smoke is ready at \"/srv/ax-pilot-session\" [checkMountpoint@mount_unix.go:327]\n2026-11-12 22:54:09.040943 I | Unimplemented opcode POLL\n2026/11/12 22:54:09.041477 juicefs[5527] <INFO>: watching \"/srv/ax-pilot-session\", pid 5536 [watchdog@mount_unix.go:237]\n2026-11-12 22:57:43.966816 I | Unimplemented opcode OPCODE-52\n2026/11/12 22:59:04.041753 juicefs[5536] <INFO>: slow operation: read (1027,4096,0,1820): (4096) - OK <11.945499> [logit@accesslog.go:92]\n2026/11/12 22:59:23.358462 juicefs[5527] <INFO>: received signal terminated, propagating to child process 5536... [launchMount@mount_unix.go:1039]\n2026/11/12 22:59:23.358560 juicefs[5536] <INFO>: Received signal terminated, exiting... [installHandler@mount_unix.go:945]\n2026/11/12 22:59:23.361790 juicefs[5536] <INFO>: flush buffered data in 1.324\u00b5s: <nil> [FlushAll@vfs.go:1330]\n2026/11/12 22:59:23.361843 juicefs[5536] <INFO>: flush session 2: [FlushSession@base.go:1027]\n2026/11/12 22:59:24.224741 juicefs[5536] <INFO>: close session 2: <nil> [CloseSession@base.go:1016]\n2026/11/12 22:59:24.224801 juicefs[5536] <INFO>: The juicefs mount process exit successfully, mountpoint: \"/srv/ax-pilot-session\" [mount@mount.go:698]\n",
+  "scratch_removed": true,
+  "source_identity": {
+    "machine": "48f0f278c11cda0f7807b82b984ff7fc26b86869f70aa1a854e484ed426f7624",
+    "boot": "1d520f9534d2ee08983e1105ab4064e7a23140267adc07a4b3ccbcf5bd71992a"
+  },
+  "transport": "SSH reverse loopback forwards",
+  "physical_move": true,
+  "controller_elapsed_seconds": 328.605072537,
+  "tunnel_exited": true
+}

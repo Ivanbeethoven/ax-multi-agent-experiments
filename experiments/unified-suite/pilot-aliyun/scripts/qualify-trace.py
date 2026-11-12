@@ -99,10 +99,14 @@ def main():
         report=json.loads(args.replay_result.read_text())
     else:
         save(out/'command.json', dict(argv=command, strict=not args.portable_terminal_probe,
-              byte_validation=True,portable_terminal_probe=args.portable_terminal_probe,has_deadline=False))
+              byte_validation=True,portable_terminal_probe=args.portable_terminal_probe,has_deadline=False,
+              replay_umask=0))
         begin = time.monotonic()
         with (out/'stdout.log').open('xb') as stdout, (out/'stderr.log').open('xb') as stderr:
-            child = subprocess.Popen(command, stdout=stdout, stderr=stderr)
+            # FUSE callbacks already contain the creation modes after the original
+            # kernel umask. Do not mask them a second time using the runner's umask.
+            # Only the replay child changes; logs and the parent stay private.
+            child = subprocess.Popen(command, stdout=stdout, stderr=stderr, umask=0)
             save(out/'process.json', dict(pid=child.pid, boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip()))
             code = child.wait()
         save(out/'exit.json', dict(exit_code=code, wall_seconds=time.monotonic()-begin))

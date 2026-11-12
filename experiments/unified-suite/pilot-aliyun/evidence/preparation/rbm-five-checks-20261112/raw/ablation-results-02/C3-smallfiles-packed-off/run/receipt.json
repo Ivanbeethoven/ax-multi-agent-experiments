@@ -1,0 +1,90 @@
+{
+  "formal_sample": false,
+  "workload": "c3",
+  "engine": "workspace-v1",
+  "hint": "auto",
+  "layout": "enabled",
+  "arms": {
+    "brewfs": {
+      "phase": "complete",
+      "passed": true,
+      "manifest_key": "base/objects/0/738ebf741d15485affaf2d07b3f8213b12e92ff02c0a5726dfa1612d481e1c72",
+      "lower_preparation": "packed-data-unchanged-kv-metadata",
+      "verify_base": {
+        "passed": true,
+        "files": 8,
+        "bytes_checked": 32768
+      },
+      "run": {
+        "passed": true,
+        "files": 8,
+        "verified_reads": 38,
+        "writes": 8,
+        "actual_read_bytes": 155648,
+        "actual_write_bytes": 32768
+      },
+      "initial_metadata_path": {
+        "runtime_kv_operations": 1469,
+        "runtime_namespace_object_reads": 0
+      },
+      "initial_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "verify_touched": {
+        "passed": true,
+        "checked_files": 2
+      },
+      "reopen_metadata_path": {
+        "runtime_kv_operations": 65,
+        "runtime_namespace_object_reads": 0
+      },
+      "reopen_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "lower_objects": {
+        "unchanged": true,
+        "count": 27,
+        "identity_sha256": "3ffea98b51f27123da2eccdc509a1c3066d07f30f69be46e6cd2326203804a69"
+      }
+    }
+  },
+  "packed_metadata": "off",
+  "eager_workspace": false,
+  "smallfiles_options": [
+    "--files",
+    "8",
+    "--hot-files",
+    "4",
+    "--workers",
+    "1",
+    "--read-ops",
+    "8",
+    "--cow-files",
+    "2",
+    "--write-ops",
+    "4",
+    "--mixed-ops",
+    "8"
+  ],
+  "binary_sha256": {
+    "brewfs": "8082c8a7c9104719dbd6983bea632275f0075c46607262d4bfdee55ed1f145a5",
+    "producer": "13ee3e67814389c17e5aef82f46e523e0f281618257e8c64326bdc92da4b06b1",
+    "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+    "smallfiles": "1e27cb2204dff633aea1d21a61a6fa740cfe9aa2afdb501bc41eca33cb8fd62f"
+  },
+  "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+  "phase": "workload",
+  "source": {
+    "passed": true,
+    "files": 8
+  },
+  "mounts_absent": true,
+  "rustfs_removed": true,
+  "redis_exited": true,
+  "scratch_removed": true,
+  "passed": true
+}

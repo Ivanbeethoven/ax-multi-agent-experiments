@@ -1,0 +1,107 @@
+{"id": 1, "event": "start", "name": "verify-tool-sha256", "monotonic_ns": 171548282445682, "details": {}}
+{"id": 1, "event": "end", "name": "verify-tool-sha256", "elapsed_ns": 2906184393, "status": "passed"}
+{"id": 2, "event": "start", "name": "command:docker", "monotonic_ns": 171551188809776, "details": {"argv": ["docker", "image", "inspect", "-f", "{{.Id}}", "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 2, "event": "end", "name": "command:docker", "elapsed_ns": 65156648, "status": "passed"}
+{"id": 3, "event": "start", "name": "command:redis-cli", "monotonic_ns": 171551255239144, "details": {"argv": ["redis-cli", "-p", "44147", "ping"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 1}
+{"id": 3, "event": "end", "name": "command:redis-cli", "elapsed_ns": 9003289, "status": "passed"}
+{"id": 4, "event": "start", "name": "command:redis-cli", "monotonic_ns": 171551364549266, "details": {"argv": ["redis-cli", "-p", "44147", "ping"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 4, "event": "end", "name": "command:redis-cli", "elapsed_ns": 8836857, "status": "passed"}
+{"id": 5, "event": "start", "name": "command:docker", "monotonic_ns": 171551374593327, "details": {"argv": ["docker", "run", "--pull=never", "-d", "--name", "ax-rbm-d7ac5ec6dfe9", "--cpus", "2", "--memory", "2g", "-p", "127.0.0.1::9000", "--env-file", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/rustfs.env", "-v", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/0:/data/d0", "-v", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/1:/data/d1", "-v", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/2:/data/d2", "-v", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/3:/data/d3", "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 5, "event": "end", "name": "command:docker", "elapsed_ns": 952537648, "status": "passed"}
+{"id": 6, "event": "start", "name": "command:docker", "monotonic_ns": 171552327378750, "details": {"argv": ["docker", "port", "ax-rbm-d7ac5ec6dfe9", "9000/tcp"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 6, "event": "end", "name": "command:docker", "elapsed_ns": 36114816, "status": "passed"}
+{"id": 7, "event": "start", "name": "rustfs-readiness", "monotonic_ns": 171552564119398, "details": {}}
+{"id": 7, "event": "end", "name": "rustfs-readiness", "elapsed_ns": 326950184, "status": "passed"}
+{"id": 8, "event": "start", "name": "workload:prepare", "monotonic_ns": 171552891336030, "details": {}}
+{"id": 9, "event": "start", "name": "command:smallfiles", "monotonic_ns": 171552891672611, "details": {"argv": ["/srv/ax-bin/smallfiles", "prepare", "--root", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/source", "--output", "/home/dev/ax-five-fixes-20261112/ablation-results-02/C3-smallfiles-packed-off/run/prepare", "--files", "8", "--hot-files", "4", "--workers", "1", "--read-ops", "8", "--cow-files", "2", "--write-ops", "4", "--mixed-ops", "8"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 9, "event": "end", "name": "command:smallfiles", "elapsed_ns": 172064337, "status": "passed"}
+{"id": 8, "event": "end", "name": "workload:prepare", "elapsed_ns": 176323940, "status": "passed"}
+{"id": 10, "event": "start", "name": "create-bucket", "monotonic_ns": 171553068198212, "details": {}}
+{"id": 10, "event": "end", "name": "create-bucket", "elapsed_ns": 238999690, "status": "passed"}
+{"id": 11, "event": "start", "name": "command:packed_v3_snapshot_fixture", "monotonic_ns": 171553307582143, "details": {"argv": ["/home/dev/ax-five-fixes-20261112/candidate-02/bin/packed_v3_snapshot_fixture", "--source-directory", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/source", "--source-consistency", "best-effort-detected", "--source-hardlink-policy", "visible-links", "--output-dir", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/objects", "--manifest-output", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/manifest", "--bucket", "ax-rbm-d7ac5ec6dfe9-brewfs", "--endpoint", "http://127.0.0.1:32840", "--region", "us-east-1", "--force-path-style", "true", "--prefix", "base", "--metadata-codec", "raw", "--data-codec", "raw", "--inline-data", "off", "--chunk-size", "67108864", "--block-size", "4194304", "--s3-rustfs-ec-block-size-hint", "auto"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 11, "event": "end", "name": "command:packed_v3_snapshot_fixture", "elapsed_ns": 4761919118, "status": "passed"}
+{"id": 12, "event": "start", "name": "command:brewfs", "monotonic_ns": 171558070210661, "details": {"argv": ["/home/dev/ax-five-fixes-20261112/candidate-02/bin/brewfs", "workspace", "--meta-backend", "redis", "--meta-url", "redis://127.0.0.1:44147/0", "--workspace-namespace", "ax-rbm-d7ac5ec6dfe9", "init-packed-volume", "--data-config", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/data.json", "--manifest-key", "base/objects/0/738ebf741d15485affaf2d07b3f8213b12e92ff02c0a5726dfa1612d481e1c72"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 12, "event": "end", "name": "command:brewfs", "elapsed_ns": 406515755, "status": "passed"}
+{"id": 13, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171558544974649, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 13, "event": "end", "name": "command:mountpoint", "elapsed_ns": 4101138, "status": "passed"}
+{"id": 14, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171558649460899, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 14, "event": "end", "name": "command:mountpoint", "elapsed_ns": 6881686, "status": "passed"}
+{"id": 15, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171558756654360, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 15, "event": "end", "name": "command:mountpoint", "elapsed_ns": 5622699, "status": "passed"}
+{"id": 16, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171558862598980, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 16, "event": "end", "name": "command:mountpoint", "elapsed_ns": 3504348, "status": "passed"}
+{"id": 17, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171558966430866, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 17, "event": "end", "name": "command:mountpoint", "elapsed_ns": 4297641, "status": "passed"}
+{"id": 18, "event": "start", "name": "workload:verify-base", "monotonic_ns": 171558995661824, "details": {}}
+{"id": 19, "event": "start", "name": "command:smallfiles", "monotonic_ns": 171558995972839, "details": {"argv": ["/srv/ax-bin/smallfiles", "verify-base", "--root", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs", "--output", "/home/dev/ax-five-fixes-20261112/ablation-results-02/C3-smallfiles-packed-off/run/brewfs/verify-base", "--files", "8", "--hot-files", "4", "--workers", "1", "--read-ops", "8", "--cow-files", "2", "--write-ops", "4", "--mixed-ops", "8"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 19, "event": "end", "name": "command:smallfiles", "elapsed_ns": 543599919, "status": "passed"}
+{"id": 18, "event": "end", "name": "workload:verify-base", "elapsed_ns": 544460166, "status": "passed"}
+{"id": 20, "event": "start", "name": "workload:run", "monotonic_ns": 171559540405480, "details": {}}
+{"id": 21, "event": "start", "name": "command:smallfiles", "monotonic_ns": 171559540813915, "details": {"argv": ["/srv/ax-bin/smallfiles", "run", "--root", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs", "--output", "/home/dev/ax-five-fixes-20261112/ablation-results-02/C3-smallfiles-packed-off/run/brewfs/run", "--files", "8", "--hot-files", "4", "--workers", "1", "--read-ops", "8", "--cow-files", "2", "--write-ops", "4", "--mixed-ops", "8"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 21, "event": "end", "name": "command:smallfiles", "elapsed_ns": 1420934316, "status": "passed"}
+{"id": 20, "event": "end", "name": "workload:run", "elapsed_ns": 1421859463, "status": "passed"}
+{"id": 22, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171561152622707, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 22, "event": "end", "name": "command:mountpoint", "elapsed_ns": 5307935, "status": "passed"}
+{"id": 23, "event": "start", "name": "command:fusermount3", "monotonic_ns": 171561158136925, "details": {"argv": ["fusermount3", "-u", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 23, "event": "end", "name": "command:fusermount3", "elapsed_ns": 11943046, "status": "passed"}
+{"id": 24, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171561201883878, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 24, "event": "end", "name": "command:mountpoint", "elapsed_ns": 3684459, "status": "passed"}
+{"id": 25, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171561205813997, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 25, "event": "end", "name": "command:mountpoint", "elapsed_ns": 4862151, "status": "passed"}
+{"id": 26, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171561212067389, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 26, "event": "end", "name": "command:mountpoint", "elapsed_ns": 4753326, "status": "passed"}
+{"id": 27, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171561317251445, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 27, "event": "end", "name": "command:mountpoint", "elapsed_ns": 7327258, "status": "passed"}
+{"id": 28, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171561424963162, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 28, "event": "end", "name": "command:mountpoint", "elapsed_ns": 5103174, "status": "passed"}
+{"id": 29, "event": "start", "name": "workload:verify-touched", "monotonic_ns": 171561446365908, "details": {}}
+{"id": 30, "event": "start", "name": "command:smallfiles", "monotonic_ns": 171561446847194, "details": {"argv": ["/srv/ax-bin/smallfiles", "verify-touched", "--root", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs", "--output", "/home/dev/ax-five-fixes-20261112/ablation-results-02/C3-smallfiles-packed-off/run/brewfs/verify-touched", "--files", "8", "--hot-files", "4", "--workers", "1", "--read-ops", "8", "--cow-files", "2", "--write-ops", "4", "--mixed-ops", "8", "--state", "/home/dev/ax-five-fixes-20261112/ablation-results-02/C3-smallfiles-packed-off/run/brewfs/run/expected-touched.tsv"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 30, "event": "end", "name": "command:smallfiles", "elapsed_ns": 122551364, "status": "passed"}
+{"id": 29, "event": "end", "name": "workload:verify-touched", "elapsed_ns": 123403190, "status": "passed"}
+{"id": 31, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171561604818429, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 31, "event": "end", "name": "command:mountpoint", "elapsed_ns": 4419357, "status": "passed"}
+{"id": 32, "event": "start", "name": "command:fusermount3", "monotonic_ns": 171561609410570, "details": {"argv": ["fusermount3", "-u", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 32, "event": "end", "name": "command:fusermount3", "elapsed_ns": 3298029, "status": "passed"}
+{"id": 33, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171561644485901, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 33, "event": "end", "name": "command:mountpoint", "elapsed_ns": 5088563, "status": "passed"}
+{"id": 34, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171561649823880, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 34, "event": "end", "name": "command:mountpoint", "elapsed_ns": 4327694, "status": "passed"}
+{"id": 35, "event": "start", "name": "command:mountpoint", "monotonic_ns": 171561678078295, "details": {"argv": ["mountpoint", "-q", "/tmp/ax-rbm-d7ac5ec6dfe9-5q6rb7sv/brewfs"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 32}
+{"id": 35, "event": "end", "name": "command:mountpoint", "elapsed_ns": 5052580, "status": "passed"}
+{"id": 36, "event": "start", "name": "command:docker", "monotonic_ns": 171561683363741, "details": {"argv": ["docker", "logs", "--tail", "25", "ax-rbm-d7ac5ec6dfe9"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 36, "event": "end", "name": "command:docker", "elapsed_ns": 40757572, "status": "passed"}
+{"id": 37, "event": "start", "name": "command:docker", "monotonic_ns": 171561724587184, "details": {"argv": ["docker", "rm", "-fv", "ax-rbm-d7ac5ec6dfe9"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 0}
+{"id": 37, "event": "end", "name": "command:docker", "elapsed_ns": 756942512, "status": "passed"}
+{"id": 38, "event": "start", "name": "command:docker", "monotonic_ns": 171562481752250, "details": {"argv": ["docker", "inspect", "ax-rbm-d7ac5ec6dfe9"], "timeout_seconds": 60, "child_umask": -1}}
+{"event": "returncode", "returncode": 1}
+{"id": 38, "event": "end", "name": "command:docker", "elapsed_ns": 56224090, "status": "passed"}
