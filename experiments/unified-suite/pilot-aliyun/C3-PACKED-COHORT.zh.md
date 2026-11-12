@@ -8,11 +8,11 @@
 
 ```powershell
 $cache = 'C:/Users/HXY/.cache/ax-pilot-20261111'
-& ./experiments/unified-suite/pilot-aliyun/scripts/run-c3-workspace-base.ps1 `
-  -SshConfig "$cache/bootstrap-ssh.conf" -ReceiptRoot $cache -Database 249 `
-  -Workers 32 -VerifySeconds 120 -TracePackedBudget -PackedOutputMib 128 `
-  -PackedControlMib 8 -DiagnosticCohort
+& ./experiments/unified-suite/pilot-aliyun/scripts/run-existing-jump-window.ps1 `
+  -SshConfig "$cache/bootstrap-ssh.conf" -ReceiptRoot $cache -Activity C3Cohort
 ```
+
+如果跳板和控制盘已就绪且有独立窗口持有人，可以直接调用 `run-c3-workspace-base.ps1`。整窗入口会在启动 A 池前验证并重挂现有跳板控制盘；不格式化盘，不写入 `fstab`。
 
 从新回执目录查看 `receipt/worker-cohort-events.ndjson`：每条路径分别记录 `lstat`、`open`、`pread`、`close` 的开始、耗时与错误；核验成功才写 4,096 B 的 SHA-256。超时保留已有事件，只有开始的调用表示当时尚未返回。四段全部通过才产生 `worker-cohort-result.json`；另外检查正常卸载和三台 `StopCharging`。
 

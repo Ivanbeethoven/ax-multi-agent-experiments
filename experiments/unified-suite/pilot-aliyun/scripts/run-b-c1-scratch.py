@@ -28,6 +28,7 @@ OBJECT_HOST='i-bp1bhdngko7nq3c3jrhp'
 SSH=['ssh.exe','-F','C:/Users/HXY/.cache/ax-pilot-20261111/pool-b/ssh.conf',
      '-o','ConnectTimeout=5','-o','ServerAliveInterval=5','-o','ServerAliveCountMax=2']
 ROLES=('objects','metadata','client')
+ORDERS={'juicefs-first':('juicefs','brewfs'),'brewfs-first':('brewfs','juicefs')}
 LATEST={'brewfs':'ca07159f3da4b670e4aeb878faef928e69bc1634',
         'rustfs':'f4ed202508f2153afb7956bae6f7799b60eccd00'}
 BRANCHES={
@@ -93,14 +94,40 @@ def arm_progress(status,previous):
     return previous, False
 
 
+def workload_contract():
+    plan=read(EVIDENCE/'plan.json')
+    cells={c['arm']['product']:c for c in plan['cells'] if c['paired_block']=='8e3d340ff23c3ece-r1'}
+    need(set(cells)=={'brewfs','juicefs'} and cells['brewfs']['params']==cells['juicefs']['params'],
+         'Pinned mixed-read/write contract changed')
+    return dict(params=cells['brewfs']['params'],client_settings={k:v['client_settings'] for k,v in cells.items()},
+                seed=9173,sha256=digest((EVIDENCE/'plan.json').read_bytes()))
+
+
+def matched_fixture(prior,order,inv):
+    plan,audit,contract=(read(prior/name) for name in ('plan.json','audit.json','contract.json'))
+    need(plan['inventory']==inv and plan['latest']==LATEST and plan['size_gib']==SIZE and plan['disks']==4 and
+         tuple(plan['phase_order'])==order[::-1] and contract==workload_contract(),
+         'Prior fixture must be the same configuration, hardware and opposite arm order')
+    run=plan['run']
+    pins={audit['completed'][arm]['input_sha256'] for arm in order}
+    need(audit['run']==run and audit['paired_diagnostic'] is True and audit['resources_closed'] is True and
+         not audit['failed'] and re.fullmatch(r'ax-c1b-[0-9a-f]{10}',run) and len(pins)==1 and
+         re.fullmatch(r'[0-9a-f]{64}',next(iter(pins))),
+         'Prior fixture needs an independently audited closed pair with one input SHA')
+    return dict(run=run,input_sha256=next(iter(pins)),prior_audit_sha256=digest((prior/'audit.json').read_bytes()))
+
+
 class Attempt:
-    def __init__(self,out,resume_blanks=None):
+    def __init__(self,out,resume_blanks=None,order=ORDERS['juicefs-first'],match=None):
         self.out=out
         self.tag='ax-c1b-'+secrets.token_hex(5)
         self.start=time.monotonic()
         self.deadline=self.start+MAX_MINUTES*60
         self.log=out/'api';self.log.mkdir()
         self.inv=next(x['roles'] for x in read(EVIDENCE/'inventory.json')['pools'] if x['pool_id']=='pool-b')
+        self.order=order
+        self.match=matched_fixture(match,order,self.inv) if match else None
+        self.contract=workload_contract()
         self.ids=[self.inv[r]['instance_id'] for r in ROLES]
         self.old={d for r in self.inv.values() for d in r['data_disk_ids']}
         self.created=[]
@@ -111,6 +138,7 @@ class Attempt:
         if resume_blanks:
             prior, first=read(resume_blanks/'summary.json'),read(resume_blanks/'plan.json')
             need(first['inventory']==self.inv and first['size_gib']==SIZE and first['disks']==4 and
+                 tuple(first['phase_order'])==self.order and first.get('matched_fixture')==self.match and
                  first['formal_historical_cell'] is False and prior['measured'] is False and
                  prior['passed'] is False and not list((resume_blanks/'api').glob('*-StartInstance.json')) and
                  len(prior['created'])==len(set(prior['created']))==4 and re.fullmatch(r'ax-c1b-[0-9a-f]{10}',first['run']),
@@ -216,7 +244,7 @@ class Attempt:
         write(self.out/'plan.json',dict(schema='b-c1-randrw-scratch-v1',created_at=stamp(),run=self.tag,
               inventory=self.inv,latest=refs(),size_gib=SIZE,disks=4,staging_disk_hourly_cny=quote['TradePrice']*4,
               compute_hourly_cny=3.60,max_minutes=MAX_MINUTES,formal_historical_cell=False,
-              phase_order=['juicefs','brewfs'],old_data_writable=False))
+              phase_order=self.order,matched_fixture=self.match,old_data_writable=False))
     def allocate(self):
         self.active()
         for i in range(4) if not self.created else ():
@@ -257,14 +285,9 @@ class Attempt:
         return result.getvalue()
     def init_hosts(self):
         common=dict(inventory=self.inv,scratch_disk_ids=self.created,
-                    access=secrets.token_hex(12),secret=secrets.token_hex(24),redis_secret=secrets.token_hex(24))
-        plan=read(EVIDENCE/'plan.json')
-        cells={c['arm']['product']:c for c in plan['cells'] if c['paired_block']=='8e3d340ff23c3ece-r1'}
-        need(set(cells)=={'brewfs','juicefs'} and cells['brewfs']['params']==cells['juicefs']['params'],
-             'Pinned mixed-read/write contract changed')
-        common.update(params=cells['brewfs']['params'],client_settings={k:v['client_settings'] for k,v in cells.items()})
-        write(self.out/'contract.json',dict(params=common['params'],client_settings=common['client_settings'],
-              seed=9173,sha256=digest((EVIDENCE/'plan.json').read_bytes())))
+                    access=secrets.token_hex(12),secret=secrets.token_hex(24),redis_secret=secrets.token_hex(24),
+                    matched_fixture=self.match,params=self.contract['params'],client_settings=self.contract['client_settings'])
+        write(self.out/'contract.json',self.contract)
         bundle=self.pack_code()
         def launch(role):
             self.active()
@@ -280,7 +303,7 @@ class Attempt:
         with ThreadPoolExecutor(max_workers=3) as exe:
             list(exe.map(launch,ROLES))
     def run_pair(self):
-        for arm in ('juicefs','brewfs'):
+        for arm in self.order:
             self.active()
             print('Starting isolated '+arm+' arm.',flush=True)
             with (self.out/(arm+'-headroom.json')).open('x') as f:
@@ -388,9 +411,11 @@ def main():
     parser.add_argument('--out',required=True,type=Path)
     parser.add_argument('--apply',action='store_true')
     parser.add_argument('--resume-blanks',type=Path)
+    parser.add_argument('--order',choices=ORDERS,default='juicefs-first')
+    parser.add_argument('--match-run',type=Path,help='Reuse an audited opposite-order pair’s exact input')
     a=parser.parse_args()
     a.out.mkdir(mode=0o700,parents=True,exist_ok=False)
-    run=Attempt(a.out,a.resume_blanks)
+    run=Attempt(a.out,a.resume_blanks,ORDERS[a.order],a.match_run)
     success=False
     begun=False
     with ExitStack() as stack:
