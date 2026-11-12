@@ -60,9 +60,42 @@ def validate(config):
         for name in row['arms']:
             base = name.removesuffix('-stay').removesuffix('-move')
             require(base in expected, 'unknown system arm in ' + suite)
+            require(base != 'brewfs-basic' or suite in ('C1', 'C2'),
+                    'Flat must not be scheduled outside C1/C2')
         agents = row.get('agents', [])
         for n in agents if isinstance(agents, list) else [agents]:
             require(type(n) is int and 1 <= n <= 32, 'invalid Agent count')
+    require(config['arms']['brewfs-basic']['role'] == 'c1-c2-system-control',
+            'Flat is only a system control for C1/C2')
+    require(work['C3']['arms'] == ['brewfs-full', 'juicefs'],
+            'C3 uses shared lower and JuiceFS clone; no Flat copy arm')
+    fork = work['C4-fork']
+    require(fork['arms'] == ['brewfs-full', 'juicefs'] and
+            fork.get('creation_methods') == {'brewfs-full': 'native-fork', 'juicefs': 'native-clone'}
+            and set(fork) == {'arms', 'agents', 'files', 'file_bytes', 'fixture',
+                              'creation', 'source', 'creation_methods', 'mutations'}
+            and fork['source'] == 'exact-immutable-revision' and fork['creation'] == 'burst',
+            'C4 derivation is exclusively BrewFS native fork versus JuiceFS native clone')
+    overlay = ablations['overlay-off']
+    require(overlay.get('workloads') == ['C2-runtime']
+            and overlay.get('protocol') == 'warm-lower-runtime-only'
+            and set(overlay['requires']) == {'same-engine-overlay-toggle', 'identical-payload-and-metadata-layout',
+                                            'verified-warm-lower-before-timing'},
+            'Overlay off is an independent warm-lower runtime comparison, never a fork arm')
+    runtime = work['C2'].get('overlay_runtime', {})
+    require(runtime.get('arms') == ['brewfs-full', 'overlay-off']
+            and runtime.get('working_set') == 'all-lower-metadata-and-data-ranges-touched-by-timed-ops'
+            and type(runtime.get('warmup_passes_per_arm')) is int and runtime['warmup_passes_per_arm'] == 2
+            and runtime.get('warmup_scope') == ['metadata', 'data'] and runtime.get('warmup_read_only') is True
+            and runtime.get('verify') == 'native-cache-evidence-on-final-pass'
+            and all(type(runtime.get(k)) is int and runtime[k] == 0 for k in
+                    ('max_lower_metadata_misses', 'max_lower_backend_read_bytes'))
+            and runtime.get('cache_policy') == 'same-budget-no-remount-or-reset-after-warmup'
+            and runtime.get('cache_overflow') == 'freeze-a-smaller-warm-trace-separately'
+            and runtime.get('prepare_and_warmup_outside_timer') is True
+            and runtime.get('timing') == 'same-operations-immediately-after-arm-warmup'
+            and runtime.get('drain_reported_separately') is True,
+            'Warm the same lower working set per arm; verify caches before timing and report drain separately')
     require(work['C2']['scale_agents'] == [8, 16, 32], 'C2 scale must be 8/16/32')
     require(sum(work['C2']['mixed_32'].values()) == 32, 'mixed trace assignment must total 32')
     require(all(type(n) is int and n > 0 for n in work['C2']['mixed_32'].values()), 'invalid mix')
