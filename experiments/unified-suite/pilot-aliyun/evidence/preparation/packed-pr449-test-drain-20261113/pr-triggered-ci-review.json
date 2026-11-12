@@ -1,0 +1,32 @@
+{
+  "schema": "independent-packed-pr449-triggered-ci-review-v1",
+  "reviewed_at": "2026-11-12T21:29:50.470631+00:00",
+  "passed": true,
+  "run": 43308374335,
+  "url": "https://github.com/brewfs/brewfs/actions/runs/43308374335",
+  "event": "pull_request",
+  "tested_head": "53c725f36db5bcd060ec2483a0abecb943bed4ea",
+  "commands": [
+    "cargo build --workspace",
+    "cargo test --workspace --lib",
+    "cargo clippy --workspace --all-targets -- -D warnings"
+  ],
+  "default_library_tests": {
+    "passed": 1355,
+    "failed": 0,
+    "ignored": 265
+  },
+  "strict_all_targets_clippy_passed": true,
+  "raw_log_sha256": "fb633db8e69905cee4aaca5cf7d6fd2e0fea41ce1da1d0d676dddeba3b298f5b",
+  "archive_receipt_entries_verified": 3,
+  "performance_source_commit": "7093f141d8081e6b96cd0a80814876aed5a3b577",
+  "scope": "PR-triggered default GitHub CI passed on the test-only child. Original measurements remain bound to 7093; this does not relabel or rerun performance.",
+  "source_proof": "The prior qualification archive independently binds 53c725 versus 7093 to one cfg(test) read-amplification test file only; release source/Cargo/workflows are unchanged.",
+  "prior_immutable_archive_sha256": "3861fe4b73a80f4ced74a3553ab8fab8c77cf52e3a84971287c5ed79331b2146",
+  "prior_failures_preserved": [
+    "original PR CI 28 versus 64 assertion",
+    "invalid 64KiB fixture first qualification",
+    "effective old-helper gate regression RED"
+  ],
+  "no_compilation_or_performance_executed_by_this_review": true
+}

@@ -13,4 +13,6 @@
 
 两支最终门闩回归逐字相同。另有 9 项本地轻量检查通过：格式、4 个 shell 语法检查、3 个脚本回归与差异检查。GitHub 执行原默认 feature workflow；这不是新的一轮工作区 feature 性能测量。
 
+更新 PR 后，[pull_request 触发的 CI](https://github.com/brewfs/brewfs/actions/runs/43308374335)也在同一 `53c725f3` 头完成：构建、1,355 库测试／265 忽略及严格 Clippy 全通过。[独立复核](pr-triggered-ci-review.json)和 [6 成员增补归档](pr-triggered-ci.tar.gz)单独保存；协调者再次核对全部成员、原始通过数及远端 run/head。[增补回执](pr-triggered-ci-receipt.json)记录 SHA-256 `7292d88ed6ee9e35aff551176229ec0e8a25425a80386a6c201c0f10adccd27d`，原 48 成员包保持不变。
+
 [qualification-final.json](qualification-final.json)记录提交、命令范围和各门结果。[evidence.tar.gz](evidence.tar.gz)含全部原始日志、两次夹具、补丁、源码和复核回执，SHA-256 为 `3861fe4b73a80f4ced74a3553ab8fab8c77cf52e3a84971287c5ed79331b2146`。协调者[复核](coordinator-review.json)确认全部 48 个成员、47 个载荷哈希和清单的外部哈希，并直接从日志核对 RED/GREEN 结果。没有归档构建目录、二进制或凭据。
