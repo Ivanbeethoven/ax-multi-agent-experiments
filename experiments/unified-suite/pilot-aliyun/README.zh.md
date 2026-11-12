@@ -4,9 +4,11 @@
 
 > 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
 
+> C4 的 BrewFS Flat 完整拷贝臂已撤出，不再派发、续跑或补测。原计划、验收与归档照原记录保留。
+
 复跑先读[按需服务器并行调度手册](REPEAT-SCHEDULING.zh.md)，再按本批实际计划和资源账本开机。
 
-每次校准和正式测量前执行[空间检查与清理](STORAGE-CLEANUP.zh.md)：先归档核验，再清理明确的旧副本，用清理后的实际空间检查下一轮峰值，并逐盘保留 20%。A 组已完成 Off1；00:18 [实际回收 8.90 GB](evidence/preparation/a-old-c1-observer-reclaim-dryrun-01/README.zh.md)，尚未启动 On1。
+每次校准和正式测量前执行[空间检查与清理](STORAGE-CLEANUP.zh.md)：先归档核验，再清理明确的旧副本，用清理后的实际空间检查下一轮峰值，并逐盘保留 20%。旧 A 组在 Off1 后[实际回收 8.90 GB](evidence/preparation/a-old-c1-observer-reclaim-dryrun-01/README.zh.md)。
 
 本轮在阿里云按量实例上试跑。C3和C4派生使用[10万文件](PILOT-100K.zh.md)，每文件4KiB。C1、C2完整trace和C4会话流转保持原负载。实验输入、原始数据和 SHA256 见[归档下载](OSS-ARCHIVE.zh.md)及[trace目录](../../../scenarios/k8s-containers/data-catalog.md)。
 
@@ -17,7 +19,7 @@
 | C1 fio | 9/10 | 双方顺序读、顺序写、随机写、随机读及[BrewFS混合读写](evidence/c1-native-randrw-01/)已验收；JuiceFS 混合读写校准失败，见[容量审计](evidence/preparation/b-c1-randrw-capacity-audit-01/README.zh.md)，正式轮未开始 |
 | C2 完整trace | 2/5 | flat BrewFS、JuiceFS 均已验收；[另外三项](evidence/preparation/c2-remaining-audit-01/README.zh.md)受 FUSE 操作或非空版本发布功能限制 |
 | C3 小文件（10万） | 2/4 | [JuiceFS](evidence/c3-jfs-01/)和[BrewFS flat](evidence/c3-flat-01/)均已验收并公开原始记录；Packed完整资格通过，观测开关差约5.98%，正式样本未启动 |
-| C4 派生（10万） | 1/5 | [B组 JuiceFS](evidence/c4-jfs-01/)已验收。A 组 [BrewFS flat Off1 已完整结束](evidence/preparation/a-c4-flat-off1-closed-01/README.zh.md)，后续五轮校准和正式轮须逐轮过清理与容量检查 |
+| C4 派生（10万） | 1/5 | [B组 JuiceFS](evidence/c4-jfs-01/)已验收。A 组 [BrewFS flat Off1 已完整结束](evidence/preparation/a-c4-flat-off1-closed-01/README.zh.md)；该臂已撤出，未完成的校准和正式轮不补跑 |
 | C4 流转 | 0/4 | [本地原生恢复通过](evidence/preparation/opencode-native-capped-01/README.zh.md)：空 HOME、原数据库、新工具执行及完整冷读。跨机器恢复尚未执行 |
 
 11:07查到[BrewFS分支推进到ca07159](evidence/preparation/latest-progress-15.json)，RustFS未变。[11:47独立重建完成](evidence/preparation/brewfs-ca07159-build/README.zh.md)，两份源码均干净、旧产物保留。[新版本10万文件Packed本机检查通过](evidence/preparation/c3-packed-ca07159-100k/README.zh.md)。已结束的云上随机写配对固定622736b；下一批重新核分支并绑定新版本。`configure-pilot.py --phase c1`或`--phase c2`可单独生成新阶段，旧状态库保留。
@@ -36,7 +38,7 @@ JuiceFS顺序写先后保留两次校准失败：[采集接口随正常卸载关
 
 C4新增前置检查发现：[首批622736b的BrewFS工作区正常重挂后，读回通过，但修改文件并fsync返回EIO](evidence/preparation/c4-native-reopen-blocker/README.zh.md)。两个新工作区均复现，挂载和进程已收尾；此项为本机真实FUSE验证，不是云上性能结果。BrewFS该路线暂不准入C4恢复性能比较，保留失败证据。
 
-BrewFS flat的[独立本机检查](evidence/preparation/c4-native-flat-reopen/result.json)通过：首次写入、正常卸载、第二次空缓存重挂并修改/新建/同步、第三次空缓存读回一致。[三个原挂载进程与挂载均已关闭](evidence/preparation/c4-native-flat-reopen/operator-closure.json)。这条路线可继续准备派生实验；它不解除workspace路线的EIO，也不代表百万文件派生或跨机恢复已通过。
+BrewFS flat的[独立本机检查](evidence/preparation/c4-native-flat-reopen/result.json)通过：首次写入、正常卸载、第二次空缓存重挂并修改/新建/同步、第三次空缓存读回一致。[三个原挂载进程与挂载均已关闭](evidence/preparation/c4-native-flat-reopen/operator-closure.json)。这是历史重挂检查；它不解除workspace路线的EIO，也不代表百万文件派生或跨机恢复已通过。
 
 JuiceFS 先前两次本机检查保留超时结果：[第一次](evidence/preparation/session-shared-juicefs-01/README.zh.md)、[关闭思考模式后](evidence/preparation/session-shared-juicefs-02/README.zh.md)。[第三次真实恢复](evidence/preparation/opencode-native-capped-01/README.zh.md)限制每次输出 512 token，实际用了两次请求；原历史、一次新工具操作、最终文件和工作区完整冷读均通过。不据此认定先前超时的原因，也不计为跨机性能结果。没有启动目标机。C1–C3和trace回放不调用模型；C4另报存储/会话状态就绪时间，把后续模型等待单列。
 
@@ -93,7 +95,7 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/local-services.py` | 本机功能验证服务；四个目录共用一块盘，不能作为云上四独立盘的性能证据 |
 | `scripts/qualify-rustfs-local.py`、`metric-collector.py` | 核实际B/q、完整与Range读、已知请求数和原生计数；[采集部署](OBSERVABILITY.zh.md) |
 | `scripts/a-pool-up.py` | A 池节点重启后恢复现场：按 serial/UUID 重挂四块 RustFS 盘与采样盘、重建 bind、起 RustFS 容器、恢复原 Redis 并用 `CONFIG GET` 核生效值；**数据盘重启后不会自动挂载**，见[重启实测](evidence/preparation/a-pool-restart-20261112-0910/README.zh.md) |
-| `scripts/c4-on1-preflight.py` | 协调者侧一条命令生成 On1 前置链：清理复核 → 原生容量快照 → 采样盘快照 → placement → 容量文件 → 续跑请求，全部落在 900 秒时效窗内，并把对象观察预算挪到专用采样盘 |
+| `scripts/c4-on1-preflight.py` | 历史 On1 的准入工具，保留用于核对原回执。C4 Flat 已撤出，不再生成续跑请求 |
 | `scripts/pack-c4-observer-split.py` | 拆包归档：观察原文单独 tar + 流式 NDJSON 索引，闭合证据仍走冻结校验器；真实 132,939 成员 / 22.47 GB 实测 6 分 52 秒、峰值内存 269 MB，见[规模验证](evidence/preparation/c4-observer-split-01/README.zh.md) |
 | `scripts/prepare-c4-observer-scratch.py` | 只认新盘 serial 与整盘 100 GiB 的采样盘初始化；mkfs 后等 udev 身份就绪，失败自行 umount 并写 `passed:false` 回执 |
 | `scripts/b-c1-gc-node.py`、`b-c1-gc-apply.py` | B 池 JuiceFS 维护窗口：释放镜像自带 redis、按 PID 核监听、只跑 `gc --threads 1`（删除模式需显式 `gc_mode=delete` 且 pin 只读证据）、AOF 与逐盘 du 前后比对 |

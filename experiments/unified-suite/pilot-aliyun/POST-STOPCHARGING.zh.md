@@ -1,16 +1,16 @@
-# A 池停机后恢复：C3 Packed / C4 On1
+# A 池停机后恢复：C3 Packed
 
-恢复挂载不等于恢复准入。C3 `16f4ac389d2a2da6-r1-packed` 的正式运行和 C4 `c5e97774bcffa69a-r1-native` 的新 On1 都需要本次启动的实测证据。**下文标为缺失的门禁补齐前，不为试跑启动三台机器。** 处理历史 On1 的归档只需原始证据和对象节点，不走这条新测量路径。
+恢复挂载不等于恢复准入。C3 `16f4ac389d2a2da6-r1-packed` 正式运行需要本次启动的实测证据。BrewFS Flat 完整拷贝 `c5e97774bcffa69a-r1-native` 已撤出；[历史 On1 归档](evidence/preparation/c4-observer-fold-real-03/recovered-01/publication-01/README.zh.md)不需要重开测量。
 
 ## 1. 开机前
 
 - 协调者 `ax-pilot-jump`：`/srv/ax-pilot-control`。C3 原控制目录 `parallel-control-01`；C4 原控制目录 `fork-control-01`、运行目录 `runtime-a-03`。核对该目录下所有 `state.sqlite`：A 池及共享资源无租约，物理锁共用 `parallel-control-01/runner-locks`。历史控制库和失败回执原地保留。
 - 本机先查分支：`git ls-remote https://github.com/brewfs/brewfs.git refs/heads/main`、`git ls-remote https://github.com/Ivanbeethoven/rustfs.git refs/heads/feat/dynamic-block-size-rebased`。原批次分别是 `ca07159f3da4b670e4aeb878faef928e69bc1634` 和 `f4ed202508f2153afb7956bae6f7799b60eccd00`。不匹配时先在本机重建并重做受影响的资格；不替换冻结批次的二进制。
-- C3 和 C4 不在 A 池同时运行。A 三台合计约 ¥4.67/小时（历史估算）；默认保持 B 停机。若门禁要求 B 的原生证据也重采，另排短窗口。
+- A 三台合计约 ¥4.67/小时（历史估算）；默认保持 B 停机。若 C3 门禁要求 B 的原生证据也重采，另排短窗口。
 
 ## 2. ECS API 及盘、服务、槽读回
 
-脚本、预算和评审准备完毕后，才按 [On1 手册 `1](RUNBOOK-ON1.zh.md#1-启动实例并恢复-a-池现场) 启动 A 池。下块在本机 PowerShell 7 运行；每轮用新回执目录。`DescribeDisks` 精确查询四块对象盘、采样盘和 client/metadata 数据盘。
+准备好 C3 脚本、预算和准入材料后，按本轮资源清单启动 A 池。下块在本机 PowerShell 7 运行；每轮用新回执目录。`DescribeDisks` 精确查询四块对象盘、采样盘和 client/metadata 数据盘。
 
 ```powershell
 $cfg = 'C:/Users/HXY/.cache/ax-pilot-20261111/bootstrap-ssh.conf'
@@ -87,7 +87,7 @@ ssh -F $cfg ax-pilot-client 'set -eu; cd /sys/fs/cgroup/ax-slot-1; test "$(cat c
 if ($LASTEXITCODE) { throw 'Slot is not empty or its limits changed' }
 ```
 
-下面是 C3 的新采集器。已有监听时核对进程归属，不能先杀；C4 由本次 On1 请求指定自己的采集器。
+下面是 C3 的新采集器。已有监听时先核对进程归属。
 
 ```powershell
 $collector = "ax-pilot-c3-packed-$run-collector"
@@ -103,11 +103,11 @@ if ($LASTEXITCODE) { throw 'Collector scrape failed' }
 
 ## 3. 尚缺的准入门禁
 
-| 门禁 | C3 Packed | C4 新 On1 |
-| --- | --- | --- |
-| 运行绑定 | `pilot_context.py` 现有切换只支持同 boot，`parallel-control-01/runtime-12-01/binding.json` 不能重用。须绑定当前实例、盘、服务与槽，并给原计划提供有效的跨池证据。 | `fork-control-01/runtime-a-03` 是旧证据。同 boot 切换或手改旧 JSON 都不成立。 |
-| 冷验与容量 | `packed-c3-capacity.py` 要求旧 before 与当前服务同 boot、同 PID。以旧同窗增长为下界，以本次清理后实测盘和服务为基准另出新凭据；对原不可变基线做本次只读冷验。 | `resume-c4-after-directory-hold.py` 要求当前 Redis/盘/boot 与旧容量回执身份相同。需要新的 boot 边界、当前原生读回和预算；旧同窗数据只作增长依据。 |
-| 执行 | 从 `parallel-control-01/packed-c3-next-03/formal-context.json` 派生新 attempt；保留 `pairs/overhead/result.json`（SHA `460b6294c7fea61c09d5d5638cd05b82c16fab2758e4f68fbe0bf6862d78a1dd`）与[已审阅披露](evidence/preparation/c3-packed-overhead-deviation-01/plan.json)。部署修过 SQLite 准入的 controller 后才能 admit。 | 新 On1 的写入端、归档、验收端要固定同一版本并通过端到端验证。先判断历史 On1 归档能否补齐，能补齐就省掉重跑。若开新测量，分别核采样盘写入、归档峰值与协调者解包。 |
+| 门禁 | C3 Packed |
+| --- | --- |
+| 运行绑定 | `pilot_context.py` 现有切换只支持同 boot，`parallel-control-01/runtime-12-01/binding.json` 不能重用。须绑定当前实例、盘、服务与槽，并给原计划提供有效的跨池证据。 |
+| 冷验与容量 | `packed-c3-capacity.py` 要求旧 before 与当前服务同 boot、同 PID。以旧同窗增长为下界，以本次清理后实测盘和服务为基准另出新凭据；对原不可变基线做本次只读冷验。 |
+| 执行 | 从 `parallel-control-01/packed-c3-next-03/formal-context.json` 派生新 attempt；保留 `pairs/overhead/result.json`（SHA `460b6294c7fea61c09d5d5638cd05b82c16fab2758e4f68fbe0bf6862d78a1dd`）与[已审阅披露](evidence/preparation/c3-packed-overhead-deviation-01/plan.json)。部署修过 SQLite 准入的 controller 后才能 admit。 |
 
 可先离线实现和测试的最小接口：
 

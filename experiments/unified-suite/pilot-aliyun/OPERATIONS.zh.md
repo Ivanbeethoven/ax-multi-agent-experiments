@@ -220,8 +220,8 @@ mv /var/tmp/c4-split-01 /srv/ax-c4-observer-scratch/archives-split-01
 ### 根因
 冻结准入要求五件证据都落在开跑前 900 秒内，且顺序固定 **清理回执 → 原生容量快照 → 采样盘快照 → placement → 审后容量 → 续跑请求**。任何一步人工停顿、任何一次「先做容量再回头清点」都会把窗口撑破。
 
-### 处置（命令）
-协调者侧一条流水线跑完（脚本内部按顺序写文件，最后 `check_order` 用 `cleanup.finished_at` 与 900 秒核对）：
+### 历史处置（命令）
+C4 BrewFS Flat 完整拷贝已撤出，不再执行这条准入流水线。保留原命令供查档；脚本按顺序写文件，最后 `check_order` 用 `cleanup.finished_at` 与 900 秒核对。
 ```bash
 python3 /srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suite/pilot-aliyun/scripts/c4-on1-preflight.py \
   --control /srv/ax-pilot-control/fork-control-01 \
@@ -238,7 +238,7 @@ python3 /srv/ax-pilot-control/code-c4-directory-hold-01/experiments/unified-suit
   --out /srv/ax-pilot-control/fork-control-01/continuation-on1-02 \
   --cell c5e97774bcffa69a-r1-native --tag c4-a-flat-on1
 ```
-`--records`、`--out`、`--scratch-remote-dir` 必须每轮新建（脚本对已存在目录直接拒绝）；`--draft/--request-draft` 用当轮 reviewed 草稿。跑完立刻在**同一窗口**内启动 unit，过期就得整链重来。
+原流程要求 `--records`、`--out`、`--scratch-remote-dir` 均为新目录，`--draft/--request-draft` 绑定当轮 reviewed 草稿。启动 unit 的回执和前置证据应在同一时效窗内。
 
 ### 证据
 `evidence/preparation/a-c4-on1-prestep-01/README.zh.md`（五件回执的生成顺序表；「随后在同一 15 分钟窗口内启动 On1」）；[`c4-on1-preflight.py:26`](scripts/c4-on1-preflight.py#L26)（`FRESH_SECONDS = 900`）、[`:64`](scripts/c4-on1-preflight.py#L64)（`check_order`）、[`:312`](scripts/c4-on1-preflight.py#L312)（写完容量后当场校验）；上一轮五件回执实物在 `evidence/preparation/a-c4-on1-prestep-01/`。
@@ -297,4 +297,4 @@ ss -H -tn state established | grep '10.20.2.169:6379' || echo 'no redis session'
 3. **起服务**：`docker start ax-pilot-20261111-objects-01-rustfs-1`（等 `State.Running=true`）；`systemctl start ax-pilot-redis.service`（先用坑 2 的顺序清掉外来 redis）。
 4. **核生效配置**：`CONFIG GET appendonly/databases/dir/bind` 四项全对，`ss -H -ltnp | grep ':6379'` 只剩原实例（坑 2、3、4）；RustFS 容器 `Image`、`NetworkMode=host`、四个 bind 与冻结记录逐项一致。
 5. **取租约**：上传 guard 脚本 → `python3 -B` → 首行必须是 `held`；先 `ls -l /srv/ax-pilot-control/parallel-control-01/runner-locks` 确认没有上一轮残留（坑 6、7）。
-6. **才开计时**：跑 [`c4-on1-preflight.py`](scripts/c4-on1-preflight.py) 生成 900 秒内的五件证据（坑 9），同一窗口内 `systemd-run` 启动 unit，并把 `invocation` 写进回执；归档阶段按坑 8 拆包，`gc` 类操作按坑 10、11 执行。
+6. **才开计时**：按当前单元的准入流程核实回执并启动，记录实际 unit invocation。C4 Flat 不再开测量窗口；已完成的历史观察包可按坑 8 查证，`gc` 类操作按坑 10、11 执行。
