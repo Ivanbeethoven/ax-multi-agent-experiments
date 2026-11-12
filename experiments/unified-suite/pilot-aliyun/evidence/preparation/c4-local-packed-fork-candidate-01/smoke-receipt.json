@@ -1,0 +1,65 @@
+{
+  "schema": "c4-packed-native-candidate-smoke-receipt-v1",
+  "date": "2026-11-12",
+  "passed": false,
+  "formal_sample": false,
+  "original_receipt_sha256": "2a3d3d1a91a37a335721791a3defb084f4f8c993b54c0c7fd16ba21ca13cfb4e",
+  "artifact_sha256": "a47eecbded65690bfd05673ce66c32384a815503ea191b1e3cb761fa42f8f529",
+  "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "candidate_patch_sha256": "9cc8f351749eec03e5dcb8235556a7665011e738670cae0b79fc37f52d94adda",
+  "source": "Packed-v3 lower in a BrewFS workspace-v1 parent",
+  "environment": "one WSL host, private loopback RustFS and Redis",
+  "files": 2,
+  "payload_bytes": 77,
+  "producer_sha256": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab",
+  "image_sha256": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "expected_files": {
+    "a.txt": {
+      "bytes": 13,
+      "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+    },
+    "sub/b.txt": {
+      "bytes": 64,
+      "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+    }
+  },
+  "observed_parent": {
+    "passed": true,
+    "files": {
+      "a.txt": {
+        "bytes": 13,
+        "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+      },
+      "sub/b.txt": {
+        "bytes": 64,
+        "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+      }
+    }
+  },
+  "parent_binding": true,
+  "parent_clean_unmount": {
+    "exit_code": 0,
+    "mount_absent": true,
+    "unmount_exit_code": 0
+  },
+  "unpublished_import_refused_before_bucket_creation": true,
+  "failed_phase": "publish-clean-packed-carrier",
+  "publication_exit_code": 1,
+  "error": "Packed snapshot publication failed: corrupt workspace metadata: invalid packed v3 object: frozen native source: source hardlink/directory nlink disagrees with full namespace",
+  "published_carrier": false,
+  "child_fork_attempted": false,
+  "no_model": true,
+  "no_cloud": true,
+  "no_copy_baseline": true,
+  "cleanup": {
+    "mount_absent": true,
+    "owned_containers_absent": {
+      "rustfs": true,
+      "redis": true
+    },
+    "scratch_removed": true
+  }
+}
