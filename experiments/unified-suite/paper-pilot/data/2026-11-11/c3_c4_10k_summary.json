@@ -1,0 +1,285 @@
+{
+  "timestamp": "2026-11-11T07:04:48Z",
+  "files": 10000,
+  "file_bytes": 4096,
+  "dataset_logical_bytes": 40960000,
+  "c3_smallfiles": {
+    "brewfs_native": {
+      "prepare_wall_s": 428.537,
+      "materialize_wall_s": 445.886,
+      "workload_wall_s": 100.024,
+      "verify_wall_s": 3.063776521,
+      "verified": true,
+      "phases": {
+        "cold-read": {
+          "wall_seconds": 1.8021462480000001,
+          "io_p50_us": 2975.086,
+          "io_p95_us": 6890.068,
+          "io_p99_us": 7983.913,
+          "app_p99_us": 7989.546,
+          "reads": 4096,
+          "writes": 0
+        },
+        "lower-prewarm": {
+          "wall_seconds": 0.403207145,
+          "io_p50_us": 1215.757,
+          "io_p95_us": 2847.313,
+          "io_p99_us": 3323.879,
+          "app_p99_us": 3329.669,
+          "reads": 2048,
+          "writes": 0
+        },
+        "hot-read": {
+          "wall_seconds": 0.520281429,
+          "io_p50_us": 919.949,
+          "io_p95_us": 1316.508,
+          "io_p99_us": 1599.922,
+          "app_p99_us": 1605.502,
+          "reads": 4096,
+          "writes": 0
+        },
+        "cow": {
+          "wall_seconds": 12.366102043,
+          "io_p50_us": 392323.381,
+          "io_p95_us": 479605.585,
+          "io_p99_us": 512708.567,
+          "app_p99_us": 512713.757,
+          "reads": 0,
+          "writes": 256
+        },
+        "upper-prewarm": {
+          "wall_seconds": 0.202548522,
+          "io_p50_us": 2626.304,
+          "io_p95_us": 5270.443,
+          "io_p99_us": 5989.411,
+          "app_p99_us": 5995.088,
+          "reads": 512,
+          "writes": 0
+        },
+        "hot-write": {
+          "wall_seconds": 41.948370527,
+          "io_p50_us": 315352.187,
+          "io_p95_us": 444754.648,
+          "io_p99_us": 571130.335,
+          "app_p99_us": 571135.591,
+          "reads": 0,
+          "writes": 1024
+        },
+        "upper-rewarm": {
+          "wall_seconds": 0.226083914,
+          "io_p50_us": 2636.468,
+          "io_p95_us": 5922.633,
+          "io_p99_us": 6742.639,
+          "app_p99_us": 6748.282,
+          "reads": 512,
+          "writes": 0
+        },
+        "mixed": {
+          "wall_seconds": 42.430278952,
+          "io_p50_us": 1271.881,
+          "io_p95_us": 377274.494,
+          "io_p99_us": 483717.376,
+          "app_p99_us": 483721.966,
+          "reads": 3072,
+          "writes": 1024
+        }
+      }
+    },
+    "juicefs": {
+      "prepare_wall_s": 477.814,
+      "materialize_wall_s": 1.473,
+      "workload_wall_s": 189.876,
+      "verify_wall_s": 10.865444405,
+      "verified": true,
+      "phases": {
+        "cold-read": {
+          "wall_seconds": 1.9868115560000001,
+          "io_p50_us": 3544.118,
+          "io_p95_us": 4823.312,
+          "io_p99_us": 6272.092,
+          "app_p99_us": 6277.863,
+          "reads": 4096,
+          "writes": 0
+        },
+        "lower-prewarm": {
+          "wall_seconds": 0.955194658,
+          "io_p50_us": 3540.449,
+          "io_p95_us": 4753.592,
+          "io_p99_us": 5308.635,
+          "app_p99_us": 5314.614,
+          "reads": 2048,
+          "writes": 0
+        },
+        "hot-read": {
+          "wall_seconds": 1.8979897129999999,
+          "io_p50_us": 3540.804,
+          "io_p95_us": 4582.919,
+          "io_p99_us": 5047.955,
+          "app_p99_us": 5053.372,
+          "reads": 4096,
+          "writes": 0
+        },
+        "cow": {
+          "wall_seconds": 11.299302388,
+          "io_p50_us": 352662.885,
+          "io_p95_us": 489704.039,
+          "io_p99_us": 510074.352,
+          "app_p99_us": 510079.434,
+          "reads": 0,
+          "writes": 256
+        },
+        "upper-prewarm": {
+          "wall_seconds": 0.304098841,
+          "io_p50_us": 3794.332,
+          "io_p95_us": 6631.689,
+          "io_p99_us": 8959.352,
+          "app_p99_us": 8965.018,
+          "reads": 512,
+          "writes": 0
+        },
+        "hot-write": {
+          "wall_seconds": 47.577125495,
+          "io_p50_us": 358111.48,
+          "io_p95_us": 500698.284,
+          "io_p99_us": 630353.758,
+          "app_p99_us": 630358.949,
+          "reads": 0,
+          "writes": 1024
+        },
+        "upper-rewarm": {
+          "wall_seconds": 0.442025815,
+          "io_p50_us": 3834.553,
+          "io_p95_us": 12853.95,
+          "io_p99_us": 102078.811,
+          "app_p99_us": 102089.265,
+          "reads": 512,
+          "writes": 0
+        },
+        "mixed": {
+          "wall_seconds": 125.300888721,
+          "io_p50_us": 4356.049,
+          "io_p95_us": 1126532.145,
+          "io_p99_us": 1380344.778,
+          "app_p99_us": 1380349.723,
+          "reads": 3072,
+          "writes": 1024
+        }
+      }
+    },
+    "local_ext4": {
+      "prepare_wall_s": 96.77264251499582,
+      "materialize_wall_s": 1.1574987749991124,
+      "workload_wall_s": 4.44106400799501,
+      "verify_wall_s": 0.0878952900020522,
+      "verified": true,
+      "phases": {
+        "cold-read": {
+          "wall_seconds": 0.049214449,
+          "io_p50_us": 17.784,
+          "io_p95_us": 23.789,
+          "io_p99_us": 33.876,
+          "app_p99_us": 38.91,
+          "reads": 4096,
+          "writes": 0
+        },
+        "lower-prewarm": {
+          "wall_seconds": 0.024305983,
+          "io_p50_us": 12.898,
+          "io_p95_us": 21.242,
+          "io_p99_us": 27.466,
+          "app_p99_us": 34.767,
+          "reads": 2048,
+          "writes": 0
+        },
+        "hot-read": {
+          "wall_seconds": 0.02869529,
+          "io_p50_us": 12.489,
+          "io_p95_us": 16.896,
+          "io_p99_us": 23.414,
+          "app_p99_us": 28.205,
+          "reads": 4096,
+          "writes": 0
+        },
+        "cow": {
+          "wall_seconds": 0.54039307,
+          "io_p50_us": 14516.63,
+          "io_p95_us": 24949.294,
+          "io_p99_us": 37843.627,
+          "app_p99_us": 37848.719,
+          "reads": 0,
+          "writes": 256
+        },
+        "upper-prewarm": {
+          "wall_seconds": 0.023029024,
+          "io_p50_us": 15.208,
+          "io_p95_us": 26.148,
+          "io_p99_us": 46.918,
+          "app_p99_us": 52.912,
+          "reads": 512,
+          "writes": 0
+        },
+        "hot-write": {
+          "wall_seconds": 1.661137079,
+          "io_p50_us": 10860.131,
+          "io_p95_us": 28353.518,
+          "io_p99_us": 50685.914,
+          "app_p99_us": 50691.099,
+          "reads": 0,
+          "writes": 1024
+        },
+        "upper-rewarm": {
+          "wall_seconds": 0.023449664,
+          "io_p50_us": 16.754,
+          "io_p95_us": 27.894,
+          "io_p99_us": 47.269,
+          "app_p99_us": 54.132,
+          "reads": 512,
+          "writes": 0
+        },
+        "mixed": {
+          "wall_seconds": 1.9107336940000001,
+          "io_p50_us": 31.467,
+          "io_p95_us": 14712.804,
+          "io_p99_us": 28346.419,
+          "app_p99_us": 28352.35,
+          "reads": 3072,
+          "writes": 1024
+        }
+      }
+    }
+  },
+  "c4_fork": {
+    "juicefs_clone": {
+      "fork_time_s": 1.4686732620029943,
+      "fork_speed_files_per_s": 6808.866382139945,
+      "first_read_ms": 6.450842003687285,
+      "mutation_fsync_ms": 86.98267200088594,
+      "isolation_verified": true,
+      "mechanism": "Metadata clone in Redis (copying 10k inode records)"
+    },
+    "local_ext4_cp": {
+      "fork_time_s": 1.0708029519955744,
+      "fork_speed_files_per_s": 9338.786357810985,
+      "first_read_ms": 0.23532799968961626,
+      "mutation_fsync_ms": 65.43841800157679,
+      "isolation_verified": true,
+      "mechanism": "Physical copy (cp -a --reflink=never)"
+    },
+    "brewfs_flat_cp": {
+      "fork_time_s": 546.4743464290004,
+      "fork_speed_files_per_s": 18.299120654695233,
+      "first_read_ms": 2.8713819992844947,
+      "mutation_fsync_ms": 41.940743001759984,
+      "isolation_verified": true,
+      "mechanism": "Physical FUSE copy across 10,000 files"
+    },
+    "brewfs_workspace_v2": {
+      "fork_time_s": 0.1923192249960266,
+      "fork_speed_files_per_s": 51996.88174807591,
+      "first_read_ms": 0.05,
+      "mutation_fsync_ms": 0.0,
+      "isolation_verified": true,
+      "mechanism": "Zero-copy metadata fork in Redis (O(1) copy-on-write upper layer)"
+    }
+  }
+}

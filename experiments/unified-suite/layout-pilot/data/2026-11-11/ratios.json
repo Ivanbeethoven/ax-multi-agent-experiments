@@ -1,0 +1,150 @@
+{
+  "source": {
+    "cohort": "Archived single-VM RustFS/BrewFS layout pilot, originally Figure 5",
+    "source_tex_sha256": "ee5e00ecc09cd02fb819521de3507117d499f07932d583379468fba2282c49ea",
+    "backend_cycles": 8,
+    "client_cold_cycles": 2,
+    "client_warm_mixed_cycles": 8,
+    "note": "Summary rows preserved without inventing per-cycle observations. Min/max intervals span workload cells."
+  },
+  "rows": [
+    {
+      "id": "legacy-01",
+      "panel": "backend",
+      "label": "Cold range · B = 64 KiB",
+      "low": 23.9,
+      "high": 26.4,
+      "annotate": true,
+      "display": "23.9–26.4×"
+    },
+    {
+      "id": "legacy-02",
+      "panel": "backend",
+      "label": "Cold range · B = 4 MiB",
+      "low": 4.15,
+      "high": 9.34,
+      "annotate": true,
+      "display": "4.2–9.3×"
+    },
+    {
+      "id": "legacy-03",
+      "panel": "cpu",
+      "label": "Cold requests",
+      "low": 2.08,
+      "high": 2.08
+    },
+    {
+      "id": "legacy-04",
+      "panel": "backend",
+      "label": "Whole GET · warm, 1 client",
+      "low": 1.504,
+      "high": 1.512
+    },
+    {
+      "id": "legacy-05",
+      "panel": "cpu",
+      "label": "Warm requests",
+      "low": 1.215,
+      "high": 1.215
+    },
+    {
+      "id": "legacy-06",
+      "panel": "backend",
+      "label": "Whole GET · cold",
+      "low": 1.109,
+      "high": 1.14
+    },
+    {
+      "id": "legacy-07",
+      "panel": "backend",
+      "label": "Whole GET · warm, 8 clients",
+      "low": 1.073,
+      "high": 1.123
+    },
+    {
+      "id": "legacy-08",
+      "panel": "backend",
+      "label": "All 24 warm cells",
+      "low": 0.979,
+      "high": 1.512
+    },
+    {
+      "id": "legacy-09",
+      "panel": "client",
+      "label": "4 KiB random · 8 jobs, cold",
+      "low": 23.45,
+      "high": 23.45,
+      "annotate": true,
+      "display": "23.4×"
+    },
+    {
+      "id": "legacy-10",
+      "panel": "client",
+      "label": "64 KiB random · 4 jobs, cold",
+      "low": 16.8,
+      "high": 16.8,
+      "annotate": true,
+      "display": "16.8×"
+    },
+    {
+      "id": "legacy-11",
+      "panel": "client",
+      "label": "4 KiB random · 1 job, cold",
+      "low": 3.56,
+      "high": 3.56,
+      "annotate": true,
+      "display": "3.56×"
+    },
+    {
+      "id": "legacy-12",
+      "panel": "client",
+      "label": "Hot set · cold start",
+      "low": 1.02,
+      "high": 1.02
+    },
+    {
+      "id": "legacy-13",
+      "panel": "client",
+      "label": "Mixed read/write · writes",
+      "low": 1.017,
+      "high": 1.017
+    },
+    {
+      "id": "legacy-14",
+      "panel": "client",
+      "label": "4 KiB random · warm",
+      "low": 1.001,
+      "high": 1.001
+    },
+    {
+      "id": "legacy-15",
+      "panel": "client",
+      "label": "Mixed read/write · reads",
+      "low": 0.995,
+      "high": 0.995
+    },
+    {
+      "id": "legacy-16",
+      "panel": "client",
+      "label": "1 MiB sequential read · cold",
+      "low": 0.98,
+      "high": 0.98
+    },
+    {
+      "id": "legacy-17",
+      "panel": "client",
+      "label": "New-file read · cold",
+      "low": 0.97,
+      "high": 0.97
+    },
+    {
+      "id": "legacy-18",
+      "panel": "client",
+      "label": "256 MiB sequential write",
+      "low": 0.91,
+      "high": 0.91,
+      "annotate": true,
+      "display": "0.91×"
+    }
+  ]
+}
