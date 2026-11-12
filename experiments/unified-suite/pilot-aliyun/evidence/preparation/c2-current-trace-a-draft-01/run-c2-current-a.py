@@ -8,12 +8,13 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePath
 import re
 import shlex
 import subprocess
 import sys
 import time
+import traceback
 
 CONTROL=Path('/srv/ax-pilot-control')
 CANON=CONTROL/'parallel-control-01'
@@ -27,6 +28,9 @@ CONTAINER='ax-pilot-20261111-objects-01-rustfs-1'
 SWITCHES=('BLOCK_SIZE_HINT_ENABLE','BLOCK_SIZE_HINT_FLEET_CONFIRMED',
           'READ_QUANTUM_ENABLE','READ_QUANTUM_FLEET_CONFIRMED')
 SLOT_SHA='3592411238e1af9eb21980c78d61394c24ea33f74d6452babd335a497d0b5d55'
+CLIENT_SLOT=Path('/sys/fs/cgroup/ax-slot-1')
+CONFIGURE_NODE=Path('/srv/ax-client/code-12/experiments/unified-suite/pilot-aliyun/scripts/configure-node.py')
+MOUNTINFO=Path('/proc/self/mountinfo')
 RESTORE_SHA='09616fb18b8f3e75ec7425d19c5171d1b138b9da00e79d15436725b028f60f3d'
 FILES=(
     'intent.json','input-inventory.json','initial-tree.json','inventory.exit.json','initial-tree.exit.json',
@@ -133,6 +137,11 @@ def restore_payload(path):
     return payload
 
 
+def shell_join(argv):
+    """Quote argv for an SSH peer's POSIX shell, including paths and integers."""
+    return shlex.join([arg.as_posix() if isinstance(arg,PurePath) else str(arg) for arg in argv])
+
+
 def restore_command(role,tag):
     require(role in IDS and re.fullmatch(r'c2-current-a-[0-9]{8}t[0-9]{6}z',tag),'Invalid restore role or tag')
     stage='/srv/ax-receipts/'+tag+'-restore'
@@ -141,10 +150,28 @@ def restore_command(role,tag):
           '--out','/srv/ax-receipts/a-pool-up/'+role+'-'+tag]
     if role=='objects':
         argv.append('--without-legacy-observer-scratch')
-    return ('set -euC; umask 077; '+shlex.join(['mkdir','-m','700',stage])
-            +'; cat > '+shlex.quote(helper)
-            +'; '+shlex.join(['printf','%s  %s\\n',RESTORE_SHA,helper])+' | sha256sum -c --status'
-            +'; exec '+shlex.join(argv))
+    return ('set -euC; umask 077; '+shell_join(['mkdir','-m','700',stage])
+            +'; cat > '+shell_join([helper])
+            +'; '+shell_join(['printf','%s  %s\\n',RESTORE_SHA,helper])+' | sha256sum -c --status'
+            +'; exec '+shell_join(argv))
+
+
+def client_slot_command(remote, *, slot=CLIENT_SLOT, configure=CONFIGURE_NODE):
+    return (shell_join(['test','-d',slot])+' || '+
+            shell_join(['python3','-B',configure,'slot','--spec',remote/'slot.json','--out',remote/'slot-setup']))
+
+
+def client_closure_command(worker_output, *, slot=CLIENT_SLOT, mountinfo=MOUNTINFO):
+    probe=('from pathlib import Path; import sys; '
+           'print(any(line.split()[4] in sys.argv[2:] for line in Path(sys.argv[1]).read_text().splitlines()))')
+    return (shell_join(['cat',slot/'cgroup.procs'])+' && '+
+            shell_join(['python3','-B','-c',probe,mountinfo,worker_output/'writer-mnt',worker_output/'cold-mnt']))
+
+
+def failure_location(error):
+    frames=[dict(file=Path(frame.f_code.co_filename).name,line=line,function=frame.f_code.co_name)
+            for frame,line in traceback.walk_tb(error.__traceback__)]
+    return dict(error_class=type(error).__name__,traceback=frames[-8:])
 
 
 def persist_payload(out,payload):
@@ -213,7 +240,7 @@ def run(args):
     flags=['-F',str(CANON/'ssh.conf'),'-oBatchMode=yes','-oConnectTimeout=5']
 
     def ssh(role,argv,**kw):
-        remote=argv if isinstance(argv,str) else shlex.join(list(map(str,argv)))
+        remote=argv if isinstance(argv,str) else shell_join(argv)
         return subprocess.run(['ssh',*flags,'pool-a-'+role,remote],check=True,**kw)
 
     def restore(role):
@@ -270,9 +297,9 @@ def run(args):
                      capture_output=True,text=True,timeout=8).stdout.strip()
         require(len(result)==3 and result[:2]==[IMAGE,'true'] and int(result[2])>1 and revision==RUSTFS,
                 'Running A RustFS image/revision differs')
-        command=shlex.join(['docker','inspect','-f','{{range .Config.Env}}{{println .}}{{end}}',CONTAINER])
+        command=shell_join(['docker','inspect','-f','{{range .Config.Env}}{{println .}}{{end}}',CONTAINER])
         pattern='^RUSTFS_EC_('+'|'.join(SWITCHES)+')='
-        switches=ssh('objects',command+' | '+shlex.join(['grep','-E',pattern]),
+        switches=ssh('objects',command+' | '+shell_join(['grep','-E',pattern]),
                      capture_output=True,text=True,timeout=8).stdout.splitlines()
         require(sorted(switches)==sorted('RUSTFS_EC_'+key+'=true' for key in SWITCHES),
                 'Expected four enabled RustFS switches')
@@ -308,12 +335,10 @@ def run(args):
             require(hashlib.sha256(slot).hexdigest()==SLOT_SHA,'Original A slot spec differs')
             ssh('client',['mkdir','-m','700',remote],timeout=10)
             for name,data in ((worker.name,worker.read_bytes()),('slot.json',slot)):
-                ssh('client','set -C; cat > '+shlex.quote(str(remote/name)),input=data,timeout=10)
+                ssh('client','set -C; cat > '+shell_join([remote/name]),input=data,timeout=10)
             check=ssh('client',['sha256sum',remote/worker.name],capture_output=True,text=True,timeout=8)
             require(check.stdout.split()[0]==authorization['worker_sha256'],'Uploaded worker differs')
-            ssh('client','test -d /sys/fs/cgroup/ax-slot-1 || '+shlex.join(
-                ['python3','-B','/srv/ax-client/code-12/experiments/unified-suite/pilot-aliyun/scripts/configure-node.py',
-                 'slot','--spec',remote/'slot.json','--out',remote/'slot-setup']),timeout=15)
+            ssh('client',client_slot_command(remote),timeout=15)
             remaining=deadline-int(time.time())
             require(300<=remaining<=2400,'Too little bounded work time remains')
             phase='worker'
@@ -324,8 +349,7 @@ def run(args):
                     stdout=f,stderr=subprocess.STDOUT,timeout=remaining+45)
             success=True
         except (Exception,KeyboardInterrupt) as error:
-            save(out/'controller-failure.json',dict(phase=phase,error_class=type(error).__name__,
-                 reason=str(error) if type(error) is ValueError else None,automatic_retry=False))
+            save(out/'controller-failure.json',dict(phase=phase,automatic_retry=False,**failure_location(error)))
         finally:
             closure=False
             try:
@@ -333,10 +357,7 @@ def run(args):
                     payload=ssh('client',['python3','-B','-c',READ_FILES,worker_output,*FILES],
                                 capture_output=True,timeout=45)
                     persist_payload(out,json.loads(payload.stdout))
-                    probe=ssh('client','cat /sys/fs/cgroup/ax-slot-1/cgroup.procs; '
-                        +shlex.join(['python3','-B','-c',
-                         'from pathlib import Path; import sys; print(any(line.split()[4] in sys.argv[1:] for line in Path("/proc/self/mountinfo").read_text().splitlines()))',
-                         worker_output/'writer-mnt',worker_output/'cold-mnt']),
+                    probe=ssh('client',client_closure_command(worker_output),
                         capture_output=True,text=True,timeout=8)
                     closure=probe.stdout.strip()=='False'
                     require(closure,'Client slot or owned mount is still present')
@@ -344,8 +365,7 @@ def run(args):
                         complete_worker(out)
             except (Exception,KeyboardInterrupt) as error:
                 success=False
-                save(out/'closure-failure.json',dict(error_class=type(error).__name__,
-                     reason=str(error) if type(error) is ValueError else None))
+                save(out/'closure-failure.json',failure_location(error))
             finally:
                 save(out/'ready-for-stop.json',dict(passed=success and closure,worker_launched=launched,
                      client_slot_and_mounts_clear=closure,formal_sample=False,expected_instances=IDS,
