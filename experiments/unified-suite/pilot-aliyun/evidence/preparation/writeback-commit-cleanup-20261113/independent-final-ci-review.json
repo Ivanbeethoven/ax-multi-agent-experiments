@@ -1,0 +1,43 @@
+{
+  "schema": "independent-cleanup-final-ci-review-v1",
+  "reviewed_at": "2026-11-12T21:19:34.059963+00:00",
+  "decision": "Local default CI and stated superset CI qualified; permit corrected runtime validation, not PR/performance approval",
+  "runtime_commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+  "publication_source_commit": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+  "publication_tree": "0a8f932b621235e967ddba0ac4b8c7ff89eb03e2",
+  "identity_proof": "testfix-child-review-01.json independently verified c8\u2192e2 only one ignored cfg(test,linux) benchmark verification statement after all timing samples; 2001 other tracked entries and protected Cargo/build.rs/writer/testv2 unchanged. Measurements retain c8 identity.",
+  "archive": {
+    "path": "/home/dev/ax-writeback-commit-cleanup-qualification-20261113.tar.gz",
+    "sha256": "e05cf686f84dcd2961f671c52adfdaf46112a719580774b42f807c514b1eadaf",
+    "members_verified": 107,
+    "manifest_entries_verified": 106
+  },
+  "ci_final_sha256": "2102568589d8a2608648c6342fb40f936f286e5c1eb5a78aa8a384ddc169755a",
+  "completed_gate_logs_verified": 23,
+  "test_counts_reparsed": {
+    "tests": {
+      "passed": 1362,
+      "ignored": 266
+    },
+    "actual-features": {
+      "passed": 2858,
+      "ignored": 485
+    }
+  },
+  "strict_default_command": "cargo clippy --locked --workspace --all-targets -- -D warnings",
+  "superset_clippy_command": "cargo clippy --locked --workspace --all-targets --features workspace-overlay,observability,rustfs-ec-block-size-hint",
+  "scope": "Default warnings-as-errors all-targets gate passed on e2. Superset extra all-targets Clippy passed without-D; retained warnings are explicitly recorded. Default and superset full tests ran on c8; narrow test-only child rerun waiver is explicit. Neither is represented as the no-default runtime feature test.",
+  "failures_retained": [
+    "Original zero-test invocation excluded from RED count",
+    "Four actual original-code residual-stage RED failures",
+    "v1 full-superset native-export errno12 failure and five isolated diagnostics",
+    "v2 strict default benchmark lint failure before e2 child"
+  ],
+  "correctness_review": "Unchanged original RED plus enhanced real FileWriter/FsWriteBackCache tests pass. Same-lock cleanup ownership and pre-publication cleanup preserve pending state and payload charge; v2 waits true B upload-owner completion before recovery. Existing best-effort filesystem cleanup error policy is unchanged and remains disclosed.",
+  "pending": [
+    "Both corrected heads exact no-default runtime-feature full tests",
+    "Real FUSE known-value A\u2192B, original randwrite/direct/drain and other required guards on corrected binaries",
+    "New matched performance and workspace/row checks before integrated PR approval"
+  ],
+  "no_cloud_or_workloads_run_by_reviewer": true
+}
