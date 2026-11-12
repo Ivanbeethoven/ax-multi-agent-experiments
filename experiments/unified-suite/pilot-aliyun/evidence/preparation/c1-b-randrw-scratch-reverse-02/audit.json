@@ -1,0 +1,297 @@
+{
+  "schema": "b-c1-randrw-scratch-audit-v1",
+  "utc": "2026-11-12T08:39:30.265582+00:00",
+  "run": "ax-c1b-b9d5e18dd7",
+  "source_pins": [
+    {
+      "file": "plan.json",
+      "sha256": "8863aa559a89dc01f5cd89f12999fc08d773c1ea9f1d356b05d08bf8859bc2c7"
+    },
+    {
+      "file": "summary.json",
+      "sha256": "80db7d783b2725990cea937669cea5246ba753996d5156cc54bcd8376824c97b"
+    },
+    {
+      "file": "client-evidence.tar.gz",
+      "sha256": "dc43210f6893ff1c3d418ef64bf9c9448eb7779711df431c6ce29e682a262348"
+    },
+    {
+      "file": "objects-evidence.tar.gz",
+      "sha256": "dd286309b61e1b4ed46365323202fb172734b931894313e86924b442628b299a"
+    },
+    {
+      "file": "metadata-evidence.tar.gz",
+      "sha256": "bf02fa9cdd70bdab911e1f2cc789e6142bb88cc35312c808f44b5fad7da74f44"
+    },
+    {
+      "file": "juicefs-headroom.json",
+      "sha256": "f72268922a64c63f204835dbc0e3384cd78bf4c96bbc84cf6379c65c860a6d38"
+    },
+    {
+      "file": "brewfs-headroom.json",
+      "sha256": "c35b4457d7e27a03be81131a7218e7c8c55e1bfbf1856cac8a386298212a9d9d"
+    },
+    {
+      "file": "stopped.json",
+      "sha256": "915c98967404acc802a1f21a6fb57ece6f0f4c47065845f7c8d8820ae36355bd"
+    },
+    {
+      "file": "released.json",
+      "sha256": "f7609b7293e2c18e9452d92ab9cdc59d82922860d8baf2a66b5bebe3048fd12f"
+    }
+  ],
+  "phase_order": [
+    "brewfs",
+    "juicefs"
+  ],
+  "completed": {
+    "brewfs": {
+      "passed": true,
+      "product": "brewfs",
+      "read_bytes": 50479104,
+      "write_bytes": 16629760,
+      "read_ios": 12324,
+      "write_ios": 4060,
+      "read_iops": 181.006374,
+      "write_iops": 59.630467,
+      "measure_seconds": 63.425020394,
+      "seed": 9173,
+      "input_sha256": "c29df99bc1934d61e7efa20056597e9d2bd0df2409ec88c3b35220fa44cd727b",
+      "cold_sha256": "d8c6c4ca78885fb4f56e09e04e46906707d846f52c22e4f9d6ee64b61caac4e1",
+      "cold_crc_bytes": 67108864,
+      "native_zero_debt": [
+        {
+          "sample": "debt-sample-001",
+          "utc_ns": 1794471952370817750,
+          "monotonic_ns": 89334200742,
+          "complete": true,
+          "metrics": 7,
+          "nonzero": {}
+        },
+        {
+          "sample": "debt-sample-002",
+          "utc_ns": 1794471953423722501,
+          "monotonic_ns": 90387105243,
+          "complete": true,
+          "metrics": 7,
+          "nonzero": {}
+        }
+      ],
+      "claim": "isolated pilot, no historic acceptance and no calibrated ranking",
+      "raw_fio_sha256": "9c1167be645a4e6126849b03011b8575f77d69629e47487999f2b0c529c11755",
+      "cold_fio_sha256": "8d46fe043a6265349a291d17ee9f4e96fad9313e253adfdd968c1f511315ae28",
+      "native_debt_sha256": [
+        "af4643314306c19293c9c61fea5d1ceb185c3ca89384c7bbb0676b2055ed3f58",
+        "baa6639674d63a00dca9a7d0e53439e2daab896aa7b5971189908cc4a933d100"
+      ],
+      "latency_native_ns": {
+        "read": {
+          "count": 12324,
+          "mean": 152032.650682,
+          "p50": 71168,
+          "p95": 350208,
+          "p99": 432128,
+          "kind": "clat_ns"
+        },
+        "write": {
+          "count": 4060,
+          "mean": 332060.541133,
+          "p50": 321536,
+          "p95": 411648,
+          "p99": 460800,
+          "kind": "clat_ns"
+        },
+        "sync": {
+          "count": 16382,
+          "mean": 3955599.338909,
+          "p50": 58112,
+          "p95": 21102592,
+          "p99": 36962304,
+          "kind": "lat_ns"
+        }
+      },
+      "object_arm_bracket": [
+        {
+          "device": "253:80",
+          "initial_free_bytes": 100039163904,
+          "final_free_bytes": 99955294208,
+          "read_bytes": 0,
+          "write_bytes": 4781510656
+        },
+        {
+          "device": "253:96",
+          "initial_free_bytes": 100039163904,
+          "final_free_bytes": 99955294208,
+          "read_bytes": 4096,
+          "write_bytes": 4798881792
+        },
+        {
+          "device": "253:112",
+          "initial_free_bytes": 100039163904,
+          "final_free_bytes": 99955294208,
+          "read_bytes": 221184,
+          "write_bytes": 4816756736
+        },
+        {
+          "device": "253:128",
+          "initial_free_bytes": 100039163904,
+          "final_free_bytes": 99955294208,
+          "read_bytes": 221184,
+          "write_bytes": 5167538176
+        }
+      ],
+      "object_arm_bracket_scope": "Includes setup, drain, cold verify and object-node background activity"
+    },
+    "juicefs": {
+      "passed": true,
+      "product": "juicefs",
+      "read_bytes": 50479104,
+      "write_bytes": 16629760,
+      "read_ios": 12324,
+      "write_ios": 4060,
+      "read_iops": 16.625543,
+      "write_iops": 5.477094,
+      "measure_seconds": 741.537471877,
+      "seed": 9173,
+      "input_sha256": "c29df99bc1934d61e7efa20056597e9d2bd0df2409ec88c3b35220fa44cd727b",
+      "cold_sha256": "12e4a97ac5a999c91707046bd63eb1420db0bbd73622c14ee243e71c9d25cc6d",
+      "cold_crc_bytes": 67108864,
+      "native_zero_debt": [
+        {
+          "sample": "debt-sample-000",
+          "utc_ns": 1794472704304167732,
+          "monotonic_ns": 841267550546,
+          "complete": true,
+          "metrics": 3,
+          "nonzero": {}
+        },
+        {
+          "sample": "debt-sample-001",
+          "utc_ns": 1794472705357131627,
+          "monotonic_ns": 842320514624,
+          "complete": true,
+          "metrics": 3,
+          "nonzero": {}
+        }
+      ],
+      "claim": "isolated pilot, no historic acceptance and no calibrated ranking",
+      "raw_fio_sha256": "33c444c008631a798a1a78a19cdc821eb728231bf1dd04afb378c441c67913eb",
+      "cold_fio_sha256": "be4bbed8276ca49c2269e14237bdc15758dc9e5c2224a691f26c47d927251039",
+      "native_debt_sha256": [
+        "a2d53c857853299e3d3bf7ad9e25130e608a10ef0c947cc319b46f8ee7d0ed84",
+        "095a615d4d3b151b466d2daf93b02b8812a4731c69bac3a14e4285d986bb9113"
+      ],
+      "latency_native_ns": {
+        "read": {
+          "count": 12324,
+          "mean": 4218683.114249,
+          "p50": 366592,
+          "p95": 22151168,
+          "p99": 39059456,
+          "kind": "clat_ns"
+        },
+        "write": {
+          "count": 4060,
+          "mean": 3104625.830296,
+          "p50": 261120,
+          "p95": 15532032,
+          "p99": 26869760,
+          "kind": "clat_ns"
+        },
+        "sync": {
+          "count": 16382,
+          "mean": 41299487.972531,
+          "p50": 41216,
+          "p95": 267386880,
+          "p99": 350224384,
+          "kind": "lat_ns"
+        }
+      },
+      "object_arm_bracket": [
+        {
+          "device": "253:80",
+          "initial_free_bytes": 99955294208,
+          "final_free_bytes": 83598282752,
+          "read_bytes": 37470208,
+          "write_bytes": 48824049664
+        },
+        {
+          "device": "253:96",
+          "initial_free_bytes": 99955294208,
+          "final_free_bytes": 83598270464,
+          "read_bytes": 37519360,
+          "write_bytes": 48866172928
+        },
+        {
+          "device": "253:112",
+          "initial_free_bytes": 99955294208,
+          "final_free_bytes": 83598278656,
+          "read_bytes": 39809024,
+          "write_bytes": 49070477312
+        },
+        {
+          "device": "253:128",
+          "initial_free_bytes": 99955294208,
+          "final_free_bytes": 83598278656,
+          "read_bytes": 47607808,
+          "write_bytes": 48720269312
+        }
+      ],
+      "object_arm_bracket_scope": "Includes setup, drain, cold verify and object-node background activity"
+    }
+  },
+  "partial_measures": {},
+  "failed": [],
+  "performance_calibrated": false,
+  "historical_acceptance_delta": 0,
+  "object_capacity": {
+    "samples": 416,
+    "clocks_synchronized": false,
+    "reserve_stop_observed": false,
+    "disks": [
+      {
+        "device": "253:80",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039241728,
+        "minimum_free_bytes": 83200688128,
+        "final_free_bytes": 83598282752
+      },
+      {
+        "device": "253:96",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039241728,
+        "minimum_free_bytes": 83200667648,
+        "final_free_bytes": 83598270464
+      },
+      {
+        "device": "253:112",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039241728,
+        "minimum_free_bytes": 83200671744,
+        "final_free_bytes": 83598278656
+      },
+      {
+        "device": "253:128",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039241728,
+        "minimum_free_bytes": 83198517248,
+        "final_free_bytes": 83598278656
+      }
+    ]
+  },
+  "resources_closed": true,
+  "matched_fixture": {
+    "prior": {
+      "run": "ax-c1b-21eba441c4",
+      "input_sha256": "c29df99bc1934d61e7efa20056597e9d2bd0df2409ec88c3b35220fa44cd727b",
+      "prior_audit_sha256": "9f408cbbd064e9dfb93c82e4b72b883d2a225b297e93df1fc746971691ae42c0"
+    },
+    "verified_input": {
+      "bytes": 67108864,
+      "sha256": "c29df99bc1934d61e7efa20056597e9d2bd0df2409ec88c3b35220fa44cd727b",
+      "seed": 9173
+    }
+  },
+  "paired_diagnostic": true,
+  "timed_object_disk_bracket_available": false
+}
