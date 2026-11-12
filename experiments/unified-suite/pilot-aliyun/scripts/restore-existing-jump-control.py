@@ -4,7 +4,6 @@ import argparse
 import json
 import os
 from pathlib import Path
-import re
 import socket
 import subprocess
 
@@ -12,6 +11,7 @@ import subprocess
 POINT = Path('/srv/ax-pilot-control')
 SERIAL = 'bp166nue4ac1q7e5oar2'
 LABEL = 'ax-coordinator-0'
+UUID = 'ffe25afe-9d22-4e20-8a5b-fc19baa6687d'
 
 
 def capture(*args):
@@ -35,7 +35,7 @@ def main():
     [disk]=owned
     need(disk['type']=='disk' and disk['size']==100*1024**3 and disk['fstype']=='ext4'
          and disk['label']==LABEL and not disk.get('children')
-         and re.fullmatch(r'[0-9a-f-]{36}',disk['uuid'] or ''),
+         and disk['uuid']==UUID,
          'Existing coordinator device, filesystem or label differs')
     root=capture('findmnt','-n','-o','MAJ:MIN','--target','/')
     need(root!=disk['maj:min'] and POINT.resolve()==POINT and POINT.is_dir(),
