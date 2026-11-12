@@ -1,0 +1,196 @@
+{
+  "all_phase_events_complete": false,
+  "formal_sample": false,
+  "ignored_partial_tail_bytes": 0,
+  "mount": {
+    "mount": {
+      "id": 386,
+      "type": "fuse"
+    },
+    "pid": 1789,
+    "workspace_id": "01a1cecd-ef06-7781-87fb-aaac9ea6b364"
+  },
+  "native_complete": false,
+  "phases": [
+    {
+      "completed": true,
+      "dominant_completed_operation": "lstat",
+      "elapsed_ns": 91083580049,
+      "errors": [],
+      "operations": {
+        "close": {
+          "completed": 32,
+          "errored": 0,
+          "p50_ns": 246118,
+          "p95_ns": 423422,
+          "sum_ns": 8975609,
+          "unfinished": 0
+        },
+        "lstat": {
+          "completed": 32,
+          "errored": 0,
+          "p50_ns": 2172204323,
+          "p95_ns": 2709858886,
+          "sum_ns": 70781866422,
+          "unfinished": 0
+        },
+        "open": {
+          "completed": 32,
+          "errored": 0,
+          "p50_ns": 904276,
+          "p95_ns": 1292297,
+          "sum_ns": 30059691,
+          "unfinished": 0
+        },
+        "pread": {
+          "completed": 32,
+          "errored": 0,
+          "p50_ns": 719880241,
+          "p95_ns": 1594859796,
+          "sum_ns": 20230726904,
+          "unfinished": 0
+        }
+      },
+      "phase": "serial-first-a",
+      "slowest_completed": {
+        "elapsed_ns": 9256294889,
+        "operation": "lstat",
+        "path": "small/d0000/f0000000"
+      },
+      "unfinished": [],
+      "verified_bytes": 131072,
+      "verified_files": 32,
+      "workers": 1
+    },
+    {
+      "completed": true,
+      "dominant_completed_operation": "lstat",
+      "elapsed_ns": 23510555894,
+      "errors": [],
+      "operations": {
+        "close": {
+          "completed": 32,
+          "errored": 0,
+          "p50_ns": 283717,
+          "p95_ns": 2302789409,
+          "sum_ns": 6871524343,
+          "unfinished": 0
+        },
+        "lstat": {
+          "completed": 32,
+          "errored": 0,
+          "p50_ns": 11259874639,
+          "p95_ns": 22361681632,
+          "sum_ns": 390546418258,
+          "unfinished": 0
+        },
+        "open": {
+          "completed": 32,
+          "errored": 0,
+          "p50_ns": 5608485,
+          "p95_ns": 2244499256,
+          "sum_ns": 18300238300,
+          "unfinished": 0
+        },
+        "pread": {
+          "completed": 32,
+          "errored": 0,
+          "p50_ns": 751807332,
+          "p95_ns": 3105805178,
+          "sum_ns": 32491622665,
+          "unfinished": 0
+        }
+      },
+      "phase": "parallel-first-b",
+      "slowest_completed": {
+        "elapsed_ns": 22600299967,
+        "operation": "lstat",
+        "path": "small/d0912/f0086928"
+      },
+      "unfinished": [],
+      "verified_bytes": 131072,
+      "verified_files": 32,
+      "workers": 32
+    },
+    {
+      "completed": false,
+      "dominant_completed_operation": "pread",
+      "elapsed_ns": null,
+      "errors": [],
+      "operations": {
+        "close": {
+          "completed": 11,
+          "errored": 0,
+          "p50_ns": 255591,
+          "p95_ns": 284539,
+          "sum_ns": 2735241,
+          "unfinished": 0
+        },
+        "lstat": {
+          "completed": 12,
+          "errored": 0,
+          "p50_ns": 406966,
+          "p95_ns": 2412418,
+          "sum_ns": 12811141,
+          "unfinished": 0
+        },
+        "open": {
+          "completed": 12,
+          "errored": 0,
+          "p50_ns": 176408,
+          "p95_ns": 211801,
+          "sum_ns": 2202092,
+          "unfinished": 0
+        },
+        "pread": {
+          "completed": 11,
+          "errored": 0,
+          "p50_ns": 713808726,
+          "p95_ns": 745830962,
+          "sum_ns": 5191390694,
+          "unfinished": 1
+        }
+      },
+      "phase": "serial-repeat-b",
+      "slowest_completed": {
+        "elapsed_ns": 745830962,
+        "operation": "pread",
+        "path": "small/d0272/f0024848"
+      },
+      "unfinished": [
+        {
+          "observed_wait_lower_bound_ns": 0,
+          "operation": "pread",
+          "path": "small/d0368/f0034160"
+        }
+      ],
+      "verified_bytes": 45056,
+      "verified_files": 11,
+      "workers": 1
+    }
+  ],
+  "phases_never_started": [
+    "parallel-repeat-a"
+  ],
+  "quantile_scope": "Nearest rank over completed successful calls only; overlapping elapsed times are not makespan.",
+  "raw_event_count": 685,
+  "schema": "c3-packed-cohort-summary-v1",
+  "source_sha256": {
+    "stage.json": "785457fb12fe1b63b64ee2404236737b8dee58917a9450b8cfc902901efb3d61",
+    "unit-result.txt": "47cf2585576a8fc646f79e332a9a7c80a1f6b972b05a5f2f09f89f6483bb5169",
+    "worker-cohort-events.ndjson": "5c4d51d84fd689b191d067456dae9e7126bf30245b4d1825bfa04f1195e4e365",
+    "worker-intent.json": "3a041159844adf84acfa3bc7ab796e3ac1319ee3159a656bac10c064cd72c96c",
+    "worker-mount-exit.json": "b4af18b5a5b432a9f6c92d42f1a772f50fce389ae6d0f2aa86b2567da9b6539d",
+    "worker-ready.json": "7f4241f947db0bd48ebf25f2fb93b9570a543475cc3dd6f1e70d231904f35180"
+  },
+  "tag": "c3-current-base-20261112t080846z",
+  "unfinished_scope": "Lower bound from operation start to final observed event; receipt has no end timestamp for it.",
+  "unit": {
+    "ActiveState": "failed",
+    "ExecMainStatus": "1",
+    "LoadState": "loaded",
+    "MainPID": "0",
+    "Result": "exit-code",
+    "SubState": "failed"
+  }
+}
