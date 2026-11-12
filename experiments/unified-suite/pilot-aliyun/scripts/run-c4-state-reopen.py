@@ -19,6 +19,7 @@ REQUEST_V1 = 'pilot-c4-state-reopen-request-v1'
 REQUEST_V2 = 'pilot-c4-state-reopen-request-v2'
 AUTHORIZATION = 'pilot-c4-state-reopen-launch-authorization-v1'
 EXPORT_WORKER_SHA = 'ae48f43d2cfe54d9b29e021f5e9e3f767bdac7271644120b1d61c370555c5a37'
+EXPORT_WORKER_BOUNDED_CLOSURE_SHA = 'bc340e15a606219c4ebd62dbed5daa29e6d71a9b7545a841a8c767b177cac7be'
 V2_FIELDS = {'schema','attempt','draft','handoffs','latest','worker','verified_checkpoint',
              'source_tree','peers','current_boots'}
 SIDES = ('source', 'target')
@@ -92,7 +93,7 @@ def launch_identity(request, route, request_sha, runner_sha, runtime_repo, outpu
         raise ValueError('Exact v2 request with current boot proof and unique attempt required')
     if (not isinstance(worker, dict) or set(worker) != {'path','sha256'}
             or not isinstance(worker['path'], str) or not Path(worker['path']).is_absolute()
-            or worker['sha256'] != EXPORT_WORKER_SHA):
+            or worker['sha256'] not in (EXPORT_WORKER_SHA, EXPORT_WORKER_BOUNDED_CLOSURE_SHA)):
         raise ValueError('V2 requires the pinned no-model OpenCode export worker')
     if (route.get('schema') != 'pilot-c4-state-reopen-draft-v1'
             or route.get('source_pool') != 'pool-a' or route.get('target_pool') != 'pool-b'

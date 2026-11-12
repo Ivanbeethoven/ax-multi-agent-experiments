@@ -29,6 +29,22 @@ os.execv(binary, [binary, 'export', session])
 '''
 
 
+def wait_export_group(pgid, members, *, timeout=5.0, poll=0.05,
+                      monotonic=time.monotonic, sleep=time.sleep):
+    """Wait only for normal exit of the original process group."""
+    started = monotonic()
+    first = current = sorted(members(pgid))
+    while current:
+        remaining = timeout - (monotonic()-started)
+        if remaining <= 0:
+            break
+        sleep(min(poll,remaining))
+        current = sorted(members(pgid))
+    return dict(group_members_after_parent_exit=first, group_members_after=current,
+                group_closure_wait_seconds=monotonic()-started,
+                group_closure_timeout_seconds=timeout)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for key in ('request', 'runtime-repo', 'out'):
@@ -130,9 +146,9 @@ def main():
             process = subprocess.Popen(argv, cwd=project, env=env, stdout=stdout, stderr=stderr, start_new_session=True)
             original = identity(process.pid)
             code = process.wait()
-        running = node.process_group_members(process.pid)
-        write_new(out/'exit.json', dict(exit_code=code, original_process=original, group_members_after=running))
-        if not original or code or running:
+        closure = wait_export_group(process.pid, node.process_group_members)
+        write_new(out/'exit.json', dict(exit_code=code, original_process=original, **closure))
+        if not original or code or closure['group_members_after']:
             raise ValueError('Native export or its process closure failed')
         raw = load(out/'stdout')
         validation = check_after(checkpoint['session_prefix'], raw, False)
