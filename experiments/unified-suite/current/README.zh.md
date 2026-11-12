@@ -1,6 +1,6 @@
 # C1–C4 实验方案
 
-**实验已暂停。** 先保全结果并清理本任务创建的云资源，保留原跳板机；不启动新实验。[脚本入口与当前卡点](../pilot-aliyun/scripts/README.zh.md)
+**实验已暂停。** 当前只归档和清理本任务创建的云资源，保留原跳板机及证据盘。[归档、清理与运行脚本入口](../pilot-aliyun/scripts/README.zh.md)
 
 本轮按用户要求跳过 JuiceFS 混合读写，不再补跑或补验收，原有结果保留。[C2–C4 未完成清单](PENDING.zh.md)按当前方案列项；旧 14/28 只用于解释历史账本，不能代表已删除完整复制实验后的当前进度。
 
@@ -54,7 +54,7 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 | 项目 | 已验证 | 还缺 |
 |---|---|---|
 | C1 | [64 MiB 同步混合读写](../pilot-aliyun/evidence/preparation/c1-b-randrw-scratch-reverse-02/README.zh.md)完成正序、反序各一组配对，四臂均通过全量冷挂载 CRC；[固定 B 的读帧开关](../pilot-aliyun/evidence/preparation/c1-rbm-rustfs-quantum-01/README.zh.md)通过落盘布局与读回核验 | 增加重复；读帧变化对物理 I/O 和任务时间的影响 |
-| C2 | [两文件热态对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/README.zh.md)两组都跑通，计时期间零对象存储读取；[云端初态发布](../pilot-aliyun/evidence/preparation/c2-current-trace-a-producer-timeout-03/README.zh.md)在 300 秒超时，回放未启动；[同一发布程序的本地检查](../pilot-aliyun/evidence/preparation/c2-local-publisher-01/README.zh.md)用 5.53 秒生成并校验全部 182 个对象；[云端短时定位](../pilot-aliyun/evidence/preparation/c2-publish-service-timeout-01/README.zh.md)在启动生产器前的桶操作发生读取超时 | 先核实对象服务就绪，再区分桶查询与创建。新检查使用 3 秒读取超时，不能解释旧 300 秒超时。完整 trace 回放与冷验尚未完成 |
+| C2 | [两文件热态对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/README.zh.md)计时期间零对象存储读取；[本地检查](../pilot-aliyun/evidence/preparation/c2-local-publisher-01/README.zh.md)用 5.53 秒生成并校验 182 个对象；[最后一次云端定位](../pilot-aliyun/evidence/preparation/c2-publish-progress-timeout-02/README.zh.md)通过 RustFS 就绪和建桶检查，Packed 发布 300.001 秒超时，留下 145 个对象、24,520,277 B，未生成最终清单 | 发布等待尚未定位到具体操作；完整 trace 未启动，冷验与同输入对照尚未完成 |
 | C3 | [云上抽样四阶段完成](../pilot-aliyun/evidence/preparation/cloud-c3-script-fixes-20261112/README.zh.md)：64 个固定文件、128 次内容校验，正常卸载；十万文件全量仍未完成 | 完整读回；同样设置下的性能对照 |
 | C4 | [rbm 同输入原生 fork / clone](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)均通过子读父、覆盖后父不变、空缓存重挂；[阿里云 A→B](../pilot-aliyun/evidence/preparation/c4-state-reopen-a-b-result-01/README.zh.md)读回同一工作区和完全相同的 OpenCode 会话导出；[本地退出检查](../pilot-aliyun/evidence/preparation/c4-local-export-closure-diagnosis-01/README.zh.md)实测到主进程退出后 Git 仍在写快照，运行器已改为等待原进程组自然结束 | 跨机整项未通过：目标子进程退出超时，未采目标零债务；新运行器尚未云端复验。无模型续跑，云端超过 5 秒的原因尚未复现。一万文件派生性能配对本轮跳过 |
 

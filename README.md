@@ -17,7 +17,9 @@
 | 采集与回放工具 | [Rust full-fuse-replay](tools/full-fuse-replay/README.md) |
 | 旧计划和实验记录 | [统一套件历史入口](experiments/unified-suite/README.md) · [实验目录](experiments/README.md) |
 
-新方案参数已明确，suite 适配与新路线资格待完成；`design.json` 是规划文件，不能直接执行。当前三个统一 flag 尚未实现，旧 suite 模板需显式选择历史模式。先完成 1 Agent、100k 文件资格，再开展最高 32 Agent、百万文件正式实验。
+**实验已暂停。** 当前只归档和清理。[C2–C4 未完成清单](experiments/unified-suite/current/PENDING.zh.md) · [归档、清理与运行脚本入口](experiments/unified-suite/pilot-aliyun/scripts/README.zh.md)。
+
+恢复后的小试用 1 Agent，C3 和 C4 派生各用独立的 10,000 个 4 KiB 文件。百万文件和最高 32 Agent 属于正式规模。`design.json` 记录规划参数；统一运行开关和套件适配尚未完成。
 
 默认一池依次做系统配对，第二池按已就绪任务申请。代码在远端构建一次，资源按阶段申请并在归档核验后释放；部署规则见 [AGENTS.md](AGENTS.md)。
 
