@@ -27,6 +27,8 @@ def run(args):
     if out.parent != CONTROL/'preparation' or not out.name.startswith('c3-current-base-'):
         raise ValueError('Dedicated coordinator preparation directory required')
     tag = out.name
+    if not 0 <= args.workers <= 32 or not 60 <= args.verify_seconds <= 900:
+        raise ValueError('Bounded verifier workers and duration required')
     worker = out/'qualify-c3-workspace-base.py'
     script = worker.read_bytes()
     if hashlib.sha256(script).hexdigest()!=args.worker_sha256:
@@ -84,11 +86,12 @@ def run(args):
         upload('slot.json',slot_bytes)
         ssh('client','test -d /sys/fs/cgroup/ax-slot-1 || python3 /srv/ax-client/code-12/experiments/unified-suite/'
             f'pilot-aliyun/scripts/configure-node.py slot --spec {remote}/slot.json --out {remote}/slot-setup',timeout=15)
-        cmd = ['timeout','--kill-after=25s','585s','python3','-B',remote+'/'+worker.name,
-               '--tag',tag,'--database',str(args.database)]
+        cmd = ['timeout','--kill-after=25s',str(args.verify_seconds+105)+'s','python3','-B',remote+'/'+worker.name,
+               '--tag',tag,'--database',str(args.database),'--workers',str(args.workers),
+               '--verify-seconds',str(args.verify_seconds)]
         try:
             with (out/'worker.log').open('xb') as stream:
-                ssh('client',shlex.join(cmd),stdout=stream,stderr=subprocess.STDOUT,timeout=620)
+                ssh('client',shlex.join(cmd),stdout=stream,stderr=subprocess.STDOUT,timeout=args.verify_seconds+140)
         finally:
             for name in ('intent.json','init.stdout','init.stderr','ready.json','mount.log','mount-exit.json','verify.log',
                          'verify/result.json','result.json'):
@@ -103,4 +106,6 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--worker-sha256',required=True)
     p.add_argument('--database',type=int,required=True)
+    p.add_argument('--workers',type=int,default=0)
+    p.add_argument('--verify-seconds',type=int,default=480)
     run(p.parse_args())

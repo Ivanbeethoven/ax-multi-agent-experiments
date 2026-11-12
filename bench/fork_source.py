@@ -84,7 +84,7 @@ def _live(directory, identity):
         raise ValueError('source FUSE mount or foreground process changed')
 
 
-def _closed(ready_ref, stopped_ref):
+def _closed(ready_ref, stopped_ref, replacement=None):
     directory, _, original, point = _ready(ready_ref)
     stopped_path = _external(stopped_ref, point)
     if stopped_path != directory/'stopped.json':
@@ -92,9 +92,15 @@ def _closed(ready_ref, stopped_ref):
     wanted = dict(passed=True, exit_code=0, mount_absent=True, anchor=original['anchor'],
                   original_mount=original['mount'], active_workers=[])
     stopped = load(stopped_path)
+    now = mounts(point)
+    # Linux may recycle a mount ID immediately after unmount. When that
+    # happens, a different live supervisor process identifies the new mount.
+    reused = (replacement is not None and now==[replacement['mount']] and
+              replacement['process']!=original['process'] and
+              replacement['process']['boot_id']==original['process']['boot_id'] and alive(replacement['process']))
     if (stopped != wanted or type(stopped['exit_code']) is not int
             or any(type(stopped[k]) is not bool for k in ('passed', 'mount_absent'))
-            or alive(original['process']) or original['mount'] in mounts(point)):
+            or alive(original['process']) or (original['mount'] in now and not reused)):
         raise ValueError('original FUSE process and mount must have stopped normally')
     return original
 
@@ -179,7 +185,7 @@ def _inode(path):
     return dict(device=s.st_dev, inode=s.st_ino, mtime_ns=s.st_mtime_ns, ctime_ns=s.st_ctime_ns)
 
 
-def _binding(request_ref, *, active):
+def _binding(request_ref, *, active, replacement=None):
     request = spec(request_ref, REQUEST)
     directory, ready, identity, point = _ready(request['ready'])
     _external(request_ref, point)
@@ -205,8 +211,8 @@ def _binding(request_ref, *, active):
         writer = request['writer']
         _external(writer['ready'], point)
         _external(writer['stopped'], point)
-        closed = _closed(writer['ready'], writer['stopped'])
-        if (closed['anchor'] != identity['anchor'] or closed['mount'] == identity['mount']
+        closed = _closed(writer['ready'], writer['stopped'], identity if active else replacement)
+        if (closed['anchor'] != identity['anchor'] or closed['process'] == identity['process']
                 or closed['process']['boot_id'] != identity['process']['boot_id']):
             raise ValueError('closed preparation writer must belong to the same JuiceFS backend and boot')
         backend = dict(closed_preparation_writer=closed)
@@ -246,11 +252,14 @@ def preflight(qualification_ref, *, cell_id, method, native, input_tree, probe_s
     receipt = load(pinned(qualification_ref))
     if receipt.get('schema') != QUALIFIED or receipt.get('passed') is not True:
         raise ValueError('successful v3 source qualification required')
-    request, _, point, source, _, expected = _binding(receipt['request'], active=False)
+    replacement = None
+    if method=='juicefs-clone' and isinstance(measurement,dict) and set(measurement)=={'mount_spec','ready'}:
+        replacement = _ready(measurement['ready'])[2]
+    request, _, point, source, _, expected = _binding(receipt['request'], active=False,replacement=replacement)
     _external(qualification_ref, point)
     if (cell_id, method, native, input_tree) != tuple(request[k] for k in ('cell_id', 'method', 'native', 'input_tree')):
         raise ValueError('qualification does not bind this exact native burst source')
-    if probe_stopped is None or _closed(request['ready'], probe_stopped) != expected['source_mount']:
+    if probe_stopped is None or _closed(request['ready'], probe_stopped,replacement) != expected['source_mount']:
         raise ValueError('normally closed qualification mount required before the timed burst')
     original_inode = receipt['source_inode']
     if (set(original_inode) != {'device', 'inode', 'mtime_ns', 'ctime_ns'}
@@ -271,7 +280,6 @@ def preflight(qualification_ref, *, cell_id, method, native, input_tree, probe_s
     original = expected['source_mount']
     if (current_point != point or current['anchor'] != original['anchor']
             or current['mount']['filesystem'] != 'fuse.juicefs'
-            or current['mount']['mount_id'] == original['mount']['mount_id']
             or current['process'] == original['process']
             or current['process']['boot_id'] != original['process']['boot_id']):
         raise ValueError('distinct live JuiceFS mount on the qualified backend and path required')
