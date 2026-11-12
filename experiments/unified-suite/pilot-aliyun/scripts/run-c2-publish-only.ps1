@@ -53,7 +53,7 @@ if ((Hash $reference) -cne '6b718199077ee17241131ed03d2da3c209e689f26a3ea0ce219d
 }
 if (!$Apply) {
     [ordered]@{started=$false; jump=$jump; workers=$workers; remains_stopped=$metadata;
-        window_seconds=720; producer_seconds=300; formal_sample=$false;
+        window_seconds=900; readiness_seconds=90; producer_seconds=300; formal_sample=$false;
         worker_sha256=(Hash $worker); latest_sha256=(Hash $latestPath)} | ConvertTo-Json
     return
 }
@@ -63,7 +63,7 @@ New-Item -ItemType Directory -Path $out -ErrorAction Stop | Out-Null
 $remote="/srv/ax-pilot-control/preparation/$tag"
 $sshOpts=@('-F',$cfg,'-oBatchMode=yes','-oConnectTimeout=5','-oServerAliveInterval=4','-oServerAliveCountMax=2')
 $begin=[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-$end=$begin+720
+$end=$begin+900
 $workBy=$end-105
 function Now { $begin+[long][Math]::Floor($clock.Elapsed.TotalSeconds) }
 function Write-Utf8([string]$Name,[string]$Value) {
@@ -171,7 +171,7 @@ function Stall([string]$Phase,[string]$Detail) {
 if ((@(Inspect $all 'all-before.json' ($begin+15)) | Where-Object {!(Stopped $_)})) { throw 'A or jump already active' }
 $jumpAttempted=$workersAttempted=$unitRequested=$artifactOk=$false
 $ready=$null
-$stagingBy=$workBy-408
+$stagingBy=$workBy-500
 $artifactBy=$end-80
 try {
     $jumpAttempted=$true
@@ -199,7 +199,7 @@ try {
     if ((Remote "systemd-run --quiet --unit=$tag --remain-after-exit --property=Type=exec /usr/bin/python3 -B $remote/c2-publish-only.py coordinator --tag $tag --deadline-epoch $workBy" $stagingBy).code) {
         throw 'A lock holder launch was unacknowledged'
     }
-    $startBy=$workBy-395
+    $startBy=$workBy-480
     $limit=[Math]::Min((Now)+15,$startBy-5)
     do {
         $armed=Snapshot 'locks-held' $limit
@@ -216,7 +216,7 @@ try {
     }
     $workersAttempted=$true
     Save-Action 'workers-start' (Cloud (@('StartInstances','--BatchOptimization','AllTogether')+$targets) $startBy)
-    $limit=[Math]::Min((Now)+90,$workBy-360)
+    $limit=[Math]::Min((Now)+90,$workBy-455)
     do {
         $states=@(Inspect $a 'instances-running.json' $limit)
         if (!(Stopped ($states | Where-Object InstanceId -ceq $metadata))) { throw 'Metadata unexpectedly started; stop owned nodes only' }
@@ -249,7 +249,7 @@ try {
                 $p=Snapshot 'worker-sha256' $artifactBy
                 if (!$p) { throw 'No worker evidence hashes' }
                 foreach ($entry in $p.PSObject.Properties) {
-                    if ($entry.Name -cnotin @('initial.json','intent.json','process.ndjson','object-count.ndjson','producer-exit.json','object-count-final.json','result.json') -or
+                    if ($entry.Name -cnotin @('initial.json','intent.json','process.ndjson','object-count.ndjson','producer-exit.json','object-count-final.json','head-bucket.json','create-bucket.json','result.json') -or
                         (Hash (Join-Path "$out/worker" $entry.Name)) -cne $entry.Value) { throw 'Worker evidence mismatch' }
                 }
                 $artifactOk=$true

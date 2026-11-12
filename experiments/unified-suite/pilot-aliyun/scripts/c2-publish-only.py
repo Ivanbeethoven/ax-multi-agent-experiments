@@ -3,9 +3,10 @@
 import argparse
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from datetime import datetime, timezone
 import hashlib
+from http.client import HTTPConnection
 import json
 import os
 from pathlib import Path
@@ -37,9 +38,17 @@ ROLE_NAMES = {'client': 'ax-pilot-20261111-client', 'objects': 'ax-pilot-2026111
               'metadata': 'ax-pilot-20261111-metadata'}
 ROLES = ('client', 'objects')
 FILES = ('initial.json', 'intent.json', 'process.ndjson', 'object-count.ndjson',
-         'producer-exit.json', 'object-count-final.json', 'result.json')
+         'producer-exit.json', 'object-count-final.json', 'head-bucket.json', 'create-bucket.json', 'result.json')
 MIB = 2**20
 PRODUCER_SECONDS = 300
+PRODUCER_RESERVE = 24
+BUCKET_READ_SECONDS = 30
+BUCKET_CALL_SECONDS = 33
+WORKER_MIN_SECONDS = PRODUCER_SECONDS+PRODUCER_RESERVE+2*BUCKET_CALL_SECONDS+35
+READINESS_SECONDS = 90
+RUSTFS_HOST, RUSTFS_PORT = '10.20.2.163', 9000
+HEALTH_ROUTES = {'client':('/health','/health/ready'),
+                 'objects':('/health','/health/ready','/minio/health/cluster')}
 
 
 def need(ok, message):
@@ -77,11 +86,12 @@ def stat_fields(path):
     return path.read_text().rsplit(')', 1)[1].split()
 
 
-def process_snapshot(pid, start_ticks, proc=Path('/proc')):
+def process_snapshot(pid, start_ticks, proc=Path('/proc'), *, rustfs=False):
     p = proc/str(pid)
     s = stat_fields(p/'stat')
-    need(int(s[19]) == start_ticks and int(s[2]) == pid and int(s[3]) == pid,
-         'Original producer identity differs')
+    need(int(s[19]) == start_ticks and
+         ((p/'comm').read_text().strip()=='rustfs' if rustfs else int(s[2])==pid and int(s[3])==pid),
+         'Original process identity differs')
     io = {}
     for line in (p/'io').read_text().splitlines():
         key, value = line.split(': ', 1)
@@ -115,7 +125,7 @@ def process_snapshot(pid, start_ticks, proc=Path('/proc')):
             cols = line.split()
             if len(cols) < 10 or cols[9] not in sockets:
                 continue
-            ip, port = cols[2].split(':', 1)
+            ip, port = cols[1 if rustfs else 2].split(':', 1)
             match = port == '2328' and ip in {'A302140A', '0000000000000000FFFF0000A302140A'}
             if not match:
                 other[cols[3]] += 1
@@ -127,6 +137,126 @@ def process_snapshot(pid, start_ticks, proc=Path('/proc')):
     return dict(state=s[0], cpu_user_ticks=int(s[11]), cpu_system_ticks=int(s[12]),
                 threads=int(s[17]), io=io, wchan_counts=dict(waits), rustfs_tcp=rows[:64],
                 other_tcp_states=dict(other), socket_fds_seen=len(sockets))
+
+
+def health_probe(path, host=RUSTFS_HOST, port=RUSTFS_PORT, timeout=1.25):
+    # http.client makes a direct connection without proxies or redirects.
+    conn = HTTPConnection(host,port,timeout=timeout)
+    started = time.monotonic_ns()
+    result = dict(http_status=None,tcp_connected=False)
+    try:
+        conn.connect()
+        result.update(tcp_connected=True,tcp_connect_ns=time.monotonic_ns()-started)
+        conn.request('GET',path)
+        with conn.getresponse() as response:
+            result['http_status'] = response.status
+        # Do not retain response headers or read its body.
+    except Exception as error:
+        result['error_class'] = type(error).__name__
+    finally:
+        conn.close()
+        result['elapsed_ns'] = time.monotonic_ns()-started
+    return result
+
+
+def probe_record(role, pid=None, ticks=None, *, sample_only=False):
+    row = dict(role=role, at_monotonic_ns=time.monotonic_ns(),
+               boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip())
+    if role=='objects':
+        row.update(pid=pid,start_ticks=ticks,clock_ticks=os.sysconf('SC_CLK_TCK'))
+        try:
+            row['process'] = process_snapshot(pid,ticks,rustfs=True)
+        except Exception as error:
+            row['process_error_class'] = type(error).__name__
+    if not sample_only:
+        row['routes'] = {path:health_probe(path) for path in HEALTH_ROUTES[role]}
+        if role=='objects':
+            try:
+                row['process'] = process_snapshot(pid,ticks,rustfs=True)
+            except Exception as error:
+                row.pop('process',None)
+                row['process_error_class'] = type(error).__name__
+    return row
+
+
+def service_ready(samples, boots):
+    return all(isinstance(samples.get(role),dict) and samples[role].get('role')==role and
+        samples[role].get('boot_id')==boots[role] and
+        all(samples[role].get('routes',{}).get(path,{}).get('http_status')==200
+            for path in HEALTH_ROUTES[role]) and
+        (role!='objects' or isinstance(samples[role].get('process'),dict)) for role in ROLES)
+
+
+def wait_for_service(probe, out, boots, seconds):
+    started = time.monotonic()
+    budget = min(READINESS_SECONDS,max(0,seconds))
+    deadline = started+budget
+    rounds = 0
+    ready = False
+    with (out/'service-readiness.ndjson').open('x') as stream, ThreadPoolExecutor(max_workers=2) as pool:
+        while deadline-time.monotonic() >= 1:
+            rounds += 1
+            samples = {}
+            checks = {role:pool.submit(probe,role,deadline) for role in ROLES}
+            for role, pending in checks.items():
+                try:
+                    samples[role] = pending.result()
+                except Exception as error:
+                    samples[role] = dict(error_class=type(error).__name__)
+            ready = time.monotonic() <= deadline and service_ready(samples,boots)
+            record(stream,dict(round=rounds,elapsed_seconds=time.monotonic()-started,
+                               ready=ready,samples=samples))
+            if ready:
+                break
+            time.sleep(max(0,min(2,deadline-time.monotonic())))
+    save(out/'service-readiness.json',dict(ready=ready,rounds=rounds,
+         budget_seconds=budget,elapsed_seconds=time.monotonic()-started,
+         checked_endpoint=OBJECTS, health_routes=HEALTH_ROUTES))
+    return ready
+
+
+@contextmanager
+def limit_bucket_call():
+    def expired(_signal,_frame):
+        raise TimeoutError('Bucket diagnostic operation deadline')
+    old = signal.signal(signal.SIGALRM,expired)
+    signal.setitimer(signal.ITIMER_REAL,BUCKET_CALL_SECONDS)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL,0)
+        signal.signal(signal.SIGALRM,old)
+
+
+def bucket_call(out, phase, operation, client_error):
+    need(phase in ('head-bucket','create-bucket'),'Unexpected diagnostic operation')
+    started = time.monotonic_ns()
+    row = dict(operation=phase,started_monotonic_ns=started,http_status=None,
+               accepted=False,configured_read_timeout_seconds=BUCKET_READ_SECONDS,
+               total_call_budget_seconds=BUCKET_CALL_SECONDS)
+    try:
+        try:
+            with limit_bucket_call():
+                response = operation()
+        except client_error as error:
+            status = error.response.get('ResponseMetadata',{}).get('HTTPStatusCode')
+            row['http_status'] = status if type(status) is int else None
+            row['error_class'] = type(error).__name__
+            if phase!='head-bucket' or status!=404:
+                raise
+            row.update(accepted=True,outcome='name-absent')
+        else:
+            status = response.get('ResponseMetadata',{}).get('HTTPStatusCode')
+            row['http_status'] = status if type(status) is int else None
+            need(phase=='create-bucket' and type(status) is int and 200<=status<300,
+                 'Fresh bucket creation was not acknowledged or name already exists')
+            row.update(accepted=True,outcome='creation-acknowledged')
+    except Exception as error:
+        row.setdefault('error_class',type(error).__name__)
+        raise
+    finally:
+        row['elapsed_ns'] = time.monotonic_ns()-started
+        save(out/(phase+'.json'),row)
 
 
 def producer_argv(bucket, out):
@@ -181,7 +311,10 @@ def settle(child):
 def execute_producer(argv, env, out, epoch_deadline, start_count, finished):
     def join_original_slot():
         (SLOT/'cgroup.procs').write_text(str(os.getpid()))
-    need(epoch_deadline-time.time() >= PRODUCER_SECONDS+15, 'Need the original full 300s publisher budget')
+    need(epoch_deadline-time.time() >= PRODUCER_SECONDS+PRODUCER_RESERVE, 'Need the original full 300s publisher budget')
+    for name,value in {'cpu.max':'200000 100000','memory.max':'8589934592',
+                       'memory.swap.max':'0','cgroup.procs':''}.items():
+        need((SLOT/name).read_text().strip()==value,'Producer slot changed before launch')
     started = time.monotonic()
     child = subprocess.Popen(argv, env=env, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL, start_new_session=True, preexec_fn=join_original_slot)
@@ -252,8 +385,9 @@ def run_worker(tag, epoch_deadline):
         for file, value in {'cpu.max':'200000 100000', 'memory.max':'8589934592',
                             'memory.swap.max':'0', 'cgroup.procs':''}.items():
             need((SLOT/file).read_text().strip() == value, 'Original producer cgroup differs or is busy')
-        phase = 'fresh-bucket'
-        need(epoch_deadline-time.time() >= PRODUCER_SECONDS+27, 'No full producer window remains')
+        phase = 'prepare-bucket'
+        need(epoch_deadline-time.time() >= PRODUCER_SECONDS+PRODUCER_RESERVE+2*BUCKET_CALL_SECONDS,
+             'No full publisher and bucket window remains')
         secret = CLIENT/'private/rustfs.env'
         need(secret.is_file() and not secret.is_symlink() and secret.stat().st_mode & 0o077 == 0,
              'Original credential file must be owner-only')
@@ -270,24 +404,27 @@ def run_worker(tag, epoch_deadline):
             env['BREWFS_PACKED_V3_'+suffix+'_BUDGET_BYTES'] = str(budget*MIB)
         import boto3
         from botocore.config import Config
-        s3 = boto3.client('s3', endpoint_url=OBJECTS, region_name='us-east-1',
-            aws_access_key_id=env['AWS_ACCESS_KEY_ID'], aws_secret_access_key=env['AWS_SECRET_ACCESS_KEY'],
-            config=Config(signature_version='s3v4', connect_timeout=2, read_timeout=3,
-                retries={'total_max_attempts':1}, s3={'addressing_style':'path'}, proxies={}))
+        def s3_client(read_timeout):
+            return boto3.client('s3', endpoint_url=OBJECTS, region_name='us-east-1',
+                aws_access_key_id=env['AWS_ACCESS_KEY_ID'], aws_secret_access_key=env['AWS_SECRET_ACCESS_KEY'],
+                config=Config(signature_version='s3v4', connect_timeout=2, read_timeout=read_timeout,
+                    retries={'total_max_attempts':1}, s3={'addressing_style':'path'}, proxies={}))
+        bucket_s3 = s3_client(BUCKET_READ_SECONDS)
+        s3 = s3_client(3)  # Preserve list/manifest diagnostic budgets.
         bucket = 'axc2diag-'+uuid.uuid4().hex
         argv = producer_argv(bucket, out)
         summary.update(bucket=bucket, source_files=614, source_bytes=35526497, bucket_created=False)
         save(out/'intent.json', dict(**summary, producer_argv=argv,
              producer_sha256=PINS[PRODUCER], initial_tree_sha256=PINS[CASE/'initial-tree.json']))
         from botocore.exceptions import ClientError
-        try:
-            s3.head_bucket(Bucket=bucket)
-        except ClientError as error:
-            need(error.response['ResponseMetadata']['HTTPStatusCode']==404,
-                 'New bucket name absence could not be proved')
-        else:
-            raise ValueError('Refusing to reuse an existing bucket')
-        s3.create_bucket(Bucket=bucket)
+        phase = 'head-bucket'
+        need(epoch_deadline-time.time() >= PRODUCER_SECONDS+PRODUCER_RESERVE+2*BUCKET_CALL_SECONDS,
+             'No full bucket and producer budget remains')
+        bucket_call(out,phase,lambda:bucket_s3.head_bucket(Bucket=bucket),ClientError)
+        phase = 'create-bucket'
+        need(epoch_deadline-time.time() >= PRODUCER_SECONDS+PRODUCER_RESERVE+BUCKET_CALL_SECONDS,
+             'No full create and producer budget remains')
+        bucket_call(out,phase,lambda:bucket_s3.create_bucket(Bucket=bucket),ClientError)
         summary['bucket_created'] = True
         counter = threading.Thread(target=object_counts, args=(s3,bucket,out,finished), daemon=True)
         phase = 'publish'
@@ -358,6 +495,7 @@ def coordinator(tag, epoch_deadline):
     need(packet['worker']==digest(me) and packet['latest']==digest(out/'latest.json'),
          'Staging input differs')
     restore = ref['restore_payload'](out/'a-pool-up.py')
+    worker_deadline = epoch_deadline-20  # Reserved for bounded coordinator evidence readback.
     join = ref['shell_join']
     sys.path.insert(0,str(CONTROL/'code-12'))
     from bench.runtime.pilot_pools import active_conflicts, cell_resources, resource_guard
@@ -377,7 +515,7 @@ def coordinator(tag, epoch_deadline):
 
     def wait_workers():
         started = out/'instances-running.json'
-        limit = min(time.time()+110, epoch_deadline-PRODUCER_SECONDS-60)
+        limit = min(time.time()+110, worker_deadline-WORKER_MIN_SECONDS-10)
         while time.time()<limit:
             try:
                 if exact_status(ref,read(started),{'metadata'}):
@@ -391,7 +529,7 @@ def coordinator(tag, epoch_deadline):
     worker_out = CLIENT/'preparation'/tag
 
     def bring(role):
-        until = min(time.time()+28, epoch_deadline-PRODUCER_SECONDS-52)
+        until = min(time.time()+28, worker_deadline-WORKER_MIN_SECONDS)
         while time.time()<until:
             try:
                 ssh(role,['true'],timeout=5,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
@@ -462,8 +600,21 @@ def coordinator(tag, epoch_deadline):
         save(out/'rustfs.json',dict(image=ref['IMAGE'],revision=revision,pid=pid,
              start_ticks=int(ticks),switches=switches,volumes=volume.split('=',1)[1],
              data_binds=binds,process_mount_namespace_verified=True))
+        return pid,int(ticks)
 
-    need(epoch_deadline-time.time()>=PRODUCER_SECONDS+95,'Insufficient owned window')
+    def probe_peer(role, deadline, *, sample_only=False):
+        left = min(7,deadline-time.monotonic())
+        need(left>=1,'No remote probe budget remains')
+        argv = ['timeout','--kill-after=1s',f'{max(.25,left-1):.3f}s',
+                'python3','-B','-','probe','--tag',tag,'--side',role]
+        if role=='objects':
+            argv.extend(['--pid',backend_pid,'--start-ticks',backend_ticks])
+        if sample_only:
+            argv.append('--sample-only')
+        payload = ssh(role,argv,input=me.read_bytes(),capture_output=True,timeout=left)
+        return json.loads(payload.stdout)
+
+    need(worker_deadline-time.time()>=WORKER_MIN_SECONDS+35,'Insufficient owned window')
     with ExitStack() as stack:
         roots = set()
         for ctl in active:
@@ -490,7 +641,7 @@ def coordinator(tag, epoch_deadline):
             sv = os.statvfs(out)
             need(sv.f_bavail>=sv.f_blocks//5+(2*1024**3)//sv.f_frsize and
                  sv.f_favail>=sv.f_files//5+10000,'Coordinator capacity below the normal reserve')
-            object_identity()
+            backend_pid,backend_ticks = object_identity()
             idle()
             phase = 'stage-client'
             slot = (CANON/'hardware-inputs-01/data/pool-a-client-spec.json').read_bytes()
@@ -501,12 +652,18 @@ def coordinator(tag, epoch_deadline):
             found = ssh('client',['sha256sum',remote/me.name],capture_output=True,text=True).stdout
             need(found.split()[0]==packet['worker'],'Client worker SHA differs')
             ssh('client',ref['client_slot_command'](remote),timeout=15)
-            need(epoch_deadline-time.time()>=PRODUCER_SECONDS+58,'Insufficient window before starting work')
+            phase = 'service-readiness'
+            boots = {role:read(out/(role+'-capacity.json'))['boot_id'] for role in ROLES}
+            readiness_budget = worker_deadline-time.time()-WORKER_MIN_SECONDS
+            need(wait_for_service(probe_peer,out,boots,readiness_budget),
+                 'Service readiness not proved; worker and producer were not started')
+            idle()
+            need(worker_deadline-time.time()>=WORKER_MIN_SECONDS,'Insufficient full publisher window')
             phase = 'publish'
             launched = True
-            result = ssh('client',['timeout','--kill-after=12s',str(max(1,int(epoch_deadline-time.time())))+'s',
-                'python3','-B',remote/me.name,'worker','--tag',tag,'--deadline-epoch',epoch_deadline],
-                stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=max(1,epoch_deadline-time.time()+15))
+            result = ssh('client',['timeout','--kill-after=8s',str(max(1,int(worker_deadline-time.time())))+'s',
+                'python3','-B',remote/me.name,'worker','--tag',tag,'--deadline-epoch',worker_deadline],
+                stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=max(1,worker_deadline-time.time()+9))
             passed = result.returncode==0
         except (Exception,KeyboardInterrupt) as error:
             save(out/'controller-failure.json',dict(phase=phase,**ref['failure_location'](error)))
@@ -525,6 +682,18 @@ def coordinator(tag, epoch_deadline):
                 except (Exception,KeyboardInterrupt) as error:
                     passed = False
                     save(out/'closure-failure.json',ref['failure_location'](error))
+                try:
+                    end = time.monotonic()+min(7,max(0,epoch_deadline-time.time()))
+                    last = probe_peer('objects',end,sample_only=True)
+                    save(out/'service-backend-after.json',last)
+                    need(last.get('boot_id')==boots['objects'] and
+                         last.get('pid')==backend_pid and last.get('start_ticks')==backend_ticks and
+                         isinstance(last.get('process'),dict) and 'process_error_class' not in last,
+                         'Original object process not proved after publication')
+                except Exception as error:
+                    passed = False
+                    if not (out/'service-backend-after.json').exists():
+                        save(out/'service-backend-after.json',dict(error_class=type(error).__name__))
             save(out/'ready-for-stop.json',dict(passed=passed,launched=launched,
                  producer_slot_empty=closure,formal_sample=False,diagnostic_only=True,
                  remote_bucket_disposition='retained; no deletion attempted'))
@@ -545,11 +714,24 @@ def coordinator(tag, epoch_deadline):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('role',choices=('coordinator','worker'))
+    p.add_argument('role',choices=('coordinator','worker','probe'))
     p.add_argument('--tag',required=True)
-    p.add_argument('--deadline-epoch',required=True,type=int)
+    p.add_argument('--deadline-epoch',type=int)
+    p.add_argument('--side',choices=ROLES)
+    p.add_argument('--pid',type=int)
+    p.add_argument('--start-ticks',type=int)
+    p.add_argument('--sample-only',action='store_true')
     a = p.parse_args()
     need(re.fullmatch(r'c2-pubdiag-[0-9]{8}t[0-9]{6}z',a.tag),'Expected a fresh diagnostic tag')
+    if a.role=='probe':
+        need(a.side in ROLES and os.geteuid()==0 and socket.gethostname()==ROLE_NAMES[a.side],
+             'Expected original probe node')
+        need((a.side=='objects' and a.pid>1 and a.start_ticks>0) or
+             (a.side=='client' and a.pid is None and a.start_ticks is None and not a.sample_only),
+             'Expected exact process identity for the objects-side probe')
+        print(json.dumps(probe_record(a.side,a.pid,a.start_ticks,sample_only=a.sample_only)))
+        return 0
+    need(a.deadline_epoch is not None,'Expected absolute window deadline')
     return (coordinator if a.role=='coordinator' else run_worker)(a.tag,a.deadline_epoch)
 
 
