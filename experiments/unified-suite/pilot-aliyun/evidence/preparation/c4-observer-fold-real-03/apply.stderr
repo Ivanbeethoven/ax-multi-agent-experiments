@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/srv/ax-receipts/fold/fold-real-03-operator-v3.py", line 159, in <module>
+    {'prepare':prepare,'apply':apply}[sys.argv[1]]()
+  File "/srv/ax-receipts/fold/fold-real-03-operator-v3.py", line 146, in apply
+    must(r['passed'] is True and r['samples']==2954 and r['stream']==f['stream'] and
+  File "/srv/ax-receipts/fold/fold-real-03-operator-v3.py", line 30, in must
+    if not x: raise ValueError(message)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: fold result shape differs

@@ -1,0 +1,188 @@
+{
+  "schema": "c4-on1-retained-input-inventory-v1",
+  "at": "2026-11-12T03:05:23.178673+00:00",
+  "original_trial": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1",
+  "cell_id": "c5e97774bcffa69a-r1-native",
+  "accepted": false,
+  "original_finished_exists": false,
+  "scope": "read-only inventory and archive byte readback; no new trial or acceptance",
+  "roles": {
+    "client": {
+      "archive": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/archives/client.tar.gz",
+        "bytes": 59831853,
+        "sha256": "8e313a126dba5725ea056e9d7bf4341a0f57f3c6ddc2e0b533343bac6c3951f2"
+      },
+      "archive_check": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/archives/client-check.json",
+        "bytes": 450,
+        "sha256": "d845188142b67eee5843caec2ec40f4f5b55115fb81d3daeab6a081ec3d60a8a"
+      },
+      "original_file_members": 85741,
+      "closure": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/raw/client/q/c4-a-flat-on1-closure/result.json",
+        "bytes": 2905,
+        "sha256": "c8c1df972a0c0a9eb1f02f0fe0037cdae033ded32db50754b7c88ecdb84ccf71",
+        "passed": true,
+        "all_exited": true,
+        "all_unmounted": true,
+        "pending_upload_bytes": 0,
+        "pending_upload_operations": 0,
+        "debt_samples": 2
+      }
+    },
+    "metadata": {
+      "archive": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/archives/metadata.tar.gz",
+        "bytes": 39128425,
+        "sha256": "0ee44868d306ab691d9499702a65a1132c5a4d9de27b6637acc55cca6d357fbe"
+      },
+      "archive_check": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/archives/metadata-check.json",
+        "bytes": 454,
+        "sha256": "c33fd78b42065e644f1e7e9f478b466d43a07ea7a71be99051435e39649dd509"
+      },
+      "original_file_members": 86057,
+      "closure": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/raw/metadata/q/c4-a-flat-on1-closure/result.json",
+        "bytes": 271,
+        "sha256": "40ca9fa1cf226f869df6b6994d83768464e732a8f8697980386588800fa0dfe1",
+        "passed": true,
+        "all_exited": true,
+        "all_unmounted": true
+      }
+    }
+  },
+  "checks": {
+    "cold_child": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/raw/client/q/c4-a-flat-on1/verify/result.json",
+      "bytes": 2295,
+      "sha256": "683dedd62a143822b4d14bc1f847ed84f6527492b028b132af46d2d378728590",
+      "passed": true,
+      "child_matches": true,
+      "parent_matches": true,
+      "parent_unchanged": false,
+      "verification_policy": "touched-cold-v1"
+    },
+    "cold_parent": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/raw/client/q/c4-a-flat-on1/verify/parent.json",
+      "bytes": 487,
+      "sha256": "b9aa834bd9d404d1ce91655b80c23facd1868656da01d4a4836f6438278cde15",
+      "passed": true,
+      "verification_policy": "touched-cold-v1"
+    },
+    "drain": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/drain-timing.json",
+      "bytes": 236,
+      "sha256": "28d59df153b65606a102c2e7f6478c82b99da065c7c93cd60bdd5319d2ec315e",
+      "passed": true
+    },
+    "cohort": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/cohort/result.json",
+      "bytes": 3159,
+      "sha256": "8d27d952b4c18825aa6adaf964fcf4f2a38c23d7dc411d353d19a8641641f710",
+      "passed": true,
+      "workload_passed": true,
+      "telemetry_live_check_passed": true,
+      "coordinator_makespan_seconds": 15329.941439043
+    },
+    "native_exit": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/raw/client/q/c4-a-flat-on1/exit.json",
+      "bytes": 476,
+      "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494",
+      "passed": true,
+      "exit_code": 0,
+      "mount_absent": true
+    },
+    "verify_exit": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/raw/client/q/c4-a-flat-on1/verify-exit.json",
+      "bytes": 476,
+      "sha256": "b67cc0e66c8cb054125490f66562bd4a98fcf15a95f64a634c6d0ee64112c494",
+      "passed": true,
+      "exit_code": 0,
+      "mount_absent": true
+    }
+  },
+  "late_commands": {
+    "0028": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/commands/0028/exit.json",
+      "bytes": 21,
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+      "exit_code": 0
+    },
+    "0029": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/commands/0029/exit.json",
+      "bytes": 21,
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+      "exit_code": 0
+    },
+    "0030": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/commands/0030/exit.json",
+      "bytes": 21,
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+      "exit_code": 0
+    },
+    "0031": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/commands/0031/exit.json",
+      "bytes": 21,
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+      "exit_code": 0
+    },
+    "0032": {
+      "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/commands/0032/exit.json",
+      "bytes": 21,
+      "sha256": "56296949d3a02e635b050fd6b4762f0f0b52c23d05b925203095f7daf8e19027",
+      "exit_code": 1
+    }
+  },
+  "failure": {
+    "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/commands/0032/stderr",
+    "bytes": 493,
+    "sha256": "0d4d09b8a24ad98b120f2f5277ee41979c33abd2eb80db448354c6ef874f8f57",
+    "last_line": "ValueError: unbounded internal manifest"
+  },
+  "post_failure_boundaries": {
+    "client": {
+      "path": "/srv/ax-pilot-control/fork-control-01/continuation-on1-01/failure-boundaries-1/client-stdout",
+      "bytes": 1502,
+      "sha256": "87521d021c53feb96f5e00c36329134188e496aecce3a9dba2d0d0f09c266be4",
+      "safe_for_release": true,
+      "live": [],
+      "unknown_startup_directories": [],
+      "mounts": []
+    },
+    "metadata": {
+      "path": "/srv/ax-pilot-control/fork-control-01/continuation-on1-01/failure-boundaries-1/metadata-stdout",
+      "bytes": 229,
+      "sha256": "d1d838bcec2034b755e28370fd167601364f3812a8beae3a8ed05b92c9eb01d9",
+      "safe_for_release": true,
+      "live": [],
+      "unknown_startup_directories": [],
+      "mounts": []
+    },
+    "objects": {
+      "path": "/srv/ax-pilot-control/fork-control-01/continuation-on1-01/failure-boundaries-1/objects-stdout",
+      "bytes": 126,
+      "sha256": "b8fd9cbc42b5dc2618083aa2cfb8bf7bf51654246ed2d26c05467db04e248b45",
+      "safe_for_release": true,
+      "live": [],
+      "unknown_startup_directories": [],
+      "mounts": []
+    },
+    "objects-scratch": {
+      "path": "/srv/ax-pilot-control/fork-control-01/continuation-on1-01/failure-boundaries-1/objects-scratch-stdout",
+      "bytes": 230,
+      "sha256": "b449e0b3f2de4d97781bd76cbea62b84f8670d94135efb63f5ad29d2cdd468c4",
+      "safe_for_release": true,
+      "live": [],
+      "unknown_startup_directories": [],
+      "mounts": []
+    }
+  },
+  "original_trial_exit": {
+    "path": "/srv/ax-pilot-control/fork-control-01/continuation-on1-01/trial/exit.json",
+    "bytes": 21,
+    "sha256": "56296949d3a02e635b050fd6b4762f0f0b52c23d05b925203095f7daf8e19027",
+    "exit_code": 1
+  }
+}
