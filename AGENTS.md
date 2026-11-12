@@ -1,5 +1,7 @@
 # 实验 Agent 入口
 
+- 2026-11-12 用户已清除持续目标并要求暂停实验。只完成已开始任务的归档、按创建回执清理本任务创建的非 jump 资源，以及整理脚本和困难；不得启动新实验。jump、其证据盘及任何不能证明由本任务创建的资源保留。恢复实验须有新的用户指令及新的资源清单。
+
 - 2026-11-12 用户明确跳过 JuiceFS 混合读写（C1 `randrw`）：本轮不再补跑或补验收，原结果保留，不改成 passed。后续工作集中 C2–C4；当前未完成项见 [清单](experiments/unified-suite/current/PENDING.zh.md)。
 
 - 选择实验路线前先读[子项与 feature 对照表](experiments/unified-suite/current/FEATURES.zh.md)，再用同目录 design.json 冻结参数。

@@ -35,7 +35,7 @@ python3 "$P/prepare-cloud-trace.py" --archive "$WORKER_ARCHIVE" \
 
 | 项目 | 已验证与尚缺证据 |
 | --- | --- |
-| C2 | [最新发布回执](../evidence/preparation/c2-publish-progress-timeout-02/README.zh.md)：服务探针 0.397 s，HeadBucket 0.264 s，CreateBucket 6.431 s。Packed 发布跑满 300 s，看到 145 个对象、24,520,277 B，未找到 manifest；末次样本的发布主进程累计 CPU 约 1.92 s。完整 trace 尚未开始，这些数据不能定位发布变慢的原因。 |
+| C2 | [最新发布回执](../evidence/preparation/c2-publish-progress-timeout-02/README.zh.md)：服务探针 0.397 s，HeadBucket 0.264 s，CreateBucket 6.430 s。Packed 发布跑满 300 s，看到 145 个对象、24,520,277 B，未找到 manifest；末次样本的发布主进程累计 CPU 约 1.92 s。完整 trace 尚未开始，尚不能把发布等待分到上传、读回校验和服务端磁盘。 |
 | C3 | [云上抽样](../evidence/preparation/cloud-c3-script-fixes-20261112/README.zh.md)用 64 个文件完成四阶段、128 次内容校验。一万文件的输入已在本地验全；仍缺云上全量冷验和同条件对照。 |
 | C4 | [两文件原生 fork / clone](../evidence/preparation/rbm-c4-published-20261112/README.zh.md)已通过冷读及隔离；没有一万文件配对计时。[云上跨机](../evidence/preparation/c4-state-reopen-a-b-result-01/README.zh.md)读回 894 项和相同的 OpenCode 导出，但目标子进程退出超时，缺目标零上传债务回执。[本机修复](../evidence/preparation/c4-local-export-closure-diagnosis-01/README.zh.md)尚未在云上复验。 |
 
