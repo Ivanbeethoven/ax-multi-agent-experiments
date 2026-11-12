@@ -1,12 +1,22 @@
 param(
     [Parameter(Mandatory)][string]$ReceiptRoot,
     [Parameter(Mandatory)][string]$SshConfig,
-    [Parameter(Mandatory)][ValidateSet('C3Cohort','C1Reverse')][string]$Activity
+    [Parameter(Mandatory)][ValidateSet('C3Cohort','C1Reverse','C2Trace')][string]$Activity,
+    [string]$Latest,
+    [string]$InstancesBefore,
+    [string]$LaunchAuthorization
 )
 
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path -LiteralPath $ReceiptRoot).Path
 $cfg = (Resolve-Path -LiteralPath $SshConfig).Path
+if ($Activity -eq 'C2Trace') {
+    foreach ($path in @($Latest,$InstancesBefore,$LaunchAuthorization)) {
+        if (!$path -or !(Test-Path -LiteralPath $path -PathType Leaf)) {
+            throw 'C2 requires fresh version, stopped-instance and bound user-authorization files'
+        }
+    }
+}
 $jump = 'i-bp1cp8ccqor34u2bo5os'
 $journal = Join-Path $root ("window-" + $Activity.ToLowerInvariant() + "-" + (Get-Date -AsUTC -Format yyyyMMddTHHmmssZ))
 New-Item -ItemType Directory -Path $journal -ErrorAction Stop | Out-Null
@@ -48,7 +58,7 @@ try {
     if ($LASTEXITCODE -or !($restore | ConvertFrom-Json).passed) { throw 'Existing control disk is not ready' }
     if ($Activity -eq 'C3Cohort') {
         & "$PSScriptRoot/run-c3-workspace-base.ps1" -SshConfig $cfg -ReceiptRoot $root -Database 249 -Workers 32 -VerifySeconds 120 -TracePackedBudget -PackedOutputMib 128 -PackedControlMib 8 -DiagnosticCohort
-    } else {
+    } elseif ($Activity -eq 'C1Reverse') {
         $full = $journal.Replace('\','/')
         if ($full -notmatch '^([A-Za-z]):(/.+)$') { throw 'Expected a drive-backed receipt path' }
         $out = '/mnt/' + $Matches[1].ToLowerInvariant() + $Matches[2] + '/attempt'
@@ -64,6 +74,10 @@ try {
         } finally {
             Pop-Location
         }
+    } else {
+        & "$PSScriptRoot/../evidence/preparation/c2-current-trace-a-draft-01/run-c2-current-a.ps1" `
+            -SshConfig $cfg -ReceiptRoot $journal -Latest $Latest `
+            -InstancesBefore $InstancesBefore -LaunchAuthorization $LaunchAuthorization
     }
 } finally {
     if ($owned) {
