@@ -59,7 +59,7 @@ def samples(directory):
     return found
 
 
-def fold(directory, now=None, dry_run=False):
+def fold(directory, now=None, dry_run=False, max_output_bytes=None, reserve_bytes=None):
     """Rewrite one closed tree into a single stream; return the receipt."""
     directory = Path(directory)
     require(directory.is_dir() and not directory.is_symlink(), 'canonical closed tree required')
@@ -71,6 +71,10 @@ def fold(directory, now=None, dry_run=False):
     tree = samples(directory)
     require(len(tree) == finished.get('samples'), 'finished.json sample count differs from the tree')
     require(len(history) == len(tree), 'finished.json history length differs from the tree')
+    require(max_output_bytes is None or type(max_output_bytes) is int and max_output_bytes > 0,
+            'invalid folded stream byte limit')
+    require(reserve_bytes is None or type(reserve_bytes) is int and reserve_bytes >= 0,
+            'invalid folded stream free-space reserve')
 
     if dry_run:
         # Verify every recorded payload without writing or removing anything.
@@ -102,7 +106,7 @@ def fold(directory, now=None, dry_run=False):
     detail_path = directory/RECEIPT_DETAIL
     stream_hash = hashlib.sha256()
     stream_bytes = 0
-    source_members = 0
+    source_members = detail_bytes = 0
     stream_committed = False
     stream_created = False
     try:
@@ -134,20 +138,31 @@ def fold(directory, now=None, dry_run=False):
                 row['scope'] = 'folded from the closed sample directory; payload bytes are verbatim'
                 line = json.dumps(row, sort_keys=True, separators=(',', ':')).encode()
                 chunk = line+b'\n'
+                line_digest = sha(line)
+                detail_row = json.dumps(dict(index=index, directory=sample.name,
+                                             line_sha256=line_digest, line_bytes=len(line),
+                                             members=digests),
+                                        sort_keys=True, separators=(',', ':'))+'\n'
+                detail_size = len(detail_row.encode('utf-8'))
+                require(max_output_bytes is None or
+                        stream_bytes+detail_bytes+len(chunk)+detail_size <= max_output_bytes,
+                        'folded stream would exceed reviewed byte budget')
+                if reserve_bytes is not None:
+                    space = os.statvfs(directory)
+                    # Allow each appended file's final fragment and inode metadata.
+                    require(space.f_bavail*space.f_frsize-len(chunk)-detail_size-4*space.f_frsize >= reserve_bytes,
+                            'folded stream would breach the filesystem reserve')
                 sink.write(chunk)
                 stream_hash.update(chunk)
                 stream_bytes += len(chunk)
-                line_digest = sha(line)
+                detail_bytes += detail_size
                 # Fold the per-line hashes into the parsed history rows in place:
                 # one small string per line, no second list and no per-sample
                 # counters/target states kept for the finished receipt.
                 history[index]['line_sha256'] = line_digest
                 history[index]['line_bytes'] = len(line)
                 source_members += len(digests)
-                detail.write(json.dumps(dict(index=index, directory=sample.name,
-                                             line_sha256=line_digest, line_bytes=len(line),
-                                             members=digests),
-                                        sort_keys=True, separators=(',', ':'))+'\n')
+                detail.write(detail_row)
                 # Hand each finished sample to the OS now: the stream is an
                 # append-only prefix at every point, never a buffered batch.
                 sink.flush()

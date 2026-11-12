@@ -61,8 +61,9 @@ class ClosedObserverArchive(unittest.TestCase):
             raw = sample/'objects.txt'
             raw.write_bytes(b'rustfs_storage_snapshot_last_success_timestamp_seconds 123\n')
             digest = pin(raw)['sha256']
-            history.append(dict(index=i, sample_sha256=write(sample/'sample.json', dict(
-                passed=True, index=i, monotonic_start_ns=10+i*5, monotonic_end_ns=11+i*5,
+            summary = dict(passed=True, index=i, errors=[], monotonic_start_ns=10+i*5, monotonic_end_ns=11+i*5)
+            history.append(dict(summary, sample_sha256=write(sample/'sample.json', dict(
+                summary, capacity={}, counters={}, target_states={},
                 files={raw.name: dict(bytes=raw.stat().st_size, sha256=digest)}))['sha256']))
         finished = write(self.obs/'finished.json', dict(
             passed=True, samples=2, history=history, spec_sha256=spec['sha256'],
@@ -99,6 +100,30 @@ class ClosedObserverArchive(unittest.TestCase):
         target = self.path/'previous.tar.gz'
         archive_check.pack(staging, names, target, CELL, self.request['role'])
         return target
+
+    def format_input(self, path):
+        body = path.read_bytes()
+        return dict(source=body.decode('utf-8'), sha256=hashlib.sha256(body).hexdigest())
+
+    def test_legacy_fold_requires_budget_and_preserves_the_original_closure_in_the_pack(self):
+        old_receipt = (self.obs/'finished.json').read_bytes()
+        self.request['observer_format'] = dict(producer='legacy-fold', fold_peak_bytes=1_000_000,
+            audit_module=self.format_input(REPO/'bench/runtime/observe_ndjson.py'),
+            fold_tool=self.format_input(SCRIPT.with_name('fold-c4-observer.py')))
+        result = MODULE['archive'](self.request)
+        packed = dict(members(result['archive']['archive']))
+        self.assertEqual(packed[f'o/{TAG}/legacy-finished.json'], old_receipt)
+        self.assertIn(f'o/{TAG}/samples.ndjson', packed)
+        self.assertFalse(any('/sample-' in name for name in packed))
+
+    def test_direct_producer_refuses_the_legacy_tree_without_touching_it(self):
+        self.request['observer_format'] = dict(producer='ndjson',
+            audit_module=self.format_input(REPO/'bench/runtime/observe_ndjson.py'))
+        with self.assertRaisesRegex(ValueError, 'directly observed'):
+            MODULE['archive'](self.request)
+        self.assertTrue((self.obs/'sample-000001'/'sample.json').is_file())
+        self.assertFalse((self.obs/'samples.ndjson').exists())
+        self.assertFalse((self.root/'archives').exists())
 
     def test_payload_and_order_match_original_without_observer_snapshot(self):
         # Even an alias of an original inode is emitted as a regular tar member.

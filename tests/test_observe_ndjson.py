@@ -1,10 +1,14 @@
 import hashlib
 import json
+import os
 from pathlib import Path
+import runpy
+import sys
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
-from bench.runtime import observe, observe_ndjson
+from bench.runtime import fleet, observe, observe_ndjson, transport
 
 
 def sha(data):
@@ -156,6 +160,54 @@ class DropInSurface(unittest.TestCase):
             self.assertEqual(recorded['argv'][-2:], ['--output', str(out)])
 
 
+@unittest.skipUnless(sys.platform.startswith('linux'), 'observer runtime requires Linux')
+class PinnedProducer(unittest.TestCase):
+    def test_real_detached_writer_uses_the_legacy_socket_and_keeps_raw_samples(self):
+        repo = Path(__file__).resolve().parents[1]
+        wrapper = repo/'experiments/unified-suite/pilot-aliyun/scripts/calibrate-c4-closed-observer.py'
+        start = runpy.run_path(str(wrapper))['start_ndjson']
+        python = str(Path(sys.executable).resolve())
+        source_path = repo/'bench/runtime/observe_ndjson.py'
+        payload = dict(source=source_path.read_bytes().decode('utf-8'), sha256=sha(source_path.read_bytes()))
+        with TemporaryDirectory(dir='/tmp') as tmp:
+            root = Path(tmp).resolve()
+            out = root/'observer'
+            spec = root/'spec.json'
+            spec.write_text(json.dumps(dict(schema='experiment-observer-v1', reviewed=True,
+                role='host-only', interval_seconds=5, data_paths=[str(root)], targets=[],
+                cgroups=[], processes=[], metric_contract_sha256='1'*64)))
+            peer = root/'peer.json'
+            peer.write_text(json.dumps(dict(transport='ssh', repo=str(repo), python=python,
+                                           pins=transport.runtime_pins(repo, python))))
+            protocol = root/'protocol'
+            try:
+                # Only SSH is stubbed: run the real bootstrap, detached child, and socket.
+                with patch.object(transport, 'ssh_command', side_effect=lambda _, argv: argv):
+                    self.assertTrue(start(fleet.reference(peer), str(out), protocol,
+                                          fleet.reference(spec), payload)['passed'])
+                ready = json.loads((out/'ready.json').read_text())
+                self.assertEqual(ready['observer_format_sha256'], payload['sha256'])
+                for mark in MARKS:
+                    observe.request(out, 'mark', mark)
+                done = observe.request(out, 'stop')
+            finally:
+                if (out/'ready.json').is_file() and not (out/'finished.json').exists():
+                    # A started fixture must never leave a background observer running.
+                    try:
+                        observe.request(out, 'stop')
+                    except (OSError, ValueError):
+                        pid = json.loads((out/'ready.json').read_text())['process']['pid']
+                        os.kill(pid, 15)
+            self.assertEqual(done['observer_format_sha256'], payload['sha256'])
+            self.assertFalse(list(out.glob('sample-*')))
+            with (out/'samples.ndjson').open() as stream:
+                first = json.loads(stream.readline())
+            raw = json.loads(first['files']['sample.json']['text'])
+            self.assertTrue({'utc_ns', 'processes', 'collector_cpu_seconds'} <= raw.keys())
+            self.assertEqual(raw['files'].keys(), first['files'].keys()-{'sample.json'})
+            self.assertEqual(observe_ndjson.audit(out, 30, MARKS)['samples'], done['samples'])
+
+
 class StreamIsTamperEvident(unittest.TestCase):
     def setUp(self):
         self.tmp = TemporaryDirectory()
@@ -211,6 +263,7 @@ class StreamIsTamperEvident(unittest.TestCase):
         self.rewrite(lines)
         finished = self.finished()
         finished['history'][0]['line_sha256'] = sha(lines[0])
+        finished['history'][0]['line_bytes'] = len(lines[0])
         (self.root/'finished.json').write_text(json.dumps(finished))
         self.repin()
         with self.assertRaises(ValueError) as caught:
@@ -252,6 +305,7 @@ class StreamIsTamperEvident(unittest.TestCase):
         (root/'samples.ndjson').write_bytes(b''.join(line+b'\n' for line in lines))
         finished = json.loads((root/'finished.json').read_text())
         finished['history'][2]['line_sha256'] = sha(lines[2])
+        finished['history'][2]['line_bytes'] = len(lines[2])
         data = (root/'samples.ndjson').read_bytes()
         finished['stream'] = {'name': observe_ndjson.STREAM, 'sha256': sha(data), 'bytes': len(data)}
         (root/'finished.json').write_text(json.dumps(finished))

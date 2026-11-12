@@ -6,6 +6,7 @@ continuation result in order. Fresh reviewed capacity is required per step.
 No failed or existing attempt is retried and the old fence remains untouched.
 """
 import argparse
+from contextlib import nullcontext
 from datetime import datetime, timezone
 import errno
 import json
@@ -371,10 +372,13 @@ def calibration_overlay(overlay, old, trial, scratch):
                 runner=old['tools']['run'],helper=overlay['helper'],worker_code=overlay['worker_code'],trial=trial)
     if scratch:
         body['observer_scratch']=scratch
+    if overlay.get('observer_format'):
+        body['observer_format']=overlay['observer_format']
     return body
 
 
-def stage_capacity(capacity, request, old, prefix, cell, number, mode, batch, runtime, out, archive_mode, original, now):
+def stage_capacity(capacity, request, old, prefix, cell, number, mode, batch, runtime, out, archive_mode, original, now,
+                   fold_peak_bytes=None):
     """Check native disk identities, reviewed growth and local free space before dispatch."""
     c = load(pinned(capacity))
     legacy_pin = ref(batch/'capacity.json')
@@ -482,6 +486,13 @@ def stage_capacity(capacity, request, old, prefix, cell, number, mode, batch, ru
         archive_min[role] = archive_floor(archives[role],role,observed,raw_budget[role])
     raw_min['coordinator'] = {q:sum(v[q] for v in raw_budget.values()) for q in ('bytes','inodes')}
     archive_min['coordinator'] = {q:sum(v[q] for v in archive_min.values()) for q in ('bytes','inodes')}
+    if fold_peak_bytes is not None:
+        require(observed and archive_mode=='closed-observer-direct' and
+                type(fold_peak_bytes) is int and fold_peak_bytes>=raw_budget['objects']['bytes'],
+                'Reviewed fold peak must cover the object observer raw size')
+        # On the worker, the entire replacement stream can coexist with the
+        # original raw tree. On the coordinator it can expand beyond that tree.
+        raw_min['coordinator']['bytes'] += fold_peak_bytes-raw_budget['objects']['bytes']
     for key,(used,total) in keys.items():
         role, name, quantity = key
         row = rows[key]
@@ -496,6 +507,8 @@ def stage_capacity(capacity, request, old, prefix, cell, number, mode, batch, ru
             archive_bound = archive_min[role][quantity]
             if observed and archive_mode=='original' and role!='coordinator':
                 archive_bound += observer
+            if role=='objects' and quantity=='bytes' and fold_peak_bytes is not None:
+                archive_bound += fold_peak_bytes
             require(archive>=archive_bound,'Archive budget below measured staging/tar peak: '+str(key))
         if role=='metadata' and quantity in ('bytes','inodes'):
             field = 'rewrite_headroom_'+quantity
@@ -559,13 +572,12 @@ def run(request, validate_only=False):
     for t in old['trials'][step-1:]:
         original.absent(Path(t['out']))
     require(len(s['prefix'])==step-2, 'All prior continuation results, in order, are required')
-    # The scratch snapshot is pinned by the capacity file; refuse a scratch
-    # budget on an Off step before any original evidence is walked. A formal
-    # stage is refused as well: run-c4-formal-closed-observer.py has no scratch
-    # route yet, so accepting one there would silently write the object
-    # observer back onto the full original object disk.
-    require(not scratch_overlay(load(pinned(s['capacity']))) or mode=='on',
-            'Observer scratch capacity is only routed for an original observed calibration, not for off or formal stages')
+    overlay = s.get('archive_overlay')
+    format_spec = (overlay or {}).get('observer_format')
+    # A formal run can route scratch only with the pinned observer-format
+    # wrapper at both observe-start and archive.
+    require(not scratch_overlay(load(pinned(s['capacity']))) or mode=='on' or mode=='formal' and format_spec,
+            'Observer scratch requires an observed calibration or pinned formal overlay')
     q = load(batch/'qualification-request.json')
     reuse = load(batch/'pretrial-reuse.json')
     require(q['reviewed'] is True and reuse['passed'] is True and reuse['base_reimported'] is False and
@@ -596,6 +608,9 @@ def run(request, validate_only=False):
             prior_dir = Path(prior_request['out'])
             trial_request = ref(prior_dir/'trial.request.json')
             prior_overlay = prior_request.get('archive_overlay')
+            if (format_spec or {}).get('producer')=='ndjson' and old['trials'][n-1]['mode']=='on':
+                require((prior_overlay or {}).get('observer_format')==format_spec,
+                        'Earlier observed calibration did not use this reviewed NDJSON writer')
             executable = prior_overlay['runner'] if prior_overlay else old['tools']['calibrate']
             invoked = ref(prior_dir/'archive-overlay.request.json') if prior_overlay else trial_request
             require(p==ref(prior_dir/'result.json') and doc['exit']==ref(prior_dir/'trial/exit.json') and
@@ -612,23 +627,32 @@ def run(request, validate_only=False):
             collector = current(end)
             prior.append(p)
         body = trial_body(old,core,step,collector,full,original) if step<7 else None
-        overlay = s.get('archive_overlay')
         require(not overlay or mode in ('on','formal'), 'Direct closed-observer overlay requires active observers')
+        format_bundle = format_adapter = archive_source = None
         if overlay:
             archive_runner = tool(pinned(overlay['runner']),'closed_c4_observer_overlay')
             if mode=='formal':
-                archive_runner.overlay_inputs(old['tools']['run'],overlay['calibration_overlay'],
-                                              overlay['helper'],overlay['worker_code'])
+                format_adapter,archive_source = archive_runner.overlay_inputs(
+                    old['tools']['run'],overlay['calibration_overlay'],overlay['helper'],overlay['worker_code'])
             else:
                 archive_runner.overlay_inputs(old['tools']['calibrate'],old['tools']['run'],
                                               overlay['helper'],overlay['worker_code'])
+                format_adapter = archive_runner
+            if format_spec:
+                format_bundle = format_adapter.format_inputs(format_spec)
         archive_mode = 'closed-observer-direct' if overlay else 'original'
         c = stage_capacity(s['capacity'],source,old,[stop['first'],*prior],cell,step,mode,
-                           batch,runtime,out,archive_mode,original,datetime.now(timezone.utc))
+                           batch,runtime,out,archive_mode,original,datetime.now(timezone.utc),
+                           fold_peak_bytes=(format_bundle or {}).get('fold_peak_bytes'))
         scratch = scratch_overlay(c)
+        require((format_bundle or {}).get('producer')!='ndjson' or scratch,
+                'Direct NDJSON producer requires reviewed observer scratch')
         result = dict(passed=True, step=step, pool=cell['pool'], cell_id=cell['id'], original_request=source,
                       continuation_request=request, first=stop['first'], full_reference=full, prefix=prior,
                       capacity=s['capacity'], archive_mode=archive_mode, automatic_retry=False)
+        if format_bundle:
+            result['observer_producer'] = format_bundle['producer']
+            result['observer_format_sha256'] = format_bundle['audit_module']['sha256']
         if validate_only:
             return dict(result, validation_only=True, worker_dispatched=False)
         out.mkdir(exist_ok=False)
@@ -659,22 +683,24 @@ def run(request, validate_only=False):
                 result.update(trial_request=ref(p),exit=exit_pin,finished=finished)
             else:
                 qual=Path(old['qualification'])/cell['arm_id']
-                overhead=checker.check([Path(t['out']) for t in old['trials']],qual/'metrics.json',
-                                       qual/'workload.json',out/'overhead',old['calibration_verification'])
+                audit = format_adapter.archive_audit(archive_source,format_bundle,checker) if format_bundle else nullcontext()
+                with audit:
+                    overhead=checker.check([Path(t['out']) for t in old['trials']],qual/'metrics.json',
+                                           qual/'workload.json',out/'overhead',old['calibration_verification'])
                 body=dict(admission,**collector,out=str(formal),formal_attempt=old['formal_attempt'],overhead=overhead)
                 substep(out,'admit',old['tools']['admit'],arg_request(out/'admit.request.json',body))
                 if overlay:
-                    # run-c4-formal-closed-observer.py calls archive_fork without
-                    # an observer_scratch argument, so an extra field here would
-                    # be silently dropped and the object observer would still
-                    # write to /srv/ax-objects-0. Step 7 therefore records no
-                    # observer_scratch until that runner grows the same route.
                     formal_overlay = out/'formal-archive-overlay.request.json'
-                    args = arg_request(formal_overlay,dict(schema='c4-formal-archive-overlay-v1',reviewed=True,
+                    formal_body = dict(schema='c4-formal-archive-overlay-v1',reviewed=True,
                         wrapper=overlay['runner'],original_runner=old['tools']['run'],
                         calibration_overlay=overlay['calibration_overlay'],helper=overlay['helper'],
                         worker_code=overlay['worker_code'],context=ref(formal/'context.json'),
-                        cell_id=cell['id'],pool=cell['pool'],attempt=old['formal_attempt']))
+                        cell_id=cell['id'],pool=cell['pool'],attempt=old['formal_attempt'])
+                    if format_spec:
+                        formal_body['observer_format'] = format_spec
+                    if scratch:
+                        formal_body['observer_scratch'] = scratch
+                    args = arg_request(formal_overlay,formal_body)
                     substep(out,'formal',overlay['runner'],args)
                     result['formal_archive_overlay']=ref(formal_overlay)
                 else:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Keep the original formal C4 stages; replace only closed-observer packing."""
 import argparse
+from contextlib import nullcontext
 import hashlib
 import importlib.util
 import json
@@ -51,10 +52,12 @@ def stage_spec(original, context, cell_id, stage, request, s):
     runner = Path(original.__file__)
     command = [sys.executable,str(runner.resolve()),'--context',str(context),'--stage',stage]
     inputs = [original.ref(context),original.ref(runner)]
-    if stage=='archive':
+    if stage=='archive' or stage=='observe-start' and s.get('observer_scratch'):
         command = [sys.executable,s['wrapper']['path'],'--request',request['path'],
-                   '--sha256',request['sha256'],'--archive-stage']
+                   '--sha256',request['sha256'],'--'+stage+'-stage']
         inputs.extend([s['wrapper'],s['calibration_overlay'],s['helper'],request])
+        if s.get('observer_format'):
+            inputs.extend(s['observer_format'][k] for k in ('audit_module','fold_tool') if k in s['observer_format'])
     return dict(schema='experiment-step-v1',reviewed=True,cell_id=cell_id,stage=stage,
                 argv=command,cwd=str(original.REPO),executable_sha256=digest(sys.executable),
                 inputs=inputs,inherit_environment=[])
@@ -62,25 +65,28 @@ def stage_spec(original, context, cell_id, stage, request, s):
 
 def archive_authorized(original, c, lease, spec):
     """Only the exact original executor may invoke the archive-only child."""
-    path = c.out/'steps/archive.json'
+    stage = spec['stage']
+    require(stage in ('archive','observe-start'), 'Only the declared observer/packing overlay stages are allowed')
+    path = c.out/'steps'/(stage+'.json')
     require(load(path)==spec, 'Original reserved archive step differs')
     expected = original.ref(path)
-    output = c.out/'stages/archive'
+    output = c.out/'stages'/stage
     with sqlite3.connect('file:'+str(c.control/'state.sqlite')+'?mode=ro',uri=True) as db:
         db.row_factory = sqlite3.Row
         original.suite_state.admitted(db,lease)
         rows = {r['name']:r for r in db.execute('SELECT name,status,spec_sha,output FROM stages WHERE cell_id=?',(c.id,))}
-    require(set(rows)==set(c.cell['stages']) and all(rows[k]['status']=='complete' for k in c.cell['stages'][:-1]) and
-            tuple(rows['archive'])[1:]==('started',expected['sha256'],str(output)),
+    previous = c.cell['stages'][:c.cell['stages'].index(stage)]
+    require(set(rows)==set(c.cell['stages']) and all(rows[k]['status']=='complete' for k in previous) and
+            tuple(rows[stage])[1:]==('started',expected['sha256'],str(output)),
             'Exact archive stage is not started after original verification and observer stop')
     started = load(output/'started.json')
-    require(started['cell_id']==c.id and started['stage']=='archive' and
+    require(started['cell_id']==c.id and started['stage']==stage and
             started['spec_sha256']==expected['sha256'] and started['wrapper_pid']==os.getppid() and
             started['automatic_retry'] is False and not (output/'finished.json').exists(),
             'The original one-step executor did not start this archive child')
 
 
-def run(request, archive_stage=False):
+def run(request, archive_stage=False, observe_start_stage=False, verify_sample=False):
     s = load(pinned(request))
     require(s['schema']=='c4-formal-archive-overlay-v1' and s['reviewed'] is True and
             pinned(s['wrapper'])==Path(__file__).resolve(),
@@ -92,20 +98,30 @@ def run(request, archive_stage=False):
             Path(original.suite_report.__file__).resolve()==original.REPO/'bench/suite_report.py',
             'Loaded suite state/report differ from the original runner repo')
     sharing, source = overlay_inputs(s['original_runner'],s['calibration_overlay'],s['helper'],s['worker_code'])
+    bundle = sharing.format_inputs(s['observer_format']) if s.get('observer_format') else None
+    scratch = s.get('observer_scratch')
+    require(not scratch or bundle, 'Formal scratch routing requires the pinned observer format overlay')
     context = pinned(s['context'])
     c = original.Fork(context)
     require(context==c.out/'context.json' and c.id==s['cell_id'] and c.pool==s['pool'] and
             c.tag==s['attempt'] and c.purpose=='experiment' and c.verification_policy==original.c4_verify.FULL and
             c.cell['stages'][-3:]==['verify','observe-stop','archive'] and c.cell['stages'].count('archive')==1,
             'Frozen formal context must retain original full cold verification and archive order')
+    if verify_sample:
+        require(bundle is not None, 'Independent stream verification requires pinned observer format')
+        with sharing.archive_audit(source,bundle,original.suite_report):
+            return original.suite_report.sample(original.ref(c.out/'sample.json'),c.plan,c.cell)
     lease = load(c.out/'lease.json')
     require(not lease['already_claimed'] and lease['cell']==c.cell,
             'Only a newly claimed explicit C4 cell may run')
-    if archive_stage:
-        spec = stage_spec(original,context,c.id,'archive',request,s)
+    if archive_stage or observe_start_stage:
+        stage = 'archive' if archive_stage else 'observe-start'
+        require(stage!='observe-start' or scratch, 'No reviewed formal scratch route')
+        spec = stage_spec(original,context,c.id,stage,request,s)
         archive_authorized(original,c,lease,spec)
-        closed_fork = sharing.archive_fork(original.Fork,source,s['helper']['sha256'],s['worker_code'])
-        closed_fork(context).execute('archive')
+        closed_fork = sharing.archive_fork(original.Fork,source,s['helper']['sha256'],s['worker_code'],
+                                           scratch,original.common.ROOTS if scratch else None,bundle)
+        closed_fork(context).execute(stage)
         return
 
     c.check_sources()
@@ -116,7 +132,9 @@ def run(request, archive_stage=False):
         original.write_new(path,step)
         if original.suite_state.run_stage(c.control/'state.sqlite',lease,stage,original.ref(path),c.out/'stages'/stage):
             raise RuntimeError('Original C4 stage failed; keep its reservation')
-    acceptance = original.suite_report.sample(original.ref(c.out/'sample.json'),c.plan,c.cell)
+    audit = sharing.archive_audit(source,bundle,original.suite_report) if bundle else nullcontext()
+    with audit:
+        acceptance = original.suite_report.sample(original.ref(c.out/'sample.json'),c.plan,c.cell)
     original.write_new(c.out/'acceptance.json',acceptance)
     if not acceptance['accepted']:
         raise ValueError('C4 sample was not accepted: '+str(acceptance['reasons']))
@@ -127,6 +145,13 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--request',required=True)
     parser.add_argument('--sha256',required=True)
-    parser.add_argument('--archive-stage',action='store_true')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--archive-stage',action='store_true')
+    mode.add_argument('--observe-start-stage',action='store_true')
+    mode.add_argument('--verify-sample',action='store_true')
     a = parser.parse_args()
-    run(dict(path=a.request,sha256=a.sha256),a.archive_stage)
+    result = run(dict(path=a.request,sha256=a.sha256),a.archive_stage,a.observe_start_stage,a.verify_sample)
+    if a.verify_sample:
+        print(json.dumps(result))
+        if not result['accepted']:
+            raise SystemExit(1)

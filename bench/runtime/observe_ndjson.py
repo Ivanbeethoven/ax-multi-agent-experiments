@@ -40,7 +40,7 @@ def _line_bytes(record):
     return json.dumps(record, sort_keys=True, separators=(',', ':')).encode()
 
 
-def snapshot_ndjson(s, output, index, previous=None):
+def snapshot_ndjson(s, output, index, previous=None, stream_hash=None):
     """Collect one sample through the original collector, keep it as one line."""
     output = Path(output)
     staging = output/('sample-%06d' % index)
@@ -56,16 +56,26 @@ def snapshot_ndjson(s, output, index, previous=None):
                 raise ValueError('telemetry bytes changed before retention')
             files[name] = {'sha256': expected['sha256'], 'bytes': expected['bytes'],
                            'text': raw.decode('utf-8', 'surrogateescape')}
+        # Preserve the original UTC, PID and sampler CPU fields too.
+        sample_path = staging/'sample.json'
+        if sample_path.is_symlink():
+            raise ValueError('unexpected telemetry sample path')
+        sample = sample_path.read_bytes()
+        files['sample.json'] = {'sha256': hashlib.sha256(sample).hexdigest(), 'bytes': len(sample),
+                                'text': sample.decode('utf-8', 'surrogateescape')}
         record = {key: value[key] for key in ('index', 'monotonic_start_ns', 'monotonic_end_ns',
                                               'passed', 'errors', 'capacity', 'counters',
                                               'target_states')}
         record['files'] = files
         record['scope'] = 'same bytes as the original collector directory, retained as one line'
         line = _line_bytes(record)
+        chunk = line+b'\n'
         with (output/STREAM).open('ab') as stream:
-            stream.write(line+b'\n')
+            stream.write(chunk)
             stream.flush()
             os.fsync(stream.fileno())
+        if stream_hash is not None:
+            stream_hash.update(chunk)
         summary = {key: value[key] for key in ('index', 'monotonic_start_ns', 'monotonic_end_ns',
                                                'passed', 'errors')}
         summary['line_sha256'] = hashlib.sha256(line).hexdigest()
@@ -81,15 +91,17 @@ def snapshot_ndjson(s, output, index, previous=None):
 snapshot = snapshot_ndjson
 
 
-def serve(ref, output):
+def serve(ref, output, format_sha256=None):
     s = spec(ref, 'experiment-observer-v1')
     observe.validate(s)
     output = Path(output)
     count, last, history, marks = 0, None, [], []
+    format_pin = {'observer_format_sha256': format_sha256} if format_sha256 else {}
+    stream_hash = hashlib.sha256()
 
     def sample():
         nonlocal count, last
-        value = snapshot_ndjson(s, output, count, last['counters'] if last else None)
+        value = snapshot_ndjson(s, output, count, last['counters'] if last else None, stream_hash)
         history.append({key: value[key] for key in ('index', 'monotonic_start_ns',
                                                       'monotonic_end_ns', 'passed', 'errors',
                                                       'line_sha256', 'line_bytes')})
@@ -104,7 +116,7 @@ def serve(ref, output):
         first = sample()
         write_new(output/'ready.json', {'passed': first['passed'], 'spec': ref,
                                        'process': identity(os.getpid()),
-                                       'metric_contract_sha256': s['metric_contract_sha256']})
+                                       'metric_contract_sha256': s['metric_contract_sha256'], **format_pin})
         next_sample = time.monotonic()+s['interval_seconds']
         while True:
             readable, _, _ = select.select([server], [], [], max(0, next_sample-time.monotonic()))
@@ -133,8 +145,9 @@ def serve(ref, output):
                           'marks': marks, 'target_states': current['target_states']}
                 if message['action'] == 'stop':
                     result['history'] = history
+                    result.update(format_pin)
                     stream_path = output/STREAM
-                    result['stream'] = {'name': STREAM, 'sha256': digest(stream_path),
+                    result['stream'] = {'name': STREAM, 'sha256': stream_hash.hexdigest(),
                                         'bytes': stream_path.stat().st_size}
                     write_new(output/'finished.json', result)
                 conn.sendall((json.dumps(result)+'\n').encode())
@@ -142,16 +155,15 @@ def serve(ref, output):
                     return
 
 
-def start(ref, output):
+def start(ref, output, serve_argv=None, repo=None):
     """Spawn the stream collector where the original would spawn its own."""
     s = spec(ref, 'experiment-observer-v1')
     validate(s)
     output = private_dir(output)
     with (output/'collector.log').open('xb') as log:
-        child = subprocess.Popen([sys.executable, '-m', 'bench.runtime.observe_ndjson', 'serve',
-                                  '--spec', ref['path'], '--sha256', ref['sha256'],
-                                  '--output', str(output)],
-                                 cwd=Path(__file__).resolve().parents[2],
+        argv = serve_argv or [sys.executable, '-m', 'bench.runtime.observe_ndjson', 'serve',
+                              '--spec', ref['path'], '--sha256', ref['sha256'], '--output', str(output)]
+        child = subprocess.Popen(argv, cwd=repo or Path(__file__).resolve().parents[2],
                                  stdout=log, stderr=log, start_new_session=True)
     deadline = time.monotonic()+30
     while time.monotonic() < deadline:
@@ -173,35 +185,40 @@ def audit(directory, max_gap_seconds, required_marks):
     know which one it is looking at.
     """
     directory = Path(directory)
-    if not (directory/STREAM).exists():
+    stream = directory/STREAM
+    if not stream.exists() and not stream.is_symlink():
         return observe.audit(directory, max_gap_seconds, required_marks)
     end = load(directory/'finished.json')
     if max_gap_seconds <= 0 or not end['passed']:
         raise ValueError('failed telemetry samples or invalid maximum gap')
-    stream = directory/STREAM
     if not stream.is_file() or stream.is_symlink():
         raise ValueError('observation stream missing')
-    if end.get('stream', {}).get('sha256') != digest(stream):
-        raise ValueError('observation stream changed')
-    if end['stream']['bytes'] != stream.stat().st_size:
+    stream_pin = end.get('stream') or {}
+    if stream_pin.get('name') != STREAM or stream_pin.get('bytes') != stream.stat().st_size:
         raise ValueError('observation stream length changed')
     history = end.get('history') or []
+    marks = end['marks']
+    marked_indices = {m['sample_index'] for m in marks}
+    ends = {}
     previous = None
     count = 0
+    stream_hash = hashlib.sha256()
     with stream.open('rb') as raw:
         for raw_line in raw:
-            line = raw_line.rstrip(b'\n')
-            if not line:
-                raise ValueError('blank observation line')
+            stream_hash.update(raw_line)
+            if not raw_line.endswith(b'\n') or len(raw_line)==1:
+                raise ValueError('incomplete or blank observation stream line')
+            line = raw_line[:-1]
             record = json.loads(line)
             if count >= len(history):
                 raise ValueError('observation stream holds more lines than its history')
             h = history[count]
             if record['index'] != count or h['index'] != count:
                 raise ValueError('non-contiguous sample sequence')
-            if hashlib.sha256(line).hexdigest() != h['line_sha256']:
+            if len(line)!=h['line_bytes'] or hashlib.sha256(line).hexdigest() != h['line_sha256']:
                 raise ValueError('sample record changed')
-            if not record['passed'] or not record['files']:
+            if not record['passed'] or not record['files'] or (end.get('observer_format_sha256') and
+                                                               'sample.json' not in record['files']):
                 raise ValueError('invalid telemetry sample')
             if record['monotonic_end_ns'] < record['monotonic_start_ns']:
                 raise ValueError('non-monotonic telemetry sample')
@@ -210,36 +227,31 @@ def audit(directory, max_gap_seconds, required_marks):
             if previous is not None and (record['monotonic_start_ns']-previous)/1e9 > max_gap_seconds:
                 raise ValueError('telemetry gap')
             previous = record['monotonic_start_ns']
+            if count in marked_indices:
+                ends[count] = record['monotonic_end_ns']
             for name, expected in record['files'].items():
-                if '/' in name or name in ('.', '..') or expected.get('bytes') != len(
-                        expected['text'].encode('utf-8', 'surrogateescape')):
+                payload = expected['text'].encode('utf-8', 'surrogateescape')
+                if '/' in name or name in ('.', '..') or expected.get('bytes') != len(payload):
                     raise ValueError('unexpected telemetry record')
-                if hashlib.sha256(expected['text'].encode('utf-8', 'surrogateescape')).hexdigest() != expected['sha256']:
+                if hashlib.sha256(payload).hexdigest() != expected['sha256']:
                     raise ValueError('telemetry bytes changed')
             count += 1
+    if stream_hash.hexdigest()!=stream_pin.get('sha256'):
+        raise ValueError('observation stream changed')
     if count != end['samples'] or count != len(history) or count < 2:
         raise ValueError('incomplete sample sequence')
-    for mark in end['marks']:
+    for mark in marks:
         index = mark['sample_index']
-        if not 0 <= index < count or mark['monotonic_ns'] < _line_end(stream, index):
+        if index not in ends or mark['monotonic_ns'] < ends[index]:
             raise ValueError('marker is not bound to a completed sample')
-    if not set(required_marks).issubset({m['label'] for m in end['marks']}):
+    if not set(required_marks).issubset({m['label'] for m in marks}):
         raise ValueError('phase marker missing')
     return {'passed': True, 'samples': count, 'max_gap_seconds': max_gap_seconds,
             'marks': required_marks, 'finished_sha256': digest(directory/'finished.json'),
-            'stream_sha256': digest(stream),
+            'stream_sha256': stream_hash.hexdigest(),
             'metric_contract_sha256': end.get('metric_contract_sha256'),
             'scope': 'recorded coverage/hashes only; metric semantics, overhead and independent '
                      'remote readback are separate gates'}
-
-
-def _line_end(stream, index):
-    with stream.open('rb') as raw:
-        for position, raw_line in enumerate(raw):
-            if position == index:
-                return json.loads(raw_line.rstrip(b'\n'))['monotonic_end_ns']
-    raise ValueError('sample index missing from the stream')
-
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)

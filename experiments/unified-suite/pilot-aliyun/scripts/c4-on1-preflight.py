@@ -239,6 +239,22 @@ def main():
     require(len(draft['prefix']) == step-1, 'draft prefix must hold step-1 entries')
     for path in (cont, runner, helper):
         require(path.is_file(), 'deployed continuation code missing: '+str(path))
+    archive_overlay = request_draft['archive_overlay']
+    format_spec = archive_overlay.get('observer_format')
+    if format_spec:
+        producer = format_spec.get('producer')
+        expected = {'audit_module':args.code/'bench/runtime/observe_ndjson.py'}
+        keys = {'producer', 'audit_module'}
+        if producer=='legacy-fold':
+            keys.update(('fold_tool', 'fold_peak_bytes'))
+            expected['fold_tool'] = args.code/scripts/'fold-c4-observer.py'
+        require(request_draft.get('reviewed') is True and producer in ('ndjson','legacy-fold') and
+                set(format_spec)==keys and (producer=='ndjson' or
+                type(format_spec['fold_peak_bytes']) is int and format_spec['fold_peak_bytes']>0),
+                'Observer producer, pins and any fold budget must be explicitly reviewed')
+        for key,path in expected.items():
+            require(path.is_file() and path.resolve()==path and ref(path)==format_spec[key],
+                    'Reviewed C4 observer format bytes are missing or changed: '+key)
 
 
     # 1) Read-only recheck that the applied object reclaim is still in effect.
@@ -346,9 +362,10 @@ def main():
     require(request_draft.get('original_request') == draft.get('original_request'),
             'both drafts must attest the same original request')
     require(out.is_absolute() and out.resolve() == out, 'canonical absolute continuation directory required')
-    request = request_doc(draft, request_draft, ref(cont), ref(capacity_path), out,
-                          dict(runner=ref(runner), helper=ref(helper),
-                               worker_code=request_draft['archive_overlay']['worker_code']))
+    overlay = dict(runner=ref(runner), helper=ref(helper), worker_code=archive_overlay['worker_code'])
+    if format_spec:
+        overlay['observer_format'] = format_spec
+    request = request_doc(draft, request_draft, ref(cont), ref(capacity_path), out, overlay)
     request_path = records/'request.json'
     write_new(request_path, request)
     print(json.dumps(dict(cleanup=ref(cleanup_path), snapshot=ref(snapshot_path), scratch=ref(scratch_path),

@@ -19,6 +19,7 @@ import stat
 import subprocess
 import sys
 import tarfile
+from types import ModuleType
 
 
 ROOTS = dict(client='/srv/ax-client', metadata='/srv/ax-metadata', objects='/srv/ax-objects-0')
@@ -29,6 +30,7 @@ CODE_FILES = {
 MARKS = ['measure-start', 'measure-end', 'drain-end', 'verify-end']
 ID_KEYS = ('pid', 'boot_id', 'start_ticks')
 SCRATCH_ROOT = '/srv/ax-c4-observer-scratch'
+LEGACY_FINISHED = 'legacy-finished.json'
 
 
 def require(ok, message):
@@ -98,6 +100,57 @@ def tools(spec):
     return modules
 
 
+def format_module(body, name, package):
+    """Load the same pinned source bytes at the coordinator and worker."""
+    require(set(body)=={'source','sha256'} and
+            hashlib.sha256(body['source'].encode('utf-8')).hexdigest()==body['sha256'],
+            'Pinned C4 observer format source changed')
+    module = ModuleType(name)
+    module.__package__ = package
+    exec(compile(body['source'], '<pinned '+name+'>', 'exec'), module.__dict__)
+    return module
+
+
+def prepare_observer(root, obs, role, spec, legacy, ready, finished):
+    """Run the unchanged legacy audit or the explicitly pinned NDJSON audit."""
+    directory = root/obs
+    bundle = spec.get('observer_format')
+    if not bundle:
+        return legacy.audit(directory, 30, MARKS), spec['observer_finished']['sha256']
+    audit = format_module(bundle['audit_module'], 'bench.runtime.observe_ndjson', 'bench.runtime').audit
+    if role=='objects' and bundle['producer']=='ndjson':
+        digest = bundle['audit_module']['sha256']
+        require('stream' in finished and ready.get('observer_format_sha256')==digest and
+                finished.get('observer_format_sha256')==digest and
+                not any(os.path.lexists(directory/name) for name in
+                        (LEGACY_FINISHED,'fold-receipt.ndjson','fold-receipt.json')),
+                'Expected the directly observed C4 stream with the reviewed writer SHA')
+    if role=='objects' and bundle['producer']=='legacy-fold':
+        original = legacy.audit(directory, 30, MARKS)
+        require(original['passed'] is True and original['finished_sha256']==spec['observer_finished']['sha256'],
+                'Original closed observer did not audit before folding')
+        for name in ('samples.ndjson','fold-receipt.ndjson','fold-receipt.json','.fold-staging',
+                     '.finished.json.tmp', LEGACY_FINISHED):
+            require(not os.path.lexists(directory/name), 'Existing fold output or partial fold; retain, do not retry')
+        # Preserve the original receipt as evidence. The new finished.json
+        # names the folded stream, but must not replace the original proof.
+        with (directory/LEGACY_FINISHED).open('xb') as sink:
+            sink.write(pin(spec['observer_finished'], directory/'finished.json').read_bytes())
+            sink.flush()
+            os.fsync(sink.fileno())
+        fold = format_module(bundle['fold_tool'], 'fold_c4_observer', '').fold
+        space = os.statvfs(directory)
+        reserve = (space.f_blocks*space.f_frsize+4)//5
+        receipt = fold(directory, max_output_bytes=bundle['fold_peak_bytes'], reserve_bytes=reserve)
+        audited = audit(directory, 30, MARKS)
+        require(receipt['passed'] is True and receipt['stream']['sha256']==audited['stream_sha256'] and
+                receipt['samples']==audited['samples']==finished['samples'] and
+                _digest(directory/LEGACY_FINISHED)==original['finished_sha256'],
+                'Folded stream or preserved original closure differs')
+        return audited, audited['finished_sha256']
+    return audit(directory, 30, MARKS), spec['observer_finished']['sha256']
+
+
 def list_members(root, directory, check):
     base = canonical(root/directory)
     require(base.is_dir(), 'Original evidence directory required: '+directory)
@@ -152,6 +205,7 @@ def pack_mapped(sources, states, out, cell, role, check):
             entries[name] = dict(bytes=states[name][3], sha256=hashlib.file_digest(data, 'sha256').hexdigest())
     manifest = dict(schema='suite-archive-manifest-v1', cell_id=cell, kind=role, files=entries, deferred=[])
     raw = (json.dumps(manifest, sort_keys=True)+'\n').encode()
+    require(len(raw)<=16*1024**2, 'Observer archive manifest would exceed the frozen 16 MiB bound')
     with out.open('xb') as sink:
         os.fchmod(sink.fileno(), 0o600)
         with tarfile.open(fileobj=sink, mode='w:gz') as archive:
@@ -206,19 +260,26 @@ def archive(spec):
                                            p.get('alive', False) is False for p in closed['processes'])==1,
             'Original role closure does not bind this observer')
 
-    paths = [list_members(root, d, check) for d in directories]
-    frozen = {p:stamp((root/p).lstat()) for p in paths[0]}
-    audited = observe.audit(root/obs, 30, MARKS)
-    require(audited['passed'] is True and audited['finished_sha256']==spec['observer_finished']['sha256'],
-            'Closed observer audit does not match pinned finished receipt')
     staging, outdir = root/'evidence'/tag, root/'archives'
     require(staging.resolve() == staging and outdir.resolve() == outdir,
             'Archive output path escapes original worker root')
+    output = outdir/(tag+'-'+role+'.tar.gz')
+    require(not os.path.lexists(staging) and not os.path.lexists(output),
+            'Archive output already exists; do not repack this attempt')
+    # Refuse unsafe members before any in-place fold. For the legacy-only path
+    # keep the earlier snapshot to detect any concurrent source mutation.
+    paths = [list_members(root, d, check) for d in directories]
+    frozen = {p:stamp((root/p).lstat()) for p in paths[0]}
+    audited, finished_sha256 = prepare_observer(root, obs, role, spec, observe, ready, end)
+    require(audited['passed'] is True and audited['finished_sha256']==finished_sha256,
+            'Closed observer audit does not match pinned finished receipt')
+    if spec.get('observer_format') and role=='objects' and 'stream' not in end:
+        paths[0] = list_members(root, obs, check)
+        frozen = {p:stamp((root/p).lstat()) for p in paths[0]}
     staging.mkdir(parents=True)
     canonical(staging)
     outdir.mkdir(exist_ok=True)
     canonical(outdir)
-    output = outdir/(tag+'-'+role+'.tar.gz')
     sources, states = {}, {}
     for i, members in enumerate(paths):
         for p in members:

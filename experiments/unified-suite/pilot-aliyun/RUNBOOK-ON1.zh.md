@@ -2,13 +2,15 @@
 适用：A 池 `pool-a` / cell `c5e97774bcffa69a-r1-native` 的 step 2（On1，观察者开）。目标：5 小时窗口内走完前置链 → 测量 → 冷验 → 三角色归档 → 收尾停机。
 `P` = `experiments/unified-suite/pilot-aliyun`。除标注 `ssh` 的块外，命令都在协调者上以 `root` 执行。
 
-三条硬规则：**失败即停手**，保留现场和回执，按第 10 节记失败，不自动重试、不重放已有 attempt、不改冻结代码；**旧证据全部作废**，重启后 `boot_id` 变化，旧 `capacity.json` / `placement.json` / `observer-scratch.json` 一个都不能续用；**归档只改包装**，`bench/archive_check.py` 一字不动，objects 观察原文走拆包，client/metadata 走原单包。
+失败即停手，保留现场和回执；旧测量仍是失败记录。重启后，旧准入回执不能用于新窗口。新批次的 objects 采集器直接写 NDJSON，三个角色各出一个原格式 tar 包；冻结的归档校验器和原采集模块保持原样。
+
+**状态：暂不能直接启动。** 下列旧路径仅用于核对前置链。必须先有经过审阅的新 attempt 和相符的物理容量证明，且第 5 节以新请求通过。已有 On1 即使折叠或拆包成功，也不会补成一次通过的试验。
 
 ## 0. 窗口前 10 分钟检查
 
 ```bash
 export CTL=/srv/ax-pilot-control/fork-control-01
-export CODE=/srv/ax-pilot-control/code-c4-split-01
+export CODE=/srv/ax-pilot-control/code-c4-ndjson-01
 export PSTEP=$CTL/preparation/c4-on1-prestep-04
 export OUT=$CTL/continuation-on1-04
 export SCRATCH=/srv/ax-c4-observer-scratch
@@ -29,43 +31,19 @@ export OBJ=i-bp1h9kaoya0predubdkn META=i-bp1gy3cfuj9jik0y4oc3 CLI=i-bp1809mw7rlu
 
 任何一项不满足：停手，把输出写进 `$PSTEP/blocked-precheck.json`，不要用“上次是好的”代替。
 
-### 0.7 归档入口 G0（硬前提）
-上一轮 4.5 小时测量+冷验已完成（2,954 样本 / 15,385 秒 / `passed`，三角色标记齐全），但没有 trial 级 `finished.json`，按失败记录、不重试；失败点是 objects 在 `bench/archive_check.py:37` 被 16 MiB 内部清单拒绝。只把 `pack-c4-observer-split.py` 放进树里**不等于**归档入口会调用它。开计时前必须证明两件事：
+### 0.7 开跑前核对的采集和验收路径
 
-```bash
-grep -n "pack-c4-observer-split\|observer-index.ndjson" $CODE/experiments/unified-suite/pilot-aliyun/scripts/archive-c4-closed-observer.py
-grep -n "objects-observer.tar.gz\|observer.tar.gz" $CODE/experiments/unified-suite/pilot-aliyun/scripts/run-c4.py
-```
+旧 On1 完成了测量和冷验（2,954 样本，15,385 秒），但 132,939 个原文文件使 objects 清单超过 16 MiB。新窗口使用 `producer: ndjson`：仅 objects 原位写 `samples.ndjson`，client 和 metadata 继续写目录。四个阶段标记仍通过原 socket 发送。归档入口、协调者解包后的审计、六次校准报告和正式验收都必须使用同一份固定 SHA 的格式模块。旧拆包工具只用于保全证据。
 
-两条都必须命中。若第一条没有，objects 仍会打 132,939 个成员的单一 tar，4.5 小时后以同一个 `ValueError: unbounded internal manifest` 失败；若第二条没有，拆包后协调者的 `audit(raw/objects/o/$TAG, ...)` 会因目录不存在失败。**任一不满足：不启动 unit，本窗口只做前置链并按失败记录**。
+### 0.8 审阅 pin 与校准
 
-### 0.8 验收侧同样不认识拆包（2026-11-12 补充核实）
+在 reviewed request draft 的 `archive_overlay.observer_format` 下写入 `{"producer":"ndjson","audit_module":{"path":"<CODE>/bench/runtime/observe_ndjson.py","sha256":"<sha256sum>"}}`。包装器在协调者验证文件，在 objects 端通过原 SSH/runtime 校验后传入同一份源码。不要把新模块放进旧 worker 的 `bench/runtime`。
 
-除了归档入口，**验收器**也要改：`check-c4-calibration.py:61` 才是执行 `raw/<role>` 解包后 `audit(raw/<role>/o/<tag>, 30, marks)` 的地方（`retain-calibrations.py:115` 同形），它只认 `archives/<role>.tar.gz` 这一种形状。
+直接写流的 CPU 和写盘开销需要用新一轮观察开/关校准验证；不能沿用旧 writer 的观测开销。仅做离线保全时可用 legacy 折叠；它的空间预算要同时包含原目录和新流，不能拿直接写流的预算代替。
 
-因此"观察原文单独 tar"不是加个工具就能落地的事，它同时改动**验收判据**。三条可行路线，任选其一都必须作为**新一批**记录：
+### 0.9 文件大小与覆盖范围
 
-1. 新批次的 `check-c4-calibration.py` 同时接受 `archives/<role>.tar.gz` 与 `archives/<role>-observer.tar.gz`，先解小包再解观察包，audit 不变。改动最小，但要重新声明验收规则并给新 checker 固定 SHA。
-2. 让观察者直接写单个 NDJSON 流而不是 132,939 个文件。成员数从 13 万降到个位数，原单包格式与冻结验收器都不用动；代价是观察输出格式变了，属于新的观测合同。
-3. 缩短观察窗口或放粗采样间隔，使成员数回到 16 MiB 清单以内。不改任何代码，但改变 C4 On1 的观测强度，需要重新论证"最短可测窗口"。
-
-**已选定路线 2（2026-11-12，用户决定）。** 下面 0.9 记这次改动的设计边界。
-
-### 0.9 路线 2 的设计边界（实施前先看）
-
-现状：`bench/runtime/observe.py:112` 的 `snapshot()` 每个采样写一个 `sample-<%06d>/` 目录，内含 `host-*`、cgroup、`pid-*`、target 原文，合计约 **45 个文件/采样**（实测 2,954 采样 → 132,939 个文件）。`audit()` 在 `:262` 按目录遍历、比较相邻采样间隔与 marker。
-
-新合同（必须是**新模块 + 新 SHA**，不改冻结的 `observe.py`）：
-
-- 每次采样只向 `o/<tag>/samples.ndjson` **追加一行**，字段至少含 `index`、`begin_ns`、`end_ns`、`errors`、`capacity`、`target_states`、`counters`，以及原先逐文件保留的原文内容（嵌套字典）。
-- `ready.json`、`finished.json` 与三个 marker 文件保持原样，因此 `archive_check` 看到的成员数降到 **个位数**，16 MiB 清单问题消失。
-- `audit` 改为逐行解析同一个文件：判定条件不变（采样间隔 ≤ `max_gap_seconds`、marker 齐全、计数器单调不回退），只是数据源从目录变成流。
-- 首行之前必须能证明"流是完整的"：最后一行的 `index` 与 `finished.json` 的 `samples` 必须一致，且 `finished.json` 的 `stream_sha256` 必须等于该文件的 SHA256。
-- 体积预估：约 50 KB/采样 × 3,601 采样 ≈ **180 MB** 未压缩，落在采样盘预算内；压缩后归档显著更小。
-- `plan-c4-observer-budget.py` 的 `MEMBERS_PER_SAMPLE` 届时改为 0（每采样不再是独立成员），只剩 marker 与两个 JSON。
-
-
-在选定之前，On1 的 5 小时窗口**不具备开跑条件**；本仓库只保证拆包工具本身在真实 13.3 万成员上可用。
+每行包含原采样字段及全部原文，包括 `sample.json`、进程字段和采集器 CPU。流关闭时记录 SHA 和字节数，独立审计逐行重验原文哈希、完整性、采样间隔和四个阶段标记。上一轮 objects 原目录约 22 GB；当前容量预算继续以实测原文及其编码开销为基础，不能按 180 MB 估算。
 
 
 ## 1. 启动实例并恢复 A 池现场
@@ -100,32 +78,26 @@ ssh -F $SSHCONF pool-a-client 'cat /sys/fs/cgroup/ax-slot-1/cgroup.procs; findmn
 
 判定同 0.2–0.4，且 client slot 为空。失败：停手。
 
-## 2. 清空旧 tag 命名空间（否则前置链必拒）
+## 2. 使用已审阅的新 attempt
 
-`c4-on1-preflight.py` 会检查 `o/$TAG`、`q/$TAG-observer`、`archives/$TAG-objects.tar.gz` 是否已存在；上一轮 22.47 GB 观察原文还在采样盘上，同名会直接拒绝本轮。
+保留旧树、归档和回执。用新请求明确的新 tag 和输出路径；前置链发现冲突即停。不要移动旧目录来让同名 attempt 通过。
 
-```bash
-mkdir -p $SCRATCH/attempts-archive-bound-01
-mv $SCRATCH/o/$TAG $SCRATCH/attempts-archive-bound-01/o-$TAG
-mv $SCRATCH/q/$TAG-observer $SCRATCH/attempts-archive-bound-01/q-$TAG-observer 2>/dev/null || true
-mv $SCRATCH/archives/$TAG-objects.tar.gz $SCRATCH/attempts-archive-bound-01/ 2>/dev/null || true
-test ! -e $SCRATCH/o/$TAG && test ! -e $SCRATCH/q/$TAG-observer && echo TAG_CLEAR
-```
-
-判定：输出 `TAG_CLEAR`；`findmnt -no TARGET $SCRATCH` 仍是那块盘（同盘 `mv`，数据未拷贝）；旧包 `sha256sum $SCRATCH/archives-split-01/$TAG-objects-observer.tar.gz` 必须等于 `c4-observer-split-01/README.zh.md` 的 `504e8450…`。失败：停手；**不要删除旧树**，也不要把它改名后当成本轮证据。
-
-## 3. 部署拆包代码树并核对 pin
+## 3. 部署协调者覆盖层并核对 pin
 
 ```bash
-test ! -e $CODE
-cp -a /srv/ax-pilot-control/code-c4-directory-hold-01 $CODE
-cp P/scripts/pack-c4-observer-split.py $CODE/experiments/unified-suite/pilot-aliyun/scripts/
-scp -F $SSHCONF P/scripts/pack-c4-observer-split.py \
-  pool-a-objects:/srv/ax-objects-0/code-19/experiments/unified-suite/pilot-aliyun/scripts/
-sha256sum $CODE/experiments/unified-suite/pilot-aliyun/scripts/pack-c4-observer-split.py P/scripts/pack-c4-observer-split.py
+P=experiments/unified-suite/pilot-aliyun
+test ! -e "$CODE" && cp -a /srv/ax-pilot-control/code-c4-directory-hold-01 "$CODE"
+for f in c4-on1-preflight.py resume-c4-after-directory-hold.py calibrate-c4-closed-observer.py \
+         archive-c4-closed-observer.py run-c4-formal-closed-observer.py; do
+  install -m 0644 "$P/scripts/$f" "$CODE/$P/scripts/$f" || exit 1
+  cmp "$P/scripts/$f" "$CODE/$P/scripts/$f" || exit 1
+done
+install -m 0644 bench/runtime/observe_ndjson.py "$CODE/bench/runtime/observe_ndjson.py"
+cmp bench/runtime/observe_ndjson.py "$CODE/bench/runtime/observe_ndjson.py"
+sha256sum "$CODE"/bench/runtime/observe_ndjson.py
 ```
 
-判定：两处 SHA 相同；`python3 -B $CODE/.../pack-c4-observer-split.py --help` 能打印用法。失败：停手；不要覆盖 `code-c4-directory-hold-01` 或 `code-19` 的任何原文件。若 G0 的 (a)(b) 还没接上，只做到这里就停，按第 10 节记 `blocked`，不要进入第 4 步。
+部署前确认源 checkout 是审阅过的版本；六份部署文件与源一致。原 `code-c4-directory-hold-01`、各 worker 的 `code-19` 保持原样。编写新 draft 时把本节打印的 SHA 放进第 0.8 节的字段。旧批次的 path/SHA 引用不得替换。
 
 ## 4. 生成 900 秒前置链（一条命令）
 
@@ -179,7 +151,7 @@ REQ_SHA=$(sha256sum $REQ | cut -d' ' -f1)
 python3 -B $CODE/experiments/unified-suite/pilot-aliyun/scripts/resume-c4-after-directory-hold.py --request $REQ --sha256 $REQ_SHA --validate-only
 ```
 
-判定：stdout 是 JSON，`"passed": true`、`"step": 2`、`"archive_mode": "closed-observer-direct"`、`"validation_only": true`、`"worker_dispatched": false`。失败：停手；读 stderr 的 `ValueError`，**不要**去掉 `--validate-only` 硬跑。
+判定：stdout 是 JSON，`"passed": true`、`"step": 2`、`"archive_mode": "closed-observer-direct"`、`"observer_producer": "ndjson"`、`"validation_only": true`、`"worker_dispatched": false`，且 `observer_format_sha256` 与审阅值相同。失败：停手；**不要**去掉 `--validate-only` 硬跑。
 
 ## 6. 启动 unit 并记录 invocation
 
@@ -206,35 +178,13 @@ journalctl -u ax-pilot-c4-on1-01.service -n 30 --no-pager
 ssh -F $SSHCONF pool-a-objects 'df -B1 /srv/ax-c4-observer-scratch; pgrep -af "bench.runtime.observe" | head'
 ```
 
-判定：测量期间 `active/running`；观察者 `finished.json` 出现在 `$SCRATCH/o/$TAG/finished.json`，`passed:true`，`seconds` 在 13,372–18,000 之间（上一轮 15,385.08 秒 / 2,954 样本可参照）；四个标记 `measure-start`、`measure-end`、`drain-end`、`verify-end` 齐全；最后 `$OUT/trial/finished.json` 存在且 `passed:true`。失败：`ActiveState=failed` 或 5 小时后仍无 `$OUT/trial/finished.json`，按第 10 节记失败；**保留 unit.stdout/stderr 和采样盘上的观察原文**，不要重跑。
+判定：测量期间 `active/running`；objects 的 `$SCRATCH/o/$TAG/samples.ndjson` 持续增长。关闭后 `finished.json` 有 `passed:true`、匹配的格式 SHA 和四个标记 `measure-start`、`measure-end`、`drain-end`、`verify-end`。试验的最终 `finished.json` 以 `$OUT/result.json` 的 `finished.path` 为准。失败：保留 unit.stdout/stderr 和采样盘上的观察原文，按第 10 节记录。
 
-## 8. 归档（三份包与拆包落点）
+## 8. 归档和验收
 
-本轮要三份 role 包，objects 必须拆包；client/metadata 默认走原单包，但上一轮没有留下它们的可用归档回执，本轮必须各自重新产出并校验，**先数成员数**：若 `find <role>/o/$TAG -type f | wc -l` 超过 100,000，单包清单也可能越 16 MiB，必须同样拆包（`pack-c4-observer-split.py` 的 `--role` 接受三个角色）。
+三个角色各出一包：`/srv/ax-client/archives/$TAG-client.tar.gz`、`/srv/ax-metadata/archives/$TAG-metadata.tar.gz`、`$SCRATCH/archives/$TAG-objects.tar.gz`。objects 包含 `o/$TAG/samples.ndjson`、采集回执和关闭凭证；协调者解包后逐行审计。保留三份 `archives/*-check.json`，并核对每份 archive SHA。内嵌清单仍受冻结的 16 MiB 上限；任何包不通过，本次记失败，不切换到拆包。
 
-| 角色 | 方式 | 落点 | 校验回执 |
-| --- | --- | --- | --- |
-| client | 原单包（默认） | `/srv/ax-client/archives/$TAG-client.tar.gz` | `$OUT/trial/archives/client-check.json` |
-| metadata | 原单包（默认） | `/srv/ax-metadata/archives/$TAG-metadata.tar.gz` | `$OUT/trial/archives/metadata-check.json` |
-| objects | 拆包：闭合小包 | `$SCRATCH/archives/$TAG-objects.tar.gz`（实测 552 B / 1 成员） | `$OUT/trial/archives/objects-check.json` |
-| objects | 拆包：观察原文 | `$SCRATCH/archives/$TAG-objects-observer.tar.gz`（实测 379,794,692 B / 132,939 成员） | `$SCRATCH/archives/$TAG-objects-split.json` |
-
-objects 拆包命令（输出必须在证据根之外；`/var/tmp` 根盘需 ≥ 5 GB）。unit 的 objects 归档阶段应执行等价命令；**若 unit 已成功，不要再跑**（脚本拒绝覆盖已有输出）。只有 unit 在归档前失败、需要保全证据时，才用新目录 `/var/tmp/c4-split-failed-02` 另跑一次，且不得据此把本轮改判为通过。若归档入口还要求 `q/$TAG-observer`，再加 `--include q/$TAG-observer`（成员数从 1 变 2，仍远小于 16 MiB）。
-
-```bash
-df -B1 /var/tmp; df -i /var/tmp
-python3 /srv/ax-objects-0/code-19/experiments/unified-suite/pilot-aliyun/scripts/pack-c4-observer-split.py \
-  --root $SCRATCH --tag $TAG --role objects --cell-id $CELL \
-  --include q/$TAG-closure --out-dir /var/tmp/c4-split-02 --code /srv/ax-objects-0/code-19
-mv /var/tmp/c4-split-02/$TAG-objects.tar.gz /var/tmp/c4-split-02/$TAG-objects-observer.tar.gz \
-   /var/tmp/c4-split-02/$TAG-objects-split.json $SCRATCH/archives/
-```
-
-判定：包内 `observer-index.ndjson` 是 NDJSON（一行一个成员，首行 header），`members` 与 `tar -tzf $SCRATCH/archives/$TAG-objects-observer.tar.gz | grep -vc '^observer-index.ndjson$'` 相等；小包经冻结 `archive_check.verify` 通过；`sha256sum` 与 split 回执一致。失败：停手；**不要提高 16 MiB 上限、不要改 `bench/archive_check.py`**。
-
-16 MiB 边界（原文）：`bench/archive_check.py:37`
-`if member.size>16*1024**2:raise ValueError('unbounded internal manifest')`。
-上一轮 objects 清单 20,430,785 B / 132,944 成员，单包必然越界；拆包把 132,939 个原文成员移出单清单，索引按 129 B/成员流式读，约 16.4 MiB 也不会被整体读进内存。实测 132,939 成员 / 6 分 52 秒 / 峰值内存 269 MB / exit 0，两个包都重新读取校验通过；上一轮拆包输出放 `/var/tmp/c4-split-01` 可行。**这是唯一改动，冻结校验器原样保留。**
+正式测量的独立复核使用同一份已固定 SHA 的正式请求：`run-c4-formal-closed-observer.py --request <path> --sha256 <sha> --verify-sample`。此命令只复核现有样本。
 
 ## 9. 收尾：三角色检查与 StopCharging
 先证明没有残留，再停机；不要先停实例再补检查。
@@ -255,10 +205,9 @@ aliyun ecs DescribeInstances --InstanceIds "[\"$OBJ\",\"$META\",\"$CLI\"]"
 ```bash
 mkdir -p P/evidence/calibration/a-c4-flat-on1-rerun-01
 cp -a $PSTEP/*.json $PSTEP/unit.stdout $PSTEP/unit.stderr P/evidence/calibration/a-c4-flat-on1-rerun-01/
-scp -F $SSHCONF pool-a-objects:$SCRATCH/archives/$TAG-objects-split.json P/evidence/calibration/a-c4-flat-on1-rerun-01/
 ```
 
-目录里至少要有：`unit.json`（invocation）、`cleanup.json`、`capacity-native.json`、`observer-scratch.json`、`placement.json`、`capacity.json`、`request.json`、三份 `*-check.json`、`objects-split.json`、收尾探针输出、`README.zh.md`（实际时间、包大小、SHA256）。缺少任何一件，本轮不能记通过。
+还需保存 objects 的 `ready.json`、`finished.json`、协调者的三份 `*-check.json` 和 `$OUT/result.json`、收尾探针输出，以及实际耗时、包大小和 SHA。先取回执再停机。
 
 ## 10. 本次窗口不算通过的情况
 
@@ -266,7 +215,7 @@ scp -F $SSHCONF pool-a-objects:$SCRATCH/archives/$TAG-objects-split.json P/evide
 
 1. **测量未完成**：观察者 `$SCRATCH/o/$TAG/finished.json` 不存在或 `passed:false`；窗口 < 13,372 秒；四个标记缺任何一个。
 2. **冷验失败**：`verify/result.json` 的 `passed`、`parent_unchanged`、`full_cold_child` 任一不为 `true`；或 `verify-exit.json` / `exit.json` 非 0。
-3. **归档失败**：三角色任一 `*-check.json` 不存在或 `passed:false`；objects 仍报 `unbounded internal manifest`；拆包 `observer`/`evidence` 的 `sha256` 或 `members` 对不上；小包未过冻结 `archive_check.verify`。
+3. **归档失败**：三角色任一 `*-check.json` 不存在或 `passed:false`；objects 缺少固定 SHA 的采集回执、流审计失败，或任一包未过冻结的归档检查。
 4. **收尾不干净**：任何角色仍有挂载、juicefs/opencode/brewfs 进程、client slot 非空、metadata 仍有 JuiceFS 会话；或三台没有确认 `Stopped/StopCharging`。
 5. **准入失效**：`cleanup.finished_at` 晚于任一采样、`capacity.at` 超过 900 秒、`placement` 的 `boot_id` 与 `capacity-native` 不一致；或 `--validate-only` 未通过。
 6. **invocation 缺失/复用**：没有 `$PSTEP/unit.json`，或 invocation 等于 `048f667dbca245a885100a1432d97d54`，或不是 32 位十六进制。
