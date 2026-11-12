@@ -42,6 +42,8 @@ GROWTH = ('data_peak', 'preparation_margin', 'missed_peak_margin', 'observer_pea
 # bound from an old boot, never a substitute for a new mounted-disk snapshot.
 HISTORY_SHA256 = '8ce88f3bf399796b57fffa0442a66b51b7955936ad178c650ec9fec62e7e037e'
 HISTORY_TAG = 'cal-pool-b-j-mx-mxb01-on1'
+# Immutable original Pool B native deployment receipt; inventory order is API order.
+DEPLOYMENT_SHA256 = '05637a3d93dab1be99e6f15eb4d3f00767c78d0a5481f3ea659e98ffdab4a9ce'
 TOOLS = dict(calibrate='calibrate-c1.py', check='check-calibration.py',
              admit='admit-c1.py', run='run-c1.py')
 
@@ -392,7 +394,37 @@ def role_mounts(role):
     return [f'/srv/ax-objects-{i}' for i in range(4)] if role == 'objects' else [ROOTS[role]]
 
 
-def native_rows(snapshot, inventory, runtime, tool):
+def deployment_disk_mapping(request, inventory):
+    pin = request.get('disk_mapping')
+    require(isinstance(pin, dict) and set(pin) == {'path', 'sha256'} and
+            pin['sha256'] == DEPLOYMENT_SHA256, 'Exact original B disk mapping receipt required')
+    deployment = load(pinned(pin))
+    require(deployment.get('passed') is True and deployment.get('pool_id') == POOL and
+            inventory.get('pool_id') == POOL and
+            set(deployment['roles']) == set(inventory['roles']) == set(ROLES),
+            'Original B deployment and frozen inventory roles do not match')
+    result = {}
+    for role in ROLES:
+        deployed, frozen = deployment['roles'][role], inventory['roles'][role]
+        disk_ids, mounts = frozen['data_disk_ids'], set(role_mounts(role))
+        require(deployed['instance_id'] == frozen['instance_id'] and
+                len(disk_ids) == len(set(disk_ids)) == len(mounts),
+                'Original disk mapping requires the exact frozen instance and distinct disk IDs: '+role)
+        by_mount, seen = {}, set()
+        for disk in deployed['disks']:
+            mount, disk_id, serial = disk['mount'], disk['id'], disk['serial']
+            require(mount in mounts and mount not in by_mount and disk_id in disk_ids and disk_id not in seen and
+                    re.fullmatch(r'd-[a-z0-9]+', disk_id) and serial == disk_id.removeprefix('d-'),
+                    'Original disk mapping is ambiguous or outside the frozen set: '+role)
+            by_mount[mount] = serial
+            seen.add(disk_id)
+        require(set(by_mount) == mounts and seen == set(disk_ids),
+                'Original disk mapping is incomplete: '+role)
+        result[role] = by_mount
+    return result
+
+
+def native_rows(snapshot, disk_mapping, runtime, tool):
     require(snapshot['inventory'] == ref(runtime/'fleet.json') and snapshot['pool'] == POOL and
             {snapshot['inventory']['path'], tool['path']} <= {p['path'] for p in snapshot['source_pins']} and
             tool in snapshot['source_pins'] and set(snapshot['nodes']) == set(ROLES),
@@ -403,8 +435,7 @@ def native_rows(snapshot, inventory, runtime, tool):
     for role in ROLES:
         n = snapshot['nodes'][role]
         disks = n['disks']
-        expected = dict(zip(role_mounts(role), (x.removeprefix('d-') for x in inventory['roles'][role]['data_disk_ids']),
-                            strict=True))
+        expected = disk_mapping[role]
         actual = {}
         for d in disks:
             roots = [p for p in expected if Path(d['path']).is_relative_to(p)]
@@ -479,7 +510,7 @@ def budget_floor(basis):
     return total
 
 
-def capacity_basis(s, batch, q, plan, inventory, runtime, mode):
+def capacity_basis(s, batch, q, plan, disk_mapping, runtime, mode):
     require(bool(s.get('capacity_qualification')), 'Missing independent full C1 mixed-fio capacity qualification')
     cap = load(pinned(s['capacity_qualification']))
     require(cap['schema'] == 'c1-mixed-fio-capacity-qualification-v2' and
@@ -495,7 +526,7 @@ def capacity_basis(s, batch, q, plan, inventory, runtime, mode):
     cell, = [c for c in load(pinned(plan))['cells'] if c['id'] == CELL]
     lower = history_lower_bound(cap, q, cell)
     snapshot = load(pinned(cap['current_snapshot']))
-    baseline, ident, aof = native_rows(snapshot, inventory, runtime, s['snapshot_tool'])
+    baseline, ident, aof = native_rows(snapshot, disk_mapping, runtime, s['snapshot_tool'])
     stamp = recent(snapshot['at'], now())
     for role in ROLES:
         require(snapshot['nodes'][role]['boot_id'] == load(runtime/'probes'/alias(POOL, role)/'probe.json')['boot_id'] and
@@ -544,9 +575,9 @@ def coordinator_rows(out, trial, step):
             ('coordinator', None, 'inodes'): (local.f_files, local.f_favail)}
 
 
-def capacity_gate(s, snap, inventory, runtime, identity, budgets, done, out, trial, step):
+def capacity_gate(s, snap, disk_mapping, runtime, identity, budgets, done, out, trial, step):
     clock = now()
-    rows, ident, aof = native_rows(snap, inventory, runtime, s['snapshot_tool'])
+    rows, ident, aof = native_rows(snap, disk_mapping, runtime, s['snapshot_tool'])
     stamp = recent(snap['at'], clock)
     require(ident == identity and done <= stamp and all(
         done <= recent(n['sampled_at'], clock) <= stamp for n in snap['nodes'].values()),
@@ -732,6 +763,7 @@ def run(request, validate_only=False):
             'Original owned physical inventory required')
     inventory = pool_inventory(fleet, POOL)
     require(set(resource_ids(inventory)) == set(cell_resources(plan, cell)), 'Physical resources changed')
+    disk_mapping = deployment_disk_mapping(s, inventory)
     cross = cross_pool_proof(pinned(batch['cross_pool_qualification']), plan, runtime/'fleet.json')
     base_recheck(s, q, cell, runtime)
     latest = load(pinned(batch['latest_check']))
@@ -740,7 +772,7 @@ def run(request, validate_only=False):
     number = s['step']
     current = prefix_chain(s, batch, out, q, cell)
     mode = batch['trials'][number-1]['mode'] if number < 7 else 'formal'
-    identity, budgets, qualification_at = capacity_basis(s, batch, q, plan_pin, inventory, runtime, mode)
+    identity, budgets, qualification_at = capacity_basis(s, batch, q, plan_pin, disk_mapping, runtime, mode)
     current_services(s, cross, runtime)
     done = cleanup(s, now())
     require(qualification_at <= done, 'Independent capacity qualification must close before cleanup')
@@ -785,9 +817,10 @@ def run(request, validate_only=False):
             mounts = observed[role]['devices']
             require(all(any(Path(d['path']).is_relative_to(p) and d['device'] == dev for p,dev in mounts.items())
                         for d in snap['nodes'][role]['disks']), 'Native capacity is not on the proved data mount')
-        cap = capacity_gate(s, snap, inventory, runtime, identity, budgets, done, preflight, trial, step)
+        cap = capacity_gate(s, snap, disk_mapping, runtime, identity, budgets, done, preflight, trial, step)
         write_new(preflight/'result.json', dict(passed=True, request=request, cleanup=s['cleanup'],
-                  qualification=s['capacity_qualification'], snapshot=ref(snapshot), **cap))
+                  qualification=s['capacity_qualification'], disk_mapping=s['disk_mapping'],
+                  snapshot=ref(snapshot), **cap))
         idle(paths, cell, plan)
         if not owner.exists():
             write_new(owner, dict(original_request=s['original_request'], step1=request))

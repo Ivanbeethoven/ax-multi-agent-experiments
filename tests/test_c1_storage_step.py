@@ -137,11 +137,11 @@ class StepTest(unittest.TestCase):
             c1.cleanup(dict(original_request=source,step=1,prefix=[],cleanup=receipt),c1.now())
 
     def native_snapshot(self):
-        inventory, nodes = {}, {}
+        mapping, nodes = {}, {}
         for role in c1.ROLES:
             points = c1.role_mounts(role)
             serials = [f'{role}{i}' for i in range(len(points))]
-            inventory[role] = dict(data_disk_ids=['d-'+serial for serial in serials])
+            mapping[role] = dict(zip(points,serials))
             nodes[role] = dict(boot_id='6382995a-7168-411b-b972-582ef75828a9', disks=[
                 dict(path=path, serial=serial, device=i+1, device_bytes=1024, total_bytes=1000,
                      available_bytes=800, total_inodes=100, available_inodes=90)
@@ -151,10 +151,10 @@ class StepTest(unittest.TestCase):
         fleet = self.write('runtime/fleet.json', {})
         tool = self.write('capacity-check.py', {})
         snapshot = dict(inventory=fleet,pool='pool-b',source_pins=[fleet,tool],nodes=nodes)
-        return snapshot, dict(roles=inventory), self.root/'runtime', tool
+        return snapshot, mapping, self.root/'runtime', tool
 
     def capacity_fixture(self):
-        snapshot, inventory, runtime, tool = self.native_snapshot()
+        snapshot, mapping, runtime, tool = self.native_snapshot()
         snapshot['at'] = c1.now().isoformat()
         for role in c1.ROLES:
             snapshot['nodes'][role]['sampled_at'] = snapshot['at']
@@ -167,7 +167,7 @@ class StepTest(unittest.TestCase):
         asset = self.write('qualification/assets/juicefs/asset.json', {})
         original = self.write('original-native.json', dict(allocated=1, aof=12))
         batch = dict(runtime_control=original,node_tool=original,observer_tool=original,tools={})
-        rows = c1.native_rows(snapshot, inventory, runtime, tool)[0]
+        rows = c1.native_rows(snapshot, mapping, runtime, tool)[0]
         rows.update({('coordinator',None,'bytes'): (1000,900), ('coordinator',None,'inodes'): (100,90)})
         budgets = []
         for (role,path,quantity) in rows:
@@ -181,20 +181,20 @@ class StepTest(unittest.TestCase):
             reserve_percent=20,history_is_lower_bound=True,rows=budgets,
             current_snapshot=self.write('snapshot.json',snapshot))
         lower = {(path,unit): 10 for path in c1.role_mounts('objects') for unit in ('bytes','inodes')}
-        return cap, dict(snapshot_tool=tool), batch, q, plan, inventory, runtime, lower
+        return cap, dict(snapshot_tool=tool), batch, q, plan, mapping, runtime, lower
 
     def test_one_completed_history_and_current_snapshot_can_cover_all_modes(self):
-        cap, request, batch, q, plan, inventory, runtime, lower = self.capacity_fixture()
+        cap, request, batch, q, plan, mapping, runtime, lower = self.capacity_fixture()
         request['capacity_qualification'] = self.write('capacity.json', cap)
         with patch.object(c1, 'history_lower_bound', return_value=lower), \
                 patch.object(c1.subprocess, 'run', side_effect=AssertionError('no workload or worker contact')):
             for mode in ('off','on','formal'):
-                identity, budgets, stamp = c1.capacity_basis(request,batch,q,plan,inventory,runtime,mode)
+                identity, budgets, stamp = c1.capacity_basis(request,batch,q,plan,mapping,runtime,mode)
                 self.assertEqual(len(budgets),15)
                 self.assertEqual(identity[0][1], '6382995a-7168-411b-b972-582ef75828a9')
 
     def test_historical_lower_bound_does_not_replace_missing_margins_or_sources(self):
-        cap, request, batch, q, plan, inventory, runtime, lower = self.capacity_fixture()
+        cap, request, batch, q, plan, mapping, runtime, lower = self.capacity_fixture()
         for index, alteration in enumerate(('under_lower','missing_margin','missing_source')):
             changed = copy.deepcopy(cap)
             row = next(r for r in changed['rows'] if r['role']=='objects' and r['quantity']=='bytes')
@@ -208,17 +208,17 @@ class StepTest(unittest.TestCase):
                 row['basis']['preparation_margin']['sources'] = []
             request['capacity_qualification'] = self.write('capacity-'+str(index)+'.json',changed)
             with patch.object(c1,'history_lower_bound',return_value=lower), self.assertRaises(ValueError):
-                c1.capacity_basis(request,batch,q,plan,inventory,runtime,'off')
+                c1.capacity_basis(request,batch,q,plan,mapping,runtime,'off')
 
     def test_old_boot_current_snapshot_cannot_qualify(self):
-        cap, request, batch, q, plan, inventory, runtime, lower = self.capacity_fixture()
+        cap, request, batch, q, plan, mapping, runtime, lower = self.capacity_fixture()
         snap = c1.load(c1.pinned(cap['current_snapshot']))
         snap['nodes']['objects']['boot_id'] = '11111111-1111-1111-1111-111111111111'
         cap['current_snapshot'] = self.write('wrong-boot.json',snap)
         request['capacity_qualification'] = self.write('capacity.json',cap)
         with patch.object(c1,'history_lower_bound',return_value=lower), \
                 self.assertRaisesRegex(ValueError,'freshly qualified runtime boot'):
-            c1.capacity_basis(request,batch,q,plan,inventory,runtime,'on')
+            c1.capacity_basis(request,batch,q,plan,mapping,runtime,'on')
 
     def test_retained_real_on1_samples_are_only_per_disk_lower_bounds(self):
         history = SCRIPT.parent.parent/'evidence/preparation/b-object-readonly-inspection-01/coordinator/readonly-disks.stdout.json'
@@ -425,18 +425,74 @@ class StepTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'bind original native evidence'):
             c1.archived_trial(archives,trial,changed,pins)
 
+    def disk_evidence(self):
+        prep = SCRIPT.parent.parent/'evidence/preparation'
+        pin = c1.ref(prep/'pool-b-services-actual-01/result.json')
+        inventory = c1.pool_inventory(c1.load(prep/'parallel-control-01/inventory.json'),c1.POOL)
+        cold = c1.load(prep/'b-c1-post-gc-capacity-01/statvfs.json')
+        return pin, inventory, cold
+
+    def test_original_native_mount_map_differs_from_frozen_api_inventory_order(self):
+        pin, inventory, cold = self.disk_evidence()
+        objects = inventory['roles']['objects']
+        self.assertEqual(objects['data_disk_ids'], [disk['disk_id'] for disk in reversed(cold['disks'])])
+        mapping = c1.deployment_disk_mapping(dict(disk_mapping=pin),inventory)
+        expected = {f"/srv/ax-objects-{d['index']}": d['serial'] for d in cold['disks']}
+        self.assertEqual(mapping['objects'], expected)
+        snapshot, _, runtime, tool = self.native_snapshot()
+        for role, node in snapshot['nodes'].items():
+            for disk in node['disks']:
+                disk['serial'] = mapping[role][disk['path']]
+        self.assertEqual(len(c1.native_rows(snapshot,mapping,runtime,tool)[0]), 13)
+
+    def test_missing_substituted_or_changed_deployment_proof_is_refused(self):
+        pin, inventory, _ = self.disk_evidence()
+        for request in ({}, dict(disk_mapping=self.write('unproven.json',{}))):
+            with self.subTest(request=request), self.assertRaisesRegex(ValueError, 'original B disk mapping'):
+                c1.deployment_disk_mapping(request,inventory)
+        changed = c1.load(pin['path'])
+        changed['roles']['objects']['disks'][0]['mount'] = '/srv/not-original'
+        altered = self.write('altered.json',changed)
+        with self.assertRaisesRegex(ValueError, 'changed or non-absolute pinned file'):
+            c1.deployment_disk_mapping(dict(disk_mapping=dict(altered,sha256=pin['sha256'])),inventory)
+
+    def test_disk_mapping_rejects_ambiguous_roles_disks_mounts_and_serials(self):
+        pin, inventory, _ = self.disk_evidence()
+        changed_inventory = copy.deepcopy(inventory)
+        changed_inventory['roles']['objects']['data_disk_ids'][0] = 'd-substituted'
+        with self.assertRaisesRegex(ValueError,'outside the frozen set'):
+            c1.deployment_disk_mapping(dict(disk_mapping=pin),changed_inventory)
+        for name in ('duplicate mount','duplicate disk','wrong serial','missing disk','other host'):
+            with self.subTest(name=name):
+                proof = c1.load(pin['path'])
+                role = proof['roles']['objects']
+                first, second = role['disks'][:2]
+                if name == 'duplicate mount':
+                    first['mount'] = second['mount']
+                elif name == 'duplicate disk':
+                    first.update(id=second['id'],serial=second['serial'])
+                elif name == 'wrong serial':
+                    first['serial'] = second['serial']
+                elif name == 'missing disk':
+                    role['disks'].pop()
+                else:
+                    role['instance_id'] = 'i-substituted'
+                candidate = self.write(name.replace(' ','-')+'.json',proof)
+                with patch.object(c1,'DEPLOYMENT_SHA256',candidate['sha256']), self.assertRaises(ValueError):
+                    c1.deployment_disk_mapping(dict(disk_mapping=candidate),inventory)
+
     def test_root_device_aliases_or_swapped_serials_cannot_pass(self):
-        snap, inventory, runtime, tool = self.native_snapshot()
-        self.assertEqual(len(c1.native_rows(snap, inventory, runtime, tool)[0]), 13)
+        snap, mapping, runtime, tool = self.native_snapshot()
+        self.assertEqual(len(c1.native_rows(snap, mapping, runtime, tool)[0]), 13)
         disks = snap['nodes']['objects']['disks']
         first, second = disks[0]['serial'], disks[1]['serial']
         disks[0]['serial'], disks[1]['serial'] = second, first
         with self.assertRaisesRegex(ValueError, 'owned storage devices'):
-            c1.native_rows(snap,inventory,runtime,tool)
+            c1.native_rows(snap,mapping,runtime,tool)
         disks[0]['serial'], disks[1]['serial'] = first, second
         disks[0]['device'] = disks[1]['device']
         with self.assertRaisesRegex(ValueError, 'owned storage devices'):
-            c1.native_rows(snap,inventory,runtime,tool)
+            c1.native_rows(snap,mapping,runtime,tool)
 
 
 if __name__ == '__main__':
