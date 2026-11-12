@@ -56,7 +56,7 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 
 小试用于排除实现和部署问题，独立保存，不回填旧套件的正式验收。
 
-用户已将本轮缩为 1 Agent、一万文件；耗时过大的项保存证据后跳过。[本轮收尾范围](../pilot-aliyun/evidence/progress/closing-small-pilot-20261112/README.zh.md)列明已完成与未完成。百万文件/最高32并发属于后续正式条件。旧 `bench.suite template` 只有显式 `--legacy-catalog` 才生成旧协议；它不生成本方案。
+本轮为 1 Agent、一万文件；C3、C4 派生的[独立输入及本机全量核验](TENK-INPUTS.zh.md)已就绪，尚未运行一万文件挂载资格。耗时过大的项保存证据后跳过。[本轮收尾范围](../pilot-aliyun/evidence/progress/closing-small-pilot-20261112/README.zh.md)列明已完成与未完成。百万文件/最高32并发属于后续正式条件。旧 `bench.suite template` 只有显式 `--legacy-catalog` 才生成旧协议；它不生成本方案。
 
 [云资源清理已完成](../pilot-aliyun/evidence/preparation/b-pool-retirement-01/README.zh.md)：原 B 池三台、九盘（520 GiB）已释放；保留 A 池及跳板四台，均已停机。原始 trace、实验证据和部署信息已保留。后续使用第二个池须重新部署，不能再派发旧 B 实例 ID。
 

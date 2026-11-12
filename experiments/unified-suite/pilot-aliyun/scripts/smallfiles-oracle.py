@@ -37,7 +37,7 @@ def main():
     p.add_argument('--source-proof',type=Path,required=True)
     p.add_argument('--state',type=Path)
     p.add_argument('--out',type=Path,required=True)
-    p.add_argument('--files',type=int,choices=[100000,1000000],default=1000000)
+    p.add_argument('--files',type=int,choices=[10000,100000,1000000],default=1000000)
     a=p.parse_args();source=load(a.source_proof)
     if source.get('passed') is not True or source.get('files')!=a.files or source.get('bytes_checked')!=a.files*4096:
         raise ValueError('Full C3 source qualification required')

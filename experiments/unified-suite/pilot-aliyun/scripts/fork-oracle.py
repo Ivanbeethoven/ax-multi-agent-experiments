@@ -2,7 +2,7 @@
 """Derive C4 child expectations from the closed input, before touching a filesystem.
 
 Same challenge as bench/fs_step.py mutate; no mount, copy, network or model call.
-The CLI requires the complete explicitly selected 100k or million-file fixture.
+The CLI requires the complete explicitly selected 10k, 100k or million-file fixture.
 """
 import argparse
 from datetime import datetime, timezone
@@ -57,7 +57,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     for name in ('base-tree','base-tree-sha256','fixture-proof','fixture-proof-sha256','tag','out'):
         p.add_argument('--'+name, required=True)
-    p.add_argument('--files',type=int,choices=[100000,1000000],default=1000000)
+    p.add_argument('--files',type=int,choices=[10000,100000,1000000],default=1000000)
     a = p.parse_args()
     tree_ref = dict(path=a.base_tree, sha256=a.base_tree_sha256)
     proof_ref = dict(path=a.fixture_proof, sha256=a.fixture_proof_sha256)

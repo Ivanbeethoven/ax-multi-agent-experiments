@@ -34,6 +34,12 @@ class CurrentDesignTests(unittest.TestCase):
         self.assertFalse(self.config['execution_enabled'])
         self.assertFalse(any(self.config['readiness'].values()))
 
+    def test_current_pilot_accepts_tenk_but_not_legacy_100k_inputs(self):
+        self.assertIs(validate(self.config), self.config)
+        for workload in ('C3', 'C4-fork'):
+            with self.subTest(workload=workload):
+                self.rejected(lambda c: c['pilot'][workload].update(files=100_000))
+
     def test_design_never_becomes_execution_authorization(self):
         self.rejected(lambda c: c.update(execution_enabled=True))
         self.rejected(lambda c: c.update(status='qualified'))
