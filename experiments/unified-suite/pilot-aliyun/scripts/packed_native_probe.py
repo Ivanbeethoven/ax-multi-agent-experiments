@@ -45,8 +45,10 @@ def evaluate(snapshots, expected_bytes, mode, mount_s3, end_to_end_s3, unmount_s
         reasons.append('native runtime counters differ from proxy E2E minus mount')
     if any(value < 0 for value in proxy.values()):
         reasons.append('proxy counters reset')
-    if end_to_end_s3['errors'] - mount_s3['errors'] != 0:
+    if end_to_end_s3['errors'] != 0:
         reasons.append('proxy observed a backend error or retry; native calls are not wire attempts')
+    if rows[0]['failures'] != 0:
+        reasons.append('native runtime already recorded a failure during mount/stats initialization')
     if any(unmount_s3[key] != 0 for key in ('gets', 'ranges', 'heads', 'bytes', 'errors')):
         reasons.append('unmount performed backend work after the final native snapshot')
 
@@ -82,6 +84,14 @@ class NativeProbe:
     def sample(self, label):
         if not self.required:
             return
+        if label == 'before':
+            # The first real FUSE .stats open can resolve root permission
+            # metadata. Preserve that traffic and cost, then establish a
+            # second, strictly quiet baseline without a fixed sleep.
+            self._sample_once('bootstrap')
+        self._sample_once(label)
+
+    def _sample_once(self, label):
         started = time.monotonic_ns()
         # The cold-end snapshot is diagnostic; the gate uses cold-drained.
         # Gate boundaries wait for proxy handlers to finish, without adding a
@@ -115,5 +125,14 @@ class NativeProbe:
             return dict(required=False, scope='Correctness visit; no cold-to-hot native gate applied')
         result = evaluate(self.snapshots, self.expected_bytes, self.side.split('-')[0],
                           mount_s3, end_to_end_s3, unmount_s3)
+        bootstrap = self.snapshots['bootstrap']
+        before = self.snapshots['before']
+        initialization = dict(
+            sampling_ns=bootstrap['sampling_ns'] + before['sampling_ns'],
+            proxy=runtime_proxy(difference(bootstrap['proxy_before'], before['proxy_after'])),
+            native_cumulative_at_bootstrap=bootstrap['fields'],
+            native_between_bootstrap_and_before=difference(bootstrap['fields'], before['fields']),
+            note='Initialization is included in mount S3/preparation and E2E; native bootstrap values are cumulative, not inferred from a missing earlier sample')
         return dict(result, snapshots=self.snapshots, sampling_ns=self.sampling_ns,
-                    timing_note='Phase timers exclude samples; raw end-to-end includes their measured overhead')
+                    sampling_initialization=initialization,
+                    timing_note='First traversal/read follows recorded stats initialization; phase timers exclude samples, and raw E2E includes all sampling overhead')

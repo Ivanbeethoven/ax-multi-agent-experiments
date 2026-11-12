@@ -5,6 +5,7 @@ from pathlib import Path
 import tempfile
 import time
 import unittest
+from unittest import mock
 
 from bench.warm_lower import KEYS
 
@@ -66,7 +67,8 @@ class PackedNativeProbeTest(unittest.TestCase):
             self.assertFalse(PROBE.evaluate(rows, 16, 'off', mount, end, unmount)['passed'])
 
     def test_counter_mismatch_retry_and_post_snapshot_work_are_rejected(self):
-        for fault in ('mismatch', 'retry', 'unmount', 'busy-boundary'):
+        for fault in ('mismatch', 'retry', 'unmount', 'busy-boundary',
+                      'bootstrap-proxy-error', 'bootstrap-native-failure'):
             with self.subTest(fault=fault):
                 rows, mount, end, unmount = fixture('on')
                 if fault == 'mismatch':
@@ -75,6 +77,13 @@ class PackedNativeProbeTest(unittest.TestCase):
                     end['errors'] = 1
                 elif fault == 'unmount':
                     unmount['heads'] = 1
+                elif fault == 'bootstrap-proxy-error':
+                    mount['errors'] = end['errors'] = 1
+                    for row in rows.values():
+                        row['proxy_before']['errors'] = row['proxy_after']['errors'] = 1
+                elif fault == 'bootstrap-native-failure':
+                    for row in rows.values():
+                        row['fields']['failures'] = 1
                 else:
                     rows['warm-end']['proxy_before']['active'] = 1
                 self.assertFalse(PROBE.evaluate(rows, 16, 'on', mount, end, unmount)['passed'])
@@ -93,7 +102,36 @@ class PackedNativeProbeTest(unittest.TestCase):
                                        time.monotonic() + 5)
             with self.assertRaisesRegex(ValueError, 'Missing'):
                 sample.sample('before')
-            self.assertEqual((work / 'native-on-0-before.stats').read_bytes(), raw)
+            self.assertEqual((work / 'native-on-0-bootstrap.stats').read_bytes(), raw)
+
+    def test_bootstrap_records_first_stats_io_then_takes_a_quiet_baseline(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            point = Path(tmp) / 'mount'
+            work = Path(tmp) / 'raw'
+            point.mkdir(); work.mkdir()
+            fields = native(ranges=2, body=9460)
+            raw = ''.join(f'{metric} {fields[key]}\n' for key, metric in KEYS.items()).encode()
+            (point / '.stats').write_bytes(raw)
+            observed = proxy(ranges=1, body=5495)
+            original_open = os.open
+
+            def first_stats_open(path, flags):
+                observed.update(proxy(ranges=3, body=14955))
+                return original_open(path, flags)
+
+            sample = PROBE.NativeProbe(point, work, 'off-0', lambda: observed.copy(), 16,
+                                       time.monotonic() + 5)
+            with mock.patch.object(PROBE.os, 'O_NOFOLLOW', 0, create=True), \
+                    mock.patch.object(PROBE.os, 'open', side_effect=first_stats_open):
+                sample.sample('before')
+            self.assertEqual(set(sample.snapshots), {'bootstrap', 'before'})
+            initial, stable = (sample.snapshots[key] for key in ('bootstrap', 'before'))
+            self.assertEqual(initial['proxy_after']['bytes'] - initial['proxy_before']['bytes'], 9460)
+            self.assertEqual(stable['proxy_before'], stable['proxy_after'])
+            self.assertEqual(stable['fields'], fields)
+            self.assertEqual(sample.sampling_ns, initial['sampling_ns'] + stable['sampling_ns'])
+            for label in ('bootstrap', 'before'):
+                self.assertEqual((work / f'native-off-0-{label}.stats').read_bytes(), raw)
 
     def test_private_and_retained_visits_do_not_claim_cold_to_hot_qualification(self):
         for side in ('on-private', 'on-private-cold', 'on-0-remount', 'on-parent-isolation'):

@@ -66,11 +66,19 @@ text = text[:start] + '''
 
     arm = result['readbacks'][side] = dict(passed=False, phases={})
     arm['mount_ns'] = time.monotonic_ns()-begin_mount
-    arm['mount_s3'] = delta(before_mount,counters())
+    arm['mount_ready_ns'] = arm['mount_ns']
+    ready_counters = counters()
+    arm['mount_ready_s3'] = delta(before_mount,ready_counters)
+    arm['mount_s3'] = arm['mount_ready_s3']
     native = NativeProbe(point,work,side,counters,sum(row['bytes'] for row in expected.values()),deadline)
     native.sample('before')
+    arm['mount_preparation_ns'] = time.monotonic_ns()-begin_mount
+    arm['stats_initialization_ns'] = arm['mount_preparation_ns']-arm['mount_ready_ns']
     if native.required:
         arm['mount_s3'] = delta(before_mount,native.snapshots['before']['proxy_after'])
+        arm['stats_initialization_s3'] = delta(ready_counters,native.snapshots['before']['proxy_after'])
+    else:
+        arm['stats_initialization_s3'] = delta(ready_counters,ready_counters)
     for stage in ('cold', 'warm'):
         if stage == 'warm':
             drain_start = time.monotonic_ns()
@@ -204,7 +212,9 @@ replace("    for container in (rustfs,redis):", """    private_redis = globals()
     for container in (rustfs,):""")
 replace("    source_commit='ca07159f3da4b670e4aeb878faef928e69bc1634',",
         """    base_commit='ca07159f3da4b670e4aeb878faef928e69bc1634',
-    native_protocol=dict(schema='native-runtime-proxy-reconciliation-v1',
+    native_protocol=dict(schema='native-runtime-proxy-reconciliation-bootstrap',
+        first_pass_description='First traversal/read after recorded stats initialization; some permission metadata is already warm',
+        timing_accounting='mount_ready plus stats_initialization equals mount_preparation; sampling_ns includes this initialization and must not be added to preparation twice; E2E is directly timed',
         assessor_commit='9e25471f658e076d36c4cbe9daa62f00ae0794cf',
         assessor_sha256=hashlib.sha256(Path(native_metrics.__file__).read_bytes()).hexdigest(),
         helper_sha256=hashlib.sha256(Path(sys.modules[NativeProbe.__module__].__file__).read_bytes()).hexdigest()),""")
