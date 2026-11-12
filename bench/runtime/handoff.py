@@ -3,18 +3,137 @@
 All native argv are reviewed beforehand. An interrupted phase is unknown, never
 automatically retried. No DELETE, data-tree copy, process-memory migration or
 claim that a Manager journal lease is a client writer lease.
+
+The separate v2 shared-workspace spec may be used for a fresh single-pool
+route: after target-start, a supervised full tree read must pass before the
+first target native export. V1 does not run this extra phase.
 """
 import argparse
 import base64
 import copy
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import re
 import time
 
 from .common import digest, load, pinned, private_dir, spec, write_new
 from . import cohort, transport
 from ..session_check import checkpoint, check_after
+
+V1 = 'experiment-handoff-v1'
+V2 = 'experiment-handoff-v2'
+COLD = 'target-cold-check'
+PHASES = ('quiesce','lease_check','restore','resume','export_after')
+COLD_SCRIPTS = 'experiments/unified-suite/pilot-aliyun/scripts'
+
+
+def cold_step(step, peer, mount_spec, result_path):
+    """Bind the reviewed step to the actual reader and request, not an arbitrary emitter."""
+    argv = step.get('argv')
+    if not isinstance(argv,list) or len(argv)!=9 or not all(isinstance(a,str) for a in argv):
+        return False
+    scripts = PurePosixPath(peer['repo'])/COLD_SCRIPTS
+    python, allowed = PurePosixPath(argv[0]), PurePosixPath(peer['python'])
+    leaf = scripts/'check-c4-target-cold-tree.py'
+    request = dict(path=argv[4],sha256=argv[6])
+    if (python.parent!=allowed.parent or not re.fullmatch(re.escape(allowed.name)+r'(?:\.\d+)?',python.name) or
+            argv[1:4]!=[str(leaf),'check','--request'] or argv[5]!='--sha256' or
+            argv[7:]!=['--out',str(result_path)] or not PurePosixPath(argv[4]).is_absolute() or
+            not re.fullmatch('[0-9a-f]{64}',argv[6]) or
+            not re.fullmatch('[0-9a-f]{64}',step.get('executable_sha256',''))):
+        return False
+    # The coordinator pins remote bytes from its reviewed copy of each script;
+    # the existing worker verifies these input pins again on the target.
+    local = Path(__file__).resolve().parents[2]/COLD_SCRIPTS
+    pins = [dict(path=str(scripts/name),sha256=digest(local/name))
+            for name in ('check-c4-target-cold-tree.py','prepare-session-input.py')]
+    return all(p in step.get('inputs',[]) for p in (mount_spec,request,*pins))
+
+
+def cold_inputs(s):
+    """V2 alone runs a reviewed, supervised target-only cold tree read."""
+    target = s['target']
+    c = s.get('target_cold_check')
+    if (s.get('restore_method') != 'shared-workspace-db' or not isinstance(c,dict) or
+            set(c) != {'cohort','worker_readback','step_readback','expected_tree_sha256'} or
+            not isinstance(c['expected_tree_sha256'],str) or
+            not re.fullmatch('[0-9a-f]{64}',c['expected_tree_sha256'])):
+        raise ValueError('V2 requires a pinned shared-workspace target cold check and source tree SHA')
+    cs = spec(c['cohort'],'experiment-cohort-v1')
+    if (cs.get('purpose') != 'experiment' or
+            cs.get('provider') != 'ssh' or cs.get('agents') != 1 or len(cs['workers']) != 1):
+        raise ValueError('Cold check requires one supervised SSH target worker')
+    cohort.validate(cs)
+    row = cs['workers'][0]
+    inv = load(pinned(cs['inventory']))
+    nodes = {n['id']:n for n in inv['nodes']}
+    if (inv.get('schema') != 'experiment-inventory-v3' or row['node_id'] != target['node_id'] or
+            row['peer'] != target['peer'] or
+            nodes[target['node_id']]['cluster_id'] != nodes[s['source']['node_id']]['cluster_id'] or
+            any(load(pinned(s[n])).get('inventory') != cs['inventory'] for n in PHASES)):
+        raise ValueError('Cold check and handoff phases must bind the same single-pool target slot and inventory')
+    w = spec(c['worker_readback'],'experiment-worker-v1')
+    mount = dict(spec=target['mount_spec'],directory=target['mount_directory'])
+    if (c['worker_readback']['sha256'] != row['spec']['sha256'] or w.get('mount') != mount or
+            w.get('requires_mount') is not True or w.get('worker_id') != row['id'] or
+            w.get('purpose') != cs['purpose'] or w.get('kind') != 'control' or len(w['jobs']) != 1):
+        raise ValueError('Cold worker must be the exact mounted target worker with one job')
+    job = w['jobs'][0]
+    step = spec(c['step_readback'],'experiment-step-v1')
+    result_path = Path(job['result']['path'])
+    expected = dict(schema='c4-target-cold-tree-v1',passed=True,full_tree_read=True,read_only=True,
+        native_app_opened=False,workspace_copy_bytes=0,workspace=target['session_state']['workspace'],
+        anchor=target['anchor'],mount_spec=target['mount_spec'],mount_directory=target['mount_directory'],
+        observed_tree_sha256=c['expected_tree_sha256'])
+    if (job['step']['sha256'] != c['step_readback']['sha256'] or job['id'] != COLD or
+            step.get('stage') != COLD or step.get('inherit_environment') != [] or job.get('observe_opencode_tools') or
+            any(job['result']['equals'].get(k) != v for k,v in expected.items()) or
+            not result_path.is_absolute() or '..' in result_path.parts or
+            result_path.is_relative_to(Path(expected['workspace']).parent) or
+            not cold_step(step,target['peer'],target['mount_spec'],result_path)):
+        raise ValueError('Cold job must pin the reviewed read-only tree check and exact result predicates')
+    return cs, row, job, expected
+
+
+def target_identity(value):
+    mount = value['mount']
+    process = {k:value['process'][k] for k in ('pid','boot_id','start_ticks')}
+    if (value.get('passed') is not True or
+            type(mount['mount_id']) is not int or mount['mount_id']<=0 or not mount['filesystem'].startswith('fuse') or
+            not isinstance(process['boot_id'],str) or not process['boot_id'] or
+            any(type(process[k]) is not int or process[k]<=0 for k in ('pid','start_ticks'))):
+        raise ValueError('Live target FUSE mount and process identity required')
+    return dict(mount=mount,process=process,anchor=value['anchor'])
+
+
+def cold_proof(c, config, completed, directory, mounted):
+    cs,row,job,expected = config
+    result_path, release_path = (directory/name for name in ('result.json','release-intent.json'))
+    if (load(result_path) != completed or
+            load(release_path) != dict(spec_sha256=c['cohort']['sha256'],workers=[row['id']]) or
+            any(completed.get(k) is not True for k in ('passed','workload_passed','telemetry_live_check_passed')) or
+            any(type(completed.get(k)) is not int or completed[k]!=1 for k in
+                ('agents','ready_workers','completed_workers','completed_jobs')) or
+            completed.get('purpose') != cs['purpose'] or len(completed.get('jobs',[])) != 1):
+        raise ValueError('One actual successful target cold cohort and release receipt required')
+    actual = completed['jobs'][0]
+    if (actual.get('passed') is not True or actual.get('worker') != row['id'] or actual.get('job') != COLD or
+            actual.get('step_sha256') != job['step']['sha256'] or actual.get('result_path') != job['result']['path'] or
+            not re.fullmatch('[0-9a-f]{64}',actual.get('result_sha256','')) or
+            type(actual.get('exit_code')) is not int or actual['exit_code']!=0 or actual.get('remaining_process_group') != []):
+        raise ValueError('Cold proof must come from the exact successful target job')
+    proof = actual['result']
+    if (any(k not in proof or type(proof[k]) is not type(v) or proof[k]!=v for k,v in expected.items()) or
+            any(type(proof.get(k)) is not int or proof[k]<=0 for k in ('files_hashed','bytes_hashed')) or
+            target_identity(proof) != target_identity(mounted)):
+        raise ValueError('Cold tree proof does not match the new target mount, process or pinned source tree')
+    return dict(schema='c4-target-cold-check-v1',passed=True,cohort=c['cohort'],
+        cohort_result=dict(path=str(result_path),sha256=digest(result_path)),
+        release=dict(path=str(release_path),sha256=digest(release_path)),job_result_sha256=actual['result_sha256'],
+        proof={**{k:proof[k] for k in expected},**target_identity(proof),
+               **{k:proof[k] for k in ('files_hashed','bytes_hashed')}},
+        before_first_target_export=True)
 
 
 def validate(s):
@@ -40,13 +159,17 @@ def validate(s):
         paths=[state['config']]+[state['xdg'][name] for name in ('data','state','cache','config')]
         if any(not Path(p).is_absolute() or not Path(p).is_relative_to(workspace) or Path(p)==workspace for p in paths):
             raise ValueError('All native configuration and XDG state must be inside the shared workspace')
-    for name in ('quiesce','lease_check','restore','resume','export_after'):
+    for name in PHASES:
         value = load(pinned(s[name]))
         if value.get('schema') != 'experiment-cohort-v1' or value.get('agents') != 1:
             raise ValueError('one migrating Agent per handoff; neighbors use a separate persistent cohort')
         peer = value['workers'][0]['peer']
         side = source if name in ('quiesce','lease_check') else target
         if peer != side['peer']: raise ValueError('phase routed to wrong peer')
+    if s.get('schema') == V2:
+        return cold_inputs(s)
+    if 'target_cold_check' in s:
+        raise ValueError('Target cold check requires experiment-handoff-v2')
 
 
 def exported(result):
@@ -56,7 +179,11 @@ def exported(result):
 
 
 def run(ref, output):
-    s = spec(ref,'experiment-handoff-v1'); validate(s)
+    s = load(pinned(ref))
+    schema = s.get('schema')
+    if schema not in (V1,V2) or s.get('reviewed') is not True:
+        raise ValueError('reviewed ' + (V2 if schema == V2 else V1) + ' required')
+    cold = validate(s)
     output = private_dir(output); write_new(output/'spec.json',s)
     source, target = s['source'], s['target']; phase = 'quiesce'
     times = {}; begin = time.monotonic_ns(); tool_events = []
@@ -115,6 +242,21 @@ def run(ref, output):
             ['start','--spec',target['mount_spec']['path'],'--sha256',target['mount_spec']['sha256'],
              '--output',target['mount_directory']]))
         if mounted.get('anchor') != target['anchor']: raise ValueError('target anchor changed')
+        if schema == V2:
+            phase = COLD
+            cold_spec = s['target_cold_check']
+            identity = target_identity(mounted)
+            if Path(target['session_state']['workspace']) != Path(identity['mount']['point'])/'workspace':
+                raise ValueError('Target workspace is not inside the newly mounted shared volume')
+            checked = measured(phase,lambda:cohort.run(cold_spec['cohort'],output/phase))
+            proof = cold_proof(cold_spec,cold,checked,output/phase,mounted)
+            status = measured('target-cold-status',lambda:node(target,'status','target-cold-status'))
+            if target_identity(status) != identity:
+                raise ValueError('Target mount changed between the cold read and first native export')
+            status_path = output/'target-cold-status'/'protocol.jsonl'
+            proof['post_check_status'] = dict(path=str(status_path),sha256=digest(status_path))
+            cold_path = output/(COLD+'.json')
+            write_new(cold_path,proof)
         phase = 'restore'
         restored = exported(measured(phase,lambda:cohort.run(s[phase],output/phase)))
         check_after(check,restored,False)
@@ -143,6 +285,11 @@ def run(ref, output):
                   'phases':times,'session_validation':validation,
                   'scope':'clean native session handoff; coordinator ACK times include transport; task grading and neighbor effects separate',
                   'target_mount_retained':True,'automatic_retry':False}
+        if schema == V2:
+            result.update(schema='experiment-handoff-result-v2',
+                target_cold_check=dict(path=str(cold_path),sha256=digest(cold_path)),
+                target_cold_check_seconds=(times[COLD]['end_ns']-times[COLD]['start_ns'])/1e9,
+                state_ready_includes_target_cold_check=True)
         write_new(output/'result.json',result); return result
     except BaseException as error:
         write_new(output/'failed.json',{'phase':phase,'error_type':type(error).__name__,

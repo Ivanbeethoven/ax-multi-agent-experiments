@@ -131,6 +131,52 @@ class HandoffDrafts(unittest.TestCase):
             self.assertEqual(cohort['purpose'],'experiment')
             self.assertEqual(cohort['workers'][0]['peer'],handoff[drafts.PHASES[name][0]]['peer'])
 
+    def test_cold_binding_requires_checked_in_leaf_and_keeps_draft_unreviewed(self):
+        original = self.run_draft()
+        handoff = drafts.load(original['handoff']['path'])
+        target = handoff['target']
+        manifest = dict(path='/srv/ax/input/expected-tree.json',sha256='4'*64)
+        tree_sha = '5'*64
+        cold = self.mirror('target-cold-request',dict(schema='c4-target-cold-tree-request-v1',reviewed=True,
+            mount_spec=target['mount_spec'],mount_directory=target['mount_directory'],workspace=drafts.WORKSPACE,
+            expected_tree=manifest,expected_tree_sha256=tree_sha))
+        cold_pin = drafts.remote(cold)[0]
+        folder = target['peer']['repo']+'/experiments/unified-suite/pilot-aliyun/scripts/'
+        leaf = folder+'check-c4-target-cold-tree.py'
+        reader = folder+'prepare-session-input.py'
+        output = '/srv/ax/target/cold-proof.json'
+        step_value = dict(schema='experiment-step-v1',reviewed=True,cell_id=self.cell,
+            stage='target-cold-check',inherit_environment=[],executable_sha256='6'*64,
+            argv=[target['peer']['python'],leaf,'check','--request',cold_pin['path'],'--sha256',cold_pin['sha256'],'--out',output],
+            inputs=[cold_pin,manifest,target['mount_spec'],dict(path=leaf,sha256=drafts.digest(SCRIPTS/Path(leaf).name)),
+                    dict(path=reader,sha256=drafts.digest(SCRIPTS/Path(reader).name))])
+        step = self.mirror('target-cold-step',step_value)
+        expected = dict(schema='c4-target-cold-tree-v1',passed=True,full_tree_read=True,read_only=True,
+            native_app_opened=False,workspace_copy_bytes=0,workspace=drafts.WORKSPACE,anchor=target['anchor'],
+            mount_spec=target['mount_spec'],mount_directory=target['mount_directory'],observed_tree_sha256=tree_sha)
+        worker = self.mirror('target-cold-worker',dict(schema='experiment-worker-v1',reviewed=True,worker_id='a01',
+            kind='control',purpose='experiment',budget=drafts.AGENT_BUDGET,requires_mount=True,mount=self.mount['target'],
+            jobs=[dict(id='target-cold-check',workload_id='target-cold-check',step=drafts.remote(step)[0],
+                       result=dict(path=output,equals=expected))]))
+        cohort = drafts.load(original['cohorts']['restore']['path'])
+        cohort['reviewed'] = True
+        cohort['workers'][0].update(spec=drafts.remote(worker)[0],output='/srv/ax/j/target-cold')
+        request = dict(schema='c4-handoff-bind-target-cold-v1',handoff_draft=original['handoff'],
+            cohort=self.doc('target-cold-cohort',cohort),worker_readback=worker,step_readback=step,cold_request_readback=cold)
+        bind = self.doc('bind',request)
+        result = drafts.bind_target_cold(bind,self.root/'handoff-v2.json')
+        bound = drafts.load(result['handoff']['path'])
+        self.assertEqual(bound['schema'],drafts.handoff.V2)
+        self.assertFalse(bound['reviewed'])
+        self.assertFalse(result['execution_enabled'])
+        self.assertEqual(bound['target_cold_check']['expected_tree_sha256'],tree_sha)
+
+        step_value['argv'][1] = '/srv/ax/print-a-proof.py'
+        request['step_readback'] = self.mirror('bad-step',step_value)
+        with self.assertRaisesRegex(ValueError,'exact checked-in cold leaf'):
+            drafts.bind_target_cold(self.doc('bad-bind',request),self.root/'unsafe.json')
+        self.assertFalse((self.root/'unsafe.json').exists())
+
     def test_rejects_wrong_session_or_source_mount_for_target_phase(self):
         self.native_overrides['resume'] = dict(session_id='ses_wrong')
         with self.assertRaisesRegex(ValueError,'Canonical shared session'):

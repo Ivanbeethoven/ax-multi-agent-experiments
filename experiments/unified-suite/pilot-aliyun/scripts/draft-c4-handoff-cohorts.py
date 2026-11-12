@@ -206,13 +206,57 @@ def draft(request, out):
                            'after-run zero-debt, normal stop and archive','operator review and re-pin'])
 
 
+def bind_target_cold(request, out):
+    """Bind separately reviewed cold artifacts without reviewing the handoff."""
+    s = load(pinned(request))
+    require(s.get('schema') == 'c4-handoff-bind-target-cold-v1' and
+            set(s) == {'schema','handoff_draft','cohort','worker_readback','step_readback',
+                       'cold_request_readback'}, 'Exact target cold binding inputs required')
+    value = load(pinned(s['handoff_draft']))
+    require(value.get('schema') == handoff.V1 and value.get('reviewed') is False,
+            'Bind an unreviewed v1 draft and keep the resulting v2 unreviewed')
+    target = value['target']
+    cold_pin, cold = remote(s['cold_request_readback'])
+    require(cold.get('schema') == 'c4-target-cold-tree-request-v1' and cold.get('reviewed') is True and
+            cold['mount_spec'] == target['mount_spec'] and cold['mount_directory'] == target['mount_directory'] and
+            cold['workspace'] == target['session_state']['workspace'],
+            'Reviewed cold request must belong to the exact target')
+    _, step = remote(s['step_readback'])
+    _, worker = remote(s['worker_readback'])
+    argv = step['argv']
+    leaf = Path(__file__).with_name('check-c4-target-cold-tree.py')
+    reader = leaf.with_name('prepare-session-input.py')
+    require(len(argv) == 9 and outside(argv[1]).name == leaf.name and
+            argv[2:8] == ['check','--request',cold_pin['path'],'--sha256',cold_pin['sha256'],'--out'] and
+            all(pin in step['inputs'] for pin in
+                (cold_pin,cold['expected_tree'],cold['mount_spec'],
+                 dict(path=argv[1],sha256=digest(leaf)),
+                 dict(path=str(outside(argv[1]).with_name(reader.name)),sha256=digest(reader)))) and
+            worker['jobs'][0]['result']['path'] == str(outside(argv[8])),
+            'Use the exact checked-in cold leaf, tree reader, request, manifest and result path')
+    value['schema'] = handoff.V2
+    value['target_cold_check'] = dict(cohort=s['cohort'],worker_readback=s['worker_readback']['local'],
+                                     step_readback=s['step_readback']['local'],
+                                     expected_tree_sha256=cold['expected_tree_sha256'])
+    _, row, job, _ = handoff.validate(value)
+    require(row['spec'] == remote(s['worker_readback'])[0] and job['step'] == remote(s['step_readback'])[0],
+            'Remote worker and step paths must equal the reviewed readbacks')
+    out = Path(out)
+    require(out.is_absolute() and out.resolve() == out and out.parent.is_dir(),
+            'Fresh canonical v2 draft path required')
+    write_new(out,value)
+    return dict(reviewed=False,execution_enabled=False,handoff=dict(path=str(out),sha256=digest(out)))
+
+
 if __name__=='__main__':
     p = argparse.ArgumentParser(description=__doc__,epilog=
         'Request schema: '+SCHEMA+'. Set cell_id, session_id, export_transfer_sha256, opencode_sha256, relay_url, '
         'source, target, gates and phases. Each phase needs worker, step, phase, output and observers. '
         'Remote spec readbacks use {"remote_path":"/path/on/worker","local":{"path":"/local/readback","sha256":"..."}}.')
+    p.add_argument('--bind-target-cold',action='store_true',help='Bind reviewed target cold artifacts to a v1 draft')
     p.add_argument('--request',required=True)
     p.add_argument('--sha256',required=True)
     p.add_argument('--out',required=True)
     a = p.parse_args()
-    print(json.dumps(draft(dict(path=a.request,sha256=a.sha256),a.out),indent=2))
+    action = bind_target_cold if a.bind_target_cold else draft
+    print(json.dumps(action(dict(path=a.request,sha256=a.sha256),a.out),indent=2))
