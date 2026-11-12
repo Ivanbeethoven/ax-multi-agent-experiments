@@ -51,7 +51,7 @@ def require(ok, reason):
         raise ValueError(reason)
 
 
-def run(tag, db, workers, verify_seconds, parallel_sha256=None):
+def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_budget=False):
     require(re.fullmatch(r'c3-current-base-[0-9]{8}t[0-9]{6}z',tag) and 20 <= db < 256 and db != 70,
             'Exact new tag and dedicated Redis DB required')
     require(socket.gethostname()=='ax-pilot-20261111-client' and active(CLIENT) is not None,
@@ -86,12 +86,14 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None):
     write(out/'intent.json',dict(schema='c3-workspace-base-qualification-v1',tag=tag,namespace=namespace,
           redis_db=db,bucket=data['s3']['bucket'],manifest_key=asset['manifest_key'],
           pins={str(p):h for p,h in pins.items()},formal_sample=False,automatic_retry=False,
-          verifier_workers=workers or 1,verify_timeout_seconds=verify_seconds,
+          verifier_workers=workers or 1,verify_timeout_seconds=verify_seconds,trace_packed_budget=trace_packed_budget,
           boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip()))
     (slot/'cgroup.procs').write_text(str(os.getpid()))
     auth = dict(line.split('=',1) for line in (CLIENT/'private/rustfs.env').read_text().splitlines() if '=' in line)
     env = dict(os.environ,AWS_ACCESS_KEY_ID=auth['RUSTFS_ACCESS_KEY'],AWS_SECRET_ACCESS_KEY=auth['RUSTFS_SECRET_KEY'],
-        AWS_EC2_METADATA_DISABLED='true',NO_COLOR='1',RUST_LOG='error',NO_PROXY='10.20.2.162,10.20.2.163',
+            AWS_EC2_METADATA_DISABLED='true',NO_COLOR='1',
+            RUST_LOG='error,brewfs::packed_v3_budget=debug' if trace_packed_budget else 'error',
+            NO_PROXY='10.20.2.162,10.20.2.163',
         no_proxy='10.20.2.162,10.20.2.163')
     data_cfg = out/'data.json'; write(data_cfg,dict(data=data))
     brewfs = BREWFS
@@ -152,8 +154,9 @@ if __name__=='__main__':
     parser.add_argument('--workers',type=int,default=0)
     parser.add_argument('--verify-seconds',type=int,default=480)
     parser.add_argument('--parallel-sha256')
+    parser.add_argument('--trace-packed-budget',action='store_true')
     args=parser.parse_args()
     def terminate(_signum, _frame):
         raise TimeoutError('Qualification interrupted')
     signal.signal(signal.SIGTERM,terminate)
-    run(args.tag,args.database,args.workers,args.verify_seconds,args.parallel_sha256)
+    run(args.tag,args.database,args.workers,args.verify_seconds,args.parallel_sha256,args.trace_packed_budget)

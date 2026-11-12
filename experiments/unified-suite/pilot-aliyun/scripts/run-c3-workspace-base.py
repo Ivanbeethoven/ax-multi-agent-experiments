@@ -104,6 +104,8 @@ def run(args):
                '--verify-seconds',str(args.verify_seconds)]
         if verifier:
             cmd.extend(('--parallel-sha256',args.parallel_sha256))
+        if args.trace_packed_budget:
+            cmd.append('--trace-packed-budget')
         try:
             with (out/'worker.log').open('xb') as stream:
                 ssh('client',shlex.join(cmd),stdout=stream,stderr=subprocess.STDOUT,timeout=args.verify_seconds+140)
@@ -124,4 +126,5 @@ if __name__=='__main__':
     p.add_argument('--workers',type=int,default=0)
     p.add_argument('--verify-seconds',type=int,default=480)
     p.add_argument('--parallel-sha256')
+    p.add_argument('--trace-packed-budget',action='store_true')
     run(p.parse_args())
