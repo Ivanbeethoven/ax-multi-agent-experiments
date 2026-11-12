@@ -64,11 +64,13 @@ def meter(rustfs_port):
             thread.join()
 
 
-def probe(mount, rows, s3_snapshot, output):
-    from bench.warm_lower import check_ranges, read_range
+def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None):
+    from bench.warm_lower import assess, check_ranges, parse, read_range
     check_ranges(rows)
     output.mkdir(mode=0o700)
     stats_pattern = r'^(brewfs_fuse_read_(?:ops|bytes)_total) ([0-9]+)$'
+    native_points = []
+    retention_hits = []
 
     def collect(label):
         raw = (mount/'.stats').read_text()
@@ -76,6 +78,16 @@ def probe(mount, rows, s3_snapshot, output):
         found = re.findall(stats_pattern,raw,re.M)
         if len(found) != 2 or len(dict(found)) != 2:
             raise ValueError('Missing unique FUSE read counters')
+        if retained_bytes is not None:
+            hits = re.findall(r'^brewfs_packed_v3_payload_retention_hits_total ([0-9]+)$',raw,re.M)
+            cap = re.findall(r'^brewfs_packed_v3_payload_retention_capacity_bytes ([0-9]+)$',raw,re.M)
+            row_cache = re.findall(r'^brewfs_workspace_row_cache_hits_total [0-9]+$',raw,re.M)
+            if len(hits) != 1 or len(row_cache) != 1:
+                raise ValueError('Missing row cache or Packed frame retention metrics')
+            if cap != [str(retained_bytes)]:
+                raise ValueError('Native Packed frame retention capacity differs')
+            retention_hits.append(int(hits[0]))
+            native_points.append(parse(raw.encode()))
         return {**dict((k,int(v)) for k,v in found),**s3_snapshot()}
 
     points = [collect('before')]
@@ -94,5 +106,11 @@ def probe(mount, rows, s3_snapshot, output):
     out = dict(source='read-only loopback proxy before RustFS; successful GET body bytes',
                working_set=rows,points=points,first=first,second=second,qualified=qualified,
                hot=qualified and second['gets'] == 0 and second['bytes'] == 0)
+    if retained_bytes is not None:
+        native = assess(native_points,expected)
+        retention_proved = retention_hits[0] <= retention_hits[1] < retention_hits[2]
+        exact_fuse = all(delta['brewfs_fuse_read_ops_total'] == len(rows) for delta in (first,second))
+        out.update(native=native,native_points=native_points,retention_hits=retention_hits,retained_bytes=retained_bytes,
+                   hot=out['hot'] and native['passed'] and retention_proved and exact_fuse)
     with (output/'result.json').open('x') as stream: json.dump(out,stream,indent=2);stream.write('\n')
     return out

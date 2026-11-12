@@ -1,9 +1,11 @@
 """Check the lower hot gate, including failure modes that fake a speedup."""
 import hashlib
+import importlib.util
 import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from bench.warm_lower import KEYS, assess, check_ranges, parse, read_range
 
@@ -52,6 +54,31 @@ class WarmLowerTest(unittest.TestCase):
                     read_range(fd,dict(row,path='link/data'))
             finally:
                 os.close(fd)
+
+    @unittest.skipUnless(hasattr(os,'O_NOFOLLOW'),'Linux fd/path semantics required')
+    def test_candidate_fixture_requires_cache_hits_and_independent_backend_quiet(self):
+        fixture = Path(__file__).resolve().parents[1]/('experiments/unified-suite/pilot-aliyun/'
+                  'evidence/preparation/c2-local-packed-warm-01/loopback_probe.py')
+        module = importlib.util.module_from_spec(loader := importlib.util.spec_from_file_location('fixture_meter',fixture))
+        loader.loader.exec_module(module)
+        def render(fuse_reads,byte_count,native,hits):
+            parts = {**{KEYS[k]:v for k,v in native.items()},'brewfs_fuse_read_ops_total':fuse_reads,
+                     'brewfs_fuse_read_bytes_total':byte_count,'brewfs_workspace_row_cache_hits_total':1,
+                     'brewfs_packed_v3_payload_retention_hits_total':hits,
+                     'brewfs_packed_v3_payload_retention_capacity_bytes':1048576}
+            return ''.join(f'{k} {v}\n' for k,v in parts.items())
+        with tempfile.TemporaryDirectory() as temp:
+            base=Path(temp)
+            (base/'data').write_bytes(b'77')
+            rows=[dict(path='data',offset=0,length=2,sha256=hashlib.sha256(b'77').hexdigest())]
+            for suffix,hits,extra,want in [('ok',1,0,True),('no-cache-hit',0,0,False),('s3-sees-read',1,1,False)]:
+                with self.subTest(suffix=suffix):
+                    raw=[render(0,0,counters(0,0,0),0),render(1,2,counters(1,4,2),0),
+                         render(2,4,counters(1,4,4),hits)]
+                    rustfs=iter([dict(gets=n,ranges=n,bytes=b,errors=0) for n,b in [(0,0),(1,4),(1+extra,4+extra)]])
+                    with patch.object(Path,'read_text',side_effect=raw):
+                        result=module.probe(base,rows,lambda:next(rustfs),base/suffix,retained_bytes=1048576)
+                    self.assertEqual(result['hot'],want)
 
 
 if __name__=='__main__':
