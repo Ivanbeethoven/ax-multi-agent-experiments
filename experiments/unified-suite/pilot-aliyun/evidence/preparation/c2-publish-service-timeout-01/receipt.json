@@ -1,0 +1,145 @@
+{
+  "schema": "ax-c2-publish-service-timeout-v1",
+  "tag": "c2-pubdiag-20261112t113108z",
+  "diagnostic_only": true,
+  "formal_sample": false,
+  "passed": false,
+  "phase": "fresh-bucket",
+  "error_class": "ReadTimeoutError",
+  "configured_read_timeout_seconds": 3,
+  "bucket_api_operation": "unknown (HeadBucket or CreateBucket)",
+  "bucket_creation_acknowledged": false,
+  "worker_launched": true,
+  "producer_started": false,
+  "producer_budget_seconds": 300,
+  "runner_commit": "48cd2a4595fe57e5d4d00a7dbc8a9232602746c2",
+  "worker_script_sha256": "95ecf65968fadf13a0eb42b940e726b15409bca8d7061c11c1aa16f06e4a9d74",
+  "version_receipt_sha256": "d9e5201f502f0092b5cdda918d61068049804c85b2d13db3d89aa61db2dfcf09",
+  "api_state": {
+    "all-before": {
+      "request_id": "01A1CF86-BAAD-5351-9C3E-CB7699C34394",
+      "source_file": "all-before.json",
+      "source_sha256": "41493f5db992875cd37781c1de93457834d6117dca41f3509cdb36a601117108",
+      "local_receipt_mtime_utc": "2026-11-12T11:31:08.6430550Z",
+      "instances": [
+        {
+          "instance_id": "i-bp1809mw7rlujtj9f705",
+          "name": "ax-pilot-20261111-client",
+          "status": "Stopped",
+          "stopped_mode": "StopCharging"
+        },
+        {
+          "instance_id": "i-bp1cp8ccqor34u2bo5os",
+          "name": "ax-c1-jump",
+          "status": "Stopped",
+          "stopped_mode": "StopCharging"
+        },
+        {
+          "instance_id": "i-bp1gy3cfuj9jik0y4oc3",
+          "name": "ax-pilot-20261111-metadata",
+          "status": "Stopped",
+          "stopped_mode": "StopCharging"
+        },
+        {
+          "instance_id": "i-bp1h9kaoya0predubdkn",
+          "name": "ax-pilot-20261111-objects",
+          "status": "Stopped",
+          "stopped_mode": "StopCharging"
+        }
+      ]
+    },
+    "instances-running": {
+      "request_id": "01A1CF87-4CD9-57AB-8CB9-A72D4134037E",
+      "source_file": "instances-running.json",
+      "source_sha256": "bc3d5c86086282286ae6c632a8770589a88d4ef701a5c408427627df7c0ba6ff",
+      "local_receipt_mtime_utc": "2026-11-12T11:31:45.9581275Z",
+      "instances": [
+        {
+          "instance_id": "i-bp1809mw7rlujtj9f705",
+          "name": "ax-pilot-20261111-client",
+          "status": "Running",
+          "stopped_mode": "Not-applicable"
+        },
+        {
+          "instance_id": "i-bp1gy3cfuj9jik0y4oc3",
+          "name": "ax-pilot-20261111-metadata",
+          "status": "Stopped",
+          "stopped_mode": "StopCharging"
+        },
+        {
+          "instance_id": "i-bp1h9kaoya0predubdkn",
+          "name": "ax-pilot-20261111-objects",
+          "status": "Running",
+          "stopped_mode": "Not-applicable"
+        }
+      ]
+    },
+    "instances-after-stop": {
+      "request_id": "01A1CF88-4C92-54E8-B2E3-1AE0056D1FC4",
+      "source_file": "instances-after-stop.json",
+      "source_sha256": "711da0dba17ad12c4dbd9b25bd01fa113970b2c6d3a93474b305f177d32517e3",
+      "local_receipt_mtime_utc": "2026-11-12T11:32:51.4454053Z",
+      "instances": [
+        {
+          "instance_id": "i-bp1809mw7rlujtj9f705",
+          "name": "ax-pilot-20261111-client",
+          "status": "Stopped",
+          "stopped_mode": "StopCharging"
+        },
+        {
+          "instance_id": "i-bp1gy3cfuj9jik0y4oc3",
+          "name": "ax-pilot-20261111-metadata",
+          "status": "Stopped",
+          "stopped_mode": "StopCharging"
+        },
+        {
+          "instance_id": "i-bp1h9kaoya0predubdkn",
+          "name": "ax-pilot-20261111-objects",
+          "status": "Stopped",
+          "stopped_mode": "StopCharging"
+        }
+      ]
+    },
+    "jump-final": {
+      "request_id": "01A1CF88-99DD-59DC-9FE3-8E28EC6F9EAC",
+      "source_file": "jump-final.json",
+      "source_sha256": "c3c7c0a950ffe14e61c61ce067037d0ce29005594973b8ab9e23bd38180a9eb1",
+      "local_receipt_mtime_utc": "2026-11-12T11:33:11.2342700Z",
+      "instances": [
+        {
+          "instance_id": "i-bp1cp8ccqor34u2bo5os",
+          "name": "ax-c1-jump",
+          "status": "Stopped",
+          "stopped_mode": "StopCharging"
+        }
+      ]
+    }
+  },
+  "api_actions": {
+    "jump-start": {
+      "request_id": "01A1CF86-BC0F-557C-87DD-46A6167BFB38",
+      "source_file": "jump-start.json",
+      "source_sha256": "59bff4c240b61ca1c5765a187349d4bfce65f6e661c9a89ce3a825e279357b64",
+      "local_receipt_mtime_utc": "2026-11-12T11:31:09.4521117Z"
+    },
+    "workers-start": {
+      "request_id": "01A1CF87-3110-55C0-B57E-2704D7698C2D",
+      "source_file": "workers-start.json",
+      "source_sha256": "815a6f25b68be14b8b1fcb2c323d7d53cbb0b17b1b4660f059b31c576ffcf26e",
+      "local_receipt_mtime_utc": "2026-11-12T11:31:39.1622423Z"
+    },
+    "workers-stop": {
+      "request_id": "01A1CF87-BE6D-5DC3-9CA0-348BE58D2598",
+      "source_file": "workers-stop.json",
+      "source_sha256": "34b1c4fec3ef53216bbecc34b1ecbe16f96b0cda2f5a2cd9d5a1e2a720692cb5",
+      "local_receipt_mtime_utc": "2026-11-12T11:32:15.1567403Z"
+    },
+    "jump-stop": {
+      "request_id": "01A1CF88-6546-56E1-A94E-AC0987645B5B",
+      "source_file": "jump-stop.json",
+      "source_sha256": "2adca4414fb3d2ab254572c09782e35e0cef33ef18977578083fdf5fda32868b",
+      "local_receipt_mtime_utc": "2026-11-12T11:32:57.8675436Z"
+    }
+  },
+  "independent_audit": "independent-stop-audit.json"
+}

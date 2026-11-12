@@ -1,0 +1,20 @@
+{
+  "image": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+  "revision": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "pid": 1996,
+  "start_ticks": 885,
+  "switches": [
+    "RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED=true",
+    "RUSTFS_EC_READ_QUANTUM_ENABLE=true",
+    "RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE=true",
+    "RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED=true"
+  ],
+  "volumes": "/data/rustfs{0...3}",
+  "data_binds": {
+    "/data/rustfs0": "/srv/ax-rustfs-data-0",
+    "/data/rustfs1": "/srv/ax-rustfs-data-1",
+    "/data/rustfs2": "/srv/ax-rustfs-data-2",
+    "/data/rustfs3": "/srv/ax-rustfs-data-3"
+  },
+  "process_mount_namespace_verified": true
+}
