@@ -7,6 +7,7 @@
 - [七对汇总](evidence/summary-pooled.json)；[结果核验](evidence/verification.json)
 - [前三对原始记录](evidence/run-03/run.json)；[后四对原始记录](evidence/run-04/run.json)
 - [正确性检查](evidence/checks/README.md)；[构建与源码](evidence/provenance.json)
+- [后续默认缓存配置及检查](DEFAULTS.zh.md)
 
 ## 对照测什么
 
