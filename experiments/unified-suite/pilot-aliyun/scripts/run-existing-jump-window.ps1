@@ -47,7 +47,7 @@ try {
     $restore | Set-Content -Encoding utf8NoBOM "$journal/restore.json"
     if ($LASTEXITCODE -or !($restore | ConvertFrom-Json).passed) { throw 'Existing control disk is not ready' }
     if ($Activity -eq 'C3Cohort') {
-        & "$PSScriptRoot/run-c3-workspace-base.ps1" -SshConfig $cfg -ReceiptRoot $root -Database 249 -Workers 32 -VerifySeconds 120 -TracePackedBudget -PackedOutputMib 128 -PackedControlMib 8 -DiagnosticCohort
+        & "$PSScriptRoot/run-c3-workspace-base.ps1" -SshConfig $cfg -ReceiptRoot $root -Database 0 -Workers 32 -VerifySeconds 240 -TracePackedBudget -PackedOutputMib 128 -PackedControlMib 8 -DiagnosticCohort
     } else {
         $full = $journal.Replace('\','/')
         if ($full -notmatch '^([A-Za-z]):(/.+)$') { throw 'Expected a drive-backed receipt path' }

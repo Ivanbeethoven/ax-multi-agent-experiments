@@ -6,6 +6,30 @@ import tempfile
 import unittest
 
 class SmokeModeContract(unittest.TestCase):
+    def test_read_control_modes_reach_distinct_arms(self):
+        from unittest.mock import patch
+        from bench.experiment_smoke import main
+        for mode,arm in [('brewfs-full','overlay-read'),('overlay-off','lower-read')]:
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as tmp:
+                out=Path(tmp)/'out'
+                argv=['experiment_smoke','--experiment','C2-runtime','--mode',mode,
+                      '--brewfs','/bin/brewfs','--producer','/bin/producer',
+                      '--smallfiles','/bin/smallfiles','--juicefs','/bin/juicefs',
+                      '--brewfs-revision','test','--rustfs-image','image','--rustfs-revision','revision',
+                      '--brewfs-provenance',str(Path(tmp)/'summary.json'),'--out',str(out)]
+                def fake_run(cmd):
+                    self.assertEqual(cmd[cmd.index('--arm')+1],arm)
+                    self.assertEqual(cmd[cmd.index('--rustfs-revision')+1],'revision')
+                    self.assertTrue(cmd[1].endswith('qualify-packed-read-local.py'))
+                    folder=Path(cmd[cmd.index('--out')+1]); folder.mkdir()
+                    (folder/'receipt.json').write_text('{"passed":true}')
+                    return subprocess.CompletedProcess(cmd,0)
+                with patch.object(sys,'argv',argv), \
+                     patch('bench.runtime.packed_read_candidate.verify',return_value={'brewfs':'a'*64,'producer':'b'*64}), \
+                     patch('bench.experiment_smoke.subprocess.run',side_effect=fake_run):
+                    self.assertEqual(main(),0)
+                self.assertIn('read-only',json.loads((out/'receipt.json').read_text())['runtime_scope'])
+
     def test_c4_candidate_receipt_reaches_native_runner(self):
         from unittest.mock import patch
         from bench.experiment_smoke import main

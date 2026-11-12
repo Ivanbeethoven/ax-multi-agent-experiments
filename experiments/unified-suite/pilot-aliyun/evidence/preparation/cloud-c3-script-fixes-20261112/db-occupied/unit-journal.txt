@@ -1,0 +1,30 @@
+Nov 12 16:40:46 ax-c1-jump systemd[1]: Started c3-current-base-20261112t084038z.service - /usr/bin/python3 -B /srv/ax-pilot-control/preparation/c3-current-base-20261112t084038z/run-c3-workspace-base.py --worker-sha256 684225d941de5116c2d61281aa76132b8da17ae390d0489711848967ab80c75b --database 249 --workers 32 --verify-seconds 120 --trace-packed-budget --packed-output-mib 128 --packed-control-mib 8 --diagnostic-cohort.
+Nov 12 16:41:14 ax-c1-jump python3[2264]: {
+Nov 12 16:41:14 ax-c1-jump python3[2264]:   "at": "2026-11-12T08:41:10.075824+00:00",
+Nov 12 16:41:14 ax-c1-jump python3[2264]:   "action": "slot",
+Nov 12 16:41:14 ax-c1-jump python3[2264]:   "instance_id": "i-bp1809mw7rlujtj9f705",
+Nov 12 16:41:14 ax-c1-jump python3[2264]:   "passed": true,
+Nov 12 16:41:14 ax-c1-jump python3[2264]:   "cgroup": "/sys/fs/cgroup/ax-slot-1",
+Nov 12 16:41:14 ax-c1-jump python3[2264]:   "limits": {
+Nov 12 16:41:14 ax-c1-jump python3[2264]:     "cpu.max": "200000 100000",
+Nov 12 16:41:14 ax-c1-jump python3[2264]:     "memory.max": "8589934592",
+Nov 12 16:41:14 ax-c1-jump python3[2264]:     "memory.swap.max": "0",
+Nov 12 16:41:14 ax-c1-jump python3[2264]:     "pids.max": "4096",
+Nov 12 16:41:14 ax-c1-jump python3[2264]:     "cgroup.procs": ""
+Nov 12 16:41:14 ax-c1-jump python3[2264]:   },
+Nov 12 16:41:14 ax-c1-jump python3[2264]:   "io_stat": ""
+Nov 12 16:41:14 ax-c1-jump python3[2264]: }
+Nov 12 16:41:19 ax-c1-jump python3[1900]: Traceback (most recent call last):
+Nov 12 16:41:19 ax-c1-jump python3[1900]:   File "/srv/ax-pilot-control/preparation/c3-current-base-20261112t084038z/run-c3-workspace-base.py", line 151, in <module>
+Nov 12 16:41:19 ax-c1-jump python3[1900]:     run(p.parse_args())
+Nov 12 16:41:19 ax-c1-jump python3[1900]:   File "/srv/ax-pilot-control/preparation/c3-current-base-20261112t084038z/run-c3-workspace-base.py", line 126, in run
+Nov 12 16:41:19 ax-c1-jump python3[1900]:     ssh('client',shlex.join(cmd),stdout=stream,stderr=subprocess.STDOUT,timeout=args.verify_seconds+140)
+Nov 12 16:41:19 ax-c1-jump python3[1900]:   File "/srv/ax-pilot-control/preparation/c3-current-base-20261112t084038z/run-c3-workspace-base.py", line 62, in ssh
+Nov 12 16:41:19 ax-c1-jump python3[1900]:     return subprocess.run(['ssh',*FLAGS,'pool-a-'+role,command],check=True,**kw)
+Nov 12 16:41:19 ax-c1-jump python3[1900]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nov 12 16:41:19 ax-c1-jump python3[1900]:   File "/usr/lib/python3.12/subprocess.py", line 571, in run
+Nov 12 16:41:19 ax-c1-jump python3[1900]:     raise CalledProcessError(retcode, process.args,
+Nov 12 16:41:19 ax-c1-jump python3[1900]: subprocess.CalledProcessError: Command '['ssh', '-F', '/srv/ax-pilot-control/parallel-control-01/ssh.conf', '-oBatchMode=yes', '-oConnectTimeout=5', 'pool-a-client', 'timeout --kill-after=25s 225s python3 -B /srv/ax-receipts/c3-current-base-20261112t084038z/qualify-c3-workspace-base.py --tag c3-current-base-20261112t084038z --database 249 --workers 32 --verify-seconds 120 --trace-packed-budget --packed-output-mib 128 --packed-control-mib 8 --diagnostic-cohort']' returned non-zero exit status 1.
+Nov 12 16:41:19 ax-c1-jump systemd[1]: c3-current-base-20261112t084038z.service: Main process exited, code=exited, status=1/FAILURE
+Nov 12 16:41:19 ax-c1-jump systemd[1]: c3-current-base-20261112t084038z.service: Failed with result 'exit-code'.
+Nov 12 16:41:19 ax-c1-jump systemd[1]: c3-current-base-20261112t084038z.service: Consumed 2.353s CPU time, 18.0M memory peak, 0B memory swap peak.

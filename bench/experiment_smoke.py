@@ -18,6 +18,7 @@ def main():
     p.add_argument('--brewfs-revision', required=True)
     p.add_argument('--brewfs-provenance', type=Path)
     p.add_argument('--rustfs-image', required=True)
+    p.add_argument('--rustfs-revision', default='f4ed202508f2153afb7956bae6f7799b60eccd00')
     p.add_argument('--trace', type=Path)
     p.add_argument('--replay', type=Path)
     p.add_argument('--out', type=Path, required=True)
@@ -34,7 +35,23 @@ def main():
     receipt = {'plan':plan, 'formal_sample':False, 'status':'blocked'}
     scripts = CONFIG.parent.parent / 'pilot-aliyun/scripts'
     supported = (a.mode in ('brewfs-full','juicefs') and a.experiment in ('C3-smallfiles','C4-fork')) or a.experiment in ('C1-io','C1-layout') or (a.experiment == 'C2-replay' and a.mode in ('brewfs-basic','brewfs-full','juicefs','dynamic-off'))
-    if supported:
+    if a.experiment=='C2-runtime' and a.brewfs_provenance:
+        from bench.runtime.packed_read_candidate import verify
+        try:
+            pins=verify(a.brewfs,a.producer,a.brewfs_provenance,a.brewfs_revision)
+        except (OSError,ValueError) as error:
+            receipt.update(status='failed',reason=str(error))
+            (a.out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+            return 2
+        cmd=[sys.executable,str(scripts/'qualify-packed-read-local.py'),
+             '--brewfs',str(a.brewfs),'--brewfs-sha256',pins['brewfs'],
+             '--producer',str(a.producer),'--producer-sha256',pins['producer'],
+             '--rustfs-image',a.rustfs_image,'--rustfs-revision',a.rustfs_revision,
+             '--arm','overlay-read' if a.mode=='brewfs-full' else 'lower-read',
+             '--out',str(a.out/'run')]
+        receipt['runtime_scope']='read-only extents, lookup, non-root getattr and directory opening; no writable toggle claim'
+        receipt['provenance']=str(a.brewfs_provenance)
+    elif supported:
         script = scripts / ('rbm-lifecycle.py' if a.experiment != 'C4-fork' else 'rbm-native-fork.py')
         cmd = [sys.executable, str(script), '--product',
                'juicefs' if a.mode == 'juicefs' else 'brewfs']
@@ -52,6 +69,9 @@ def main():
             if a.brewfs_provenance:
                 cmd += ['--brewfs-provenance',str(a.brewfs_provenance)]
         cmd += ['--out',str(a.out/'run')]
+    else:
+        cmd=None
+    if cmd is not None:
         receipt['argv'] = cmd
         # The child owns service teardown; don't kill its cleanup with an outer timeout.
         proc = subprocess.run(cmd)
@@ -63,7 +83,8 @@ def main():
         receipt['status'] = 'passed' if evidence['passed'] and proc.returncode == 0 else 'failed'
         receipt['evidence'] = evidence
     else:
-        receipt['reason'] = ('same-engine toggle not implemented' if a.mode in
+        receipt['reason'] = ('qualified read-control binary and --brewfs-provenance required' if a.experiment=='C2-runtime' else
+                            'same-engine toggle not implemented' if a.mode in
                             ('overlay-off','packed-off','all-off') else
                             'this workload adapter is not yet implemented in the minimal runner')
     (a.out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')

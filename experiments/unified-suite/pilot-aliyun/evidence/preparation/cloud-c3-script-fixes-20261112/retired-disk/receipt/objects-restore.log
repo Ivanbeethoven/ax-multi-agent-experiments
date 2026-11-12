@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/srv/ax-receipts/a-pool-up/a-pool-up.py", line 176, in <module>
+    main()
+  File "/srv/ax-receipts/a-pool-up/a-pool-up.py", line 165, in main
+    (bring_objects if args.role == 'objects' else bring_metadata)(actions)
+  File "/srv/ax-receipts/a-pool-up/a-pool-up.py", line 88, in bring_objects
+    mount_disk(serial, target, actions)
+  File "/srv/ax-receipts/a-pool-up/a-pool-up.py", line 63, in mount_disk
+    row = whole(serial)
+          ^^^^^^^^^^^^^
+  File "/srv/ax-receipts/a-pool-up/a-pool-up.py", line 56, in whole
+    require(len(rows) == 1, 'original whole disk not unique: '+serial)
+  File "/srv/ax-receipts/a-pool-up/a-pool-up.py", line 40, in require
+    raise ValueError(message)
+ValueError: original whole disk not unique: bp16jaiu2fcmbij8mg7i

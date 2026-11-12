@@ -28,14 +28,16 @@ def run(args):
     if out.parent != CONTROL/'preparation' or not out.name.startswith('c3-current-base-'):
         raise ValueError('Dedicated coordinator preparation directory required')
     tag = out.name
+    if args.database not in (0,*range(20,70),*range(71,256)):
+        raise ValueError('Use a dedicated database 20..255 except 70, or 0 for locked empty selection')
     if not 0 <= args.workers <= 32 or not 60 <= args.verify_seconds <= 900:
         raise ValueError('Bounded verifier workers and duration required')
     if args.packed_output_mib and (not args.trace_packed_budget or args.workers != 32):
         raise ValueError('The 128 MiB probe requires budget tracing and 32 workers')
     if args.diagnostic_cohort and (args.parallel_sha256 or args.workers != 32
-            or args.verify_seconds != 120 or not args.trace_packed_budget
+            or args.verify_seconds not in (120,240) or not args.trace_packed_budget
             or (args.packed_output_mib,args.packed_control_mib) != (128,8)):
-        raise ValueError('Cohort requires a 120-second window, both raised budgets, and no separate verifier')
+        raise ValueError('Cohort requires a 120- or 240-second diagnostic window, both raised budgets, and no separate verifier')
     if args.packed_control_mib and (not (args.parallel_sha256 or args.diagnostic_cohort)
             or args.packed_output_mib != 128):
         raise ValueError('The 8 MiB control probe requires the diagnostic verifier and 128 MiB output')
@@ -43,6 +45,9 @@ def run(args):
     script = worker.read_bytes()
     if hashlib.sha256(script).hexdigest()!=args.worker_sha256:
         raise ValueError('Staged worker script digest mismatch')
+    restore_script=(out/'a-pool-up.py').read_bytes()
+    if hashlib.sha256(restore_script).hexdigest()!=args.restore_sha256:
+        raise ValueError('Staged node restore script digest mismatch')
     verifier = None
     if args.parallel_sha256:
         p = out/'smallfiles-verify'
@@ -71,8 +76,13 @@ def run(args):
                 time.sleep(3)
         else:
             raise RuntimeError(role+' did not become reachable')
+        helper='/srv/ax-receipts/'+tag+'-restore.py'
+        ssh(role,'set -C; cat > '+helper,input=restore_script,timeout=12)
+        ssh(role,"echo '"+args.restore_sha256+'  '+helper+"' | sha256sum -c -",timeout=10)
         with (out/(role+'-restore.log')).open('xb') as stream:
-            restore = f'python3 /srv/ax-receipts/a-pool-up/a-pool-up.py {role} --out /srv/ax-receipts/a-pool-up/{role}-{tag}'
+            restore = f'python3 {helper} {role} --out /srv/ax-receipts/a-pool-up/{role}-{tag}'
+            if role=='objects':
+                restore += ' --without-legacy-observer-scratch'
             ssh(role,'timeout --kill-after=8s 105s '+restore,stdout=stream,stderr=subprocess.STDOUT,timeout=120)
 
     with ExitStack() as stack:
@@ -140,6 +150,7 @@ def run(args):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--worker-sha256',required=True)
+    p.add_argument('--restore-sha256',required=True)
     p.add_argument('--database',type=int,required=True)
     p.add_argument('--workers',type=int,default=0)
     p.add_argument('--verify-seconds',type=int,default=480)

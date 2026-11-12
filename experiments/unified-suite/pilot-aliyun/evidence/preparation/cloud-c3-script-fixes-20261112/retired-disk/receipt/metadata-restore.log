@@ -1,0 +1,30 @@
+{
+  "schema": "a-pool-bringup-v1",
+  "passed": true,
+  "role": "metadata",
+  "at": "2026-11-12T08:58:16.874719+00:00",
+  "instance": "i-bp1gy3cfuj9jik0y4oc3",
+  "actions": [
+    {
+      "serial": "bp1gy3cfuj9jik0upt3k",
+      "target": "/srv/ax-metadata",
+      "device": "/dev/vdb",
+      "uuid": "4d1502c5-efcb-4f33-bb1a-cfb8ef28c750"
+    },
+    {
+      "stopped_unit": "redis-server.service"
+    },
+    {
+      "started_unit": "ax-pilot-redis.service"
+    },
+    {
+      "effective": {
+        "appendonly": "yes",
+        "databases": "256",
+        "dir": "/srv/ax-metadata/redis",
+        "bind": "127.0.0.1 10.20.2.162"
+      }
+    }
+  ],
+  "automatic_retry": false
+}

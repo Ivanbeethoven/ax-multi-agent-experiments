@@ -1,0 +1,168 @@
+{
+  "source": "read-only loopback proxy before RustFS; GET bytes and HEAD request count",
+  "working_set": [
+    {
+      "path": "a.txt",
+      "offset": 0,
+      "length": 13,
+      "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+    },
+    {
+      "path": "sub/b.txt",
+      "offset": 0,
+      "length": 64,
+      "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+    }
+  ],
+  "points": [
+    {
+      "brewfs_fuse_read_ops_total": 0,
+      "brewfs_fuse_read_bytes_total": 0,
+      "gets": 21,
+      "ranges": 21,
+      "heads": 0,
+      "bytes": 69917,
+      "errors": 0
+    },
+    {
+      "brewfs_fuse_read_ops_total": 2,
+      "brewfs_fuse_read_bytes_total": 77,
+      "gets": 28,
+      "ranges": 28,
+      "heads": 0,
+      "bytes": 83326,
+      "errors": 0
+    },
+    {
+      "brewfs_fuse_read_ops_total": 4,
+      "brewfs_fuse_read_bytes_total": 154,
+      "gets": 28,
+      "ranges": 28,
+      "heads": 0,
+      "bytes": 83326,
+      "errors": 0
+    }
+  ],
+  "first": {
+    "brewfs_fuse_read_ops_total": 2,
+    "brewfs_fuse_read_bytes_total": 77,
+    "gets": 7,
+    "ranges": 7,
+    "heads": 0,
+    "bytes": 13409,
+    "errors": 0
+  },
+  "second": {
+    "brewfs_fuse_read_ops_total": 2,
+    "brewfs_fuse_read_bytes_total": 77,
+    "gets": 0,
+    "ranges": 0,
+    "heads": 0,
+    "bytes": 0,
+    "errors": 0
+  },
+  "qualified": true,
+  "hot": true,
+  "native": {
+    "passed": true,
+    "reasons": [],
+    "cold": {
+      "range_requests": 7,
+      "received_bytes": 13409,
+      "failures": 0,
+      "logical_bytes": 77
+    },
+    "second_pass": {
+      "range_requests": 0,
+      "received_bytes": 0,
+      "failures": 0,
+      "logical_bytes": 77
+    }
+  },
+  "native_points": [
+    {
+      "range_requests": 6,
+      "received_bytes": 22759,
+      "failures": 0,
+      "logical_bytes": 0
+    },
+    {
+      "range_requests": 13,
+      "received_bytes": 36168,
+      "failures": 0,
+      "logical_bytes": 77
+    },
+    {
+      "range_requests": 13,
+      "received_bytes": 36168,
+      "failures": 0,
+      "logical_bytes": 154
+    }
+  ],
+  "retention_hits": [
+    0,
+    0,
+    2
+  ],
+  "retained_bytes": 8388608,
+  "extent_arm": "lower-read",
+  "extent_points": [
+    {
+      "queries": 0,
+      "bypasses": 0
+    },
+    {
+      "queries": 0,
+      "bypasses": 2
+    },
+    {
+      "queries": 0,
+      "bypasses": 4
+    }
+  ],
+  "readonly_mount": {
+    "mount_id": 679,
+    "point": "/tmp/ax-packed-read-xn4kd48a/mount",
+    "filesystem": "fuse",
+    "source": "brewfs",
+    "options": "ro,nosuid,nodev,relatime"
+  },
+  "writable_open": "EROFS",
+  "expected_extent_path": true,
+  "namespace_points": [
+    {
+      "lookup_queries": 0,
+      "lookup_cache_hits": 0,
+      "lookup_bypasses": 4,
+      "getattr_queries": 0,
+      "getattr_cache_hits": 0,
+      "getattr_bypasses": 1,
+      "directory_probe_queries": 0,
+      "directory_probe_cache_hits": 0,
+      "directory_probe_bypasses": 0
+    },
+    {
+      "lookup_queries": 0,
+      "lookup_cache_hits": 0,
+      "lookup_bypasses": 10,
+      "getattr_queries": 0,
+      "getattr_cache_hits": 0,
+      "getattr_bypasses": 27,
+      "directory_probe_queries": 0,
+      "directory_probe_cache_hits": 0,
+      "directory_probe_bypasses": 8
+    },
+    {
+      "lookup_queries": 0,
+      "lookup_cache_hits": 0,
+      "lookup_bypasses": 16,
+      "getattr_queries": 0,
+      "getattr_cache_hits": 0,
+      "getattr_bypasses": 53,
+      "directory_probe_queries": 0,
+      "directory_probe_cache_hits": 0,
+      "directory_probe_bypasses": 14
+    }
+  ],
+  "expected_namespace_path": true
+}

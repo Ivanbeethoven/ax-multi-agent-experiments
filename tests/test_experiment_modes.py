@@ -27,7 +27,8 @@ class ModeContract(unittest.TestCase):
         self.assertEqual(row['engine'], 'workspace-v1')
         self.assertEqual(row['mechanisms'],
                          {'overlay': False, 'packed_metadata': True, 'dynamic_block': True})
-        self.assertIn('same-engine-runtime-adapter-required', row['runtime_qualification_blockers'])
+        self.assertIn('read-control-qualified-candidate-required', row['runtime_qualification_blockers'])
+        self.assertTrue(row['read_only_control'])
 
     def test_fork_reports_correctness_blocker_while_juicefs_selects_clone(self):
         self.assertTrue(resolve(self.design, 'C4-fork', 'brewfs-full')['runtime_qualification_blockers'])

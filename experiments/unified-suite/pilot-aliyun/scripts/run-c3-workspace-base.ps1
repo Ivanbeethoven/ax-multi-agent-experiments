@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory)][string]$SshConfig,
     [Parameter(Mandatory)][string]$ReceiptRoot,
-    [ValidateRange(20,255)][int]$Database = 243,
+    [ValidateRange(0,255)][int]$Database = 243,
     [ValidateRange(0,32)][int]$Workers = 0,
     [ValidateRange(60,900)][int]$VerifySeconds = 480,
     [string]$ParallelBinary,
@@ -37,12 +37,13 @@ function Get-Unit {
 }
 
 if ($Database -eq 70) { throw 'Database 70 owns the original Packed asset' }
+if ($Database -gt 0 -and $Database -lt 20) { throw 'Use database 20..255, or 0 to select an empty probe database under the pool lock' }
 if ($PackedOutputMib -and (!$TracePackedBudget -or $Workers -ne 32)) {
     throw 'The 128 MiB qualification must preserve the 32-worker input and trace budget rejections'
 }
-if ($DiagnosticCohort -and ($ParallelBinary -or $Workers -ne 32 -or $VerifySeconds -ne 120 -or
+if ($DiagnosticCohort -and ($ParallelBinary -or $Workers -ne 32 -or $VerifySeconds -notin @(120,240) -or
         !$TracePackedBudget -or $PackedOutputMib -ne 128 -or $PackedControlMib -ne 8)) {
-    throw 'Cohort requires a 120-second window, both raised budgets, and no separate verifier'
+    throw 'Cohort requires a 120- or 240-second diagnostic window, both raised budgets, and no separate verifier'
 }
 if ($PackedControlMib -and ((!$ParallelBinary -and !$DiagnosticCohort) -or $PackedOutputMib -ne 128)) {
     throw 'The 8 MiB control probe requires the diagnostic verifier and the fixed 128 MiB output budget'
@@ -52,9 +53,10 @@ $before = Read-Cloud 'instances-before'
 if ($before | Where-Object {$_.Status -ne 'Stopped' -or $_.StoppedMode -ne 'StopCharging' -or $_.ZoneId -ne 'cn-hangzhou-j'}) {
     throw 'Pool A instances must all be stopped in the original zone'
 }
-$files = @("$PSScriptRoot/run-c3-workspace-base.py","$PSScriptRoot/qualify-c3-workspace-base.py")
+$files = @("$PSScriptRoot/run-c3-workspace-base.py","$PSScriptRoot/qualify-c3-workspace-base.py","$PSScriptRoot/a-pool-up.py")
 $guardSha = (Get-FileHash -Algorithm SHA256 $files[0]).Hash.ToLowerInvariant()
 $workerSha = (Get-FileHash -Algorithm SHA256 $files[1]).Hash.ToLowerInvariant()
+$restoreSha = (Get-FileHash -Algorithm SHA256 $files[2]).Hash.ToLowerInvariant()
 $parallelSha = $null
 if ($ParallelBinary) {
     if (!$Workers) { throw 'A custom parallel binary requires positive Workers' }
@@ -72,15 +74,15 @@ if ($parallelSha) {
     scp -q -F $cfg -oBatchMode=yes -oConnectTimeout=8 $file.FullName "ax-pilot-jump:$dest/smallfiles-verify"
     if ($LASTEXITCODE) { throw 'C3 verifier transfer failed before ECS start' }
 }
-$validate = "set -eu; cd $dest; echo '$guardSha  run-c3-workspace-base.py' | sha256sum -c -; echo '$workerSha  qualify-c3-workspace-base.py' | sha256sum -c -; python3 -m py_compile run-c3-workspace-base.py qualify-c3-workspace-base.py"
+$validate = "set -eu; cd $dest; echo '$guardSha  run-c3-workspace-base.py' | sha256sum -c -; echo '$workerSha  qualify-c3-workspace-base.py' | sha256sum -c -; echo '$restoreSha  a-pool-up.py' | sha256sum -c -; python3 -m py_compile run-c3-workspace-base.py qualify-c3-workspace-base.py a-pool-up.py"
 ssh -F $cfg -oBatchMode=yes -oConnectTimeout=8 ax-pilot-jump $validate
 if ($LASTEXITCODE) { throw 'Remote staged file validation failed' }
-$stage = [ordered]@{tag=$tag; dest=$dest; guard_sha256=$guardSha; worker_sha256=$workerSha; database=$Database; workers=$Workers; verify_seconds=$VerifySeconds; parallel_sha256=$parallelSha; trace_packed_budget=[bool]$TracePackedBudget; packed_output_mib=$PackedOutputMib; packed_control_mib=$PackedControlMib}
+$stage = [ordered]@{tag=$tag; dest=$dest; guard_sha256=$guardSha; worker_sha256=$workerSha; restore_sha256=$restoreSha; database=$Database; workers=$Workers; verify_seconds=$VerifySeconds; parallel_sha256=$parallelSha; trace_packed_budget=[bool]$TracePackedBudget; packed_output_mib=$PackedOutputMib; packed_control_mib=$PackedControlMib}
 if ($DiagnosticCohort) { $stage.diagnostic_cohort = $true }
 $stage | ConvertTo-Json | Set-Content -Encoding utf8NoBOM "$local/stage.json"
 
 $serviceSeconds = $VerifySeconds + 325
-$launch = "systemd-run --unit=$tag --remain-after-exit --property=RuntimeMaxSec=${serviceSeconds}s --property=TimeoutStopSec=25s /usr/bin/python3 -B $dest/run-c3-workspace-base.py --worker-sha256 $workerSha --database $Database --workers $Workers --verify-seconds $VerifySeconds"
+$launch = "systemd-run --unit=$tag --remain-after-exit --property=RuntimeMaxSec=${serviceSeconds}s --property=TimeoutStopSec=25s /usr/bin/python3 -B $dest/run-c3-workspace-base.py --worker-sha256 $workerSha --restore-sha256 $restoreSha --database $Database --workers $Workers --verify-seconds $VerifySeconds"
 if ($parallelSha) { $launch += " --parallel-sha256 $parallelSha" }
 if ($TracePackedBudget) { $launch += " --trace-packed-budget" }
 if ($PackedOutputMib) { $launch += " --packed-output-mib $PackedOutputMib" }

@@ -1,0 +1,60 @@
+{
+  "schema": "a-pool-bringup-v1",
+  "passed": true,
+  "role": "objects",
+  "at": "2026-11-12T08:41:10.525121+00:00",
+  "instance": "i-bp1h9kaoya0predubdkn",
+  "actions": [
+    {
+      "serial": "bp1h9kaoya0predx6kvd",
+      "target": "/srv/ax-objects-0",
+      "device": "/dev/vdb",
+      "uuid": "c77df525-918b-4e12-9d7c-5b8d27462fdd"
+    },
+    {
+      "serial": "bp1h9kaoya0predx6kve",
+      "target": "/srv/ax-objects-1",
+      "device": "/dev/vdc",
+      "uuid": "5438a1be-855b-4a1f-822b-445cd15593b5"
+    },
+    {
+      "serial": "bp1h9kaoya0predx6kvf",
+      "target": "/srv/ax-objects-2",
+      "device": "/dev/vdd",
+      "uuid": "4cb31524-86bd-4861-8b05-07c916f79c6b"
+    },
+    {
+      "serial": "bp1h9kaoya0predx6kvg",
+      "target": "/srv/ax-objects-3",
+      "device": "/dev/vde",
+      "uuid": "157afd5c-ef39-417f-a6be-0773c1d704db"
+    },
+    {
+      "bind": "/srv/ax-rustfs-data-0",
+      "source": "/srv/ax-objects-0/rustfs-data"
+    },
+    {
+      "bind": "/srv/ax-rustfs-data-1",
+      "source": "/srv/ax-objects-1/rustfs-data"
+    },
+    {
+      "bind": "/srv/ax-rustfs-data-2",
+      "source": "/srv/ax-objects-2/rustfs-data"
+    },
+    {
+      "bind": "/srv/ax-rustfs-data-3",
+      "source": "/srv/ax-objects-3/rustfs-data"
+    },
+    {
+      "serial": "bp16jaiu2fcmbij8mg7i",
+      "target": "/srv/ax-c4-observer-scratch",
+      "device": "/dev/vdf",
+      "uuid": "91d693ad-0c15-4e6e-b843-73e581aec594"
+    },
+    {
+      "container": "ax-pilot-20261111-objects-01-rustfs-1",
+      "started": true
+    }
+  ],
+  "automatic_retry": false
+}

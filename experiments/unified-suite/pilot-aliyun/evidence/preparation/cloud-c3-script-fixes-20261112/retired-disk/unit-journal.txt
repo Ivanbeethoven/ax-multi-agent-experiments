@@ -1,0 +1,30 @@
+Nov 12 16:57:45 ax-c1-jump systemd[1]: Started c3-current-base-20261112t085739z.service - /usr/bin/python3 -B /srv/ax-pilot-control/preparation/c3-current-base-20261112t085739z/run-c3-workspace-base.py --worker-sha256 9d2d2cf69cf6230de3236340e35706121ca498ac9f8d15b3f4690ca4a6610e55 --database 0 --workers 32 --verify-seconds 240 --trace-packed-budget --packed-output-mib 128 --packed-control-mib 8 --diagnostic-cohort.
+Nov 12 16:58:19 ax-c1-jump python3[1905]: Traceback (most recent call last):
+Nov 12 16:58:19 ax-c1-jump python3[1905]:   File "/srv/ax-pilot-control/preparation/c3-current-base-20261112t085739z/run-c3-workspace-base.py", line 153, in <module>
+Nov 12 16:58:19 ax-c1-jump python3[1905]:     run(p.parse_args())
+Nov 12 16:58:19 ax-c1-jump python3[1905]:   File "/srv/ax-pilot-control/preparation/c3-current-base-20261112t085739z/run-c3-workspace-base.py", line 91, in run
+Nov 12 16:58:19 ax-c1-jump python3[1905]:     list(executor.map(setup,('objects','metadata','client')))
+Nov 12 16:58:19 ax-c1-jump python3[1905]:   File "/usr/lib/python3.12/concurrent/futures/_base.py", line 619, in result_iterator
+Nov 12 16:58:19 ax-c1-jump python3[1905]:     yield _result_or_cancel(fs.pop())
+Nov 12 16:58:19 ax-c1-jump python3[1905]:           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nov 12 16:58:19 ax-c1-jump python3[1905]:   File "/usr/lib/python3.12/concurrent/futures/_base.py", line 317, in _result_or_cancel
+Nov 12 16:58:19 ax-c1-jump python3[1905]:     return fut.result(timeout)
+Nov 12 16:58:19 ax-c1-jump python3[1905]:            ^^^^^^^^^^^^^^^^^^^
+Nov 12 16:58:19 ax-c1-jump python3[1905]:   File "/usr/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+Nov 12 16:58:19 ax-c1-jump python3[1905]:     return self.__get_result()
+Nov 12 16:58:19 ax-c1-jump python3[1905]:            ^^^^^^^^^^^^^^^^^^^
+Nov 12 16:58:19 ax-c1-jump python3[1905]:   File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+Nov 12 16:58:19 ax-c1-jump python3[1905]:     raise self._exception
+Nov 12 16:58:19 ax-c1-jump python3[1905]:   File "/usr/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+Nov 12 16:58:19 ax-c1-jump python3[1905]:     result = self.fn(*self.args, **self.kwargs)
+Nov 12 16:58:19 ax-c1-jump python3[1905]:              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nov 12 16:58:19 ax-c1-jump python3[1905]:   File "/srv/ax-pilot-control/preparation/c3-current-base-20261112t085739z/run-c3-workspace-base.py", line 78, in setup
+Nov 12 16:58:19 ax-c1-jump python3[1905]:     ssh(role,'timeout --kill-after=8s 105s '+restore,stdout=stream,stderr=subprocess.STDOUT,timeout=120)
+Nov 12 16:58:19 ax-c1-jump python3[1905]:   File "/srv/ax-pilot-control/preparation/c3-current-base-20261112t085739z/run-c3-workspace-base.py", line 64, in ssh
+Nov 12 16:58:19 ax-c1-jump python3[1905]:     return subprocess.run(['ssh',*FLAGS,'pool-a-'+role,command],check=True,**kw)
+Nov 12 16:58:19 ax-c1-jump python3[1905]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nov 12 16:58:19 ax-c1-jump python3[1905]:   File "/usr/lib/python3.12/subprocess.py", line 571, in run
+Nov 12 16:58:19 ax-c1-jump python3[1905]:     raise CalledProcessError(retcode, process.args,
+Nov 12 16:58:19 ax-c1-jump python3[1905]: subprocess.CalledProcessError: Command '['ssh', '-F', '/srv/ax-pilot-control/parallel-control-01/ssh.conf', '-oBatchMode=yes', '-oConnectTimeout=5', 'pool-a-objects', 'timeout --kill-after=8s 105s python3 /srv/ax-receipts/a-pool-up/a-pool-up.py objects --out /srv/ax-receipts/a-pool-up/objects-c3-current-base-20261112t085739z']' returned non-zero exit status 1.
+Nov 12 16:58:19 ax-c1-jump systemd[1]: c3-current-base-20261112t085739z.service: Main process exited, code=exited, status=1/FAILURE
+Nov 12 16:58:19 ax-c1-jump systemd[1]: c3-current-base-20261112t085739z.service: Failed with result 'exit-code'.

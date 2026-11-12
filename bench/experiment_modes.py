@@ -43,9 +43,10 @@ def resolve(design, experiment, mode, placement=None):
     elif mode in FIXED_HINTS:
         hint = str(FIXED_HINTS[mode])
     blockers = []
-    if mode in ('overlay-off', 'packed-off', 'all-off'):
+    if mode in ('overlay-off', 'packed-off', 'all-off') and experiment != 'C2-runtime':
         blockers.append('same-engine-runtime-adapter-required')
     if experiment == 'C2-runtime':
+        blockers.append('read-control-qualified-candidate-required')
         blockers.append('same-mount-lower-warmth-qualification-required')
     if experiment == 'C4-fork' and engine != 'juicefs':
         blockers.append('published-packed-carrier-candidate-qualification-required')
@@ -62,6 +63,7 @@ def resolve(design, experiment, mode, placement=None):
         'brewfs_hint': hint, 'brewfs_cargo_default_features': brewfs['default_features'],
         'brewfs_cargo_features': brewfs['cargo_features'],
         'native_action': ('clone' if engine == 'juicefs' else 'fork') if experiment == 'C4-fork' else None,
+        'read_only_control': experiment == 'C2-runtime',
         'runtime_qualification_blockers': blockers,
         'dispatch_enabled': False,
     }

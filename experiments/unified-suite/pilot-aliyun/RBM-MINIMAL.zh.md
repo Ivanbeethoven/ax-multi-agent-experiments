@@ -7,7 +7,7 @@
 - C2：140 条合成回调的 Rust 严格回放，核初始树、最终树与重挂树。此输入不是完整 pytest trace，不作真实 Agent 工作量结果。
 - C3：128 × 4 KiB，核初始文件、执行固定读写、重挂核修改文件。
 - C4 派生：两文件 77 字节，原生 fork/clone、子读、覆盖及新建、父读回、子重挂。错误仍输出失败回执。
-- C2 Overlay 开销、Pack 同引擎消融、C4 跨机干净迁移：尚未具备运行前提，写 blocked 回执并退出 2。单机重挂不能算跨机迁移通过。
+- C2 只读上层对照：传入已通过的候选摘要后，两种模式会实际挂载并验证 FUSE、热态和路径计数。可写 Overlay、Pack 同引擎消融及 C4 跨机干净迁移仍需接线；单机重挂不能算跨机迁移通过。
 
 BrewFS 默认 features 保留，并统一增加 workspace-overlay、observability、rustfs-ec-block-size-hint。
 C1–C3 的统一构建来自上游 main ca07159。C4 原生 fork 另用已有发布/根目录链接数补丁的候选产物，并传入构建回执；它只用于功能验证，不能冒充统一性能产物。
@@ -46,3 +46,14 @@ C4 的旧失败已由[同步后的候选复验](evidence/preparation/rbm-c4-publ
 ~~~
 
 这是替换参数片段，不是独立命令。JuiceFS 使用 `--mode juicefs`；结果目录每次换新。当前矩阵仍只有一个 `--brewfs` 输入，因此请将 C4 候选单独运行，不要用它替换整套统一构建。
+
+
+C2 只读模式已在 [rbm 通过](evidence/preparation/rbm-c2-read-controls-20261112/README.zh.md)。沿用上面工具参数，改为：
+
+~~~bash
+--experiment C2-runtime --mode brewfs-full \
+--brewfs /home/dev/ax-brewfs-c2-namespace-20261112.F2B3t2Iv/seqfix-01.prIedKe5/brewfs-c2-namespace-seqfix-01-linux-x86_64 \
+--brewfs-provenance experiments/unified-suite/pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/raw/summary.json
+~~~
+
+这是替换参数片段。跳过上层的组用 `--mode overlay-off`。需要同一工作区顺序验证两组时，使用 `scripts/qualify-packed-read-local.py --arm both`；完整实际命令见回执的 argv。该候选与 C4 候选是不同产物，应分别运行。

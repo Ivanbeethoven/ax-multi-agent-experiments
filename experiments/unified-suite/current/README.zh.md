@@ -51,7 +51,7 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 |---|---|---|
 | C1 | [64 MiB 同步混合读写](../pilot-aliyun/evidence/preparation/c1-b-randrw-scratch-reverse-02/README.zh.md)完成正序、反序各一组配对，四臂均通过全量冷挂载 CRC | 增加重复；布局开关的单独影响 |
 | C2 | [两文件热态对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/README.zh.md)两组都跑通，计时期间零对象存储读取 | [完整 trace](../pilot-aliyun/evidence/preparation/c2-current-trace-a-draft-01/README.zh.md)回放与冷验；扩大并重复热态对照 |
-| C3 | [云上抽样](../pilot-aliyun/evidence/preparation/c3-current-workspace-cohort-01/README.zh.md)首次读完 64 个文件并通过内容校验；复读阶段到上限，未完成十万文件核验 | 完整读回；同样设置下的性能对照 |
+| C3 | [云上抽样四阶段完成](../pilot-aliyun/evidence/preparation/cloud-c3-script-fixes-20261112/README.zh.md)：64 个固定文件、128 次内容校验，正常卸载；十万文件全量仍未完成 | 完整读回；同样设置下的性能对照 |
 | C4 | [rbm 同输入原生 fork / clone](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)均通过子读父、覆盖后父不变、空缓存重挂；[十万文件运行草稿](../pilot-aliyun/C4-NATIVE-100K.zh.md)已准备 | 100,000 文件资格、配对计时、跨机续跑 |
 
 小试用于排除实现和部署问题，独立保存，不回填旧套件的正式验收。

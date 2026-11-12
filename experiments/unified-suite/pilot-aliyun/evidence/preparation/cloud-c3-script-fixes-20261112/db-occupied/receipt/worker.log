@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/srv/ax-receipts/c3-current-base-20261112t084038z/qualify-c3-workspace-base.py", line 313, in <module>
+    run(args.tag,args.database,args.workers,args.verify_seconds,args.parallel_sha256,
+  File "/srv/ax-receipts/c3-current-base-20261112t084038z/qualify-c3-workspace-base.py", line 205, in run
+    require(capture(['redis-cli','-u',rurl,'DBSIZE'])=='0','Refusing to use a populated Redis DB')
+  File "/srv/ax-receipts/c3-current-base-20261112t084038z/qualify-c3-workspace-base.py", line 56, in require
+    raise ValueError(reason)
+ValueError: Refusing to use a populated Redis DB

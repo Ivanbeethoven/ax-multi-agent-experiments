@@ -9,7 +9,7 @@ BrewFS 上游 `main` 在 2026-11-12 核对为 `ca07159`。默认是普通卷 `fl
 | C1 五种 I/O | flat-v1 / JuiceFS | Overlay、Pack 关；动态块按主配置。逐次 fsync、排空、冷重挂 CRC。 |
 | C1 动态块 | 同一 flat-v1 二进制 | auto 对 off，另测固定 hint；拆 q 时 B 必须相同。按落盘 B/q、对象大小和内联状态确认。 |
 | C2 完整回放（单任务、同质、混合、错峰） | flat-v1、workspace-v1 + Packed-v3 wire005、JuiceFS | 完整方案 Overlay/Pack/动态块开；基础版只开动态块。严格回放、最终树与冷重挂；多客户端另验 barrier 和槽位。 |
-| C2 Overlay 开销 | 同一 BrewFS 工作区引擎 | 只切 Overlay，Pack、动态块、输入和缓存相同；确认末遍仍经过 BrewFS 且 lower 后端读增量为零。开关和热态未验收，不能计时。 |
+| C2 Overlay 开销 | 同一 BrewFS 工作区引擎 | 只切 Overlay，Pack、动态块、输入和缓存相同；确认末遍仍经过 BrewFS 且 lower 后端读增量为零。[C2 候选的两文件只读路径已接入并通过](../pilot-aliyun/evidence/preparation/rbm-c2-read-controls-20261112/README.zh.md)；可写路径和更大输入另验。 |
 | C3 共享小文件与首次修改 | workspace-v1 + Packed-v3 wire005 / JuiceFS | 完整方案三项开；先验完整导入、首次私有写、父数据不变及冷重挂。Pack 消融只切 Pack，配对 payload 与对象布局；对照适配未验收。 |
 | C4 原生派生 | workspace-v1 + Packed-v3 wire005 原生 fork / JuiceFS 原生 clone | 同一非空父数据；首次子读、覆盖后父不变、排空与冷重挂。[rbm 候选复验](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)已通过子读、覆盖后父不变和冷重挂；需传构建回执并先发布 Packed 快照。不派发完整复制；大规模及性能资格另验。 |
 | C4 干净迁移 | 同一 BrewFS 工作区 / JuiceFS | stay 与 move 使用同一输入；源停写、排空、释放后目标重开同一工作区。核旧写者拒绝、会话继续及数据；跨机脚本仍需验收。 |
@@ -25,7 +25,7 @@ python3 -m bench.experiment_modes --experiment C4-handoff --mode brewfs-full --p
 ```
 
 `--experiment` 选子项，`--mode` 选对照或消融，迁移另用 `--placement stay|move`。这里的模式是文件系统配置，不涉及模型调用。选择器输出预期格式、机制、hint 和尚未验收的条件；不会启动文件系统或派发任务。
-实际最小运行用 python3 -m bench.experiment_smoke，参数及范围见[rbm 最小验证](../pilot-aliyun/RBM-MINIMAL.zh.md)。底层已经支持的 hint 参数是 `--s3-rustfs-ec-block-size-hint`；Overlay 和 Pack 的同引擎开关仍待接入。
+实际最小运行用 python3 -m bench.experiment_smoke，参数及范围见[rbm 最小验证](../pilot-aliyun/RBM-MINIMAL.zh.md)。底层已经支持的 hint 参数是 `--s3-rustfs-ec-block-size-hint`；C2 只读 Overlay 路径已有候选入口；可写 Overlay 和 Pack 的同引擎开关仍待接入。
 
 统一构建：
 

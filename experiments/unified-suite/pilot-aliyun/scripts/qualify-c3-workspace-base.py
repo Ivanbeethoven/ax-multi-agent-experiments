@@ -56,6 +56,22 @@ def require(ok, reason):
         raise ValueError(reason)
 
 
+def select_database(requested, count=None):
+    """Called while the coordinator owns the pool locks; never deletes keys."""
+    require(requested == 0 or 20 <= requested < 256 and requested != 70,
+            'Dedicated database required')
+    count = count or (lambda db: int(capture(['redis-cli','-u',REDIS+str(db),'DBSIZE'])))
+    candidates = [requested] if requested else [*range(240,256),*range(20,70),*range(71,240)]
+    observations = []
+    for db in candidates:
+        keys = count(db)
+        require(type(keys) is int and keys >= 0, 'Invalid Redis DBSIZE response')
+        observations.append(dict(database=db,keys=keys))
+        if keys == 0:
+            return db,dict(requested=requested,selected=db,observations=observations,no_deletions=True)
+    raise ValueError('No empty dedicated Redis DB; existing data was preserved')
+
+
 def cohort_indices(offset):
     return [32*i + offset + 1024*(3*i) for i in range(32)]
 
@@ -170,7 +186,7 @@ def wait_verifier(command, log, abort_path, seconds, detect_worker_failure):
 
 def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_budget=False,
         packed_output_mib=0, packed_control_mib=0, diagnostic_cohort=False):
-    require(re.fullmatch(r'c3-current-base-[0-9]{8}t[0-9]{6}z',tag) and 20 <= db < 256 and db != 70,
+    require(re.fullmatch(r'c3-current-base-[0-9]{8}t[0-9]{6}z',tag) and (db == 0 or 20 <= db < 256 and db != 70),
             'Exact new tag and dedicated Redis DB required')
     require(socket.gethostname()=='ax-pilot-20261111-client' and active(CLIENT) is not None,
             'Pool A client data disk must be mounted')
@@ -182,9 +198,9 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_bud
     require(packed_output_mib in (0,128) and
             (not packed_output_mib or (trace_packed_budget and workers == 32)),
             'The 128 MiB probe requires budget tracing and 32 workers')
-    require(not diagnostic_cohort or (not parallel_sha256 and workers == 32 and verify_seconds == 120
+    require(not diagnostic_cohort or (not parallel_sha256 and workers == 32 and verify_seconds in (120,240)
             and trace_packed_budget and packed_output_mib == 128 and packed_control_mib == 8),
-            'Cohort requires a 120-second window, both raised budgets, and no separate verifier')
+            'Cohort requires a 120- or 240-second diagnostic window, both raised budgets, and no separate verifier')
     require(packed_control_mib in (0,8) and
             (not packed_control_mib or ((parallel_sha256 or diagnostic_cohort) and packed_output_mib == 128)),
             'The 8 MiB control probe requires the diagnostic verifier and 128 MiB output')
@@ -201,6 +217,7 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_bud
             all(asset['config']['data']['s3'].get(k)==v for k,v in data['s3'].items()) and
             re.fullmatch(r'base/objects/[0-9]+/[a-f0-9]{64}',asset['manifest_key']),
             'Unexpected immutable Packed source')
+    db, database_selection = select_database(db)
     rurl = REDIS+str(db)
     require(capture(['redis-cli','-u',rurl,'DBSIZE'])=='0','Refusing to use a populated Redis DB')
     slot = Path('/sys/fs/cgroup/ax-slot-1')
@@ -212,6 +229,7 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_bud
     namespace = str(uuid.uuid4())
     write(out/'intent.json',dict(schema='c3-workspace-base-qualification-v1',tag=tag,namespace=namespace,
           redis_db=db,bucket=data['s3']['bucket'],manifest_key=asset['manifest_key'],
+          database_selection=database_selection,
           pins={str(p):h for p,h in pins.items()},formal_sample=False,automatic_retry=False,
           verifier_workers=workers or 1,verify_timeout_seconds=verify_seconds,trace_packed_budget=trace_packed_budget,
           packed_output_budget_bytes=(packed_output_mib or 32)*1024**2,
