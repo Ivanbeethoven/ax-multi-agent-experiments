@@ -2,7 +2,7 @@
 
 > 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
 
-下述入口支持 JuiceFS `clone -p` 和 BrewFS `flat-v1` 完整拷贝。其他臂另走各自的原生路径。基线准备、校准和正式样本分别记账。
+下述入口仅供原 JuiceFS `clone -p` 路线参考。BrewFS `flat-v1` 完整拷贝已撤出，不再创建请求、校准或执行正式轮。原 Flat 的计时、校验和归档方法保留在本页供查证。基线准备、校准和正式样本分别记账。
 
 ```bash
 python3 "$FROZEN_REPO/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py" \

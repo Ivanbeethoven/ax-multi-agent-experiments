@@ -243,6 +243,8 @@ python3 bench/s3_requests.py read --plan "$REQUEST_PLAN" --plan-sha256 "$REQUEST
 
 ## 7. F：fork / clone
 
+BrewFS Flat 完整拷贝已撤出。表中全量复制命令只解释旧记录，不再执行；现行派生对照见[当前 C4 方案](../../unified-suite/current/WORKLOADS.zh.md)。
+
 生命周期 API 的实际范围、固定幂等键重试、逐子项完成与安全删除见 [MANAGER](MANAGER.zh.md)。文档以 PR #394 合并提交 `cba857b567fa6e94d50edd1d2e1c47c25c7b2e50` 为基线：Redis/TiKV workspace-v1 与 native-v2 P1 catalog lower 已支持。执行前冻结 Manager API 或原生 CLI 路径、实际版本/features/产物摘要、capability 与格式；未通过真实非空语料、客户端挂载映射及 RustFS/FUSE 资格时保持 blocked，不因合并或元数据测试通过就进入计时。初始化的空 root 不代表本节语料，native P1 也不把可变 head 自动封存为 revision；不接受 PublishedRevision/frozen/packed。API 202、元数据全部完成、首挂载/首用和远端确认必须分别记录。
 
 AI 先准备并核验静止源树，再对一个 baseline 执行一次创建：
@@ -251,7 +253,7 @@ AI 先准备并核验静止源树，再对一个 baseline 执行一次创建：
 |---|---|
 | BrewFS | 选定 API 路径时使用 `POST /api/v1/volumes/{volume_id}/forks`，按 MANAGER 保存完整 revision、固定请求/key、operation 及逐项结果；选定原生路径时使用冻结版本 `workspace fork REVISION --count N`，具体 CLI 需重新核验，旧 [fork 初始化](../../../bench/reference/aliyun_suite.py#L319) 仅作参考 |
 | JuiceFS | 已核对 `clone --help` 后执行本版本 `clone -p SRC DST`；8 个副本按预先冻结的顺序逐次创建 |
-| 全量复制 | 在 BrewFS Native flat-v1 挂载内执行 `cp -a --reflink=never --sparse=never SRC DST`，记录实际读写量；不是本地 ext4/XFS 参考 |
+| 全量复制（历史，已撤出） | 原操作在 BrewFS Native flat-v1 挂载内运行 `cp -a --reflink=never --sparse=never SRC DST`，记录实际读写量 |
 
 创建之后，AI 分别安排挂载、首次读、首次写+fsync、卸载/重挂、隔离检查；各阶段分别计时。8 副本主组均按串行创建和串行首用，报告总 makespan 与逐副本值；并行创建另列。
 
