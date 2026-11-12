@@ -29,6 +29,9 @@ B 组 [18:03 只读核验](evidence/preparation/release-pool-b-freeze-01/result.
 
 最后停止本轮跳板服务，核新协调盘已归档、卸载后再分离并删除；原跳板切回`StopCharging`。原跳板系统盘、EIP、VPC、交换机、安全组和OSS数据保留。费用估算是按报价分段计算，最终账单另核。
 
+## 原 B 池已退役
+
+2026-11-12 先保全旧 C1 待归档路径、失败和迁移证据，私有协调盘与本机均完成 SHA 校验。阿里云随后确认原 B 池三台与九块盘全部不存在；A 池及跳板继续保留，均已停止计算计费。见[实际退役回执](evidence/preparation/b-pool-retirement-01/README.zh.md)。上文 B 池清单仅用于追溯旧资源，不能再作为可用池开机。
 ## 退役的 On1 专用采样盘
 
 `d-bp16jaiu2fcmbij8mg7i` 是旧 C4 On1 单独创建的 100 GiB 盘。当前 C2 的 A 池启动恢复只需要四块原 RustFS 数据盘，使用 `a-pool-up.py objects --without-legacy-observer-scratch`。原 Flat 完整复制流程已经退役；历史恢复结果见[独立 OSS 读回](evidence/preparation/c4-observer-fold-real-03/recovered-01/publication-01/README.zh.md)。
