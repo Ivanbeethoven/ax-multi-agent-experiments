@@ -119,8 +119,8 @@ def render(data, paper, qa_scripts):
         "legend.fontsize": 8.2, "legend.frameon": False,
         "axes.spines.top": False, "axes.spines.right": False,
         "axes.spines.left": False, "axes.linewidth": .6,
-        "axes.edgecolor": "#7B858C", "xtick.color": "#303943",
-        "ytick.color": "#303943", "pdf.fonttype": 42, "ps.fonttype": 42,
+        "axes.edgecolor": "#222222", "xtick.color": "#222222",
+        "ytick.color": "#222222", "pdf.fonttype": 42, "ps.fonttype": 42,
         "svg.fonttype": "none", "svg.hashsalt": "agent-workloads",
     })
     # Two distinct questions: metadata service demand and data request granularity.
@@ -144,10 +144,10 @@ def render(data, paper, qa_scripts):
     labels = []
     for i, row in enumerate(profiles):
         share = 100*row["classes"]["Metadata"]/row["events"]
-        a.barh(i, share, height=.56, color=OPS["Metadata"], linewidth=0)
+        a.barh(i, share, height=.56, color="#595959", edgecolor="#222222", linewidth=.55)
         labels.append((a.text(share+1.8, i, f"{share:.1f}", va="center", fontsize=8.2), share, i))
 
-    size_colors = ("#2D6084", "#93B0C2", "#E1E9EE")
+    size_colors = ("#D55E00", "#BDBDBD", "#FFFFFF")
     size_labels = ("≤4 KiB", "4–64 KiB", ">64 KiB")
     row_names, row_positions = [], []
     for gi, (group, group_label) in enumerate(zip(GROUPS, ("Initial", "Extended"))):
@@ -160,12 +160,12 @@ def render(data, paper, qa_scripts):
             for row, color in zip(rows, size_colors):
                 pct = 100*row["count"]/row["denominator"]
                 b.barh(y, pct, left=left, height=.56, color=color,
-                       edgecolor="white", linewidth=.4)
+                       edgecolor="#222222", linewidth=.55)
                 left += pct
             assert abs(left-100)<1e-9
     b.set(xlim=(0,100), ylim=(3.95,-.6), xticks=[0,50,100],
           yticks=row_positions, yticklabels=row_names)
-    fig.legend(handles=[Patch(facecolor=c, edgecolor="#71838E", linewidth=.4, label=l)
+    fig.legend(handles=[Patch(facecolor=c, edgecolor="#222222", linewidth=.55, label=l)
                         for c,l in zip(size_colors,size_labels)],
                loc="center", bbox_to_anchor=(144/width,5.6/height), ncol=3,
                fontsize=7.8, handlelength=.85, handletextpad=.35,

@@ -34,3 +34,8 @@ PDF is vector, the exported PNG is 600 dpi, and the QA preview is 300 dpi.
 The renderer reconciles every source count and runs the panel-alignment check
 before export. Run PDF text/collision audits and inspect the compiled page
 following layout changes.
+
+Palette: metadata profiles use neutral gray; request-size bins use vermilion
+(≤4 KiB), medium gray (4–64 KiB), and white (>64 KiB), with dark outlines.
+The grayscale rendering retains three distinct lightness levels. Dimensions,
+fonts, plotted values and normalization are unchanged.
