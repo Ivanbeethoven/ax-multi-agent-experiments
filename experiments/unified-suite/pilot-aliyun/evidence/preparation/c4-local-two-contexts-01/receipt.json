@@ -1,0 +1,89 @@
+{
+  "schema": "c4-local-juicefs-two-mount-namespaces-v1",
+  "passed": true,
+  "evidence_source": "Safe stdout from successful bounded execution and independent same-boot cleanup check; temporary raw receipts were no longer present when aggregating.",
+  "raw_temp_receipts_available": false,
+  "cleanup_readback_at": "2026-11-12T12:40:50+08:00",
+  "scope": "One WSL host, distinct JuiceFS client mount namespaces; standalone functional diagnostic, not supervised target leaf, cross-host, formal, or performance evidence.",
+  "boot_id": "7d66628b-2791-47f0-8097-193e337d1327",
+  "shared_volume_formatted_once": true,
+  "workspace": "/srv/ax-pilot-session/workspace",
+  "target_workspace_copy_bytes": 0,
+  "model_calls": 0,
+  "cloud_workers_started": 0,
+  "source_closed_tree_sha256": "94ad0544067bbeb20cf472681494b34960722e2f255523afe7bafe93134b69e0",
+  "target_cold_tree_sha256": "94ad0544067bbeb20cf472681494b34960722e2f255523afe7bafe93134b69e0",
+  "target_after_export_tree_sha256": "9c81a9a8203d83952684304d2ad58f71a2a8d925d21eaeaaee6c8927e81f8edb",
+  "original_source_target_export_sha256": "b3bdd63f6969387f11394cf78fd050352522c60a61a37c69ee835e4d30bd1bd9",
+  "phases": [
+    {
+      "side": "source",
+      "mount_namespace": "mnt:[4026532378]",
+      "mount_id": 710,
+      "client_pid": 1066,
+      "fuse_pid": 1068,
+      "fuse_worker_observed_pid": 1084,
+      "empty_home": true,
+      "workspace_local_xdg": true,
+      "export_interfaces": [
+        "lo"
+      ],
+      "native_zero_debt_sample_monotonic_ns": [
+        300785567038,
+        301839001222
+      ],
+      "fuse_exit_code": 0,
+      "mount_absent": true
+    },
+    {
+      "side": "target",
+      "mount_namespace": "mnt:[4026532295]",
+      "mount_id": 541,
+      "client_pid": 1795,
+      "fuse_pid": 1797,
+      "fuse_worker_observed_pid": 1814,
+      "empty_home": true,
+      "workspace_local_xdg": true,
+      "export_interfaces": [
+        "lo"
+      ],
+      "native_zero_debt_sample_monotonic_ns": [
+        358606603603,
+        359659064345
+      ],
+      "fuse_exit_code": 0,
+      "mount_absent": true
+    }
+  ],
+  "native_zero_debt_gauges": [
+    "juicefs_staging_block_bytes",
+    "juicefs_staging_blocks",
+    "juicefs_staging_writing_blocks"
+  ],
+  "pins": {
+    "checkpoint_sha256": "d66cb316b2d1d66b80bb56cbc48448d57f15cba410761d2f1541612b5d131fb5",
+    "source_tree_manifest_sha256": "dfc0b0b5efc7ed3796ac1da8a4dee987a10ac006b6a6eefe02bae1be8da9f981",
+    "juicefs_binary_sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+    "opencode_binary_sha256": "025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233",
+    "redis_image_sha256": "63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs_image_sha256": "942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "cleanup": {
+    "redis_container": "ax-pilot-c4-local-d9zgew-redis",
+    "rustfs_container": "ax-pilot-c4-local-d9zgew-rustfs",
+    "redis_exit_code": 0,
+    "rustfs_exit_code": 0,
+    "owned_containers_absent": true,
+    "all_observed_test_pids_absent": true,
+    "ports_released": [
+      16379,
+      19000,
+      9567
+    ]
+  },
+  "earlier_attempt": {
+    "outer_timeout_seconds": 115,
+    "target_started": false,
+    "owned_containers_stopped_and_removed": true
+  }
+}
