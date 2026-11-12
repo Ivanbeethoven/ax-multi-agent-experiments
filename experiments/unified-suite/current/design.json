@@ -1,6 +1,6 @@
 {
   "schema": "ax-c1-c4-design-v2",
-  "updated": "2026-11-11",
+  "updated": "2026-11-12",
   "status": "design-only",
   "execution_enabled": false,
   "execution_blockers": [
@@ -71,7 +71,7 @@
       "overlay": false,
       "packed_metadata": false,
       "dynamic_block": true,
-      "role": "internal-system-control",
+      "role": "c1-c2-system-control",
       "status": "requires-current-build-qualification"
     },
     "brewfs-full": {
@@ -110,12 +110,13 @@
       },
       "engine": "workspace-v1",
       "workloads": [
-        "C2",
-        "C4-fork"
+        "C2-runtime"
       ],
+      "protocol": "warm-lower-runtime-only",
       "requires": [
-        "same-engine-eager-materialization",
-        "identical-payload-and-metadata-layout"
+        "same-engine-overlay-toggle",
+        "identical-payload-and-metadata-layout",
+        "verified-warm-lower-before-timing"
       ],
       "status": "adapter-required"
     },
@@ -427,11 +428,25 @@
       "pacing": "off",
       "simulate_llm": false,
       "performance_mode": true,
-      "trace_and_blobs_outside_mount": true
+      "trace_and_blobs_outside_mount": true,
+      "overlay_runtime": {
+        "arms": ["brewfs-full", "overlay-off"],
+        "working_set": "all-lower-metadata-and-data-ranges-touched-by-timed-ops",
+        "warmup_passes_per_arm": 2,
+        "warmup_scope": ["metadata", "data"],
+        "warmup_read_only": true,
+        "verify": "native-cache-evidence-on-final-pass",
+        "max_lower_metadata_misses": 0,
+        "max_lower_backend_read_bytes": 0,
+        "cache_policy": "same-budget-no-remount-or-reset-after-warmup",
+        "cache_overflow": "freeze-a-smaller-warm-trace-separately",
+        "prepare_and_warmup_outside_timer": true,
+        "timing": "same-operations-immediately-after-arm-warmup",
+        "drain_reported_separately": true
+      }
     },
     "C3": {
       "arms": [
-        "brewfs-basic",
         "brewfs-full",
         "juicefs"
       ],
@@ -460,7 +475,6 @@
     },
     "C4-fork": {
       "arms": [
-        "brewfs-basic",
         "brewfs-full",
         "juicefs"
       ],
@@ -475,7 +489,10 @@
       "fixture": "fork-fixture-million-4k",
       "creation": "burst",
       "source": "exact-immutable-revision",
-      "basic_copy": "cp --reflink=never -a",
+      "creation_methods": {
+        "brewfs-full": "native-fork",
+        "juicefs": "native-clone"
+      },
       "mutations": [
         "overwrite",
         "append",

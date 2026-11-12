@@ -40,12 +40,14 @@ python3 scenarios/k8s-containers/scripts/download_archives.py \
 | 导入 | 构建 Packed manifest；全量读回；保存真实上传 hint、对象布局与源树 SHA |
 | 初始化 | `brewfs workspace --meta-backend redis --meta-url … --workspace-namespace … init-packed-volume --manifest-key … --data-config …`；保存返回的 workspace/revision |
 | 挂载 | `brewfs mount --config … MOUNTPOINT`；使用 workspace-v1、真实 UUID/namespace，核 catalog lower 绑定 |
-| 派生 | 从确定的不可变 revision 创建 child，逐个保存返回 ID、首读与修改结果 |
+| 派生 | BrewFS 对已验证 revision 原生 fork，JuiceFS 对同内容原生 clone；保存 argv、父子 ID、首读、任务时间和冷验 |
 | 关闭/重开 | 排空、原生卸载和进程退出；以同一 workspace 冷重挂，验证全部 touched 状态 |
-| 消融 | 逐项记录请求开关、实际动作与验证证据 |
+| Overlay 运行开销 | 同一引擎逐臂预热目标 lower；保留工作集、挂载身份、两遍访问及末遍计数，再开始相同操作的计时 |
 | 多机 | 独立 cgroup/路径、全员 ready barrier、固定启动偏移和每 Agent 的真实退出 |
 
 命令结构来自已核对源码；省略号由本批私有配置填充。保存原生 `--help` 和完整解析设置后再生成 argv。新 route、全局槽位和采集适配尚待接入 suite，旧 planner 不接受新规划。
+
+Overlay 热态回执至少含 `input_sha256`、两臂共同的 lower 工作集清单 SHA、各臂真实开关状态、实际缓存预算、挂载身份、每遍操作数和末遍 lower 元数据缺失及后端读取字节差值。协调者保存本臂预热结束、验证通过和计时放行的顺序。末遍缺字段、计数重置、发生 remount 或预热没有覆盖计时段的 lower 工作集时，结果不进入热态对照。
 
 ## 指标收集
 

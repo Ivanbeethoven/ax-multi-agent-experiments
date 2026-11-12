@@ -13,7 +13,7 @@
 | JuiceFS | ≥1.4.2；记录精确版本与 SHA；所需参数通过实际 `--help` 和挂载核对 |
 | 构建 | BrewFS 同一 release 构建保留 default features，额外包含 workspace-overlay、rustfs-ec-block-size-hint；若工具链要求更多能力，在资格阶段确定并统一构建 |
 | 分发 | 远端构建一次，产物经内网分发并逐机验 SHA；禁止按消融臂重编不同 feature |
-| 基础版 | volume_format=flat-v1；独立 metadata namespace 和 S3 前缀 |
+| 基础版 | 仅用于 C1/C2；volume_format=flat-v1；独立 metadata namespace 和 S3 前缀 |
 | 完整方案 | volume_format=workspace-v1；schema 1 catalog；Packed-v3 wire005 基线绑定、真实 workspace UUID、workspace_namespace |
 | 排除字段 | 新完整方案不使用 native_base、native_control_version、entity_volume_id、experimental-entity-mount |
 
@@ -108,6 +108,6 @@ RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED=true
 
 32档为9台/208 vCPU/832 GiB RAM，迁移时10台；C1为6台。两池总并发、资源锁与按需启动见[并行流程](../MAIN-SCALE.zh.md)。
 
-2,380 GiB 数据盘只是起始询价规格。每盘按 `峰值占用 / 0.8` 核容量，包含最坏完整拷贝、纠删码、AOF rewrite、输入解压、日志、失败现场和归档副本；按最满单盘及 inode 检查。C4 百万×4 KiB 的父目录+32 副本为 135.168 GB 逻辑数据，不能直接等同后端物理占用。
+2,380 GiB 数据盘只是起始询价规格。每盘按 `峰值占用 / 0.8` 核容量，包含原生派生实际占用、写入增量、纠删码、AOF rewrite、输入解压、日志、失败现场和归档副本；按最满单盘及 inode 检查。C4 百万×4 KiB 的父目录与 32 个子工作区最多暴露 135.168 GB 逻辑数据，不能直接等同后端物理占用。
 
 [地域与云盘账单](../MAIN-C2-COST-DISKS.zh.md)保留 2026-11-11 的历史询价；它不是当前报价承诺。开机前按同规格重新询价，先准备二进制和输入，再开所需节点。费用按开机到真正释放计算，包含准备/校验/失败/归档。停止实例不等于云盘停止计费。

@@ -28,9 +28,9 @@ class CurrentDesignTests(unittest.TestCase):
     def test_count_whole_system_cells_and_keep_readiness_separate(self):
         counts = cell_counts(self.config)
         self.assertEqual(counts['formal_system_cells'],
-                         {'C1': 30, 'C2': 99, 'C3': 84, 'C4-fork': 42, 'C4-handoff': 44})
-        self.assertEqual(counts['formal_total'], 299)
-        self.assertEqual(counts['pilot_total'], 23)
+                         {'C1': 30, 'C2': 99, 'C3': 56, 'C4-fork': 28, 'C4-handoff': 44})
+        self.assertEqual(counts['formal_total'], 257)
+        self.assertEqual(counts['pilot_total'], 21)
         self.assertFalse(self.config['execution_enabled'])
         self.assertFalse(any(self.config['readiness'].values()))
 
@@ -50,6 +50,18 @@ class CurrentDesignTests(unittest.TestCase):
         self.rejected(lambda c: c['ablations'][0].update(engine='flat-v1'))
         self.rejected(lambda c: c['ablations'][0]['switches'].update(packed_metadata=False))
         self.rejected(lambda c: c['ablations'][1].update(requires=[]))
+
+    def test_no_full_copy_disguised_as_a_fork_or_clone(self):
+        self.rejected(lambda c: c['workloads']['C4-fork']['arms'].insert(0, 'brewfs-basic'))
+        self.rejected(lambda c: c['workloads']['C4-fork']['creation_methods'].update({'brewfs-full':'full-copy'}))
+        self.rejected(lambda c: c['workloads']['C4-fork'].update(basic_copy='cp -a'))
+        self.rejected(lambda c: c['workloads']['C3']['arms'].insert(0, 'brewfs-basic'))
+
+    def test_overlay_run_requires_verified_warm_data_and_metadata_in_both_arms(self):
+        self.rejected(lambda c: c['ablations'][0]['workloads'].append('C4-fork'))
+        self.rejected(lambda c: c['workloads']['C2']['overlay_runtime'].update(warmup_scope=['metadata']))
+        self.rejected(lambda c: c['workloads']['C2']['overlay_runtime'].update(max_lower_backend_read_bytes=1))
+        self.rejected(lambda c: c['workloads']['C2']['overlay_runtime'].update(prepare_and_warmup_outside_timer=False))
 
     def test_no_silent_scale_reduction_or_growth(self):
         self.rejected(lambda c: c['workloads']['C2'].update(scale_agents=[8, 16, 64]))
