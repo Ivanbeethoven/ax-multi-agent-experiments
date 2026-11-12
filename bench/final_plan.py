@@ -64,7 +64,7 @@ def groups():
               {'files':[4], 'file_bytes':[536870912], 'request_bytes':[4096], 'cache':['same-files-W']},
               ['same-prefilled-files', 'full-coverage-and-convergence', 'measurement-cache-state-observed', 'fuse-and-db-counters'],
               'bench/warm_same_files.py', 'same-build flat/overlay; stepwise fio preparation/check; mounted qualification pending'),
-        group('RQ2', 'P2-ml-readonly-end-to-end', 'P', ['packed', 'native-tikv-flat-v1'],
+        group('RQ2', 'P2-ml-readonly-end-to-end', 'P', ['packed', 'native-tikv-flat'],
               {'files':[1048576], 'readers':[1,16], 'workload':['discovery-stat','shuffled-read'],
                'cache':['client-cold','same-readset-warm']},
               ['packed-target-path-qualified', 'frozen-ml-agent-task-readset', 'source-file-inventory', 'all-content',

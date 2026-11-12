@@ -4,7 +4,7 @@
   "status": "design-only",
   "execution_enabled": false,
   "execution_blockers": [
-    "workspace-v1-suite-adapter",
+    "workspace-suite-adapter",
     "c4-native-fork-populated-lower-qualification",
     "three-runtime-switches",
     "full-input-reopen-isolation",
@@ -17,15 +17,16 @@
   "versions": {
     "brewfs": {
       "repository": "https://github.com/brewfs/brewfs",
-      "branch": "main",
+      "branch": "codex/packed-prefetch",
       "revision_policy": "branch-latest-per-campaign",
-      "reviewed_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+      "reviewed_commit": "6912a796abddbd96c60aad6cc672fcd926a13712",
       "cargo_features": [
-        "workspace-overlay",
+        "workspace",
         "observability",
         "rustfs-ec-block-size-hint"
       ],
-      "default_features": true
+      "default_features": true,
+      "qualification": "candidate; exact tested commit is recorded with cache results"
     },
     "rustfs": {
       "repository": "https://github.com/Ivanbeethoven/rustfs",
@@ -69,7 +70,7 @@
   },
   "arms": {
     "brewfs-basic": {
-      "engine": "flat-v1",
+      "engine": "flat",
       "overlay": false,
       "packed_metadata": false,
       "dynamic_block": true,
@@ -77,8 +78,8 @@
       "status": "requires-current-build-qualification"
     },
     "brewfs-full": {
-      "engine": "workspace-v1",
-      "lower": "packed-v3-wire005",
+      "engine": "workspace",
+      "lower": "packed-snapshot",
       "overlay": true,
       "packed_metadata": true,
       "dynamic_block": true,
@@ -95,8 +96,8 @@
     }
   },
   "excluded_engines": [
-    "workspace-entity-v1",
-    "workspace-native-v2"
+    "entity-workspace",
+    "native-workspace"
   ],
   "ablations": [
     {
@@ -110,7 +111,7 @@
         "packed_metadata": true,
         "dynamic_block": true
       },
-      "engine": "workspace-v1",
+      "engine": "workspace",
       "workloads": [
         "C2-runtime"
       ],
@@ -133,7 +134,7 @@
         "packed_metadata": false,
         "dynamic_block": true
       },
-      "engine": "workspace-v1",
+      "engine": "workspace",
       "workloads": [
         "C2",
         "C3"
@@ -156,7 +157,7 @@
         "packed_metadata": true,
         "dynamic_block": false
       },
-      "engine": "workspace-v1",
+      "engine": "workspace",
       "workloads": [
         "C1-layout",
         "C2"
@@ -180,7 +181,7 @@
         "packed_metadata": false,
         "dynamic_block": false
       },
-      "engine": "workspace-v1",
+      "engine": "workspace",
       "workloads": [
         "C2"
       ],
@@ -316,14 +317,14 @@
     },
     "packed": {
       "budget_env": {
-        "BREWFS_PACKED_V3_ROOTS_BUDGET_BYTES": 16777216,
-        "BREWFS_PACKED_V3_METADATA_OWNED_BUDGET_BYTES": 268435456,
-        "BREWFS_PACKED_V3_PLANS_BUDGET_BYTES": 33554432,
-        "BREWFS_PACKED_V3_CONTROL_BUDGET_BYTES": 1048576,
-        "BREWFS_PACKED_V3_STORED_BUDGET_BYTES": 33554432,
-        "BREWFS_PACKED_V3_RAW_BUDGET_BYTES": 33554432,
-        "BREWFS_PACKED_V3_DECODE_WORKSPACE_BUDGET_BYTES": 8388608,
-        "BREWFS_PACKED_V3_OUTPUT_BUDGET_BYTES": 33554432
+        "BREWFS_PACKED_ROOTS_BUDGET_BYTES": 16777216,
+        "BREWFS_PACKED_METADATA_OWNED_BUDGET_BYTES": 268435456,
+        "BREWFS_PACKED_PLANS_BUDGET_BYTES": 33554432,
+        "BREWFS_PACKED_CONTROL_BUDGET_BYTES": 1048576,
+        "BREWFS_PACKED_STORED_BUDGET_BYTES": 33554432,
+        "BREWFS_PACKED_RAW_BUDGET_BYTES": 33554432,
+        "BREWFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": 8388608,
+        "BREWFS_PACKED_OUTPUT_BUDGET_BYTES": 33554432
       },
       "cache_accounting": "record lower budget separately; not equal to VFS read cache",
       "producer": {
@@ -432,10 +433,16 @@
       "performance_mode": true,
       "trace_and_blobs_outside_mount": true,
       "overlay_runtime": {
-        "arms": ["brewfs-full", "overlay-off"],
+        "arms": [
+          "brewfs-full",
+          "overlay-off"
+        ],
         "working_set": "all-lower-metadata-and-data-ranges-touched-by-timed-ops",
         "warmup_passes_per_arm": 2,
-        "warmup_scope": ["metadata", "data"],
+        "warmup_scope": [
+          "metadata",
+          "data"
+        ],
         "warmup_read_only": true,
         "verify": "same-mount-native-lower-range-deltas-on-final-pass",
         "userspace_path_required": true,

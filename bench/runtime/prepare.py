@@ -37,7 +37,7 @@ def native_argv(filesystem, binary, config_path, config, point, cluster, metrics
         fmt = config['volume_format']; backend = config['meta']['backend']
         if backend != (metadata_backend if unified else 'tikv' if cluster == 'C2' else 'redis'): raise ValueError('wrong baseline metadata backend')
         if not unified and fmt.startswith('packed-') and cluster != 'C2': raise ValueError('Pack belongs only to legacy C2')
-        if fmt not in ('flat-v1','workspace-v1','workspace-native-v2','packed-metadata-v3') and not (unified and fmt=='workspace-entity-v1'):
+        if fmt not in ('flat','workspace','native-workspace','packed-metadata-v3') and not (unified and fmt=='entity-workspace'):
             raise ValueError('unqualified volume format')
         if fmt.startswith('workspace-') and (not config.get('workspace') or not config.get('workspace_namespace')):
             raise ValueError('workspace and namespace identities required')
@@ -46,7 +46,7 @@ def native_argv(filesystem, binary, config_path, config, point, cluster, metrics
         cache = config['cache']
         if cache.get('writeback_mode') != 'upload_before_commit':
             raise ValueError('baseline mount adapter requires explicit upload_before_commit; async is a separate qualification')
-        if fmt == 'workspace-native-v2' and 'native_base' not in config: raise ValueError('native P1 config missing')
+        if fmt == 'native-workspace' and 'native_base' not in config: raise ValueError('native P1 config missing')
         if dynamic_block not in ('auto','off','65536','262144','1048576','4194304'):
             raise ValueError('dynamic block policy must be auto, off or a supported byte size')
         configured = config['data']['s3'].get('rustfs_ec_block_size_hint')
@@ -55,7 +55,7 @@ def native_argv(filesystem, binary, config_path, config, point, cluster, metrics
         if not isinstance(config.get('fuse',{}).get('cache_ttl_ms'),int) or not isinstance(config['fuse'].get('keep_cache'),bool):
             raise ValueError('freeze cache TTL and keep_cache explicitly')
         argv=[binary,'mount','--config',config_path,point]
-        if fmt == 'workspace-entity-v1':
+        if fmt == 'entity-workspace':
             import uuid
             if not uuid.UUID(config['entity_volume_id']).int or not uuid.UUID(config['workspace']).int:raise ValueError('non-nil entity identities required')
             packed=config.get('packed_manifest_key'); native=config.get('entity_native_manifest_key')

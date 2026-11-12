@@ -38,7 +38,7 @@ class PackedMethods:
         self.runtime=pilot_context.select(self.control,self.s.get('runtime_control'));self.fleet=load(self.runtime/'fleet.json')
         self.plan=load(self.control/'suite/plan.json');self.cell=next(c for c in self.plan['cells'] if c['id']==self.s['cell_id'])
         self.pool=pool_of(self.cell);self.id=self.cell['id'];self.arm='packed';self.product='brewfs';self.kind='smallfiles'
-        if (self.cell['workload'],self.cell['arm_id'],self.cell['arm']['engine'])!=('smallfiles','packed','workspace-entity-v1'):
+        if (self.cell['workload'],self.cell['arm_id'],self.cell['arm']['engine'])!=('smallfiles','packed','entity-workspace'):
             raise ValueError('Original Packed C3 cell required')
         if self.cell['params']['agents']!=1 or self.cell['params']['workspaces']!=1:raise ValueError('One complete workspace required')
         self.purpose=self.s.get('purpose','experiment');self.on=self.purpose!='observer-calibration-off'

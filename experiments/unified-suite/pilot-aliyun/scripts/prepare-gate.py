@@ -38,7 +38,7 @@ def main():
 
     build_path = root / 'receipts/build-manifest.json'
     build = json.loads(build_path.read_text())
-    expected_sources = {'brewfs': ('https://github.com/brewfs/brewfs.git', 'main'),
+    expected_sources = {'brewfs': ('https://github.com/brewfs/brewfs.git', 'codex/packed-prefetch'),
         'rustfs': ('https://github.com/Ivanbeethoven/rustfs.git', 'feat/dynamic-block-size-rebased')}
     if {x['component'] for x in build['sources']} != set(expected_sources):
         raise ValueError('Both required components must be present')
@@ -65,7 +65,7 @@ def main():
     for name, field in [('juicefs', 'juicefs_binary_sha256'), ('opencode', 'opencode_sha256')]:
         if digest(root / 'bin' / name) != dependencies[field]:
             raise ValueError('Dependency binary changed')
-    for name in ('brewfs', 'packed_v3_snapshot_fixture', 'entity_metadata_probe', 'smallfiles', 'full-fuse-replay'):
+    for name in ('brewfs', 'packed_snapshot_fixture', 'smallfiles', 'full-fuse-replay'):
         report = (root / 'receipts' / (name + '-ldd.txt')).read_text()
         if 'not found' in report or not report.strip():
             raise ValueError('Local runtime dependency check incomplete')

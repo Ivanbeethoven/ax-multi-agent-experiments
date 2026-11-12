@@ -23,11 +23,11 @@
 
 | 图表名 / ID | 实际路径 | Overlay / Pack / 动态块 |
 |---|---|---|
-| BrewFS 基础版 / `brewfs-basic` | flat-v1，仅用于 C1 I/O 和 C2 回放 | 关 / 关 / 开 |
-| BrewFS 完整方案 / `brewfs-full` | workspace-v1 + Packed-v3 wire005 lower | 开 / 开 / 开 |
+| BrewFS 基础版 / `brewfs-basic` | flat，仅用于 C1 I/O 和 C2 回放 | 关 / 关 / 开 |
+| BrewFS 完整方案 / `brewfs-full` | workspace + Packed snapshot lower | 开 / 开 / 开 |
 | JuiceFS / `juicefs` | 原生挂载与 clone；唯一外部对照 | 原生实现；共用 enabled RustFS，不发 BrewFS hint |
 
-新实验排除 workspace-entity-v1 和 workspace-native-v2。旧记录中的 native、native-workspace、packed 分别指 flat、native-v2、entity-packed，按原记录解释。
+新实验排除 entity-workspace 和 native-workspace。旧记录中的 native、native-workspace、packed 分别指 flat、native-v2、entity-packed，按原记录解释。
 
 ## 三个开关与消融
 
@@ -58,4 +58,4 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 
 用户已将本轮缩为 1 Agent、一万文件；耗时过大的项保存证据后跳过。[本轮收尾范围](../pilot-aliyun/evidence/progress/closing-small-pilot-20261112/README.zh.md)列明已完成与未完成。百万文件/最高32并发属于后续正式条件。旧 `bench.suite template` 只有显式 `--legacy-catalog` 才生成旧协议；它不生成本方案。
 
-源码核对版本为 BrewFS main `ca07159f`、RustFS 指定分支 `f4ed2025`，不是后续运行的固定版本。依据：[卷配置](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/config.rs)、[挂载与 lower 绑定](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/cli.rs)、[Packed 预算](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/workspace_overlay/packed_v3/wire005/budget.rs)、[hint 策略](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/cadapter/s3/ec_hint.rs)。
+源码核对版本为 BrewFS main `ca07159f`、RustFS 指定分支 `f4ed2025`，不是后续运行的固定版本。依据：[卷配置](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/config.rs)、[挂载与 lower 绑定](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/cli.rs)、[Packed 预算](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/workspace/packed/wire005/budget.rs)、[hint 策略](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/cadapter/s3/ec_hint.rs)。

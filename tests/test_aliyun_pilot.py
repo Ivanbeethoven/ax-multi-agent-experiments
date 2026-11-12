@@ -77,7 +77,7 @@ class PilotResourceBoundaries(unittest.TestCase):
             manifest = root/'build.json'
             manifest.write_text(json.dumps({'sources':[
                 {'component':'brewfs','repository':'https://github.com/brewfs/brewfs.git',
-                 'branch':'main','source_commit':'a'*40},
+                 'branch':'codex/packed-prefetch','source_commit':'a'*40},
                 {'component':'rustfs','repository':'https://github.com/Ivanbeethoven/rustfs.git',
                  'branch':'feat/dynamic-block-size-rebased','source_commit':'a'*40}]}))
             gate = root/'gate.json'

@@ -64,7 +64,7 @@ def main():
             cmd += ['--'+name.replace('_','-'), str(getattr(a,name))]
         if a.experiment != 'C4-fork':
             cmd += ['--smallfiles',str(a.smallfiles), '--workload', 'c1' if a.experiment.startswith('C1') else 'c2' if a.experiment == 'C2-replay' else 'c3', '--hint', plan['brewfs_hint'] or 'auto', '--layout', plan['rustfs_layout_profile']]
-            cmd += ['--engine', 'flat-v1' if plan['engine'] == 'flat-v1' else 'workspace-v1']
+            cmd += ['--engine', 'flat' if plan['engine'] == 'flat' else 'workspace']
             if a.experiment=='C4-handoff':
                 cmd[cmd.index('--workload')+1]='c4-stay'
                 cmd += ['--checkpoint',str(a.checkpoint),'--opencode',str(a.opencode)]

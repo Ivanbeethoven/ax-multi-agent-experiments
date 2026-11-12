@@ -50,7 +50,7 @@ def main():
     build_manifest=a.build_root/'provenance/build-manifest.json'
     build=load(build_manifest);binaries={}
     if digest(build_manifest)!=plan['config']['build_manifest_sha256']:raise ValueError('Producer build differs from frozen plan')
-    for name in ('brewfs','packed_v3_snapshot_fixture'):
+    for name in ('brewfs','packed_snapshot_fixture'):
         item=next(x for x in build['files'] if x['file']==name)
         value=dict(path=str(a.build_root/'bin'/name),sha256=item['sha256'])
         pinned(value);binaries[name]=value
@@ -93,7 +93,7 @@ def main():
         finally:client.close()
         temporary=a.asset/'producer-tmp';temporary.mkdir();env['TMPDIR']=str(temporary)
         if temporary.stat().st_dev!=a.source.stat().st_dev:raise ValueError('Producer temporary files must use the declared client data disk')
-        producer=binaries['packed_v3_snapshot_fixture']['path'];manifest=a.asset/'manifest-key.txt'
+        producer=binaries['packed_snapshot_fixture']['path'];manifest=a.asset/'manifest-key.txt'
         run('producer',[producer,'--source-directory',a.source,'--source-consistency','best-effort-detected',
             '--source-hardlink-policy','visible-links','--output-dir',a.asset/'producer','--manifest-output',manifest,
             '--bucket',bucket,'--endpoint',object_endpoint,'--region','us-east-1','--force-path-style','true',

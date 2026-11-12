@@ -35,7 +35,7 @@
 运行开销分别报告：
 
 - 整套方案：`T(full) / T(basic) - 1`，动态策略相同；包含 Overlay 与 Pack 两条路径的差异。
-- 纯 Overlay：同一 BrewFS 二进制与 workspace-v1，Pack、动态块、payload、初态和缓存预算相同，只切换 Overlay。冻结计时段会触达的全部 lower 路径和读取范围；两臂在各自正式测量的挂载上只读预热两遍。先用冷读核实计数确实能看到 lower 访问；末遍要求 lower 的后端 Range 请求与读取字节增量均为 0，且操作仍进入待测的 BrewFS 路径。只命中 Linux 页缓存、没有进入 BrewFS，或末遍仍从后端取数，都不算 lower 热态。预热后不重挂、不清缓存。超过共同缓存预算就事先冻结较小的热子序列，完整 trace 仍单独做系统对照。
+- 纯 Overlay：同一 BrewFS 二进制与 workspace，Pack、动态块、payload、初态和缓存预算相同，只切换 Overlay。冻结计时段会触达的全部 lower 路径和读取范围；两臂在各自正式测量的挂载上只读预热两遍。先用冷读核实计数确实能看到 lower 访问；末遍要求 lower 的后端 Range 请求与读取字节增量均为 0，且操作仍进入待测的 BrewFS 路径。只命中 Linux 页缓存、没有进入 BrewFS，或末遍仍从后端取数，都不算 lower 热态。预热后不重挂、不清缓存。超过共同缓存预算就事先冻结较小的热子序列，完整 trace 仍单独做系统对照。
 - 每臂通过本次热态验证后立即计时；两臂执行同一批文件操作，计算 `T(overlay-on) / T(overlay-off) - 1`，报告总耗时、查找/读延迟和首次修改/同步耗时。输入准备、预热和排空单列，不把它们计入 Overlay 运行开销；同时保留 `T_run + T_drain`。
 
 每次完整回放核实际操作数、读写量、剩余句柄=0；再核最终树、链接、权限、数据库和冷重挂。性能模式的 `completed=true` 不是严格验证通过。首次资格另做严格回放。
@@ -61,7 +61,7 @@
 
 ## C4：派生与干净迁移（RQ4）
 
-**派生**：独立生成百万文件 fixture；1/8/16/32 个 child 同时请求。两个对照是 BrewFS 从已验证的不可变 revision 执行原生 fork，以及 JuiceFS 从同一输入内容执行原生 clone。父基线准备和核验在计时前完成。当前 workspace-v1 的 fork 不能当作“自动封存一个活动 upper”；需要新内容时先独立发布并核验 base。开云机前先在非空 Packed lower 上做资格：父目录完整可读，原生 fork 返回的 child 绑定同一 lower，child 首读和重挂后内容正确，修改也不改变父目录或兄弟。仅有命令退出 0 或空 revision 派生回执不够。[历史直接 fork 检查](../pilot-aliyun/evidence/preparation/c4-workspace-v1-packed-fork-01/README.zh.md)出现过空子目录；现有[候选发布路线复验](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)已通过子读、修改隔离和冷重挂。该结果使用候选补丁和两文件输入，不代替主线或规模性能资格。
+**派生**：独立生成百万文件 fixture；1/8/16/32 个 child 同时请求。两个对照是 BrewFS 从已验证的不可变 revision 执行原生 fork，以及 JuiceFS 从同一输入内容执行原生 clone。父基线准备和核验在计时前完成。当前 workspace 的 fork 不能当作“自动封存一个活动 upper”；需要新内容时先独立发布并核验 base。开云机前先在非空 Packed lower 上做资格：父目录完整可读，原生 fork 返回的 child 绑定同一 lower，child 首读和重挂后内容正确，修改也不改变父目录或兄弟。仅有命令退出 0 或空 revision 派生回执不够。[历史直接 fork 检查](../pilot-aliyun/evidence/preparation/c4-workspace-v1-packed-fork-01/README.zh.md)出现过空子目录；现有[候选发布路线复验](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)已通过子读、修改隔离和冷重挂。该结果使用候选补丁和两文件输入，不代替主线或规模性能资格。
 
 JuiceFS 的[本机资格](../pilot-aliyun/evidence/preparation/c4-local-juicefs-clone-01/README.zh.md)已用同一份两文件输入验证：两个 clone 均可读，修改其中一个不影响父和兄弟，冷重挂后读回正确。新版命令驱动也[实机验证](../pilot-aliyun/evidence/preparation/c4-local-juicefs-burst-v2-01/receipt.json)了 4 线程的单子目录 clone。两个结果都只用于功能资格。
 

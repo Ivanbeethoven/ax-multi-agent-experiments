@@ -98,7 +98,7 @@ class SmokeModeContract(unittest.TestCase):
                     self.assertEqual(cmd[cmd.index('--hint')+1],'off')
                     self.assertEqual(cmd[cmd.index('--layout')+1],'disabled')
                     self.assertEqual(cmd[cmd.index('--engine')+1],
-                                     'flat-v1' if experiment == 'C1-layout' else 'workspace-v1')
+                                     'flat' if experiment == 'C1-layout' else 'workspace')
                     folder=Path(cmd[cmd.index('--out')+1])
                     folder.mkdir()
                     (folder/'receipt.json').write_text('{"passed": true}')

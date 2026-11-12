@@ -12,9 +12,9 @@ from pathlib import Path
 import subprocess
 import time
 
-SOURCES={'brewfs':('https://github.com/brewfs/brewfs.git','main'),
+SOURCES={'brewfs':('https://github.com/brewfs/brewfs.git','codex/packed-prefetch'),
          'rustfs':('https://github.com/Ivanbeethoven/rustfs.git','feat/dynamic-block-size-rebased')}
-FILES={'brewfs':['brewfs','packed_v3_snapshot_fixture','entity_metadata_probe'],'rustfs':['rustfs']}
+FILES={'brewfs':['brewfs','packed_snapshot_fixture'],'rustfs':['rustfs']}
 
 
 def capture(argv):return subprocess.check_output(argv,text=True).strip()

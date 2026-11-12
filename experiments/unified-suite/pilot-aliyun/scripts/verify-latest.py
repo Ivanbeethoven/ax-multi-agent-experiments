@@ -14,7 +14,7 @@ def main():
     p.add_argument('--out',type=Path,required=True)
     p.add_argument('--git',default='git',help='Git executable; WSL may use the installed Windows git.exe')
     a=p.parse_args();data=json.loads(a.manifest.read_text());rows=[]
-    expected={'brewfs':('https://github.com/brewfs/brewfs','main'),
+    expected={'brewfs':('https://github.com/brewfs/brewfs','codex/packed-prefetch'),
         'rustfs':('https://github.com/Ivanbeethoven/rustfs','feat/dynamic-block-size-rebased')}
     if {s['component'] for s in data['sources']}!=set(expected):raise ValueError('Expected both source components')
     for source in data['sources']:

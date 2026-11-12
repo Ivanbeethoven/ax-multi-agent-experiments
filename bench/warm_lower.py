@@ -11,10 +11,10 @@ import time
 from .runtime.common import load, mounts, pinned, private_dir, write_new
 
 KEYS = dict(
-    range_requests='brewfs_packed_v3_runtime_backend_range_gets_total',
-    received_bytes='brewfs_packed_v3_runtime_backend_received_bytes_total',
-    failures='brewfs_packed_v3_runtime_backend_failures_total',
-    logical_bytes='brewfs_packed_v3_logical_bytes_total',
+    range_requests='brewfs_packed_runtime_backend_range_gets_total',
+    received_bytes='brewfs_packed_runtime_backend_received_bytes_total',
+    failures='brewfs_packed_runtime_backend_failures_total',
+    logical_bytes='brewfs_packed_logical_bytes_total',
 )
 MAX_STATS_BYTES = 4 * 1024**2
 

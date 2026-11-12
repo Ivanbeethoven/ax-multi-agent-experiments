@@ -2,7 +2,7 @@
 
 验证云上多 Agent 的工作区共享、独立修改与跨机继续任务。**[从当前 C1–C4 方案开始](experiments/unified-suite/current/README.zh.md)**。
 
-主候选：BrewFS `workspace-v1 + Packed-v3`。内部系统对照：`flat-v1`。唯一外部对照：JuiceFS。新实验排除 entity-v1 和 native-v2。
+主候选：BrewFS `workspace + Packed`。内部系统对照：`flat`。唯一外部对照：JuiceFS。新实验排除 entity-v1 和 native-v2。
 
 | 内容 | 入口 |
 |---|---|

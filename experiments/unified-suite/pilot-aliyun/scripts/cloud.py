@@ -109,7 +109,7 @@ class Cloud:
             if g.get(condition) is not True:
                 raise ValueError('Incomplete local preparation: ' + condition)
         manifest = json.loads(Path(g['build_manifest_path']).read_text())
-        expected = {'brewfs': ('https://github.com/brewfs/brewfs.git', 'main'),
+        expected = {'brewfs': ('https://github.com/brewfs/brewfs.git', 'codex/packed-prefetch'),
                     'rustfs': ('https://github.com/Ivanbeethoven/rustfs.git', 'feat/dynamic-block-size-rebased')}
         sources = manifest.get('sources', [])
         if len(sources) != 2 or {s['component'] for s in sources} != set(expected):

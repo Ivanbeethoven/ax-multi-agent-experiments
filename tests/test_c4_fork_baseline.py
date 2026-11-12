@@ -25,7 +25,7 @@ import sqlite3
 def cell(product='juicefs'):
     return dict(id='fork-1-'+product, suite='C4', workload='fork', pool='pool-b',
         arm_id='juicefs' if product=='juicefs' else 'native',
-        arm=dict(product=product, engine='juicefs' if product=='juicefs' else 'flat-v1'),
+        arm=dict(product=product, engine='juicefs' if product=='juicefs' else 'flat'),
         params=dict(files=100000, file_bytes=4096, agents=1, children=1,
                     creation='burst', dataset='fork-fixture-100k-4k'))
 
@@ -46,8 +46,8 @@ class C4ForkBaseline(unittest.TestCase):
 
     def test_workspace_entity_packed_are_not_silently_copied(self):
         c = cell('brewfs')
-        for arm, engine in [('native-workspace','workspace-native-v2'),
-                            ('entity-native','workspace-entity-v1'), ('packed','workspace-entity-v1')]:
+        for arm, engine in [('native-workspace','native-workspace'),
+                            ('entity-native','entity-workspace'), ('packed','entity-workspace')]:
             bad = {**c, 'arm_id':arm, 'arm':dict(product='brewfs', engine=engine)}
             with self.subTest(arm=arm), self.assertRaises(ValueError):
                 tool.select_cell(dict(provenance_bound=True,cells=[bad]), c['id'], 'pool-b','brewfs')

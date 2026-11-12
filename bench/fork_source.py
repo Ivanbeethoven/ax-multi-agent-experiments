@@ -179,7 +179,7 @@ def _carrier(request, point, config, binary):
     basis = dict(layer_id=layer, sealed_version=int(version), root_hash=list(bytes.fromhex(root)))
     if (child.get('fork_base') != basis or str(uuid.UUID(child['workspace_id'])) != child['workspace_id']
             or not uuid.UUID(child['workspace_id']).int or not child.get('upper_bucket')
-            or config.get('volume_format') != 'workspace-v1' or config.get('workspace') != child['workspace_id']
+            or config.get('volume_format') != 'workspace' or config.get('workspace') != child['workspace_id']
             or config.get('workspace_namespace') != native['namespace'] or config['meta']['backend'] != 'redis'
             or config['meta']['redis']['url'] != native['redis_url'] or config['data'] != load(data)['data']):
         raise ValueError('mounted BrewFS source readback is not the native Packed probe child')

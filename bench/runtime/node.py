@@ -65,7 +65,7 @@ def validate_mount(s):
         backend = config.get('meta', {}).get('backend')
         if backend not in ('redis', 'tikv'):
             raise ValueError('Redis/TiKV required; no SQLite fallback')
-        if config.get('volume_format', 'flat-v1') == 'workspace-native-v2' and config.get('cache', {}).get('writeback_mode') != 'upload_before_commit':
+        if config.get('volume_format', 'flat') == 'native-workspace' and config.get('cache', {}).get('writeback_mode') != 'upload_before_commit':
             raise ValueError('native-v2 requires explicit supported upload mode')
         if config.get('workspace') != s['anchor'].get('workspace'):
             raise ValueError('workspace differs from handoff anchor')

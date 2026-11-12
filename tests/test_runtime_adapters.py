@@ -115,7 +115,7 @@ class NativeBoundaries(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'another workload'):cohort.validate(bad)
 
     def config(self):
-        return {'volume_format':'workspace-native-v2','workspace':'w','workspace_namespace':'n',
+        return {'volume_format':'native-workspace','workspace':'w','workspace_namespace':'n',
             'meta':{'backend':'redis','redis':{'url':'redis://10.0.0.2:6379/1'}},
             'data':{'backend':'s3','s3':{'bucket':'shared','endpoint':'http://10.0.0.3:9000'}},
             'cache':{'writeback_mode':'upload_before_commit'},'native_base':{},
@@ -130,13 +130,13 @@ class NativeBoundaries(unittest.TestCase):
                             ('meta',{'backend':'sqlx'})]:
             bad=copy.deepcopy(c);bad[key]=value
             with self.assertRaises(ValueError):prepare.native_argv('brewfs','/b','/c',bad,'/m','C1')
-        c.update(volume_format='flat-v1',meta={'backend':'tikv'})
+        c.update(volume_format='flat',meta={'backend':'tikv'})
         self.assertIn('mount',prepare.native_argv('brewfs','/b','/c',c,'/m','C2'))
         with self.assertRaises(ValueError):prepare.native_argv('brewfs','/b','/c',c,'/m','C3')
 
     def test_dynamic_default_and_explicit_client_ablation(self):
         c=self.config()
-        for cluster,fmt,backend in [('C1','workspace-native-v2','redis'),('C4','workspace-native-v2','redis'),
+        for cluster,fmt,backend in [('C1','native-workspace','redis'),('C4','native-workspace','redis'),
                                     ('C2','packed-metadata-v3','tikv')]:
             c['volume_format']=fmt;c['meta']['backend']=backend
             self.assertEqual(prepare.native_argv('brewfs','/b','/c',c,'/m',cluster)[-2:],

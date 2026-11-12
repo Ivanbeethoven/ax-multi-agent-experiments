@@ -115,7 +115,7 @@ class ForkSourceTest(unittest.TestCase):
         data = dict(backend='s3', s3=dict(bucket='fixture-bucket'))
         native = dict(binary=binary, redis_url='redis://127.0.0.1:6379/5', namespace='c4-fixture',
                       revision=REV, data_config=self.record('data.json', dict(data=data)))
-        config = dict(data=data, volume_format='workspace-v1', workspace=workspace,
+        config = dict(data=data, volume_format='workspace', workspace=workspace,
                       workspace_namespace=native['namespace'],
                       meta=dict(backend='redis', redis=dict(url=native['redis_url'])))
         mount, ready = self.mount('brew-mount', config, binary, 'brewfs', self.point, 90)

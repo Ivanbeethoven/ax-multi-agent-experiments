@@ -107,7 +107,7 @@ class FlatRetirement(unittest.TestCase):
                         dict(self.native,suite='C3',workload='smallfiles'),
                         dict(self.native,workload='handoff'),
                         dict(self.native,arm_id='brewfs-basic'),
-                        dict(self.native,arm=dict(self.native['arm'],engine='workspace-v1'))):
+                        dict(self.native,arm=dict(self.native['arm'],engine='workspace'))):
             self.assertFalse(retired_flat_fork(allowed))
             require_allowed(allowed)
             reject(allowed)

@@ -10,8 +10,8 @@ import re
 import shutil
 import subprocess
 
-FEATURES = {'fuse-io-uring-runtime','workspace-overlay','native-packed-base',
-            'frozen-base-metadata','rustfs-ec-block-size-hint','observability'}
+FEATURES = {'default','fuse-io-uring-runtime','gateway-s3','gateway-webdav','workspace',
+            'rustfs-ec-block-size-hint','observability'}
 HELPER_DEPS = {'anyhow','futures_util','serde_json','sha2','uuid','tokio','hex','async_trait','bytes'}
 
 

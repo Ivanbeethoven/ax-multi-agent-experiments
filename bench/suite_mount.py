@@ -22,7 +22,8 @@ def settings(config, arm):
                 'open_cache_seconds':0, 'prefetch':1 if budget else 0,
                 'max_readahead_mib':128, 'cache_large_write':True,
                 'verify_cache_checksum':'full', 'backup_meta':'0', 'no_usage_report':True}
-    entity = arm['engine'] == 'workspace-entity-v1'
+    # Frozen plans retain their recorded engine names when reconstructing hashes.
+    entity = arm['engine'] in ('entity-workspace', 'workspace-entity-v1')
     value = {'volume_format':arm['engine'], 'volume':{'format':arm['engine']},
              'cache':{'read_memory_bytes':0 if entity else budget, 'read_ssd_bytes':0,
                       'write_memory_bytes':512*MIB, 'write_ssd_bytes':1024*MIB,
@@ -39,7 +40,7 @@ def settings(config, arm):
         # The entity adapter does not use the native VFS read cache or its
         # prefetch switches. Its packed cache is explicitly selected by CLI.
         value['entity_read_cache_bytes'] = budget
-    if arm['engine']=='workspace-native-v2':
+    if arm['engine'] in ('native-workspace', 'workspace-native-v2'):
         value['volume'].update(schema_version=2,native_control_version=2)
     if 'object_bytes' in arm:
         value['layout'] = {'block_size':arm['object_bytes']}
@@ -84,13 +85,13 @@ def validate_binding(binding, native, filesystem, pool, metadata_backend, hint):
     matches(native,cell['client_settings'])
     if filesystem=='brewfs':
         if 'root' in native['cache']:raise ValueError('use cache_root without an ambiguous root alias')
-        if cell['arm']['engine']=='workspace-native-v2':
+        if cell['arm']['engine']=='native-workspace':
             if not native.get('native_base') or any(type(native['volume'].get(k)) is not int or native['volume'][k]<=0
                                                   for k in ('chunk_size','block_size')):
                 raise ValueError('native workspace requires qualified native_base and explicit volume geometry')
         elif native.get('native_base') is not None or any(k in native['volume'] for k in ('schema_version','native_control_version')):
             raise ValueError('native workspace controls cannot be reused on another engine')
-        if cell['arm']['engine']=='workspace-entity-v1':
+        if cell['arm']['engine']=='entity-workspace':
             lower='packed_manifest_key' if cell['arm']['packed'] else 'entity_native_manifest_key'
             if not native.get(lower):raise ValueError('entity lower format differs from frozen arm')
     return cell

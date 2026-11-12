@@ -27,7 +27,7 @@ def utc():return datetime.now(timezone.utc).isoformat()
 
 def packed_cell(asset,plan_path,cell_id):
     plan=load(plan_path);cell=cell_of(plan,cell_id)
-    if (cell['workload'],cell['arm_id'],cell['arm']['engine'])!=('smallfiles','packed','workspace-entity-v1'):
+    if (cell['workload'],cell['arm_id'],cell['arm']['engine'])!=('smallfiles','packed','entity-workspace'):
         raise ValueError('Declared C3 packed entity cell required')
     if cell['params']['agents']!=1 or cell['params']['workspaces']!=1 or cell['params']['files'] not in (100000,1000000):
         raise ValueError('One complete declared C3 workspace required')

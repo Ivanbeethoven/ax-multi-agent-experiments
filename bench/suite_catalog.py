@@ -17,13 +17,13 @@ CLIENT_PROFILE = 'bounded-memory-v1'
 ARMS = {
     'juicefs': dict(product='juicefs', role='external-baseline', engine='juicefs',
                     delta='native-clone', packed=False, hint='none', payload_cache_bytes=536870912),
-    'native': dict(product='brewfs', role='internal-control', engine='flat-v1',
+    'native': dict(product='brewfs', role='internal-control', engine='flat',
                    delta=False, packed=False, hint='auto', payload_cache_bytes=536870912),
-    'native-workspace': dict(product='brewfs', role='internal-control', engine='workspace-native-v2',
+    'native-workspace': dict(product='brewfs', role='internal-control', engine='native-workspace',
                              delta=True, packed=False, hint='auto', payload_cache_bytes=536870912),
-    'entity-native': dict(product='brewfs', role='internal-control', engine='workspace-entity-v1',
+    'entity-native': dict(product='brewfs', role='internal-control', engine='entity-workspace',
                          delta=True, packed=False, immutable_lower='native', hint='auto', payload_cache_bytes=0),
-    'packed': dict(product='brewfs', role='candidate', engine='workspace-entity-v1',
+    'packed': dict(product='brewfs', role='candidate', engine='entity-workspace',
                    delta=True, packed=True, hint='auto', payload_cache_bytes=536870912),
 }
 

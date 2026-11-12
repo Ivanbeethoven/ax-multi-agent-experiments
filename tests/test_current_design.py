@@ -42,12 +42,12 @@ class CurrentDesignTests(unittest.TestCase):
             build(self.config)
 
     def test_no_deprecated_route_or_disguised_basic_all_off(self):
-        for engine in ('workspace-entity-v1', 'workspace-native-v2'):
+        for engine in ('entity-workspace', 'native-workspace'):
             self.rejected(lambda c: c['arms']['brewfs-full'].update(engine=engine))
         self.rejected(lambda c: c['arms']['brewfs-basic'].update(dynamic_block=False))
 
     def test_ablation_cannot_swap_engine_or_change_two_designs(self):
-        self.rejected(lambda c: c['ablations'][0].update(engine='flat-v1'))
+        self.rejected(lambda c: c['ablations'][0].update(engine='flat'))
         self.rejected(lambda c: c['ablations'][0]['switches'].update(packed_metadata=False))
         self.rejected(lambda c: c['ablations'][1].update(requires=[]))
 
@@ -115,7 +115,7 @@ class CurrentDesignTests(unittest.TestCase):
             config = json.loads(output.read_text(encoding='utf-8'))
             self.assertTrue(build(config)['cells'])
             engines = {arm['engine'] for case in config['cases'] for arm in case['arms'].values()}
-            self.assertIn('workspace-entity-v1', engines)  # Preserve historical identity.
+            self.assertIn('entity-workspace', engines)  # Preserve historical identity.
 
     def test_current_document_links_resolve_in_repository(self):
         pages = [ROOT / 'README.md', ROOT / 'experiments/unified-suite/README.md',

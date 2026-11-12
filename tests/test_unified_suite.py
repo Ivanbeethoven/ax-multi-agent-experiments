@@ -345,7 +345,7 @@ class WorkloadTests(unittest.TestCase):
                 'deleted_at':'2026-11-01T03:00:00Z','hourly_rate':4,'currency':'CNY'}]})
             r=costs(p);self.assertEqual(r['configuration_estimate'],12);self.assertTrue(r['all_resources_released'])
     def test_unified_native_routes_and_entity_native_cache_restriction(self):
-        c={'volume_format':'workspace-entity-v1','workspace':'11111111-1111-4111-8111-111111111111',
+        c={'volume_format':'entity-workspace','workspace':'11111111-1111-4111-8111-111111111111',
            'entity_volume_id':'22222222-2222-4222-8222-222222222222','workspace_namespace':'unit-test',
            'entity_native_manifest_key':'base/native','entity_read_cache_bytes':0,'meta':{'backend':'tikv'},
            'data':{'backend':'s3','s3':{}},'cache':{'writeback_mode':'upload_before_commit'},

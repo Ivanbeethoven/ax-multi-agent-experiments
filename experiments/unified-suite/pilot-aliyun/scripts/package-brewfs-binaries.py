@@ -43,7 +43,7 @@ def main():
         target=stage/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target)
         if expected is not None and digest(target)!=expected:raise ValueError('Package copy changed')
         files.append(relative)
-    for name in ('brewfs','packed_v3_snapshot_fixture','entity_metadata_probe'):
+    for name in ('brewfs','packed_snapshot_fixture'):
         entry=next(x for x in build['files'] if x['file']==name)
         put(a.build_root/'bin'/name,'bin/'+name,entry['sha256'])
     reader_path=Path(reader['argv'][reader['argv'].index('-o')+1])

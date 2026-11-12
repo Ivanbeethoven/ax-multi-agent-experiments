@@ -37,21 +37,21 @@ def validate(config):
     for component in ('brewfs', 'rustfs'):
         require(config['versions'][component]['revision_policy'] == 'branch-latest-per-campaign',
                 'freeze versions over all paired repeats and scaling points')
-    expected = {'brewfs-basic': 'flat-v1', 'brewfs-full': 'workspace-v1', 'juicefs': 'juicefs'}
+    expected = {'brewfs-basic': 'flat', 'brewfs-full': 'workspace', 'juicefs': 'juicefs'}
     require({k: v['engine'] for k, v in config['arms'].items()} == expected,
-            'current routes are flat-v1, workspace-v1 and JuiceFS only')
+            'current routes are flat, workspace and JuiceFS only')
     keys = ('overlay', 'packed_metadata', 'dynamic_block')
     for name, flags in [('brewfs-basic', (False, False, True)), ('brewfs-full', (True, True, True))]:
         require(tuple(config['arms'][name].get(k) for k in keys) == flags,
                 'basic is not all-off; full requires all three designs')
-    require(config['arms']['brewfs-full']['lower'] == 'packed-v3-wire005', 'Packed-v3 lower required')
+    require(config['arms']['brewfs-full']['lower'] == 'packed-snapshot', 'Packed lower required')
     ablations = {a['id']: a for a in config['ablations']}
     desired = {'overlay-off': (False, True, True), 'packed-off': (True, False, True),
                'dynamic-off': (True, True, False), 'all-off': (False, False, False)}
     require(set(ablations) == set(desired), 'four declared ablations required')
     for name, flags in desired.items():
         row = ablations[name]
-        require(row['engine'] == 'workspace-v1', 'format swap is not a single-design ablation')
+        require(row['engine'] == 'workspace', 'format swap is not a single-design ablation')
         require(tuple(row['switches'].get(k) for k in keys) == flags, 'incorrect ablation switches')
         require(bool(row['requires']) and 'required' in row['status'], 'missing ablation prerequisites')
     work = config['workloads']

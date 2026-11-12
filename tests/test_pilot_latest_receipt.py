@@ -17,7 +17,7 @@ class LatestReceipt(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary); manifest=root/'manifest.json'; out=root/'check.json'
             manifest.write_text(json.dumps(dict(sources=[
-                dict(component='brewfs',repository='https://github.com/brewfs/brewfs.git',branch='main',source_commit='a'*40),
+                dict(component='brewfs',repository='https://github.com/brewfs/brewfs.git',branch='codex/packed-prefetch',source_commit='a'*40),
                 dict(component='rustfs',repository='https://github.com/Ivanbeethoven/rustfs.git',
                     branch='feat/dynamic-block-size-rebased',source_commit='b'*40)])))
             answers=[subprocess.TimeoutExpired('git',45),subprocess.CompletedProcess([],0,'b'*40+'\trefs/heads/test\n','')]

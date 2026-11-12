@@ -20,11 +20,11 @@ class ModeContract(unittest.TestCase):
     def test_c1_dynamic_off_stays_flat_and_does_not_hint(self):
         row = resolve(self.design, 'C1-layout', 'dynamic-off')
         self.assertEqual((row['engine'], row['brewfs_hint'], row['rustfs_layout_profile']),
-                         ('flat-v1', 'off', 'disabled'))
+                         ('flat', 'off', 'disabled'))
 
     def test_overlay_off_cannot_silently_turn_off_packed(self):
         row = resolve(self.design, 'C2-runtime', 'overlay-off')
-        self.assertEqual(row['engine'], 'workspace-v1')
+        self.assertEqual(row['engine'], 'workspace')
         self.assertEqual(row['mechanisms'],
                          {'overlay': False, 'packed_metadata': True, 'dynamic_block': True})
         self.assertIn('read-control-qualified-candidate-required', row['runtime_qualification_blockers'])

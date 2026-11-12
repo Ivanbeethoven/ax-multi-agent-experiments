@@ -80,12 +80,12 @@ def select_cell(plan, cell_id, pool, product):
     matches = [c for c in plan['cells'] if c['id'] == cell_id]
     if len(matches) != 1: raise ValueError('Exactly one explicit C4 cell required')
     cell = matches[0]
-    expected = ('native', 'flat-v1') if product == 'brewfs' else ('juicefs', 'juicefs')
+    expected = ('native', 'flat') if product == 'brewfs' else ('juicefs', 'juicefs')
     if product not in ('brewfs', 'juicefs') or (
             cell.get('suite'), cell.get('workload'), cell.get('pool'), cell.get('arm_id'),
             cell.get('arm', {}).get('product'), cell.get('arm', {}).get('engine')) != (
                 'C4', 'fork', pool, expected[0], product, expected[1]):
-        raise ValueError('Only actual C4 flat-v1 full copy or JuiceFS clone is supported')
+        raise ValueError('Only actual C4 flat full copy or JuiceFS clone is supported')
     p = cell['params']
     if (p.get('files'), p.get('file_bytes'), p.get('agents'), p.get('children'),
             p.get('creation'), p.get('dataset')) != (
@@ -100,7 +100,7 @@ def require_dispatch(cell):
     # This leaf also runs standalone against a pinned historical runtime.
     arm = cell.get('arm') or {}
     if (cell.get('suite'), cell.get('workload'), cell.get('arm_id'),
-            arm.get('product'), arm.get('engine')) == ('C4', 'fork', 'native', 'brewfs', 'flat-v1'):
+            arm.get('product'), arm.get('engine')) == ('C4', 'fork', 'native', 'brewfs', 'flat'):
         raise ValueError('Historical C4 BrewFS Flat full-copy dispatch is retired; existing evidence remains readable')
 
 

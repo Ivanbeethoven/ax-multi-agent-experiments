@@ -118,17 +118,18 @@ def validate(config):
             if arm['product']=='juicefs':
                 if arm.get('engine')!='juicefs' or arm.get('packed') is not False or cache%1048576:
                     raise ValueError('JuiceFS engine and whole-MiB read cache required')
-            elif arm.get('engine') not in ('flat-v1','workspace-native-v2','workspace-entity-v1'):
+            elif arm.get('engine') not in ('flat','native-workspace','entity-workspace',
+                                          'flat-v1','workspace-native-v2','workspace-entity-v1'):
                 raise ValueError('unsupported unified BrewFS engine')
-            elif (arm['engine']!='workspace-entity-v1' and arm.get('packed')) or (
-                    arm['engine']=='workspace-entity-v1' and not arm.get('packed') and cache):
+            elif (arm['engine'] not in ('entity-workspace','workspace-entity-v1') and arm.get('packed')) or (
+                    arm['engine'] in ('entity-workspace','workspace-entity-v1') and not arm.get('packed') and cache):
                 raise ValueError('packed cache is available only on a packed entity lower')
             if arm['product']=='brewfs' and arm.get('hint') not in ('auto','off','65536','262144','1048576','4194304'):
                 raise ValueError('unsupported BrewFS object hint')
             if 'object_bytes' in arm and (type(arm['object_bytes']) is not int or arm['object_bytes'] not in (262144,1048576,4194304)):
                 raise ValueError('supported explicit native object size required')
             if c['workload']=='handoff' and (arm.get('handoff_mode') not in ('stay','move') or
-                    arm['engine'] not in ('workspace-native-v2','juicefs')):
+                    arm['engine'] not in ('native-workspace','workspace-native-v2','juicefs')):
                 raise ValueError('native session-capable stay/move route required')
         if c['workload']=='fio':
             from .fio_workload import validate_params

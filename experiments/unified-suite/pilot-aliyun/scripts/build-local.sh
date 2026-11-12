@@ -45,7 +45,7 @@ sync_source() {
 
 case "$action" in
 sources)
-    sync_source brewfs https://github.com/brewfs/brewfs.git main "${BREWFS_REFERENCE:-/home/hxy/src/brewfs}"
+    sync_source brewfs https://github.com/brewfs/brewfs.git codex/packed-prefetch "${BREWFS_REFERENCE:-/home/hxy/src/brewfs}"
     sync_source rustfs https://github.com/Ivanbeethoven/rustfs.git feat/dynamic-block-size-rebased "${RUSTFS_REFERENCE:-/home/hxy/research/rustfs-ablation}"
     rustc -Vv > "$build_root/receipts/rustc.txt"
     cargo -V > "$build_root/receipts/cargo.txt"
@@ -54,15 +54,14 @@ brewfs)
     cd "$build_root/src/brewfs"
     [[ -z "$(git status --porcelain)" ]] || exit 1
     export CARGO_TARGET_DIR="$build_root/targets/brewfs"
-    features=fuse-io-uring-runtime,workspace-overlay,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability
-    printf '%s\n' "cargo build --locked --release --no-default-features --bin brewfs --bin packed_v3_snapshot_fixture --example entity_metadata_probe --features $features" > "$attempt_dir/build-command.txt"
+    features=workspace,observability,rustfs-ec-block-size-hint
+    printf '%s\n' "cargo build --locked --release --bin brewfs --bin packed_snapshot_fixture --features $features" > "$attempt_dir/build-command.txt"
     python3 "$repo_root/experiments/unified-suite/pilot-aliyun/scripts/attest-assets.py" capture --build-root "$build_root" --component brewfs > "$attempt_dir/attestation-capture.log"
-    cargo build --locked --release --no-default-features --bin brewfs --bin packed_v3_snapshot_fixture --example entity_metadata_probe \
+    cargo build --locked --release --bin brewfs --bin packed_snapshot_fixture \
       --features "$features" > "$attempt_dir/build.log" 2>&1
-    install -m755 "$CARGO_TARGET_DIR/release/brewfs" "$CARGO_TARGET_DIR/release/packed_v3_snapshot_fixture" "$build_root/bin/"
-    install -m755 "$CARGO_TARGET_DIR/release/examples/entity_metadata_probe" "$build_root/bin/"
+    install -m755 "$CARGO_TARGET_DIR/release/brewfs" "$CARGO_TARGET_DIR/release/packed_snapshot_fixture" "$build_root/bin/"
     python3 "$repo_root/experiments/unified-suite/pilot-aliyun/scripts/attest-assets.py" finish --build-root "$build_root" --component brewfs > "$attempt_dir/attestation-finish.log"
-    sha256sum "$build_root/bin/brewfs" "$build_root/bin/packed_v3_snapshot_fixture"
+    sha256sum "$build_root/bin/brewfs" "$build_root/bin/packed_snapshot_fixture"
     ;;
 rustfs)
     cd "$build_root/src/rustfs"
@@ -86,7 +85,7 @@ manifest)
     python3 - "$build_root" <<'PY'
 import datetime, hashlib, json, os, pathlib, subprocess, sys
 root = pathlib.Path(sys.argv[1]); records = []; attestations = []
-sources = [('brewfs', 'https://github.com/brewfs/brewfs.git', 'main'),
+sources = [('brewfs', 'https://github.com/brewfs/brewfs.git', 'codex/packed-prefetch'),
            ('rustfs', 'https://github.com/Ivanbeethoven/rustfs.git', 'feat/dynamic-block-size-rebased')]
 for name, url, branch in sources:
     checkout = root / 'src' / name
@@ -107,7 +106,7 @@ for name, url, branch in sources:
     attestations.append(dict(component=name,path=str(proof_path),sha256=hashlib.sha256(proof_path.read_bytes()).hexdigest()))
     records.append(dict(component=name, repository=url, branch=branch, source_commit=sha))
 files = []
-for name in ['brewfs', 'packed_v3_snapshot_fixture', 'entity_metadata_probe', 'rustfs', 'smallfiles', 'full-fuse-replay']:
+for name in ['brewfs', 'packed_snapshot_fixture', 'rustfs', 'smallfiles', 'full-fuse-replay']:
     path = root / 'bin' / name
     with path.open('rb') as stream: sha = hashlib.file_digest(stream, 'sha256').hexdigest()
     files.append(dict(file=name, bytes=path.stat().st_size, sha256=sha))
