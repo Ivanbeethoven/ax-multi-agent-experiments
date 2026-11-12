@@ -1,6 +1,6 @@
 # A 池 C2：完整方案的全量 trace 资格检查
 
-[执行草案](request.draft.json)尚未批准，也未联云执行。目标是验证**原版 BrewFS + 从 pytest 初态生成的 Packed wire005 lower + 私有可写 upper**，能否通过完整回放和同卷冷读回。通过也只说明该路径正确，后续还需正式性能对照。旧 native-v2、普通空 lower 的本机结果和 C3 的 100k lower 都不能代用。
+[执行草案](request.draft.json)尚未联云执行。目标是验证**原版 BrewFS + 从 pytest 初态生成的 Packed wire005 lower + 私有可写 upper**，能否通过完整回放和同卷冷读回。通过也只说明该路径正确，后续还需正式性能对照。旧 native-v2、普通空 lower 的本机结果和 C3 的 100k lower 都不能代用。
 
 ## 启动条件
 
@@ -38,22 +38,22 @@ timeout --signal=TERM --kill-after=10s "$remaining" \
 目前只确认了历史输入、构建和已有恢复路径。当前 A 开机后的空间、空 DB、实跑 guard 与完整 Packed 初态/可写回放尚未验证。普通 `workspace-v1` 的本机限时[记录](../c2-local-stock-full-pytest-01/README.zh.md)只证明部分进度，不能推出云端耗时；当前独立草案不进入旧 `prepare-c2.py` 或正式测量状态库。
 
 
-## 准备审阅与执行
+## 准备和执行
 
-先审[冻结输入和容量要求](request.draft.json)、[协调者锁与准入](run-c2-current-a.py)和[客户端执行器](qualify-c2-current-a.py)。等待 A 上一轮退出、回执留存、槽位清空，并与当前跳板机负责人交接。历史容量、Redis DB 状态、进程和挂载记录都不能作为本轮证据。两文件热读对照使用过另一个候选二进制；本次完整可写 trace 固定使用草案里的 stock 二进制。
+先核对[冻结输入和容量要求](request.draft.json)、[协调者锁与准入](run-c2-current-a.py)和[客户端执行器](qualify-c2-current-a.py)。等待 A 上一轮退出、回执留存、槽位清空，并与当前跳板机负责人交接。历史容量、Redis DB 状态、进程和挂载记录都不能作为本轮证据。两文件热读对照使用过另一个候选二进制；本次完整可写 trace 固定使用草案里的 stock 二进制。
 
 从本目录在 Windows PowerShell 运行以下**准备命令**。两个根目录应已存在且互不相同。`242` 只是待检查的 DB 候选。
 
 ```powershell
-$packet = ./prepare-review.ps1 -PacketRoot $localReviewRoot -Database 242 | ConvertFrom-Json
+$packet = ./prepare-review.ps1 -PacketRoot $localPacketRoot -Database 242 | ConvertFrom-Json
 ```
 
-[准备脚本](prepare-review.ps1)用[归档构建清单](../brewfs-ca07159-build/build-manifest.json)查最新分支，并向 ECS 只读查询三个精确 A 实例。只写本地目录，生成 `latest.json`、`instances-before.json` 和 `operator.review.template.json`；模板明确为 `reviewed=false`。这条命令不会 SSH、启动实例或生成批准。若分支推进、实例不是 `Stopped/StopCharging`，或证据过期，停止准备并保留原因。可用 `-LatestReceipt` 与 `-InstancesBeforeReceipt` 做离线复查，两份输入仍须在时效内。
+[准备脚本](prepare-review.ps1)用[归档构建清单](../brewfs-ca07159-build/build-manifest.json)和 Windows Git 查最新分支，并向 ECS 只读查询三个精确 A 实例。只写本地目录，生成 `latest.json`、`instances-before.json` 和 `launch.authorization.json`。授权记录引用本任务中用户的“设定目标 完成所有的c1~c4的小规模实验吧”和“继续完成实验”，并绑定协调者、worker 和两份现查回执的 SHA-256。它不会标记人工签审，不会 SSH 或启动实例。若分支推进、实例不是 `Stopped/StopCharging`，或证据过期，停止准备并保留原因。可用 `-LatestReceipt` 与 `-InstancesBeforeReceipt` 做离线复查，两份输入仍须在时效内。
 
 | 证据 | 何时重取，谁校验 |
 | --- | --- |
 | BrewFS/RustFS 分支和产物 | 开跑前重取，最多 **900 秒**；`latest_ok` 检查分支、提交和查询成功。 |
-| A 三台停机状态 | 签审前重取，最多 **300 秒**；`exact_stopped` 检查实例 ID、可用区、状态，上传保留原时间戳。拿到锁后，开机前再查一次，锁回执最多 **45 秒**。 |
+| A 三台停机状态 | 开跑前重取，最多 **300 秒**；`exact_stopped` 检查实例 ID、可用区、状态，上传保留原时间戳。拿到锁后，开机前再查一次，锁回执最多 **45 秒**。 |
 | 跳板机控制盘 | 在此次开机后验证 UUID `ffe25afe-9d22-4e20-8a5b-fc19baa6687d`、设备、路径和原控制库。PowerShell 在任何远程写入前用[原盘检查](../../../scripts/restore-existing-jump-control.py)拒绝错误挂载。 |
 | A 数据盘、服务、槽位和空 DB | 拿锁并启动 A 后按同一开机状态重取，紧接着才运行 worker。容量门槛为至少 20% + 2 GiB 可用、20% + 10,000 个可用 inode；还要检查 Redis AOF/内存、镜像和空 DB。历史回执不进入这条准入链。 |
 
@@ -64,12 +64,12 @@ Get-Content ../../../scripts/restore-existing-jump-control.py -Raw -Encoding utf
   ssh -F $aSshConfig -oBatchMode=yes -oConnectTimeout=8 ax-pilot-jump 'python3 - --mount'
 ```
 
-操作人核对精确文件和四项 SHA 后，单独保存实际签审文件 `operator.reviewed.json`，填写真实 `reviewer` 并改为 `reviewed=true`。若超过 `$packet.expires_utc`，重取证据并重新签审，不沿用旧批准。实际执行入口：
+若超过 `$packet.expires_utc`，重取证据并重建绑定记录。实际执行入口：
 
 ```powershell
 ./run-c2-current-a.ps1 -SshConfig $aSshConfig -ReceiptRoot $newReceiptParent `
   -Latest (Join-Path $packet.packet latest.json) `
-  -InstancesBefore (Join-Path $packet.packet instances-before.json) -OperatorReview $reviewFile
+  -InstancesBefore (Join-Path $packet.packet instances-before.json) -LaunchAuthorization $packet.authorization
 ```
 
 启动后由协调者持有锁；锁获取起 40 分钟结束工作、预留 5 分钟关停。最迟在锁后 43 分 30 秒请求停机；实际停机以 API 回执为准。收到 `coordinator/closed.json` 和三台 `StopCharging` 回执后才判断是否完成。若本地控制终端中止，先核实并按原计划停这三台，保留回执，不先杀锁进程。独立资格不提交正式 C2 cell，也不替代冻结套件自己的 900 秒准入。离线检查：`python3 -B check-offline.py [本机初态清单路径]`。

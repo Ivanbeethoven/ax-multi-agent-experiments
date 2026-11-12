@@ -113,11 +113,15 @@ def latest_ok(receipt, now):
         and x.get('lookup_exit_code')==0 for x in rows)
 
 
-def review_ok(value,tag,database,*,controller_sha,worker_sha,latest_sha,before_sha):
-    return value.get('schema')=='c2-current-a-operator-review-v1' and value.get('reviewed') is True \
-        and isinstance(value.get('reviewer'),str) and bool(value['reviewer'].strip()) \
+def authorization_ok(value,tag,database,*,controller_sha,worker_sha,latest_sha,before_sha):
+    fields={'schema','source','user_instruction','user_followup','formal_sample','scope','tag','database',
+            'controller_sha256','worker_sha256','latest_sha256','before_sha256'}
+    return isinstance(value,dict) and set(value)==fields and value.get('schema')=='c2-current-a-launch-authorization-v1' \
+        and value.get('source')=='conversation-user-instruction' \
+        and value.get('user_instruction')=='设定目标 完成所有的c1~c4的小规模实验吧' \
+        and value.get('user_followup')=='继续完成实验' and value.get('formal_sample') is False \
         and value.get('scope')=='A-only stock workspace-v1 Packed C2 qualification, 45 minute cap' \
-        and value.get('tag')==tag and value.get('database')==database \
+        and value.get('tag')==tag and type(value.get('database')) is int and value['database']==database \
         and value.get('controller_sha256')==controller_sha and value.get('worker_sha256')==worker_sha \
         and value.get('latest_sha256')==latest_sha and value.get('before_sha256')==before_sha
 
@@ -188,10 +192,10 @@ def run(args):
     require(20<=args.database<=255 and args.database not in (54,70,243),'Select a dedicated unused Redis DB')
     worker=out/'qualify-c2-current-a.py'
     latest,before=out/'latest.json',out/'instances-before.json'
-    approval=read(out/'operator.reviewed.json')
-    require(review_ok(approval,tag,args.database,controller_sha=digest(self),worker_sha=digest(worker),
-                      latest_sha=digest(latest),before_sha=digest(before)),
-            'Operator review must bind this exact staged draft and preflight records')
+    authorization=read(out/'launch.authorization.json')
+    require(authorization_ok(authorization,tag,args.database,controller_sha=digest(self),worker_sha=digest(worker),
+                             latest_sha=digest(latest),before_sha=digest(before)),
+            'Recorded C2 user authorization must bind exact staged code and preflight receipts')
     require(latest_ok(read(latest),datetime.now(timezone.utc)),'Fresh matching build branch tips required')
     require(exact_stopped(read(before)) and 0<=time.time()-before.stat().st_mtime<=300,
             'Fresh API receipt for exactly three stopped original A hosts required')
@@ -306,7 +310,7 @@ def run(args):
             for name,data in ((worker.name,worker.read_bytes()),('slot.json',slot)):
                 ssh('client','set -C; cat > '+shlex.quote(str(remote/name)),input=data,timeout=10)
             check=ssh('client',['sha256sum',remote/worker.name],capture_output=True,text=True,timeout=8)
-            require(check.stdout.split()[0]==approval['worker_sha256'],'Uploaded worker differs')
+            require(check.stdout.split()[0]==authorization['worker_sha256'],'Uploaded worker differs')
             ssh('client','test -d /sys/fs/cgroup/ax-slot-1 || '+shlex.join(
                 ['python3','-B','/srv/ax-client/code-12/experiments/unified-suite/pilot-aliyun/scripts/configure-node.py',
                  'slot','--spec',remote/'slot.json','--out',remote/'slot-setup']),timeout=15)

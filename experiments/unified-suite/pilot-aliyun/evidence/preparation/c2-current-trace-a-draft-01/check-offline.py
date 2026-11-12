@@ -51,6 +51,7 @@ api=dict(RequestId='test',TotalCount=3,Instances=dict(Instance=[
 assert ctl['exact_stopped'](api)
 api['Instances']['Instance'][0]['Status']='Running'
 assert not ctl['exact_stopped'](api)
+api['Instances']['Instance'][0]['Status']='Stopped'
 now=datetime.now(timezone.utc)
 latest=dict(passed=True,at=now.isoformat(),sources=[
     dict(component=name,repository=repo,branch=branch,built_commit=commit,remote_commit=commit,
@@ -59,7 +60,22 @@ latest=dict(passed=True,at=now.isoformat(),sources=[
        ('rustfs','https://github.com/Ivanbeethoven/rustfs','feat/dynamic-block-size-rebased',ctl['RUSTFS']))])
 assert ctl['latest_ok'](latest,now)
 assert not ctl['latest_ok'](latest,now+timedelta(seconds=901))
-assert not ctl['review_ok'](draft,'tag',242,controller_sha='a',worker_sha='b',latest_sha='c',before_sha='d')
+hashes=dict(controller_sha=ctl['digest'](HERE/'run-c2-current-a.py'),
+            worker_sha=ctl['digest'](HERE/'qualify-c2-current-a.py'),
+            latest_sha=hashlib.sha256(json.dumps(latest).encode()).hexdigest(),
+            before_sha=hashlib.sha256(json.dumps(api).encode()).hexdigest())
+authorization=dict(schema='c2-current-a-launch-authorization-v1',source='conversation-user-instruction',
+    user_instruction='设定目标 完成所有的c1~c4的小规模实验吧',user_followup='继续完成实验',
+    scope='A-only stock workspace-v1 Packed C2 qualification, 45 minute cap',
+    tag=tag,database=242,formal_sample=False,**{key+'256':value for key,value in hashes.items()})
+assert ctl['authorization_ok'](authorization,tag,242,**hashes)
+for bad in (draft,dict(authorization, reviewed=True),dict(authorization, passed=True),
+            dict(authorization, schema='c2-current-a-operator-review-v1'),
+            dict(authorization, source='agent'),dict(authorization, user_instruction='changed'),
+            dict(authorization, user_followup='changed'),dict(authorization, formal_sample=True),
+            dict(authorization, tag='other'),dict(authorization, database='242'),
+            *(dict(authorization, **{key+'256':'0'*64}) for key in hashes)):
+    assert not ctl['authorization_ok'](bad,tag,242,**hashes)
 with tempfile.TemporaryDirectory(prefix='ax-c2-check-') as td:
     out=Path(td)
     changed=out/'a-pool-up.py'
