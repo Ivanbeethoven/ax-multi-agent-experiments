@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/srv/ax-receipts/c3-current-base-20261112t072025z/qualify-c3-workspace-base.py", line 207, in <module>
+    run(args.tag,args.database,args.workers,args.verify_seconds,args.parallel_sha256,
+  File "/srv/ax-receipts/c3-current-base-20261112t072025z/qualify-c3-workspace-base.py", line 171, in run
+    wait_verifier(verify_cmd,out/'verify.log',out/'verify-aborted.json',verify_seconds,bool(packed_control_mib))
+  File "/srv/ax-receipts/c3-current-base-20261112t072025z/qualify-c3-workspace-base.py", line 74, in wait_verifier
+    raise subprocess.CalledProcessError(proc.returncode,command)
+subprocess.CalledProcessError: Command '[PosixPath('/srv/ax-receipts/c3-current-base-20261112t072025z/smallfiles-verify'), PosixPath('/srv/ax-client/preparation/c3-current-base-20261112t072025z/mnt'), 'base', PosixPath('/srv/ax-client/preparation/c3-current-base-20261112t072025z/verify/result.json'), '100000', '32', '1']' died with <Signals.SIGTERM: 15>.
