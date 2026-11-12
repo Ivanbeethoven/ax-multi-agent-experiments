@@ -16,6 +16,15 @@ ctl=runpy.run_path(str(HERE/'run-c2-current-a.py'))
 worker=runpy.run_path(str(HERE/'qualify-c2-current-a.py'))
 for label,source in (('drives',ctl['CHECK_DRIVES']),('allowlist',ctl['READ_FILES']),('fsync',worker['FSYNC_TREE']),('cleanup',worker['CLEAN_SCRATCH'])):
     compile(source,label,'exec')
+restore=HERE.parents[2]/'scripts/a-pool-up.py'
+assert ctl['restore_payload'](restore)==restore.read_bytes()
+tag='c2-current-a-20261112t123456z'
+for role in ctl['IDS']:
+    command=ctl['restore_command'](role,tag)
+    assert ('--without-legacy-observer-scratch' in command)==(role=='objects')
+    assert '/srv/ax-receipts/a-pool-up/a-pool-up.py' not in command
+    assert f'/srv/ax-receipts/{tag}-restore/a-pool-up.py' in command
+    assert command.index(ctl['RESTORE_SHA']) < command.index('sha256sum -c --status') < command.index('exec timeout')
 
 draft=json.loads((HERE/'request.draft.json').read_text())
 assert draft['reviewed'] is False and draft['runnable'] is False
@@ -53,6 +62,14 @@ assert not ctl['latest_ok'](latest,now+timedelta(seconds=901))
 assert not ctl['review_ok'](draft,'tag',242,controller_sha='a',worker_sha='b',latest_sha='c',before_sha='d')
 with tempfile.TemporaryDirectory(prefix='ax-c2-check-') as td:
     out=Path(td)
+    changed=out/'a-pool-up.py'
+    changed.write_bytes(restore.read_bytes()+b'\n# changed\n')
+    try:
+        ctl['restore_payload'](changed)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('Changed restore helper accepted')
     raw=b'{"passed":false}\n'
     item=dict(sha256=hashlib.sha256(raw).hexdigest(),body=base64.b64encode(raw).decode())
     for bad in ({'../private.env':item},{'result.json':dict(item,sha256='0'*64)}):
