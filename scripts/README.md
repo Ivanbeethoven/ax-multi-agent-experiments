@@ -1,5 +1,7 @@
 # Trace 工具与测量 harness
 
+当前实验使用已有 trace 回放；不再运行真实 Agent 或 OpenCode resume。采集和会话工具保留用于解释已有数据及其依赖，不属于当前测试流程。[当前脚本入口](../experiments/unified-suite/pilot-aliyun/scripts/README.zh.md)。
+
 本目录分两层，职责不同、互不替代：
 
 - **跨批次 trace 工具 / 维护脚本** —— 采集、回放、归档、仓库检查（下表）。
@@ -20,7 +22,7 @@
 | 归档、上传与目录汇总 | [bundle_full_trace.py](bundle_full_trace.py)、[archive_local_traces.py](archive_local_traces.py)、[upload_trace_archives.py](upload_trace_archives.py)、[summarize_local_full_traces.py](summarize_local_full_traces.py) |
 | 完整 trace 回放 | [replay_full_trace_bundle.py](replay_full_trace_bundle.py)，核心是 [Rust 回放器](../tools/full-fuse-replay/README.md) |
 | 历史 strace 格式 | [fs-trace.zh.md](fs-trace.zh.md)；`fs_trace_capture.py` 和 `replay_fs_trace_bundle.py` 仍被内容核查/安全解包调用，保留 |
-| OpenCode 会话恢复参考 | [opencode_resume_probe.py](opencode_resume_probe.py)；正式跨节点流转按 [M 手册](../experiments/retest-2026-10-29/runbook/MIGRATION.zh.md) 做资格 |
+| 历史 OpenCode 会话恢复 | [opencode_resume_probe.py](opencode_resume_probe.py)；[旧 M 手册](../experiments/retest-2026-10-29/runbook/MIGRATION.zh.md)仅供查档，当前 C4 不执行会话恢复 |
 | 仓库结构与归档 | [check_repository.py](check_repository.py)、[check_repository_archive.py](check_repository_archive.py) |
 
 ## 实验测量 harness（standalone）

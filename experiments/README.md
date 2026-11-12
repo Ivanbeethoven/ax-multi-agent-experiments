@@ -1,15 +1,19 @@
-# 实验结果索引
+# 实验索引
 
-当前四组实验的场景、baseline、机器数、指标和环境差异见 [本轮总览](retest-2026-10-29/PLAN.zh.md)，尚未启动正式测试；这里同时索引已有结果与分析。
+当前入口是 [C1–C4 方案](unified-suite/current/README.zh.md)。正式实验暂停，已完成的最小检查与正式性能结果分别保存。
 
 | 目录 | 内容 |
 |---|---|
-| [retest-2026-10-29](retest-2026-10-29/README.zh.md) | 四集群实验规划、分步代码、机制资格和外部 opt-381 报告；不是正式新成绩 |
-| [aliyun-main/2026-10-28](aliyun-main/2026-10-28/README.zh.md) | 原三机 trace 性能结果及其失败/缺测边界，保持原版本 |
-| [aliyun-ai-trace/2026-10-27](aliyun-ai-trace/2026-10-27/README.md) | 完整 trace、磁盘矩阵、固定工作量对照和资源清理记录 |
+| [unified-suite/current](unified-suite/current/README.zh.md) | 当前方案、配置、负载、结果和未完成项 |
+| [最新五项检查](unified-suite/pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md) | Packed 消融和文件系统跨机检查；不是性能比较 |
+| [pilot 脚本入口](unified-suite/pilot-aliyun/scripts/README.zh.md) | 输入准备、最小检查、归档和资源核验 |
+| [unified-suite](unified-suite/README.md) | 旧冻结协议及其历史回执 |
+| [retest-2026-10-29](retest-2026-10-29/README.zh.md) | 10 月四集群计划、机制资格和外部 opt-381 报告 |
+| [aliyun-main/2026-10-28](aliyun-main/2026-10-28/README.zh.md) | 原三机 trace 结果及缺测记录 |
+| [aliyun-ai-trace/2026-10-27](aliyun-ai-trace/2026-10-27/README.md) | 完整 trace、磁盘矩阵和清理记录 |
 | [aliyun-ai-trace/2026-10-26](aliyun-ai-trace/2026-10-26/README.md) | 早期回放与失败诊断 |
-| [agent-fuse-observations](agent-fuse-observations/README.md) | 任务访问分析、派生数据与绘图 |
-| [cloud-smoke/2026-10-25](cloud-smoke/2026-10-25/report.md) | 冒烟报告、原始证据和归档 |
-| [paper-planning](paper-planning/) | 论文迁入的历史备查材料，不是执行入口 |
+| [agent-fuse-observations](agent-fuse-observations/README.md) | 访问分析与绘图 |
+| [cloud-smoke/2026-10-25](cloud-smoke/2026-10-25/report.md) | 早期冒烟报告 |
+| [paper-planning](paper-planning/) | 历史论文规划 |
 
-原 `ax-multi-agent/` 整仓库副本和旧矩阵/协议已经删除展开文件，完整内容见 [历史归档](../archive/README.md)。迁移记录中的原路径与哈希保持历史含义。
+历史数据保持当时的规模、代码版本与判定。已退役的重复代码、旧机器控制脚本从 [Git 历史](../archive/README.md) 查阅，不复制回当前目录。

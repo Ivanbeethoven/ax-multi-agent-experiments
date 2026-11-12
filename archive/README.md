@@ -1,27 +1,28 @@
-# 历史归档
+# 历史文件
 
-当前执行入口是[本轮方案与操作手册](../experiments/retest-2026-10-29/README.zh.md)。本目录只保留历史，不参与当前脚本的 import 或自动调度。
+当前入口：[C1–C4 方案](../experiments/unified-suite/current/README.zh.md)。历史代码保存在 Git，不参与当前调度。
 
-| 归档 | 内容 | 逐文件清单 |
+| 内容 | 查阅位置 | 校验清单 |
 |---|---|---|
-| [legacy-20261028.zip](legacy-20261028.zip) | 原重复仓库、旧四 RQ 方案/报告和过时参数；181 个文件 | [manifest.json](manifest.json) |
-| [legacy-code-20261029.zip](legacy-code-20261029.zip) | 旧 campaign/adapter/worker；旧 Terraform、三机控制器、Ceph/磁盘换挂；旧参数网格与专属测试；121 个原件 | [legacy-code-20261029.manifest.json](legacy-code-20261029.manifest.json) |
-| [plans/2026-10-28](plans/2026-10-28/README.md) | 前一版实验方案 | 原文件与版本记录 |
+| 2026-11-12 退役的 34 个旧控制脚本、12 个专属测试、7 份过时指南 | [删除前的固定提交](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/tree/2443946b40b5644b8cf4eabc6728c96f6c6e6c5e) | [53 个文件、原路径与 SHA256](retired-pilot-20261112.manifest.json) |
+| 旧重复仓库及四 RQ 方案，181 个文件 | [legacy-20261028.zip](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/blob/fc6a64583112ea7aa6f0f64cd8e972bac064a79c/archive/legacy-20261028.zip) | [manifest.json](manifest.json) |
+| 旧调度器、Terraform、Ceph/磁盘换挂及专属测试，121 个原件 | [legacy-code-20261029.zip](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/blob/fc6a64583112ea7aa6f0f64cd8e972bac064a79c/archive/legacy-code-20261029.zip) | [清单](legacy-code-20261029.manifest.json) |
+| 10 月 28 日计划 | [plans/2026-10-28](plans/2026-10-28/README.md) | 原文件 |
 
-10 月 29 日归档中，117 个已退役文件从日常目录移除；另 4 个是修改前的混合测试/说明原件，保留归档中对应旧代码的测试。当前仍需要的挂载、回放与 P1/P2 资格代码移至 [bench/reference](../bench/reference/README.md)，其测试继续运行。当前 Python 工具由 `harness/` 移至 `bench/`，实验 runbook 与 prompts 由 `infra/experiment/` 移至本轮目录，共用后端工具由 `infra/alicloud/deploy/` 移至 `infra/rustfs/`。
+11 月 12 日清理对象是原 A/B 机器专用的续跑、值守、扩盘、释放脚本，以及已经取消的 Flat 完整复制流程。删除前逐文件比对固定提交并记录哈希，合计 553,640 B。最新五项检查、配置、通用部署与资源保护脚本保留。continue-c4-formal 和 watch-c4-formal-boundary 仍被归档及停止状态检查使用，因此保留。原始输入、结果、失败记录和冻结证据未改动；旧回执中的路径仍指当时版本。
 
-这些删除依据当前方案和调用关系，未按成绩好坏筛除实验数据。原始输入、结果、失败记录、冻结源码/资产摘要不修改。历史证据保留当时的路径与 SHA，不回填新位置。
-
-每份清单保存原路径、字节数、SHA256、压缩包 SHA256 和来源 commit。验证：
+两个 ZIP 已于 11 月 10 日从工作目录移除，内容仍在上述 Git 提交中。不要把它们重新加入仓库。[history.json](history.json)记录取回位置。完整 clone 后可直接核验历史原件，无需恢复文件：
 
 ```bash
 python3 scripts/check_repository_archive.py
 ```
 
-只查文件可在 ZIP 中按原路径查阅；恢复旧运行环境则检出清单所列完整 commit，保留当时的目录与依赖。若仅解包，使用仓库外的新目录，例如：
+浅克隆须先 `git fetch --unshallow origin`。查阅单个退役脚本：
 
 ```bash
-python3 -m zipfile -e archive/legacy-code-20261029.zip /tmp/ax-history-20261029
+git show 2443946b40b5644b8cf4eabc6728c96f6c6e6c5e:experiments/unified-suite/pilot-aliyun/scripts/continue-c4-native-flat.py
 ```
 
-不要把旧控制器解压覆盖当前代码后直接运行，也不要用新参数解释历史成绩。后续旧版本优先由 Git 历史追溯，不再复制整仓库。
+需要旧环境时，在仓库外检出对应提交。不要将固定旧机器 ID 的脚本恢复到当前目录后直接执行。
+
+本次清理的[检查记录](../validation/repository-cleanup-20261113.json)：683 项测试运行完毕，26 项按条件跳过，无失败；最新配置和原始结果未改动。

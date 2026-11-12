@@ -1,46 +1,39 @@
-# AX 实验脚本入口
+# 实验脚本入口
 
-**实验已暂停，原 A/B 测试机已释放，原跳板机保留。** [结果表](../../current/results-20261112/RESULT.zh.md)只含指标和关键回执。下列运行入口留待恢复时使用；旧机器 ID、盘和锁配置不可直接复用。
+正式实验暂停。原 A/B 测试机已释放；历史机器 ID、盘和锁配置不可复用。当前范围与参数见 [C1–C4 方案](../../current/README.zh.md)，实际结果见 [性能结果](../../current/results-20261112/RESULT.zh.md)和[最小检查结果](../evidence/preparation/rbm-five-checks-20261112/README.zh.md)。
 
-最小脚本检查入口见 [FIVE-CHECKS.zh.md](../FIVE-CHECKS.zh.md)：`bench.experiment_smoke` 运行五项检查；`prepare-filesystem-handoff-input.py` 明确生成小输入；`collect-five-smoke-results.py` 只收集小型证明文件。C4 当前不再运行 Agent。原跨机节点已停机。
+## 当前入口
 
-## 准备输入
+| 工作 | 使用入口 |
+|---|---|
+| C1–C4 最小脚本检查 | [bench.experiment_smoke](../../../../bench/experiment_smoke.py)；[公共参数](../RBM-MINIMAL.zh.md) · [五项补充检查](../FIVE-CHECKS.zh.md) |
+| Packed 关闭、全关闭 | 同上；候选源码、补丁和二进制须匹配 [write-five-smoke-provenance.py](write-five-smoke-provenance.py) 的回执。诊断候选不用于正式性能计时。 |
+| 文件系统跨机重挂 | [prepare-filesystem-handoff-input.py](prepare-filesystem-handoff-input.py) 准备小输入；上述入口执行 source/target。只核文件和后续读写，不启动 Agent。 |
+| 汇总小型证明 | [collect-five-smoke-results.py](collect-five-smoke-results.py)；保留失败和实际规模，不取整套 trace 或二进制。 |
+| 一万小文件输入 | [prepare-pilot-tenk.py](prepare-pilot-tenk.py) · [生成和校验](../../current/TENK-INPUTS.zh.md) |
+| C4 原生 fork / clone | [bench/fork_burst.py](../../../../bench/fork_burst.py)；当前功能结果与尚缺的正式性能证据见[未完成项](../../current/PENDING.zh.md)。 |
+| 构建与内网分发 | [package-deployment.py](package-deployment.py)、[install-deployment.py](install-deployment.py)；固定源码、产物 SHA256 与镜像 digest。 |
+| 指标采集 | [OBSERVABILITY.zh.md](../OBSERVABILITY.zh.md) · [bench/runtime](../../../../bench/runtime/README.md) |
+| 归档 | [archive-cloud-to-oss.py](archive-cloud-to-oss.py) · [使用说明](../OSS-ARCHIVE.zh.md)；公开包先核内容，私有配置和会话原件另存。 |
+| 资源核验与费用 | [release-evidence.py](release-evidence.py)、[record-cost.py](record-cost.py) · [清理步骤](../RELEASE.zh.md) |
 
-已有输入先按清单核对，匹配就直接复用。需要补 `pytest-full-02` 时，只在杭州跳板机下载一次，再从跳板通过私网 SSH 分发到缺输入的 worker；[归档、SHA-256 和其他用例](../../../../scenarios/k8s-containers/archives.json)均在清单。
+## 下载并分发 trace
+
+已有输入先核清单，匹配即可复用。补充 `pytest-full-02` 时在杭州跳板下载一次，再从私网分发。所有用例和 SHA256 见 [archives.json](../../../../scenarios/k8s-containers/archives.json)。
 
 ```bash
-# 跳板机：REPO 为仓库绝对路径；WORKER_ALIAS 指向该 worker 的私网地址
+# REPO 为仓库绝对路径；WORKER_ALIAS 使用私网 SSH 配置。
 python3 "$REPO/scenarios/k8s-containers/scripts/download_archives.py" \
   --source oss --internal --cases pytest-full-02 --out "$JUMP_INPUT"
 scp -F "$PRIVATE_SSH_CONFIG" "$JUMP_INPUT/pytest-full-02.tar.gz" \
   "$WORKER_ALIAS:$WORKER_ARCHIVE"
 
-# worker：NEW_INPUT 必须是新目录；TRACE_SHA 取自 archives.json
+# worker：NEW_INPUT 必须为新目录；TRACE_SHA 取自 archives.json。
 P="$REPO/experiments/unified-suite/pilot-aliyun/scripts"
 python3 "$P/prepare-cloud-trace.py" --archive "$WORKER_ARCHIVE" \
   --sha256 "$TRACE_SHA" --root "$NEW_INPUT" --assets "$ASSETS" --repo "$REPO"
 ```
 
-[解包脚本](prepare-cloud-trace.py)核对归档 SHA、初态和本地回放，输出 `result.json`；这个回执只验证输入。`prepare-cloud-inputs.py` 会让节点直接下载 OSS，留作旧部署复现。需要补二进制时，先固定版本和 SHA，再用 [package-deployment.py](package-deployment.py) 打包、[install-deployment.py](install-deployment.py) 分发安装。
+[prepare-cloud-trace.py](prepare-cloud-trace.py)核对归档、初态和本地回放；生成的 `result.json` 只是输入资格。Rust 回放器见 [工具说明](../../../../tools/full-fuse-replay/README.md)。
 
-| 用途 | 入口 |
-| --- | --- |
-| C3 / C4 一万文件 | [生成和校验说明](../../current/TENK-INPUTS.zh.md) · [prepare-pilot-tenk.py](prepare-pilot-tenk.py)。两个输入各 10,000 × 4 KiB；用相应的独立清单做冷读回校验。 |
-| C2 完整 trace | [单轮执行草稿](../evidence/preparation/c2-current-trace-a-draft-01/README.zh.md) · [run-c2-current-a.ps1](../evidence/preparation/c2-current-trace-a-draft-01/run-c2-current-a.ps1)。待恢复后先更新拓扑并验版本、输入和锁，再生成 Packed lower、回放并冷验。[run-c2-publish-only.ps1](run-c2-publish-only.ps1) 只查发布阶段。 |
-| C3 / C4 复查 | [C3 云端抽样回执](../evidence/preparation/cloud-c3-script-fixes-20261112/README.zh.md) · [C4 原生派生运行器](../../../../bench/fork_burst.py) · [C4 跨机执行草稿](../evidence/c4-state-reopen-draft-01/README.zh.md)。原拓扑只作记录；一万文件的云上运行尚无验收。 |
-| 归档结果 | 保存运行配置、指标原文、正确性、失败和卸载回执及 SHA。可公开的包用 [archive-cloud-to-oss.py](archive-cloud-to-oss.py) 走 OSS 内网并读回核对；含会话或私有配置的原档放私有位置。[归档示例](../OSS-ARCHIVE.zh.md) |
-| 清理资源 | 停止负载、正常卸载，核实原进程退出；删盘前在盘外独立核验不可再生证据。按创建账本圈定本任务的实例和盘，使用 [release-evidence.py](release-evidence.py) 的 `freeze` / `check` 记录范围并核对释放；仅云 API 查不到相应 ID 才记为已释放。[清理与核验](../RELEASE.zh.md) · [账单核对](../evidence/progress/pilot-evidence-audit-20261112/README.zh.md) |
-
-原 A 池收尾使用三个独立步骤：[冷备份](preserve-a-backend.py) → [精确释放](release-owned-a.ps1) → [云端确认消失](audit-retired-pool-a.ps1)。备份逐文件校验；符号链接只记录目标，不跟随。用户最后要求只交付结果，client 的原始包保留在 jump，本地大包下载已取消；释放记录明确标出此范围。释放脚本只接受创建回执中固定的三个实例和九块盘，保留 jump，不按名称前缀删除。这些固定 ID 的脚本只供本次清理查档；新部署须另建资源清单。
-
-旧 Entity、native-v2、Flat 完整复制和 JuiceFS 混合读写只用于查档，不再调度。
-
-## C2–C4 卡在哪里
-
-| 项目 | 已验证与尚缺证据 |
-| --- | --- |
-| C2 | [最新发布回执](../evidence/preparation/c2-publish-progress-timeout-02/README.zh.md)：服务探针 0.397 s，HeadBucket 0.264 s，CreateBucket 6.430 s。Packed 发布跑满 300 s，看到 145 个对象、24,520,277 B，未找到 manifest；末次样本的发布主进程累计 CPU 约 1.92 s。完整 trace 尚未开始，尚不能把发布等待分到上传、读回校验和服务端磁盘。 |
-| C3 | [云上抽样](../evidence/preparation/cloud-c3-script-fixes-20261112/README.zh.md)用 64 个文件完成四阶段、128 次内容校验。一万文件的输入已在本地验全；仍缺云上全量冷验和同条件对照。 |
-| C4 | [两文件原生 fork / clone](../evidence/preparation/rbm-c4-published-20261112/README.zh.md)已通过冷读及隔离；没有一万文件配对计时。[云上跨机](../evidence/preparation/c4-state-reopen-a-b-result-01/README.zh.md)读回 894 项和相同的 OpenCode 导出，但目标子进程退出超时，缺目标零上传债务回执。[本机修复](../evidence/preparation/c4-local-export-closure-diagnosis-01/README.zh.md)尚未在云上复验。 |
-
-当前缺项以 [C2–C4 未完成清单](../../current/PENDING.zh.md) 为准。
+旧池续跑、值守和固定 ID 的释放脚本，以及取消的 Flat 完整复制路径，已经从日常目录移除，见[退役清单](../../../../archive/README.md)。其余历史冻结脚本仍由旧回执或测试使用，不作为新实验的默认入口。

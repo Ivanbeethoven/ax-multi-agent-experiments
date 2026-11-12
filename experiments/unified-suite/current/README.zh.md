@@ -4,7 +4,7 @@
 
 最新[五项补充小试](../pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md)已通过：Packed 元数据关闭两项、全关闭一项、文件系统跨机两项。仅复用 jump，已恢复 StopCharging。功能入口已接通，正式规模、性能对照和故障切换仍按各自资格执行。
 
-随后按用户要求，仅在 rbm 做了[最小脚本复验](../pilot-aliyun/evidence/preparation/rbm-script-check-20261112/README.zh.md)：26 个入口最终 21 通过、5 阻塞。修复回放权限掩码、补充导入超时参数，逐阶段定位等待。没有新开云机，临时服务已清理；正式规模和历史结果未改，正式实验仍暂停。
+此前在 rbm 做了[首轮最小脚本复验](../pilot-aliyun/evidence/preparation/rbm-script-check-20261112/README.zh.md)：26 个入口中 21 通过、5 阻塞。修复回放权限掩码、补充导入超时参数；这 5 个阻塞随后由上面的检查补齐。两轮记录分别保留，正式规模和历史结果未改。
 
 本轮按用户要求跳过 JuiceFS 混合读写，不再补跑或补验收，原有结果保留。[C2–C4 未完成清单](PENDING.zh.md)按当前方案列项；旧 14/28 只用于解释历史账本，不能代表已删除完整复制实验后的当前进度。
 
@@ -53,14 +53,14 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 
 ## 实现状态
 
-已有输入下载、Rust 回放、原始采集和旧套件工具。新路线仍需 suite 适配、可写 Overlay 消融、多机调度、四节点观测和跨机恢复验证。最近的小试：
+已有输入下载、Rust 回放、原始采集和最小跨机检查。新路线仍需正式 suite 适配、可写 Overlay 消融、多机调度、四节点观测和配对性能测试。最近的小试：
 
 | 项目 | 已验证 | 还缺 |
 |---|---|---|
 | C1 | [64 MiB 同步混合读写](../pilot-aliyun/evidence/preparation/c1-b-randrw-scratch-reverse-02/README.zh.md)完成正序、反序各一组配对，四臂均通过全量冷挂载 CRC；[固定 B 的读帧开关](../pilot-aliyun/evidence/preparation/c1-rbm-rustfs-quantum-01/README.zh.md)通过落盘布局与读回核验 | 增加重复；读帧变化对物理 I/O 和任务时间的影响 |
-| C2 | [两文件热态对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/README.zh.md)计时期间零对象存储读取；[本地检查](../pilot-aliyun/evidence/preparation/c2-local-publisher-01/README.zh.md)用 5.53 秒生成并校验 182 个对象；[最后一次云端定位](../pilot-aliyun/evidence/preparation/c2-publish-progress-timeout-02/README.zh.md)通过 RustFS 就绪和建桶检查，Packed 发布 300.001 秒超时，留下 145 个对象、24,520,277 B，未生成最终清单 | 发布等待尚未定位到具体操作；完整 trace 未启动，冷验与同输入对照尚未完成 |
-| C3 | [云上抽样四阶段完成](../pilot-aliyun/evidence/preparation/cloud-c3-script-fixes-20261112/README.zh.md)：64 个固定文件、128 次内容校验，正常卸载；十万文件全量仍未完成 | 完整读回；同样设置下的性能对照 |
-| C4 | [rbm 同输入原生 fork / clone](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)均通过子读父、覆盖后父不变、空缓存重挂；[阿里云 A→B](../pilot-aliyun/evidence/preparation/c4-state-reopen-a-b-result-01/README.zh.md)读回同一工作区和完全相同的 OpenCode 会话导出；[本地退出检查](../pilot-aliyun/evidence/preparation/c4-local-export-closure-diagnosis-01/README.zh.md)实测到主进程退出后 Git 仍在写快照，运行器已改为等待原进程组自然结束 | 跨机整项未通过：目标子进程退出超时，未采目标零债务；新运行器尚未云端复验。无模型续跑，云端超过 5 秒的原因尚未复现。一万文件派生性能配对本轮跳过 |
+| C2 | [两文件热态对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/README.zh.md)计时期间零对象存储读取；[后续消融检查](../pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md)完成 Packed 关闭和全关的 367 次回放、终态及冷重挂 | [完整输入发布](../pilot-aliyun/evidence/preparation/c2-publish-progress-timeout-02/README.zh.md)仍保留 300 秒超时记录；本轮完整 trace 和同输入性能对照未完成 |
+| C3 | [云上四阶段抽样](../pilot-aliyun/evidence/preparation/cloud-c3-script-fixes-20261112/README.zh.md)完成 64 文件、128 次内容校验；[Packed 关闭小试](../pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md)用 8 文件通过读写、KV 路径和冷重挂核验 | 一万文件完整读回及同条件性能对照 |
+| C4 | [两文件原生 fork / clone](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)通过隔离和冷读；[rbm→jump 文件系统迁移](../pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md)在两系统均通过 113 项全树核验、4 KiB 写入/fsync/读回/删除及正常卸载 | 一万文件派生计时、正式输入的同地域 stay/move 配对、目标原生零上传债务证明和旧写者拒绝。实际 Agent 运行已取消；旧会话导出失败保留原记录 |
 
 小试用于排除实现和部署问题，独立保存，不回填旧套件的正式验收。
 
