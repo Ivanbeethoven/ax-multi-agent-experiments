@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read the existing 100k Packed base through a fresh workspace-v1 mount in pool A."""
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
 import os
@@ -8,7 +9,11 @@ from pathlib import Path
 import re
 import signal
 import socket
+import stat
+import struct
 import subprocess
+import sys
+import threading
 import time
 import uuid
 
@@ -51,6 +56,88 @@ def require(ok, reason):
         raise ValueError(reason)
 
 
+def cohort_indices(offset):
+    return [32*i + offset + 1024*(3*i) for i in range(32)]
+
+
+def base_payload(index):
+    """Same immutable version-zero SplitMix64 payload as smallfiles-verify."""
+    mask = (1 << 64) - 1
+    state = index
+    result = bytearray()
+    for _ in range(512):
+        state = (state + 0x9e3779b97f4a7c15) & mask
+        z = ((state ^ (state >> 30)) * 0xbf58476d1ce4e5b9) & mask
+        z = ((z ^ (z >> 27)) * 0x94d049bb133111eb) & mask
+        result.extend(struct.pack('<Q', z ^ (z >> 31)))
+    return bytes(result)
+
+
+def probe_cohort(mount, out):
+    # Do not enumerate directories or pretend a 32-file sample is the whole
+    # 100k tree. Cross the concurrency/order labels on two interleaved sets.
+    phases = (('serial-first-a', 1, 0), ('parallel-first-b', 32, 16),
+              ('serial-repeat-b', 1, 16), ('parallel-repeat-a', 32, 0))
+    rows = []
+    lock = threading.Lock()
+    with (out/'cohort-events.ndjson').open('x', buffering=1) as log:
+        def event(**fields):
+            with lock:
+                log.write(json.dumps(dict(monotonic_ns=time.monotonic_ns(), **fields))+'\n')
+
+        def check(phase, index):
+            relative = f'small/d{index % 1024:04d}/f{index:07d}'
+            path = mount/relative
+
+            def timed(name, operation):
+                event(event='start', phase=phase, path=relative, operation=name)
+                begin = time.monotonic_ns()
+                try:
+                    value = operation()
+                except OSError as exc:
+                    event(event='error', phase=phase, path=relative, operation=name,
+                          errno=exc.errno, elapsed_ns=time.monotonic_ns()-begin)
+                    raise
+                event(event='end', phase=phase, path=relative, operation=name,
+                      elapsed_ns=time.monotonic_ns()-begin)
+                return value
+
+            m = timed('lstat', path.lstat)
+            require(stat.S_ISREG(m.st_mode) and stat.S_IMODE(m.st_mode) == 0o644 and
+                    (m.st_size, m.st_nlink, m.st_uid, m.st_gid) == (4096, 1, 0, 0),
+                    'File metadata differs: '+relative)
+            fd = timed('open', lambda: os.open(path, os.O_RDONLY | os.O_NOFOLLOW))
+            try:
+                body = timed('pread', lambda: os.pread(fd, 4097, 0))
+            finally:
+                timed('close', lambda: os.close(fd))
+            require(body == base_payload(index), 'File bytes differ: '+relative)
+            event(event='verified', phase=phase, path=relative, bytes=len(body),
+                  sha256=hashlib.sha256(body).hexdigest())
+            return len(body)
+
+        for phase, workers, offset in phases:
+            event(event='phase-start', phase=phase, workers=workers)
+            begin = time.monotonic_ns()
+            indices = cohort_indices(offset)
+            if workers == 1:
+                total = sum(check(phase, i) for i in indices)
+            else:
+                barrier = threading.Barrier(workers, timeout=8)
+                def simultaneous(i):
+                    barrier.wait()
+                    return check(phase, i)
+                with ThreadPoolExecutor(max_workers=workers) as pool:
+                    total = sum(pool.map(simultaneous, indices))
+            row = dict(phase=phase, workers=workers, files=len(indices), bytes=total,
+                       elapsed_ns=time.monotonic_ns()-begin)
+            event(event='phase-end', **row)
+            rows.append(row)
+    write(out/'cohort-result.json', dict(passed=True, formal_sample=False,
+          scope='64 unique pinned files, 4 passes; same mount and shared metadata caches; no full tree qualification',
+          phases=rows))
+
+
 def wait_verifier(command, log, abort_path, seconds, detect_worker_failure):
     with log.open('xb') as output:
         if not detect_worker_failure:
@@ -82,7 +169,7 @@ def wait_verifier(command, log, abort_path, seconds, detect_worker_failure):
 
 
 def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_budget=False,
-        packed_output_mib=0, packed_control_mib=0):
+        packed_output_mib=0, packed_control_mib=0, diagnostic_cohort=False):
     require(re.fullmatch(r'c3-current-base-[0-9]{8}t[0-9]{6}z',tag) and 20 <= db < 256 and db != 70,
             'Exact new tag and dedicated Redis DB required')
     require(socket.gethostname()=='ax-pilot-20261111-client' and active(CLIENT) is not None,
@@ -95,11 +182,14 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_bud
     require(packed_output_mib in (0,128) and
             (not packed_output_mib or (trace_packed_budget and workers == 32)),
             'The 128 MiB probe requires budget tracing and 32 workers')
+    require(not diagnostic_cohort or (not parallel_sha256 and workers == 32 and verify_seconds == 120
+            and trace_packed_budget and packed_output_mib == 128 and packed_control_mib == 8),
+            'Cohort requires a 120-second window, both raised budgets, and no separate verifier')
     require(packed_control_mib in (0,8) and
-            (not packed_control_mib or (parallel_sha256 and packed_output_mib == 128)),
+            (not packed_control_mib or ((parallel_sha256 or diagnostic_cohort) and packed_output_mib == 128)),
             'The 8 MiB control probe requires the diagnostic verifier and 128 MiB output')
     parallel = Path(__file__).resolve().with_name('smallfiles-verify') if parallel_sha256 else PARALLEL
-    pins = {**ARTIFACTS,**({parallel:parallel_sha256 or PARALLEL_SHA} if workers else {})}
+    pins = {**ARTIFACTS,**({parallel:parallel_sha256 or PARALLEL_SHA} if workers and not diagnostic_cohort else {})}
     for path,expected in pins.items():
         require(path.resolve(strict=True)==path,'Unexpected artifact path: '+str(path))
         with path.open('rb') as stream:
@@ -126,6 +216,7 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_bud
           verifier_workers=workers or 1,verify_timeout_seconds=verify_seconds,trace_packed_budget=trace_packed_budget,
           packed_output_budget_bytes=(packed_output_mib or 32)*1024**2,
           packed_control_budget_bytes=(packed_control_mib or 1)*1024**2,
+          **({'diagnostic_cohort': True} if diagnostic_cohort else {}),
           boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip()))
     (slot/'cgroup.procs').write_text(str(os.getpid()))
     auth = dict(line.split('=',1) for line in (CLIENT/'private/rustfs.env').read_text().splitlines() if '=' in line)
@@ -162,6 +253,11 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_bud
             identity = active(mount)
             require(identity and identity['type'].startswith('fuse') and proc.poll() is None,'Current FUSE mount did not start')
             write(out/'ready.json',dict(mount=identity,pid=proc.pid,workspace_id=workspace))
+            if diagnostic_cohort:
+                cmd = ['python3', '-B', Path(__file__).resolve(), '--cohort-worker', str(out)]
+                wait_verifier(cmd,out/'verify.log',out/'verify-aborted.json',verify_seconds,False)
+                require(active(mount)==identity and proc.poll() is None,'Mount changed during cohort readback')
+                return
             if workers:
                 (out/'verify').mkdir()
                 verify_cmd = [parallel,mount,'base',out/'verify/result.json',str(EXPECTED['files']),str(workers),'1']
@@ -191,6 +287,15 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_bud
 
 
 if __name__=='__main__':
+    # Invoked only by the owned mount wrapper. No mount, backend, or setup
+    # operation in this child; a timeout terminates all its probe threads.
+    if len(sys.argv) == 3 and sys.argv[1] == '--cohort-worker':
+        out = Path(sys.argv[2])
+        require(out.parent == CLIENT/'preparation' and out.resolve(strict=True) == out
+                and re.fullmatch(r'c3-current-base-[0-9]{8}t[0-9]{6}z',out.name)
+                and active(out/'mnt') is not None, 'Owned active C3 preparation mount required')
+        probe_cohort(out/'mnt', out)
+        raise SystemExit(0)
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--tag',required=True)
     parser.add_argument('--database',type=int,required=True)
@@ -200,9 +305,10 @@ if __name__=='__main__':
     parser.add_argument('--trace-packed-budget',action='store_true')
     parser.add_argument('--packed-output-mib',type=int,choices=(0,128),default=0)
     parser.add_argument('--packed-control-mib',type=int,choices=(0,8),default=0)
+    parser.add_argument('--diagnostic-cohort',action='store_true')
     args=parser.parse_args()
     def terminate(_signum, _frame):
         raise TimeoutError('Qualification interrupted')
     signal.signal(signal.SIGTERM,terminate)
     run(args.tag,args.database,args.workers,args.verify_seconds,args.parallel_sha256,
-        args.trace_packed_budget,args.packed_output_mib,args.packed_control_mib)
+        args.trace_packed_budget,args.packed_output_mib,args.packed_control_mib,args.diagnostic_cohort)

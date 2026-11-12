@@ -7,7 +7,8 @@ param(
     [string]$ParallelBinary,
     [switch]$TracePackedBudget,
     [ValidateSet(0,128)][int]$PackedOutputMib = 0,
-    [ValidateSet(0,8)][int]$PackedControlMib = 0
+    [ValidateSet(0,8)][int]$PackedControlMib = 0,
+    [switch]$DiagnosticCohort
 )
 
 $ErrorActionPreference = 'Stop'
@@ -39,7 +40,11 @@ if ($Database -eq 70) { throw 'Database 70 owns the original Packed asset' }
 if ($PackedOutputMib -and (!$TracePackedBudget -or $Workers -ne 32)) {
     throw 'The 128 MiB qualification must preserve the 32-worker input and trace budget rejections'
 }
-if ($PackedControlMib -and (!$ParallelBinary -or $PackedOutputMib -ne 128)) {
+if ($DiagnosticCohort -and ($ParallelBinary -or $Workers -ne 32 -or $VerifySeconds -ne 120 -or
+        !$TracePackedBudget -or $PackedOutputMib -ne 128 -or $PackedControlMib -ne 8)) {
+    throw 'Cohort requires a 120-second window, both raised budgets, and no separate verifier'
+}
+if ($PackedControlMib -and ((!$ParallelBinary -and !$DiagnosticCohort) -or $PackedOutputMib -ne 128)) {
     throw 'The 8 MiB control probe requires the diagnostic verifier and the fixed 128 MiB output budget'
 }
 New-Item -ItemType Directory -Path $local -ErrorAction Stop | Out-Null
@@ -70,8 +75,9 @@ if ($parallelSha) {
 $validate = "set -eu; cd $dest; echo '$guardSha  run-c3-workspace-base.py' | sha256sum -c -; echo '$workerSha  qualify-c3-workspace-base.py' | sha256sum -c -; python3 -m py_compile run-c3-workspace-base.py qualify-c3-workspace-base.py"
 ssh -F $cfg -oBatchMode=yes -oConnectTimeout=8 ax-pilot-jump $validate
 if ($LASTEXITCODE) { throw 'Remote staged file validation failed' }
-[pscustomobject]@{tag=$tag; dest=$dest; guard_sha256=$guardSha; worker_sha256=$workerSha; database=$Database; workers=$Workers; verify_seconds=$VerifySeconds; parallel_sha256=$parallelSha; trace_packed_budget=[bool]$TracePackedBudget; packed_output_mib=$PackedOutputMib; packed_control_mib=$PackedControlMib} |
-    ConvertTo-Json | Set-Content -Encoding utf8NoBOM "$local/stage.json"
+$stage = [ordered]@{tag=$tag; dest=$dest; guard_sha256=$guardSha; worker_sha256=$workerSha; database=$Database; workers=$Workers; verify_seconds=$VerifySeconds; parallel_sha256=$parallelSha; trace_packed_budget=[bool]$TracePackedBudget; packed_output_mib=$PackedOutputMib; packed_control_mib=$PackedControlMib}
+if ($DiagnosticCohort) { $stage.diagnostic_cohort = $true }
+$stage | ConvertTo-Json | Set-Content -Encoding utf8NoBOM "$local/stage.json"
 
 $serviceSeconds = $VerifySeconds + 325
 $launch = "systemd-run --unit=$tag --remain-after-exit --property=RuntimeMaxSec=${serviceSeconds}s --property=TimeoutStopSec=25s /usr/bin/python3 -B $dest/run-c3-workspace-base.py --worker-sha256 $workerSha --database $Database --workers $Workers --verify-seconds $VerifySeconds"
@@ -79,6 +85,7 @@ if ($parallelSha) { $launch += " --parallel-sha256 $parallelSha" }
 if ($TracePackedBudget) { $launch += " --trace-packed-budget" }
 if ($PackedOutputMib) { $launch += " --packed-output-mib $PackedOutputMib" }
 if ($PackedControlMib) { $launch += " --packed-control-mib $PackedControlMib" }
+if ($DiagnosticCohort) { $launch += " --diagnostic-cohort" }
 ssh -F $cfg -oBatchMode=yes -oConnectTimeout=8 ax-pilot-jump $launch
 if ($LASTEXITCODE) { throw 'A guard launch failed' }
 $attempted = $false

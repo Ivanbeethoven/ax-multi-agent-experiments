@@ -40,6 +40,30 @@ def sha(path):
     with Path(path).open('rb') as file:
         return hashlib.file_digest(file, 'sha256').hexdigest()
 
+def prepare_matched_fixture(root, pin):
+    need(re.fullmatch(r'ax-c1b-[0-9a-f]{10}',pin['run']) and pin['run']!=root.name and
+         re.fullmatch(r'[0-9a-f]{64}',pin['input_sha256']), 'Invalid prior scratch fixture identity')
+    previous=root.parent/pin['run']
+    closed,reported,source=(previous/name for name in ('close.json','input.json','fixture/fio-0000.dat'))
+    need(all(p.is_file() and p.resolve()==p for p in (closed,reported,source)),
+         'The exact prior fixture is no longer present on this client')
+    close=json.loads(closed.read_bytes())
+    expected=dict(bytes=64*1024**2,sha256=pin['input_sha256'],seed=9173)
+    need(close.get('passed') is True and close.get('role')=='client' and
+         json.loads(reported.read_bytes())==expected and source.stat().st_size==expected['bytes'],
+         'Prior run did not close on this client with the requested input')
+    destination=root/'fixture'/'fio-0000.dat'
+    destination.parent.mkdir(mode=0o700)
+    with source.open('rb') as src,destination.open('xb') as dst:
+        shutil.copyfileobj(src,dst,1024**2)
+        dst.flush()
+        os.fsync(dst.fileno())
+    need(destination.stat().st_size==expected['bytes'] and sha(destination)==expected['sha256'],
+         'Byte-for-byte copy of the prior fio input failed verification')
+    write(root/'input.json',expected)
+    write(root/'matched-input.json',dict(prior=pin,verified_input=expected))
+
+
 def wait(fn, label, seconds):
     end = time.monotonic()+seconds
     while time.monotonic() < end:
@@ -242,6 +266,8 @@ def main():
             write(root/'redis.json',dict(version=out('/usr/bin/redis-server','--version'),
                   appendonly=True,appendfsync='always',private_ip=identity['private_ip']))
         elif role=='client':
+            if spec.get('matched_fixture') is not None:
+                prepare_matched_fixture(root,spec['matched_fixture'])
             dev=disk_for(devices,identity['data_disk_ids'][0])
             orig=root/'old-read-only';orig.mkdir()
             run('unshare','--mount','--propagation','private','sh','-e','-c',
