@@ -24,7 +24,8 @@ python3 -m bench.experiment_modes --experiment C2-runtime --mode overlay-off
 python3 -m bench.experiment_modes --experiment C4-handoff --mode brewfs-full --placement move
 ```
 
-`--experiment` 选子项，`--mode` 选对照或消融，迁移另用 `--placement stay|move`。这里的模式是文件系统配置，不涉及模型调用。选择器输出预期格式、机制、hint 和尚未验收的条件；不会启动文件系统或派发任务。底层已经支持的 hint 参数是 `--s3-rustfs-ec-block-size-hint`；Overlay 和 Pack 的同引擎开关仍待接入。
+`--experiment` 选子项，`--mode` 选对照或消融，迁移另用 `--placement stay|move`。这里的模式是文件系统配置，不涉及模型调用。选择器输出预期格式、机制、hint 和尚未验收的条件；不会启动文件系统或派发任务。
+实际最小运行用 python3 -m bench.experiment_smoke，参数及范围见[rbm 最小验证](../pilot-aliyun/RBM-MINIMAL.zh.md)。底层已经支持的 hint 参数是 `--s3-rustfs-ec-block-size-hint`；Overlay 和 Pack 的同引擎开关仍待接入。
 
 统一构建：
 

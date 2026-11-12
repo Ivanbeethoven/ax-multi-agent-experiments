@@ -1,0 +1,140 @@
+{"seq": 1, "op": "init", "args": ["/"], "result": null, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 1000, "end_ns": 1500}
+{"seq": 2, "op": "getattr", "args": ["/repo", null], "result": {"st_mode": 16877, "st_size": 4096}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 2000, "end_ns": 2500}
+{"seq": 3, "op": "opendir", "args": ["/repo", 65536], "result": 1, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 3000, "end_ns": 3500}
+{"seq": 4, "op": "readdir", "args": ["/repo", 1], "result": [".", "..", "README.md", "src"], "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 4000, "end_ns": 4500}
+{"seq": 5, "op": "releasedir", "args": ["/repo", 1], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 5000, "end_ns": 5500}
+{"seq": 6, "op": "getattr", "args": ["/repo/README.md", null], "result": {"st_mode": 33188, "st_size": 68}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 6000, "end_ns": 6500}
+{"seq": 7, "op": "open", "args": ["/repo/README.md", 0], "result": 2, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 7000, "end_ns": 7500}
+{"seq": 8, "op": "read", "args": ["/repo/README.md", 4096, 0, 2], "result": {"len": 68, "sha256": "059ba9a8fe564d1355d5b11d0e09f1c343b9bf41cd3fa98ddb59d249eba895ce"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 8000, "end_ns": 8500}
+{"seq": 9, "op": "flush", "args": ["/repo/README.md", 2], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 9000, "end_ns": 9500}
+{"seq": 10, "op": "release", "args": ["/repo/README.md", 2], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 10000, "end_ns": 10500}
+{"seq": 11, "op": "open", "args": ["/repo/src/mod.py", 0], "result": 3, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 11000, "end_ns": 11500}
+{"seq": 12, "op": "read", "args": ["/repo/src/mod.py", 4096, 0, 3], "result": {"len": 32, "sha256": "ba1a531f581d2e6094e978ed6f7aca7a8d92eeb62c6e7ad73ee692f7f18bc772"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 12000, "end_ns": 12500}
+{"seq": 13, "op": "release", "args": ["/repo/src/mod.py", 3], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 13000, "end_ns": 13500}
+{"seq": 14, "op": "mkdir", "args": ["/repo/build", 493], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 14000, "end_ns": 14500}
+{"seq": 15, "op": "mkdir", "args": ["/repo/tests", 493], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 15000, "end_ns": 15500}
+{"seq": 16, "op": "create", "args": ["/repo/build/artifact_01.bin", 420], "result": 11, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 16000, "end_ns": 16500}
+{"seq": 17, "op": "write", "args": ["/repo/build/artifact_01.bin", {"blob": "cf250e0c0652b9c83e9a95bf81fcde328790019f2562f42d3a5f18629f14b81f", "len": 6144}, 0, 11], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 17000, "end_ns": 17500}
+{"seq": 18, "op": "flush", "args": ["/repo/build/artifact_01.bin", 11], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 18000, "end_ns": 18500}
+{"seq": 19, "op": "fsync", "args": ["/repo/build/artifact_01.bin", 1, 11], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 19000, "end_ns": 19500}
+{"seq": 20, "op": "getattr", "args": ["/repo/build/artifact_01.bin", 11], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 20000, "end_ns": 20500}
+{"seq": 21, "op": "read", "args": ["/repo/build/artifact_01.bin", 6144, 0, 11], "result": {"len": 6144, "sha256": "cf250e0c0652b9c83e9a95bf81fcde328790019f2562f42d3a5f18629f14b81f"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 21000, "end_ns": 21500}
+{"seq": 22, "op": "release", "args": ["/repo/build/artifact_01.bin", 11], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 22000, "end_ns": 22500}
+{"seq": 23, "op": "create", "args": ["/repo/build/artifact_02.bin", 420], "result": 12, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 23000, "end_ns": 23500}
+{"seq": 24, "op": "write", "args": ["/repo/build/artifact_02.bin", {"blob": "cd367e365284e4226de7cf07beefb764eeedd5c1985ead6149855854cc7557fa", "len": 6144}, 0, 12], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 24000, "end_ns": 24500}
+{"seq": 25, "op": "flush", "args": ["/repo/build/artifact_02.bin", 12], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 25000, "end_ns": 25500}
+{"seq": 26, "op": "fsync", "args": ["/repo/build/artifact_02.bin", 1, 12], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 26000, "end_ns": 26500}
+{"seq": 27, "op": "getattr", "args": ["/repo/build/artifact_02.bin", 12], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 27000, "end_ns": 27500}
+{"seq": 28, "op": "read", "args": ["/repo/build/artifact_02.bin", 6144, 0, 12], "result": {"len": 6144, "sha256": "cd367e365284e4226de7cf07beefb764eeedd5c1985ead6149855854cc7557fa"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 28000, "end_ns": 28500}
+{"seq": 29, "op": "release", "args": ["/repo/build/artifact_02.bin", 12], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 29000, "end_ns": 29500}
+{"seq": 30, "op": "create", "args": ["/repo/build/artifact_03.bin", 420], "result": 13, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 30000, "end_ns": 30500}
+{"seq": 31, "op": "write", "args": ["/repo/build/artifact_03.bin", {"blob": "c1df9a825d322b66b02d68e9454f4a71fd21386c63eb6946dc99bc3a6d779caa", "len": 6144}, 0, 13], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 31000, "end_ns": 31500}
+{"seq": 32, "op": "flush", "args": ["/repo/build/artifact_03.bin", 13], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 32000, "end_ns": 32500}
+{"seq": 33, "op": "fsync", "args": ["/repo/build/artifact_03.bin", 1, 13], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 33000, "end_ns": 33500}
+{"seq": 34, "op": "getattr", "args": ["/repo/build/artifact_03.bin", 13], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 34000, "end_ns": 34500}
+{"seq": 35, "op": "read", "args": ["/repo/build/artifact_03.bin", 6144, 0, 13], "result": {"len": 6144, "sha256": "c1df9a825d322b66b02d68e9454f4a71fd21386c63eb6946dc99bc3a6d779caa"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 35000, "end_ns": 35500}
+{"seq": 36, "op": "release", "args": ["/repo/build/artifact_03.bin", 13], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 36000, "end_ns": 36500}
+{"seq": 37, "op": "create", "args": ["/repo/build/artifact_04.bin", 420], "result": 14, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 37000, "end_ns": 37500}
+{"seq": 38, "op": "write", "args": ["/repo/build/artifact_04.bin", {"blob": "76b4bb94c2b3e4e076e9706f1686c0c442f6f71769426f43fda8826837cfb2bf", "len": 6144}, 0, 14], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 38000, "end_ns": 38500}
+{"seq": 39, "op": "flush", "args": ["/repo/build/artifact_04.bin", 14], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 39000, "end_ns": 39500}
+{"seq": 40, "op": "fsync", "args": ["/repo/build/artifact_04.bin", 1, 14], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 40000, "end_ns": 40500}
+{"seq": 41, "op": "getattr", "args": ["/repo/build/artifact_04.bin", 14], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 41000, "end_ns": 41500}
+{"seq": 42, "op": "read", "args": ["/repo/build/artifact_04.bin", 6144, 0, 14], "result": {"len": 6144, "sha256": "76b4bb94c2b3e4e076e9706f1686c0c442f6f71769426f43fda8826837cfb2bf"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 42000, "end_ns": 42500}
+{"seq": 43, "op": "release", "args": ["/repo/build/artifact_04.bin", 14], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 43000, "end_ns": 43500}
+{"seq": 44, "op": "create", "args": ["/repo/build/artifact_05.bin", 420], "result": 15, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 44000, "end_ns": 44500}
+{"seq": 45, "op": "write", "args": ["/repo/build/artifact_05.bin", {"blob": "f17986425095942940dddfe710873f27a18680fa117c4be90f19afe87e4a82af", "len": 6144}, 0, 15], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 45000, "end_ns": 45500}
+{"seq": 46, "op": "flush", "args": ["/repo/build/artifact_05.bin", 15], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 46000, "end_ns": 46500}
+{"seq": 47, "op": "fsync", "args": ["/repo/build/artifact_05.bin", 1, 15], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 47000, "end_ns": 47500}
+{"seq": 48, "op": "getattr", "args": ["/repo/build/artifact_05.bin", 15], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 48000, "end_ns": 48500}
+{"seq": 49, "op": "read", "args": ["/repo/build/artifact_05.bin", 6144, 0, 15], "result": {"len": 6144, "sha256": "f17986425095942940dddfe710873f27a18680fa117c4be90f19afe87e4a82af"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 49000, "end_ns": 49500}
+{"seq": 50, "op": "release", "args": ["/repo/build/artifact_05.bin", 15], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 50000, "end_ns": 50500}
+{"seq": 51, "op": "create", "args": ["/repo/build/artifact_06.bin", 420], "result": 16, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 51000, "end_ns": 51500}
+{"seq": 52, "op": "write", "args": ["/repo/build/artifact_06.bin", {"blob": "3fca3eb2f5d8d3fca1771b072abfeb8cfd0f3a8fb65d3e720b9f011c6c7eb75d", "len": 6144}, 0, 16], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 52000, "end_ns": 52500}
+{"seq": 53, "op": "flush", "args": ["/repo/build/artifact_06.bin", 16], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 53000, "end_ns": 53500}
+{"seq": 54, "op": "fsync", "args": ["/repo/build/artifact_06.bin", 1, 16], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 54000, "end_ns": 54500}
+{"seq": 55, "op": "getattr", "args": ["/repo/build/artifact_06.bin", 16], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 55000, "end_ns": 55500}
+{"seq": 56, "op": "read", "args": ["/repo/build/artifact_06.bin", 6144, 0, 16], "result": {"len": 6144, "sha256": "3fca3eb2f5d8d3fca1771b072abfeb8cfd0f3a8fb65d3e720b9f011c6c7eb75d"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 56000, "end_ns": 56500}
+{"seq": 57, "op": "release", "args": ["/repo/build/artifact_06.bin", 16], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 57000, "end_ns": 57500}
+{"seq": 58, "op": "create", "args": ["/repo/build/artifact_07.bin", 420], "result": 17, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 58000, "end_ns": 58500}
+{"seq": 59, "op": "write", "args": ["/repo/build/artifact_07.bin", {"blob": "59379f6a8119d3f5b3594ddcbd849399670ab291b4e346bbd3754c1d98a7036c", "len": 6144}, 0, 17], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 59000, "end_ns": 59500}
+{"seq": 60, "op": "flush", "args": ["/repo/build/artifact_07.bin", 17], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 60000, "end_ns": 60500}
+{"seq": 61, "op": "fsync", "args": ["/repo/build/artifact_07.bin", 1, 17], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 61000, "end_ns": 61500}
+{"seq": 62, "op": "getattr", "args": ["/repo/build/artifact_07.bin", 17], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 62000, "end_ns": 62500}
+{"seq": 63, "op": "read", "args": ["/repo/build/artifact_07.bin", 6144, 0, 17], "result": {"len": 6144, "sha256": "59379f6a8119d3f5b3594ddcbd849399670ab291b4e346bbd3754c1d98a7036c"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 63000, "end_ns": 63500}
+{"seq": 64, "op": "release", "args": ["/repo/build/artifact_07.bin", 17], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 64000, "end_ns": 64500}
+{"seq": 65, "op": "create", "args": ["/repo/build/artifact_08.bin", 420], "result": 18, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 65000, "end_ns": 65500}
+{"seq": 66, "op": "write", "args": ["/repo/build/artifact_08.bin", {"blob": "079e609612f426c679dce0a74b0ffee530ff15ae32961fa2030d25c13d6b571f", "len": 6144}, 0, 18], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 66000, "end_ns": 66500}
+{"seq": 67, "op": "flush", "args": ["/repo/build/artifact_08.bin", 18], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 67000, "end_ns": 67500}
+{"seq": 68, "op": "fsync", "args": ["/repo/build/artifact_08.bin", 1, 18], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 68000, "end_ns": 68500}
+{"seq": 69, "op": "getattr", "args": ["/repo/build/artifact_08.bin", 18], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 69000, "end_ns": 69500}
+{"seq": 70, "op": "read", "args": ["/repo/build/artifact_08.bin", 6144, 0, 18], "result": {"len": 6144, "sha256": "079e609612f426c679dce0a74b0ffee530ff15ae32961fa2030d25c13d6b571f"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 70000, "end_ns": 70500}
+{"seq": 71, "op": "release", "args": ["/repo/build/artifact_08.bin", 18], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 71000, "end_ns": 71500}
+{"seq": 72, "op": "create", "args": ["/repo/build/artifact_09.bin", 420], "result": 19, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 72000, "end_ns": 72500}
+{"seq": 73, "op": "write", "args": ["/repo/build/artifact_09.bin", {"blob": "a77867e23fad5b33ef8940fecc35e6f7368382350d085512a39ea709763f3897", "len": 6144}, 0, 19], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 73000, "end_ns": 73500}
+{"seq": 74, "op": "flush", "args": ["/repo/build/artifact_09.bin", 19], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 74000, "end_ns": 74500}
+{"seq": 75, "op": "fsync", "args": ["/repo/build/artifact_09.bin", 1, 19], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 75000, "end_ns": 75500}
+{"seq": 76, "op": "getattr", "args": ["/repo/build/artifact_09.bin", 19], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 76000, "end_ns": 76500}
+{"seq": 77, "op": "read", "args": ["/repo/build/artifact_09.bin", 6144, 0, 19], "result": {"len": 6144, "sha256": "a77867e23fad5b33ef8940fecc35e6f7368382350d085512a39ea709763f3897"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 77000, "end_ns": 77500}
+{"seq": 78, "op": "release", "args": ["/repo/build/artifact_09.bin", 19], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 78000, "end_ns": 78500}
+{"seq": 79, "op": "create", "args": ["/repo/build/artifact_10.bin", 420], "result": 20, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 79000, "end_ns": 79500}
+{"seq": 80, "op": "write", "args": ["/repo/build/artifact_10.bin", {"blob": "0c20bee1176821a4de10d327cfec4e07c814792a088097cf59677dbcd1bab77e", "len": 6144}, 0, 20], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 80000, "end_ns": 80500}
+{"seq": 81, "op": "flush", "args": ["/repo/build/artifact_10.bin", 20], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 81000, "end_ns": 81500}
+{"seq": 82, "op": "fsync", "args": ["/repo/build/artifact_10.bin", 1, 20], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 82000, "end_ns": 82500}
+{"seq": 83, "op": "getattr", "args": ["/repo/build/artifact_10.bin", 20], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 83000, "end_ns": 83500}
+{"seq": 84, "op": "read", "args": ["/repo/build/artifact_10.bin", 6144, 0, 20], "result": {"len": 6144, "sha256": "0c20bee1176821a4de10d327cfec4e07c814792a088097cf59677dbcd1bab77e"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 84000, "end_ns": 84500}
+{"seq": 85, "op": "release", "args": ["/repo/build/artifact_10.bin", 20], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 85000, "end_ns": 85500}
+{"seq": 86, "op": "create", "args": ["/repo/build/artifact_11.bin", 420], "result": 21, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 86000, "end_ns": 86500}
+{"seq": 87, "op": "write", "args": ["/repo/build/artifact_11.bin", {"blob": "18b6d5767f81e51bb04917dc6e4ed2d006600a99ad6cfbb7ba31c9f1a43340de", "len": 6144}, 0, 21], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 87000, "end_ns": 87500}
+{"seq": 88, "op": "flush", "args": ["/repo/build/artifact_11.bin", 21], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 88000, "end_ns": 88500}
+{"seq": 89, "op": "fsync", "args": ["/repo/build/artifact_11.bin", 1, 21], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 89000, "end_ns": 89500}
+{"seq": 90, "op": "getattr", "args": ["/repo/build/artifact_11.bin", 21], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 90000, "end_ns": 90500}
+{"seq": 91, "op": "read", "args": ["/repo/build/artifact_11.bin", 6144, 0, 21], "result": {"len": 6144, "sha256": "18b6d5767f81e51bb04917dc6e4ed2d006600a99ad6cfbb7ba31c9f1a43340de"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 91000, "end_ns": 91500}
+{"seq": 92, "op": "release", "args": ["/repo/build/artifact_11.bin", 21], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 92000, "end_ns": 92500}
+{"seq": 93, "op": "create", "args": ["/repo/build/artifact_12.bin", 420], "result": 22, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 93000, "end_ns": 93500}
+{"seq": 94, "op": "write", "args": ["/repo/build/artifact_12.bin", {"blob": "e6ad66b3fbd1fc5baea795fd8bc49c7a3e22b074ebcf92d0bf0a1ba763d96946", "len": 6144}, 0, 22], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 94000, "end_ns": 94500}
+{"seq": 95, "op": "flush", "args": ["/repo/build/artifact_12.bin", 22], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 95000, "end_ns": 95500}
+{"seq": 96, "op": "fsync", "args": ["/repo/build/artifact_12.bin", 1, 22], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 96000, "end_ns": 96500}
+{"seq": 97, "op": "getattr", "args": ["/repo/build/artifact_12.bin", 22], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 97000, "end_ns": 97500}
+{"seq": 98, "op": "read", "args": ["/repo/build/artifact_12.bin", 6144, 0, 22], "result": {"len": 6144, "sha256": "e6ad66b3fbd1fc5baea795fd8bc49c7a3e22b074ebcf92d0bf0a1ba763d96946"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 98000, "end_ns": 98500}
+{"seq": 99, "op": "release", "args": ["/repo/build/artifact_12.bin", 22], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 99000, "end_ns": 99500}
+{"seq": 100, "op": "create", "args": ["/repo/build/artifact_13.bin", 420], "result": 23, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 100000, "end_ns": 100500}
+{"seq": 101, "op": "write", "args": ["/repo/build/artifact_13.bin", {"blob": "f532c3af21a22ca24896022e2c6501ef19c31e3f905e9577f9e612ea1d2d32b1", "len": 6144}, 0, 23], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 101000, "end_ns": 101500}
+{"seq": 102, "op": "flush", "args": ["/repo/build/artifact_13.bin", 23], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 102000, "end_ns": 102500}
+{"seq": 103, "op": "fsync", "args": ["/repo/build/artifact_13.bin", 1, 23], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 103000, "end_ns": 103500}
+{"seq": 104, "op": "getattr", "args": ["/repo/build/artifact_13.bin", 23], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 104000, "end_ns": 104500}
+{"seq": 105, "op": "read", "args": ["/repo/build/artifact_13.bin", 6144, 0, 23], "result": {"len": 6144, "sha256": "f532c3af21a22ca24896022e2c6501ef19c31e3f905e9577f9e612ea1d2d32b1"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 105000, "end_ns": 105500}
+{"seq": 106, "op": "release", "args": ["/repo/build/artifact_13.bin", 23], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 106000, "end_ns": 106500}
+{"seq": 107, "op": "create", "args": ["/repo/build/artifact_14.bin", 420], "result": 24, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 107000, "end_ns": 107500}
+{"seq": 108, "op": "write", "args": ["/repo/build/artifact_14.bin", {"blob": "a977c5ece96b21063d3109666e1021cb456be343240bae09337b46beee8f985a", "len": 6144}, 0, 24], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 108000, "end_ns": 108500}
+{"seq": 109, "op": "flush", "args": ["/repo/build/artifact_14.bin", 24], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 109000, "end_ns": 109500}
+{"seq": 110, "op": "fsync", "args": ["/repo/build/artifact_14.bin", 1, 24], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 110000, "end_ns": 110500}
+{"seq": 111, "op": "getattr", "args": ["/repo/build/artifact_14.bin", 24], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 111000, "end_ns": 111500}
+{"seq": 112, "op": "read", "args": ["/repo/build/artifact_14.bin", 6144, 0, 24], "result": {"len": 6144, "sha256": "a977c5ece96b21063d3109666e1021cb456be343240bae09337b46beee8f985a"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 112000, "end_ns": 112500}
+{"seq": 113, "op": "release", "args": ["/repo/build/artifact_14.bin", 24], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 113000, "end_ns": 113500}
+{"seq": 114, "op": "create", "args": ["/repo/build/artifact_15.bin", 420], "result": 25, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 114000, "end_ns": 114500}
+{"seq": 115, "op": "write", "args": ["/repo/build/artifact_15.bin", {"blob": "904170b877f52562a3da3430216c1b165f881722fac8b5bccaa424b65c8f48b6", "len": 6144}, 0, 25], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 115000, "end_ns": 115500}
+{"seq": 116, "op": "flush", "args": ["/repo/build/artifact_15.bin", 25], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 116000, "end_ns": 116500}
+{"seq": 117, "op": "fsync", "args": ["/repo/build/artifact_15.bin", 1, 25], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 117000, "end_ns": 117500}
+{"seq": 118, "op": "getattr", "args": ["/repo/build/artifact_15.bin", 25], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 118000, "end_ns": 118500}
+{"seq": 119, "op": "read", "args": ["/repo/build/artifact_15.bin", 6144, 0, 25], "result": {"len": 6144, "sha256": "904170b877f52562a3da3430216c1b165f881722fac8b5bccaa424b65c8f48b6"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 119000, "end_ns": 119500}
+{"seq": 120, "op": "release", "args": ["/repo/build/artifact_15.bin", 25], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 120000, "end_ns": 120500}
+{"seq": 121, "op": "create", "args": ["/repo/build/artifact_16.bin", 420], "result": 26, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 121000, "end_ns": 121500}
+{"seq": 122, "op": "write", "args": ["/repo/build/artifact_16.bin", {"blob": "9a4254e7ba0dce0c168cd6e2fbc8a5d7a6fb014e071de0560396f3e6a0bbc5c3", "len": 6144}, 0, 26], "result": 6144, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 122000, "end_ns": 122500}
+{"seq": 123, "op": "flush", "args": ["/repo/build/artifact_16.bin", 26], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 123000, "end_ns": 123500}
+{"seq": 124, "op": "fsync", "args": ["/repo/build/artifact_16.bin", 1, 26], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 124000, "end_ns": 124500}
+{"seq": 125, "op": "getattr", "args": ["/repo/build/artifact_16.bin", 26], "result": {"st_mode": 33188, "st_size": 6144}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 125000, "end_ns": 125500}
+{"seq": 126, "op": "read", "args": ["/repo/build/artifact_16.bin", 6144, 0, 26], "result": {"len": 6144, "sha256": "9a4254e7ba0dce0c168cd6e2fbc8a5d7a6fb014e071de0560396f3e6a0bbc5c3"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 126000, "end_ns": 126500}
+{"seq": 127, "op": "release", "args": ["/repo/build/artifact_16.bin", 26], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 127000, "end_ns": 127500}
+{"seq": 128, "op": "create", "args": ["/repo/tests/test_add.py", 420], "result": 40, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 128000, "end_ns": 128500}
+{"seq": 129, "op": "write", "args": ["/repo/tests/test_add.py", {"blob": "1b2fc332a830430e943d42943606a31aac34f83453808aad1d5204beb90ada2c", "len": 38}, 0, 40], "result": 38, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 129000, "end_ns": 129500}
+{"seq": 130, "op": "fsync", "args": ["/repo/tests/test_add.py", 0, 40], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 130000, "end_ns": 130500}
+{"seq": 131, "op": "release", "args": ["/repo/tests/test_add.py", 40], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 131000, "end_ns": 131500}
+{"seq": 132, "op": "chmod", "args": ["/repo/tests/test_add.py", 420], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 132000, "end_ns": 132500}
+{"seq": 133, "op": "open", "args": ["/repo/tests/test_add.py", 0], "result": 42, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 133000, "end_ns": 133500}
+{"seq": 134, "op": "read", "args": ["/repo/tests/test_add.py", 38, 0, 42], "result": {"len": 38, "sha256": "1b2fc332a830430e943d42943606a31aac34f83453808aad1d5204beb90ada2c"}, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 134000, "end_ns": 134500}
+{"seq": 135, "op": "release", "args": ["/repo/tests/test_add.py", 42], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 135000, "end_ns": 135500}
+{"seq": 136, "op": "create", "args": ["/repo/build/scratch.tmp", 420], "result": 41, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 136000, "end_ns": 136500}
+{"seq": 137, "op": "write", "args": ["/repo/build/scratch.tmp", {"blob": "d8481e4366368bea0d1a510b9f79af49f8984c8ad8c6796399e423c67b0b2a13", "len": 23}, 0, 41], "result": 23, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 137000, "end_ns": 137500}
+{"seq": 138, "op": "release", "args": ["/repo/build/scratch.tmp", 41], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 138000, "end_ns": 138500}
+{"seq": 139, "op": "unlink", "args": ["/repo/build/scratch.tmp"], "result": 0, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 139000, "end_ns": 139500}
+{"seq": 140, "op": "destroy", "args": ["/"], "result": null, "errno": 0, "pid": 1000, "uid": 0, "gid": 0, "start_ns": 140000, "end_ns": 140500}
