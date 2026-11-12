@@ -110,6 +110,26 @@ class Fold(unittest.TestCase):
                 self.assertNotIn('sample_sha256', row)
 
 
+class DryRun(unittest.TestCase):
+    def test_dry_run_verifies_without_touching_the_tree(self):
+        with TemporaryDirectory() as tmp:
+            root = write_tree(Path(tmp)/'o'/'tag', count=3)
+            before = sorted(p.name for p in root.rglob('*'))
+            receipt = module.fold(root, dry_run=True)
+            self.assertTrue(receipt['dry_run'])
+            self.assertEqual(receipt['samples'], 3)
+            self.assertEqual(receipt['source_members'], 6)
+            self.assertEqual(sorted(p.name for p in root.rglob('*')), before)
+            self.assertFalse((root/'samples.ndjson').exists())
+
+    def test_dry_run_still_refuses_a_changed_payload(self):
+        with TemporaryDirectory() as tmp:
+            root = write_tree(Path(tmp)/'o'/'tag', count=2)
+            (root/'sample-000000'/'host-stat.txt').write_bytes(b'changed')
+            with self.assertRaises(ValueError):
+                module.fold(root, dry_run=True)
+
+
 class Refusals(unittest.TestCase):
     def test_already_folded_is_refused(self):
         with TemporaryDirectory() as tmp:

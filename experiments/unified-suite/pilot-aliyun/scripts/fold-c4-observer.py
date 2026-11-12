@@ -48,7 +48,7 @@ def samples(directory):
     return found
 
 
-def fold(directory, now=None):
+def fold(directory, now=None, dry_run=False):
     """Rewrite one closed tree into a single stream; return the receipt."""
     directory = Path(directory)
     require(directory.is_dir() and not directory.is_symlink(), 'canonical closed tree required')
@@ -60,6 +60,25 @@ def fold(directory, now=None):
     tree = samples(directory)
     require(len(tree) == finished.get('samples'), 'finished.json sample count differs from the tree')
     require(len(history) == len(tree), 'finished.json history length differs from the tree')
+
+    if dry_run:
+        # Verify every recorded payload without writing or removing anything.
+        members, total = 0, 0
+        for index, sample in enumerate(tree):
+            record = json.loads((sample/'sample.json').read_bytes())
+            require(record['index'] == index, 'sample record index differs from its directory')
+            for name, expected in record['files'].items():
+                path = sample/name
+                require(path.is_file() and not path.is_symlink(), 'recorded payload missing: '+name)
+                body = path.read_bytes()
+                require(len(body) == expected['bytes'] and sha(body) == expected['sha256'],
+                        'payload bytes changed: '+name)
+                members += 1
+                total += len(body)
+        return dict(schema='c4-observer-fold-dry-run-v1', passed=True, dry_run=True,
+                    directory=str(directory), samples=len(tree), source_members=members,
+                    payload_bytes=total,
+                    scope='verification only: nothing was written, moved or removed')
 
     lines, records = [], []
     staging = directory/'.fold-staging'
@@ -126,11 +145,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--directory', type=Path, required=True, help='closed o/<tag> tree')
     parser.add_argument('--out', type=Path, help='optional receipt copy path')
+    parser.add_argument('--dry-run', action='store_true', help='verify only; write and remove nothing')
     args = parser.parse_args()
-    receipt = fold(args.directory)
+    receipt = fold(args.directory, dry_run=args.dry_run)
     if args.out:
         args.out.write_bytes(json.dumps(receipt, indent=2).encode()+b'\n')
-    print(json.dumps({k: receipt[k] for k in ('passed', 'samples', 'source_members', 'stream')}, indent=2))
+    keys = ('passed', 'dry_run', 'samples', 'source_members', 'payload_bytes', 'stream')
+    print(json.dumps({k: receipt[k] for k in keys if k in receipt}, indent=2))
 
 
 if __name__ == '__main__':
