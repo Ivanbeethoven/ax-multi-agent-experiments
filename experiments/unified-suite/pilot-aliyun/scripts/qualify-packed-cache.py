@@ -26,6 +26,7 @@ def replace(old, new):
     text = text.replace(old, new, 1)
 
 replace('result_path = Path(sys.argv[1])', 'result_path = options.result.resolve()')
+replace('import hashlib\n', 'import hashlib\nfrom packed_native_probe import NativeProbe\nfrom bench import warm_lower as native_metrics\n')
 replace('no_model=True,no_cloud=True', 'no_model=True,no_cloud=False')
 start = text.index('binary_root =')
 stop = text.index('access, secret', start)
@@ -43,7 +44,7 @@ replace("RUST_LOG='warn'", """RUST_LOG='warn,brewfs::workspace::packed::readonly
     BREWFS_PACKED_OUTPUT_BUDGET_BYTES=str(128 << 20),
     BREWFS_PACKED_CONTROL_BUDGET_BYTES=str(8 << 20)""")
 replace("schema='c4-local-brewfs-packed-fork-smoke-v1',passed=False,files=2",
-        "schema='packed-whole-object-cache-pair-v1',passed=False,files=options.files")
+        "schema='packed-whole-object-cache-native-pair-v1',passed=False,files=options.files")
 replace("scope='One WSL FUSE host, tiny nonempty packed-v3 lower, no performance timing.'",
         "scope='One cloud host; fresh mount per arm, shared RustFS cache; readdir then serial sorted paths; SHA-256 checked.', order=options.order, budgets=dict(packed_disk_bytes=256<<20, metadata_bytes=256<<20, payload_memory_bytes=512<<20, payload_ssd_bytes=0, output_bytes=128<<20, control_bytes=8<<20, process_memory_bytes=8<<30, cpu_cores=2)")
 replace('deadline = time.monotonic() + 138', 'deadline = time.monotonic() + (600 if options.files == 128 else 1500)')
@@ -66,6 +67,10 @@ text = text[:start] + '''
     arm = result['readbacks'][side] = dict(passed=False, phases={})
     arm['mount_ns'] = time.monotonic_ns()-begin_mount
     arm['mount_s3'] = delta(before_mount,counters())
+    native = NativeProbe(point,work,side,counters,sum(row['bytes'] for row in expected.values()),deadline)
+    native.sample('before')
+    if native.required:
+        arm['mount_s3'] = delta(before_mount,native.snapshots['before']['proxy_after'])
     for stage in ('cold', 'warm'):
         if stage == 'warm':
             drain_start = time.monotonic_ns()
@@ -79,6 +84,7 @@ text = text[:start] + '''
                 else: idle = None
                 time.sleep(.01)
             arm['background_drain_ns'] = time.monotonic_ns()-drain_start
+            native.sample('cold-drained')
         stat = Path(f'/proc/{proc.pid}/stat').read_text().split()
         cpu_before = int(stat[13])+int(stat[14])
         begin = time.monotonic_ns()
@@ -110,6 +116,7 @@ text = text[:start] + '''
             s3=delta(start_s3,counters()), samples_ns=rows, readdir_ns=listing_ns,
             median_open_ns=median(row[0] for row in rows),
             median_pread_ns=median(row[1] for row in rows))
+        native.sample(stage+'-end')
     status = Path(f'/proc/{proc.pid}/status').read_text()
     arm['vm_hwm_kib'] = int(re.search(r'^VmHWM:\\s+(\\d+)',status,re.M)[1])
     start_s3 = counters()
@@ -122,6 +129,7 @@ text = text[:start] + '''
     messages = log_file.read_text(errors='replace')
     metrics = re.findall(r'(hits|misses|ready_hits|inflight_hits|local_bytes|downloaded)\\s*[:=]\\s*(\\d+)', messages)
     arm['cache'] = {key:int(value) for key,value in metrics}
+    arm['native'] = native.finish(arm['mount_s3'],arm['end_to_end_s3'],arm['unmount_s3'])
     arm['passed'] = (arm['cache'].get('downloaded',0) > 0 if side.startswith('on') else not arm['cache'])
     return arm['passed']
 
@@ -195,7 +203,11 @@ replace("    for container in (rustfs,redis):", """    private_redis = globals()
     cleanup['owned_containers_absent']['redis'] = private_redis is None or private_redis.poll() is not None
     for container in (rustfs,):""")
 replace("    source_commit='ca07159f3da4b670e4aeb878faef928e69bc1634',",
-        "    base_commit='ca07159f3da4b670e4aeb878faef928e69bc1634',")
+        """    base_commit='ca07159f3da4b670e4aeb878faef928e69bc1634',
+    native_protocol=dict(schema='native-runtime-proxy-reconciliation-v1',
+        assessor_commit='9e25471f658e076d36c4cbe9daa62f00ae0794cf',
+        assessor_sha256=hashlib.sha256(Path(native_metrics.__file__).read_bytes()).hexdigest(),
+        helper_sha256=hashlib.sha256(Path(sys.modules[NativeProbe.__module__].__file__).read_bytes()).hexdigest()),""")
 replace("def visit(side, workspace, data, rurl, namespace, counters):",
         "def visit(side, workspace, data, rurl, namespace, counters, mutate=None):")
 replace("str(work/('cache-'+side))", "str(work/('cache-'+side.removesuffix('-remount')))")
@@ -213,6 +225,9 @@ replace("    arm['passed'] = (arm['cache'].get('downloaded',0) > 0 if side.start
         """    arm['passed'] = (bool(arm['cache']) if side.startswith('on') else not arm['cache'])
     if side.endswith('-remount'):
         arm['passed'] = arm['passed'] and arm['cache'].get('downloaded',-1) == 0""")
+replace("    return arm['passed']", """    if arm['native']['required']:
+        arm['passed'] = arm['passed'] and arm['native']['passed']
+    return arm['passed']""")
 replace("    result['passed'] = bool(result['parent_binding'])", """        on_side = next(side for side in result['readbacks'] if side.startswith('on'))
         phase = 'retained-remount'
         if not visit(on_side+'-remount',parent['workspace_id'],observed_data,rurl,namespace,counters):
@@ -253,7 +268,7 @@ replace("    arm['unmount_ns'] = time.monotonic_ns()-begin_drain",
     cgroup.rmdir()""")
 replace("    cleanup={}", """    raw_output = result_path.parent/(result_path.stem+'-raw')
     raw_output.mkdir(exist_ok=False)
-    for artifact in work.glob('*.log'):
+    for artifact in sorted([*work.glob('*.log'),*work.glob('*.stats')]):
         body = artifact.read_text(errors='replace').replace(access,'[redacted]').replace(secret,'[redacted]')
         (raw_output/artifact.name).write_text(body)
     result['raw_logs_directory'] = raw_output.name
@@ -268,5 +283,6 @@ replace("    cleanup['scratch_removed']=not work.exists()", """    cleanup['scra
 for old, new in [('workspace-v1', 'workspace'), ('packed/v3/', 'packed/'),
                  ('packed_v3', 'packed'), ('packed-v3', 'packed'), ('wire005', 'snapshot')]:
     text = text.replace(old, new)
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 exec(compile(text, str(source), 'exec'), {'__name__': '__main__', 'options': args})
