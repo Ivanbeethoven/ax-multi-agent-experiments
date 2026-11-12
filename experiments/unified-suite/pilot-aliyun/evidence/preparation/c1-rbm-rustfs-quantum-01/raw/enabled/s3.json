@@ -1,0 +1,95 @@
+{
+  "put_http_status": 200,
+  "head_bytes": 4194304,
+  "requested_block_bytes": 65536,
+  "payload_sha256": "6f7b2e232b961f39247d40093e208d657588052776bee7c6f753c4e37aa8292b",
+  "gets": [
+    {
+      "range": null,
+      "http_status": 200,
+      "content_range": null,
+      "content_length": 4194304,
+      "body_bytes": 4194304,
+      "body_sha256": "6f7b2e232b961f39247d40093e208d657588052776bee7c6f753c4e37aa8292b",
+      "equals_input_slice": true
+    },
+    {
+      "range": "bytes=0-4095",
+      "http_status": 206,
+      "content_range": "bytes 0-4095/4194304",
+      "content_length": 4096,
+      "body_bytes": 4096,
+      "body_sha256": "c2f9b4b2a0fee5852bf17d8d48218af0e1c3be5317496554543c5340d6550400",
+      "equals_input_slice": true
+    },
+    {
+      "range": "bytes=16368-20463",
+      "http_status": 206,
+      "content_range": "bytes 16368-20463/4194304",
+      "content_length": 4096,
+      "body_bytes": 4096,
+      "body_sha256": "9c76192ad0d0381aefda0b1a007a82227b4332f62b290fdbd38743af102e44da",
+      "equals_input_slice": true
+    },
+    {
+      "range": "bytes=32752-36847",
+      "http_status": 206,
+      "content_range": "bytes 32752-36847/4194304",
+      "content_length": 4096,
+      "body_bytes": 4096,
+      "body_sha256": "00425da5a3dab03d48272422d4c63b0a543f582242eb68bc0bda754e27df8c86",
+      "equals_input_slice": true
+    },
+    {
+      "range": "bytes=65520-69615",
+      "http_status": 206,
+      "content_range": "bytes 65520-69615/4194304",
+      "content_length": 4096,
+      "body_bytes": 4096,
+      "body_sha256": "2c4f93602965d2928a22a61b456cb8b79b2e0653213fc9a8b1e023a9b484374b",
+      "equals_input_slice": true
+    },
+    {
+      "range": "bytes=4190208-4194303",
+      "http_status": 206,
+      "content_range": "bytes 4190208-4194303/4194304",
+      "content_length": 4096,
+      "body_bytes": 4096,
+      "body_sha256": "f0fc798661210d6681329a47a286d72ecb41e969937517082d9eaa03d8fdb6d4",
+      "equals_input_slice": true
+    }
+  ],
+  "put_layout_headers": {
+    "x-rustfs-effective-ec-block-size": "65536",
+    "x-rustfs-layout-hint-status": "applied"
+  },
+  "head_layout_headers": {
+    "x-rustfs-effective-ec-block-size": "65536"
+  },
+  "sent_get_requests": [
+    [
+      "GET",
+      null
+    ],
+    [
+      "GET",
+      "bytes=0-4095"
+    ],
+    [
+      "GET",
+      "bytes=16368-20463"
+    ],
+    [
+      "GET",
+      "bytes=32752-36847"
+    ],
+    [
+      "GET",
+      "bytes=65520-69615"
+    ],
+    [
+      "GET",
+      "bytes=4190208-4194303"
+    ]
+  ]
+}

@@ -49,13 +49,13 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 
 | 项目 | 已验证 | 还缺 |
 |---|---|---|
-| C1 | [64 MiB 同步混合读写](../pilot-aliyun/evidence/preparation/c1-b-randrw-scratch-reverse-02/README.zh.md)完成正序、反序各一组配对，四臂均通过全量冷挂载 CRC | 增加重复；布局开关的单独影响 |
-| C2 | [两文件热态对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/README.zh.md)两组都跑通，计时期间零对象存储读取 | [完整 trace](../pilot-aliyun/evidence/preparation/c2-current-trace-a-draft-01/README.zh.md)回放与冷验；扩大并重复热态对照 |
+| C1 | [64 MiB 同步混合读写](../pilot-aliyun/evidence/preparation/c1-b-randrw-scratch-reverse-02/README.zh.md)完成正序、反序各一组配对，四臂均通过全量冷挂载 CRC；[固定 B 的读帧开关](../pilot-aliyun/evidence/preparation/c1-rbm-rustfs-quantum-01/README.zh.md)通过落盘布局与读回核验 | 增加重复；读帧变化对物理 I/O 和任务时间的影响 |
+| C2 | [两文件热态对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/README.zh.md)两组都跑通，计时期间零对象存储读取；[完整 trace 的初态发布](../pilot-aliyun/evidence/preparation/c2-current-trace-a-producer-timeout-03/README.zh.md)在 300 秒超时，回放未启动 | 本轮按限时跳过完整回放与冷验，保留失败；后续解决初态生成 |
 | C3 | [云上抽样四阶段完成](../pilot-aliyun/evidence/preparation/cloud-c3-script-fixes-20261112/README.zh.md)：64 个固定文件、128 次内容校验，正常卸载；十万文件全量仍未完成 | 完整读回；同样设置下的性能对照 |
-| C4 | [rbm 同输入原生 fork / clone](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)均通过子读父、覆盖后父不变、空缓存重挂；[十万文件运行草稿](../pilot-aliyun/C4-NATIVE-100K.zh.md)已准备 | 100,000 文件资格、配对计时、跨机续跑 |
+| C4 | [rbm 同输入原生 fork / clone](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)均通过子读父、覆盖后父不变、空缓存重挂；[一万文件资格配置](../pilot-aliyun/evidence/progress/closing-small-pilot-20261112/qualification-10k.json)已记录 | 一万文件资格尚未运行；优化版缺失，性能配对本轮跳过；优先跨机状态验证 |
 
 小试用于排除实现和部署问题，独立保存，不回填旧套件的正式验收。
 
-先做1 Agent/100k功能验证，再做百万文件/最高32并发正式条件。旧 `bench.suite template` 只有显式 `--legacy-catalog` 才生成旧协议；它不生成本方案。
+用户已将本轮缩为 1 Agent、一万文件；耗时过大的项保存证据后跳过。[本轮收尾范围](../pilot-aliyun/evidence/progress/closing-small-pilot-20261112/README.zh.md)列明已完成与未完成。百万文件/最高32并发属于后续正式条件。旧 `bench.suite template` 只有显式 `--legacy-catalog` 才生成旧协议；它不生成本方案。
 
 源码核对版本为 BrewFS main `ca07159f`、RustFS 指定分支 `f4ed2025`，不是后续运行的固定版本。依据：[卷配置](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/config.rs)、[挂载与 lower 绑定](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/cli.rs)、[Packed 预算](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/workspace_overlay/packed_v3/wire005/budget.rs)、[hint 策略](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/cadapter/s3/ec_hint.rs)。
