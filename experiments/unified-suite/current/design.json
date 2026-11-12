@@ -5,6 +5,7 @@
   "execution_enabled": false,
   "execution_blockers": [
     "workspace-v1-suite-adapter",
+    "c4-native-fork-populated-lower-qualification",
     "three-runtime-switches",
     "full-input-reopen-isolation",
     "multi-host-barrier",
@@ -493,6 +494,13 @@
         "brewfs-full": "native-fork",
         "juicefs": "native-clone"
       },
+      "required_evidence": [
+        "same-nonempty-parent-content",
+        "brewfs-child-inherits-packed-lower",
+        "child-first-correct-read",
+        "parent-sibling-isolation",
+        "full-cold-readback-after-drain"
+      ],
       "mutations": [
         "overwrite",
         "append",

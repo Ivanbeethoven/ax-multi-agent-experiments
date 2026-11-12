@@ -55,6 +55,7 @@ class CurrentDesignTests(unittest.TestCase):
         self.rejected(lambda c: c['workloads']['C4-fork']['arms'].insert(0, 'brewfs-basic'))
         self.rejected(lambda c: c['workloads']['C4-fork']['creation_methods'].update({'brewfs-full':'full-copy'}))
         self.rejected(lambda c: c['workloads']['C4-fork'].update(basic_copy='cp -a'))
+        self.rejected(lambda c: c['workloads']['C4-fork']['required_evidence'].remove('brewfs-child-inherits-packed-lower'))
         self.rejected(lambda c: c['workloads']['C3']['arms'].insert(0, 'brewfs-basic'))
 
     def test_overlay_run_requires_verified_warm_data_and_metadata_in_both_arms(self):
