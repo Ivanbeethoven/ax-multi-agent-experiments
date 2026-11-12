@@ -1,0 +1,124 @@
+{
+  "schema": "c4-single-pool-campaign-draft-v1",
+  "reviewed": false,
+  "execution_enabled": false,
+  "plan_sha256": "0c54ff8681da918978371ae2a929b489bd5822af1fc8600cd0848e4e7ebd869a",
+  "inventory_sha256": "27c29c457bb081f3eef4aa10e6e2e4ce9f0672b780c7159e7e83e164dcfc5311",
+  "canonical_old_plan_sha256": "0feb04c5e52a28aa26d648386a5887aaffb5a792a7c579f5da25cd78f220a108",
+  "canonical_old_inventory_sha256": "6eb8bf22b1189daf5ea859b8d77e659d5a56e2fc5fbb23b9b70c4cc5ebf21c1e",
+  "original_role_by_new_role": {
+    "client": "pool-a-client",
+    "target": "pool-b-client",
+    "metadata": "pool-a-metadata",
+    "objects": "pool-a-objects"
+  },
+  "endpoints": {
+    "metadata": "redis://10.20.2.162:6379",
+    "objects": "http://10.20.2.163:9000"
+  },
+  "ssh_probe_preview": {
+    "argv": [
+      "python3",
+      "experiments/unified-suite/pilot-aliyun/scripts/setup-controller.py",
+      "--inventory",
+      "<reviewed-new-inventory.json>",
+      "--code-directory",
+      "code-12",
+      "--out",
+      "<new-controller-directory>"
+    ],
+    "nodes": [
+      {
+        "id": "pool-c4-handoff-client",
+        "ssh_alias": "pool-c4-handoff-client",
+        "private_ip": "10.20.2.161",
+        "environment_id": "i-bp1809mw7rlujtj9f705",
+        "repo": "/srv/ax-client/code-12",
+        "work_root": "/srv/ax-client",
+        "slots": [
+          {
+            "id": "pool-c4-handoff-client",
+            "container": null,
+            "cgroup": "/sys/fs/cgroup/ax-slot-1"
+          }
+        ]
+      },
+      {
+        "id": "pool-c4-handoff-target",
+        "ssh_alias": "pool-c4-handoff-target",
+        "private_ip": "10.20.2.171",
+        "environment_id": "i-bp1fmmfkcpr8w99j2bsy",
+        "repo": "/srv/ax-target/code-12",
+        "work_root": "/srv/ax-target",
+        "slots": [
+          {
+            "id": "pool-c4-handoff-target",
+            "container": null,
+            "cgroup": "/sys/fs/cgroup/ax-slot-1"
+          }
+        ]
+      },
+      {
+        "id": "pool-c4-handoff-metadata",
+        "ssh_alias": "pool-c4-handoff-metadata",
+        "private_ip": "10.20.2.162",
+        "environment_id": "i-bp1gy3cfuj9jik0y4oc3",
+        "repo": "/srv/ax-metadata/code-12",
+        "work_root": "/srv/ax-metadata",
+        "slots": []
+      },
+      {
+        "id": "pool-c4-handoff-objects",
+        "ssh_alias": "pool-c4-handoff-objects",
+        "private_ip": "10.20.2.163",
+        "environment_id": "i-bp1h9kaoya0predubdkn",
+        "repo": "/srv/ax-objects-0/code-12",
+        "work_root": "/srv/ax-objects-0",
+        "slots": []
+      }
+    ],
+    "contacted": false
+  },
+  "guard": {
+    "directory": "/srv/ax-pilot-control/parallel-control-01/runner-locks",
+    "new_lock_files": {
+      "disk:d-bp1809mw7rlujtjc8epi": "1b93a87db89e17bd03ec3abd4129f8cafdd128dce509a1e2f00bf964c7ba7557.lock",
+      "disk:d-bp1fmmfkcpr8w99pwgc5": "974daa094ec1ea6f15565fa26c4cef8271618a6bab54de62d6bd2e1917b3a196.lock",
+      "disk:d-bp1gy3cfuj9jik0upt3k": "b8d34024757cc8f7acdff35e82e83c86f753369cae719e95b0d34be3fc7f6e31.lock",
+      "disk:d-bp1h9kaoya0predx6kvd": "dc75c9f9e1dcc82539b45e0d90d186587da9091f40c99b005860131ee3f15b66.lock",
+      "disk:d-bp1h9kaoya0predx6kve": "e7d12aac1b9ff3b355d05c2d85cd0b15469f97b051f87996d3171f660270632c.lock",
+      "disk:d-bp1h9kaoya0predx6kvf": "9104d3d1eba42c8a4cf0a62a14fbca6f02ad28997780ea5aeea105ff59bfb26c.lock",
+      "disk:d-bp1h9kaoya0predx6kvg": "4f4a1738f6b2eac9ada3b7b2427b8176f423b2ee7f92b9375c1d95c8e2c4c840.lock",
+      "host:i-bp1809mw7rlujtj9f705": "0ab758962a370dbe186c1a5bcc7f146c6a6f20b0919305b3c1f9e4d5f8cb1b62.lock",
+      "host:i-bp1fmmfkcpr8w99j2bsy": "d2c3d140ce8dc502e6ddf71e19a3effa4715893b7feb010694a179d5ad6bfa19.lock",
+      "host:i-bp1gy3cfuj9jik0y4oc3": "a1fc9b32dd7025a6d895176a5502e1ec2c456b9de0699626056143d1375325bb.lock",
+      "host:i-bp1h9kaoya0predubdkn": "6f3deb7f412e223344e1554a6de2f3ad5704f3dd36ae394ef5fd9a3704d46e9b.lock",
+      "pool:pool-c4-handoff": "c27981483c4a107c641daeb3265f2a0c6a161a6a8f62e02a52fcdd01d3694dfe.lock"
+    },
+    "old_reference_cell_ids": {
+      "pool-a": "34d56abaf85454a2-r1-native",
+      "pool-b": "34d56abaf85454a2-r1-juicefs"
+    },
+    "old_physical_overlap": {
+      "pool-a": [
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg",
+        "host:i-bp1809mw7rlujtj9f705",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "host:i-bp1h9kaoya0predubdkn"
+      ],
+      "pool-b": [
+        "disk:d-bp1fmmfkcpr8w99pwgc5",
+        "host:i-bp1fmmfkcpr8w99j2bsy"
+      ]
+    },
+    "required_sqlite_checks": [
+      "cell_leases/cell_resources",
+      "blocks/resources"
+    ]
+  }
+}

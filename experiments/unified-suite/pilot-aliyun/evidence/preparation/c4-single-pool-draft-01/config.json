@@ -1,0 +1,127 @@
+{
+  "schema": "unified-c1-c4-v1",
+  "campaign_id": "pilot-c4-handoff-single-pool-01",
+  "profile": "pilot",
+  "study": "systems",
+  "seed": 9173,
+  "repetitions": 1,
+  "client_profile": "bounded-memory-v1",
+  "placement": {
+    "mode": "paired-pool"
+  },
+  "external_baselines": [
+    "juicefs"
+  ],
+  "backend_policy": {
+    "repository": "https://github.com/Ivanbeethoven/rustfs",
+    "branch": "feat/dynamic-block-size-rebased",
+    "revision_policy": "branch-latest",
+    "layout_profile": "enabled",
+    "brewfs_hint": "auto"
+  },
+  "cache_budget_bytes_per_client": 536870912,
+  "ssd_clean_cache_bytes": 0,
+  "durability": "upload_before_commit+fsync+remote-drain",
+  "telemetry": {
+    "interval_seconds": 5,
+    "max_gap_seconds": 30,
+    "max_relative_overhead": 0.05
+  },
+  "metadata_backend": "redis",
+  "input_manifest_sha256": null,
+  "build_manifest_sha256": null,
+  "clusters": [
+    {
+      "id": "pool-c4-handoff",
+      "hardware_class": "c4-a-backend-ab-clients-v1",
+      "metadata_backend": "redis",
+      "agent_slots": 2,
+      "supported_suites": [
+        "C4"
+      ],
+      "resource_ids": [
+        "host:i-bp1809mw7rlujtj9f705",
+        "disk:d-bp1809mw7rlujtjc8epi",
+        "host:i-bp1gy3cfuj9jik0y4oc3",
+        "disk:d-bp1gy3cfuj9jik0upt3k",
+        "host:i-bp1h9kaoya0predubdkn",
+        "disk:d-bp1h9kaoya0predx6kvd",
+        "disk:d-bp1h9kaoya0predx6kve",
+        "disk:d-bp1h9kaoya0predx6kvf",
+        "disk:d-bp1h9kaoya0predx6kvg",
+        "host:i-bp1fmmfkcpr8w99j2bsy",
+        "disk:d-bp1fmmfkcpr8w99pwgc5"
+      ],
+      "observer_ids": [
+        "pool-c4-handoff-client",
+        "pool-c4-handoff-target",
+        "pool-c4-handoff-metadata",
+        "pool-c4-handoff-objects"
+      ],
+      "inventory_sha256": "27c29c457bb081f3eef4aa10e6e2e4ce9f0672b780c7159e7e83e164dcfc5311"
+    }
+  ],
+  "cases": [
+    {
+      "suite": "C4",
+      "name": "handoff-1",
+      "workload": "handoff",
+      "params": {
+        "agents": 1,
+        "moved_agents": 1,
+        "trace": "archive-io-20261026"
+      },
+      "arms": {
+        "native-workspace-stay": {
+          "product": "brewfs",
+          "role": "internal-control",
+          "engine": "workspace-native-v2",
+          "delta": true,
+          "packed": false,
+          "hint": "auto",
+          "payload_cache_bytes": 536870912,
+          "handoff_mode": "stay"
+        },
+        "native-workspace-move": {
+          "product": "brewfs",
+          "role": "internal-control",
+          "engine": "workspace-native-v2",
+          "delta": true,
+          "packed": false,
+          "hint": "auto",
+          "payload_cache_bytes": 536870912,
+          "handoff_mode": "move"
+        },
+        "juicefs-stay": {
+          "product": "juicefs",
+          "role": "external-baseline",
+          "engine": "juicefs",
+          "delta": "native-clone",
+          "packed": false,
+          "hint": "none",
+          "payload_cache_bytes": 536870912,
+          "handoff_mode": "stay"
+        },
+        "juicefs-move": {
+          "product": "juicefs",
+          "role": "external-baseline",
+          "engine": "juicefs",
+          "delta": "native-clone",
+          "packed": false,
+          "hint": "none",
+          "payload_cache_bytes": 536870912,
+          "handoff_mode": "move"
+        }
+      },
+      "claim": "system",
+      "extra_gates": [
+        "native-session-resume",
+        "writer-fencing",
+        "different-executor-hosts",
+        "paired-checkpoint",
+        "neighbor-throughput"
+      ]
+    }
+  ],
+  "pilot_file_count": 100000
+}
