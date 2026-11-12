@@ -1,0 +1,102 @@
+{
+  "schema": "c2-current-full-trace-qualification-draft-v1",
+  "reviewed": false,
+  "runnable": false,
+  "formal_sample": false,
+  "automatic_retry": false,
+  "route": "brewfs-full: workspace-v1 + newly published Packed-v3 wire005 pytest-full-02 lower; one private writable upper",
+  "pool": "pool-a",
+  "instance_ids": {
+    "client": "i-bp1809mw7rlujtj9f705",
+    "metadata": "i-bp1gy3cfuj9jik0y4oc3",
+    "objects": "i-bp1h9kaoya0predubdkn"
+  },
+  "canonical_control": "/srv/ax-pilot-control/parallel-control-01",
+  "slot": {
+    "path": "/sys/fs/cgroup/ax-slot-1",
+    "cpu_max": "200000 100000",
+    "memory_max_bytes": 8589934592,
+    "memory_swap_max_bytes": 0
+  },
+  "endpoints": {
+    "redis": "redis://10.20.2.162:6379",
+    "rustfs": "http://10.20.2.163:9000"
+  },
+  "example_unused_database_candidate": 242,
+  "hard_window_seconds": 2700,
+  "work_deadline_since_first_start_request_seconds": 2400,
+  "minimum_teardown_reserve_seconds": 300,
+  "source": {
+    "case": "/srv/ax-client/trace-exact-02/cases/pytest-full-02",
+    "manifest": "/srv/ax-client/trace-exact-02/manifest-replay-inputs-03.json",
+    "manifest_sha256": "71a0661b82a433e9d14da29287a2bc1860460015d4887031f90a03ff5451a021",
+    "manifest_regular_files": 67577,
+    "archive_url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/full-fuse/20261023/pytest-full-02.tar.gz",
+    "archive_sha256": "9953d90517eaf520814150f80abccb11f9d74b7ac84ecc56fa394a5f8495aa3d",
+    "archive_bytes": 407606955,
+    "events_sha256": "0300a208c3fff9bbe125d40e2214f46d459d7cad3b86141e1960a8cf9384c45f",
+    "initial_tree_sha256": "c1b9b066e6660301ad944fff78de1910e6388021c6caa90923355848eb1c2847",
+    "initial_entries": 714,
+    "initial_regular_files": 614,
+    "initial_directories": 100,
+    "initial_regular_file_bytes": 35526497,
+    "callbacks": 1747109,
+    "actual_read_bytes": 281774624,
+    "actual_write_bytes": 194706661
+  },
+  "build": {
+    "brewfs_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+    "brewfs": {
+      "path": "/srv/ax-client/build-ca07159-01/bin/brewfs",
+      "sha256": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0"
+    },
+    "packed_producer": {
+      "path": "/srv/ax-client/build-ca07159-01/bin/packed_v3_snapshot_fixture",
+      "sha256": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab"
+    },
+    "replay": {
+      "path": "/srv/ax-client/assets/bin/full-fuse-replay-parent-fd-01",
+      "sha256": "35c45abd910d826ea17b5d6dfc750c7083cda5e8ce8f3bbe5ef77a78ffbea1aa"
+    },
+    "rustfs_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "rustfs_image_id": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "rustfs_container": "ax-pilot-20261111-objects-01-rustfs-1",
+    "redis_current_service_identity": "capture_live_version_persistence_pid_and_config_before_use"
+  },
+  "flags": [
+    "--portable-terminal-probe",
+    "--cache-parent-fds"
+  ],
+  "required_live_gates": [
+    "fresh branch check against staged artifacts",
+    "all A C3 artifacts saved, its processes stopped, no shared lease",
+    "canonical A physical locks plus every actual distinct control lock root and read-only SQLite conflicts check",
+    "exact original instances and data disks, current A boot, expected Redis and RustFS runtime",
+    "same-boot capacity and fresh empty Redis DB/namespace/buckets/dirs",
+    "whole input inventory SHA and exact 714-entry initial tree",
+    "bounded worker with source/target mount ownership, normal cleanup and local stop owner"
+  ],
+  "stages": [
+    "lock",
+    "start_exact_A_hosts",
+    "restore_original_runtime",
+    "live_preflight",
+    "publish_exact_packed_lower",
+    "mount_workspace_v1_writer",
+    "strict_full_replay",
+    "drain_and_normal_unmount",
+    "new_process_same_workspace_cold_readback",
+    "normal_unmount",
+    "copy_allowlisted_evidence_and_verify_hashes",
+    "StopCharging_exact_A_hosts",
+    "release_lock"
+  ],
+  "pass_criteria": [
+    "validated immutable wire005 manifest and workspace binding",
+    "strict byte checking plus exact callbacks and byte totals",
+    "final tree, hardlinks and copied SQLite quick_check",
+    "same namespace/UUID and immutable manifest on cold remount, final readback",
+    "both writer and cold mount close normally; no remaining child or mount"
+  ],
+  "note": "Draft only; no current live proof or automatic launch. Four-disk pilot is not the production four-node RustFS setup."
+}

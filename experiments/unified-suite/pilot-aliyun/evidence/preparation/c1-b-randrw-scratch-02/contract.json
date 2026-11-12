@@ -1,0 +1,68 @@
+{
+  "params": {
+    "agents": 1,
+    "rw": "randrw",
+    "block_bytes": 4096,
+    "file_bytes_per_job": 67108864,
+    "io_bytes_per_job": 67108864,
+    "numjobs": 1,
+    "ioengine": "psync",
+    "iodepth": 1,
+    "direct": false,
+    "fsync_every_write": true,
+    "rwmixread": 75,
+    "cache_state": "client-cold",
+    "time_based": false
+  },
+  "client_settings": {
+    "brewfs": {
+      "volume_format": "flat-v1",
+      "volume": {
+        "format": "flat-v1"
+      },
+      "cache": {
+        "read_memory_bytes": 536870912,
+        "read_ssd_bytes": 0,
+        "write_memory_bytes": 536870912,
+        "write_ssd_bytes": 1073741824,
+        "memory_budget_bytes": 536870912,
+        "writeback_mode": "upload_before_commit",
+        "compression": "none",
+        "verify_cache_checksum": "full",
+        "prefetch_enabled": true,
+        "prefetch_max_bytes": 134217728,
+        "prefetch_concurrency": 64,
+        "range_background_prefetch": true,
+        "read_fetch_policy": "backend-default",
+        "populate_write_cache_after_upload": true,
+        "persist_write_cache_after_upload": false
+      },
+      "fuse": {
+        "cache_ttl_ms": 0,
+        "keep_cache": false
+      },
+      "data": {
+        "s3": {
+          "rustfs_ec_block_size_hint": "auto"
+        }
+      }
+    },
+    "juicefs": {
+      "cache_dir": "memory",
+      "cache_mib": 512,
+      "buffer_mib": 512,
+      "writeback": false,
+      "attr_cache_seconds": 0,
+      "entry_cache_seconds": 0,
+      "open_cache_seconds": 0,
+      "prefetch": 1,
+      "max_readahead_mib": 128,
+      "cache_large_write": true,
+      "verify_cache_checksum": "full",
+      "backup_meta": "0",
+      "no_usage_report": true
+    }
+  },
+  "seed": 9173,
+  "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+}

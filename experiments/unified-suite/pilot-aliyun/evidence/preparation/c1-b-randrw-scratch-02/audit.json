@@ -1,0 +1,265 @@
+{
+  "schema": "b-c1-randrw-scratch-audit-v1",
+  "utc": "2026-11-12T07:13:55.270258+00:00",
+  "run": "ax-c1b-21eba441c4",
+  "source_pins": [
+    {
+      "file": "plan.json",
+      "sha256": "5b3218afdf44d0df13d1765ad7644a2cba2917c3f47490930833c684fd2c1a6f"
+    },
+    {
+      "file": "summary.json",
+      "sha256": "2b1100a62c0a89a91fc3dddf4b74c5f35923fa40103273decc6805b25ed83768"
+    },
+    {
+      "file": "client-evidence.tar.gz",
+      "sha256": "ca32c90a39d9d109fcff23866b165486941cd4a0d40aaf3f66b8804fdf68dddc"
+    },
+    {
+      "file": "objects-evidence.tar.gz",
+      "sha256": "e39fb90fca3aa8ef3f8f5d3b101cc7af6442c051e1d449e973f8ebe79a172689"
+    },
+    {
+      "file": "metadata-evidence.tar.gz",
+      "sha256": "87bcedde1a1b2cfc9a6efa72b4473972a73b46527edc2b75aec653e28a3a1729"
+    },
+    {
+      "file": "juicefs-headroom.json",
+      "sha256": "290108cd03ff8df1175e053e060880ac632280cee1a54999395263e4b134a4b2"
+    },
+    {
+      "file": "brewfs-headroom.json",
+      "sha256": "501ff09a58cc077c17aa4fead1b0f25d7f25f2b1237eb2a93dede52777e67603"
+    },
+    {
+      "file": "stopped.json",
+      "sha256": "915c98967404acc802a1f21a6fb57ece6f0f4c47065845f7c8d8820ae36355bd"
+    },
+    {
+      "file": "released.json",
+      "sha256": "8675b3549de2934796fcbddcfbb972fc8758a4e46cc3524a0717a092392aff0b"
+    }
+  ],
+  "completed": {
+    "juicefs": {
+      "passed": true,
+      "product": "juicefs",
+      "read_bytes": 50479104,
+      "write_bytes": 16629760,
+      "read_ios": 12324,
+      "write_ios": 4060,
+      "read_iops": 15.565873,
+      "write_iops": 5.127998,
+      "measure_seconds": 792.006762312,
+      "seed": 9173,
+      "input_sha256": "c29df99bc1934d61e7efa20056597e9d2bd0df2409ec88c3b35220fa44cd727b",
+      "cold_sha256": "f957fd466ba854ddeddea3072e9e6c4f0a391e37f60d483d9c3a9826292ac282",
+      "cold_crc_bytes": 67108864,
+      "native_zero_debt": [
+        {
+          "utc_ns": 1794467515067709659,
+          "metrics": 3
+        },
+        {
+          "utc_ns": 1794467516120490922,
+          "metrics": 3
+        }
+      ],
+      "claim": "isolated pilot, no historic acceptance and no calibrated ranking",
+      "raw_fio_sha256": "4bee10a7933bd9dbf71a6d8be2e61d8e9273e352ae272d58b38163dc5ebce331",
+      "cold_fio_sha256": "02ca6b1d0da43f9fd0bb52fbf4a6777b02a199eff2e0fe4434eed28307290296",
+      "native_debt_sha256": [
+        "6ba5e11b75268a441a0574e3e1773a74b6b225b944d42fd55ebc727904e3e725",
+        "905179a057f5675d0a5e593ebc6f9a763860283a55e31fc5f4fdc7c509cf028b"
+      ],
+      "latency_native_ns": {
+        "read": {
+          "count": 12324,
+          "mean": 3900137.521746,
+          "p50": 337920,
+          "p95": 19529728,
+          "p99": 38010880,
+          "kind": "clat_ns"
+        },
+        "write": {
+          "count": 4060,
+          "mean": 2851410.599754,
+          "p50": 238592,
+          "p95": 14876672,
+          "p99": 27918336,
+          "kind": "clat_ns"
+        },
+        "sync": {
+          "count": 16382,
+          "mean": 44683263.586864,
+          "p50": 36608,
+          "p95": 278921216,
+          "p99": 421527552,
+          "kind": "lat_ns"
+        }
+      },
+      "object_arm_bracket": [
+        {
+          "device": "253:80",
+          "initial_free_bytes": 100039184384,
+          "final_free_bytes": 82430554112,
+          "read_bytes": 33853440,
+          "write_bytes": 52326121472
+        },
+        {
+          "device": "253:96",
+          "initial_free_bytes": 100039184384,
+          "final_free_bytes": 82430550016,
+          "read_bytes": 33521664,
+          "write_bytes": 52181667840
+        },
+        {
+          "device": "253:112",
+          "initial_free_bytes": 100039184384,
+          "final_free_bytes": 82430558208,
+          "read_bytes": 33488896,
+          "write_bytes": 52206845952
+        },
+        {
+          "device": "253:128",
+          "initial_free_bytes": 100039184384,
+          "final_free_bytes": 82430562304,
+          "read_bytes": 33755136,
+          "write_bytes": 52566663168
+        }
+      ],
+      "object_arm_bracket_scope": "Includes setup, drain, cold verify and object-node background activity"
+    },
+    "brewfs": {
+      "passed": true,
+      "product": "brewfs",
+      "read_bytes": 50479104,
+      "write_bytes": 16629760,
+      "read_ios": 12324,
+      "write_ios": 4060,
+      "read_iops": 343.363424,
+      "write_iops": 113.117129,
+      "measure_seconds": 36.15967824200004,
+      "seed": 9173,
+      "input_sha256": "c29df99bc1934d61e7efa20056597e9d2bd0df2409ec88c3b35220fa44cd727b",
+      "cold_sha256": "fb618cabf966078f635d4957f7f5086f77b461fdbbca0e4e17b53de75943e5b2",
+      "cold_crc_bytes": 67108864,
+      "native_zero_debt": [
+        {
+          "utc_ns": 1794467561052676741,
+          "metrics": 7
+        },
+        {
+          "utc_ns": 1794467562106139192,
+          "metrics": 7
+        }
+      ],
+      "claim": "isolated pilot, no historic acceptance and no calibrated ranking",
+      "raw_fio_sha256": "9237bda0492fd0935ad7ef96fc88a450d93ce4818383da42ceb59f95301392c8",
+      "cold_fio_sha256": "e06cee2f09b9e3a2a5baac167640eb4027fd1693cd004cba2f5de5cc0f4162f4",
+      "native_debt_sha256": [
+        "b9f045bbf9d8de9e00c1703d34c3ace9deb6b89312d55cd5137973b9fb249ee5",
+        "08b144c264923f3ce42df7e53bda6ebd26487da48204e65bca7d9b36a83fdddb"
+      ],
+      "latency_native_ns": {
+        "read": {
+          "count": 12324,
+          "mean": 108907.366358,
+          "p50": 61696,
+          "p95": 220160,
+          "p99": 268288,
+          "kind": "clat_ns"
+        },
+        "write": {
+          "count": 4060,
+          "mean": 249134.813547,
+          "p50": 244736,
+          "p95": 288768,
+          "p99": 325632,
+          "kind": "clat_ns"
+        },
+        "sync": {
+          "count": 16382,
+          "mean": 2044704.144549,
+          "p50": 50432,
+          "p95": 8093696,
+          "p99": 8585216,
+          "kind": "lat_ns"
+        }
+      },
+      "object_arm_bracket": [
+        {
+          "device": "253:80",
+          "initial_free_bytes": 82430554112,
+          "final_free_bytes": 82344153088,
+          "read_bytes": 1683456,
+          "write_bytes": 564088832
+        },
+        {
+          "device": "253:96",
+          "initial_free_bytes": 82430550016,
+          "final_free_bytes": 82344148992,
+          "read_bytes": 12288,
+          "write_bytes": 566132736
+        },
+        {
+          "device": "253:112",
+          "initial_free_bytes": 82430558208,
+          "final_free_bytes": 82344157184,
+          "read_bytes": 12288,
+          "write_bytes": 574840832
+        },
+        {
+          "device": "253:128",
+          "initial_free_bytes": 82430562304,
+          "final_free_bytes": 82344161280,
+          "read_bytes": 1667072,
+          "write_bytes": 563585024
+        }
+      ],
+      "object_arm_bracket_scope": "Includes setup, drain, cold verify and object-node background activity"
+    }
+  },
+  "partial_measures": {},
+  "failed": [],
+  "performance_calibrated": false,
+  "historical_acceptance_delta": 0,
+  "object_capacity": {
+    "samples": 426,
+    "clocks_synchronized": false,
+    "reserve_stop_observed": false,
+    "disks": [
+      {
+        "device": "253:80",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039221248,
+        "minimum_free_bytes": 82090033152,
+        "final_free_bytes": 82344153088
+      },
+      {
+        "device": "253:96",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039221248,
+        "minimum_free_bytes": 82087919616,
+        "final_free_bytes": 82344148992
+      },
+      {
+        "device": "253:112",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039225344,
+        "minimum_free_bytes": 82090045440,
+        "final_free_bytes": 82344157184
+      },
+      {
+        "device": "253:128",
+        "total_bytes": 100056096768,
+        "initial_free_bytes": 100039221248,
+        "minimum_free_bytes": 82090041344,
+        "final_free_bytes": 82344161280
+      }
+    ]
+  },
+  "resources_closed": true,
+  "paired_diagnostic": true,
+  "timed_object_disk_bracket_available": false
+}

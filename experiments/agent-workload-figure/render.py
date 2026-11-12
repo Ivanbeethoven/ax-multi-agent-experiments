@@ -13,9 +13,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
-from matplotlib.lines import Line2D
-from matplotlib.patches import Patch, Rectangle
-import numpy as np
+from matplotlib.patches import Patch
 
 HERE = Path(__file__).resolve().parent
 GROUPS = ("Core", "Exploratory")
@@ -121,11 +119,12 @@ def render(data, paper, qa_scripts):
         "legend.fontsize": 8.2, "legend.frameon": False,
         "axes.spines.top": False, "axes.spines.right": False,
         "axes.spines.left": False, "axes.linewidth": .6,
-        "axes.edgecolor": "#7B858C", "xtick.color": "#303943",
-        "ytick.color": "#303943", "pdf.fonttype": 42, "ps.fonttype": 42,
+        "axes.edgecolor": "#222222", "xtick.color": "#222222",
+        "ytick.color": "#222222", "pdf.fonttype": 42, "ps.fonttype": 42,
         "svg.fonttype": "none", "svg.hashsalt": "agent-workloads",
     })
-    width, height = 504, 150
+    # Two distinct questions: metadata service demand and data request granularity.
+    width, height = 240, 172
     fig = plt.figure(figsize=(width/72, height/72))
     def axes(x, y, w, h):
         ax = fig.add_axes([x/width, y/height, w/width, h/height])
@@ -134,121 +133,75 @@ def render(data, paper, qa_scripts):
         ax.grid(axis="x", color="#E5E9EB", lw=.45)
         ax.set_axisbelow(True)
         return ax
-    a, b = axes(48, 70, 60, 40), axes(48, 23, 60, 22)
-    c, d, e = axes(126, 23, 107, 78), axes(305, 23, 88, 78), axes(412, 23, 88, 78)
-    def text(x, y, s, **kw):
-        return fig.text(x/width, y/height, s, **kw)
-    text(120, 141, "Eight coding-agent task runs", ha="center", weight="bold", fontsize=9)
-    text(377, 141, "Five agent/model profiles", ha="center", weight="bold", fontsize=9)
-    fig.add_artist(Line2D([247/width]*2, [15/height, 146/height],
-                          transform=fig.transFigure, color="#D5DBDF", lw=.6))
-    fig.legend(handles=[Patch(facecolor=color, label=label)
-                        for label, color in zip(GROUP_LABELS, GROUP_COLORS)],
-               loc="center", bbox_to_anchor=(120/width, 129/height), ncol=2,
-               handlelength=1, handletextpad=.4, columnspacing=1.4, borderaxespad=0)
-    handles = [Patch(facecolor=OPS["Metadata"], label="Metadata"),
-               Line2D([], [], color=OPS["Read"], marker="o", linestyle="None", ms=4, label="Read"),
-               Line2D([], [], color=OPS["Write"], marker="s", linestyle="None", ms=4, label="Write"),
-               Patch(facecolor=OPS["Other"], label="Other")]
-    fig.legend(handles=handles, loc="center", bbox_to_anchor=(377/width, 129/height),
-               ncol=4, handlelength=.85, handletextpad=.35, columnspacing=.9, borderaxespad=0)
-    for x, y, title in [(2,115,"a  Call mix (%)"), (2,50,"b  Request sizes (%)"),
-                        (126,115,"c  Burstiness (%)"), (305,115,"d  Calls (×1,000)"),
-                        (412,115,"e  I/O (MiB)")]:
-        text(x, y, title, weight="bold", fontsize=8.6)
-    text(126,104,"Busiest 10% of 1-s bins",fontsize=8.2)
+    a, b = axes(64, 103, 166, 50), axes(64, 28, 166, 42)
+    fig.text(4/width, 162/height, "(a) Metadata requests (%)", weight="bold", fontsize=8.6)
+    fig.text(4/width, 80/height, "(b) Read/write request sizes (%)", weight="bold", fontsize=8.6)
 
-    a.set(xlim=(0,70), ylim=(3.55,-.55), xticks=[0,30,60],
-          yticks=range(4), yticklabels=list(OPS))
-    # Finite hatch strokes avoid PDF pattern tiles extending beyond each bar.
-    for gi, (group, color) in enumerate(zip(GROUPS, GROUP_COLORS)):
-        for i, row in enumerate(r for r in data["mix"] if r["group"] == group):
-            total, error = (100*row[k]/row["denominator"] for k in ("count","error"))
-            y = i+(gi-.5)*.31
-            a.barh(y,total,height=.27,color=color,lw=0)
-            if error == 0:
-                continue
-            a.barh(y,error,left=total-error,height=.27,facecolor="white",edgecolor=color,lw=.6)
-            x0, y0 = a.transData.transform((total-error,y+.135))
-            x1, y1 = a.transData.transform((total,y-.135))
-            rise = y1-y0
-            for base in np.arange(x0-rise,x1,5*fig.dpi/72):
-                start,end=max(x0,base),min(x1,base+rise)
-                if end > start:
-                    points=a.transData.inverted().transform([(start,y0+start-base),(end,y0+end-base)])
-                    a.plot(points[:,0],points[:,1],color=color,lw=.55,zorder=3)
-    fig.add_artist(Rectangle((85/width,115/height),5/width,5/height,
-                             transform=fig.transFigure,facecolor="white",edgecolor="#666666",lw=.6))
-    fig.add_artist(Line2D([85/width,90/width],[115/height,120/height],
-                          transform=fig.transFigure,color="#666666",lw=.55))
-    text(94,115,"Error",fontsize=7.8)
+    a.grid(False)
+    profiles = data["telemetry"]["rows"]
+    a.set(xlim=(0,60), ylim=(4.55,-.55), xticks=[0,20,40,60],
+          yticks=range(5), yticklabels=[r["label"] for r in profiles])
+    labels = []
+    for i, row in enumerate(profiles):
+        share = 100*row["classes"]["Metadata"]/row["events"]
+        a.barh(i, share, height=.56, color="#595959", edgecolor="#222222", linewidth=.55)
+        labels.append((a.text(share+1.8, i, f"{share:.1f}", va="center", fontsize=8.2), share, i))
 
-    for mi, method in enumerate(("read","write")):
-        for gi, (group,color) in enumerate(zip(GROUPS,GROUP_COLORS)):
-            rows=[r for r in data["sizes"] if r["group"] == group and r["method"] == method]
-            left=0
-            for row,alpha in zip(rows,(1,.3,0)):
-                pct=100*row["count"]/row["denominator"]
-                b.barh(mi*1.9+gi*.48,pct,left=left,height=.34,
-                       color=matplotlib.colors.to_rgba(color,alpha),edgecolor=color,lw=.6)
-                left+=pct
-            assert abs(left-100) < 1e-9
-    b.set(xlim=(0,100),ylim=(2.75,-.45),xticks=[0,50,100],
-          yticks=[.24,2.14],yticklabels=["Read","Write"])
-    fig.legend(handles=[Patch(facecolor=col,edgecolor="#666666",label=lab)
-                        for col,lab in [("#666666","≤4"),("#DDDDDD","4–64"),("white",">64 KiB")]],
-               loc="lower left",bbox_to_anchor=(1/width,0),ncol=3,fontsize=7.8,
-               handlelength=.7,handletextpad=.25,columnspacing=.55,borderaxespad=0)
-    c.set(xlim=(0,100),ylim=(7.65,-.65),xticks=[0,50,100],yticks=[])
-    labels=[]
-    for i,row in enumerate(data["bursts"]):
-        labels.append(c.text(1.5,i,row["label"],ha="left",va="center",zorder=3))
-        c.plot(row["burst_pct"],i,marker="o",ms=4,color="#555555",zorder=3)
+    size_colors = ("#D55E00", "#BDBDBD", "#FFFFFF")
+    size_labels = ("≤4 KiB", "4–64 KiB", ">64 KiB")
+    row_names, row_positions = [], []
+    for gi, (group, group_label) in enumerate(zip(GROUPS, ("Initial", "Extended"))):
+        for mi, method in enumerate(("read", "write")):
+            y = gi*2.35+mi
+            row_positions.append(y)
+            row_names.append(group_label+" "+method)
+            rows = [r for r in data["sizes"] if r["group"]==group and r["method"]==method]
+            left = 0
+            for row, color in zip(rows, size_colors):
+                pct = 100*row["count"]/row["denominator"]
+                b.barh(y, pct, left=left, height=.56, color=color,
+                       edgecolor="#222222", linewidth=.55)
+                left += pct
+            assert abs(left-100)<1e-9
+    b.set(xlim=(0,100), ylim=(3.95,-.6), xticks=[0,50,100],
+          yticks=row_positions, yticklabels=row_names)
+    fig.legend(handles=[Patch(facecolor=c, edgecolor="#222222", linewidth=.55, label=l)
+                        for c,l in zip(size_colors,size_labels)],
+               loc="center", bbox_to_anchor=(144/width,5.6/height), ncol=3,
+               fontsize=7.8, handlelength=.85, handletextpad=.35,
+               columnspacing=1, borderaxespad=0)
     fig.canvas.draw()
-    clearances=[]
-    for i,(label,row) in enumerate(zip(labels,data["bursts"])):
-        end=label.get_window_extent(fig.canvas.get_renderer()).x1
-        px=c.transData.transform((row["burst_pct"],i))[0]
-        clearance=(px-end)*72/fig.dpi-2
-        assert clearance >= 3, (label.get_text(),clearance)
-        start=c.transData.inverted().transform((end+3*fig.dpi/72,0))[0]
-        c.plot([start,row["burst_pct"]],[i,i],color="#BBBBBB",lw=.65,zorder=1)
-        clearances.append(dict(task=row["label"],clearance_pt=clearance))
-
-    rows=data["telemetry"]["rows"]
-    max_calls=math.ceil(max(r["events"] for r in rows)/10000)*10
-    max_io=math.ceil(max(max(r["read_mib"],r["write_mib"]) for r in rows)/100)*100
-    io_step=max(100,math.floor(max_io/200)*100)
-    for ax in (d,e):
-        ax.set(ylim=(4.55,-.55),yticks=range(5))
-    d.set(xlim=(0,max_calls),xticks=[0,max_calls/2,max_calls],yticklabels=[r["label"] for r in rows])
-    e.set(xlim=(0,max_io),xticks=[0,io_step,2*io_step],yticklabels=[])
-    for i,row in enumerate(rows):
-        left=0
-        for kind,color in OPS.items():
-            value=row["classes"][kind]/1000
-            d.barh(i,value,left=left,height=.58,color=color,edgecolor="white",lw=.4,zorder=3)
-            left+=value
-        d.text(row["classes"]["Metadata"]/2000,i,f'{row["metadata_pct"]:.0f}%',
-               ha="center",va="center",color="white",fontsize=7.8,zorder=4)
-        for kind,marker in [("Read","o"),("Write","s")]:
-            e.plot(row[kind.lower()+"_mib"],i,marker=marker,ms=4.3,
-                   color=OPS[kind],mec="#38434B",mew=.6,linestyle="None",zorder=3)
-    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    clearances = []
+    for label, share, y in labels:
+        box = label.get_window_extent(renderer)
+        end = a.transData.transform((share,y))[0]
+        gap = (box.x0-end)*72/fig.dpi
+        assert gap>=3
+        assert box.x1<=fig.bbox.x1
+        clearances.append(dict(label=label.get_text(),bar_label_gap_pt=gap))
     sys.path.insert(0,str(qa_scripts))
     from audit_panel_alignment import require_matplotlib_panel_alignment
     require_matplotlib_panel_alignment(fig,json_out=qa/"alignment.json",
-        panel_ids=list("abcde"),row_groups=[["d","e"]],column_groups=[["a","b"]],
+        panel_ids=["a","b"],column_groups=[["a","b"]],
         tolerance_pt=1.5,gutter_tolerance_pt=1.5,strict=True)
     for ext in ("pdf","svg"):
         fig.savefig(out/f"agent-workloads.{ext}")
     fig.savefig(out/"agent-workloads.png",dpi=600)
+    fig.savefig(qa/"figure-preview.png",dpi=300)
     plt.close(fig)
     svg=out/"agent-workloads.svg"
     svg.write_text("\n".join(line.rstrip() for line in svg.read_text(encoding="utf-8").splitlines())+"\n",encoding="utf-8")
+    data["main_figure_panels"] = {
+        "a":"Per-profile metadata share; five independent agent/model profiles",
+        "b":"Read/write request-size distributions; eight task runs in two capture groups"}
+    data["retained_not_plotted"] = {
+        "eight_task_call_mix":"The pooled metadata share and successful-only share remain in prose; a second call-mix chart repeated panel a's argument.",
+        "per_task_burstiness":"The observed range remains in prose; per-task values and bin semantics remain in the ledger.",
+        "profile_call_counts_and_io_bytes":"Preserved in source data; absolute totals do not establish a separate design requirement."}
     save_json(qa/"plotted-data.json",data)
     save_json(qa/"label-clearances.json",clearances)
-    print(json.dumps(dict(canvas_pt=[width,height],task_events=data["task_events"],
+    print(json.dumps(dict(canvas_pt=[width,height],panels=2,task_events=data["task_events"],
                           profile_events=data["telemetry"]["events"],output=str(out/"agent-workloads.pdf"))))
 
 

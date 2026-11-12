@@ -67,6 +67,55 @@ fn state(path: &Path, files: u64, workspace: u64) -> Result<BTreeMap<u64, u64>> 
     }
     Ok(versions)
 }
+
+fn verify_worker(
+    root: &Path,
+    versions: &BTreeMap<u64, u64>,
+    files: u64,
+    directories: u64,
+    workers: usize,
+    worker: usize,
+    workspace: u64,
+) -> Result<u64> {
+    let mut count = 0;
+    for d in (worker as u64..directories).step_by(workers) {
+        let dir = root.join("small").join(format!("d{d:04}"));
+        directory(&dir)?;
+        if names(&dir)?
+            != (d..files)
+                .step_by(1024)
+                .map(|i| format!("f{i:07}"))
+                .collect()
+        {
+            return Err(format!("filename set differs: {d}").into());
+        }
+        for index in (d..files).step_by(1024) {
+            let path = dir.join(format!("f{index:07}"));
+            let m = fs::symlink_metadata(&path)?;
+            if !m.is_file()
+                || m.len() != 4096
+                || m.nlink() != 1
+                || m.mode() & 0o7777 != 0o644
+                || m.uid() != 0
+                || m.gid() != 0
+            {
+                return Err(format!("file type/size/links/mode/owner differs: {index}").into());
+            }
+            let mut f = OpenOptions::new()
+                .read(true)
+                .custom_flags(0x20000) // Linux O_NOFOLLOW.
+                .open(path)?;
+            let mut bytes = Vec::with_capacity(4097);
+            (&mut f).take(4097).read_to_end(&mut bytes)?;
+            if bytes.as_slice() != payload(index, *versions.get(&index).unwrap_or(&0), workspace) {
+                return Err(format!("file bytes differ: {index}").into());
+            }
+            count += 1;
+        }
+    }
+    Ok(count)
+}
+
 fn main() -> Result<()> {
     let args: Vec<_> = env::args().collect();
     if args.len() != 7 {
@@ -115,49 +164,14 @@ fn main() -> Result<()> {
             let root = &root;
             let versions = &versions;
             handles.push(scope.spawn(move || -> Result<u64> {
-                let mut count = 0;
-                for d in (worker as u64..directories).step_by(workers) {
-                    let dir = root.join("small").join(format!("d{d:04}"));
-                    directory(&dir)?;
-                    if names(&dir)?
-                        != (d..files)
-                            .step_by(1024)
-                            .map(|i| format!("f{i:07}"))
-                            .collect()
-                    {
-                        return Err(format!("filename set differs: {d}").into());
-                    }
-                    for index in (d..files).step_by(1024) {
-                        let path = dir.join(format!("f{index:07}"));
-                        let m = fs::symlink_metadata(&path)?;
-                        if !m.is_file()
-                            || m.len() != 4096
-                            || m.nlink() != 1
-                            || m.mode() & 0o7777 != 0o644
-                            || m.uid() != 0
-                            || m.gid() != 0
-                        {
-                            return Err(format!(
-                                "file type/size/links/mode/owner differs: {index}"
-                            )
-                            .into());
-                        }
-                        // Linux O_NOFOLLOW; the read-only tree must not redirect a read.
-                        let mut f = OpenOptions::new()
-                            .read(true)
-                            .custom_flags(0x20000)
-                            .open(path)?;
-                        let mut bytes = Vec::with_capacity(4097);
-                        (&mut f).take(4097).read_to_end(&mut bytes)?;
-                        if bytes.as_slice()
-                            != payload(index, *versions.get(&index).unwrap_or(&0), workspace)
-                        {
-                            return Err(format!("file bytes differ: {index}").into());
-                        }
-                        count += 1;
-                    }
+                let result =
+                    verify_worker(root, versions, files, directories, workers, worker, workspace);
+                // A different worker may still be blocked in FUSE when this
+                // one fails. Persist the reason before the final join.
+                if let Err(error) = &result {
+                    eprintln!("C3 verifier worker {worker} failed: {error}");
                 }
-                Ok(count)
+                result
             }));
         }
         let mut total = 0;

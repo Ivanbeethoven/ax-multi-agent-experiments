@@ -1,0 +1,120 @@
+{
+  "schema": "c4-packed-root-nlink-candidate-smoke-receipt-v1",
+  "original_receipt_sha256": "0d03b86dd659f36e15804dd36be82a86453c628ab9f86db766f58201abc346a3",
+  "environment": "one WSL host, private loopback RustFS and Redis",
+  "payload_bytes": 77,
+  "artifact_sha256": "3ecde1a2a4a55d450b7680661c655fd8d08491afc6aebacef84b58cea76bd6ee",
+  "candidate_patch_sha256": "4464b9aaeb287d31c0dd6b8f2fcfdef02193e16d0e85e193b913f86acc1177a2",
+  "producer_sha256": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab",
+  "published_carrier": true,
+  "published_carrier_distinct": true,
+  "child_workspaces_created": 2,
+  "passed": false,
+  "formal_sample": false,
+  "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "files": 2,
+  "image_sha256": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "expected_files": {
+    "a.txt": {
+      "bytes": 13,
+      "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+    },
+    "sub/b.txt": {
+      "bytes": 64,
+      "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+    }
+  },
+  "readbacks": {
+    "parent": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      },
+      "nlinks": {
+        ".": 3,
+        "a.txt": 1,
+        "sub": 2,
+        "sub/b.txt": 1
+      },
+      "expected_nlinks": {
+        ".": 3,
+        "sub": 2,
+        "a.txt": 1,
+        "sub/b.txt": 1
+      }
+    },
+    "child-before-write": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      },
+      "nlinks": {
+        ".": 3,
+        "a.txt": 1,
+        "sub": 2,
+        "sub/b.txt": 1
+      },
+      "expected_nlinks": {
+        ".": 3,
+        "sub": 2,
+        "a.txt": 1,
+        "sub/b.txt": 1
+      }
+    }
+  },
+  "parent_binding": true,
+  "mount_exits": {
+    "parent": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    },
+    "child-before-write": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    },
+    "child-after-write": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    }
+  },
+  "import_fork_rejected_before_bucket_create": true,
+  "both_exact_carrier": true,
+  "separate_upper_buckets": true,
+  "both_child_bindings": true,
+  "shared_object_keys_unchanged": true,
+  "child_buckets_initially_empty": true,
+  "failed_phase": "write-child",
+  "no_model": true,
+  "no_cloud": true,
+  "no_copy_baseline": true,
+  "cleanup": {
+    "mount_absent": true,
+    "owned_containers_absent": {
+      "rustfs": true,
+      "redis": true
+    },
+    "scratch_removed": true
+  },
+  "error_class": "RuntimeError",
+  "error_detail": "The unprivileged WSL caller got EACCES creating private.txt in the first child"
+}

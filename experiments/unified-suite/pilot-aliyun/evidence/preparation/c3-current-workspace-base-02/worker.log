@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/srv/ax-receipts/c3-current-base-20261112t063337z/qualify-c3-workspace-base.py", line 155, in <module>
+    run(args.tag,args.database,args.workers,args.verify_seconds)
+  File "/srv/ax-receipts/c3-current-base-20261112t063337z/qualify-c3-workspace-base.py", line 123, in run
+    subprocess.run(verify_cmd,stdout=verify,stderr=subprocess.STDOUT,check=True,timeout=verify_seconds)
+  File "/usr/lib/python3.12/subprocess.py", line 550, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 1209, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2141, in _communicate
+    self.wait(timeout=self._remaining_time(endtime))
+  File "/usr/lib/python3.12/subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2045, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '[PosixPath('/srv/ax-client/assets/bin/smallfiles-verify-c3-01'), PosixPath('/srv/ax-client/preparation/c3-current-base-20261112t063337z/mnt'), 'base', PosixPath('/srv/ax-client/preparation/c3-current-base-20261112t063337z/verify/result.json'), '100000', '32', '1']' timed out after 719.999985554 seconds

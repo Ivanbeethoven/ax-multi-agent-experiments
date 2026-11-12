@@ -15,6 +15,7 @@ from .runtime.common import mounts, pinned, private_dir
 
 
 NATIVE = 'suite-fork-burst-native-v2'
+SOURCE_BOUND = 'suite-fork-burst-native-v3'
 JUICEFS_CLONE_THREADS = 4
 
 
@@ -78,10 +79,11 @@ def native_step(s, child_id, command):
         raise ValueError('reviewed child argv, binary or frozen input differs from the native arm')
 
 
-def run_native(s, ref, commands, out):
+def run_native(s, ref, commands, out, source=None):
     """Open evidence streams and verify inputs before releasing the native commands."""
     gate = threading.Event()
     abort = threading.Event()
+    ready = threading.Barrier(len(commands)+1,timeout=15) if source is not None else None
     started = None
     root = Path(s['native']['mount']) if s['method']=='juicefs-clone' else None
     with ExitStack() as logs, ThreadPoolExecutor(max_workers=s['parallelism']) as pool:
@@ -94,6 +96,9 @@ def run_native(s, ref, commands, out):
             tasks.append((child, command, env, directory, stdout, stderr))
 
         def one(child, command, env, directory, stdout, stderr):
+            if ready is not None:
+                try: ready.wait()
+                except threading.BrokenBarrierError: return None
             gate.wait()
             if abort.is_set(): return None
             launch = time.monotonic_ns()
@@ -117,37 +122,53 @@ def run_native(s, ref, commands, out):
                 return row
 
         original_mount = juicefs_mount(root) if root is not None else None
+        if source is not None and root is not None and original_mount != source['measurement_mount']['mount']:
+            raise ValueError('JuiceFS measurement mount changed after source preflight')
         write_new(out/'native-intent.json',{'spec':ref,'method':s['method'],'native':s['native'],
                   'input_tree':s['input_tree'],'mount':original_mount,'automatic_retry':False})
         futures=[]
         try:
             for task in tasks: futures.append(pool.submit(one,*task))
+            if ready is not None:
+                ready.wait()
+                if root is not None:
+                    from .fork_source import alive
+                    if (juicefs_mount(root) != original_mount or
+                            not alive(source['measurement_mount']['process'])):
+                        raise ValueError('JuiceFS measurement mount changed or its process exited before releasing children')
             started = time.monotonic_ns()
             gate.set()
         except BaseException:
             # Never leave a worker blocked on a missing barrier during shutdown.
             if not gate.is_set():
                 abort.set()
+                if ready is not None: ready.abort()
                 gate.set()
             raise
         results = [future.result() for future in futures]
     final_mount = mounts(root) if root is not None else None
     mount_stable = root is None or final_mount == [original_mount]
+    if source is not None and root is not None:
+        from .fork_source import alive
+        mount_stable = mount_stable and alive(source['measurement_mount']['process'])
     passed = all(row['passed'] for row in results) and mount_stable
-    return {'schema':'suite-fork-burst-native-result-v2','cell_id':s['cell_id'],
+    result = {'schema':'suite-fork-burst-native-result-v2' if source is None else 'suite-fork-burst-native-result-v3',
+            'cell_id':s['cell_id'],
             'completed':all('exit_ns' in row for row in results),
             'passed':passed,'children':len(commands),'parallelism':s['parallelism'],
             'release_ns':started,'wall_seconds':(max(row['exit_ns'] for row in results)-started)/1e9 if passed else None,
             'results':results,'method':s['method'],'input_tree':s['input_tree'],'binary':s['native']['binary'],
             'mount_before':original_mount,'mount_after':final_mount,'performance_accepted':False,
             'scope':'creation command only; first verified read, isolation and durable closure are measured separately'}
+    if source is not None: result['source_binding'] = source
+    return result
 
 
 def run(ref, output):
     s=load(pinned(ref))
-    if s.get('schema') not in ('suite-fork-burst-v1',NATIVE) or s.get('reviewed') is not True:
+    if s.get('schema') not in ('suite-fork-burst-v1',NATIVE,SOURCE_BOUND) or s.get('reviewed') is not True:
         raise ValueError('reviewed fork burst required')
-    native=s['schema']==NATIVE
+    native=s['schema'] in (NATIVE,SOURCE_BOUND)
     children=s['children']
     if not children or len({c['id'] for c in children})!=len(children) or len(children)>64:
         raise ValueError('1..64 unique children required')
@@ -166,6 +187,14 @@ def run(ref, output):
         if native:
             native_step(s,c['id'],command)
             commands.append((c,command,env))
+    source = None
+    if s['schema']==SOURCE_BOUND:
+        from .fork_source import preflight
+        proof = s.get('source_qualification')
+        if not isinstance(proof,dict) or set(proof)!={'receipt','probe_stopped','measurement'}:
+            raise ValueError('reviewed v3 requires exact independent source qualification and close')
+        source = preflight(proof['receipt'],cell_id=s['cell_id'],method=s['method'],native=s['native'],
+                           input_tree=s['input_tree'],probe_stopped=proof['probe_stopped'],measurement=proof['measurement'])
     out=private_dir(output)
     write_new(out/'started.json',{'spec':ref,'cell_id':s['cell_id'],'children':len(children),
                                  'parallelism':s['parallelism'],'automatic_retry':False})
@@ -173,7 +202,7 @@ def run(ref, output):
     # receipt after interruption is unknown, never permission to recreate it.
     write_new(out/'intent.json',{'children':children})
     if native:
-        result=run_native(s,ref,commands,out)
+        result=run_native(s,ref,commands,out,source)
         write_new(out/'result.json',result)
         return result
     gate=threading.Event();begin=time.monotonic()

@@ -6,7 +6,7 @@
 2. 用原 `draft-one-c1.py` 生成一次完整新批次，选不同于 `mxb01` 的新后缀 `<suffix>`；`--run-directory` 设为 `<control>/one-cell-runs/<cell-id>-<suffix>`。保留原 workload、metrics、asset、节点和四个工具。
 3. 逐轮准备独立请求。顺序固定为 **Off1 → On1 → On2 → Off2 → Off3 → On3 → 正式**。每条命令只做本轮；正式轮仍调用原 5% overhead check、admit、run。每轮准备、CRC 冷读、排空和正式统计使用原脚本。
 
-每个 `c1-storage-step-v1` 请求填 `reviewed: true`、`step`（1–7）、`original_request`（新批次 SHA 引用）、`frozen_request`（旧 `mxb01` 原请求 SHA 引用）、`base_recheck`（下述当前 boot 的六份原生 CRC/挂载引用）、`prefix`（从 step 1 起的实际 `result.json` SHA 引用列表）、`prefix_archives`（同序的真实归档引用）、`plan`、`inventory`、`snapshot_tool`（原 `capacity-check.py`）、`cleanup`、`capacity_qualification`、`lease_controls`（实际所有 state.sqlite 的父目录，包含新目录和 canonical）和一个尚不存在的 `preflight_out`。所有引用都是绝对 `path` 和 `sha256`。新批次省略 `runtime_control`，直接用新 controller 的 fleet/probes；容量材料的 `runtime` 为 null。清理回执的 `original_request`、`step`、`prefix` 和 `prefix_archives` 必须完全相同，并晚于上一轮关闭。
+每个 `c1-storage-step-v1` 请求填 `reviewed: true`、`step`（1–7）、`original_request`（新批次 SHA 引用）、`frozen_request`（旧 `mxb01` 原请求 SHA 引用）、`base_recheck`（下述当前 boot 的六份原生 CRC/挂载引用）、`prefix`（从 step 1 起的实际 `result.json` SHA 引用列表）、`prefix_archives`（同序的真实归档引用）、`plan`、`inventory`、`disk_mapping`（下述原部署回执）、`snapshot_tool`（原 `capacity-check.py`）、`cleanup`、`capacity_qualification`、`lease_controls`（实际所有 state.sqlite 的父目录，包含新目录和 canonical）和一个尚不存在的 `preflight_out`。所有引用都是绝对 `path` 和 `sha256`。新批次省略 `runtime_control`，直接用新 controller 的 fleet/probes；容量材料的 `runtime` 为 null。清理回执的 `original_request`、`step`、`prefix` 和 `prefix_archives` 必须完全相同，并晚于上一轮关闭。
 
 每个 `prefix_archives` 项按 role 提供 `coordinator`、`client`，On 轮另有 `metadata`、`objects`。均为真实 `bench.archive_check` 格式的 tar，kind 为 `calibration-<attempt>-<role>`。协调者包以原 trial 为根，角色包沿用原 `retain-calibrations.py` 的节点成员布局；它的六轮总入口不能直接用于逐轮归档。入口重核整个 tar 的成员 SHA，并把协调者 finished/cohort、客户端退出/CRC/排空和 On 轮采样 history/原文绑回原始 pins。此前缀归档适配并未自动打包或上传 OSS；实际删除仍须遵守共同清理规则的 OSS 完整回读要求。
 
@@ -17,6 +17,8 @@ python3 run-c1-storage-step.py --request "$step_request" --sha256 "$step_request
 ```
 
 `--validate-only` 只核对协调者文件与 SQLite；不连接工作节点。执行时持原物理锁，先检查无本池或共享资源租约、空 Agent 槽、原挂载/工作/观察进程已关闭和实际采集器接续。再查原四个对象盘及 client/metadata 盘实际 mount、盘序、序列号、设备号和 boot；盘目录误落系统盘会拒绝。原 `capacity-check.py snapshot` 在锁内读取清理后的字节、inode、Redis 和容器身份。逐盘及协调者输出盘按新增量扣除后须剩 20%；Redis 内存同样留 20%，AOF 增长及重写空间计入元数据盘。原快照没有固定 schema。
+
+磁盘映射使用[原 B 部署回执](evidence/preparation/pool-b-services-actual-01/result.json)，SHA-256 为 `05637a3d93dab1be99e6f15eb4d3f00767c78d0a5481f3ea659e98ffdab4a9ce`。将原字节放在协调者的绝对路径，在每个审阅请求中用 `disk_mapping` 引用；缺失或改变即拒绝。库存仅确定同一组原盘；实际挂载顺序取部署回执，从 `/srv/ax-objects-0` 到 `-3` 分别对应原盘 ID 的 `340/341/342/343` 后缀。两次容量采样均核相同映射。
 
 容量资格材料改为 `c1-mixed-fio-capacity-qualification-v2`，绑定同一已固定 plan、workload、metrics、asset、runtime、node/observer 和四个执行工具。`modes` 可一次明确覆盖 `off/on/formal`；不再要求先完成三套额外六阶段试跑。它需要：
 
