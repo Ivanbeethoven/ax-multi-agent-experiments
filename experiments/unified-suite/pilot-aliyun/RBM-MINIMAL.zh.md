@@ -7,7 +7,7 @@
 - C2：默认使用 140 条合成回调；传 `--full-trace` 后按输入清单核全部回调、读写量、树、硬链接和 SQLite，并做冷重挂校验。已用 [367 次真实 FUSE 小负载](evidence/preparation/rbm-recorded-trace-20261112/README.zh.md)验证两文件系统；该输入无模型调用。
 - C3：128 × 4 KiB，核初始文件、执行固定读写、重挂核修改文件。
 - C4 派生：两文件 77 字节，原生 fork/clone、子读、覆盖及新建、父读回、子重挂。错误仍输出失败回执。
-- C2 只读上层对照：传入已通过的候选摘要后，两种模式会实际挂载并验证 FUSE、热态和路径计数。可写 Overlay、Pack 同引擎消融及 C4 跨机干净迁移仍需接线；单机重挂不能算跨机迁移通过。
+- C2 只读上层对照：传入已通过的候选摘要后，两种模式会实际挂载并验证 FUSE、热态和路径计数。可写 Overlay、Pack 同引擎消融及 C4 跨机干净迁移仍需接线；C4 stay 已用原 OpenCode 检查点接通。
 
 BrewFS 默认 features 保留，并统一增加 workspace-overlay、observability、rustfs-ec-block-size-hint。
 C1–C3 的统一构建来自上游 main ca07159。C4 原生 fork 另用已有发布/根目录链接数补丁的候选产物，并传入构建回执；它只用于功能验证，不能冒充统一性能产物。
@@ -61,3 +61,5 @@ C2 只读模式已在 [rbm 通过](evidence/preparation/rbm-c2-read-controls-202
 完整格式的 C2 输入：在单项命令中传 `--full-trace --trace /path/to/case --replay /path/to/current/full-fuse-replay --trace-timeout 300`。输入须含 initial、capture/events.jsonl、capture/blobs、initial-tree.json、final-tree.json、metrics.json、hardlink-check.json；回放器由当前 `tools/full-fuse-replay` 构建。超时停止本轮回放并正常清理，不截断输入凑通过。
 
 要重新生成无模型小输入，安装 fusepy 后运行 `python3 experiments/unified-suite/pilot-aliyun/scripts/capture-smoke-trace.py --out /new/case`。SQLite 只是测试数据，不是 OpenCode 的真实会话。
+
+C4 `stay` 已在 [两文件系统通过](evidence/preparation/rbm-c4-stay-20261112/README.zh.md)。传 `--experiment C4-handoff --mode brewfs-full`（或 `juicefs`）及 `--placement stay --checkpoint /path/to/verified/checkpoint.json --opencode /path/to/original/opencode`。核初始完整工作区、源会话导出、同步卸载、新缓存重挂、完整工作区与原会话再导出；使用空 HOME 和工作区内 XDG，不调用模型。canonical mount 必须为空。`move` 仍要求跨主机路径，不能用 `stay` 结果代替。

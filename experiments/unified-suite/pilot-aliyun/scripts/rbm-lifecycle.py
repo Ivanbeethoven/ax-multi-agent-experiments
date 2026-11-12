@@ -20,18 +20,22 @@ p = argparse.ArgumentParser(description=__doc__)
 for flag in ('brewfs', 'producer', 'juicefs', 'smallfiles', 'out'):
     p.add_argument('--'+flag, required=True, type=Path)
 p.add_argument('--rustfs-image', required=True)
-p.add_argument('--workload', choices=('c1','c2','c3'), default='c3')
+p.add_argument('--workload', choices=('c1','c2','c3','c4-stay'), default='c3')
 p.add_argument('--engine', choices=('flat-v1','workspace-v1'), default='workspace-v1')
 p.add_argument('--trace', type=Path)
 p.add_argument('--replay', type=Path)
 p.add_argument('--full-trace', action='store_true')
 p.add_argument('--trace-timeout', type=int, default=300)
+p.add_argument('--checkpoint',type=Path)
+p.add_argument('--opencode',type=Path)
 p.add_argument('--hint', default='auto')
 p.add_argument('--layout', choices=('enabled','disabled','block-only'), default='enabled')
 p.add_argument('--product', choices=('brewfs','juicefs'), required=True)
 a = p.parse_args()
 if a.trace_timeout <= 0:
     p.error('--trace-timeout must be positive')
+if a.workload=='c4-stay' and (not a.checkpoint or not a.opencode):
+    p.error('C4 stay requires --checkpoint and --opencode')
 a.out.mkdir(mode=0o700)
 result = {'formal_sample': False, 'workload': a.workload, 'engine': a.engine, 'hint': a.hint, 'layout': a.layout, 'arms': {}}
 run_id = 'ax-rbm-' + uuid.uuid4().hex[:12]
@@ -61,6 +65,36 @@ def local_port():
         return s.getsockname()[1]
 
 def workload(stage, root, out, *extra):
+    if a.workload=='c4-stay':
+        from bench.runtime.session_export import export
+        import runpy
+        checkpoint=json.loads(a.checkpoint.read_text())
+        if (checkpoint['source_process_exited'] is not True or checkpoint['sqlite_quick_check']!='ok'
+                or checkpoint['contains_provider_master_key'] is not False):
+            raise ValueError('Closed original checkpoint without provider keys required')
+        original=a.checkpoint.parent/'workspace'
+        workspace=root/'workspace'
+        if stage=='prepare':
+            root.mkdir(); call('cp','-a','--',original,workspace)
+            result['checkpoint_sha256']=hashlib.sha256(a.checkpoint.read_bytes()).hexdigest()
+            result['placement']='stay'
+            result['scope']='same-host original OpenCode state reopen; no model continuation or cross-host claim'
+        if stage in ('prepare','verify-base'):
+            if file_tree(workspace)!=file_tree(original):
+                raise ValueError('Original workspace differs at '+stage)
+            return {'passed':True,'entries':len(file_tree(workspace))}
+        if stage=='verify-touched':
+            expected=json.loads((out.parent/'run/closed-tree.json').read_text())
+            if file_tree(workspace)!=expected:
+                raise ValueError('Complete workspace differs on cold reopen')
+        out.mkdir()
+        proof=export(workspace,checkpoint,a.opencode,out/'native-export')
+        sync=runpy.run_path(str(Path(__file__).with_name('prepare-session-input.py')))['sync_tree']
+        proof['sync']=sync(workspace)
+        if stage=='run':
+            (out/'closed-tree.json').write_text(json.dumps(file_tree(workspace),sort_keys=True)+'\n')
+        proof['cold_workspace_equal']=stage=='verify-touched'
+        return proof
     if a.workload == 'c2':
         import shutil
         if not a.trace or not a.replay:
@@ -173,7 +207,7 @@ def visit(product, point, work, out, cmd, arm, reopen=False):
                 arm['phase'] = 'prepare-and-verify-base'
                 if product == 'juicefs' or a.engine == 'flat-v1':
                     import shutil
-                    if a.workload == 'c2':
+                    if a.workload in ('c2','c4-stay'):
                         call('cp','-a','--',str(work/'source')+'/.',str(point)+'/')
                     else:
                         shutil.copytree(work/'source'/'small',point/'small')
@@ -266,8 +300,12 @@ def run(work):
             arm = result['arms'][product] = {'phase':'prepare', 'passed':False}
             out = a.out/product
             out.mkdir()
-            point = work/product
-            point.mkdir()
+            point = (Path(json.loads(a.checkpoint.read_text())['canonical_workspace']).parent
+                     if a.workload=='c4-stay' else work/product)
+            if a.workload=='c4-stay' and (str(point)!='/srv/ax-pilot-session' or point.is_symlink()
+                    or mounted(point) or (point.exists() and any(point.iterdir()))):
+                raise ValueError('Original canonical mount must be absent or empty')
+            point.mkdir(exist_ok=a.workload=='c4-stay')
             points.append(point)
             try:
                 bucket = run_id+'-'+product

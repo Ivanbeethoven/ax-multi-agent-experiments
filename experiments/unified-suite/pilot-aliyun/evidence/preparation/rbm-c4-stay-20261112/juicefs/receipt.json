@@ -1,0 +1,172 @@
+{
+  "plan": {
+    "experiment": "C4-handoff",
+    "mode": "juicefs",
+    "placement": "stay",
+    "engine": "juicefs",
+    "mechanisms": {
+      "overlay": null,
+      "packed_metadata": null,
+      "dynamic_block": null
+    },
+    "rustfs_layout_profile": "enabled",
+    "brewfs_hint": null,
+    "brewfs_cargo_default_features": true,
+    "brewfs_cargo_features": [
+      "workspace-overlay",
+      "observability",
+      "rustfs-ec-block-size-hint"
+    ],
+    "native_action": null,
+    "read_only_control": false,
+    "runtime_qualification_blockers": [
+      "same-workspace-handoff-qualification-required"
+    ],
+    "dispatch_enabled": false
+  },
+  "formal_sample": false,
+  "status": "passed",
+  "runtime_scope": "same-host OpenCode state reopen with empty HOME; no model continuation",
+  "argv": [
+    "/srv/ax-data/workspace-adapter-20261111/venv/bin/python",
+    "/tmp/ax-feature-align/experiments/unified-suite/pilot-aliyun/scripts/rbm-lifecycle.py",
+    "--product",
+    "juicefs",
+    "--brewfs",
+    "/var/tmp/ax-mode-suite-20261112/bin/brewfs",
+    "--producer",
+    "/var/tmp/ax-mode-suite-20261112/bin/packed_v3_snapshot_fixture",
+    "--juicefs",
+    "/srv/ax-bin/juicefs",
+    "--rustfs-image",
+    "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+    "--smallfiles",
+    "/srv/ax-bin/smallfiles",
+    "--workload",
+    "c4-stay",
+    "--hint",
+    "auto",
+    "--layout",
+    "enabled",
+    "--engine",
+    "workspace-v1",
+    "--checkpoint",
+    "/home/dev/ax-session-reopen-input-20261112/verified/checkpoint.json",
+    "--opencode",
+    "/home/dev/ax-session-reopen-input-20261112/opencode",
+    "--out",
+    "/var/tmp/ax-c4-stay-juicefs-20261112-01/run"
+  ],
+  "exit_code": 0,
+  "evidence": {
+    "formal_sample": false,
+    "workload": "c4-stay",
+    "engine": "workspace-v1",
+    "hint": "auto",
+    "layout": "enabled",
+    "arms": {
+      "juicefs": {
+        "phase": "complete",
+        "passed": true,
+        "verify_base": {
+          "passed": true,
+          "entries": 894
+        },
+        "run": {
+          "passed": true,
+          "session_id": "ses_e39418e40ffer6Ar6szDXn1kx2",
+          "export_sha256": "b3bdd63f6969387f11394cf78fd050352522c60a61a37c69ee835e4d30bd1bd9",
+          "validation": {
+            "passed": true,
+            "session_id": "ses_e39418e40ffer6Ar6szDXn1kx2",
+            "prefix_messages": 4,
+            "new_completed_tools": 0,
+            "scope": "history and tool continuation; external side-effect duplication, task grading and file content require independent evidence"
+          },
+          "binary_sha256": "025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233",
+          "home_empty_at_start": true,
+          "xdg_in_workspace": true,
+          "network": {
+            "parent": "net:[4026531840]",
+            "child": "net:[4026533882]",
+            "interfaces": [
+              "lo"
+            ],
+            "external_network": false
+          },
+          "native_model_calls": 0,
+          "real_resume": false,
+          "exit_code": 0,
+          "sync": {
+            "files": 812,
+            "file_bytes": 4739528,
+            "directories": 86
+          },
+          "cold_workspace_equal": false
+        },
+        "initial_unmount": {
+          "unmount_exit": 0,
+          "mount_exit": 0,
+          "mount_absent": true
+        },
+        "verify_touched": {
+          "passed": true,
+          "session_id": "ses_e39418e40ffer6Ar6szDXn1kx2",
+          "export_sha256": "b3bdd63f6969387f11394cf78fd050352522c60a61a37c69ee835e4d30bd1bd9",
+          "validation": {
+            "passed": true,
+            "session_id": "ses_e39418e40ffer6Ar6szDXn1kx2",
+            "prefix_messages": 4,
+            "new_completed_tools": 0,
+            "scope": "history and tool continuation; external side-effect duplication, task grading and file content require independent evidence"
+          },
+          "binary_sha256": "025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233",
+          "home_empty_at_start": true,
+          "xdg_in_workspace": true,
+          "network": {
+            "parent": "net:[4026531840]",
+            "child": "net:[4026533882]",
+            "interfaces": [
+              "lo"
+            ],
+            "external_network": false
+          },
+          "native_model_calls": 0,
+          "real_resume": false,
+          "exit_code": 0,
+          "sync": {
+            "files": 811,
+            "file_bytes": 4704112,
+            "directories": 86
+          },
+          "cold_workspace_equal": true
+        },
+        "reopen_unmount": {
+          "unmount_exit": 0,
+          "mount_exit": 0,
+          "mount_absent": true
+        }
+      }
+    },
+    "binary_sha256": {
+      "brewfs": "b0480e4502548ec161651cdbae4ec593ba3fd7ae42b54481c9af5ff8ee981630",
+      "producer": "ddfb003a2fefb95d9e8381248626db5fb85d2042f42a01a97a23dd0186dec8f8",
+      "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+      "smallfiles": "1e27cb2204dff633aea1d21a61a6fa740cfe9aa2afdb501bc41eca33cb8fd62f"
+    },
+    "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+    "phase": "workload",
+    "checkpoint_sha256": "d66cb316b2d1d66b80bb56cbc48448d57f15cba410761d2f1541612b5d131fb5",
+    "placement": "stay",
+    "scope": "same-host original OpenCode state reopen; no model continuation or cross-host claim",
+    "source": {
+      "passed": true,
+      "entries": 894
+    },
+    "mounts_absent": true,
+    "rustfs_removed": true,
+    "redis_exited": true,
+    "scratch_removed": true,
+    "passed": true
+  }
+}

@@ -23,9 +23,11 @@ def main():
     p.add_argument('--replay', type=Path)
     p.add_argument('--full-trace', action='store_true', help='Use complete trace counts, links and SQLite verification')
     p.add_argument('--trace-timeout', type=int, default=300, help='Seconds for each full trace qualification step')
+    p.add_argument('--checkpoint',type=Path)
+    p.add_argument('--opencode',type=Path)
     p.add_argument('--out', type=Path, required=True)
     a = p.parse_args()
-    for name in ('brewfs','producer','smallfiles','juicefs','trace','replay','out','brewfs_provenance'):
+    for name in ('brewfs','producer','smallfiles','juicefs','trace','replay','out','brewfs_provenance','checkpoint','opencode'):
         value = getattr(a,name)
         if value is not None:
             setattr(a,name,value.resolve())
@@ -37,6 +39,7 @@ def main():
     receipt = {'plan':plan, 'formal_sample':False, 'status':'blocked'}
     scripts = CONFIG.parent.parent / 'pilot-aliyun/scripts'
     supported = (a.mode in ('brewfs-full','juicefs') and a.experiment in ('C3-smallfiles','C4-fork')) or a.experiment in ('C1-io','C1-layout') or (a.experiment == 'C2-replay' and a.mode in ('brewfs-basic','brewfs-full','juicefs','dynamic-off'))
+    supported = supported or (a.experiment=='C4-handoff' and a.placement=='stay' and a.checkpoint and a.opencode)
     if a.experiment=='C2-runtime' and a.brewfs_provenance:
         from bench.runtime.packed_read_candidate import verify
         try:
@@ -62,6 +65,10 @@ def main():
         if a.experiment != 'C4-fork':
             cmd += ['--smallfiles',str(a.smallfiles), '--workload', 'c1' if a.experiment.startswith('C1') else 'c2' if a.experiment == 'C2-replay' else 'c3', '--hint', plan['brewfs_hint'] or 'auto', '--layout', plan['rustfs_layout_profile']]
             cmd += ['--engine', 'flat-v1' if plan['engine'] == 'flat-v1' else 'workspace-v1']
+            if a.experiment=='C4-handoff':
+                cmd[cmd.index('--workload')+1]='c4-stay'
+                cmd += ['--checkpoint',str(a.checkpoint),'--opencode',str(a.opencode)]
+                receipt['runtime_scope']='same-host OpenCode state reopen with empty HOME; no model continuation'
             if a.experiment == 'C2-replay':
                 if not a.trace or not a.replay:
                     p.error('C2 requires --trace and --replay')
