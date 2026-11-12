@@ -47,6 +47,8 @@ python3 scenarios/k8s-containers/scripts/download_archives.py \
 
 命令结构来自已核对源码；省略号由本批私有配置填充。保存原生 `--help` 和完整解析设置后再生成 argv。新 route、全局槽位和采集适配尚待接入 suite，旧 planner 不接受新规划。
 
+C4 的并发命令用 `python3 -m bench.fork_burst --spec REQUEST.json --sha256 SHA256 --output OUT`，见[请求草稿](../examples/fork-burst-native.json)。每臂绑定同一份父树清单、二进制 SHA 和逐 child 审阅的命令；1/8/16/32 个请求从同一 barrier 发起，每个 BrewFS 请求只 fork 1 个 child，JuiceFS 用 `clone -p --threads 4`（原生默认线程数）。BrewFS 的 `method` 为 `brewfs-fork`，`native` 记录 `binary/redis_url/namespace/revision/data_config`。工具只收原生命令完成时间和原始输出；首读、完整树、隔离、关闭与冷验另收。BrewFS 入口要求可验证 Packed carrier 的 CLI，尚未合入上游，不能用这个脚本放行当前未通过的 BrewFS 构建。
+
 Overlay 热态回执至少含 `input_sha256`、两臂共同的 lower 工作集清单 SHA、各臂真实开关状态、实际缓存预算、挂载身份、每遍操作数和末遍 lower 的后端请求及读字节差值。Packed wire005 从同一挂载的 `.stats` 读取 `brewfs_packed_v3_runtime_backend_range_gets_total` 和 `brewfs_packed_v3_runtime_backend_received_bytes_total`；它们覆盖运行时 metadata 和 payload，不能用 HTTP 中缺失的指标当作零。先用独立冷读验证计数会动。当前普通读取路径未证明帧数据可在直读下驻留；达不到热态，就只报告卡点，不用页缓存掩盖 Overlay。协调者保存本臂预热结束、验证通过和计时放行的顺序。末遍缺字段、计数重置、发生 remount 或预热没有覆盖计时段的 lower 工作集时，结果不进入热态对照。
 
 用 `python3 -m bench.warm_lower --mount MOUNT --working-set RANGES.json --working-set-sha256 SHA256 --out OUT` 检查本臂。清单记录每段的 `path`、`offset`、`length`、`sha256`。在[本地两文件诊断](../pilot-aliyun/evidence/preparation/c2-local-packed-warm-01/README.zh.md)中，当前 workspace-v1 的 `.stats` 缺这组 Packed 计数。独立检查对象端请求发现，两遍都经 FUSE 读出同样的 77 B，第二遍仍从 RustFS 取回全部 77 B（2 次 Range）。这个配置不能进入热态计时。该诊断未比较两臂或测量 Overlay 开销。

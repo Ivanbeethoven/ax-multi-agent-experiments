@@ -1,0 +1,343 @@
+{
+  "schema": "c4-local-juicefs-native-clone-v1",
+  "passed": true,
+  "scope": "One WSL host; native clone correctness only, no performance timing.",
+  "platform": "WSL2",
+  "utc": "2026-11-12T05:27:55.683409+00:00",
+  "run_id": "ax-c4-jfs-clone-22dbc5f23b",
+  "wsl_boot_id": "43afad2b-11d9-43f2-a6f6-01e373c38113",
+  "script_sha256": "9029aeacce345514ca48b01b7c4cd203fa0c5353b64b45e06bad1367ba299b5f",
+  "no_model": true,
+  "no_cloud": true,
+  "formal_sample": false,
+  "no_copy_baseline": true,
+  "fixture_receipt_sha256": "7fb96f1a2dcda51f2fc200713ba8fa0ce05f905455713267e0803956dd9966c4",
+  "expected_files": {
+    "a.txt": {
+      "bytes": 13,
+      "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+    },
+    "sub/b.txt": {
+      "bytes": 64,
+      "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+    }
+  },
+  "rustfs_image_revision": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "image_sha256": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "mount_exits": {
+    "live": {
+      "normal_unmount_exit_code": 0,
+      "foreground_exit_code": 0,
+      "mount_absent": true,
+      "cleanup_signal_needed": false
+    },
+    "cold": {
+      "normal_unmount_exit_code": 0,
+      "foreground_exit_code": 0,
+      "mount_absent": true,
+      "cleanup_signal_needed": false
+    }
+  },
+  "readbacks": {
+    "parent_before_clone": {
+      "passed": true,
+      "trees": {
+        "parent": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 2,
+            "a.txt": 4,
+            "sub": 3,
+            "sub/b.txt": 5
+          }
+        }
+      },
+      "distinct_corresponding_inodes": true
+    },
+    "two_native_clones": {
+      "passed": true,
+      "trees": {
+        "parent": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 2,
+            "a.txt": 4,
+            "sub": 3,
+            "sub/b.txt": 5
+          }
+        },
+        "child-1": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 6,
+            "a.txt": 7,
+            "sub": 8,
+            "sub/b.txt": 9
+          }
+        },
+        "child-2": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 10,
+            "a.txt": 11,
+            "sub": 12,
+            "sub/b.txt": 13
+          }
+        }
+      },
+      "distinct_corresponding_inodes": true
+    },
+    "after_child_1_edit": {
+      "passed": true,
+      "trees": {
+        "parent": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 2,
+            "a.txt": 4,
+            "sub": 3,
+            "sub/b.txt": 5
+          }
+        },
+        "child-1": {
+          "files": {
+            "a.txt": {
+              "bytes": 33,
+              "sha256": "3e38ac10e4fe399607dabaeed175918b99664e58548fd45c918b6f69e59286a4"
+            },
+            "child-only.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 6,
+            "a.txt": 7,
+            "child-only.txt": 9,
+            "sub": 8
+          }
+        },
+        "child-2": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 10,
+            "a.txt": 11,
+            "sub": 12,
+            "sub/b.txt": 13
+          }
+        }
+      },
+      "distinct_corresponding_inodes": true
+    },
+    "cold_after_child_1_edit": {
+      "passed": true,
+      "trees": {
+        "parent": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 2,
+            "a.txt": 4,
+            "sub": 3,
+            "sub/b.txt": 5
+          }
+        },
+        "child-1": {
+          "files": {
+            "a.txt": {
+              "bytes": 33,
+              "sha256": "3e38ac10e4fe399607dabaeed175918b99664e58548fd45c918b6f69e59286a4"
+            },
+            "child-only.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 6,
+            "a.txt": 7,
+            "child-only.txt": 9,
+            "sub": 8
+          }
+        },
+        "child-2": {
+          "files": {
+            "a.txt": {
+              "bytes": 13,
+              "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+            },
+            "sub/b.txt": {
+              "bytes": 64,
+              "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+            }
+          },
+          "directories": [
+            "sub"
+          ],
+          "inodes": {
+            "": 10,
+            "a.txt": 11,
+            "sub": 12,
+            "sub/b.txt": 13
+          }
+        }
+      },
+      "distinct_corresponding_inodes": true
+    }
+  },
+  "clone_commands": [
+    {
+      "argv": [
+        "juicefs",
+        "clone",
+        "-p",
+        "--threads",
+        "1",
+        "<mount>/parent",
+        "<mount>/child-1"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "juicefs",
+        "clone",
+        "-p",
+        "--threads",
+        "1",
+        "<mount>/parent",
+        "<mount>/child-2"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "juicefs_version": "juicefs version 1.4.2+2026-10-22.46af7af",
+  "juicefs_binary_sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+  "loopback_service_ports": {
+    "redis": 44620,
+    "rustfs": 44621
+  },
+  "dynamic_rustfs_layout_enabled": true,
+  "mounts": {
+    "live": {
+      "mount_id": 592,
+      "filesystem": "fuse.juicefs",
+      "foreground_pid": 1047,
+      "foreground_start_ticks": 99137,
+      "point": "live",
+      "cache_size_mib": 0,
+      "prefetch_blocks": 0
+    },
+    "cold": {
+      "mount_id": 592,
+      "filesystem": "fuse.juicefs",
+      "foreground_pid": 1118,
+      "foreground_start_ticks": 99256,
+      "point": "cold",
+      "cache_size_mib": 0,
+      "prefetch_blocks": 0
+    }
+  },
+  "kernel_mount_id_reused": true,
+  "fresh_client_readback_passed": true,
+  "cold_scope": "New FUSE client, empty cache directory, client caching/prefetch disabled; servers unchanged.",
+  "cleanup": {
+    "owned_containers_absent": true,
+    "mount_points_absent": true,
+    "loopback_ports_released": true,
+    "scratch_absent": true,
+    "errors": []
+  }
+}
