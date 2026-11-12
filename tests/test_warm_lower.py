@@ -1,4 +1,5 @@
 """Check the lower hot gate, including failure modes that fake a speedup."""
+import errno
 import hashlib
 import importlib.util
 import os
@@ -12,6 +13,15 @@ from bench.warm_lower import KEYS, assess, check_ranges, parse, read_range
 
 def counters(gets, byte_count, logical, failures=0):
     return dict(range_requests=gets,received_bytes=byte_count,logical_bytes=logical,failures=failures)
+
+
+def fixture_meter():
+    fixture = Path(__file__).resolve().parents[1]/('experiments/unified-suite/pilot-aliyun/'
+              'evidence/preparation/c2-local-packed-warm-01/loopback_probe.py')
+    loader = importlib.util.spec_from_file_location('fixture_meter',fixture)
+    module = importlib.util.module_from_spec(loader)
+    loader.loader.exec_module(module)
+    return module
 
 
 class WarmLowerTest(unittest.TestCase):
@@ -57,10 +67,7 @@ class WarmLowerTest(unittest.TestCase):
 
     @unittest.skipUnless(hasattr(os,'O_NOFOLLOW'),'Linux fd/path semantics required')
     def test_candidate_fixture_requires_cache_hits_and_independent_backend_quiet(self):
-        fixture = Path(__file__).resolve().parents[1]/('experiments/unified-suite/pilot-aliyun/'
-                  'evidence/preparation/c2-local-packed-warm-01/loopback_probe.py')
-        module = importlib.util.module_from_spec(loader := importlib.util.spec_from_file_location('fixture_meter',fixture))
-        loader.loader.exec_module(module)
+        module = fixture_meter()
         def render(fuse_reads,byte_count,native,hits):
             parts = {**{KEYS[k]:v for k,v in native.items()},'brewfs_fuse_read_ops_total':fuse_reads,
                      'brewfs_fuse_read_bytes_total':byte_count,'brewfs_workspace_row_cache_hits_total':1,
@@ -86,6 +93,47 @@ class WarmLowerTest(unittest.TestCase):
         self.assertTrue(module.extent_pass(zero,bypass,'lower-only'))
         self.assertFalse(module.extent_pass(zero,query,'lower-only'))
         self.assertFalse(module.extent_pass(zero,zero,'overlay'))
+
+    @unittest.skipUnless(hasattr(os,'O_NOFOLLOW'),'Linux fd/path semantics required')
+    def test_timing_only_after_hot_and_rejects_reads_that_go_cold_during_timing(self):
+        module = fixture_meter()
+        real_open = os.open
+
+        def read_only(path,flags,*args,**kwargs):
+            if flags & os.O_WRONLY:
+                raise OSError(errno.EROFS,'test read-only mount')
+            return real_open(path,flags,*args,**kwargs)
+
+        def stats(i,remote_reads):
+            native = counters(remote_reads,remote_reads*4,i*2)
+            metrics = {**{KEYS[k]:v for k,v in native.items()},'brewfs_fuse_read_ops_total':i,
+                'brewfs_fuse_read_bytes_total':i*2,'brewfs_workspace_row_cache_hits_total':i,
+                'brewfs_packed_v3_payload_retention_hits_total':max(0,i-1),
+                'brewfs_packed_v3_payload_retention_capacity_bytes':1048576,
+                'brewfs_workspace_read_extent_control_info{mode="overlay"}':1,
+                'brewfs_workspace_read_extent_control_queries_total':i,
+                'brewfs_workspace_read_extent_control_bypasses_total':0}
+            return ''.join(f'{key} {value}\n' for key,value in metrics.items())
+
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            (base/'data').write_bytes(b'77')
+            rows = [dict(path='data',offset=0,length=2,sha256=hashlib.sha256(b'77').hexdigest())]
+            for status,gets in [('hot',[0,1,1,1]),('rejected',[0,1,1,2]),('warmup_failed',[0,1,2])]:
+                with self.subTest(status=status):
+                    raw = [stats(i,n) for i,n in zip((0,1,2,4),gets)]
+                    sidecar = iter(dict(gets=n,ranges=n,bytes=n*4,errors=0) for n in gets)
+                    with patch('bench.runtime.common.mounts',return_value=[dict(options='ro',filesystem='fuse.brewfs')]), \
+                         patch.object(os,'open',side_effect=read_only), patch.object(Path,'read_text',side_effect=raw):
+                        result = module.probe(base,rows,lambda:next(sidecar),base/status,
+                            retained_bytes=1048576,extent_arm='overlay',timed_passes=2)
+                    timed = result['timed_extent_reads']
+                    self.assertEqual(timed['status'],status)
+                    self.assertEqual(timed['passed'],status=='hot')
+                    self.assertEqual((base/status/'timed-end.stats').exists(),status!='warmup_failed')
+                    if status!='warmup_failed':
+                        self.assertEqual(len(timed['pread_ns']),2)
+                        self.assertEqual(timed['final_extent'],dict(queries=4,bypasses=0))
 
 
 if __name__=='__main__':
