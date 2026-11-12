@@ -73,7 +73,9 @@ def validate(config):
     require(fork['arms'] == ['brewfs-full', 'juicefs'] and
             fork.get('creation_methods') == {'brewfs-full': 'native-fork', 'juicefs': 'native-clone'}
             and set(fork) == {'arms', 'agents', 'files', 'file_bytes', 'fixture',
-                              'creation', 'source', 'creation_methods', 'required_evidence', 'mutations'}
+                              'creation', 'source', 'creation_methods', 'juicefs_clone_threads',
+                              'required_evidence', 'mutations'}
+            and type(fork['juicefs_clone_threads']) is int and fork['juicefs_clone_threads'] == 4
             and fork['source'] == 'exact-immutable-revision' and fork['creation'] == 'burst',
             'C4 derivation is exclusively BrewFS native fork versus JuiceFS native clone')
     require(set(fork['required_evidence']) ==

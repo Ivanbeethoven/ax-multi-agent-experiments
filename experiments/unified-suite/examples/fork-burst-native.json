@@ -1,0 +1,18 @@
+{
+  "schema": "suite-fork-burst-native-v2",
+  "reviewed": false,
+  "cell_id": "FILL_CELL_ID",
+  "method": "juicefs-clone",
+  "parallelism": 1,
+  "input_tree": {"path": "/srv/ax/specs/fork-parent-tree.json", "sha256": "FILL_TREE_SHA"},
+  "native": {
+    "binary": {"path": "/srv/ax/bin/juicefs", "sha256": "FILL_BINARY_SHA"},
+    "mount": "/srv/ax/mount",
+    "source": "/srv/ax/mount/parent",
+    "destination_parent": "/srv/ax/mount/children",
+    "threads": 4
+  },
+  "children": [
+    {"id": "child-01", "step": {"path": "/srv/ax/specs/fork-child-01.json", "sha256": "FILL_STEP_SHA"}}
+  ]
+}
