@@ -1,0 +1,109 @@
+{
+  "schema": "c4-local-juicefs-native-clone-smoke-v1",
+  "passed": true,
+  "files": 2,
+  "fixture_reference_brewfs_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "binary_sha256": {
+    "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+  },
+  "image_sha256": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "no_model": true,
+  "no_cloud": true,
+  "no_copy_baseline": true,
+  "formal_sample": false,
+  "readbacks": {
+    "parent": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      }
+    },
+    "child": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      }
+    },
+    "parent-after-child-write": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      }
+    },
+    "cold-parent": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      }
+    }
+  },
+  "scope": "One WSL FUSE host, two-file native clone source, no performance timing.",
+  "expected_files": {
+    "a.txt": {
+      "bytes": 13,
+      "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+    },
+    "sub/b.txt": {
+      "bytes": 64,
+      "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+    }
+  },
+  "juicefs_version": "juicefs version 1.4.2+2026-10-22.46af7af",
+  "mount_pids": {
+    "writer": 3086,
+    "cold": 3137
+  },
+  "clone_exit": 0,
+  "mount_exits": {
+    "writer": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    },
+    "cold": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    }
+  },
+  "cold_child_isolated": true,
+  "cleanup": {
+    "mount_absent": true,
+    "owned_containers_absent": {
+      "rustfs": true,
+      "redis": true
+    },
+    "scratch_removed": true
+  }
+}
