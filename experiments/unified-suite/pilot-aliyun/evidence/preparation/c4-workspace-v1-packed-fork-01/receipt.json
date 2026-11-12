@@ -1,0 +1,78 @@
+{
+  "schema": "c4-local-brewfs-packed-fork-smoke-v1",
+  "passed": false,
+  "files": 2,
+  "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "binary_sha256": {
+    "brewfs": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0",
+    "packed_v3_snapshot_fixture": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab"
+  },
+  "image_sha256": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "no_model": true,
+  "no_cloud": true,
+  "no_copy_baseline": true,
+  "formal_sample": false,
+  "readbacks": {
+    "parent": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      }
+    },
+    "child": {
+      "passed": false,
+      "files": {}
+    }
+  },
+  "scope": "One WSL FUSE host, tiny nonempty packed-v3 lower, no performance timing.",
+  "expected_files": {
+    "a.txt": {
+      "bytes": 13,
+      "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+    },
+    "sub/b.txt": {
+      "bytes": 64,
+      "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+    }
+  },
+  "manifest_key": "base/objects/0/373cede2271ccb101cca1e49c8be713a4a11c8a9d721ee9ab6b7520c48aa4df2",
+  "parent_workspace_id": "01a1ce20-1bd9-78b1-b9d9-a1c85da58100",
+  "exact_revision": "01a1ce20-1c09-7e60-90d1-e7ab5238caf9:1:a30331bf3464857bc259eb444e1b44aad3509ab2326a099aa59359715f0bf0a7",
+  "parent_binding": true,
+  "mount_exits": {
+    "parent": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    },
+    "child": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    }
+  },
+  "fork_returned_child": true,
+  "child_workspace_id": "01a1ce20-1d18-7212-97d0-dd0ecbc66702",
+  "child_same_revision": true,
+  "separate_upper_buckets": true,
+  "child_binding": false,
+  "finding": "Fork returned a child but the child lacked the Packed binding or expected bytes.",
+  "cleanup": {
+    "mount_absent": true,
+    "owned_containers_absent": {
+      "rustfs": true,
+      "redis": true
+    },
+    "scratch_removed": true
+  }
+}

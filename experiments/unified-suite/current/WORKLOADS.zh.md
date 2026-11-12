@@ -59,7 +59,7 @@
 
 ## C4：派生与干净迁移（RQ4）
 
-**派生**：独立生成百万文件 fixture；1/8/16/32 个 child 同时请求。两个对照是 BrewFS 从已验证的不可变 revision 执行原生 fork，以及 JuiceFS 从同一输入内容执行原生 clone。父基线准备和核验在计时前完成。当前 workspace-v1 的 fork 不能当作“自动封存一个活动 upper”；需要新内容时先独立发布并核验 base。开云机前先在非空 Packed lower 上做资格：父目录完整可读，原生 fork 返回的 child 绑定同一 lower，child 首读和重挂后内容正确，修改也不改变父目录或兄弟。仅有命令退出 0 或空 revision 派生回执不够。
+**派生**：独立生成百万文件 fixture；1/8/16/32 个 child 同时请求。两个对照是 BrewFS 从已验证的不可变 revision 执行原生 fork，以及 JuiceFS 从同一输入内容执行原生 clone。父基线准备和核验在计时前完成。当前 workspace-v1 的 fork 不能当作“自动封存一个活动 upper”；需要新内容时先独立发布并核验 base。开云机前先在非空 Packed lower 上做资格：父目录完整可读，原生 fork 返回的 child 绑定同一 lower，child 首读和重挂后内容正确，修改也不改变父目录或兄弟。仅有命令退出 0 或空 revision 派生回执不够。[当前本机资格](../pilot-aliyun/evidence/preparation/c4-workspace-v1-packed-fork-01/README.zh.md)未通过：父能读到 2 个文件，子挂载后为 0。等 BrewFS 修好后重验。
 
 从发出派生请求开始，分别报告首次正确读取、全部子工作区就绪、任务结束、修改后 fsync 与后台排空；首次读到不等于任务完成。每 child 做 overwrite/append/truncate/unlink/rename/new-file，冷重挂核父/兄弟/child，保存上传量和物理空间增长。少量 child 给逐项值和样本数，不强报 P99。
 
