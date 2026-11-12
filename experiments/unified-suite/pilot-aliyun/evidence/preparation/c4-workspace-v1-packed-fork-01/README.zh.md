@@ -7,3 +7,5 @@
 [当前源码](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/src/cli/workspace_bucket.rs#L55)中的普通 fork 没有走 Packed carrier 接口；[上游旧验证](https://github.com/brewfs/brewfs/blob/ca07159f3da4b670e4aeb878faef928e69bc1634/doc/testing/issue-382-upper-object-collision.md#L28)也记录了同样现象。接通非空 lower 的原生派生后，先重做本地子工作区读回，再跑同一输入的 BrewFS fork 与 JuiceFS clone。
 
 候选修复从已正常卸载的源发布可派生的 Packed revision，再用 `workspace fork --require-packed-carrier` 继承 lower。尚未合入上游。[本地限额构建回执](candidate-build-02.json)显示 2 核、8 GiB、禁用 swap 的构建因内存上限退出；原二进制 SHA 未变，未运行候选的 FUSE 验证。
+
+[隔离远程构建](candidate-build-03.json)以固定源码、补丁和工具链进行离线构建；8 分钟到期时仍在编译依赖，未产出候选二进制。保留了新编译的依赖缓存。等共享构建机空闲，再从同一私有缓存续编；只有新产物通过哈希和 CLI 核对，才带回已有固定镜像的 WSL 做 77 字节验证。
