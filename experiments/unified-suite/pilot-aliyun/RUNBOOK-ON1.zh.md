@@ -1,5 +1,4 @@
 # A 池 C4 On1 正式重跑执行手册
-
 适用：A 池 `pool-a` / cell `c5e97774bcffa69a-r1-native` 的 step 2（On1，观察者开）。目标：5 小时窗口内走完前置链 → 测量 → 冷验 → 三角色归档 → 收尾停机。
 `P` = `experiments/unified-suite/pilot-aliyun`。除标注 `ssh` 的块外，命令都在协调者上以 `root` 执行。
 
@@ -24,15 +23,14 @@ export OBJ=i-bp1h9kaoya0predubdkn META=i-bp1gy3cfuj9jik0y4oc3 CLI=i-bp1809mw7rlu
 | 0.1 | 实例状态 | `aliyun ecs DescribeInstances --InstanceIds "[\"$OBJ\",\"$META\",\"$CLI\"]"` | 三台 `Running`；`Stopped` 先按第 1 步启动 |
 | 0.2 | 数据盘 | `findmnt -no SOURCE,TARGET,FSTYPE,OPTIONS /srv/ax-objects-0 /srv/ax-objects-1 /srv/ax-objects-2 /srv/ax-objects-3 /srv/ax-metadata /srv/ax-client /srv/ax-c4-observer-scratch` | 全部 `ext4 rw,noatime`；采样盘 UUID 必须 `91d693ad-0c15-4e6e-b843-73e581aec594` |
 | 0.3 | RustFS 容器 | `ssh -F $SSHCONF pool-a-objects "docker inspect -f '{{.State.Running}}' ax-pilot-20261111-objects-01-rustfs-1"` | `true` |
-| 0.4 | Redis 生效值 | `redis-cli -h 10.20.2.162 CONFIG GET appendonly; ... databases; ... dir; ... bind` | `yes` / `256` / `/srv/ax-metadata/redis` / `127.0.0.1 10.20.2.162`；只看进程不算数 |
+| 0.4 | Redis 生效值 | `for k in appendonly databases dir bind; do redis-cli -h 10.20.2.162 CONFIG GET $k; done` | `yes` / `256` / `/srv/ax-metadata/redis` / `127.0.0.1 10.20.2.162`；只看进程不算数 |
 | 0.5 | 采样盘余量 | `df -B1 $SCRATCH; df -i $SCRATCH` | 可用 ≥ 55,000,000,000 B、inode ≥ 20,000,000；低于此值停手 |
 | 0.6 | 协调者时钟 | `timedatectl show -p NTPSynchronized --value; date -u +%s` | `yes`；与三台 `ssh ... date -u +%s` 差 ≤ 2 秒 |
 
 任何一项不满足：停手，把输出写进 `$PSTEP/blocked-precheck.json`，不要用“上次是好的”代替。
 
 ### 0.7 归档入口 G0（硬前提）
-
-上一轮 objects 在 `bench/archive_check.py:37` 被 16 MiB 内部清单拒绝。只把 `pack-c4-observer-split.py` 放进树里**不等于**归档入口会调用它。开计时前必须证明两件事：
+上一轮 4.5 小时测量+冷验已完成（2,954 样本 / 15,385 秒 / `passed`，三角色标记齐全），但没有 trial 级 `finished.json`，按失败记录、不重试；失败点是 objects 在 `bench/archive_check.py:37` 被 16 MiB 内部清单拒绝。只把 `pack-c4-observer-split.py` 放进树里**不等于**归档入口会调用它。开计时前必须证明两件事：
 
 ```bash
 grep -n "pack-c4-observer-split\|observer-index.ndjson" $CODE/experiments/unified-suite/pilot-aliyun/scripts/archive-c4-closed-observer.py
@@ -48,10 +46,9 @@ grep -n "objects-observer.tar.gz\|observer.tar.gz" $CODE/experiments/unified-sui
 ```bash
 for i in $OBJ $META $CLI; do aliyun ecs StartInstance --InstanceId "$i"; done
 aliyun ecs DescribeInstances --InstanceIds "[\"$OBJ\",\"$META\",\"$CLI\"]"
-ssh -F $SSHCONF pool-a-objects hostname
 ```
 
-判定：三台 `Status=Running`；hostname 为 `ax-pilot-20261111-objects`（metadata/client 同理）。失败：停手，保留 `DescribeInstances` 输出，不要重复 `StartInstance`。
+判定：三台 `Status=Running`；`a-pool-up.py` 会自己核 hostname（`ax-pilot-20261111-objects` 等），错机会直接拒绝。失败：停手，保留 `DescribeInstances` 输出，不要重复 `StartInstance`。
 
 上传并运行 `a-pool-up.py`（每个角色一次，`--out` 必须全新）：
 
@@ -99,7 +96,7 @@ scp -F $SSHCONF P/scripts/pack-c4-observer-split.py \
 sha256sum $CODE/experiments/unified-suite/pilot-aliyun/scripts/pack-c4-observer-split.py P/scripts/pack-c4-observer-split.py
 ```
 
-判定：两处 SHA 相同；`python3 -B $CODE/.../pack-c4-observer-split.py --help` 能打印用法。失败：停手；不要覆盖 `code-c4-directory-hold-01` 或 `code-19` 的任何原文件。若 G0 的 (a)(b) 还没接上，只做到这里就停，按第 5 节记 `blocked`，不要进入第 4 步。
+判定：两处 SHA 相同；`python3 -B $CODE/.../pack-c4-observer-split.py --help` 能打印用法。失败：停手；不要覆盖 `code-c4-directory-hold-01` 或 `code-19` 的任何原文件。若 G0 的 (a)(b) 还没接上，只做到这里就停，按第 10 节记 `blocked`，不要进入第 4 步。
 
 ## 4. 生成 900 秒前置链（一条命令）
 
@@ -108,9 +105,10 @@ sha256sum $CODE/experiments/unified-suite/pilot-aliyun/scripts/pack-c4-observer-
 ```bash
 for f in $CTL/preparation/c4-on1-continuation-03/draft/capacity-draft.json \
          $CTL/preparation/c4-on1-continuation-03/draft/request-draft.json \
-         /srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/coordinator/apply-01/result.json \
+         /srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/apply-01/result.json \
          $CTL/preparation/c4-on1-scratch-01/ownership.json \
          $CTL/preparation/c4-on1-scratch-01/remediation.json; do test -f "$f" || { echo MISSING:$f; exit 1; }; done
+python3 -c "import json;d=json.load(open('$CTL/preparation/c4-on1-continuation-03/draft/capacity-draft.json'));assert d['reviewed'] is True and d['passed'] is True and not d.get('draft_status') and d['step']==2 and len(d['prefix'])==1" || { echo DRAFT_BLOCKED; exit 1; }
 test ! -e $PSTEP && test ! -e $OUT && echo FRESH_OK
 ```
 
@@ -119,7 +117,7 @@ test ! -e $PSTEP && test ! -e $OUT && echo FRESH_OK
 ```bash
 python3 -B $CODE/experiments/unified-suite/pilot-aliyun/scripts/c4-on1-preflight.py --control $CTL --runtime $CTL/runtime-a-03 --code $CODE \
   --draft $CTL/preparation/c4-on1-continuation-03/draft/capacity-draft.json --request-draft $CTL/preparation/c4-on1-continuation-03/draft/request-draft.json \
-  --reclaim /srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/coordinator/apply-01/result.json \
+  --reclaim /srv/ax-pilot-control/preparation/a-old-c1-observer-reclaim-01/apply-01/result.json \
   --remediation $CTL/preparation/c4-on1-scratch-01/remediation.json --ownership $CTL/preparation/c4-on1-scratch-01/ownership.json \
   --ownership-sha256 ec98e27e844fbb70c956929cecb49dc57b4b0fd0c4d64d5fa933522baf78a106 \
   --node-ownership /srv/ax-receipts/c4-on1-scratch/ownership.json --scratch-remote-dir /srv/ax-receipts/c4-on1-scratch/prepare-04 \
@@ -171,7 +169,6 @@ printf '{"unit":"ax-pilot-c4-on1-01","invocation":"%s","request_sha256":"%s","at
 判定：`systemd-run` 打印 `Running as unit: ax-pilot-c4-on1-01.service`；`$PSTEP/unit.json` 的 invocation 是 32 位小写十六进制且不是旧值；`systemctl show ... -p ActiveState` 为 `active`。失败：unit 名已存在时先看旧 invocation，**停手**，不要 `reset-failed` 后重开同名 unit。
 
 ## 7. 监控测量、冷验和归档
-
 每 30 分钟一次（不要用 `sleep 5h` 代替）：
 
 ```bash
@@ -180,16 +177,16 @@ journalctl -u ax-pilot-c4-on1-01.service -n 30 --no-pager
 ssh -F $SSHCONF pool-a-objects 'df -B1 /srv/ax-c4-observer-scratch; pgrep -af "bench.runtime.observe" | head'
 ```
 
-判定：测量期间 `active/running`；观察者 `finished.json` 出现在 `$SCRATCH/o/$TAG/finished.json`，`passed:true`，`seconds` 在 13,372–18,000 之间（上一轮 15,385.08 秒 / 2,954 样本可参照）；四个标记 `measure-start`、`measure-end`、`drain-end`、`verify-end` 齐全；最后 `$OUT/trial/finished.json` 存在且 `passed:true`。失败：`ActiveState=failed` 或 5 小时后仍无 `$OUT/trial/finished.json`，按第 5 节记失败；**保留 unit.stdout/stderr 和采样盘上的观察原文**，不要重跑。
+判定：测量期间 `active/running`；观察者 `finished.json` 出现在 `$SCRATCH/o/$TAG/finished.json`，`passed:true`，`seconds` 在 13,372–18,000 之间（上一轮 15,385.08 秒 / 2,954 样本可参照）；四个标记 `measure-start`、`measure-end`、`drain-end`、`verify-end` 齐全；最后 `$OUT/trial/finished.json` 存在且 `passed:true`。失败：`ActiveState=failed` 或 5 小时后仍无 `$OUT/trial/finished.json`，按第 10 节记失败；**保留 unit.stdout/stderr 和采样盘上的观察原文**，不要重跑。
 
 ## 8. 归档（三份包与拆包落点）
 
-本轮要三份 role 包，objects 必须拆包；client/metadata 默认走原单包，但**先数成员数**：若 `find <role>/o/$TAG -type f | wc -l` 超过 100,000，单包清单也可能越 16 MiB，必须同样拆包（`pack-c4-observer-split.py` 的 `--role` 接受三个角色）。
+本轮要三份 role 包，objects 必须拆包；client/metadata 默认走原单包，但上一轮没有留下它们的可用归档回执，本轮必须各自重新产出并校验，**先数成员数**：若 `find <role>/o/$TAG -type f | wc -l` 超过 100,000，单包清单也可能越 16 MiB，必须同样拆包（`pack-c4-observer-split.py` 的 `--role` 接受三个角色）。
 
 | 角色 | 方式 | 落点 | 校验回执 |
 | --- | --- | --- | --- |
-| client | 原单包 | `/srv/ax-client/archives/$TAG-client.tar.gz` | `$OUT/trial/archives/client-check.json` |
-| metadata | 原单包 | `/srv/ax-metadata/archives/$TAG-metadata.tar.gz` | `$OUT/trial/archives/metadata-check.json` |
+| client | 原单包（默认） | `/srv/ax-client/archives/$TAG-client.tar.gz` | `$OUT/trial/archives/client-check.json` |
+| metadata | 原单包（默认） | `/srv/ax-metadata/archives/$TAG-metadata.tar.gz` | `$OUT/trial/archives/metadata-check.json` |
 | objects | 拆包：闭合小包 | `$SCRATCH/archives/$TAG-objects.tar.gz`（实测 552 B / 1 成员） | `$OUT/trial/archives/objects-check.json` |
 | objects | 拆包：观察原文 | `$SCRATCH/archives/$TAG-objects-observer.tar.gz`（实测 379,794,692 B / 132,939 成员） | `$SCRATCH/archives/$TAG-objects-split.json` |
 
@@ -204,20 +201,20 @@ mv /var/tmp/c4-split-02/$TAG-objects.tar.gz /var/tmp/c4-split-02/$TAG-objects-ob
    /var/tmp/c4-split-02/$TAG-objects-split.json $SCRATCH/archives/
 ```
 
-判定：包内 `observer-index.ndjson` 是 NDJSON（一行一个成员，首行 header），`members` 与 `tar -tzf ... | grep -vc '^observer-index.ndjson$'` 相等；小包经冻结 `archive_check.verify` 通过；`sha256sum` 与 split 回执一致。失败：停手；**不要提高 16 MiB 上限、不要改 `bench/archive_check.py`**。
+判定：包内 `observer-index.ndjson` 是 NDJSON（一行一个成员，首行 header），`members` 与 `tar -tzf $SCRATCH/archives/$TAG-objects-observer.tar.gz | grep -vc '^observer-index.ndjson$'` 相等；小包经冻结 `archive_check.verify` 通过；`sha256sum` 与 split 回执一致。失败：停手；**不要提高 16 MiB 上限、不要改 `bench/archive_check.py`**。
 
 16 MiB 边界（原文）：`bench/archive_check.py:37`
 `if member.size>16*1024**2:raise ValueError('unbounded internal manifest')`。
-上一轮 objects 清单 20,430,785 B / 132,944 成员，单包必然越界；拆包把 132,939 个原文成员移出单清单，索引按 129 B/成员流式读，约 16.4 MiB 也不会被整体读进内存。**这是唯一改动，冻结校验器原样保留。**
+上一轮 objects 清单 20,430,785 B / 132,944 成员，单包必然越界；拆包把 132,939 个原文成员移出单清单，索引按 129 B/成员流式读，约 16.4 MiB 也不会被整体读进内存。实测 132,939 成员 / 6 分 52 秒 / 峰值内存 269 MB / exit 0，两个包都重新读取校验通过；上一轮拆包输出放 `/var/tmp/c4-split-01` 可行。**这是唯一改动，冻结校验器原样保留。**
 
 ## 9. 收尾：三角色检查与 StopCharging
-
 先证明没有残留，再停机；不要先停实例再补检查。
 
 ```bash
 ssh -F $SSHCONF pool-a-client 'findmnt -t fuse.juicefs,fuse.brewfs; pgrep -af "juicefs|opencode|brewfs"; cat /sys/fs/cgroup/ax-slot-1/cgroup.procs'
 ssh -F $SSHCONF pool-a-metadata 'pgrep -af "juicefs|opencode|brewfs"; redis-cli -h 10.20.2.162 CLIENT LIST | grep -Ei "juicefs|go-redis" || echo NO_JFS_SESSION'
 ssh -F $SSHCONF pool-a-objects 'pgrep -af "bench.runtime.observe|juicefs|opencode"; docker inspect -f "{{.State.Running}}" ax-pilot-20261111-objects-01-rustfs-1'
+# 上面三项都干净后，才执行下面两行
 for i in $OBJ $META $CLI; do aliyun ecs StopInstance --InstanceId "$i" --StoppedMode StopCharging; done
 aliyun ecs DescribeInstances --InstanceIds "[\"$OBJ\",\"$META\",\"$CLI\"]"
 ```
