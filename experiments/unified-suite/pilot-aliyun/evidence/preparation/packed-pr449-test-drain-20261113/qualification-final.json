@@ -1,0 +1,86 @@
+{
+  "schema": "prefetch-test-drain-qualification-v1",
+  "at": "2026-11-12T21:13:34.718279+00:00",
+  "decision": "GREEN test-only candidate qualified; root may fast-forward PR449 after independent review",
+  "green": {
+    "commit": "53c725f36db5bcd060ec2483a0abecb943bed4ea",
+    "url": "https://github.com/brewfs/brewfs/actions/runs/43305771564",
+    "conclusion": "success",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Checkout",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install system dependencies",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install Rust",
+        "conclusion": "success"
+      },
+      {
+        "name": "Cache Cargo",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build workspace",
+        "conclusion": "success"
+      },
+      {
+        "name": "Test workspace",
+        "conclusion": "success"
+      },
+      {
+        "name": "Clippy",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Cache Cargo",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Checkout",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ],
+    "test_results": [
+      [
+        "ok",
+        "1355",
+        "0",
+        "265"
+      ]
+    ],
+    "new_regression_passed": true,
+    "original_64_full_gets_test_passed": true,
+    "log_sha256": "463a2f7676740cb2001a06db30e64b918baa275b31d93346d6aaa53f452d87d8"
+  },
+  "red": {
+    "commit": "2a1ed7fae77b5b7ad47d25e4e541a2210fade57b",
+    "url": "https://github.com/brewfs/brewfs/actions/runs/43305784066",
+    "conclusion": "failure",
+    "test": "same new gated-backend regression",
+    "observed_failure": "settle returned before the gated backend completed",
+    "passed": 0,
+    "failed": 1,
+    "duration_seconds": 0.06,
+    "log_sha256": "ce62de373df71b888c9c0419e5797eadf2aeff33c81a48a8c1a458f5e4f1f1b9"
+  },
+  "fix": "Serial cold-read traffic test waits for actual full-response completion and cache-publication semaphore release before next read. Scheduled-count quiescence was not completion; busy-slot speculative drops are excluded from this serial property without changing production.",
+  "assertions": "All original five tests retain their assertions; no thresholds increased or assertions skipped. New backend gate remains closed across the old20ms stable interval;GREENstayspendinguntilrelease.",
+  "first_attempt_preserved": "remote-ci/ contains both invalid64KiB fixture timeout logs; neither is classified as valid RED/GREEN",
+  "source_scope": "Only src/chunk/store/read_amplification_tests.rs under cfg(test) differs from7093. Production/Cargo/workflow remain unchanged; original7093 performance binary and evidence identity remain unchanged.",
+  "local_light_gates": "9passed:fmt,4bashsyntax,3scriptregressions,diffcheck;fmtrecheckedafterfixturefix",
+  "ci_scope": "Existing GitHub default-features workflow: build workspace; test workspace --lib; clippy workspace --all-targets -- -D warnings. Remote equivalence was explicitly authorized by root; this does not claim a new no-default runtime or workspace-feature performance qualification.",
+  "pr449_updated_by_this_agent": false,
+  "artifact_root": "/home/dev/ax-packed-prefetch-test-drain-validation"
+}

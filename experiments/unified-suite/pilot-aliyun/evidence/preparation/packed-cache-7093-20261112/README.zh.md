@@ -168,7 +168,9 @@ B 对象完整落盘 16,781,408 B，文件 SHA 与内容寻址对象键一致。
 
 **验证与资源。** 最终 7093 默认 CI 全部通过：fmt、shell 检查、workspace check/build、两个 FUSE runtime check、默认 tests 1354 + 2、clippy；实际 features tests 2830 + 2 + 15 通过。一次旧 entity 写回测试触发原 200 ms fsync 时限，保留失败后同可执行文件独立复核 10 次全过，并以 4 测试线程完成全套；没有改断言或生产逻辑。release 构建耗时 32 分 03 秒，构建与本轮 worker 测量隔离。AX harness 全套 Linux 730 项，其中 705 通过、25 跳过。
 
-发布前的[独立准入复核](provenance/release-admission-review-01.json)核验 62 份 CI/release 文件和 9 份审查文件，确认严格 all-targets clippy 等必需门全部通过。实际 feature 测试与 release 均为默认 features 加 `workspace,observability,rustfs-ec-block-size-hint`。既有写回暂存清理竞态没有由本分支引入，也不经过正式不可变 lower 读取负载；小型私有写入隔离通过不等于随机覆盖写资格。Packed 可以单独提交，三项 Issue 的写回验证继续独立进行。
+发布前的[独立准入复核](provenance/release-admission-review-01.json)核验 62 份 CI/release 文件和 9 份审查文件，确认严格 all-targets clippy 等必需本地门全部通过。实际 feature 测试与 release 均为默认 features 加 `workspace,observability,rustfs-ec-block-size-hint`。既有写回暂存清理竞态没有由本分支引入，也不经过正式不可变 lower 读取负载；小型私有写入隔离通过不等于随机覆盖写资格。Packed 可以单独提交，三项 Issue 的写回验证继续独立进行。
+
+[PR #449](https://github.com/brewfs/brewfs/pull/449) 已提交。其首次 GitHub CI 暴露旧预取测试提前结束等待的问题，后续[测试专用修复与完整 RED/GREEN](../packed-pr449-test-drain-20261113/README.zh.md)已通过远端完整 CI，PR 推进至 `53c725f3`。该后续只改 `cfg(test)` 模块，全部 release 源码不变；本文性能仍属于 `7093f141`，没有重标二进制身份。
 
 所有正式轮次及第二次 HEAD 诊断均清洁退出；第一次 HEAD 库存拒绝也完整清理。worker-cleanup.json 在 UTC 2026-11-12 16:58:17 记录无测试进程、容器、挂载、scratch 或 cgroup 残留，两个源码工作树保持 clean。原始结果均已逐文件 SHA 核对回 rbm，两份实际 binary 已单独保全；协调者随后在 UTC 2026-11-12 17:08（北京时间 2026-11-13 01:08）确认测量机及独立安全组已释放、API 查询不存在；原 keypair 保留。见 [释放摘要](provenance/resource-release-summary.json)。
 
