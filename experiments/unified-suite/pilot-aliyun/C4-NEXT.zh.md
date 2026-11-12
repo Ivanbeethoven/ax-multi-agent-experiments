@@ -3,7 +3,7 @@
 > 历史协议，仅用于原冻结计划；新实验见[当前方案](../current/README.zh.md)。
 > BrewFS Flat 完整拷贝已撤出。保留原计划和数据；下列执行入口只供 JuiceFS 原路线参考，不再派发 Flat 臂。
 
-11 月 11 日 17:45，[B 组 JuiceFS](evidence/c4-jfs-01/README.zh.md)的 10 万文件派生已正式验收：六轮校准、正式计时、排空、父子工作区全量冷读、退出和归档均通过。校准的退出竞态只补收原档，没有重跑计时。[A 组 BrewFS Flat](C4-NATIVE-FLAT.zh.md)的导入和校准另有历史记录。原计划 C4 派生为 1/5，跨机流转为 0/4。两组均复用原有机器，没有调用模型。
+11 月 11 日 17:45，[B 组 JuiceFS](evidence/c4-jfs-01/README.zh.md)的 10 万文件派生已正式验收：六轮校准、正式计时、排空、父子工作区全量冷读、退出和归档均通过。校准的退出竞态只补收原档，没有重跑计时。[A 组 BrewFS Flat](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/blob/2443946b40b5644b8cf4eabc6728c96f6c6e6c5e/experiments/unified-suite/pilot-aliyun/C4-NATIVE-FLAT.zh.md)的导入和校准另有历史记录。原计划 C4 派生为 1/5，跨机流转为 0/4。两组均复用原有机器，没有调用模型。
 
 完整入口为[run-c4-batch.py](scripts/run-c4-batch.py)，包含一次基线准备、六次校准及一个正式派生，参数和收尾见[C4-OBSERVE.zh.md](C4-OBSERVE.zh.md)。下文的code14/draft-02是历史功能预演，用五文件检查了23个场景。
 

@@ -1,0 +1,197 @@
+{
+  "plan": {
+    "experiment": "C4-handoff",
+    "mode": "brewfs-full",
+    "placement": "move",
+    "engine": "workspace-v1",
+    "mechanisms": {
+      "overlay": true,
+      "packed_metadata": true,
+      "dynamic_block": true
+    },
+    "rustfs_layout_profile": "enabled",
+    "brewfs_hint": "auto",
+    "brewfs_cargo_default_features": true,
+    "brewfs_cargo_features": [
+      "workspace-overlay",
+      "observability",
+      "rustfs-ec-block-size-hint"
+    ],
+    "native_action": null,
+    "read_only_control": false,
+    "runtime_qualification_blockers": [
+      "same-workspace-handoff-qualification-required"
+    ],
+    "dispatch_enabled": false
+  },
+  "formal_sample": false,
+  "status": "failed",
+  "runtime_scope": "distinct-host shared-volume reopen with empty HOME; no model continuation or forced-failure fencing",
+  "argv": [
+    "/srv/ax-data/workspace-adapter-20261111/venv/bin/python",
+    "/home/dev/ax-five-fixes-20261112/ax/experiments/unified-suite/pilot-aliyun/scripts/rbm-lifecycle.py",
+    "--product",
+    "brewfs",
+    "--brewfs",
+    "/home/dev/ax-five-fixes-20261112/move-tools/brewfs",
+    "--producer",
+    "/var/tmp/ax-mode-suite-20261112/bin/packed_v3_snapshot_fixture",
+    "--juicefs",
+    "/home/dev/ax-five-fixes-20261112/move-tools/juicefs",
+    "--rustfs-image",
+    "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+    "--prepare-timeout",
+    "180",
+    "--tiny",
+    "--smallfiles",
+    "/srv/ax-bin/smallfiles",
+    "--workload",
+    "c4-stay",
+    "--hint",
+    "auto",
+    "--layout",
+    "enabled",
+    "--engine",
+    "workspace-v1",
+    "--checkpoint",
+    "/home/dev/ax-session-reopen-input-20261112/verified/checkpoint.json",
+    "--opencode",
+    "/home/dev/ax-five-fixes-20261112/move-tools/opencode",
+    "--ssh-config",
+    "/home/dev/ax-five-fixes-20261112/ssh-config",
+    "--target-host",
+    "ax-five-target",
+    "--target-repo",
+    "/root/ax-five-smoke-20261112/repo",
+    "--target-tools",
+    "/root/ax-five-smoke-20261112/move-tools",
+    "--target-check-timeout",
+    "900",
+    "--target-export-timeout",
+    "600",
+    "--out",
+    "/home/dev/ax-five-fixes-20261112/move-results-03/C4-handoff-brewfs-full-move/run"
+  ],
+  "elapsed_ns": 205423596467,
+  "exit_code": 1,
+  "evidence": {
+    "formal_sample": false,
+    "workload": "c4-stay",
+    "engine": "workspace-v1",
+    "hint": "auto",
+    "layout": "enabled",
+    "arms": {
+      "brewfs": {
+        "phase": "target-reopen",
+        "passed": false,
+        "manifest_key": "base/objects/0/4883c205ae054ffb6c784adda93a9baec9e14b152751f8c615d189d597f6b927",
+        "lower_preparation": "packed",
+        "verify_base": {
+          "passed": true,
+          "entries": 894
+        },
+        "run": {
+          "passed": true,
+          "session_id": "ses_e39418e40ffer6Ar6szDXn1kx2",
+          "export_sha256": "b3bdd63f6969387f11394cf78fd050352522c60a61a37c69ee835e4d30bd1bd9",
+          "validation": {
+            "passed": true,
+            "session_id": "ses_e39418e40ffer6Ar6szDXn1kx2",
+            "prefix_messages": 4,
+            "new_completed_tools": 0,
+            "scope": "history and tool continuation; external side-effect duplication, task grading and file content require independent evidence"
+          },
+          "binary_sha256": "025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233",
+          "home_empty_at_start": true,
+          "xdg_in_workspace": true,
+          "network": {
+            "parent": "net:[4026531840]",
+            "child": "net:[4026533882]",
+            "interfaces": [
+              "lo"
+            ],
+            "external_network": false
+          },
+          "native_model_calls": 0,
+          "real_resume": false,
+          "exit_code": 0,
+          "process_closure": {
+            "pgid": 735471,
+            "group_scope": "original-linux-process-group",
+            "exit_code": 0,
+            "status": "natural",
+            "command_started_monotonic_ns": 171669861930119,
+            "parent_exited_monotonic_ns": 171672470373065,
+            "process_budget_seconds": 90,
+            "group_members_after_parent_exit": [
+              735575,
+              735583
+            ],
+            "group_members_after": [],
+            "group_closure_wait_seconds": 6.672862467,
+            "group_closure_timeout_seconds": 87.391505525,
+            "group_consecutive_empty_observations": 2,
+            "group_stably_empty": true,
+            "closure_observed_monotonic_ns": 171679143287061,
+            "parent_reaped_monotonic_ns": 171679143372726
+          },
+          "native_stdout_validated_monotonic_ns": 171679145081308,
+          "sync": {
+            "files": 810,
+            "file_bytes": 4739401,
+            "directories": 86
+          },
+          "cold_workspace_equal": false
+        },
+        "initial_unmount": {
+          "unmount_exit": 0,
+          "mount_exit": 0,
+          "mount_absent": true
+        },
+        "error": "Target verification failed; see move.json ",
+        "log_tails": {
+          "tunnel.log": " ",
+          "initial.log": "2m: 100.0, \u001b[1;32mdirty_bytes\u001b[0m\u001b[32m: 0, \u001b[1;32mread_buffer_bytes\u001b[0m\u001b[32m: 0, \u001b[1;32ms3_get_ops\u001b[0m\u001b[32m: 0, \u001b[1;32ms3_put_ops\u001b[0m\u001b[32m: 17, \u001b[1;32ms3_del_ops\u001b[0m\u001b[32m: 0, \u001b[1;32mfuse_reads\u001b[0m\u001b[32m: 2517, \u001b[1;32mfuse_rd_bytes\u001b[0m\u001b[32m: 14375537, \u001b[1;32mavg_read_sz\u001b[0m\u001b[32m: 1696, \u001b[1;32mavg_read_lat_us\u001b[0m\u001b[32m: 3881\u001b[0m\n    \u001b[2;3mat\u001b[0m src/vfs/fs/mod.rs:1676\n\n  \u001b[2m2026-11-12T15:03:30.968773Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::vfs::fs\u001b[0m\u001b[32m: \u001b[32mstats, \u001b[1;32mhits\u001b[0m\u001b[32m: 20, \u001b[1;32mmisses\u001b[0m\u001b[32m: 0, \u001b[1;32mtotal\u001b[0m\u001b[32m: 20, \u001b[1;32mhit_pct\u001b[0m\u001b[32m: 100.0, \u001b[1;32mdirty_bytes\u001b[0m\u001b[32m: 0, \u001b[1;32mread_buffer_bytes\u001b[0m\u001b[32m: 0, \u001b[1;32ms3_get_ops\u001b[0m\u001b[32m: 0, \u001b[1;32ms3_put_ops\u001b[0m\u001b[32m: 17, \u001b[1;32ms3_del_ops\u001b[0m\u001b[32m: 0, \u001b[1;32mfuse_reads\u001b[0m\u001b[32m: 2525, \u001b[1;32mfuse_rd_bytes\u001b[0m\u001b[32m: 14383461, \u001b[1;32mavg_read_sz\u001b[0m\u001b[32m: 990, \u001b[1;32mavg_read_lat_us\u001b[0m\u001b[32m: 2791\u001b[0m\n    \u001b[2;3mat\u001b[0m src/vfs/fs/mod.rs:1676\n\n  \u001b[2m2026-11-12T15:03:31.069797Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::vfs::fs\u001b[0m\u001b[32m: \u001b[32mstats, \u001b[1;32mhits\u001b[0m\u001b[32m: 25, \u001b[1;32mmisses\u001b[0m\u001b[32m: 0, \u001b[1;32mtotal\u001b[0m\u001b[32m: 25, \u001b[1;32mhit_pct\u001b[0m\u001b[32m: 100.0, \u001b[1;32mdirty_bytes\u001b[0m\u001b[32m: 0, \u001b[1;32mread_buffer_bytes\u001b[0m\u001b[32m: 0, \u001b[1;32ms3_get_ops\u001b[0m\u001b[32m: 0, \u001b[1;32ms3_put_ops\u001b[0m\u001b[32m: 17, \u001b[1;32ms3_del_ops\u001b[0m\u001b[32m: 0, \u001b[1;32mfuse_reads\u001b[0m\u001b[32m: 2532, \u001b[1;32mfuse_rd_bytes\u001b[0m\u001b[32m: 14384945, \u001b[1;32mavg_read_sz\u001b[0m\u001b[32m: 212, \u001b[1;32mavg_read_lat_us\u001b[0m\u001b[32m: 1849\u001b[0m\n    \u001b[2;3mat\u001b[0m src/vfs/fs/mod.rs:1676\n\n "
+        }
+      }
+    },
+    "packed_metadata": "on",
+    "eager_workspace": false,
+    "smallfiles_options": [
+      "--files",
+      "8",
+      "--hot-files",
+      "4",
+      "--workers",
+      "1",
+      "--read-ops",
+      "8",
+      "--cow-files",
+      "2",
+      "--write-ops",
+      "4",
+      "--mixed-ops",
+      "8"
+    ],
+    "binary_sha256": {
+      "brewfs": "a2d9e7ad11f1076aeb823dd0f26d9c27d66c56e76084b4c4f70aec4938f4e713",
+      "producer": "ddfb003a2fefb95d9e8381248626db5fb85d2042f42a01a97a23dd0186dec8f8",
+      "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+      "smallfiles": "1e27cb2204dff633aea1d21a61a6fa740cfe9aa2afdb501bc41eca33cb8fd62f"
+    },
+    "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+    "phase": "workload",
+    "checkpoint_sha256": "d66cb316b2d1d66b80bb56cbc48448d57f15cba410761d2f1541612b5d131fb5",
+    "placement": "move",
+    "scope": "OpenCode state reopen with empty HOME; no model continuation",
+    "source": {
+      "passed": true,
+      "entries": 894
+    },
+    "mounts_absent": true,
+    "rustfs_removed": true,
+    "redis_exited": true,
+    "scratch_removed": true,
+    "passed": false
+  }
+}

@@ -1,12 +1,12 @@
 # 数据清单与下载
 
-更新：2026-11-11。
+更新：2026-11-12。
 
 ## 数据位置
 
 实验数据已备份到 [Google Drive 文件夹](https://drive.google.com/drive/folders/1TsB-GoxNHMhdn-IWTE5S0nQCMeJwro9X)。共27份任务trace：7份历史负载和20份扩展负载；备份清单共137个文件、13,654,428,716字节，另含元数据、脚本和校验清单。Drive下载需要有权访问该文件夹的Google账号；当前不是匿名公开链接。20份扩展trace还保留有阿里云OSS副本，下载需要有权限的Aliyun CLI身份。
 
-7份历史trace及配套文件已恢复到 `oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023/`：28个对象、10,480,588,662字节。默认从OSS匿名HTTPS下载，无需账号；杭州云机可用internal地址，减少公网传输费用。恢复时核对了原始本地SHA256、上传后大小及本地/服务端CRC64，见[恢复回执](validation/historical-oss-restored/restoration.json)。11 月 12 日[匿名复查](validation/historical-oss-restored/public-readback-20261112.json)确认全部 28 个对象可访问，大小和校验元数据一致，7 份 trace 都能按字节范围读取；这次没有重新下载完整数据。全部下载地址以 [`archives.json`](archives.json) 为准；后补的 3 份 trace 的 `archive-manifest.json` 在同目录 `metadata.tar.gz` 的 `metadata/cases/` 下，不是压缩包旁边的独立对象。此前删除保留在[历史迁移记录](validation/drive-migration-2026-11-10.json)，不代表当前状态。
+7份历史trace及配套文件已恢复到 `oss://brewfs-agent-traces-20261023-4ccdae73/full-fuse/20261023/`：28个对象、10,480,588,662字节。默认从OSS匿名HTTPS下载，无需账号；杭州云机可用internal地址，减少公网传输费用。恢复时核对了原始本地SHA256、上传后大小及本地/服务端CRC64，见[恢复回执](validation/historical-oss-restored/restoration.json)。11 月 12 日[匿名复查](validation/historical-oss-restored/public-readback-20261112.json)确认全部 28 个对象可访问，大小和校验元数据一致，7 份 trace 都能按字节范围读取；7 个大归档没有重新下载全量。另已[完整下载并核对 889,165 B 的元数据包](validation/historical-oss-restored/manifest-audit-20261112.json)，其中 3 份原清单都能对上归档和文件清单的大小及 SHA256；前 4 份独立原清单已经匿名全文校验。全部下载地址以 [`archives.json`](archives.json) 为准；后补的 3 份 trace 的 `archive-manifest.json` 在同目录 `metadata.tar.gz` 的 `metadata/cases/` 下，不是压缩包旁边的独立对象。此前删除保留在[历史迁移记录](validation/drive-migration-2026-11-10.json)，不代表当前状态。
 
 扩展trace还在另一个OSS前缀：`oss://brewfs-tikv-100k-20260928/agent-fs-traces/20261029/`。2026-11-10盘点为88个对象、2,945,879,903字节；其中20份扩展trace的归档在Drive和OSS清单中的大小、SHA256一致。其余10个小型目录、回执和探测文件已从OSS取回本地，并尝试复制到Drive；Google API请求限额挡住了远端复核。按当前决定，88个对象先保留在OSS，不再执行删除。补充记录见[清理状态](../../experiments/drive-backup-2026-10-29/handoff/aliyun-legacy-expansion-2026-11-10/retirement-status.json)。OSS桶为私有桶，匿名访问返回403。
 

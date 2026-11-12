@@ -1,65 +1,34 @@
-# rbm：统一构建与最小模式验证
+# 最小脚本检查
 
-入口：从仓库根运行 `python3 -m bench.experiment_smoke`。所有输出目录必须是新路径。
-模式参数由 `bench.experiment_modes` 解析，运行入口把 engine、hint、RustFS layout 和原生 fork/clone 传入真实探针。
+当前按 [8 个实验块](../current/BLOCKS.zh.md)选择。已有 26 个入口的最小检查已完成：首轮 21 项通过，[后续五项](evidence/preparation/rbm-five-checks-20261112/README.zh.md)补齐。当前不运行 Agent 或 OpenCode，不调用模型。
 
-- C1：1 MiB 顺序写读、16 个 4 KiB 随机读写、75:25 混合读写，写后 fsync，重挂后 SHA256。配置切换成功不等于实际 B/q 已生效；本探针不作布局或性能验收。
-- C2：默认使用 140 条合成回调；传 `--full-trace` 后按输入清单核全部回调、读写量、树、硬链接和 SQLite，并做冷重挂校验。已用 [367 次真实 FUSE 小负载](evidence/preparation/rbm-recorded-trace-20261112/README.zh.md)验证两文件系统；该输入无模型调用。
-- C3：128 × 4 KiB，核初始文件、执行固定读写、重挂核修改文件。
-- C4 派生：两文件 77 字节，原生 fork/clone、子读、覆盖及新建、父读回、子重挂。错误仍输出失败回执。
-- C2 只读上层对照：传入已通过的候选摘要后，两种模式会实际挂载并验证 FUSE、热态和路径计数。可写 Overlay、Pack 同引擎消融及 C4 跨机干净迁移仍需接线；C4 stay 已用原 OpenCode 检查点接通。
+这里只验证输入、配置、读写、重挂和清理；不会改变正式计时资格或历史结果。使用 Linux、Python ≥3.11、root 权限、Docker、/dev/fuse、redis-server、boto3，以及本批的工具与二进制。只用已有服务器；本页不创建云机。
 
-BrewFS 默认 features 保留，并统一增加 workspace-overlay、observability、rustfs-ec-block-size-hint。
-C1–C3 的统一构建来自上游 main ca07159。C4 原生 fork 另用已有发布/根目录链接数补丁的候选产物，并传入构建回执；它只用于功能验证，不能冒充统一性能产物。
+| 项目 | 默认最小输入 | 可选项 |
+|---|---|---|
+| C1 | 1 MiB 顺序写读、16 次随机操作、fsync 和冷重挂 | 配置/layout 检查，不作正式 fio 成绩；已跳过的正式 JuiceFS randrw 不补跑 |
+| C2 replay | 合成 140 回调 | 已录制的 367 回调或完整 trace：传 --full-trace，并核完整初终态及字节；不同输入分开记 |
+| C2 runtime | 两文件只读热 lower | 同一通过核验的 read-control 候选；不是可写 Overlay 对照 |
+| C3 | 128×4 KiB | --tiny 改为 8 文件；此入口没有一万文件参数 |
+| C4 fork | 两文件、77 B | BrewFS 发布候选与原生 fork；JuiceFS 原生 clone |
+| C4 handoff | 既有 checkpoint 文件树 | stay 或另一宿主 move；文件核验和目标持久写，无 Agent 进程 |
 
-单项示例（需 root、Docker、FUSE、Redis 和含 boto3 的 Python）：
+先在仓库根目录查看组名并预览：
 
-~~~bash
-sudo /srv/ax-data/workspace-adapter-20261111/venv/bin/python -m bench.experiment_smoke \
-  --experiment C1-layout --mode dynamic-off \
-  --brewfs /var/tmp/ax-mode-suite-20261112/bin/brewfs \
-  --producer /var/tmp/ax-mode-suite-20261112/bin/packed_v3_snapshot_fixture \
-  --smallfiles /srv/ax-bin/smallfiles --juicefs /usr/local/bin/juicefs \
-  --brewfs-revision ca07159f3da4b670e4aeb878faef928e69bc1634 \
-  --rustfs-image sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806 \
-  --out /var/tmp/ax-smoke-new
-~~~
+```bash
+python3 -m bench.experiment_smoke_matrix --list-blocks
+python3 -m bench.experiment_smoke_matrix --block c1-io \
+  --common-args /private/common.json --out /srv/ax-runs/c1-io-001 --dry-run
+```
 
-C2 另外传入 `--trace experiments/unified-suite/pilot-aliyun/fixtures/synthetic-140 --replay /srv/ax-bin/full-fuse-replay`。
-相对输入路径请先转换为绝对路径。输出的 `receipt.json` 标记 passed / failed / blocked，原始日志在同一目录。
-该状态仅指最小功能探针；不会修改正式 suite 的准入、计时条件或完成数。
+[common.json 的字段、每块额外参数、候选覆盖和汇总命令](../current/BLOCKS.zh.md#现有脚本怎样按块用)集中维护。预览不创建目录、不检查运行资格、不启动服务。检查真实路径、SHA 和输入后，取得本池资源锁再去掉 --dry-run。rbm 的锁仍为 `/home/dev/.ax-rbm-heavy.lock`；跨机另锁目标。相同物理资源不能因换了块名便并行。
 
-整套串行运行用 python3 -m bench.experiment_smoke_matrix，传入相同的二进制、版本、镜像参数、
---trace（合成输入）及 --replay（回放器），并指定新的 --out；不再传 --experiment、--mode 或 --placement。
-每项独立保留回执；任意 failed/blocked 时矩阵最终退出码为 2，但仍执行后续子项。
+所有输出路径须为新目录。运行器写 execution-plan.json，再逐 case 写日志、receipt.json 和 summary.json。非零退出、failed/blocked 或缺回执都会停止本块；先核退出与挂载清理，再用 --only CASE 和新的 --out 补做。其他独立资源池可以继续。
 
-本轮[新二进制实测结果](evidence/preparation/rbm-unified-modes-20261112/README.zh.md)：
-26 个模式，16 通过、1 失败、9 阻塞；包含一次目录检查器修复后的独立重跑。
+C2 需要 --trace 和 --replay。--full-trace 使用全部回调和内容校验；portable terminal probe 的有限 errno 差异沿用原回执，不能宣称所有 errno 完全一致。--trace-timeout 只用于该输入的资格步骤，不自动截短负载。生成新的无模型小输入仍用 `capture-smoke-trace.py`，它需要 fusepy。
 
+Pack-off/all-off 传匹配候选的 --brewfs-provenance；C2 只读候选和 C4 发布候选也各有自己的回执格式。旧诊断候选不冒充同一优化产物，更不能按臂混用构建做性能消融。
 
-C4 的旧失败已由[同步后的候选复验](evidence/preparation/rbm-c4-published-20261112/README.zh.md)解决。沿用上面命令的工具路径，改为：
+C4 的文件系统参数见 [FIVE-CHECKS](FIVE-CHECKS.zh.md)。--checkpoint 的同级 workspace/ 是输入；不再传 --opencode，不导出原生会话。目标需要同版本脚本和同 SHA 的文件系统二进制；源退出后才重开同一卷。两台机器都不能占用其他任务的挂载点。
 
-~~~bash
---experiment C4-fork --mode brewfs-full \
---brewfs /home/dev/ax-brewfs-c4-build-20261112.GWrxnDJ8/nlink-02/brewfs-linux-x86_64 \
---brewfs-provenance experiments/unified-suite/pilot-aliyun/evidence/preparation/c4-local-packed-fork-candidate-01/root-nlink-build-receipt.json
-~~~
-
-这是替换参数片段，不是独立命令。JuiceFS 使用 `--mode juicefs`；结果目录每次换新。当前矩阵仍只有一个 `--brewfs` 输入，因此请将 C4 候选单独运行，不要用它替换整套统一构建。
-
-
-C2 只读模式已在 [rbm 通过](evidence/preparation/rbm-c2-read-controls-20261112/README.zh.md)。沿用上面工具参数，改为：
-
-~~~bash
---experiment C2-runtime --mode brewfs-full \
---brewfs /home/dev/ax-brewfs-c2-namespace-20261112.F2B3t2Iv/seqfix-01.prIedKe5/brewfs-c2-namespace-seqfix-01-linux-x86_64 \
---brewfs-provenance experiments/unified-suite/pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/raw/summary.json
-~~~
-
-这是替换参数片段。跳过上层的组用 `--mode overlay-off`。需要同一工作区顺序验证两组时，使用 `scripts/qualify-packed-read-local.py --arm both`；完整实际命令见回执的 argv。该候选与 C4 候选是不同产物，应分别运行。
-
-完整格式的 C2 输入：在单项命令中传 `--full-trace --trace /path/to/case --replay /path/to/current/full-fuse-replay --trace-timeout 300`。输入须含 initial、capture/events.jsonl、capture/blobs、initial-tree.json、final-tree.json、metrics.json、hardlink-check.json；回放器由当前 `tools/full-fuse-replay` 构建。超时停止本轮回放并正常清理，不截断输入凑通过。
-
-要重新生成无模型小输入，安装 fusepy 后运行 `python3 experiments/unified-suite/pilot-aliyun/scripts/capture-smoke-trace.py --out /new/case`。SQLite 只是测试数据，不是 OpenCode 的真实会话。
-
-C4 `stay` 已在 [两文件系统通过](evidence/preparation/rbm-c4-stay-20261112/README.zh.md)。传 `--experiment C4-handoff --mode brewfs-full`（或 `juicefs`）及 `--placement stay --checkpoint /path/to/verified/checkpoint.json --opencode /path/to/original/opencode`。核初始完整工作区、源会话导出、同步卸载、新缓存重挂、完整工作区与原会话再导出；使用空 HOME 和工作区内 XDG，不调用模型。canonical mount 必须为空。`move` 仍要求跨主机路径，不能用 `stay` 结果代替。
+旧机器路径、旧候选命令和最早的 16/26、21/26 进度见[历史说明](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/blob/9222c6318b8f9db0c3617219c8f18e12653aeba8/experiments/unified-suite/pilot-aliyun/RBM-MINIMAL.zh.md)，不作为当前启动命令。

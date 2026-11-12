@@ -37,9 +37,9 @@ OTEL_RESOURCE_ATTRIBUTES=rustfs.cluster.id=<本轮独立集群ID>
 
 部署时用systemd的`IOAccounting=yes`保持I/O控制器开启：执行节点的system.slice和Redis服务均设置，并实测各自cgroup的`io.stat`。只向root的`cgroup.subtree_control`写`+io`会被systemd收回，本轮已实际遇到并保留失败。客户端正式采集绑定准备、测量和冷读回三个原始监督目录；同一时刻只挂载一个，其他入口明确记为尚未开始或正常停止。cgroup来源ID加`-process`，避免与同名HTTP/Redis指标入口冲突。
 
-## 正式样本的分阶段计数
+## 历史正式样本的分阶段计数
 
-[summarize-flat-observations.py](scripts/summarize-flat-observations.py) 从已验收的正式样本读取三角色原始采集。给定正式单元目录、关闭回执和新输出文件，分别计算应用运行、整个测量和排空阶段的计数差值：
+[summarize-flat-observations.py](https://github.com/Ivanbeethoven/ax-multi-agent-experiments/blob/2443946b40b5644b8cf4eabc6728c96f6c6e6c5e/experiments/unified-suite/pilot-aliyun/scripts/summarize-flat-observations.py) 已退役；下列命令仅在链接对应的历史提交中使用。它读取已验收样本的三角色采集，计算应用运行、整个测量和排空阶段的计数差值：
 
 ```bash
 python3 experiments/unified-suite/pilot-aliyun/scripts/summarize-flat-observations.py \

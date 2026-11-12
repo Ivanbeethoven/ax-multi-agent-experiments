@@ -1,0 +1,32 @@
+{
+  "passed": false,
+  "formal_sample": false,
+  "target_identity": {
+    "machine": "7c92d10a1e79333eb290befaf095d19d2562aa18f7c6044d3a4c42e36af88045",
+    "boot": "227ece0c27b95cd3cc9f378b2dd9bad7e388680bd1bb698b7f91b2d814c08059"
+  },
+  "workspace_payload_copied": false,
+  "real_resume": false,
+  "native_model_calls": 0,
+  "verifier_sha256": "05bd7afec599658a6dbced731f0a5cd4b9d8914a18029dd478909801252d909e",
+  "target_script_sha256": "0a1515ace35f39647b21bf6ea31e83e591c4491d454ae768ef4d0c35ae907f71",
+  "check_timeout_seconds": 900,
+  "export_timeout_seconds": 600,
+  "mount_seconds": 4.312065728,
+  "error": "Bounded target process deadline or termination",
+  "unmount": {
+    "exit_code": 0,
+    "process_exit": 0,
+    "mount_absent": true
+  },
+  "log_tail": " on freeratio: from 0 to 2347329 items [setLimitByFreeRatio@disk_cache.go:191]\n.2026/11/12 23:06:54.739929 juicefs[6740] <INFO>: Create session 2 OK with version: 1.4.2+2026-10-22.46af7af [NewSession@base.go:816]\n.2026/11/12 23:06:54.897771 juicefs[6740] <INFO>: Prometheus metrics listening on \"127.0.0.1:9567\" [exposeMetrics@mount.go:137]\n2026/11/12 23:06:54.898837 juicefs[6740] <INFO>: Mounting volume ax-smoke at \"/srv/ax-pilot-session\" ... [mountMain@mount_unix.go:1165]\n2026/11/12 23:06:55.316277 juicefs[6731] <INFO>: \u001b[92mOK\u001b[0m, ax-smoke is ready at \"/srv/ax-pilot-session\" [checkMountpoint@mount_unix.go:327]\n2026-11-12 23:06:59.657804 I | Unimplemented opcode POLL\n2026/11/12 23:06:59.658304 juicefs[6731] <INFO>: watching \"/srv/ax-pilot-session\", pid 6740 [watchdog@mount_unix.go:237]\n2026-11-12 23:07:20.348753 I | writer: Write/Writev failed, err: 2=no such file or directory. opcode: READ\n2026-11-12 23:07:20.501854 I | writer: Write/Writev failed, err: 2=no such file or directory. opcode: READ\n2026-11-12 23:07:20.503185 I | writer: Write/Writev failed, err: 2=no such file or directory. opcode: READ\n2026-11-12 23:07:20.701474 I | writer: Write/Writev failed, err: 2=no such file or directory. opcode: READ\n2026-11-12 23:07:20.701736 I | writer: Write/Writev failed, err: 2=no such file or directory. opcode: READ\n2026-11-12 23:07:20.701774 I | writer: Write/Writev failed, err: 2=no such file or directory. opcode: READ\n2026-11-12 23:07:20.701786 I | writer: Write/Writev failed, err: 2=no such file or directory. opcode: READ\n2026/11/12 23:07:20.702020 juicefs[6740] <INFO>: flush buffered data in 997ns: <nil> [FlushAll@vfs.go:1330]\n2026/11/12 23:07:20.702061 juicefs[6740] <INFO>: flush session 2: [FlushSession@base.go:1027]\n2026/11/12 23:07:21.169333 juicefs[6740] <INFO>: close session 2: <nil> [CloseSession@base.go:1016]\n2026/11/12 23:07:21.169392 juicefs[6740] <INFO>: The juicefs mount process exit successfully, mountpoint: \"/srv/ax-pilot-session\" [mount@mount.go:698]\n",
+  "scratch_removed": true,
+  "source_identity": {
+    "machine": "48f0f278c11cda0f7807b82b984ff7fc26b86869f70aa1a854e484ed426f7624",
+    "boot": "1d520f9534d2ee08983e1105ab4064e7a23140267adc07a4b3ccbcf5bd71992a"
+  },
+  "transport": "SSH reverse loopback forwards",
+  "physical_move": true,
+  "controller_elapsed_seconds": 34.834538017,
+  "tunnel_exited": true
+}

@@ -1,0 +1,375 @@
+{
+  "contract_sha256": "a38c1402bc89da7d98999a6db7c9153414a848cdab7a8d0ebe8695ad492f5cc9",
+  "equal_client_binary_pins": {
+    "brewfs_sha256": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0",
+    "fio_sha256": "6dc650e993fa28767a316e9a2ea40331941d57c2a8f9534650aa9d223b296308",
+    "juicefs_sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+  },
+  "equal_redis": {
+    "appendfsync": "always",
+    "appendonly": true,
+    "private_ip": "10.20.2.169",
+    "version": "Redis server v=7.0.15 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d064f9f48c901a92"
+  },
+  "equal_rustfs": {
+    "dynamic_layout": true,
+    "image": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "independent_disks": 4,
+    "revision": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "unsafe_disk_bypass": false
+  },
+  "formal_acceptance_delta": 0,
+  "input": {
+    "bytes": 67108864,
+    "seed": 9173,
+    "sha256": "c29df99bc1934d61e7efa20056597e9d2bd0df2409ec88c3b35220fa44cd727b"
+  },
+  "io_per_arm": {
+    "cold_crc_bytes": 67108864,
+    "read_bytes": 50479104,
+    "read_ios": 12324,
+    "write_bytes": 16629760,
+    "write_ios": 4060
+  },
+  "orders": [
+    {
+      "juicefs_over_brewfs_fio_wall_ratio": 21.90303677514673,
+      "object_capacity": {
+        "clocks_synchronized": false,
+        "disks": [
+          {
+            "device": "253:80",
+            "final_free_bytes": 82344153088,
+            "initial_free_bytes": 100039221248,
+            "minimum_free_bytes": 82090033152,
+            "total_bytes": 100056096768
+          },
+          {
+            "device": "253:96",
+            "final_free_bytes": 82344148992,
+            "initial_free_bytes": 100039221248,
+            "minimum_free_bytes": 82087919616,
+            "total_bytes": 100056096768
+          },
+          {
+            "device": "253:112",
+            "final_free_bytes": 82344157184,
+            "initial_free_bytes": 100039225344,
+            "minimum_free_bytes": 82090045440,
+            "total_bytes": 100056096768
+          },
+          {
+            "device": "253:128",
+            "final_free_bytes": 82344161280,
+            "initial_free_bytes": 100039221248,
+            "minimum_free_bytes": 82090041344,
+            "total_bytes": 100056096768
+          }
+        ],
+        "reserve_stop_observed": false,
+        "samples": 426
+      },
+      "order": [
+        "juicefs",
+        "brewfs"
+      ],
+      "roles": {
+        "brewfs": {
+          "cold_crc_bytes": 67108864,
+          "cold_sha256": "fb618cabf966078f635d4957f7f5086f77b461fdbbca0e4e17b53de75943e5b2",
+          "cold_verify_seconds": 1.64746115,
+          "drain_samples": 2,
+          "drain_seconds": 1.05709434,
+          "drain_series_logged": false,
+          "fio_seconds": 36.15967824200004,
+          "first_debt_sample": null,
+          "mount_phases": [
+            "prepare",
+            "measure",
+            "verify"
+          ],
+          "nonzero_samples": null,
+          "sync_p99_ms": 8.585216,
+          "unit_invocation": "06d2b7d8534d41cb846ac0051c9d8162",
+          "whole_arm_disk_read_bytes": 3375104,
+          "whole_arm_disk_write_bytes": 2268647424,
+          "zero_debt_samples": [
+            {
+              "metrics": 7,
+              "utc_ns": 1794467561052676741
+            },
+            {
+              "metrics": 7,
+              "utc_ns": 1794467562106139192
+            }
+          ]
+        },
+        "juicefs": {
+          "cold_crc_bytes": 67108864,
+          "cold_sha256": "f957fd466ba854ddeddea3072e9e6c4f0a391e37f60d483d9c3a9826292ac282",
+          "cold_verify_seconds": 2.182275804,
+          "drain_samples": 2,
+          "drain_seconds": 1.055313567,
+          "drain_series_logged": false,
+          "fio_seconds": 792.006762312,
+          "first_debt_sample": null,
+          "mount_phases": [
+            "prepare",
+            "measure",
+            "verify"
+          ],
+          "nonzero_samples": null,
+          "sync_p99_ms": 421.527552,
+          "unit_invocation": "47ce25501c02408598d404443fecfd8d",
+          "whole_arm_disk_read_bytes": 134619136,
+          "whole_arm_disk_write_bytes": 209281298432,
+          "zero_debt_samples": [
+            {
+              "metrics": 3,
+              "utc_ns": 1794467515067709659
+            },
+            {
+              "metrics": 3,
+              "utc_ns": 1794467516120490922
+            }
+          ]
+        }
+      },
+      "run": "ax-c1b-21eba441c4",
+      "sources": {
+        "audit.json": {
+          "bytes": 8109,
+          "sha256": "9f408cbbd064e9dfb93c82e4b72b883d2a225b297e93df1fc746971691ae42c0"
+        },
+        "brewfs-unit-status.ndjson": {
+          "bytes": 5029,
+          "sha256": "4dd236196d3eac7f257abf1226ac7ac517fd3cd6bd398c200940bbf5796006ad"
+        },
+        "client-evidence.tar.gz": {
+          "bytes": 82635,
+          "sha256": "ca32c90a39d9d109fcff23866b165486941cd4a0d40aaf3f66b8804fdf68dddc"
+        },
+        "contract.json": {
+          "bytes": 1802,
+          "sha256": "a38c1402bc89da7d98999a6db7c9153414a848cdab7a8d0ebe8695ad492f5cc9"
+        },
+        "juicefs-unit-status.ndjson": {
+          "bytes": 82185,
+          "sha256": "35552d745fe7bd15f7d95872e6569ca0754b8d032731e686cdcd46a13e427851"
+        },
+        "metadata-evidence.tar.gz": {
+          "bytes": 549,
+          "sha256": "87bcedde1a1b2cfc9a6efa72b4473972a73b46527edc2b75aec653e28a3a1729"
+        },
+        "objects-evidence.tar.gz": {
+          "bytes": 56289,
+          "sha256": "e39fb90fca3aa8ef3f8f5d3b101cc7af6442c051e1d449e973f8ebe79a172689"
+        },
+        "plan.json": {
+          "bytes": 1278,
+          "sha256": "5b3218afdf44d0df13d1765ad7644a2cba2917c3f47490930833c684fd2c1a6f"
+        },
+        "released.json": {
+          "bytes": 213,
+          "sha256": "8675b3549de2934796fcbddcfbb972fc8758a4e46cc3524a0717a092392aff0b"
+        },
+        "stopped.json": {
+          "bytes": 210,
+          "sha256": "915c98967404acc802a1f21a6fb57ece6f0f4c47065845f7c8d8820ae36355bd"
+        },
+        "summary.json": {
+          "bytes": 306,
+          "sha256": "2b1100a62c0a89a91fc3dddf4b74c5f35923fa40103273decc6805b25ed83768"
+        }
+      },
+      "timed_object_disk_bracket_available": false
+    },
+    {
+      "juicefs_over_brewfs_fio_wall_ratio": 11.691560637592627,
+      "object_capacity": {
+        "clocks_synchronized": false,
+        "disks": [
+          {
+            "device": "253:80",
+            "final_free_bytes": 83598282752,
+            "initial_free_bytes": 100039241728,
+            "minimum_free_bytes": 83200688128,
+            "total_bytes": 100056096768
+          },
+          {
+            "device": "253:96",
+            "final_free_bytes": 83598270464,
+            "initial_free_bytes": 100039241728,
+            "minimum_free_bytes": 83200667648,
+            "total_bytes": 100056096768
+          },
+          {
+            "device": "253:112",
+            "final_free_bytes": 83598278656,
+            "initial_free_bytes": 100039241728,
+            "minimum_free_bytes": 83200671744,
+            "total_bytes": 100056096768
+          },
+          {
+            "device": "253:128",
+            "final_free_bytes": 83598278656,
+            "initial_free_bytes": 100039241728,
+            "minimum_free_bytes": 83198517248,
+            "total_bytes": 100056096768
+          }
+        ],
+        "reserve_stop_observed": false,
+        "samples": 416
+      },
+      "order": [
+        "brewfs",
+        "juicefs"
+      ],
+      "roles": {
+        "brewfs": {
+          "cold_crc_bytes": 67108864,
+          "cold_sha256": "d8c6c4ca78885fb4f56e09e04e46906707d846f52c22e4f9d6ee64b61caac4e1",
+          "cold_verify_seconds": 1.578416964,
+          "drain_samples": 3,
+          "drain_seconds": 2.109013844,
+          "drain_series_logged": true,
+          "fio_seconds": 63.425020394,
+          "first_debt_sample": {
+            "complete": true,
+            "metrics": 7,
+            "monotonic_ns": 88281188741,
+            "nonzero": {
+              "brewfs_writeback_live_dirty_bytes": 65536.0,
+              "brewfs_writeback_live_slices": 1.0
+            },
+            "sample": "debt-sample-000",
+            "utc_ns": 1794471951317806231
+          },
+          "mount_phases": [
+            "prepare",
+            "measure",
+            "verify"
+          ],
+          "nonzero_samples": 1,
+          "sync_p99_ms": 36.962304,
+          "unit_invocation": "a9e10f5a26fa42e3934af626bf4a4986",
+          "whole_arm_disk_read_bytes": 446464,
+          "whole_arm_disk_write_bytes": 19564687360,
+          "zero_debt_samples": [
+            {
+              "complete": true,
+              "metrics": 7,
+              "monotonic_ns": 89334200742,
+              "nonzero": {},
+              "sample": "debt-sample-001",
+              "utc_ns": 1794471952370817750
+            },
+            {
+              "complete": true,
+              "metrics": 7,
+              "monotonic_ns": 90387105243,
+              "nonzero": {},
+              "sample": "debt-sample-002",
+              "utc_ns": 1794471953423722501
+            }
+          ]
+        },
+        "juicefs": {
+          "cold_crc_bytes": 67108864,
+          "cold_sha256": "12e4a97ac5a999c91707046bd63eb1420db0bbd73622c14ee243e71c9d25cc6d",
+          "cold_verify_seconds": 2.236243179,
+          "drain_samples": 2,
+          "drain_seconds": 1.056055919,
+          "drain_series_logged": true,
+          "fio_seconds": 741.537471877,
+          "first_debt_sample": {
+            "complete": true,
+            "metrics": 3,
+            "monotonic_ns": 841267550546,
+            "nonzero": {},
+            "sample": "debt-sample-000",
+            "utc_ns": 1794472704304167732
+          },
+          "mount_phases": [
+            "prepare",
+            "measure",
+            "verify"
+          ],
+          "nonzero_samples": 0,
+          "sync_p99_ms": 350.224384,
+          "unit_invocation": "b079bb8a7df349d7a124507e046fe125",
+          "whole_arm_disk_read_bytes": 162406400,
+          "whole_arm_disk_write_bytes": 195480969216,
+          "zero_debt_samples": [
+            {
+              "complete": true,
+              "metrics": 3,
+              "monotonic_ns": 841267550546,
+              "nonzero": {},
+              "sample": "debt-sample-000",
+              "utc_ns": 1794472704304167732
+            },
+            {
+              "complete": true,
+              "metrics": 3,
+              "monotonic_ns": 842320514624,
+              "nonzero": {},
+              "sample": "debt-sample-001",
+              "utc_ns": 1794472705357131627
+            }
+          ]
+        }
+      },
+      "run": "ax-c1b-b9d5e18dd7",
+      "sources": {
+        "audit.json": {
+          "bytes": 9107,
+          "sha256": "9d70941f2ee1f0ba3ce1541660ba5c4b358fa9d0ad22251fa5c08b05b10e4535"
+        },
+        "brewfs-unit-status.ndjson": {
+          "bytes": 8145,
+          "sha256": "984a2e13759df29fa47276382bd3c47615644678da73f6b9910825b078304881"
+        },
+        "client-evidence.tar.gz": {
+          "bytes": 111045,
+          "sha256": "dc43210f6893ff1c3d418ef64bf9c9448eb7779711df431c6ce29e682a262348"
+        },
+        "contract.json": {
+          "bytes": 1802,
+          "sha256": "a38c1402bc89da7d98999a6db7c9153414a848cdab7a8d0ebe8695ad492f5cc9"
+        },
+        "juicefs-unit-status.ndjson": {
+          "bytes": 76935,
+          "sha256": "346f138e2cc96d37bd0d5d99d9c14a2cfdd4fdd0a5190f3a2931ea7b711131d8"
+        },
+        "metadata-evidence.tar.gz": {
+          "bytes": 547,
+          "sha256": "bf02fa9cdd70bdab911e1f2cc789e6142bb88cc35312c808f44b5fad7da74f44"
+        },
+        "objects-evidence.tar.gz": {
+          "bytes": 54995,
+          "sha256": "dd286309b61e1b4ed46365323202fb172734b931894313e86924b442628b299a"
+        },
+        "plan.json": {
+          "bytes": 1519,
+          "sha256": "8863aa559a89dc01f5cd89f12999fc08d773c1ea9f1d356b05d08bf8859bc2c7"
+        },
+        "released.json": {
+          "bytes": 213,
+          "sha256": "f7609b7293e2c18e9452d92ab9cdc59d82922860d8baf2a66b5bebe3048fd12f"
+        },
+        "stopped.json": {
+          "bytes": 210,
+          "sha256": "915c98967404acc802a1f21a6fb57ece6f0f4c47065845f7c8d8820ae36355bd"
+        },
+        "summary.json": {
+          "bytes": 302,
+          "sha256": "80db7d783b2725990cea937669cea5246ba753996d5156cc54bcd8376824c97b"
+        }
+      },
+      "timed_object_disk_bracket_available": false
+    }
+  ],
+  "schema": "b-c1-randrw-cross-order-comparison-v1",
+  "scope": "One sequential diagnostic pair in each order; new matched-class disks per pair and revised drain gate outside fio; no calibrated speedup or causal separation of order from run variation."
+}

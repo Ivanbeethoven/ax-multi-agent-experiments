@@ -1,0 +1,1186 @@
+  [2m2026-11-12T15:14:57.565793Z[0m [32m INFO[0m [1;32mbrewfs::cli[0m[32m: [32mraised RLIMIT_NOFILE, [1;32msoft[0m[32m: 1048576, [1;32mhard[0m[32m: 1048576[0m
+    [2;3mat[0m src/cli.rs:194
+
+  [2m2026-11-12T15:14:57.572514Z[0m [32m INFO[0m [1;32mbrewfs::cli[0m[32m: [32mmount startup begin, [1;32mmount_point[0m[32m: /srv/ax-pilot-session, [1;32mmeta_backend[0m[32m: Redis, [1;32mdata_backend[0m[32m: S3[0m
+    [2;3mat[0m src/cli.rs:428
+
+  [2m2026-11-12T15:14:57.572597Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend aws config load begin, [1;32mendpoint[0m[32m: Some("http://127.0.0.1:32844"), [1;32mregion[0m[32m: Some("us-east-1"), [1;32mbucket[0m[32m: ax-rbm-8a8d471b7e2c-brewfs[0m
+    [2;3mat[0m src/cadapter/s3.rs:386
+
+  [2m2026-11-12T15:14:57.587680Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend aws config load complete[0m
+    [2;3mat[0m src/cadapter/s3.rs:396
+
+  [2m2026-11-12T15:14:57.588666Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend client ready[0m
+    [2;3mat[0m src/cadapter/s3.rs:444
+
+  [2m2026-11-12T15:14:57.588728Z[0m [32m INFO[0m [1;32mbrewfs::cli[0m[32m: [32mmount startup s3 client ready[0m
+    [2;3mat[0m src/cli.rs:457
+
+  [2m2026-11-12T15:14:57.588892Z[0m [32m INFO[0m [1;32mbrewfs::chunk::cache[0m[32m: [32mCreating cache directory: "/tmp/ax-rbm-8a8d471b7e2c-tas9y6gj/initial-brewfs/workspace-blocks/01a1d053-85e7-76d3-84d5-ea5ebe379261/chunks/v2-crc32c"[0m
+    [2;3mat[0m src/chunk/cache.rs:419
+
+  [2m2026-11-12T15:14:57.589820Z[0m [32m INFO[0m [1;32mbrewfs::chunk::cache[0m[32m: [32mCreating Policy with configuration: base_threshold=5.00, short_weight=0.75, medium_weight=0.25, adaptive=true[0m
+    [2;3mat[0m src/chunk/cache.rs:1821
+
+  [2m2026-11-12T15:14:57.589901Z[0m [32m INFO[0m [1;32mbrewfs::chunk::cache[0m[32m: [32mChunksCache created successfully[0m
+    [2;3mat[0m src/chunk/cache.rs:2191
+
+  [2m2026-11-12T15:14:57.590536Z[0m [32m INFO[0m [1;32mbrewfs::workspace_overlay::packed_v3::wire005::pipeline[0m[32m: [32mpacked frame verification memo (requires immutable objects), [1;32menabled[0m[32m: true, [1;32mcapacity_entries[0m[32m: 8192, [1;32mmetadata_reservation_bytes[0m[32m: 1572864, [1;32mpayload_cache_bytes[0m[32m: 0[0m
+    [2;3mat[0m src/workspace_overlay/packed_v3/wire005/pipeline.rs:32
+
+  [2m2026-11-12T15:14:57.596591Z[0m [32m INFO[0m [1;32mbrewfs::cli[0m[32m: [32mselected workspace upper bucket, [1;32mworkspace[0m[32m: 01a1d053-85e7-76d3-84d5-ea5ebe379261, [1;32mbucket[0m[32m: "ax-rbm-8a8d471b7e2c-brewfs-01a1d053-85e7-76d3-84d5-ea5ebe379261"[0m
+    [2;3mat[0m src/cli.rs:1958
+
+  [2m2026-11-12T15:14:57.598039Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend aws config load begin, [1;32mendpoint[0m[32m: Some("http://127.0.0.1:32844"), [1;32mregion[0m[32m: Some("us-east-1"), [1;32mbucket[0m[32m: ax-rbm-8a8d471b7e2c-brewfs[0m
+    [2;3mat[0m src/cadapter/s3.rs:386
+
+  [2m2026-11-12T15:14:57.598867Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend aws config load complete[0m
+    [2;3mat[0m src/cadapter/s3.rs:396
+
+  [2m2026-11-12T15:14:57.599417Z[0m [32m INFO[0m [1;32mbrewfs::cadapter::s3[0m[32m: [32ms3 backend client ready[0m
+    [2;3mat[0m src/cadapter/s3.rs:444
+
+  [2m2026-11-12T15:14:57.627581Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 0, [1;32mfuse_rd_bytes[0m[32m: 0, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+mounted workspace 01a1d053-85e7-76d3-84d5-ea5ebe379261 at /srv/ax-pilot-session
+  [2m2026-11-12T15:14:57.646997Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 1, [1;32mname[0m[32m: .Trash[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:14:57.648214Z[0m [32m INFO[0m [1;32mbrewfs::fuse[0m[32m: [32mfuse.lookup ENOENT, [1;32mparent[0m[32m: 1, [1;32mname[0m[32m: .Trash-1000[0m
+    [2;3mat[0m src/fuse/mod.rs:3826
+
+  [2m2026-11-12T15:14:57.688505Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=1, ino=2, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.701633Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=2, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.708958Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=3, ino=5, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.727204Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 0, [1;32mfuse_rd_bytes[0m[32m: 0, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:57.730199Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=4, ino=6, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.748530Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=5, ino=9, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.759046Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=6, ino=12, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.766958Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=7, ino=28, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.775123Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=8, ino=30, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.787513Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=9, ino=32, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.805892Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=10, ino=33, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.814510Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=11, ino=35, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.827168Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 0, [1;32mfuse_rd_bytes[0m[32m: 0, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:57.847139Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=12, ino=36, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.856558Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=13, ino=38, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.864165Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=14, ino=40, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.871737Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=15, ino=42, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.878160Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=16, ino=43, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.895706Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=17, ino=45, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.911786Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=18, ino=46, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.917128Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=19, ino=48, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.925690Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=20, ino=52, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.927436Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 0, [1;32mfuse_rd_bytes[0m[32m: 0, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:57.942471Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=21, ino=53, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.953906Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=22, ino=54, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.960773Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=23, ino=56, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.972692Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=24, ino=57, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.979773Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=25, ino=61, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:57.994164Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=26, ino=62, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.008893Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=27, ino=63, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.027372Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 0, [1;32mfuse_rd_bytes[0m[32m: 0, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:58.030487Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=28, ino=64, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.038385Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=29, ino=70, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.056785Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=30, ino=71, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.077606Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=31, ino=73, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.090081Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=32, ino=76, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.098205Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=33, ino=92, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.112658Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=34, ino=95, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.128040Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 0, [1;32mfuse_rd_bytes[0m[32m: 0, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:58.129866Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=35, ino=96, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.141914Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=36, ino=98, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.151339Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=37, ino=107, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.165659Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=38, ino=108, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.171718Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=39, ino=109, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.183111Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=40, ino=110, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.198047Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=41, ino=112, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.216255Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=42, ino=114, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.225025Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=43, ino=115, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:58.237434Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 0, [1;32mfuse_rd_bytes[0m[32m: 0, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:58.327117Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 6, [1;32mfuse_rd_bytes[0m[32m: 1167, [1;32mavg_read_sz[0m[32m: 194, [1;32mavg_read_lat_us[0m[32m: 5685[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:58.427107Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 17, [1;32mfuse_rd_bytes[0m[32m: 20552, [1;32mavg_read_sz[0m[32m: 1762, [1;32mavg_read_lat_us[0m[32m: 3945[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:58.527187Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 24, [1;32mfuse_rd_bytes[0m[32m: 27273, [1;32mavg_read_sz[0m[32m: 960, [1;32mavg_read_lat_us[0m[32m: 5190[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:58.627148Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 32, [1;32mfuse_rd_bytes[0m[32m: 34926, [1;32mavg_read_sz[0m[32m: 956, [1;32mavg_read_lat_us[0m[32m: 5589[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:58.727097Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 40, [1;32mfuse_rd_bytes[0m[32m: 250838, [1;32mavg_read_sz[0m[32m: 26989, [1;32mavg_read_lat_us[0m[32m: 5351[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:58.827115Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 48, [1;32mfuse_rd_bytes[0m[32m: 257860, [1;32mavg_read_sz[0m[32m: 877, [1;32mavg_read_lat_us[0m[32m: 4337[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:58.927102Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 58, [1;32mfuse_rd_bytes[0m[32m: 277185, [1;32mavg_read_sz[0m[32m: 1932, [1;32mavg_read_lat_us[0m[32m: 3790[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:59.027154Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 65, [1;32mfuse_rd_bytes[0m[32m: 280090, [1;32mavg_read_sz[0m[32m: 415, [1;32mavg_read_lat_us[0m[32m: 4829[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:59.127323Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 70, [1;32mfuse_rd_bytes[0m[32m: 280418, [1;32mavg_read_sz[0m[32m: 65, [1;32mavg_read_lat_us[0m[32m: 4843[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:59.130987Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=115, ino=2, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.141736Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=116, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.144942Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=117, ino=5, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.149309Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=118, ino=6, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.159226Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=119, ino=9, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.173272Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=120, ino=12, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.177177Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=121, ino=28, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.180972Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=122, ino=30, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.186464Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=123, ino=32, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.194691Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=124, ino=33, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.198364Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=125, ino=35, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.211020Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=126, ino=36, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.215320Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=127, ino=38, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.219459Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=128, ino=40, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.226218Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=129, ino=42, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.227850Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 70, [1;32mfuse_rd_bytes[0m[32m: 280418, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:59.232145Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=130, ino=43, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.238661Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=131, ino=45, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.245954Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=132, ino=46, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.250354Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=133, ino=48, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.253813Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=134, ino=52, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.261499Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=135, ino=53, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.266891Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=136, ino=54, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.274155Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=137, ino=56, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.285912Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=138, ino=57, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.300382Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=139, ino=61, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.309071Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=140, ino=62, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.320824Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=141, ino=63, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.325679Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=142, ino=64, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.327203Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 70, [1;32mfuse_rd_bytes[0m[32m: 280418, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:59.329661Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=143, ino=70, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.335690Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=144, ino=71, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.354588Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=145, ino=73, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.359411Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=146, ino=76, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.370329Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=147, ino=92, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.384372Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=148, ino=95, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.394034Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=149, ino=96, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.398791Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=150, ino=98, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.404657Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=151, ino=107, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.416945Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=152, ino=108, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.421657Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=153, ino=109, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.427144Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 70, [1;32mfuse_rd_bytes[0m[32m: 280418, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:59.434142Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=154, ino=110, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.439943Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=155, ino=112, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.443678Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=156, ino=114, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.449233Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=157, ino=115, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:14:59.527654Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 78, [1;32mfuse_rd_bytes[0m[32m: 287207, [1;32mavg_read_sz[0m[32m: 848, [1;32mavg_read_lat_us[0m[32m: 3744[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:59.627165Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 91, [1;32mfuse_rd_bytes[0m[32m: 307305, [1;32mavg_read_sz[0m[32m: 1546, [1;32mavg_read_lat_us[0m[32m: 3800[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:59.727399Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 100, [1;32mfuse_rd_bytes[0m[32m: 308004, [1;32mavg_read_sz[0m[32m: 77, [1;32mavg_read_lat_us[0m[32m: 4137[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:59.827088Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 110, [1;32mfuse_rd_bytes[0m[32m: 531256, [1;32mavg_read_sz[0m[32m: 22325, [1;32mavg_read_lat_us[0m[32m: 4038[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:14:59.927153Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 119, [1;32mfuse_rd_bytes[0m[32m: 539921, [1;32mavg_read_sz[0m[32m: 962, [1;32mavg_read_lat_us[0m[32m: 3982[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:00.027221Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 128, [1;32mfuse_rd_bytes[0m[32m: 557603, [1;32mavg_read_sz[0m[32m: 1964, [1;32mavg_read_lat_us[0m[32m: 3904[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:00.127103Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 137, [1;32mfuse_rd_bytes[0m[32m: 560644, [1;32mavg_read_sz[0m[32m: 337, [1;32mavg_read_lat_us[0m[32m: 3966[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:00.180043Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=229, ino=2, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.184910Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 230, [1;32mino[0m[32m: 51[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.189807Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=231, ino=2, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.193145Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=232, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.196487Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 233, [1;32mino[0m[32m: 4[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.200271Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=234, ino=5, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.207150Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 235, [1;32mino[0m[32m: 49[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.210432Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 236, [1;32mino[0m[32m: 50[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.214404Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=237, ino=52, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.224602Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=238, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.227217Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 64, [1;32mavg_read_lat_us[0m[32m: 3823[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:00.229861Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=239, ino=5, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.233428Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=240, ino=6, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.237048Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 241, [1;32mino[0m[32m: 7[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.240694Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 242, [1;32mino[0m[32m: 8[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.249526Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 243, [1;32mino[0m[32m: 10[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.252900Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 244, [1;32mino[0m[32m: 11[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.279733Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 245, [1;32mino[0m[32m: 27[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.295431Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 246, [1;32mino[0m[32m: 44[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.303252Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=247, ino=6, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.307034Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=248, ino=9, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.311160Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=249, ino=12, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.317839Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 250, [1;32mino[0m[32m: 13[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.325148Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 251, [1;32mino[0m[32m: 14[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.327121Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:00.332387Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 252, [1;32mino[0m[32m: 15[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.340354Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 253, [1;32mino[0m[32m: 16[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.345441Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 254, [1;32mino[0m[32m: 17[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.350558Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 255, [1;32mino[0m[32m: 18[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.355709Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 256, [1;32mino[0m[32m: 19[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.362731Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 257, [1;32mino[0m[32m: 20[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.368883Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 258, [1;32mino[0m[32m: 21[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.381205Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 259, [1;32mino[0m[32m: 22[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.389697Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 260, [1;32mino[0m[32m: 23[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.394779Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 261, [1;32mino[0m[32m: 24[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.399574Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 262, [1;32mino[0m[32m: 25[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.406904Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 263, [1;32mino[0m[32m: 26[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.411359Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=264, ino=28, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.415762Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 265, [1;32mino[0m[32m: 29[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.420425Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=266, ino=30, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.427120Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:00.429100Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 267, [1;32mino[0m[32m: 31[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.437225Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=268, ino=35, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.455384Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=269, ino=45, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.463294Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=270, ino=9, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.469668Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=271, ino=12, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.473957Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=272, ino=28, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.477895Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=273, ino=30, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.487583Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=274, ino=32, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.495170Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=275, ino=32, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.501799Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=276, ino=33, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.508102Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 277, [1;32mino[0m[32m: 34[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.513305Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=278, ino=33, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.521354Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=279, ino=35, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.525854Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=280, ino=36, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.528044Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:00.533732Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 281, [1;32mino[0m[32m: 37[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.538458Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=282, ino=38, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.543678Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 283, [1;32mino[0m[32m: 39[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.551853Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=284, ino=40, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.557119Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 285, [1;32mino[0m[32m: 41[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.561275Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=286, ino=42, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.565256Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=287, ino=43, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.569364Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=288, ino=36, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.574535Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=289, ino=38, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.581583Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=290, ino=40, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.591915Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=291, ino=42, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.595821Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=292, ino=43, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.599447Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=293, ino=45, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.603593Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=294, ino=46, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.614012Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 295, [1;32mino[0m[32m: 47[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.622947Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=296, ino=48, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.627118Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=297, ino=46, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.627180Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:00.631316Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=298, ino=48, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.634516Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=299, ino=52, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.638231Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=300, ino=53, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.645383Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=301, ino=56, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.654741Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=302, ino=61, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.660461Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=303, ino=114, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.671936Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=304, ino=53, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.676149Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=305, ino=54, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.681288Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 306, [1;32mino[0m[32m: 55[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.695843Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=307, ino=54, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.700964Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=308, ino=56, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.704833Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=309, ino=57, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.709141Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 310, [1;32mino[0m[32m: 58[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.713796Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 311, [1;32mino[0m[32m: 59[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.718817Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 312, [1;32mino[0m[32m: 60[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.723323Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=313, ino=57, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.727134Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:00.727578Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=314, ino=61, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.731671Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=315, ino=62, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.741422Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 316, [1;32mino[0m[32m: 67[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.746113Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 317, [1;32mino[0m[32m: 68[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.751019Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 318, [1;32mino[0m[32m: 69[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.762815Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=319, ino=62, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.767451Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=320, ino=63, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.771593Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=321, ino=64, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.776971Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 322, [1;32mino[0m[32m: 65[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.786358Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 323, [1;32mino[0m[32m: 66[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.796561Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=324, ino=70, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.804063Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=325, ino=110, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.809514Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 326, [1;32mino[0m[32m: 111[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.818585Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=327, ino=63, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.823077Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=328, ino=64, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.827225Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:00.829470Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=329, ino=70, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.836488Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=330, ino=71, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.844649Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 331, [1;32mino[0m[32m: 72[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.856081Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 332, [1;32mino[0m[32m: 74[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.862772Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 333, [1;32mino[0m[32m: 75[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.873423Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 334, [1;32mino[0m[32m: 91[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.887992Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 335, [1;32mino[0m[32m: 106[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.896896Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=336, ino=71, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.901527Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=337, ino=73, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.907494Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=338, ino=76, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:00.916648Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 339, [1;32mino[0m[32m: 77[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.924983Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 340, [1;32mino[0m[32m: 78[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.927097Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:00.933591Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 341, [1;32mino[0m[32m: 79[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.944290Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 342, [1;32mino[0m[32m: 80[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.952125Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 343, [1;32mino[0m[32m: 81[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.959866Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 344, [1;32mino[0m[32m: 82[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.968026Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 345, [1;32mino[0m[32m: 83[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.975464Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 346, [1;32mino[0m[32m: 84[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:00.989390Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 347, [1;32mino[0m[32m: 85[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.000536Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 348, [1;32mino[0m[32m: 86[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.008067Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 349, [1;32mino[0m[32m: 87[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.015330Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 350, [1;32mino[0m[32m: 88[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.024765Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 351, [1;32mino[0m[32m: 89[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.027149Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:01.032284Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 352, [1;32mino[0m[32m: 90[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.037642Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=353, ino=92, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.045557Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 354, [1;32mino[0m[32m: 93[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.051860Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 355, [1;32mino[0m[32m: 94[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.056782Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=356, ino=95, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.070375Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=357, ino=107, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.083799Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=358, ino=73, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.088879Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=359, ino=76, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.096072Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=360, ino=92, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.101245Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=361, ino=95, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.106266Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=362, ino=96, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.115168Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 363, [1;32mino[0m[32m: 97[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.122872Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=364, ino=98, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.127145Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:01.132142Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 365, [1;32mino[0m[32m: 99[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.141850Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 366, [1;32mino[0m[32m: 100[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.150188Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 367, [1;32mino[0m[32m: 101[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.158604Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 368, [1;32mino[0m[32m: 102[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.167721Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 369, [1;32mino[0m[32m: 103[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.176692Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 370, [1;32mino[0m[32m: 104[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.185588Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 371, [1;32mino[0m[32m: 105[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.193049Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=372, ino=96, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.218463Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=373, ino=98, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.241188Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:01.246445Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=374, ino=107, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.251801Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=375, ino=108, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.260615Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=376, ino=109, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.267742Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=377, ino=108, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.273846Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=378, ino=109, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.281042Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=379, ino=110, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.294279Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=380, ino=112, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.300741Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mvfs.flush_handle_start, [1;32mfh[0m[32m: 381, [1;32mino[0m[32m: 113[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:6940
+
+  [2m2026-11-12T15:15:01.306419Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=382, ino=112, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.310378Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=383, ino=114, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.315070Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=384, ino=115, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.319230Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=385, ino=115, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.323033Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=386, ino=96, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.327139Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:01.329220Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=387, ino=98, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.333069Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=388, ino=108, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.336931Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=389, ino=109, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.340551Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=390, ino=73, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.343984Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=391, ino=76, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.347616Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=392, ino=92, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.359301Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=393, ino=95, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.362679Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=394, ino=107, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.370051Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=395, ino=33, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.373087Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=396, ino=71, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.376800Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=397, ino=112, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.380565Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=398, ino=32, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.384312Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=399, ino=36, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.389143Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=400, ino=38, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.392124Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=401, ino=40, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.398814Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=402, ino=42, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.401649Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=403, ino=43, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.406467Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=404, ino=46, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.409287Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=405, ino=48, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.413345Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=406, ino=63, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.416052Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=407, ino=64, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.418658Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=408, ino=70, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.421576Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=409, ino=110, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.424237Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=410, ino=9, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.426867Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=411, ino=12, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.427126Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:01.429566Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=412, ino=28, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.433122Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=413, ino=30, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.435703Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=414, ino=35, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.440329Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=415, ino=45, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.442917Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=416, ino=54, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.446201Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=417, ino=57, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.448897Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=418, ino=62, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.470604Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=419, ino=115, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.472814Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=420, ino=6, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.477291Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=421, ino=53, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.479690Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=422, ino=56, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.483919Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=423, ino=61, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.486269Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=424, ino=114, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.488478Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=425, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.490362Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=426, ino=5, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.492448Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=427, ino=52, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.495319Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=428, ino=2, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.499031Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=429, ino=2, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.505035Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=430, ino=3, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.509309Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=431, ino=5, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.514677Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=432, ino=6, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.526641Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=433, ino=9, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.527160Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:01.531130Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=434, ino=12, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.535482Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=435, ino=28, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.540613Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=436, ino=30, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.549696Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=437, ino=32, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.556487Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=438, ino=33, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.560839Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=439, ino=35, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.573791Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=440, ino=36, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.578669Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=441, ino=38, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.583495Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=442, ino=40, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.599773Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=443, ino=42, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.604478Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=444, ino=43, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.608812Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=445, ino=45, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.617244Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=446, ino=46, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.621755Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=447, ino=48, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.625367Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=448, ino=52, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.627087Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:01.633441Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=449, ino=53, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.639332Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=450, ino=54, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.645177Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=451, ino=56, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.650853Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=452, ino=57, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.657439Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=453, ino=61, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.663515Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=454, ino=62, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.678426Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=455, ino=63, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.683042Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=456, ino=64, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.688846Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=457, ino=70, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.696670Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=458, ino=71, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.715639Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=459, ino=73, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.721950Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=460, ino=76, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.727119Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:01.729048Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=461, ino=92, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.734749Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=462, ino=95, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.748163Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=463, ino=96, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.754273Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=464, ino=98, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.759996Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=465, ino=107, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.815297Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=466, ino=108, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.820329Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=467, ino=109, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.827093Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 140, [1;32mfuse_rd_bytes[0m[32m: 560836, [1;32mavg_read_sz[0m[32m: 0, [1;32mavg_read_lat_us[0m[32m: 0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:01.828308Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=468, ino=110, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.834214Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=469, ino=112, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.839016Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=470, ino=114, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.845899Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mrelease dir handle: fh=471, ino=115, entries=0[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:7024
+
+  [2m2026-11-12T15:15:01.927122Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 149, [1;32mfuse_rd_bytes[0m[32m: 567814, [1;32mavg_read_sz[0m[32m: 775, [1;32mavg_read_lat_us[0m[32m: 3941[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:02.027131Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 160, [1;32mfuse_rd_bytes[0m[32m: 587483, [1;32mavg_read_sz[0m[32m: 1788, [1;32mavg_read_lat_us[0m[32m: 4070[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:02.127129Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 170, [1;32mfuse_rd_bytes[0m[32m: 588422, [1;32mavg_read_sz[0m[32m: 93, [1;32mavg_read_lat_us[0m[32m: 4262[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:02.227138Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 180, [1;32mfuse_rd_bytes[0m[32m: 811674, [1;32mavg_read_sz[0m[32m: 22325, [1;32mavg_read_lat_us[0m[32m: 4392[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:02.327142Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 190, [1;32mfuse_rd_bytes[0m[32m: 820755, [1;32mavg_read_sz[0m[32m: 908, [1;32mavg_read_lat_us[0m[32m: 3875[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:02.428549Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 199, [1;32mfuse_rd_bytes[0m[32m: 838261, [1;32mavg_read_sz[0m[32m: 1945, [1;32mavg_read_lat_us[0m[32m: 3971[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+
+  [2m2026-11-12T15:15:02.527639Z[0m [32m INFO[0m [1;32mbrewfs::vfs::fs[0m[32m: [32mstats, [1;32mhits[0m[32m: 0, [1;32mmisses[0m[32m: 0, [1;32mtotal[0m[32m: 0, [1;32mhit_pct[0m[32m: 0.0, [1;32mdirty_bytes[0m[32m: 0, [1;32mread_buffer_bytes[0m[32m: 0, [1;32ms3_get_ops[0m[32m: 0, [1;32ms3_put_ops[0m[32m: 0, [1;32ms3_del_ops[0m[32m: 0, [1;32mfuse_reads[0m[32m: 208, [1;32mfuse_rd_bytes[0m[32m: 841108, [1;32mavg_read_sz[0m[32m: 316, [1;32mavg_read_lat_us[0m[32m: 4079[0m
+    [2;3mat[0m src/vfs/fs/mod.rs:1676
+

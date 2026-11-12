@@ -1,0 +1,23 @@
+{
+  "schema": "brewfs-unified-candidate-v1",
+  "build_exit_code": 0,
+  "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "candidate_diff_sha256": "217a432ddd702b336d2216df5ee8199c428bbc996c101338886157a0eb1a58b4",
+  "cargo_default_features": true,
+  "cargo_features": [
+    "workspace-overlay",
+    "observability",
+    "rustfs-ec-block-size-hint"
+  ],
+  "cargo_profile": "release; package.brewfs.opt-level=0, debug=0; derived binaries objcopy --strip-debug",
+  "capabilities": [
+    "packed-metadata-off",
+    "eager-workspace"
+  ],
+  "binary_sha256": {
+    "brewfs": "8082c8a7c9104719dbd6983bea632275f0075c46607262d4bfdee55ed1f145a5",
+    "producer": "13ee3e67814389c17e5aef82f46e523e0f281618257e8c64326bdc92da4b06b1"
+  },
+  "formal_performance_qualified": false,
+  "full_rust_ci_passed": false
+}

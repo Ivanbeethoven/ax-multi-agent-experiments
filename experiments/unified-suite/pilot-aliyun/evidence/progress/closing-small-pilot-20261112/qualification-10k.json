@@ -1,6 +1,8 @@
 {
   "schema": "ax-small-pilot-qualification-v1",
-  "status": "planned-not-run",
+  "status": "inputs-verified-locally",
+  "runtime_blocker": "The new independent inputs passed full local readback; no 10k mount qualification or cloud measurement was performed. The 10k runtime wrapper and optimized C4 build remain unavailable.",
+  "local_input_set": {"path": "local-inputs/input-set.json", "sha256": "accfd92a70fc74bf14ca7a5e1af842f6cefe49d0861ef28c1c7af86020cfff4a"},
   "dispatchable": false,
   "formal_sample": false,
   "scope": "Independent 10k-file qualification only; original 100k and frozen million-file plans and thresholds are unchanged.",
@@ -64,6 +66,6 @@
     "skip_if_window_insufficient": true,
     "automatic_retry": false,
     "existing_100k_and_million_runners_unchanged": true,
-    "requires_separate_10k_qualification_runner_and_fixture": true
+    "requires_separate_10k_qualification_runner": true
   }
 }

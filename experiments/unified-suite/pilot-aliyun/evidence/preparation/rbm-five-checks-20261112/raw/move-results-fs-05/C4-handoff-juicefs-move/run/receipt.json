@@ -1,0 +1,123 @@
+{
+  "formal_sample": false,
+  "workload": "c4-stay",
+  "engine": "workspace-v1",
+  "hint": "auto",
+  "layout": "enabled",
+  "arms": {
+    "juicefs": {
+      "phase": "complete",
+      "passed": true,
+      "import_entries_reported": 114,
+      "verify_base": {
+        "passed": true,
+        "entries": 113
+      },
+      "run": {
+        "passed": true,
+        "agent_process_started": false,
+        "native_model_calls": 0,
+        "scope": "filesystem tree and clean reopen; no native session interpretation",
+        "sync": {
+          "files": 71,
+          "file_bytes": 280418,
+          "directories": 43
+        },
+        "cold_workspace_equal": false
+      },
+      "initial_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "move": {
+        "passed": true,
+        "formal_sample": false,
+        "target_identity": {
+          "machine": "7c92d10a1e79333eb290befaf095d19d2562aa18f7c6044d3a4c42e36af88045",
+          "boot": "227ece0c27b95cd3cc9f378b2dd9bad7e388680bd1bb698b7f91b2d814c08059"
+        },
+        "workspace_payload_copied": false,
+        "real_resume": false,
+        "native_model_calls": 0,
+        "agent_process_started": false,
+        "scope": "filesystem-only clean reopen",
+        "verifier_sha256": "b8bee2b67878d04b6af06af4e821feb65ac0d8792743530a582bd4e43c09b9b6",
+        "target_script_sha256": "20b2914db2a8b105b2896d2af0e6a8713c27ce99a788ed01f97c9868133f80f2",
+        "check_timeout_seconds": 900,
+        "mount_seconds": 4.813520111,
+        "tree_verification": {
+          "passed": true,
+          "entries": 113,
+          "directories": 43,
+          "workers": 2,
+          "cached_parent_descriptors": true,
+          "directory_handles": "one directory at a time"
+        },
+        "tree_check_seconds": 197.55788062,
+        "source_tree_equal": true,
+        "tree_entries": 113,
+        "write_probe": {
+          "passed": true,
+          "bytes": 4096,
+          "fsync": true,
+          "probe_removed": true
+        },
+        "elapsed_seconds": 215.356291637,
+        "unmount": {
+          "exit_code": 0,
+          "process_exit": 0,
+          "mount_absent": true
+        },
+        "scratch_removed": true,
+        "source_identity": {
+          "machine": "48f0f278c11cda0f7807b82b984ff7fc26b86869f70aa1a854e484ed426f7624",
+          "boot": "1d520f9534d2ee08983e1105ab4064e7a23140267adc07a4b3ccbcf5bd71992a"
+        },
+        "transport": "SSH reverse loopback forwards",
+        "physical_move": true,
+        "controller_elapsed_seconds": 220.110654841,
+        "tunnel_exited": true
+      }
+    }
+  },
+  "packed_metadata": "on",
+  "eager_workspace": false,
+  "smallfiles_options": [
+    "--files",
+    "8",
+    "--hot-files",
+    "4",
+    "--workers",
+    "1",
+    "--read-ops",
+    "8",
+    "--cow-files",
+    "2",
+    "--write-ops",
+    "4",
+    "--mixed-ops",
+    "8"
+  ],
+  "binary_sha256": {
+    "brewfs": "a2d9e7ad11f1076aeb823dd0f26d9c27d66c56e76084b4c4f70aec4938f4e713",
+    "producer": "ddfb003a2fefb95d9e8381248626db5fb85d2042f42a01a97a23dd0186dec8f8",
+    "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+    "smallfiles": "1e27cb2204dff633aea1d21a61a6fa740cfe9aa2afdb501bc41eca33cb8fd62f"
+  },
+  "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+  "phase": "workload",
+  "checkpoint_sha256": "21c0fac7286b0f95a531e8d171802497dc9526d8f64814782de3b65d008fddfe",
+  "placement": "move",
+  "scope": "filesystem-only workspace reopen; agent state is opaque data",
+  "agent_process_started": false,
+  "source": {
+    "passed": true,
+    "entries": 113
+  },
+  "mounts_absent": true,
+  "rustfs_removed": true,
+  "redis_exited": true,
+  "scratch_removed": true,
+  "passed": true
+}
