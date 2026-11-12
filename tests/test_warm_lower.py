@@ -79,6 +79,13 @@ class WarmLowerTest(unittest.TestCase):
                     with patch.object(Path,'read_text',side_effect=raw):
                         result=module.probe(base,rows,lambda:next(rustfs),base/suffix,retained_bytes=1048576)
                     self.assertEqual(result['hot'],want)
+        zero=dict(queries=0,bypasses=0)
+        query=dict(queries=2,bypasses=0)
+        bypass=dict(queries=0,bypasses=2)
+        self.assertTrue(module.extent_pass(zero,query,'overlay'))
+        self.assertTrue(module.extent_pass(zero,bypass,'lower-only'))
+        self.assertFalse(module.extent_pass(zero,query,'lower-only'))
+        self.assertFalse(module.extent_pass(zero,zero,'overlay'))
 
 
 if __name__=='__main__':

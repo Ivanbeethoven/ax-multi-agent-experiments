@@ -1,5 +1,6 @@
 """Observe actual RustFS reads in the tiny local fixture, without recording headers."""
 from contextlib import contextmanager
+import errno
 from http.client import HTTPConnection
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -64,15 +65,51 @@ def meter(rustfs_port):
             thread.join()
 
 
-def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None):
+def extent_counters(raw, arm):
+    modes = re.findall(r'^brewfs_workspace_read_extent_control_info\{mode="([a-z-]+)"\} 1$',raw,re.M)
+    if modes != [arm]: raise ValueError('Mounted extent-control arm differs')
+    counts = {}
+    for label in ('queries','bypasses'):
+        values = re.findall(r'^brewfs_workspace_read_extent_control_'+label+r'_total ([0-9]+)$',raw,re.M)
+        if len(values)!=1: raise ValueError('Missing unique extent control counters')
+        counts[label]=int(values[0])
+    return counts
+
+
+def extent_pass(first, second, arm):
+    delta = {k:second[k]-first[k] for k in ('queries','bypasses')}
+    return (delta['queries'] > 0 and delta['bypasses'] == 0 if arm=='overlay' else
+            delta['queries'] == 0 and delta['bypasses'] > 0)
+
+
+def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=None):
     from bench.warm_lower import assess, check_ranges, parse, read_range
+    from bench.runtime.common import mounts
     check_ranges(rows)
     output.mkdir(mode=0o700)
     stats_pattern = r'^(brewfs_fuse_read_(?:ops|bytes)_total) ([0-9]+)$'
     native_points = []
     retention_hits = []
+    extent_points = []
+    original_mount = None
+    if extent_arm is not None:
+        entries = mounts(mount)
+        if (extent_arm not in ('overlay','lower-only') or retained_bytes is None or len(entries)!=1
+                or 'ro' not in entries[0]['options'].split(',') or not entries[0]['filesystem'].startswith('fuse')):
+            raise ValueError('Extent control requires one read-only FUSE mount and verified retention')
+        original_mount = entries[0]
+        try:
+            # Opening the known regular file without O_TRUNC cannot modify it.
+            fd = os.open(mount/rows[0]['path'],os.O_WRONLY|os.O_NOFOLLOW)
+        except OSError as error:
+            if error.errno!=errno.EROFS: raise
+        else:
+            os.close(fd)
+            raise ValueError('Extent control did not reject a writable open')
 
     def collect(label):
+        if original_mount is not None and mounts(mount)!=[original_mount]:
+            raise ValueError('Extent control mount changed')
         raw = (mount/'.stats').read_text()
         with (output/(label+'.stats')).open('x') as stream: stream.write(raw)
         found = re.findall(stats_pattern,raw,re.M)
@@ -88,6 +125,7 @@ def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None):
                 raise ValueError('Native Packed frame retention capacity differs')
             retention_hits.append(int(hits[0]))
             native_points.append(parse(raw.encode()))
+        if extent_arm is not None: extent_points.append(extent_counters(raw,extent_arm))
         return {**dict((k,int(v)) for k,v in found),**s3_snapshot()}
 
     points = [collect('before')]
@@ -112,5 +150,9 @@ def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None):
         exact_fuse = all(delta['brewfs_fuse_read_ops_total'] == len(rows) for delta in (first,second))
         out.update(native=native,native_points=native_points,retention_hits=retention_hits,retained_bytes=retained_bytes,
                    hot=out['hot'] and native['passed'] and retention_proved and exact_fuse)
+    if extent_arm is not None:
+        active = all(extent_pass(a,b,extent_arm) for a,b in zip(extent_points,extent_points[1:]))
+        out.update(extent_arm=extent_arm,extent_points=extent_points,readonly_mount=original_mount,
+                   writable_open='EROFS',expected_extent_path=active,hot=out['hot'] and active)
     with (output/'result.json').open('x') as stream: json.dump(out,stream,indent=2);stream.write('\n')
     return out
