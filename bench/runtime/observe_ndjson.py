@@ -20,11 +20,18 @@ import re
 import select
 import shutil
 import socket
+import subprocess
 import sys
+import threading
 import time
 
 from . import observe
-from .common import digest, identity, load, spec, write_new
+from .common import digest, identity, load, private_dir, spec, write_new
+
+# Everything the frozen callers import from the observer module is re-exported,
+# so this file can stand in for bench/runtime/observe.py in a new batch.
+from .observe import (HOST_FILES, CGROUP_FILES, NoRedirect, prometheus, required_values,
+                     collect_target, mount_lifecycle, validate, request, overhead)  # noqa: F401
 
 STREAM = 'samples.ndjson'
 
@@ -66,6 +73,10 @@ def snapshot_ndjson(s, output, index, previous=None):
         return summary
     finally:
         shutil.rmtree(staging, ignore_errors=True)
+
+
+# The frozen callers call snapshot; in this module that is the stream variant.
+snapshot = snapshot_ndjson
 
 
 def serve(ref, output):
@@ -125,6 +136,28 @@ def serve(ref, output):
                 conn.sendall((json.dumps(result)+'\n').encode())
                 if message['action'] == 'stop':
                     return
+
+
+def start(ref, output):
+    """Spawn the stream collector where the original would spawn its own."""
+    s = spec(ref, 'experiment-observer-v1')
+    validate(s)
+    output = private_dir(output)
+    with (output/'collector.log').open('xb') as log:
+        child = subprocess.Popen([sys.executable, '-m', 'bench.runtime.observe_ndjson', 'serve',
+                                  '--spec', ref['path'], '--sha256', ref['sha256'],
+                                  '--output', str(output)],
+                                 cwd=Path(__file__).resolve().parents[2],
+                                 stdout=log, stderr=log, start_new_session=True)
+    deadline = time.monotonic()+30
+    while time.monotonic() < deadline:
+        if (output/'ready.json').exists():
+            threading.Thread(target=child.wait, daemon=True).start()
+            return request(output, 'status')
+        if child.poll() is not None:
+            raise ValueError('collector failed before ready')
+        time.sleep(.05)
+    raise ValueError('collector startup unresolved; inspect retained process')
 
 
 def audit(directory, max_gap_seconds, required_marks):

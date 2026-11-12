@@ -113,6 +113,49 @@ class DropIn(unittest.TestCase):
                 observe_ndjson.audit(legacy, 30, MARKS)
 
 
+class DropInSurface(unittest.TestCase):
+    def test_everything_the_frozen_callers_import_is_available(self):
+        for name in ('validate', 'request', 'overhead', 'start', 'serve', 'audit', 'snapshot',
+                     'HOST_FILES', 'CGROUP_FILES', 'prometheus', 'required_values',
+                     'collect_target', 'mount_lifecycle'):
+            with self.subTest(name=name):
+                self.assertTrue(hasattr(observe_ndjson, name), name)
+
+    def test_start_spawns_the_stream_entry_point(self):
+        from unittest.mock import patch
+        with TemporaryDirectory() as tmp:
+            out = Path(tmp)/'collector'
+            recorded = {}
+
+            class Child:
+                def poll(self):
+                    return None
+                def wait(self):
+                    return 0
+
+            def fake_popen(argv, **kwargs):
+                recorded['argv'] = argv
+                recorded['kwargs'] = kwargs
+                out.mkdir(parents=True, exist_ok=True)
+                (out/'ready.json').write_text('{}')
+                return Child()
+
+            ref = dict(path=str(Path(tmp)/'spec.json'), sha256='0'*64)
+            Path(ref['path']).write_text('{"schema":"experiment-observer-v1"}')
+            with patch.object(observe_ndjson, 'spec', return_value={
+                    'interval_seconds': 5, 'cgroups': [], 'processes': [], 'targets': [],
+                    'data_paths': [], 'metric_contract_sha256': '1'*64}), \
+                 patch.object(observe_ndjson, 'validate'), \
+                 patch.object(observe_ndjson.subprocess, 'Popen', side_effect=fake_popen), \
+                 patch.object(observe_ndjson, 'request', return_value={'passed': True}), \
+                 patch.object(observe_ndjson, 'private_dir', side_effect=lambda p: (Path(p).mkdir(parents=True, exist_ok=True), Path(p))[1]), \
+                 patch.object(observe_ndjson.threading, 'Thread'):
+                result = observe_ndjson.start(ref, out)
+            self.assertEqual(result, {'passed': True})
+            self.assertIn('bench.runtime.observe_ndjson', recorded['argv'])
+            self.assertEqual(recorded['argv'][-2:], ['--output', str(out)])
+
+
 class StreamIsTamperEvident(unittest.TestCase):
     def setUp(self):
         self.tmp = TemporaryDirectory()
