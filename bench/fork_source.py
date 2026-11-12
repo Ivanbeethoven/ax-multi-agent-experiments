@@ -15,7 +15,6 @@ from scripts.full_trace_common import tree
 
 from .runtime import node
 from .runtime.common import alive, load, mounts, pinned, spec, write_new
-from .runtime.handoff import target_identity
 from .runtime.prepare import anchor
 
 
@@ -71,15 +70,25 @@ def _ready(ref):
     if path.name != 'ready.json':
         raise ValueError('mount supervisor ready.json required')
     ready = load(pinned(ref))
-    identity = target_identity(ready)
+    identity = _mount_identity(ready)
     point = _canonical(identity['mount']['point'])
     _external(ref, point)
     return path.parent, ready, identity, point
 
 
+def _mount_identity(value):
+    mount = value['mount']
+    process = {k:value['process'][k] for k in ('pid','boot_id','start_ticks')}
+    if (value.get('passed') is not True or type(mount['mount_id']) is not int or mount['mount_id']<=0
+            or not mount['filesystem'].startswith('fuse') or not isinstance(process['boot_id'],str)
+            or not process['boot_id'] or any(type(process[k]) is not int or process[k]<=0 for k in ('pid','start_ticks'))):
+        raise ValueError('Live source FUSE mount and process identity required')
+    return dict(mount=mount,process=process,anchor=value['anchor'])
+
+
 def _live(directory, identity):
     mount, process = identity['mount'], identity['process']
-    if (target_identity(node.control(directory, 'status')) != identity
+    if (_mount_identity(node.control(directory, 'status')) != identity
             or mounts(mount['point']) != [mount] or not alive(process)):
         raise ValueError('source FUSE mount or foreground process changed')
 
