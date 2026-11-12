@@ -15,4 +15,4 @@
 
 [核验器](worker.log)到 120 秒后由外层终止；原挂载正常退出并确认消失。[阿里云回执](cloud-stopped.json)确认三台 A 实例于 08:11:59 UTC、跳板于 08:12:16 UTC 停机不收费。未完成四段，也未核验全量文件；不计入正式 C3。
 
-[挂载退出](worker-mount-exit.json) · [启动参数](stage.json) · [SHA-256 清单](SHA256SUMS)
+[挂载退出](worker-mount-exit.json) · [启动参数](stage.json) · [两次窗口成本及独立关停复核](cloud-window-cost.json) · [SHA-256 清单](SHA256SUMS)

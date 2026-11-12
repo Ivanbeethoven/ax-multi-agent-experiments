@@ -50,9 +50,9 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 | 项目 | 已验证 | 还缺 |
 |---|---|---|
 | C1 | [64 MiB 同步混合读写](../pilot-aliyun/evidence/preparation/c1-b-randrw-scratch-02/README.zh.md)完成一组配对，两边均通过冷挂载 CRC | 重复与反向顺序；布局开关的单独影响 |
-| C2 | [真实 trace 入口](../pilot-aliyun/evidence/preparation/c2-current-trace-a-draft-01/README.zh.md)已准备；[只读对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-resume-01/README.zh.md)首组挂载被拒，已定位首次绑定后的序号检查 | 完整回放与冷验；修正后验证两组热态，再测 Overlay 开销 |
-| C3 | [十万文件资格探针](../pilot-aliyun/evidence/preparation/c3-current-workspace-budget-default-01/README.zh.md)复现默认 Packed 预算拒绝；[提高两个预算](../pilot-aliyun/evidence/preparation/c3-current-workspace-budget-control8-01/README.zh.md)后未再出现拒绝，但读回过慢并提前结束 | 完整读回；同样设置下的性能对照 |
-| C4 | [rbm 同输入原生 fork / clone](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)均通过子读父、覆盖后父不变、空缓存重挂；BrewFS 使用已核验补丁的候选版 | 100,000 文件资格、配对计时、跨机续跑 |
+| C2 | [两文件热态对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/README.zh.md)两组都跑通，计时期间零对象存储读取 | [完整 trace](../pilot-aliyun/evidence/preparation/c2-current-trace-a-draft-01/README.zh.md)回放与冷验；扩大并重复热态对照 |
+| C3 | [云上抽样](../pilot-aliyun/evidence/preparation/c3-current-workspace-cohort-01/README.zh.md)首次读完 64 个文件并通过内容校验；复读阶段到上限，未完成十万文件核验 | 完整读回；同样设置下的性能对照 |
+| C4 | [rbm 同输入原生 fork / clone](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)均通过子读父、覆盖后父不变、空缓存重挂；[十万文件运行草稿](../pilot-aliyun/C4-NATIVE-100K.zh.md)已准备 | 100,000 文件资格、配对计时、跨机续跑 |
 
 小试用于排除实现和部署问题，独立保存，不回填旧套件的正式验收。
 
