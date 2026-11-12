@@ -8,6 +8,8 @@
 
 全部本轮计时在独占 `ecs.g7.2xlarge` worker（8 CPU、32 GiB，私网 10.20.2.188）执行；这是单机 loopback RustFS 实际 FUSE 对照，不作为跨机 S3 或正式 C3/C4 suite 结果。每个四臂运行共用一个不可变快照；两个顺序分别生成快照，逻辑输入 SHA 相同。每臂新的挂载和客户端缓存目录，RustFS 服务端及宿主页缓存未清空。
 
+冻结的[服务启动代码](../c4-workspace-v1-packed-fork-01/smoke.py#L162)使用 `RUSTFS_VOLUMES=/data/rustfs{0...3}`，四个目录位于同一物理 SSD，并设置 `RUSTFS_UNSAFE_BYPASS_DISK_CHECK=true`。两臂拓扑相同，RustFS 四个 dynamic 开关均为 true。这是四目录的单机测试配置，不是四块独立磁盘的可靠性验证，也不能用来推断单 `/data` 配置具有相同行为。
+
 每臂先显式读取一次 `.stats` 初始化，再等待代理 active 归零并取严格静默的 before 基线。因此下表“首次”指采样初始化后的首次 readdir/读取，少量权限元数据已预热，不能把绝对耗时直接与旧 6912 cold 阶段比较。bootstrap 原文、请求/字节及成本保留；整轮由直接时钟计时，包含挂载、初始化、两遍遍历/读回、后台空闲观察、边界采样及卸载。
 
 | 文件数 | 阶段 | off 均值（秒） | on 均值（秒） | 均值耗时变化 | 逐对耗时降低范围 |
