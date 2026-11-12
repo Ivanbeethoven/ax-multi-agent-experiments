@@ -1,0 +1,347 @@
+{
+  "schema": "c3-observer-overhead-deviation-v1",
+  "id": "c3-packed-overhead-deviation-01",
+  "reviewed": true,
+  "recorded_at": "2026-11-12",
+  "recorded_by": "documentation-author",
+  "batch_scope": "new-batch-only",
+  "summary": "C3 BrewFS Packed 观测开销实测 5.9836%/5.9841%，超过冻结门槛 5%。用户接受只报告端到端性能，观测器开销作为已披露的已知偏差进入新一批，不改写已验收的 14/28，不回填旧批次。",
+
+  "applies_to": {
+    "suite": "C3",
+    "cell_id": "16f4ac389d2a2da6-r1-packed",
+    "arm_id": "packed",
+    "product": "brewfs",
+    "engine": "workspace-entity-v1",
+    "pool": "pool-a",
+    "workload": "smallfiles",
+    "case": "files-100000-hot-1024",
+    "files": 100000,
+    "file_bytes": 4096,
+    "scope_note": "本条只对这一臂的新一批正式样本有效；不适用于 native/entity-native/juicefs 臂，也不适用于其他 C3 单元或其他套件。",
+    "exclusive": true
+  },
+
+  "deviation": {
+    "gate": "complete-telemetry-and-overhead",
+    "gate_in_frozen_plan": {
+      "ref": {
+        "path": "experiments/unified-suite/pilot-aliyun/evidence/preparation/parallel-control-01/plan.json",
+        "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7"
+      },
+      "source_path": "/srv/ax-pilot-control/parallel-control-01/suite/plan.json",
+      "plan_sha256": "0feb04c5e52a28aa26d648386a5887aaffb5a792a7c579f5da25cd78f220a108",
+      "field": "config.telemetry.max_relative_overhead",
+      "lines": "37-41",
+      "cell_required_gates": "cells[16f4ac389d2a2da6-r1-packed].required_gates includes complete-telemetry-and-overhead (lines 2525-2534)"
+    },
+    "original_threshold": 0.05,
+    "statistic": "abs(median(paired on/off relative change)) over >=3 pairs, for both makespan and task_p99",
+    "decision_rule": "passed = all(relative_changes[name] <= max_relative_change for name in (makespan, task_p99))",
+    "checker": {
+      "ref": {
+        "path": "bench/runtime/observe.py",
+        "sha256": "29bdf9cdf5d97115c694d85f5a761c03591d17df3b88ad7472e2a484f08a2efd"
+      },
+      "function": "overhead",
+      "lines": "292-329",
+      "hard_cap": "line 295-296 raises when len(pairs) < 3 or not 0 < max_relative_change <= 0.05",
+      "paired_work_signature": "lines 311-322 reject any pair whose measured work signature differs",
+      "scope_string": "three or more paired fresh mounts; no same-process causal claim; rerun if binary, sampler interval or target density changes"
+    },
+    "cannot_be_expressed_as_plan_parameter": {
+      "value": true,
+      "reasons": [
+        {
+          "ref": {"path": "bench/suite_plan.py", "sha256": "f62e8e521aec6b53c5b678772d6506eb0fb785f71ff04d95348d15617c621435"},
+          "lines": "81-83",
+          "rule": "config.telemetry must equal exactly {interval_seconds:5, max_gap_seconds:30, max_relative_overhead:0.05}"
+        },
+        {
+          "ref": {"path": "bench/runtime/observe.py", "sha256": "29bdf9cdf5d97115c694d85f5a761c03591d17df3b88ad7472e2a484f08a2efd"},
+          "lines": "295-296",
+          "rule": "the checker itself refuses a tolerance above 0.05"
+        },
+        {
+          "ref": {"path": "bench/suite_report.py", "sha256": "f217453a95ab166d97764ce9b0f06173316baf88711e971486e1fc68cb3b1625"},
+          "lines": "41-43",
+          "rule": "sample-side observer_overhead max_relative_change must not exceed the plan tolerance"
+        }
+      ],
+      "consequence": "deviation must be recorded and disclosed at batch level; it must not be implemented by editing the plan field or the checker tolerance"
+    },
+    "threshold_after_deviation": "not substituted and not raised; the measured value is reported as-is and the deviation is disclosed with every result"
+  },
+
+  "measured": {
+    "value": 0.0598,
+    "rounded_percent": 5.98,
+    "makespan": 0.05983592434606022,
+    "task_p99": 0.05984068070127868,
+    "passed": false,
+    "direction": "observation-on faster than observation-off in 2 of 3 pairs; sign is negative, so this is not a uniform slowdown factor",
+    "paired_relative_changes": {
+      "makespan": [-0.06207100389622955, 0.004178209975826297, -0.05983592434606022],
+      "task_p99": [-0.062075826921163535, 0.004174491734144192, -0.05984068070127868]
+    },
+    "pairs_absolute": [
+      {"pair": 1, "off_seconds": 101.736882757, "on_seconds": 95.421972311},
+      {"pair": 2, "off_seconds": 100.509033397, "on_seconds": 100.928981243},
+      {"pair": 3, "off_seconds": 101.43564996, "on_seconds": 95.366154083}
+    ],
+    "where_the_difference_sits": "cold-read work phase; slower/faster attribution to collector, cache or object backend is not established",
+    "evidence": {
+      "ref": {
+        "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/packed-calibration-a-01/calibration-overhead.json",
+        "sha256": "460b6294c7fea61c09d5d5638cd05b82c16fab2758e4f68fbe0bf6862d78a1dd"
+      },
+      "source_path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/pairs/overhead/result.json",
+      "same_bytes_as_source": true,
+      "source_sha256_recorded_in": "experiments/unified-suite/pilot-aliyun/evidence/progress/packed-calibration-a-01/handoff-calibration-only.json#overhead",
+      "field_paths": [
+        "passed",
+        "relative_changes.makespan",
+        "relative_changes.task_p99",
+        "max_relative_change",
+        "paired_relative_changes.makespan",
+        "trial_details[].makespan_seconds"
+      ]
+    },
+    "cross_checks": [
+      {
+        "ref": {
+          "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/packed-calibration-a-01/handoff-calibration-only.json",
+          "sha256": "b0d9a70acc5000756ff1cb56b6599e1b62fc3042a990cb23136643a13d43e8de"
+        },
+        "fields": "overhead, overhead_relative_changes, formal_packed_state=pending, formal_stages_started=0, formal_packed_sample_accepted=false"
+      },
+      {
+        "ref": {
+          "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/packed-cold-phase-diagnosis-02/diagnosis.json",
+          "sha256": "15f91d64458ea54e75947a2afe2c6069941f7bbf9f2a4b0687eaa4d651f1978b"
+        },
+        "fields": "original_threshold=0.05, original_gate_passed=false, relative_changes"
+      }
+    ]
+  },
+
+  "decision": {
+    "by": "user",
+    "accepted": true,
+    "at": "2026-11-12",
+    "statement": "可以只观测端到端性能，不介意观测开销超过 5%。",
+    "interpretation": "report end-to-end performance only; record the observer overhead as a disclosed known bias instead of hiding it",
+    "not_authorized": [
+      "claiming influence-free or zero-overhead performance",
+      "claiming equal comparability with the already accepted flat arms without also reporting each arm's own deviation",
+      "silently raising or bypassing the 5% threshold",
+      "applying this deviation to any other arm or cell",
+      "rescaling or dividing measured numbers by 1.0598 as if the bias were a constant factor"
+    ]
+  },
+
+  "disclosure": {
+    "required_fields_in_every_result": [
+      "measured observer overhead value and the three per-pair relative changes",
+      "direction (observation-on faster/slower)",
+      "the phase where the difference sits and the explicit statement that it is not attributed",
+      "the statement that all other gates are unchanged"
+    ],
+    "result_template": "在 5.98% 观测开销（三对配对相对差中位数绝对值；逐对 -6.21% / +0.42% / -5.98%，方向为开采集更快，差异集中在 cold-read，未归因）下，C3 packed 单轮端到端 makespan 为 <value> 秒。",
+    "short_label": "5.98% 观测开销下的端到端性能",
+    "forbidden_phrasings": [
+      "观测器无影响的性能",
+      "零开销 / 干净基线",
+      "与 flat 结果同等可比（单独出现）",
+      "把 5.98% 当作校正系数折算数字"
+    ],
+    "cross_arm_rule": "any cross-arm comparison must print both arms' own observer deviations side by side; C3 flat BrewFS is 2.85%/2.86% (passed), C3 JuiceFS has its own retained calibration, C3 packed is 5.98% (failed gate, disclosed).",
+    "comparability_claim_allowed": false
+  },
+
+  "unchanged_gates": [
+    {"gate": "exact-build-input-inventory", "requirement": "build-manifest.json and input-manifest.json SHA must equal the frozen plan fields", "changed": false},
+    {"gate": "native-route-and-metadata", "requirement": "packed cloud route qualification filesystem.json passed", "changed": false, "current_evidence": "evidence/preparation/packed-live-batch-01/qualification/filesystem.json (passed)"},
+    {"gate": "effective-cache-and-durability", "requirement": "upload_before_commit + fsync + remote drain with zero pending bytes/operations", "changed": false},
+    {"gate": "host-capacity-and-maintenance", "requirement": "actual capacity budget with 20% reserve and seven further copies", "changed": false, "current_evidence": "evidence/preparation/packed-live-batch-01/capacity/result.json (passed)"},
+    {"gate": "full-base-validation-once", "requirement": "complete immutable packed base, 100,000 files / 409,600,000 bytes, plus a different private child with child and parent cold checks", "changed": false, "current_evidence": "evidence/preparation/packed-live-batch-01/qualification/route-result.json (passed)"},
+    {"gate": "client-cache-evidence", "requirement": "client cache provenance recorded in the formal cell", "changed": false},
+    {"gate": "cross-pool-hardware-equivalence", "requirement": "cross-pool hardware proof when required by the cell", "changed": false},
+    {"gate": "all_nine_stages", "requirement": "observe-start, create-w01, mount-w01, measure-w01, drain-w01, unmount-w01, verify-w01, observe-stop, archive", "changed": false},
+    {"gate": "cold_readback_and_content_verification", "requirement": "verify-w01 full content verification after remount; a fresh complete cold verification for the formal cell, never reused from qualification", "changed": false},
+    {"gate": "work_identity", "requirement": "same metric_contract_sha256 and workload_contract_sha256 as the frozen qualification; work-check passed", "changed": false},
+    {"gate": "telemetry_sampling", "requirement": "interval 5 s, max gap 30 s, all four phase marks; only the allowed relative difference is deviated", "changed": false},
+    {"gate": "real_exit_and_drain", "requirement": "real process exit, mount absent, agent slot empty, zero upload debt", "changed": false},
+    {"gate": "raw_archive_and_readback", "requirement": "three-role raw archives retained with member SHA verification and independent remote readback", "changed": false}
+  ],
+
+  "does_not_rewrite": {
+    "ledger": {
+      "accepted": 14,
+      "total": 28,
+      "c3": {"accepted": 2, "total": 4},
+      "ref": "experiments/unified-suite/pilot-aliyun/evidence/progress/parallel-20261111-2324-01/STATUS.zh.md",
+      "unchanged": true,
+      "packed_counted_as_accepted": false
+    },
+    "accepted_units": [
+      {
+        "cell_id": "16f4ac389d2a2da6-r1-native",
+        "arm": "BrewFS flat",
+        "evidence": "experiments/unified-suite/pilot-aliyun/evidence/c3-flat-01/accepted.json",
+        "observer_overhead": 0.02850520107112564,
+        "observer_overhead_p99": 0.028588390887341997,
+        "overhead_passed": true,
+        "rewritten": false
+      },
+      {
+        "cell_id": "16f4ac389d2a2da6-r1-juicefs",
+        "arm": "JuiceFS flat",
+        "evidence": "experiments/unified-suite/pilot-aliyun/evidence/c3-jfs-01/formal/sample.json",
+        "independent_close": "experiments/unified-suite/pilot-aliyun/evidence/c3-jfs-01/independent-close-01/result.json",
+        "rewritten": false
+      }
+    ],
+    "no_backfill": "no old batch, calibration trial or accepted receipt is re-scored, rerun, refilled or reinterpreted by this record",
+    "applies_only_to_next_batch": true
+  },
+
+  "execution_status": {
+    "admissible_today": false,
+    "reason": "the deviation record alone is a reviewed authorization and disclosure artifact; the execution path still hard-requires a passing overhead gate",
+    "blockers": [
+      {
+        "ref": {"path": "experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py", "sha256": "59e1a40330db8077f9dfca97b736f830318fd7e5d7f318cb70744d83ce1a4b5c"},
+        "lines": "439-442",
+        "function": "admit_locked",
+        "rule": "requires checked['passed'] is True and every relative_changes value <= .05, else raises 'Three exact original calibration pairs within five percent required'"
+      },
+      {
+        "ref": {"path": "experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py", "sha256": "59e1a40330db8077f9dfca97b736f830318fd7e5d7f318cb70744d83ce1a4b5c"},
+        "lines": "279",
+        "function": "sample checks",
+        "rule": "writes observer_overhead with equals={'passed': True}; a passed:false result fails sample acceptance via bench/suite_report.py:34"
+      },
+      {
+        "ref": {"path": "experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py", "sha256": "59e1a40330db8077f9dfca97b736f830318fd7e5d7f318cb70744d83ce1a4b5c"},
+        "lines": "490-513",
+        "function": "pairs",
+        "rule": "raises RuntimeError when the three pairs do not clear the existing gate; this is the recorded pipeline failure at stage pairs"
+      }
+    ],
+    "missing_for_a_compliant_run": {
+      "item": "an explicit consumption point in admission and sample checking",
+      "detail": "admit_locked and the sample observer_overhead check must accept either passed:true or a reviewed:true reference to this record that satisfies the disclosure contract, and must carry that reference into context.json and the final result text",
+      "type": "code and new-batch request change; not a documentation change"
+    },
+    "no_self_unlock": true
+  },
+
+  "evidence": [
+    {
+      "name": "measured overhead result",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/packed-calibration-a-01/calibration-overhead.json",
+      "sha256": "460b6294c7fea61c09d5d5638cd05b82c16fab2758e4f68fbe0bf6862d78a1dd",
+      "source_path": "/srv/ax-pilot-control/parallel-control-01/packed-c3-next-03/pairs/overhead/result.json",
+      "same_bytes_as_source": true
+    },
+    {
+      "name": "calibration narrative and per-pair deltas",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/packed-calibration-a-01/README.md",
+      "sha256": "9e800cd09347cee57fd58a0727f98ab6bd8ccf989d952e1c78a3cdd5a7cb16ec"
+    },
+    {
+      "name": "handoff, formal still pending",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/packed-calibration-a-01/handoff-calibration-only.json",
+      "sha256": "b0d9a70acc5000756ff1cb56b6599e1b62fc3042a990cb23136643a13d43e8de"
+    },
+    {
+      "name": "checker exit 1 (gate failure, no retry)",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/packed-calibration-a-01/checker-exit.json",
+      "sha256": "56296949d3a02e635b050fd6b4762f0f0b52c23d05b925203095f7daf8e19027",
+      "note": "exit_code: 1"
+    },
+    {
+      "name": "pipeline failure at stage pairs",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/packed-calibration-a-01/pipeline-failure.json",
+      "sha256": "d85e6262fc3054862a5e9aa454cd96e968a5c0e7a8d3ebc2b8f44e1fbf28ec67",
+      "source_path": "/srv/ax-pilot-control/parallel-control-01/one-cell-runs/16f4ac389d2a2da6-r1-packed-pc301-live/failed.json",
+      "same_bytes_as_source": true,
+      "note": "passed: false, stage: pairs, automatic_retry: false"
+    },
+    {
+      "name": "read-only phase diagnosis, same numbers",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/packed-cold-phase-diagnosis-02/diagnosis.json",
+      "sha256": "15f91d64458ea54e75947a2afe2c6069941f7bbf9f2a4b0687eaa4d651f1978b"
+    },
+    {
+      "name": "frozen plan carrying the 0.05 threshold",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/preparation/parallel-control-01/plan.json",
+      "sha256": "8649d8b77163e9c47de5a5df2a8f8b2a633e305ec4f657c7ba8115a3e02a76e7",
+      "source_path": "/srv/ax-pilot-control/parallel-control-01/suite/plan.json"
+    },
+    {
+      "name": "qualification passed (route)",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/preparation/packed-live-batch-01/qualification/route-result.json",
+      "sha256": "19dbf93a2777b0d4ab4a820cc876fb1d1351d9107e507b9c8424b226f9a309dd"
+    },
+    {
+      "name": "qualification passed (filesystem, complete base plus cold child/parent)",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/preparation/packed-live-batch-01/qualification/filesystem.json",
+      "sha256": "5d447de66ea85873971b5bc1b187dda5e4c6bac640f587c292a2887f542297d1",
+      "source_path": "/srv/ax-pilot-control/parallel-control-01/qualification/pool-a-c3-packed-01/packed/filesystem.json",
+      "same_bytes_as_source": true
+    },
+    {
+      "name": "capacity passed",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/preparation/packed-live-batch-01/capacity/result.json",
+      "sha256": "24d56451e8aed8d99c2bedc98fd7e8e7c359d4052206101612a1c69b1046eba5"
+    },
+    {
+      "name": "latest-branch receipt passed",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/preparation/packed-live-batch-01/launch/latest.json",
+      "sha256": "0ec46d4278d1d22e8a6152d4531bee02d139620a5fdff87f62d4834e23bd3963",
+      "note": "brewfs ca07159f3da4b670e4aeb878faef928e69bc1634, rustfs f4ed202508f2153afb7956bae6f7799b60eccd00"
+    },
+    {
+      "name": "accepted C3 BrewFS flat unit",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/c3-flat-01/accepted.json",
+      "sha256": "5c07c08a5665f728d306fe7c80599a8668ebe76e7e0da74fb492c6604176e652"
+    },
+    {
+      "name": "C3 flat observer overhead (2.85%/2.86%, passed)",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/c3-flat-01/observer-overhead.json",
+      "sha256": "6103f6eb90f0589ec9cce91ccbc3de90697bc5094f9fce6849fd6580759e88be"
+    },
+    {
+      "name": "C3 acceptance ledger (14/28, C3 2/4)",
+      "path": "experiments/unified-suite/pilot-aliyun/evidence/progress/parallel-20261111-2324-01/STATUS.zh.md",
+      "sha256": "b0a0f636410fb8308b15ce31fd24c88b9a14f4eeca4d56c20224695d6350d3bf"
+    },
+    {
+      "name": "checker rule",
+      "path": "bench/runtime/observe.py",
+      "sha256": "29bdf9cdf5d97115c694d85f5a761c03591d17df3b88ad7472e2a484f08a2efd"
+    },
+    {
+      "name": "plan validation pinning 0.05",
+      "path": "bench/suite_plan.py",
+      "sha256": "f62e8e521aec6b53c5b678772d6506eb0fb785f71ff04d95348d15617c621435"
+    },
+    {
+      "name": "sample-side overhead comparison",
+      "path": "bench/suite_report.py",
+      "sha256": "f217453a95ab166d97764ce9b0f06173316baf88711e971486e1fc68cb3b1625"
+    },
+    {
+      "name": "admission and pairs hard gate",
+      "path": "experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py",
+      "sha256": "59e1a40330db8077f9dfca97b736f830318fd7e5d7f318cb70744d83ce1a4b5c"
+    }
+  ],
+
+  "not_found_or_uncovered": [
+    "the overhead plan file itself (…/pairs/overhead/plan.json) is not archived in the repository; the result embeds pairs, max_relative_change and both contract SHAs, which is enough to rebuild the plan, but recomputation additionally needs the six cohort/result.json on the control host",
+    "causal attribution of the 5.98% difference to the collector, caches or the object backend is not established; evidence only localises it to the cold-read work phase"
+  ]
+}
