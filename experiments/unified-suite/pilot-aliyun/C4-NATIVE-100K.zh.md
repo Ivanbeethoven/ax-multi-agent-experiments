@@ -1,17 +1,24 @@
 # C4：10 万文件原生派生
 
-在同一个 A 池串行跑一次 BrewFS 原生 fork 和一次 JuiceFS 原生 clone。每臂 1 个子工作区，客户端同一 2 CPU / 8 GiB / swap=0 槽、root 身份，Redis 和 RustFS 共用同一套服务，各臂使用各自空 Redis DB 和对象桶。保持两臂的完整输入相同，保留准备、计时、冷验各自结果。当前 BrewFS 候选二进制为诊断构建（`opt-level=0`），原始耗时只作本次资格排查，不进入性能结果。
+在同一个 A 池串行跑一次 BrewFS 原生 fork 和一次 JuiceFS 原生 clone。每臂 1 个子工作区，客户端同一 2 CPU / 8 GiB / swap=0 槽、root 身份，Redis 和 RustFS 共用同一套服务，各臂使用各自空 Redis DB 和对象桶。两臂使用相同完整输入，分别保留准备、计时和冷验结果。性能跑使用常规优化的 BrewFS release；`opt-level=0` 只做资格排查。
 
 ## 开机前和开机后的核对
 
 - A 客户端已有 `/srv/ax-client/inputs/pilot-100k-01/fork-source` 和同批 `receipts/c4-fixture-tree.json`；[原始输入收尾](evidence/preparation/pool-a-next-01/collected-client/input-closure.json)确认 100,000 × 4096 B，树清单 SHA-256 `02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13`。C3 的同规模输入不是这棵树。
-- [BrewFS 候选](evidence/preparation/c4-local-packed-fork-candidate-01/root-nlink-build-receipt.json) SHA-256 `3ecde1a2a4a55d450b7680661c655fd8d08491afc6aebacef84b58cea76bd6ee`，分发到新的 `…/bin/brewfs`，不要覆盖 A 池已有版本。Packed producer SHA-256 `aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab`；JuiceFS 原生 clone 二进制 SHA-256 `6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc`。
+- [BrewFS 资格二进制](evidence/preparation/c4-local-packed-fork-candidate-01/root-nlink-build-receipt.json) SHA-256 `3ecde1a2a4a55d450b7680661c655fd8d08491afc6aebacef84b58cea76bd6ee`。常规优化版须带成功的 `c4-rbm-normal-release-build-v1` 构建回执。各版本分发到新的 `…/bin/brewfs`，不要覆盖 A 池已有版本。Packed producer SHA-256 `aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab`；JuiceFS 原生 clone 二进制 SHA-256 `6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc`。
 - [A 池历史只读盘点](evidence/preparation/a-c3-cold-capacity-01/statvfs.json)四盘空闲约 28.1/39.4/39.4/39.4 GB（每盘约 60.1 GB），B 池历史盘 0 [仅剩约 4.0 GB](evidence/preparation/b-c1-post-gc-capacity-01/statvfs.json)，低于 20% 预留。A 是候选；开机后重新核四盘读写挂载、容量/ inode、Redis 内存及 AOF、客户端磁盘、运行镜像 commit/digest、两种二进制 SHA、cgroup 和冲突 leases。按新源与校验工作量留增量后，仍须保住 20% 空间和 inode。过去的盘点不是本次准入。
 - 从第一次写入准备到最后一个挂载关闭并拉回回执，协调者使用同一个既有 `runner-locks`、真实实例/磁盘资源 ID 和 SQLite 租约检查；B 池旧 JuiceFS 回执不与 A 池拼对。没有可核验的当前 RustFS 版本或已发布 Packed carrier 时，停在准备阶段。
 
 ## 准备源目录
 
 以下命令在 A 客户端、固定的执行槽及已核验的绝对路径下运行。`RUN` 为本轮新证据目录，`TREE` 为上面的原始清单。所有凭证来自本机私有文件，不放进命令或归档。Redis DB 在写入前逐个核对 `DBSIZE=0`，对象桶在创建前核对不存在。
+
+默认 `RELEASE_ARGS=()`，只用于 JuiceFS 或旧 BrewFS 资格二进制。优化版先把二进制和构建回执传到客户端，核对两者 SHA，再写独立审核文件：`schema: c4-native-100k-release-review-v1`、`reviewed: false`，以及各含绝对 `path` 和 `sha256` 的 `binary`、`build_receipt`。人工核对回执的来源、补丁、正常 release 配置和成功退出后，另存已审核版本。BrewFS 以下四个草稿命令都传同一审核文件与 SHA；不能沿用 opt=0 的源资格。脚本会核对已安装二进制的实际字节与构建回执。
+
+```bash
+RELEASE_ARGS=(--release-review "$RELEASE_REVIEWED" \
+              --release-review-sha256 "$(sha256sum "$RELEASE_REVIEWED" | cut -d' ' -f1)")
+```
 
 **BrewFS。** 先用 `bench/fs_step.py check` 从本地源核对 `TREE`。通过已验证的 Packed producer 上传同一棵树：
 
@@ -41,13 +48,13 @@ BF=("$BREWFS" workspace --meta-backend redis --meta-url "$BREW_REDIS" --workspac
 
 ```bash
 P=experiments/unified-suite/pilot-aliyun/scripts/draft-c4-native-100k.py
-python3 "$P" carrier-step --cell "$CELL" --tree "$TREE" --binary "$BREWFS" \
+python3 "$P" carrier-step "${RELEASE_ARGS[@]}" --cell "$CELL" --tree "$TREE" --binary "$BREWFS" \
   --redis-url "$BREW_REDIS" --namespace "$NAMESPACE" --publication "$RUN/publication.json" \
   --data-config "$DATA" --aws-environment "$PRIVATE_AWS_JSON" --cwd "$RUN" \
   --out "$RUN/carrier-step.draft.json"
 python3 -m bench.experiment_step run --spec "$CARRIER_STEP_REVIEWED" \
   --spec-sha256 "$(sha256sum "$CARRIER_STEP_REVIEWED" | cut -d' ' -f1)" --output "$RUN/carrier-probe"
-python3 "$P" source-brewfs --cell "$CELL" --tree "$TREE" --binary "$BREWFS" \
+python3 "$P" source-brewfs "${RELEASE_ARGS[@]}" --cell "$CELL" --tree "$TREE" --binary "$BREWFS" \
   --redis-url "$BREW_REDIS" --namespace "$NAMESPACE" --publication "$RUN/publication.json" \
   --data-config "$DATA" --carrier-step "$CARRIER_STEP_REVIEWED" --carrier-output "$RUN/carrier-probe" \
   --mount-spec "$PROBE_MOUNT_SPEC" --ready "$PROBE/ready.json" --out "$RUN/source.draft.json"
@@ -76,11 +83,11 @@ python3 -m bench.fork_source --request "$SOURCE_REVIEWED" --sha256 "$(sha "$SOUR
   --out "$RUN/qualified.json"
 python3 -m bench.runtime.node stop --output "$PROBE"
 # BrewFS: OPT=(--aws-environment "$PRIVATE_AWS_JSON"); MOUNT_ARGS=()
-# JuiceFS: OPT=(); MOUNT_ARGS=(--measurement-spec "$MEASURE_SPEC" --measurement-ready "$MEASURE/ready.json")
+# JuiceFS: OPT=(); RELEASE_ARGS=(); MOUNT_ARGS=(--measurement-spec "$MEASURE_SPEC" --measurement-ready "$MEASURE/ready.json")
 COMMON=(--qualification "$RUN/qualified.json" --probe-stopped "$PROBE/stopped.json" --child child-01)
-python3 "$P" measure-step "${COMMON[@]}" "${MOUNT_ARGS[@]}" "${OPT[@]}" --cwd "$RUN" \
+python3 "$P" measure-step "${COMMON[@]}" "${RELEASE_ARGS[@]}" "${MOUNT_ARGS[@]}" "${OPT[@]}" --cwd "$RUN" \
   --out "$RUN/child.draft.json"
-python3 "$P" burst "${COMMON[@]}" "${MOUNT_ARGS[@]}" --step "$CHILD_REVIEWED" \
+python3 "$P" burst "${COMMON[@]}" "${RELEASE_ARGS[@]}" "${MOUNT_ARGS[@]}" --step "$CHILD_REVIEWED" \
   --out "$RUN/burst.draft.json"
 python3 -m bench.fork_burst --spec "$BURST_REVIEWED" --sha256 "$(sha "$BURST_REVIEWED")" \
   --output "$RUN/timed"
