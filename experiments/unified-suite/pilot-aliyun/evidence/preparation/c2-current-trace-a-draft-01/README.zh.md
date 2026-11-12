@@ -38,20 +38,38 @@ timeout --signal=TERM --kill-after=10s "$remaining" \
 目前只确认了历史输入、构建和已有恢复路径。当前 A 开机后的空间、空 DB、实跑 guard 与完整 Packed 初态/可写回放尚未验证。普通 `workspace-v1` 的本机限时[记录](../c2-local-stock-full-pytest-01/README.zh.md)只证明部分进度，不能推出云端耗时；当前独立草案不进入旧 `prepare-c2.py` 或正式测量状态库。
 
 
-## 操作入口
+## 准备审阅与执行
 
-本目录有 [PowerShell 开停机入口](run-c2-current-a.ps1)、[协调者锁持有器](run-c2-current-a.py)和 [A 客户端 worker](qualify-c2-current-a.py)。锁定前不启动 ECS；以锁获取时间计 40 分钟工作截止、45 分钟费用窗口，比从开机请求计略早。协调者监控退出并收回回执，PowerShell 独立负责停机。无法证明三台已经 StopCharging 时，协调者继续持锁。
+先审[冻结输入和容量要求](request.draft.json)、[协调者锁与准入](run-c2-current-a.py)和[客户端执行器](qualify-c2-current-a.py)。等待 A 上一轮退出、回执留存、槽位清空，并与当前跳板机负责人交接。历史容量、Redis DB 状态、进程和挂载记录都不能作为本轮证据。两文件热读对照使用过另一个候选二进制；本次完整可写 trace 固定使用草案里的 stock 二进制。
 
-在 C3 关闭并取回证据后，操作人准备：
-
-- `latest.json`：执行 `verify-latest.py`，本机现有 build manifest 为 WSL 的 `/home/hxy/ax-unified-pilot-prep-next-01/receipts/build-manifest.json`。记录须在 15 分钟内，两个分支均与本轮产物一致。
-- `instances-before.json`：从阿里云 `ecs DescribeInstances` 原样保存草案三台（`cn-hangzhou`）；三个实例均须处于 `Stopped/StopCharging`，5 分钟内有效。
-- 操作人另存 `operator.reviewed.json`，schema 为 `c2-current-a-operator-review-v1`，包含 `reviewed`、`reviewer`、`scope`（精确为 `A-only stock workspace-v1 Packed C2 qualification, 45 minute cap`）、`tag`（`c2-current-a-YYYYMMDDtHHMMSSz`）、整数 `database`，以及四个 SHA256：`controller_sha256`、`worker_sha256`、`latest_sha256`、`before_sha256`。执行器从不生成审阅记录。
-
-在 Windows PowerShell 中，从本目录运行：
+从本目录在 Windows PowerShell 运行以下**准备命令**。两个根目录应已存在且互不相同。`242` 只是待检查的 DB 候选。
 
 ```powershell
-./run-c2-current-a.ps1 -SshConfig $aSshConfig -ReceiptRoot $newReceiptParent -Latest $latestReceipt -InstancesBefore $beforeReceipt -OperatorReview $reviewFile
+$packet = ./prepare-review.ps1 -PacketRoot $localReviewRoot -Database 242 | ConvertFrom-Json
 ```
 
-收到 `coordinator/closed.json` 后才判断是否完成。若本地控制终端意外中止，直接核实并按原计划停这三台；保留原回执。不要先停协调者的锁进程。离线检查：`python3 -B check-offline.py [本机初态清单路径]`。这一步不会连云。
+[准备脚本](prepare-review.ps1)用[归档构建清单](../brewfs-ca07159-build/build-manifest.json)查最新分支，并向 ECS 只读查询三个精确 A 实例。只写本地目录，生成 `latest.json`、`instances-before.json` 和 `operator.review.template.json`；模板明确为 `reviewed=false`。这条命令不会 SSH、启动实例或生成批准。若分支推进、实例不是 `Stopped/StopCharging`，或证据过期，停止准备并保留原因。可用 `-LatestReceipt` 与 `-InstancesBeforeReceipt` 做离线复查，两份输入仍须在时效内。
+
+| 证据 | 何时重取，谁校验 |
+| --- | --- |
+| BrewFS/RustFS 分支和产物 | 开跑前重取，最多 **900 秒**；`latest_ok` 检查分支、提交和查询成功。 |
+| A 三台停机状态 | 签审前重取，最多 **300 秒**；`exact_stopped` 检查实例 ID、可用区、状态，上传保留原时间戳。拿到锁后，开机前再查一次，锁回执最多 **45 秒**。 |
+| 跳板机控制盘 | 在此次开机后验证 UUID `ffe25afe-9d22-4e20-8a5b-fc19baa6687d`、设备、路径和原控制库。PowerShell 在任何远程写入前用[原盘检查](../../../scripts/restore-existing-jump-control.py)拒绝错误挂载。 |
+| A 数据盘、服务、槽位和空 DB | 拿锁并启动 A 后按同一开机状态重取，紧接着才运行 worker。容量门槛为至少 20% + 2 GiB 可用、20% + 10,000 个可用 inode；还要检查 Redis AOF/内存、镜像和空 DB。历史回执不进入这条准入链。 |
+
+当前[跳板机窗口脚本](../../../scripts/run-existing-jump-window.ps1)只支持 C1/C3。若跳板机已停，交接后由当前窗口负责人单独启动既有 `ax-c1-jump`、核实身份，运行[原盘检查](../../../scripts/restore-existing-jump-control.py)的 `--mount` 选项；该选项只允许挂回指定原盘，绝不格式化。已有窗口占用时不要启动、恢复或停它。C2 入口只拥有 A 三台的开停机，不负责跳板机。
+
+```powershell
+Get-Content ../../../scripts/restore-existing-jump-control.py -Raw -Encoding utf8 |
+  ssh -F $aSshConfig -oBatchMode=yes -oConnectTimeout=8 ax-pilot-jump 'python3 - --mount'
+```
+
+操作人核对精确文件和四项 SHA 后，单独保存实际签审文件 `operator.reviewed.json`，填写真实 `reviewer` 并改为 `reviewed=true`。若超过 `$packet.expires_utc`，重取证据并重新签审，不沿用旧批准。实际执行入口：
+
+```powershell
+./run-c2-current-a.ps1 -SshConfig $aSshConfig -ReceiptRoot $newReceiptParent `
+  -Latest (Join-Path $packet.packet latest.json) `
+  -InstancesBefore (Join-Path $packet.packet instances-before.json) -OperatorReview $reviewFile
+```
+
+启动后由协调者持有锁；锁获取起 40 分钟结束工作、预留 5 分钟关停。最迟在锁后 43 分 30 秒请求停机；实际停机以 API 回执为准。收到 `coordinator/closed.json` 和三台 `StopCharging` 回执后才判断是否完成。若本地控制终端中止，先核实并按原计划停这三台，保留回执，不先杀锁进程。独立资格不提交正式 C2 cell，也不替代冻结套件自己的 900 秒准入。离线检查：`python3 -B check-offline.py [本机初态清单路径]`。

@@ -21,12 +21,12 @@ draft=json.loads((HERE/'request.draft.json').read_text())
 assert draft['reviewed'] is False and draft['runnable'] is False
 assert draft['instance_ids']==ctl['IDS']
 assert draft['hard_window_seconds']==2700 and draft['work_deadline_since_first_start_request_seconds']==2400
-assert draft['source']['case']==str(worker['CASE']) and draft['source']['manifest']==str(worker['MANIFEST'])
+assert draft['source']['case']==worker['CASE'].as_posix() and draft['source']['manifest']==worker['MANIFEST'].as_posix()
 assert draft['source']['manifest_sha256']==worker['MAN_SHA']
 for field,pin in [('brewfs','BREWFS'),('packed_producer','PRODUCER'),('replay','REPLAY')]:
-    assert draft['build'][field]==dict(path=str(worker[pin]),sha256=worker['PINS'][worker[pin]])
+    assert draft['build'][field]==dict(path=worker[pin].as_posix(),sha256=worker['PINS'][worker[pin]])
 assert all(draft['source'][key]==value for key,value in worker['EXPECTED'].items())
-for link in re.findall(r'\]\(([^)]+)\)',(HERE/'README.zh.md').read_text()):
+for link in re.findall(r'\]\(([^)]+)\)',(HERE/'README.zh.md').read_text(encoding='utf-8')):
     assert (HERE/link).is_file(),link
 archive=json.loads((REPO/'scenarios/k8s-containers/archives.json').read_text())
 row=next(x for x in archive['archives'] if x['case']=='pytest-full-02')
