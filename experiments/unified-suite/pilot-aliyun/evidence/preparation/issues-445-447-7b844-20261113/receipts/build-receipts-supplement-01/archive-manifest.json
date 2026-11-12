@@ -1,0 +1,75 @@
+{
+  "at": "2026-11-12T19:08:47.948265+00:00",
+  "allowlist": [
+    "runtime-watchdog-extension.json",
+    "runtime-watchdog-extension-02.json",
+    "runtime-limits-parallel-three-builds.json",
+    "runtime-limits-plan.json",
+    "runtime-limits-parallel-attempt02.json",
+    "build-arm.initial.py",
+    "build-arm.py",
+    "preparation.json",
+    "two task-owned systemd unit files"
+  ],
+  "excluded": "worker-transfer,ssh-key,known_hosts,credentials,source directories,binaries,targets",
+  "secret_pattern_scan": {
+    "passed": true,
+    "patterns": [
+      "private_key",
+      "aliyun_access_key",
+      "aws_access_key"
+    ]
+  },
+  "files": [
+    {
+      "path": "srv/perf-issues-445-447/runtime-watchdog-extension.json",
+      "bytes": 1396,
+      "sha256": "2b22591550bc97e7e2a98d53c4c810544fc1f738d3591edd2c5f3551b715d451"
+    },
+    {
+      "path": "srv/perf-issues-445-447/runtime-watchdog-extension-02.json",
+      "bytes": 1536,
+      "sha256": "f6c65393b229547f1235ebed6af14c8b41b4973f11665e00a732a3e6b7cd2996"
+    },
+    {
+      "path": "srv/perf-issues-445-447/runtime-limits-parallel-three-builds.json",
+      "bytes": 1197,
+      "sha256": "e9a6bb70c88e06d465a21177c6173aeb1cdf1043da5075c283e772f21b518d4d"
+    },
+    {
+      "path": "srv/perf-issues-445-447/runtime-limits-plan.json",
+      "bytes": 444,
+      "sha256": "d73a1d6413f1fcd255568619104a66d2b7c4a590abcd999059112d09129e2be0"
+    },
+    {
+      "path": "srv/perf-issues-445-447/runtime-limits-parallel-attempt02.json",
+      "bytes": 449,
+      "sha256": "23324b815be142ee3f3d70b21f54f124962586d80070329e3302b0bc185e4b82"
+    },
+    {
+      "path": "srv/perf-issues-445-447/build-arm.initial.py",
+      "bytes": 3836,
+      "sha256": "85d90b26a704a62abec230b2a61e4f0fa79a597ba519d15161e4a36e6e24bdc4"
+    },
+    {
+      "path": "srv/perf-issues-445-447/build-arm.py",
+      "bytes": 3903,
+      "sha256": "eba43e21309d48bcbf298ba7ca2ec724c9e8ae18d98c9440690ac6a47e04e143"
+    },
+    {
+      "path": "srv/perf-issues-445-447/preparation.json",
+      "bytes": 716,
+      "sha256": "67793c5cda63bf663d98900882c9eb2f9315c8945c56b44794a6c02d9fb4dd1a"
+    },
+    {
+      "path": "srv/perf-issues-445-447/evidence/build-receipts-supplement-01/ax-issues-baseline-release-01.systemd.txt",
+      "bytes": 1029,
+      "sha256": "6d4da8eef552fcc3a8a4eb47a3e2757ed25ef113a50aafc3a888635c96a2662a"
+    },
+    {
+      "path": "srv/perf-issues-445-447/evidence/build-receipts-supplement-01/ax-issues-candidate-release-01.systemd.txt",
+      "bytes": 568,
+      "sha256": "6e2f82fcca484bfe25463499355341d8d7c1669c4a433477503ce77b22f46000"
+    }
+  ]
+}

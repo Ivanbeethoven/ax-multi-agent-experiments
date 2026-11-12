@@ -1,0 +1,269 @@
+{
+  "schema": "issues-445-447-independent-preflight-v1",
+  "reviewed_at": "2026-11-12T17:28:28.446857+00:00",
+  "candidate": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3",
+  "tree": "e72618af232f23a671cf325b127dd01cc4bacfcb",
+  "ci": {
+    "actual-features": {
+      "test_binaries": 4,
+      "passed": 2855,
+      "failed": 0,
+      "ignored": 485,
+      "log_sha256": "bf476cdabd83e8061306616053b4d322eab059120493a565c80ea67383bceee7"
+    },
+    "tests": {
+      "test_binaries": 3,
+      "passed": 1359,
+      "failed": 0,
+      "ignored": 266,
+      "log_sha256": "49ad4fe4798b92c312ada0669dc0e061e6a5eff543291a29a9e77eccb826bc8b"
+    }
+  },
+  "final_visibility_delta": {
+    "from_full_test_tree": "082ef7524cf845bd546895a0f7ab060e8ff38fe0",
+    "to_final_tree": "e72618af232f23a671cf325b127dd01cc4bacfcb",
+    "change": "Only removes pub(super) from lease_proven_inode_rows; actual git diff inspected; check/clippy/fmt passed.",
+    "patch_sha256": "5e5dd54c0fc364424752e1ef74990a660ca9d67adb913a6db2ee3e882ba9b26d"
+  },
+  "release_identities": {
+    "baseline": {
+      "commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+      "tree": "1ee7c97a427156d9c2cfe056f857e2e01efeb714",
+      "binaries_sha256": {
+        "brewfs": "448ac21de0aadb5d82e5d00e9c41df8cbf616ee9539964aeb104dd70114ef5de",
+        "packed_v3_snapshot_fixture": "8c4d65dbe8daaeaffb7f6084474a9a839df418c66d2aced6226842a5b8997d72"
+      },
+      "dirty": false,
+      "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+      "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "features_from_actual_rustc": [
+        [
+          "fuse-io-uring-runtime",
+          "observability",
+          "rustfs-ec-block-size-hint",
+          "workspace-overlay"
+        ],
+        [
+          "fuse-io-uring-runtime",
+          "observability",
+          "rustfs-ec-block-size-hint",
+          "workspace-overlay"
+        ]
+      ],
+      "opt_level": 3,
+      "source_receipt_sha256": "545734cf0ddf24e9ce9b7ae39341ebb9c79517ace473ce80eb216cfa4c12156d",
+      "artifact_identity_sha256": "b1187383b96afabf595b26cbd65301cb76dfe8312c93403667cdc93e32c1a466",
+      "binary_hash_status": "Transfer receipts bind actual executables; no repeated large binary reads in this light review."
+    },
+    "candidate": {
+      "commit": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3",
+      "tree": "e72618af232f23a671cf325b127dd01cc4bacfcb",
+      "binaries_sha256": {
+        "brewfs": "94d1d39d34360cf3cb4d20a9f4e37fe7d25c1062a0eee3f71082fa35e0145ee6"
+      },
+      "dirty": false,
+      "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+      "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "features_from_actual_rustc": [
+        [
+          "fuse-io-uring-runtime",
+          "observability",
+          "rustfs-ec-block-size-hint",
+          "workspace-overlay"
+        ],
+        [
+          "fuse-io-uring-runtime",
+          "observability",
+          "rustfs-ec-block-size-hint",
+          "workspace-overlay"
+        ]
+      ],
+      "opt_level": 3,
+      "source_receipt_sha256": "c9e095b6a408dd1fad2e23a81da32a6fbc45117c2b2e7bc65868bfdc2f124817",
+      "artifact_identity_sha256": "1a9a7c3d3c850f93a028bec105bcb2af7e1535935f4e7642f46f329866853b42",
+      "binary_hash_status": "Transfer receipts bind actual executables; no repeated large binary reads in this light review."
+    }
+  },
+  "small_provenance_hashes_verified": 20,
+  "component_only": {
+    "note": "Unoptimized actual-feature test binary e0192f...; supporting evidence, not final release FUSE acceptance. Older rejected v5 candidate excluded.",
+    "row_bytes": [
+      {
+        "payload_bytes": 8,
+        "input_entries": 128,
+        "legacy_payload_lower_bound_bytes": 1024,
+        "legacy_entries": 128,
+        "bounded_retained_bytes": 68608,
+        "bounded_entries": 128,
+        "budget_bytes": 524288
+      },
+      {
+        "payload_bytes": 65536,
+        "input_entries": 128,
+        "legacy_payload_lower_bound_bytes": 8388608,
+        "legacy_entries": 128,
+        "bounded_retained_bytes": 463060,
+        "bounded_entries": 7,
+        "budget_bytes": 524288
+      }
+    ],
+    "row_hits_paired": [
+      {
+        "keys": 1,
+        "threads": 1,
+        "repeat": 0,
+        "candidate_over_baseline": 0.25504849125880646
+      },
+      {
+        "keys": 1,
+        "threads": 1,
+        "repeat": 1,
+        "candidate_over_baseline": 0.24412650193252208
+      },
+      {
+        "keys": 1,
+        "threads": 1,
+        "repeat": 2,
+        "candidate_over_baseline": 0.2464626461440939
+      },
+      {
+        "keys": 1,
+        "threads": 1,
+        "repeat": 3,
+        "candidate_over_baseline": 0.24682284269200927
+      },
+      {
+        "keys": 1,
+        "threads": 1,
+        "repeat": 4,
+        "candidate_over_baseline": 0.24532347318130682
+      },
+      {
+        "keys": 1,
+        "threads": 1,
+        "repeat": 5,
+        "candidate_over_baseline": 0.2489659423490528
+      },
+      {
+        "keys": 1,
+        "threads": 8,
+        "repeat": 0,
+        "candidate_over_baseline": 0.5431147615922635
+      },
+      {
+        "keys": 1,
+        "threads": 8,
+        "repeat": 1,
+        "candidate_over_baseline": 0.7240370076294715
+      },
+      {
+        "keys": 1,
+        "threads": 8,
+        "repeat": 2,
+        "candidate_over_baseline": 0.823753869033123
+      },
+      {
+        "keys": 1,
+        "threads": 8,
+        "repeat": 3,
+        "candidate_over_baseline": 0.7739305219588557
+      },
+      {
+        "keys": 1,
+        "threads": 8,
+        "repeat": 4,
+        "candidate_over_baseline": 0.6880544066538435
+      },
+      {
+        "keys": 1,
+        "threads": 8,
+        "repeat": 5,
+        "candidate_over_baseline": 0.7204254775602883
+      },
+      {
+        "keys": 128,
+        "threads": 1,
+        "repeat": 0,
+        "candidate_over_baseline": 0.24248622721966162
+      },
+      {
+        "keys": 128,
+        "threads": 1,
+        "repeat": 1,
+        "candidate_over_baseline": 0.24347566402929233
+      },
+      {
+        "keys": 128,
+        "threads": 1,
+        "repeat": 2,
+        "candidate_over_baseline": 0.2447267419478692
+      },
+      {
+        "keys": 128,
+        "threads": 1,
+        "repeat": 3,
+        "candidate_over_baseline": 0.24354322484231006
+      },
+      {
+        "keys": 128,
+        "threads": 1,
+        "repeat": 4,
+        "candidate_over_baseline": 0.24135285281608337
+      },
+      {
+        "keys": 128,
+        "threads": 1,
+        "repeat": 5,
+        "candidate_over_baseline": 0.2440150972617473
+      },
+      {
+        "keys": 128,
+        "threads": 8,
+        "repeat": 0,
+        "candidate_over_baseline": 0.7557109654793872
+      },
+      {
+        "keys": 128,
+        "threads": 8,
+        "repeat": 1,
+        "candidate_over_baseline": 0.7419613226139368
+      },
+      {
+        "keys": 128,
+        "threads": 8,
+        "repeat": 2,
+        "candidate_over_baseline": 0.598444897789826
+      },
+      {
+        "keys": 128,
+        "threads": 8,
+        "repeat": 3,
+        "candidate_over_baseline": 0.6260193000332179
+      },
+      {
+        "keys": 128,
+        "threads": 8,
+        "repeat": 4,
+        "candidate_over_baseline": 0.6779829023652744
+      },
+      {
+        "keys": 128,
+        "threads": 8,
+        "repeat": 5,
+        "candidate_over_baseline": 0.547910800051794
+      }
+    ],
+    "row_hits_improved": 24,
+    "row_hits_pairs": 24
+  },
+  "final_runtime_status": "pending completed archive from agent447; rbm existing compose scripts are outdated and were not treated as final protocol",
+  "allow_one_integrated_pr": null,
+  "pending_evidence": [
+    "Final common harness identity and duplicate --name fix applied to both arms, preserved old failure",
+    "All completed AB/BA/AB actual cached 4096-shape write + wall/CPU/drain and correctness",
+    "fio-randrw and directIO regression guards plus no timeout/dirty tail/teardown hang",
+    "Actual Shared workspace row hits, warmed Xattr keys, zero timed misses, hot contention and byte-capacity guards",
+    "Actual independent Packed GroupMeta range requests with source inventory, group separation, correctness and concurrency",
+    "Same two release SHA identities, input, per-arm configured and effective cgroup budgets across all trials"
+  ]
+}

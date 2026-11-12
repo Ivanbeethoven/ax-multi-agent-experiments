@@ -1,0 +1,28 @@
+{
+  "schema": "independent-issue445-proxy-protocol-review-v1",
+  "reviewed_at": "2026-11-12T17:39:42.280370+00:00",
+  "helper_sha256": "c7c4788979c35c6bf3d517748c7e6956b8ab7f3748ab67213777d0501bd9da73",
+  "artifact_hashes_verified": 10,
+  "scope": "Read-only review of isolated protocol helper and archived RED/GREEN logs; no test or cloud workload executed by reviewer.",
+  "finding": "Old helper returned501 to setup PUT; corrected helper forwards GET/HEAD/PUT/POST/DELETE with raw signed headers and body bytes, including request HTTP chunks and AWS content encoding. Existing exact GroupMeta GET delay/event matching remains unchanged.",
+  "validation": {
+    "red": "empty bucket PUT gets501, 1failed",
+    "green": "8passed; four original inventory/proxy tests and four new protocol regressions",
+    "preserved_body_cases": [
+      "empty PUT",
+      "region XML PUT",
+      "POST DeleteObjects XML",
+      "DELETE204",
+      "duplicate signed headers",
+      "large AWS encoded Content-Length body",
+      "error XML",
+      "HTTP chunk extensions/trailers",
+      "chunked response entities",
+      "HEAD without Content-Length"
+    ]
+  },
+  "accept_for_common_harness": true,
+  "requires_same_helper_in_both_arms": true,
+  "actual_workspace_smoke_status": "pending final completed archive; local protocol tests are not FUSE/S3 performance evidence",
+  "source_or_binary_changed": false
+}

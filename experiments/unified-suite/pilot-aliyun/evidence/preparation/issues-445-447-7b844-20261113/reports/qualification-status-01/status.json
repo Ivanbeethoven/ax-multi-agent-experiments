@@ -1,0 +1,142 @@
+{
+  "created_at": "2026-11-12T18:58:33.007043+00:00",
+  "decision": "HOLD: do not push or open the combined performance PR",
+  "source": {
+    "created_at": "2026-11-12T13:53:45.777364+00:00",
+    "base_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+    "candidate_commit": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3",
+    "candidate_tree": "e72618af232f23a671cf325b127dd01cc4bacfcb",
+    "commits": [
+      {
+        "issue": "445",
+        "commit": "b72363a58bf8ce49da11f78dabe34596be90ccd7",
+        "title": "fix(packed): allow independent metadata cache fills",
+        "files": [
+          "src/workspace_overlay/packed_v3/wire005/budget.rs",
+          "src/workspace_overlay/packed_v3/wire005/index.rs",
+          "src/workspace_overlay/packed_v3/wire005/read_cache.rs"
+        ]
+      },
+      {
+        "issue": "446",
+        "commit": "482cc36075455cfebc01fa0bc1f11f58d780a329",
+        "title": "fix(workspace): bound retained rows and cached paths by bytes",
+        "files": [
+          "src/cli.rs",
+          "src/workspace_overlay/meta_layer/mod.rs",
+          "src/workspace_overlay/meta_layer/packed_paths.rs",
+          "src/workspace_overlay/meta_layer/row_cache.rs",
+          "src/workspace_overlay/meta_layer/row_cache_cancellation_tests.rs",
+          "src/workspace_overlay/meta_layer/tests/packed_lower_tests.rs"
+        ]
+      },
+      {
+        "issue": "447",
+        "commit": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3",
+        "title": "fix(writer): update cached write watermarks incrementally",
+        "files": [
+          "src/vfs/io/writer.rs",
+          "src/vfs/io/writer/cached_write_watermarks.rs",
+          "src/vfs/io/writer/cached_write_watermarks_bench.rs"
+        ]
+      }
+    ],
+    "bundle": "/home/dev/ax-perf-issues-validation/issues-445-447-final.bundle",
+    "bundle_sha256": "027f56ad0804a729113032ea457cba2dcf3950f10e7fddb19b5f142b9d72e141",
+    "bundle_bytes": 23497,
+    "full_ci": "attempt-06/full-outcome.json",
+    "final_visibility_gates": "attempt-07/progress.log",
+    "status": "local commits only, no push or PR; production guards pending"
+  },
+  "host": "8.136.137.130, same Alibaba r7 8CPU/64GiB host for all valid issue actual-path measurements",
+  "topology": "fixed RustFS f4ed2025 image9750, four logical directories on one physical disk with explicit disk-check bypass; four dynamic flags true, client auto; no hardware fault-tolerance claim",
+  "qualified_target_evidence": {
+    "445": {
+      "pairs": 6,
+      "shape": "8 different GroupMeta targets, 8 threads, leaf openat+4096-byte pread+close; controlled exact-Range50ms delay",
+      "baseline_median_ms": 418.046,
+      "candidate_median_ms": 68.154,
+      "peak_fetch_concurrency": [
+        1,
+        8
+      ],
+      "each_target_fetches": 1,
+      "setup_target_fetches": 0,
+      "all_values_sha_verified": true
+    },
+    "446": {
+      "memory_budget_bytes": 524288,
+      "sampled_retained_max_bytes": 524046,
+      "large_xattrs": "32 files x32768B, all returned values correct, candidate evicts within byte cap; baseline metric unsupported, not an RSS measurement",
+      "short_128key_median_changes_pct": [
+        11.663,
+        7.464
+      ],
+      "short_results_preserved": true,
+      "long_operations_per_thread": 65536,
+      "long_pairs_per_shape": 6,
+      "long_1thread_median_s": [
+        3.699989998,
+        3.643019285
+      ],
+      "long_8thread_median_s": [
+        13.315116711,
+        12.8434901115
+      ],
+      "long_pairs_over_5pct_slower": 0,
+      "all_timed_misses": 0,
+      "claim": "retained byte cap and no sustained hot-path regression observed in fixed longer follow-up; no process CPU throughput claim"
+    },
+    "447": {
+      "valid_campaign": "cached-ec4qualified trials300..302, AB/BA/AB",
+      "shape": "4096x4096B cached writes,16MiB known pattern, kernelWB enabled, source touch proved in both smoke300",
+      "full_write_and_drain_cpu_baseline_s": [
+        0.54,
+        0.51,
+        0.5
+      ],
+      "full_write_and_drain_cpu_candidate_s": [
+        0.43,
+        0.43,
+        0.41
+      ],
+      "cpu_decrease_pct": [
+        20.37037,
+        15.68627,
+        18.0
+      ],
+      "tool_to_strict_drained_wall_ratio": [
+        1.000648669,
+        1.000140026,
+        1.000186105
+      ],
+      "cold_remount_sha_all_passed": true,
+      "claim": "BrewFS process CPU reduction; wall unchanged, no wall throughput acceleration claim"
+    }
+  },
+  "blocking_guard": {
+    "baseline_formal": "regression300,512MiB/file,20s,seqwrite/direct0 and1 passed remote coldSHA; third randwrite/direct0 failed",
+    "isolated_reproduction": "candidate402 thenbaseline403,randwrite/direct0,4x512MiB,4MiB io_uring depth1,20s,seed20261031,kernelWB0; both fail warm/cold fullSHA with matching sizes",
+    "candidate_mismatch_MiB": 12,
+    "baseline_mismatch_MiB": 8,
+    "service_ERRORS_or_HTTP5xx": 0,
+    "client_upload_recovery_failures": 0,
+    "remaining_standard_guard": "pending, not skipped or accepted",
+    "explicit_fsync": "not enabled by this standard randwrite profile; do not claim acknowledged fsync data loss",
+    "known_fact": "retained old-cache sealed staging payloads exactly equal all mismatching warm1MiB regions, while cold differs; all at chunk offset60MiB, length4MiB",
+    "generation_hint": "fio3.39 timestamp fields show warm~0.1s and cold~2-3s for each same job/depth1 slice; consistent with stale overlay but not an independent full-data oracle",
+    "code_hypothesis": "CBU metadata await races completed upload: completion checks cleanup before Committed, commit path later marksCommitted without rechecking cleanup; old sealed record can remain and SSD fallback overlays it. Requires deterministic scheduler regression before a root-cause claim."
+  },
+  "invalid_previous_campaign": "All single-/data cached timings invalidated because actual uploads returned InternalError despite dirty0; no old numbers contribute to benefits. Later EC4 campaign separate and source unchanged.",
+  "evidence_roots": [
+    "runtime-review-01",
+    "runtime-review-02",
+    "runtime-review-03",
+    "runtime-review-04",
+    "runtime-sealed-01",
+    "runtime-timestamp-01",
+    "independent-review-7b844"
+  ],
+  "resource_state": "both diagnostic projects candidate402/baseline403 containers stopped, volumes retained; parent owns final resource cleanup; no cloud workload running",
+  "next": "Parent decides scope of isolated writeback lifecycle correction; frozen7b remains untouched and unpublished."
+}
