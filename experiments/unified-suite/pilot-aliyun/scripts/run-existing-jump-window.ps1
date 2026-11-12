@@ -32,6 +32,35 @@ function Read-Jump([string]$Name) {
     return $rows[0]
 }
 
+function Assert-OriginalBPool {
+    $expected = @{
+        'i-bp1fmmfkcpr8w99j2bsy' = 'ax-pilot-20261111-b-client'
+        'i-bp14nenf7osz9v1snsp2' = 'ax-pilot-20261111-b-metadata'
+        'i-bp1bhdngko7nq3c3jrhp' = 'ax-pilot-20261111-b-objects'
+    }
+    $ids = @($expected.Keys | Sort-Object) | ConvertTo-Json -Compress
+    $raw = aliyun ecs DescribeInstances --RegionId cn-hangzhou --InstanceIds $ids --PageSize 100 | Out-String
+    if ($LASTEXITCODE) { throw 'Cannot verify original B instances; jump was not started' }
+    $raw | Set-Content -Encoding utf8NoBOM "$journal/before-c1reverse-pool-b.json"
+    $report = $raw | ConvertFrom-Json
+    $rows = @($report.Instances.Instance | Where-Object { $null -ne $_ })
+    if (!$report.RequestId -or $null -eq $report.TotalCount -or $report.TotalCount -ne $rows.Count) {
+        throw 'Incomplete original B instance response; jump was not started'
+    }
+    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($row in $rows) {
+        if ($row.InstanceId -cnotin @($expected.Keys) -or !$seen.Add($row.InstanceId) -or
+            $row.InstanceName -cne $expected[$row.InstanceId] -or $row.ZoneId -cne 'cn-hangzhou-j') {
+            throw 'Original B instance identity mismatch; jump was not started'
+        }
+    }
+    if ($seen.Count -ne $expected.Count) {
+        throw '原 B 池已有实例释放或缺失，需新 campaign 重新部署。跳板机未启动。'
+    }
+}
+
+if ($Activity -eq 'C1Reverse') { Assert-OriginalBPool }
+
 $before = Read-Jump before
 if ($before.Status -ne 'Stopped' -or $before.StoppedMode -ne 'StopCharging') { throw 'Jump is already in use' }
 $owned = $false
