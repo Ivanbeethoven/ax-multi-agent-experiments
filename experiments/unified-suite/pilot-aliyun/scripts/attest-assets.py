@@ -17,6 +17,19 @@ SOURCES={'brewfs':('https://github.com/brewfs/brewfs.git','codex/packed-prefetch
 FILES={'brewfs':['brewfs','packed_snapshot_fixture'],'rustfs':['rustfs']}
 
 
+def unified_brewfs_build(argv):
+    def values(flag):
+        return [arg.split('=',1)[1] if arg.startswith(flag+'=') else argv[i+1]
+                for i,arg in enumerate(argv)
+                if arg.startswith(flag+'=') or (arg==flag and i+1<len(argv))]
+    features=set(','.join(values('--features')).replace(' ', ',').split(','))
+    features.discard('default')
+    return (features=={'workspace','observability','rustfs-ec-block-size-hint'}
+            and set(values('--bin'))==set(FILES['brewfs'])
+            and not set(argv)&{'--no-default-features','--all-features','--example','--examples','--all-targets'}
+            and not any(arg.startswith('--example=') for arg in argv))
+
+
 def capture(argv):return subprocess.check_output(argv,text=True).strip()
 def digest(path):
     with path.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
@@ -57,8 +70,8 @@ def main():
             argv=[x.decode() for x in (proc/'cmdline').read_bytes().split(b'\0') if x]
             if not argv[0].endswith('/cargo') or argv[1:4]!=['build','--locked','--release']:
                 raise ValueError('unexpected build command')
-            if a.component=='brewfs' and ('observability' not in ','.join(argv) or '--example' not in argv):
-                raise ValueError('not the final observability/probe build')
+            if a.component=='brewfs' and not unified_brewfs_build(argv):
+                raise ValueError('not the unified workspace/observability/hint build with default features')
             result.update(cargo_start_ticks=(proc/'stat').read_text().rsplit(')',1)[1].split()[19],
                 actual_cargo_argv=argv,capture_scope='live build observed; this timestamp is not its start time')
         else:
@@ -75,7 +88,7 @@ def main():
         outputs=[]
         for name in FILES[a.component]:
             path=root/'bin'/name
-            target=root/'targets'/a.component/'release'/('examples/'+name if name=='entity_metadata_probe' else name)
+            target=root/'targets'/a.component/'release'/name
             if path.stat().st_mtime_ns<initial['captured_ns'] or digest(path)!=digest(target):
                 raise ValueError('installed binary is stale or differs from compiled output: '+name)
             outputs.append(dict(file=name,bytes=path.stat().st_size,sha256=digest(path)))

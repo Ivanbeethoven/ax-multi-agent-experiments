@@ -123,8 +123,8 @@ def validate(config):
     require(handoff['restore_method'] == 'shared-workspace-db', 'workspace-local state required')
     pilot = config['pilot']
     require(pilot['agents'] == 1 and pilot['repetitions'] == 1
-            and pilot['C3']['files'] == pilot['C4-fork']['files'] == 100000,
-            'pilot is 1 Agent, 100k files, one repetition')
+            and pilot['C3']['files'] == pilot['C4-fork']['files'] == 10000,
+            'pilot is 1 Agent, 10k files, one repetition')
     res = config['resources']
     require(res['rustfs']['nodes'] == 4 and res['rustfs']['data_disks_per_node'] == 4,
             'four hosts with four independent data disks each required')

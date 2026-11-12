@@ -21,7 +21,7 @@ for flag in ('brewfs', 'producer', 'juicefs', 'smallfiles', 'out'):
     p.add_argument('--'+flag, required=True, type=Path)
 p.add_argument('--rustfs-image', required=True)
 p.add_argument('--workload', choices=('c1','c2','c3','c4-stay'), default='c3')
-p.add_argument('--engine', choices=('flat-v1','workspace-v1'), default='workspace-v1')
+p.add_argument('--engine', choices=('flat','workspace'), default='workspace')
 p.add_argument('--trace', type=Path)
 p.add_argument('--replay', type=Path)
 p.add_argument('--full-trace', action='store_true')
@@ -205,7 +205,7 @@ def visit(product, point, work, out, cmd, arm, reopen=False):
                                                   '--state',out/'run'/'expected-touched.tsv')
             else:
                 arm['phase'] = 'prepare-and-verify-base'
-                if product == 'juicefs' or a.engine == 'flat-v1':
+                if product == 'juicefs' or a.engine == 'flat':
                     import shutil
                     if a.workload in ('c2','c4-stay'):
                         call('cp','-a','--',str(work/'source')+'/.',str(point)+'/')
@@ -311,7 +311,7 @@ def run(work):
                 bucket = run_id+'-'+product
                 s3.create_bucket(Bucket=bucket)
                 url = f'redis://127.0.0.1:{rp}/{db}'
-                if product == 'brewfs' and a.engine == 'workspace-v1':
+                if product == 'brewfs' and a.engine == 'workspace':
                     manifest = work/'manifest'
                     call(a.producer,'--source-directory',work/'source','--source-consistency',
                          'best-effort-detected','--source-hardlink-policy','visible-links','--output-dir',
@@ -342,8 +342,8 @@ def run(work):
                         raise RuntimeError('BrewFS init output had no workspace_id: '+raw[-1500:])
                     def command(cache):
                         cfg = work/(cache+'.json')
-                        cfg.write_text(json.dumps(dict(volume_format='workspace-v1',
-                            volume={'format':'workspace-v1'},workspace=workspace['workspace_id'],
+                        cfg.write_text(json.dumps(dict(volume_format='workspace',
+                            volume={'format':'workspace'},workspace=workspace['workspace_id'],
                             workspace_namespace=run_id,data=data,meta=dict(backend='redis',redis={'url':url}),
                             layout=dict(chunk_size=67108864,block_size=4194304),
                             fuse=dict(cache_ttl_ms=0,keep_cache=False),
@@ -353,7 +353,7 @@ def run(work):
                     def command(cache):
                         cfg = work/(cache+'.json')
                         cfg.write_text(json.dumps(dict(
-                            volume_format='flat-v1', meta=dict(backend='redis',redis={'url':url}),
+                            volume_format='flat', meta=dict(backend='redis',redis={'url':url}),
                             data=dict(backend='s3',s3=dict(bucket=bucket,endpoint=ep,
                                 region='us-east-1',force_path_style=True,rustfs_ec_block_size_hint=a.hint)),
                             cache=dict(cache_root=str(work/cache),writeback_mode='upload_before_commit'))))

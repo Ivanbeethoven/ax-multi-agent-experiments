@@ -199,8 +199,8 @@ def run(work):
                     arm['revision'] = revision
                     def command(cache, workspace):
                         mount_cfg = work/(cache+'.json')
-                        mount_cfg.write_text(json.dumps(dict(volume_format='workspace-v1',
-                            volume={'format':'workspace-v1'},workspace=workspace['workspace_id'],
+                        mount_cfg.write_text(json.dumps(dict(volume_format='workspace',
+                            volume={'format':'workspace'},workspace=workspace['workspace_id'],
                             workspace_namespace=run_id,data=data,meta=dict(backend='redis',redis={'url':url}),
                             layout=dict(chunk_size=4194304,block_size=4194304),
                             fuse=dict(cache_ttl_ms=0,keep_cache=False),

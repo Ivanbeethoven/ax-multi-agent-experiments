@@ -68,6 +68,8 @@ class CurrentDesignTests(unittest.TestCase):
     def test_no_silent_scale_reduction_or_growth(self):
         self.rejected(lambda c: c['workloads']['C2'].update(scale_agents=[8, 16, 64]))
         self.rejected(lambda c: c['workloads']['C3'].update(files=100000))
+        self.rejected(lambda c: c['pilot']['C3'].update(files=100000))
+        self.rejected(lambda c: c['pilot']['C4-fork'].update(files=100000))
         self.rejected(lambda c: c['workloads']['C2']['mixed_32'].update(django=3))
         self.rejected(lambda c: c['workloads']['C4-handoff'].update(moved_agents=[2, 4]))
         self.rejected(lambda c: c['workloads']['C2'].update(simulate_llm=True))
