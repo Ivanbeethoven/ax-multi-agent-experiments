@@ -18,6 +18,7 @@
 | [8 个实验块](BLOCKS.zh.md) | 独立输入、对照、就绪条件、两池分工与实际命令 |
 | [清理流程](CLEANUP.zh.md) | 每项空间检查、成功临时文件回收、失败现场保留及清理命令 |
 | [详细配置](CONFIGURATION.zh.md) | 版本、缓存、Redis、四节点 RustFS、机器和盘 |
+| [六台周租部署](IDCAI-DEPLOYMENT.zh.md) | 7H12跳板编译、逐机安装、分支与四节点单盘适配 |
 | [并行流程](../MAIN-SCALE.zh.md) | 完整配对分池、总并发32槽、资源生命周期 |
 | [执行与观测](EXECUTION.zh.md) | 工具命令、指标来源、验证和交接 |
 | [design.json](design.json) | 机器可读参数；design-only，不可直接执行 |
