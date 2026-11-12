@@ -1,6 +1,6 @@
 # C4 非空 Packed lower 的原生 fork：本机资格未通过
 
-使用最新已核对的 BrewFS `ca07159`、本机 WSL FUSE、隔离的 Redis 与 RustFS。输入只有两个文件，共 77 字节。父工作区绑定 Packed lower，两个文件的长度和 SHA256 均正确。对同一不可变 revision 调用 `workspace fork` 后，子工作区有独立 upper bucket，也能挂载，但没有 Packed lower 绑定，目录中 0 个文件。**不要用这条路径上云计时。** 没有跑 JuiceFS 对照或模型；没有创建任何云资源。两次挂载正常退出，临时容器和目录已清理。
+使用最新已核对的 BrewFS `ca07159`、本机 WSL FUSE、隔离的 Redis 与 RustFS。输入只有两个文件，共 77 字节。父工作区绑定 Packed lower，两个文件的长度和 SHA256 均正确。对同一不可变 revision 调用 `workspace fork` 后，子工作区有独立 upper bucket，也能挂载，但没有 Packed lower 绑定，目录中 0 个文件。**不要用这条路径上云计时。** 该次只测原版 BrewFS，未调用模型或创建云资源。两次挂载正常退出，临时容器和目录已清理。
 
 [实测回执](receipt.json) · [原执行脚本](smoke.py)。脚本使用本地 Docker 缓存的固定镜像、Linux FUSE、Python 3 和 boto3，及其 `binary_root` 下两份经 SHA 校验的二进制。运行 `sudo <装有 boto3 的 Python> smoke.py <新回执路径>`；退出码 1 表示资格未通过，详细阶段见回执。本次没有测时。
 
@@ -9,3 +9,7 @@
 候选修复从已正常卸载的源发布可派生的 Packed revision，再用 `workspace fork --require-packed-carrier` 继承 lower。尚未合入上游。[本地限额构建回执](candidate-build-02.json)显示 2 核、8 GiB、禁用 swap 的构建因内存上限退出；原二进制 SHA 未变，未运行候选的 FUSE 验证。
 
 [隔离远程构建](candidate-build-03.json)以固定源码、补丁和工具链进行离线构建；8 分钟到期时仍在编译依赖，未产出候选二进制。保留了新编译的依赖缓存。等共享构建机空闲，再从同一私有缓存续编；只有新产物通过哈希和 CLI 核对，才带回已有固定镜像的 WSL 做 77 字节验证。
+
+续编已产出候选。真实 WSL 挂载读对了父目录，且能拒绝未发布版本；正式发布仍在核对目录或硬链接的 `nlink` 时失败，见[新回执](../c4-local-packed-fork-candidate-01/)。
+
+JuiceFS `1.4.2+2026-10-22.46af7af` 用相同的 77 字节、相同的两条路径执行 `clone -p --threads 4`，子目录、文件权限和 SHA 全部正确。改写子文件后，父内容未变；两个进程依次正常卸载，在新缓存的冷挂载上改写仍只在子目录可见。[实际回执](juicefs-clone.json) · [执行脚本](juicefs_clone_smoke.py)。首次因 RustFS 对象 API 未就绪返回 503，增加有签名的就绪检查后通过。没有 C4 配对计时，也没有调用模型。
