@@ -29,6 +29,7 @@ def bounded_hatch(ax, left, right, bottom, top):
     """Draw clipped diagonals explicitly; PDF patterns hide clipping from audits."""
     x0,y0=ax.transData.transform((left,bottom))
     x1,y1=ax.transData.transform((right,top))
+    x0,x1=sorted((x0,x1));y0,y1=sorted((y0,y1))
     step=4*ax.figure.dpi/72
     for i in range(math.floor((x0-y1)/step),math.ceil((x1-y0)/step)+1):
         k=i*step
@@ -41,6 +42,29 @@ def bounded_hatch(ax, left, right, bottom, top):
             a,b=ax.transData.inverted().transform(pts)
             ax.plot([a[0],b[0]],[a[1],b[1]],color=INK,lw=.4,zorder=4,
                     solid_capstyle='butt')
+
+def control_panel(ax, rows):
+    """Horizontal controls keep seven workload labels readable in half a column."""
+    labels=['Hot set','Warm R','Seq. R','New file','Mix R','Mix W','Seq. W']
+    limit=max(1.5,max(rows[i]['high'] for i in PANELS['d'])*1.45)
+    ax.set_xlim(0,limit);ax.set_ylim(6.6,-.6)
+    ax.set_yticks(range(7),labels);ax.set_xticks([0,1])
+    ax.tick_params(axis='x',length=2.5,pad=2,labelsize=8.5)
+    ax.tick_params(axis='y',length=0,pad=3,labelsize=8.3)
+    ax.set_xlabel('Throughput (×)',fontsize=8.5,labelpad=2)
+    ax.set_title('(d) BrewFS controls',loc='left',fontsize=9,pad=5)
+    ax.spines[['right','top']].set_visible(False)
+    ax.axvline(1,color='#595959',lw=.85,ls=(0,(3,2)),zorder=2)
+    for y,ident in enumerate(PANELS['d']):
+        r=rows[ident];lo,hi=r['low'],r['high']
+        ax.barh(y,lo,height=.56,color=ACCENT,edgecolor=INK,linewidth=.65,zorder=3)
+        if hi>lo:
+            ax.barh(y,hi-lo,left=lo,height=.56,color=RANGE,edgecolor=INK,linewidth=.65,zorder=3)
+            bounded_hatch(ax,lo,hi,y-.28,y+.28)
+        rounded=lambda value:str(Decimal(str(value)).quantize(Decimal('0.01'),rounding=ROUND_HALF_UP))
+        label=rounded(lo) if hi==lo else f'{rounded(lo)}–{rounded(hi)}'
+        ax.text(limit-.025,y,label,ha='right',va='center',fontsize=8.3)
+
 
 def draw(data, paper, qa_tools=None):
     records = json.loads(data.read_text(encoding='utf-8'))
@@ -63,12 +87,12 @@ def draw(data, paper, qa_tools=None):
         'xtick.color': INK, 'ytick.color': INK,
         'axes.linewidth': 0.65, 'axes.edgecolor': INK, 'hatch.linewidth': 0.45,
     })
-    fig = plt.figure(figsize=(7.0, 112/72))
-    # One reading direction. More width is allocated to the seven controls.
-    grid = fig.add_gridspec(1,4,width_ratios=[1,.9,1.25,2.35])
-    a,b,c,d = [fig.add_subplot(grid[0,col]) for col in range(4)]
-    fig.subplots_adjust(left=0.055, right=0.995, bottom=0.255,
-                        top=0.83, wspace=0.45)
+    fig = plt.figure(figsize=(240/72, 210/72))
+    # Single-column 2×2: backend above client; all four plot areas are equal.
+    grid = fig.add_gridspec(2,2)
+    a,b,c,d = [fig.add_subplot(grid[row,col]) for row in range(2) for col in range(2)]
+    fig.subplots_adjust(left=0.12, right=0.99, bottom=0.13,
+                        top=0.90, wspace=0.58, hspace=0.45)
     specs = [
         (a, 'a', 'RustFS reads',
          ['64 KiB', '4 MiB'], 'Throughput (×)', (0,40), [0,20,40]),
@@ -84,6 +108,9 @@ def draw(data, paper, qa_tools=None):
     ]
     for ax, key, title, labels, ylabel, ylim, yticks in specs:
         ax.patch.set_visible(False)
+        if key=='d':
+            control_panel(ax,rows)
+            continue
         ax.set_ylim(*ylim)
         ax.set_xlim(-0.6,len(labels)-0.4)
         ax.set_xticks(range(len(labels)), labels)
@@ -116,16 +143,12 @@ def draw(data, paper, qa_tools=None):
             else:
                 ax.annotate(label,(x,hi),xytext=(0,3),textcoords='offset points',
                             ha='center',va='bottom',fontsize=8.5,linespacing=1.18)
-        if key=='a':
-            ax.set_xlabel('Coding block B',fontsize=8.5,labelpad=3)
     fig.canvas.draw()
     if qa_tools:
         sys.path.insert(0,str(qa_tools))
         from audit_panel_alignment import require_matplotlib_panel_alignment
         require_matplotlib_panel_alignment(fig, panel_ids=['a','b','c','d'],
             json_out=qa/'alignment.json',overlay_svg=qa/'alignment.svg',
-            exemptions=[dict(panels=['a','b','c','d'],checks=['panel-width'],
-                reason='A single row assigns widths by category count: 2, 2, 3, and 7. Heights and gutters remain equal.')],
             tolerance_pt=1.5,gutter_tolerance_pt=1.5,strict=True)
     fig.savefig(out/'layout-comparison.pdf',metadata={'CreationDate':None,'ModDate':None})
     fig.savefig(out/'layout-comparison.svg')

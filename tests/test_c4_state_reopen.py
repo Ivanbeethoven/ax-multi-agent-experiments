@@ -16,10 +16,55 @@ from unittest.mock import patch
 SCRIPTS = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts'
 RUNNER = runpy.run_path(str(SCRIPTS/'run-c4-state-reopen.py'))
 GRANT = RUNNER['require_grant']
-NETWORK = runpy.run_path(str(SCRIPTS/'c4-state-reopen-node.py'))['NETWORK_WRAPPER']
+WORKER = runpy.run_path(str(SCRIPTS/'c4-state-reopen-node.py'))
+NETWORK = WORKER['NETWORK_WRAPPER']
 
 
 class StateReopen(unittest.TestCase):
+    def group_wait(self, samples, *, other_group=None):
+        clock, queried = [0.0], []
+        samples = iter(samples)
+        last = []
+        def members(pgid):
+            nonlocal last
+            queried.append(pgid)
+            if pgid != 51:
+                return [other_group] if other_group is not None else []
+            last = next(samples,last)
+            return last
+        def sleep(seconds):
+            clock[0] += seconds
+        result = WORKER['wait_export_group'](51,members,timeout=0.5,poll=0.25,
+                                             monotonic=lambda:clock[0],sleep=sleep)
+        return result, queried
+
+    def test_original_group_already_empty(self):
+        actual, queried = self.group_wait([[]])
+        self.assertEqual(queried,[51])
+        self.assertEqual(actual['group_members_after_parent_exit'],[])
+        self.assertEqual(actual['group_members_after'],[])
+        self.assertEqual(actual['group_closure_wait_seconds'],0.0)
+
+    def test_original_group_exits_naturally_after_parent(self):
+        actual, queried = self.group_wait([[24,23],[]])
+        self.assertEqual(queried,[51,51])
+        self.assertEqual(actual['group_members_after_parent_exit'],[23,24])
+        self.assertEqual(actual['group_members_after'],[])
+        self.assertEqual(actual['group_closure_wait_seconds'],0.25)
+
+    def test_live_descendant_remains_visible_at_timeout(self):
+        actual, queried = self.group_wait([[23,24],[24],[24]])
+        self.assertEqual(queried,[51,51,51])
+        self.assertEqual(actual['group_members_after_parent_exit'],[23,24])
+        self.assertEqual(actual['group_members_after'],[24])
+        self.assertEqual(actual['group_closure_wait_seconds'],0.5)
+
+    def test_unrelated_process_group_is_neither_queried_nor_affected(self):
+        actual, queried = self.group_wait([[23],[]],other_group=74)
+        self.assertEqual(queried,[51,51])
+        self.assertNotIn(74,actual['group_members_after_parent_exit'])
+        self.assertEqual(actual['group_members_after'],[])
+
     def test_local_authorization_binds_exact_v2_launch_without_ssh(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp).resolve()
