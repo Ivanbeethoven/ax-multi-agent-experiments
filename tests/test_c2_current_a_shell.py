@@ -69,3 +69,20 @@ class C2ShellTest(unittest.TestCase):
         self.assertEqual(self.shell(command).stdout.strip(), '12345\nFalse')
         procs.unlink()
         self.assertNotEqual(self.shell(command, check=False).returncode, 0)
+
+    def test_failure_location_omits_messages_and_paths(self):
+        def fail():
+            raise ValueError('unarchived diagnostic text')
+
+        try:
+            fail()
+        except ValueError as error:
+            receipt = self.controller['failure_location'](error)
+        self.assertEqual(receipt['error_class'], 'ValueError')
+        self.assertEqual(set(receipt), {'error_class', 'traceback'})
+        self.assertEqual(receipt['traceback'][-1]['function'], 'fail')
+        for frame in receipt['traceback']:
+            self.assertEqual(set(frame), {'file', 'line', 'function'})
+            self.assertEqual(frame['file'], Path(__file__).name)
+            self.assertGreater(frame['line'], 0)
+        self.assertNotIn('unarchived diagnostic text', json.dumps(receipt))

@@ -14,6 +14,7 @@ import shlex
 import subprocess
 import sys
 import time
+import traceback
 
 CONTROL=Path('/srv/ax-pilot-control')
 CANON=CONTROL/'parallel-control-01'
@@ -165,6 +166,12 @@ def client_closure_command(worker_output, *, slot=CLIENT_SLOT, mountinfo=MOUNTIN
            'print(any(line.split()[4] in sys.argv[2:] for line in Path(sys.argv[1]).read_text().splitlines()))')
     return (shell_join(['cat',slot/'cgroup.procs'])+' && '+
             shell_join(['python3','-B','-c',probe,mountinfo,worker_output/'writer-mnt',worker_output/'cold-mnt']))
+
+
+def failure_location(error):
+    frames=[dict(file=Path(frame.f_code.co_filename).name,line=line,function=frame.f_code.co_name)
+            for frame,line in traceback.walk_tb(error.__traceback__)]
+    return dict(error_class=type(error).__name__,traceback=frames[-8:])
 
 
 def persist_payload(out,payload):
@@ -342,8 +349,7 @@ def run(args):
                     stdout=f,stderr=subprocess.STDOUT,timeout=remaining+45)
             success=True
         except (Exception,KeyboardInterrupt) as error:
-            save(out/'controller-failure.json',dict(phase=phase,error_class=type(error).__name__,
-                 reason=str(error) if type(error) is ValueError else None,automatic_retry=False))
+            save(out/'controller-failure.json',dict(phase=phase,automatic_retry=False,**failure_location(error)))
         finally:
             closure=False
             try:
@@ -359,8 +365,7 @@ def run(args):
                         complete_worker(out)
             except (Exception,KeyboardInterrupt) as error:
                 success=False
-                save(out/'closure-failure.json',dict(error_class=type(error).__name__,
-                     reason=str(error) if type(error) is ValueError else None))
+                save(out/'closure-failure.json',failure_location(error))
             finally:
                 save(out/'ready-for-stop.json',dict(passed=success and closure,worker_launched=launched,
                      client_slot_and_mounts_clear=closure,formal_sample=False,expected_instances=IDS,
