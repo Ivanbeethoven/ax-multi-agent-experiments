@@ -4,7 +4,8 @@ param(
     [ValidateRange(20,255)][int]$Database = 243,
     [ValidateRange(0,32)][int]$Workers = 0,
     [ValidateRange(60,900)][int]$VerifySeconds = 480,
-    [string]$ParallelBinary
+    [string]$ParallelBinary,
+    [switch]$TracePackedBudget
 )
 
 $ErrorActionPreference = 'Stop'
@@ -61,12 +62,13 @@ if ($parallelSha) {
 $validate = "set -eu; cd $dest; echo '$guardSha  run-c3-workspace-base.py' | sha256sum -c -; echo '$workerSha  qualify-c3-workspace-base.py' | sha256sum -c -; python3 -m py_compile run-c3-workspace-base.py qualify-c3-workspace-base.py"
 ssh -F $cfg -oBatchMode=yes -oConnectTimeout=8 ax-pilot-jump $validate
 if ($LASTEXITCODE) { throw 'Remote staged file validation failed' }
-[pscustomobject]@{tag=$tag; dest=$dest; guard_sha256=$guardSha; worker_sha256=$workerSha; database=$Database; workers=$Workers; verify_seconds=$VerifySeconds; parallel_sha256=$parallelSha} |
+[pscustomobject]@{tag=$tag; dest=$dest; guard_sha256=$guardSha; worker_sha256=$workerSha; database=$Database; workers=$Workers; verify_seconds=$VerifySeconds; parallel_sha256=$parallelSha; trace_packed_budget=[bool]$TracePackedBudget} |
     ConvertTo-Json | Set-Content -Encoding utf8NoBOM "$local/stage.json"
 
 $serviceSeconds = $VerifySeconds + 325
 $launch = "systemd-run --unit=$tag --remain-after-exit --property=RuntimeMaxSec=${serviceSeconds}s --property=TimeoutStopSec=25s /usr/bin/python3 -B $dest/run-c3-workspace-base.py --worker-sha256 $workerSha --database $Database --workers $Workers --verify-seconds $VerifySeconds"
 if ($parallelSha) { $launch += " --parallel-sha256 $parallelSha" }
+if ($TracePackedBudget) { $launch += " --trace-packed-budget" }
 ssh -F $cfg -oBatchMode=yes -oConnectTimeout=8 ax-pilot-jump $launch
 if ($LASTEXITCODE) { throw 'A guard launch failed' }
 $attempted = $false
