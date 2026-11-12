@@ -10,11 +10,12 @@ sys.path.insert(0, str(REPO))
 from bench.experiment_step import prepare
 from bench.fork_burst import SOURCE_BOUND, native_argv, native_step
 from bench.fork_source import QUALIFIED, REQUEST, preflight
-from bench.runtime.common import digest, load, pinned, spec, write_new
+from bench.runtime.common import digest, load, spec, write_new
+from bench.runtime.fork_release import OPT0, verify as verify_release
 
 TREE_SHA = '02aeda272edbab9512595f7b968d840a9cfdc0e8302ed036399bf4151f08bd13'
 BINARIES = {
-    'brewfs-fork': ('brewfs', '3ecde1a2a4a55d450b7680661c655fd8d08491afc6aebacef84b58cea76bd6ee'),
+    'brewfs-fork': ('brewfs', OPT0),
     'juicefs-clone': ('juicefs', '6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc'),
 }
 AWS_ENV = ('AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_REGION', 'AWS_EC2_METADATA_DISABLED')
@@ -44,20 +45,42 @@ def named(text):
     return text
 
 
-def engine(args, method):
+def release_binding(args, method, binary_ref):
     binary, sha = BINARIES[method]
-    if Path(args.binary).name != binary:
+    if Path(binary_ref['path']).name != binary:
         raise ValueError('Binary basename must match the native product')
-    return ref(args.binary, sha)
+    review, review_sha = getattr(args, 'release_review', None), getattr(args, 'release_review_sha256', None)
+    if review is None and review_sha is None:
+        if binary_ref['sha256'] != sha:
+            raise ValueError('Pinned qualification executable differs; optimized BrewFS requires release review')
+        return None
+    if method != 'brewfs-fork' or not review or not review_sha:
+        raise ValueError('Both release review path and SHA-256 are required for BrewFS only')
+    return verify_release(ref(review, review_sha), binary_ref)
+
+
+def engine(args, method):
+    binary = ref(args.binary)
+    return binary, release_binding(args, method, binary)
+
+
+def release_inputs(binding):
+    return () if binding is None else (binding['review'], binding['build_receipt'])
+
+
+def check_release_inputs(command, binding):
+    if any(pin not in command['inputs'] for pin in release_inputs(binding)):
+        raise ValueError('Reviewed native step does not bind the same release provenance')
 
 
 def brew(args):
     publication = ref(args.publication)
-    native = dict(binary=engine(args,'brewfs-fork'), redis_url=args.redis_url,
+    binary, release = engine(args,'brewfs-fork')
+    native = dict(binary=binary, redis_url=args.redis_url,
                   namespace=args.namespace, revision=load(publication['path'])['fork_source'],
                   data_config=ref(args.data_config))
     native_argv({'method':'brewfs-fork','native':native}, 'probe')
-    return native, publication
+    return native, publication, release
 
 
 def step(*, cell, method, native, tree, child, cwd, environment=None, extra=()):
@@ -95,12 +118,17 @@ def source(args):
     value = dict(schema=REQUEST,reviewed=False,cell_id=named(args.cell),method=args.method,
                  input_tree=tree,mount_spec=mount_ref,ready=ready)
     if args.method=='brewfs-fork':
-        value['native'], publication = brew(args)
-        value['carrier'] = dict(publication=publication,step=ref(args.carrier_step),
+        value['native'], publication, release = brew(args)
+        carrier_step = ref(args.carrier_step)
+        if release is not None:
+            check_release_inputs(spec(carrier_step, 'experiment-step-v1'), release)
+            value['release_candidate'] = release
+        value['carrier'] = dict(publication=publication,step=carrier_step,
                                 stdout=ref(Path(args.carrier_output)/'stdout.log'),
                                 finished=ref(Path(args.carrier_output)/'finished.json'))
     else:
-        value['native'] = dict(binary=engine(args,args.method),mount=mount['mount_point'],
+        binary, _ = engine(args,args.method)
+        value['native'] = dict(binary=binary,mount=mount['mount_point'],
                                source=args.source,destination_parent=args.destination_parent,threads=4)
         value['writer'] = dict(ready=ref(args.writer_ready),stopped=ref(args.writer_stopped))
     return value
@@ -114,8 +142,12 @@ def measured(args):
     req = spec(qualified['request'],REQUEST)
     method, native, cell = (req[key] for key in ('method','native','cell_id'))
     tree = ref(req['input_tree']['path'],TREE_SHA)
-    if tree!=req['input_tree'] or native['binary']['sha256']!=BINARIES[method][1]:
+    binary = ref(native['binary']['path'])
+    if tree != req['input_tree'] or binary != native['binary']:
         raise ValueError('Wrong measured fixture or binary')
+    release = release_binding(args, method, binary)
+    if req.get('release_candidate') != release:
+        raise ValueError('Source qualification does not bind this release provenance')
     stopped = ref(args.probe_stopped)
     if bool(args.measurement_spec)!=bool(args.measurement_ready):
         raise ValueError('Both measurement mount spec and ready receipt are needed')
@@ -124,8 +156,11 @@ def measured(args):
     preflight(qualified_ref,cell_id=cell,method=method,native=native,input_tree=tree,
               probe_stopped=stopped,measurement=measurement)
     proof = dict(receipt=qualified_ref,probe_stopped=stopped,measurement=measurement)
-    return dict(schema=SOURCE_BOUND,reviewed=False,cell_id=cell,method=method,parallelism=1,
-                native=native,input_tree=tree,source_qualification=proof)
+    value = dict(schema=SOURCE_BOUND,reviewed=False,cell_id=cell,method=method,parallelism=1,
+                 native=native,input_tree=tree,source_qualification=proof)
+    if release is not None:
+        value['release_candidate'] = release
+    return value
 
 
 def main():
@@ -145,6 +180,9 @@ def main():
             fields(sub,'mount-spec ready')
         if action in ('carrier-step','source-brewfs'):
             fields(sub,'redis-url namespace publication data-config')
+        if action in ('carrier-step','source-brewfs','measure-step','burst'):
+            sub.add_argument('--release-review')
+            sub.add_argument('--release-review-sha256')
         if action=='carrier-step':
             fields(sub,'cwd aws-environment')
         if action=='source-brewfs':
@@ -163,25 +201,28 @@ def main():
     args = p.parse_args()
     out = output(args.out)
     if args.action=='carrier-step':
-        native, publication = brew(args)
+        native, publication, release = brew(args)
         value = step(cell=args.cell,method='brewfs-fork',native=native,tree=ref(args.tree,TREE_SHA),
-                     child='source-probe',cwd=args.cwd,environment=args.aws_environment,extra=(publication,))
+                     child='source-probe',cwd=args.cwd,environment=args.aws_environment,
+                     extra=(publication, *release_inputs(release)))
     elif args.action.startswith('source'):
         args.method = 'brewfs-fork' if args.action=='source-brewfs' else 'juicefs-clone'
         value = source(args)
     else:
         value = measured(args)
+        release = value.get('release_candidate')
         child = named(args.child)
         if args.action=='measure-step':
             value = step(cell=value['cell_id'],method=value['method'],native=value['native'],
                          tree=value['input_tree'],child=child,cwd=args.cwd,environment=args.aws_environment,
-                         extra=(value['source_qualification']['receipt'],))
+                         extra=(value['source_qualification']['receipt'], *release_inputs(release)))
         else:
             child_ref = ref(args.step)
             command, _ = prepare(child_ref['path'],child_ref['sha256'])
             if (command['stage'],command['cell_id'])!=('fork-'+child,value['cell_id']):
                 raise ValueError('Reviewed child step has another identity')
             native_step(value,child,command)
+            check_release_inputs(command, release)
             value['children'] = [{'id':child,'step':child_ref}]
     write_new(out,value)
     print(digest(out),out)
