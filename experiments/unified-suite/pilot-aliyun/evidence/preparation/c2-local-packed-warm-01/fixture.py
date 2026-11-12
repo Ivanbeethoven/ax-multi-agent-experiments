@@ -51,7 +51,8 @@ text = text[:start]+"""    from loopback_probe import probe
     rows = [dict(path=k, offset=0, length=v['bytes'], sha256=v['sha256']) for k,v in expected.items()]
     diagnostic = probe(point,rows,s3_snapshot,
                        result_path.with_suffix('.lower' if not options.extent_pair else '.'+extent_arm+'.lower'),
-                       retained_bytes=options.retained_bytes,extent_arm=extent_arm,timed_passes=options.timed_passes)
+                       retained_bytes=options.retained_bytes,extent_arm=extent_arm,timed_passes=options.timed_passes,
+                       mount_alive=lambda:proc is not None and proc.poll() is None)
     if options.extent_pair:
         result.setdefault('lower_warmth_arms',{})[extent_arm] = diagnostic
     else:
@@ -85,7 +86,7 @@ text = text[:start]+"""    if options.extent_pair:
 if args.native_stats:
     text = text.replace('from loopback_probe import probe','from bench.warm_lower import probe',1)
     text = text.replace('probe(point,rows,s3_snapshot,','probe(point,rows,',1)
-    text = text.replace(",\n                       retained_bytes=options.retained_bytes,extent_arm=extent_arm,timed_passes=options.timed_passes",'',1)
+    text = text.replace(",\n                       retained_bytes=options.retained_bytes,extent_arm=extent_arm,timed_passes=options.timed_passes,\n                       mount_alive=lambda:proc is not None and proc.poll() is None",'',1)
     text = text.replace("result['lower_warmth']['hot']","result['lower_warmth']['passed']",1)
     text = text.replace('metered_data,rurl,namespace','data,rurl,namespace',1)
 elif args.candidate_binary is not None:

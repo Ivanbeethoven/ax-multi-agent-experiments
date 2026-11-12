@@ -82,7 +82,7 @@ class WarmLowerTest(unittest.TestCase):
                 with self.subTest(suffix=suffix):
                     raw=[render(0,0,counters(0,0,0),0),render(1,2,counters(1,4,2),0),
                          render(2,4,counters(1,4,4),hits)]
-                    rustfs=iter([dict(gets=n,ranges=n,bytes=b,errors=0) for n,b in [(0,0),(1,4),(1+extra,4+extra)]])
+                    rustfs=iter([dict(gets=n,ranges=n,heads=0,bytes=b,errors=0) for n,b in [(0,0),(1,4),(1+extra,4+extra)]])
                     with patch.object(Path,'read_text',side_effect=raw):
                         result=module.probe(base,rows,lambda:next(rustfs),base/suffix,retained_bytes=1048576)
                     self.assertEqual(result['hot'],want)
@@ -119,18 +119,20 @@ class WarmLowerTest(unittest.TestCase):
             base = Path(temp)
             (base/'data').write_bytes(b'77')
             rows = [dict(path='data',offset=0,length=2,sha256=hashlib.sha256(b'77').hexdigest())]
-            for status,gets in [('hot',[0,1,1,1]),('rejected',[0,1,1,2]),('warmup_failed',[0,1,2])]:
-                with self.subTest(status=status):
+            for case,status,gets,heads in [('hot','hot',[0,1,1,1],[0,0,0,0]),
+                    ('get','rejected',[0,1,1,2],[0,0,0,0]),('head','rejected',[0,1,1,1],[0,0,0,1]),
+                    ('cold','warmup_failed',[0,1,2],[0,0,0])]:
+                with self.subTest(case=case):
                     raw = [stats(i,n) for i,n in zip((0,1,2,4),gets)]
-                    sidecar = iter(dict(gets=n,ranges=n,bytes=n*4,errors=0) for n in gets)
+                    sidecar = iter(dict(gets=n,ranges=n,heads=h,bytes=n*4,errors=0) for n,h in zip(gets,heads))
                     with patch('bench.runtime.common.mounts',return_value=[dict(options='ro',filesystem='fuse.brewfs')]), \
                          patch.object(os,'open',side_effect=read_only), patch.object(Path,'read_text',side_effect=raw):
-                        result = module.probe(base,rows,lambda:next(sidecar),base/status,
+                        result = module.probe(base,rows,lambda:next(sidecar),base/case,
                             retained_bytes=1048576,extent_arm='overlay',timed_passes=2)
                     timed = result['timed_extent_reads']
                     self.assertEqual(timed['status'],status)
                     self.assertEqual(timed['passed'],status=='hot')
-                    self.assertEqual((base/status/'timed-end.stats').exists(),status!='warmup_failed')
+                    self.assertEqual((base/case/'timed-end.stats').exists(),status!='warmup_failed')
                     if status!='warmup_failed':
                         self.assertEqual(len(timed['pread_ns']),2)
                         self.assertEqual(timed['final_extent'],dict(queries=4,bypasses=0))
