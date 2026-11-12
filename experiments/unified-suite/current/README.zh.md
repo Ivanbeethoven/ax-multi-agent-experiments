@@ -50,7 +50,7 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 | 项目 | 已验证 | 还缺 |
 |---|---|---|
 | C1 | [64 MiB 同步混合读写](../pilot-aliyun/evidence/preparation/c1-b-randrw-scratch-02/README.zh.md)完成一组配对，两边均通过冷挂载 CRC | 重复与反向顺序；布局开关的单独影响 |
-| C2 | [真实 trace 入口](../pilot-aliyun/evidence/preparation/c2-current-trace-a-draft-01/README.zh.md)和[热 lower 检查](../pilot-aliyun/evidence/preparation/c2-local-packed-warm-01/README.zh.md)已准备 | 完整回放与冷验；候选只读对照需证明两臂均为热态 |
+| C2 | [真实 trace 入口](../pilot-aliyun/evidence/preparation/c2-current-trace-a-draft-01/README.zh.md)已准备；[只读对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-resume-01/README.zh.md)首组挂载被拒，已定位首次绑定后的序号检查 | 完整回放与冷验；修正后验证两组热态，再测 Overlay 开销 |
 | C3 | [十万文件资格探针](../pilot-aliyun/evidence/preparation/c3-current-workspace-budget-default-01/README.zh.md)复现默认 Packed 预算拒绝；[提高两个预算](../pilot-aliyun/evidence/preparation/c3-current-workspace-budget-control8-01/README.zh.md)后未再出现拒绝，但读回过慢并提前结束 | 完整读回；同样设置下的性能对照 |
 | C4 | [BrewFS 候选原生 fork](../pilot-aliyun/evidence/preparation/c4-local-packed-fork-candidate-01/)与 [JuiceFS 原生 clone](../pilot-aliyun/evidence/preparation/c4-workspace-v1-packed-fork-01/README.zh.md)均在两文件 WSL 诊断通过父子隔离和冷读 | 100,000 文件资格、配对计时、跨机续跑 |
 

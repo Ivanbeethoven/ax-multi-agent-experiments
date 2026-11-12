@@ -1,0 +1,16 @@
+diff --git a/src/workspace_overlay/meta_layer/packed_read_control.rs b/src/workspace_overlay/meta_layer/packed_read_control.rs
+--- a/src/workspace_overlay/meta_layer/packed_read_control.rs
++++ b/src/workspace_overlay/meta_layer/packed_read_control.rs
+@@ -193,8 +193,11 @@
+         validate_fixed_layer_pair(&layers).map_err(workspace_to_meta)?;
+         let [head, base] = &layers;
++        // Initial Packed binding consumes one head sequence without writing
++        // any native upper rows. Admit that state, not the pre-binding head.
+         if head.owner_workspace_id != Some(guard.workspace_id)
+-            || head.next_sequence != 1
++            || head.next_sequence != 2
++            || lower.binding.binding_version != 1
+             || head.owned_slice_count != 0
+             || head.owned_bytes != 0
+             || base.layer_id != lower.binding.base_layer_id
+             || base.owner_workspace_id.is_some()

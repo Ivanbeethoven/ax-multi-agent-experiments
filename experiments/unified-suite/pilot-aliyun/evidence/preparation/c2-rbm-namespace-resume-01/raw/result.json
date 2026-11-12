@@ -1,0 +1,58 @@
+{
+  "schema": "c2-local-brewfs-packed-warm-fixture-v1",
+  "passed": false,
+  "files": 2,
+  "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "binary_sha256": {
+    "brewfs-c2-namespace-a34cb1ba-resume-01-linux-x86_64": "e4c5b0b5ed88f4597f5e1d731dc4abeb305d26dc64cd4f8c489efb7b5e3fba88",
+    "packed_v3_snapshot_fixture": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab"
+  },
+  "image_sha256": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "no_model": true,
+  "no_cloud": true,
+  "no_copy_baseline": true,
+  "formal_sample": false,
+  "readbacks": {},
+  "scope": "One WSL FUSE host, two passes through a framed Packed lower; no performance timing.",
+  "candidate_binary": true,
+  "retained_payload_cap_bytes": 8388608,
+  "strict_frame_hash": true,
+  "extent_arm": null,
+  "extent_pair": false,
+  "namespace_pair": true,
+  "timed_passes": 128,
+  "expected_files": {
+    "a.txt": {
+      "bytes": 13,
+      "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+    },
+    "sub/b.txt": {
+      "bytes": 64,
+      "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+    }
+  },
+  "manifest_key": "base/objects/0/db0ba55911f4a5f6d3c0ffd4dd6efc17140b94c4d59c38a831e4047e8177b47c",
+  "parent_workspace_id": "01a1cebc-3c1b-7d13-a460-b0b88c413270",
+  "exact_revision": "01a1cebc-3c65-7a32-992d-825b3edb3a8b:1:ad17950b2c7ec6941c9858ddb65c3aa99d749f1c64a2facb391a325370e8ac02",
+  "parent_binding": true,
+  "failed_phase": "parent-readback",
+  "error": "RuntimeError: parent-overlay-read mount exited 1: Error: Operation not supported: Packed read control requires a fresh empty upper and sealed root-only stub\n",
+  "mount_exits": {
+    "parent-overlay-read": {
+      "exit_code": 1,
+      "mount_absent": true,
+      "unmount_exit_code": null
+    }
+  },
+  "cleanup": {
+    "mount_absent": true,
+    "owned_containers_absent": {
+      "rustfs": true,
+      "redis": true
+    },
+    "scratch_removed": true
+  }
+}
