@@ -24,6 +24,131 @@ from bench.suite_mount import matches
 
 def ref(path):return dict(path=str(Path(path).resolve(strict=True)),sha256=digest(path))
 def utc():return datetime.now(timezone.utc).isoformat()
+OVERHEAD_TOLERANCE=.05
+OVERHEAD_GATE_ERROR='Three exact original calibration pairs within five percent required'
+DEVIATION_SCHEMA='c3-observer-overhead-deviation-v1'
+DEVIATION_DISCLOSURE_SCHEMA='c3-observer-overhead-disclosure-v1'
+
+
+def finite(value):return type(value) in (int,float) and math.isfinite(value)
+
+
+def deviation_reference(pin):
+    """One reviewed deviation record, pinned by an absolute path and its re-hashed bytes."""
+    if not isinstance(pin,dict) or not isinstance(pin.get('path'),str) or not isinstance(pin.get('sha256'),str):
+        raise ValueError('observer_overhead_deviation must pin an absolute path and its sha256')
+    path=Path(pin['path'])
+    if not path.is_absolute():raise ValueError('observer_overhead_deviation path must be absolute')
+    if path.is_symlink():raise ValueError('observer_overhead_deviation must not be a symlink')
+    try:observed=digest(path)
+    except OSError:raise ValueError('observer_overhead_deviation record is missing or unreadable')
+    if observed!=pin['sha256']:raise ValueError('observer_overhead_deviation sha256 does not match the record bytes')
+    return {'path':str(path.resolve()),'sha256':observed}
+
+
+def recorded_changes(measured):
+    """The record's own per-metric relative changes; measured.relative_changes wins, measured.<metric> is the same number under its recorded name."""
+    declared=measured.get('relative_changes')
+    if declared is not None and not isinstance(declared,dict):
+        raise ValueError('observer_overhead_deviation measured.relative_changes must be an object')
+    changes=dict(declared or {})
+    for name in ('makespan','task_p99'):
+        if name in measured:
+            if not finite(measured[name]):raise ValueError('observer_overhead_deviation measured.'+name+' must be a finite number')
+            if name in changes and (not finite(changes[name]) or float(changes[name])!=float(measured[name])):
+                raise ValueError('observer_overhead_deviation measured.relative_changes.'+name+' disagrees with measured.'+name)
+            changes.setdefault(name,measured[name])
+    return changes
+
+
+def deviation_disclosure(record,reference):
+    """One sentence assembled only from the record's own fields; no recomputed or rescaled number."""
+    applies=record['applies_to'];measured=record['measured'];disclosure=record.get('disclosure')
+    suite=str(applies.get('suite') or '').strip()
+    arm_name=(suite+' '+str(applies.get('arm_id') or applies.get('arm') or '')).strip()
+    label=disclosure.get('short_label') if isinstance(disclosure,dict) else None
+    sentence=[]
+    if isinstance(label,str) and label.strip():sentence.append(label.strip())
+    if arm_name:sentence.append(arm_name+' 观测开销偏离已按 reviewed 记录披露后放行，原判据未改为通过')
+    pairs=measured.get('paired_relative_changes') or {}
+    makespan=pairs.get('makespan')
+    if isinstance(makespan,list) and makespan and all(finite(value) for value in makespan):
+        sentence.append('逐对 '+ ' / '.join(f'{value:+.2%}' for value in makespan))
+    direction=measured.get('direction');where=measured.get('where_the_difference_sits')
+    if isinstance(direction,str) and direction.strip():sentence.append('方向：'+direction.strip())
+    if isinstance(where,str) and where.strip():sentence.append('差异位置：'+where.strip()+'（未归因）')
+    sentence.append('原 0.05 判据仍记为不通过，不折算、不改写；其余门槛不变')
+    sentence.append('记录 '+reference['path']+' sha256 '+reference['sha256'])
+    return '；'.join(sentence)
+
+
+def overhead_gate(checked,pin,cell_id,arm):
+    """The original five-percent gate, or one reviewed deviation that covers THIS failed result.
+
+    Returns None when the original gate passed; otherwise the consumed reference plus the
+    disclosure text. Every missing or mismatching condition keeps the original failure and
+    the message names the condition that is missing. The measured values are never rewritten.
+    """
+    current=checked.get('relative_changes')
+    if not isinstance(current,dict) or not current or not all(finite(value) for value in current.values()):
+        raise ValueError(OVERHEAD_GATE_ERROR)
+    if checked.get('passed') is True:
+        if any(value>OVERHEAD_TOLERANCE for value in current.values()):raise ValueError(OVERHEAD_GATE_ERROR)
+        return None
+    if pin is None:raise ValueError(OVERHEAD_GATE_ERROR)
+    reference=deviation_reference(pin)
+    record=load(Path(reference['path']))
+    if record.get('schema')!=DEVIATION_SCHEMA:raise ValueError('observer_overhead_deviation schema must be '+DEVIATION_SCHEMA)
+    if record.get('reviewed') is not True:raise ValueError('observer_overhead_deviation requires reviewed:true')
+    applies=record.get('applies_to')
+    if not isinstance(applies,dict):raise ValueError('observer_overhead_deviation requires an applies_to object')
+    for key in ('cell_id','arm_id','arm'):
+        declared=applies.get(key)
+        if declared is not None and (not isinstance(declared,str) or not declared or any(ch in declared for ch in '*?')):
+            raise ValueError('observer_overhead_deviation applies_to.'+key+' must be one exact identifier, not a wildcard')
+    covered=[key for key,wanted in (('cell_id',cell_id),('arm_id',arm),('arm',arm)) if wanted and applies.get(key)==wanted]
+    if not covered:raise ValueError('observer_overhead_deviation applies_to does not cover cell '+str(cell_id)+' arm '+str(arm))
+    measured=record.get('measured')
+    if not isinstance(measured,dict):raise ValueError('observer_overhead_deviation requires a measured object')
+    recorded=recorded_changes(measured)
+    if not recorded:raise ValueError('observer_overhead_deviation carries no measured relative changes')
+    if set(recorded)!=set(current):
+        raise ValueError('observer_overhead_deviation measured fields differ from this calibration result: '+' '.join(sorted(set(recorded)^set(current))))
+    for name in sorted(current):
+        if not finite(recorded[name]) or float(recorded[name])!=float(current[name]):
+            raise ValueError('observer_overhead_deviation measured.relative_changes.'+name+' differs from this calibration result')
+    deviation=record.get('deviation')
+    threshold=deviation.get('original_threshold') if isinstance(deviation,dict) else None
+    if not finite(threshold) or float(threshold)!=OVERHEAD_TOLERANCE:
+        raise ValueError('observer_overhead_deviation deviation.original_threshold must still be 0.05')
+    if measured.get('passed') is not False:
+        raise ValueError('observer_overhead_deviation must still record the original gate as not passed: measured.passed must be false')
+    if all(float(value)<=OVERHEAD_TOLERANCE for value in recorded.values()):
+        raise ValueError('observer_overhead_deviation records a failure its own measured values do not support')
+    decision=record.get('decision')
+    if not isinstance(decision,dict) or decision.get('accepted') is not True:
+        raise ValueError('observer_overhead_deviation decision.accepted must be true')
+    return dict(reference=reference,schema=DEVIATION_SCHEMA,cell_id=cell_id,arm=arm,
+        measured=dict(relative_changes=recorded,value=measured.get('value'),passed=False),
+        original_threshold=threshold,disclosure=record.get('disclosure'),text=deviation_disclosure(record,reference))
+
+
+def overhead_sample_check(c,checked):
+    """Sample-side observer_overhead predicate: passed:true, or one reviewed disclosed deviation.
+
+    With no pin the returned check is byte-identical to the original predicate, so the
+    sample keeps failing exactly as before.
+    """
+    pin=c.s.get('observer_overhead_deviation')
+    if checked.get('passed') is True or pin is None:return dict(evidence=c.s['overhead'],equals={'passed':True}),None
+    release=overhead_gate(checked,pin,c.id,c.arm)
+    payload=dict(schema=DEVIATION_DISCLOSURE_SCHEMA,valid=True,cell_id=c.id,arm=c.arm,passed=False,
+        measured_relative_changes=dict(checked['relative_changes']),reference=release['reference'],
+        original_threshold=release['original_threshold'],disclosure=release['text'])
+    if 'max_relative_change' in checked:payload['max_relative_change']=checked['max_relative_change']
+    write_new(c.out/'observer-overhead-disclosure.json',payload)
+    return dict(evidence=ref(c.out/'observer-overhead-disclosure.json'),
+        equals={'valid':True,'cell_id':c.id,'passed':False,'reference.sha256':release['reference']['sha256']}),release['text']
 ROOTS=dict(client='/srv/ax-client',metadata='/srv/ax-metadata',objects='/srv/ax-objects-0')
 ENTITY_ALWAYS=['brewfs_fuse_op_total','brewfs_mount_info','brewfs_cache_hits_total','brewfs_cache_misses_total',
     'brewfs_entity_read_cache_capacity_bytes','brewfs_entity_read_cache_retained_bytes','brewfs_entity_read_cache_evictions_total']
@@ -275,11 +400,14 @@ write_new(directory/'archive.json',archive);print(json.dumps(dict(closure=closed
         for name,metric in phase_metrics.items():metrics[name]=dict(evidence=ref(self.out/'io-metrics.json'),field='metrics.'+name+'.value',unit=metric['unit'],direction=metric['direction'])
         metrics['task_wall']=dict(evidence=ref(self.out/'cohort/result.json'),field='coordinator_makespan_seconds',unit='seconds',direction='lower')
         if self.purpose=='experiment':
+            overhead_check,disclosure=overhead_sample_check(self,load(pinned(self.s['overhead'])))
             checks={key:dict(evidence=ref(self.out/'verification.json'),equals={'passed':True,'cell_id':self.id}) for key in ('correctness','isolation','remote_readback','real_exit','cache_policy')}
-            checks.update(work=dict(evidence=ref(self.out/'work-check.json'),equals={'passed':True}),drain=dict(evidence=ref(self.out/'closure.json'),equals={'passed':True,'cell_id':self.id}),observer_overhead=dict(evidence=self.s['overhead'],equals={'passed':True}))
+            checks.update(work=dict(evidence=ref(self.out/'work-check.json'),equals={'passed':True}),drain=dict(evidence=ref(self.out/'closure.json'),equals={'passed':True,'cell_id':self.id}),observer_overhead=overhead_check)
+            limitations=['One agent and one pilot repetition. Fresh client entity; shared backend/page caches remain observed.']
+            if disclosure is not None:limitations.append(disclosure)
             write_new(self.out/'sample.json',dict(schema='suite-sample-v1',plan_sha256=self.plan['plan_sha256'],cell_id=self.id,uninterrupted=True,recovered=False,
                 checks=checks,required_observer_ids=[alias(self.pool,role) for role in ROOTS],required_marks=self.cell['observation_marks'],observers=observers,
-                metrics=metrics,timings_seconds={'native_measure':values['wall_seconds']},limitations=['One agent and one pilot repetition. Fresh client entity; shared backend/page caches remain observed.']))
+                metrics=metrics,timings_seconds={'native_measure':values['wall_seconds']},limitations=limitations))
         else:
             if self.live_calibration():
                 write_new(self.out/'finished.json',dict(passed=True,at=utc(),cohort=ref(self.out/'cohort/result.json'),
@@ -437,9 +565,12 @@ def admit_locked(context,overhead,latest,cross,capacity):
     allocation=load(c.runtime/'allocation.json')
     if allocation.get('passed') is not True or allocation.get('inventory_sha256')!=digest(c.runtime/'fleet.json'):raise ValueError('Current exact allocation required')
     checked=load(overhead)
-    if (checked.get('passed') is not True or checked.get('metric_contract_sha256')!=digest(q/'metrics.json') or
-            checked.get('workload_contract_sha256')!=digest(q/'workload.json') or any(value>.05 for value in checked['relative_changes'].values())):
-        raise ValueError('Three exact original calibration pairs within five percent required')
+    if (checked.get('metric_contract_sha256')!=digest(q/'metrics.json') or
+            checked.get('workload_contract_sha256')!=digest(q/'workload.json')):
+        raise ValueError(OVERHEAD_GATE_ERROR)
+    # Either the original five-percent gate passed, or one reviewed deviation record is
+    # explicitly pinned in this request and covers exactly this failed result.
+    release=overhead_gate(checked,c.s.get('observer_overhead_deviation'),c.id,c.arm)
     capacity_gate(capacity,c)
     c.out.mkdir(parents=True,exist_ok=False);c.check_inputs()
     write_new(c.out/'capacity.json',dict(passed=True,cell_id=c.id,hardware=ref(q.parent/'hardware.json'),packed_budget=ref(capacity)))
@@ -471,8 +602,15 @@ def admit_locked(context,overhead,latest,cross,capacity):
     if not exists:state.register_asset(c.control/'state.sqlite',ref(c.out/'asset.json'))
     lease=state.claim(c.control/'state.sqlite',c.pool,c.s['owner']);write_new(c.out/'lease.json',lease)
     if lease['already_claimed'] or lease['cell']!=c.cell:raise ValueError('Unexpected reservation; inspect original shared state')
-    request=deepcopy(c.s);request['overhead']=ref(overhead);write_new(c.out/'context.json',request)
-    print(json.dumps(dict(admitted=True,cell_id=c.id,context=ref(c.out/'context.json'))))
+    request=deepcopy(c.s);request['overhead']=ref(overhead)
+    if release is not None:
+        request['observer_overhead_deviation']=release['reference']
+        request['observer_overhead_disclosure']=release['text']
+    write_new(c.out/'context.json',request)
+    admitted=dict(admitted=True,cell_id=c.id,context=ref(c.out/'context.json'))
+    if release is not None:
+        admitted['observer_overhead_deviation']=release['reference'];admitted['disclosure']=release['text']
+    print(json.dumps(admitted))
 
 
 def pair_schedule(contexts):
