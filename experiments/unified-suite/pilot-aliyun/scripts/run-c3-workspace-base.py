@@ -6,6 +6,7 @@ from contextlib import ExitStack
 import hashlib
 import json
 from pathlib import Path
+import re
 import shlex
 import subprocess
 import sys
@@ -33,6 +34,15 @@ def run(args):
     script = worker.read_bytes()
     if hashlib.sha256(script).hexdigest()!=args.worker_sha256:
         raise ValueError('Staged worker script digest mismatch')
+    verifier = None
+    if args.parallel_sha256:
+        p = out/'smallfiles-verify'
+        if (not args.workers or not re.fullmatch(r'[a-f0-9]{64}',args.parallel_sha256)
+                or p.is_symlink() or not p.is_file() or not 4 <= p.stat().st_size <= 8*1024**2):
+            raise ValueError('Expected a bounded regular parallel verifier')
+        verifier = p.read_bytes()
+        if not verifier.startswith(b'\x7fELF') or hashlib.sha256(verifier).hexdigest()!=args.parallel_sha256:
+            raise ValueError('Staged Linux verifier binary digest differs')
     plan = json.loads((CANONICAL/'suite/plan.json').read_text())
     cell = next(c for c in plan['cells'] if c['pool']=='pool-a' and c['workload']=='smallfiles')
     controls = sorted(p.parent for p in CONTROL.glob('*/state.sqlite'))
@@ -84,11 +94,16 @@ def run(args):
             ssh('client','set -C; cat > '+remote+'/'+name,input=data,timeout=12)
         upload(worker.name,script)
         upload('slot.json',slot_bytes)
+        if verifier:
+            upload('smallfiles-verify',verifier)
+            ssh('client','chmod 700 '+remote+'/smallfiles-verify',timeout=8)
         ssh('client','test -d /sys/fs/cgroup/ax-slot-1 || python3 /srv/ax-client/code-12/experiments/unified-suite/'
             f'pilot-aliyun/scripts/configure-node.py slot --spec {remote}/slot.json --out {remote}/slot-setup',timeout=15)
         cmd = ['timeout','--kill-after=25s',str(args.verify_seconds+105)+'s','python3','-B',remote+'/'+worker.name,
                '--tag',tag,'--database',str(args.database),'--workers',str(args.workers),
                '--verify-seconds',str(args.verify_seconds)]
+        if verifier:
+            cmd.extend(('--parallel-sha256',args.parallel_sha256))
         try:
             with (out/'worker.log').open('xb') as stream:
                 ssh('client',shlex.join(cmd),stdout=stream,stderr=subprocess.STDOUT,timeout=args.verify_seconds+140)
@@ -108,4 +123,5 @@ if __name__=='__main__':
     p.add_argument('--database',type=int,required=True)
     p.add_argument('--workers',type=int,default=0)
     p.add_argument('--verify-seconds',type=int,default=480)
+    p.add_argument('--parallel-sha256')
     run(p.parse_args())

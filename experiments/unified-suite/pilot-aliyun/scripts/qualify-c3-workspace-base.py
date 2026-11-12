@@ -51,7 +51,7 @@ def require(ok, reason):
         raise ValueError(reason)
 
 
-def run(tag, db, workers, verify_seconds):
+def run(tag, db, workers, verify_seconds, parallel_sha256=None):
     require(re.fullmatch(r'c3-current-base-[0-9]{8}t[0-9]{6}z',tag) and 20 <= db < 256 and db != 70,
             'Exact new tag and dedicated Redis DB required')
     require(socket.gethostname()=='ax-pilot-20261111-client' and active(CLIENT) is not None,
@@ -59,7 +59,10 @@ def run(tag, db, workers, verify_seconds):
     require(os.statvfs(CLIENT).f_bavail * os.statvfs(CLIENT).f_frsize >= 2*1024**3,
             'Client disk below this probe reserve')
     require(0 <= workers <= 32 and 60 <= verify_seconds <= 900,'Bounded verifier workers and duration required')
-    pins = {**ARTIFACTS,**({PARALLEL:PARALLEL_SHA} if workers else {})}
+    require(not parallel_sha256 or (workers and re.fullmatch(r'[a-f0-9]{64}',parallel_sha256)),
+            'Custom verifier requires a valid SHA and positive worker count')
+    parallel = Path(__file__).resolve().with_name('smallfiles-verify') if parallel_sha256 else PARALLEL
+    pins = {**ARTIFACTS,**({parallel:parallel_sha256 or PARALLEL_SHA} if workers else {})}
     for path,expected in pins.items():
         require(path.resolve(strict=True)==path,'Unexpected artifact path: '+str(path))
         with path.open('rb') as stream:
@@ -115,7 +118,7 @@ def run(tag, db, workers, verify_seconds):
             write(out/'ready.json',dict(mount=identity,pid=proc.pid,workspace_id=workspace))
             if workers:
                 (out/'verify').mkdir()
-                verify_cmd = [PARALLEL,mount,'base',out/'verify/result.json',str(EXPECTED['files']),str(workers),'1']
+                verify_cmd = [parallel,mount,'base',out/'verify/result.json',str(EXPECTED['files']),str(workers),'1']
             else:
                 verify_cmd = [CLIENT/'assets/bin/smallfiles','verify-base','--root',mount,
                     '--output',out/'verify','--files',str(EXPECTED['files'])]
@@ -148,8 +151,9 @@ if __name__=='__main__':
     parser.add_argument('--database',type=int,required=True)
     parser.add_argument('--workers',type=int,default=0)
     parser.add_argument('--verify-seconds',type=int,default=480)
+    parser.add_argument('--parallel-sha256')
     args=parser.parse_args()
     def terminate(_signum, _frame):
         raise TimeoutError('Qualification interrupted')
     signal.signal(signal.SIGTERM,terminate)
-    run(args.tag,args.database,args.workers,args.verify_seconds)
+    run(args.tag,args.database,args.workers,args.verify_seconds,args.parallel_sha256)
