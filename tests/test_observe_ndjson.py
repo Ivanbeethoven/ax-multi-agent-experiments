@@ -87,6 +87,32 @@ class Equivalence(unittest.TestCase):
             self.assertEqual(len([p for p in stream.rglob('*') if p.is_file()]), 2)
 
 
+class DropIn(unittest.TestCase):
+    def test_legacy_tree_is_audited_identically_through_the_new_module(self):
+        with TemporaryDirectory() as tmp:
+            legacy = Path(tmp)/'legacy'
+            write_legacy(legacy)
+            old = observe.audit(legacy, 30, MARKS)
+            new = observe_ndjson.audit(legacy, 30, MARKS)
+            self.assertEqual(old, new)
+
+    def test_stream_tree_is_audited_through_the_same_entry_point(self):
+        with TemporaryDirectory() as tmp:
+            stream = Path(tmp)/'stream'
+            write_stream(stream)
+            result = observe_ndjson.audit(stream, 30, MARKS)
+            self.assertEqual(result['samples'], 3)
+            self.assertTrue(result['passed'])
+
+    def test_broken_legacy_tree_still_fails_through_the_new_module(self):
+        with TemporaryDirectory() as tmp:
+            legacy = Path(tmp)/'legacy'
+            write_legacy(legacy)
+            (legacy/'sample-000001'/'host-stat.txt').write_bytes(b'changed!')
+            with self.assertRaises(ValueError):
+                observe_ndjson.audit(legacy, 30, MARKS)
+
+
 class StreamIsTamperEvident(unittest.TestCase):
     def setUp(self):
         self.tmp = TemporaryDirectory()

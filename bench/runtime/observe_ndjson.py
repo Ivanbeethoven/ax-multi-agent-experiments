@@ -128,8 +128,16 @@ def serve(ref, output):
 
 
 def audit(directory, max_gap_seconds, required_marks):
-    """Same verdicts as the original audit, read line by line from one stream."""
+    """Drop-in for ``bench.runtime.observe.audit``.
+
+    A directory holding ``samples.ndjson`` is audited line by line; anything else
+    falls through to the original directory audit, so one pinned module serves
+    both the legacy layout and the stream layout and the caller does not have to
+    know which one it is looking at.
+    """
     directory = Path(directory)
+    if not (directory/STREAM).exists():
+        return observe.audit(directory, max_gap_seconds, required_marks)
     end = load(directory/'finished.json')
     if max_gap_seconds <= 0 or not end['passed']:
         raise ValueError('failed telemetry samples or invalid maximum gap')
