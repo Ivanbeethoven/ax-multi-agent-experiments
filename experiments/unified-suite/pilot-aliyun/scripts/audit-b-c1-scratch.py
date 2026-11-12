@@ -37,9 +37,11 @@ def records(payload):
 def run(root):
     plan=load(root/'plan.json')
     summary=load(root/'summary.json')
+    order=tuple(plan['phase_order'])
+    need(len(order)==len(ARMS) and set(order)==set(ARMS),'Invalid planned arm order')
     result=dict(schema='b-c1-randrw-scratch-audit-v1',utc=datetime.now(timezone.utc).isoformat(),
                 run=plan['run'],source_pins=[source(root/'plan.json'),source(root/'summary.json')],
-                completed={},partial_measures={},failed=list(summary['errors']),performance_calibrated=False,
+                phase_order=list(order),completed={},partial_measures={},failed=list(summary['errors']),performance_calibrated=False,
                 historical_acceptance_delta=0)
     client,objects={},{}
     for role in ('client','objects','metadata'):
@@ -76,7 +78,19 @@ def run(root):
         if path.is_file() and path.stat().st_size:
             heads[a]=load(path)
             result['source_pins'].append(source(path))
-    for a in ARMS:
+    phases_by_arm={}
+    for a in order:
+        if a+'/result.json' not in client:
+            continue
+        phases=records(client[a+'/phases.ndjson'])
+        event={x['label']:x for x in phases}
+        need(len(event)==len(phases),'Repeated phase marker: '+a)
+        phases_by_arm[a]=event
+    if set(phases_by_arm)==set(ARMS):
+        first,second=(phases_by_arm[a] for a in order)
+        need(first['verify-unmounted']['monotonic_ns']<second['prepare-mounted']['monotonic_ns'],
+             'Actual client order overlaps or differs from the plan')
+    for a in order:
         key=a+'/result.json'
         if key not in client:
             partial=a+'/measure/result.json'
@@ -94,9 +108,7 @@ def run(root):
         raw_verify=client[a+'/cold-verify/fio.json']
         fio=json.loads(raw_measure)['jobs']
         cold=json.loads(raw_verify)['jobs']
-        phases=records(client[a+'/phases.ndjson'])
-        event={x['label']:x for x in phases}
-        need(len(event)==len(phases),'Repeated phase marker: '+a)
+        event=phases_by_arm[a]
         prior=set()
         for label in ('prepare','measure','verify'):
             started,closed=event[label+'-mounted'],event[label+'-unmounted']
@@ -141,7 +153,7 @@ def run(root):
                 scope='Whole-device counters, including background and ±5 s timestamp bracket')
         if samples and a in heads:
             low=heads[a]
-            high=heads.get('brewfs',samples[-1]['disks']) if a=='juicefs' else samples[-1]['disks']
+            high=heads.get(order[1],samples[-1]['disks']) if a==order[0] else samples[-1]['disks']
             need(len(low)==len(high)==4 and all(x['device']==y['device'] and
                  all(x[k]<=y[k] for k in ('read_bytes','write_bytes')) for x,y in zip(low,high)),
                  'Invalid per-arm controller device bracket')
@@ -164,6 +176,14 @@ def run(root):
         result['resources_closed']=False
     if set(result['completed'])==set(ARMS):
         a,b=(result['completed'][x] for x in ARMS)
+        if (prior:=plan.get('matched_fixture')) is not None:
+            matched=json.loads(client['matched-input.json'])
+            need(matched['prior']==prior and
+                 matched['verified_input']==json.loads(client['input.json'])==
+                     dict(bytes=EXPECTED,sha256=prior['input_sha256'],seed=9173) and
+                 all(p['input_sha256']==prior['input_sha256'] for p in (a,b)),
+                 'Prior exact-input evidence did not match the pair')
+            result['matched_fixture']=matched
         result['paired_diagnostic']=(a['input_sha256']==b['input_sha256'] and a['seed']==b['seed']==9173
              and all(a[k]==b[k] for k in ('read_bytes','write_bytes','read_ios','write_ios'))
              and all('object_arm_bracket' in p for p in (a,b)))
