@@ -42,6 +42,12 @@ if ($PSCmdlet.ParameterSetName -eq 'FromReceipts') {
     $git = (Get-Command git.exe -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
     $null = wsl.exe -d Ubuntu-24.04 -u hxy -- python3 -B (WslPath $verifier) --manifest (WslPath $manifest) --out (WslPath $latest) --git (WslPath $git)
     if ($LASTEXITCODE) { throw "Cannot prove both built commits still equal branch tips; inspect $latest" }
+    # WSL's clock can lead the Windows host. Wait for the original receipt's
+    # timestamp; never restamp it or weaken the later freshness checks.
+    $versionAt = [DateTimeOffset](Get-Content -LiteralPath $latest -Raw | ConvertFrom-Json).at
+    $ahead = ($versionAt - [DateTimeOffset]::UtcNow).TotalSeconds
+    if ($ahead -gt 30) { throw 'Version receipt clock is over 30 seconds ahead of this host' }
+    if ($ahead -gt 0) { Start-Sleep -Milliseconds ([int][Math]::Ceiling($ahead*1000)+100) }
     $idJson = ConvertTo-Json -Compress -InputObject $ids
     $raw = aliyun ecs DescribeInstances --RegionId cn-hangzhou --InstanceIds $idJson
     if ($LASTEXITCODE) { throw 'Exact A DescribeInstances failed' }
