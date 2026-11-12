@@ -60,7 +60,7 @@ Packed 的[实测报告与完整归档](../packed-cache-7093-20261112/README.zh.
 
 AX 自身已与 `86f704be` 主线整合，保留新的清理、预览和文件系统迁移逻辑；[本轮检查](../../../../../../validation/packed-naming-integration-20261113.json)记录 690 项 Linux 测试通过、26 项跳过。旧测量仍引用冻结脚本 `3d756ff5`，不冒称使用了整合后的脚本。
 
-随后[独立审查](ax-submission-independent-review-01.json)找出三处命名遗漏，已用失败用例修复：挂载适配器对新的 workspace 名称恢复身份必填检查，使用当前 `packed-snapshot` 格式，并让调度与独立 worker 同时阻止旧 `flat-v1` 及新 `flat` 标签的 C4 完整复制。旧计划与哈希保持不变，排空和卸载仍允许执行。[回归验证](ax-naming-guard-validation.json)记录旧代码失败及修复后的完整 Linux 719 项测试：693 通过、26 跳过；仓库与历史归档检查通过。这些是 AX 运行前校验的修复，不回填为旧性能测量使用的脚本。
+随后[独立审查](ax-submission-independent-review-01.json)找出三处命名遗漏，已用失败用例修复：挂载适配器对新的 workspace 名称恢复身份必填检查，使用当前 `packed-snapshot` 格式，并让调度与独立 worker 同时阻止旧 `flat-v1` 及新 `flat` 标签的 C4 完整复制。旧计划与哈希保持不变，排空和卸载仍允许执行。[回归验证](ax-naming-guard-validation.json)记录旧代码失败及修复后的完整 Linux 719 项测试：693 通过、26 跳过；仓库与历史归档检查通过。[修复独立复核](ax-naming-guard-independent-review-02.json)绑定提交 `0d324cae` 的五个源文件及完整差异，确认三项均已修复。这些是 AX 运行前校验的修复，不回填为旧性能测量使用的脚本。
 
 两个候选各自基于 `ca07159`。协调者用 `git merge-tree` 做了[只读合并预检](proposed-branches-merge-review.json)：整包缓存的内部改名与三项修复在 `row_cache.rs`、`snapshot/read_cache.rs` 存在两处内容冲突；未修改任何被测分支。两个独立 PR 的实测不能替代合并后的验证，后续整合须解决冲突并重新通过相应检查。
 

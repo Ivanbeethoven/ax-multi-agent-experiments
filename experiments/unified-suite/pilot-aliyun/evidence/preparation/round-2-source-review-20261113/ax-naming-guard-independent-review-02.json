@@ -1,0 +1,56 @@
+{
+  "reviewed_at": "2026-11-12T20:09:22.383290+00:00",
+  "scope": "Read-only delta review resolving three findings from ax-submission-review-01; no tests rerun",
+  "repository": "C:\\Users\\HXY\\Documents\\Codex\\2026-10-22\\https-www-usenix-org-conferences-author\\work\\ax-packed-submission",
+  "head_at_review": "2a0c2f3038e36fd31c55190af9bc136d41d850b6",
+  "diff_sha256": "b4d8db1b7bee89229eb5be2438aa61216f513c213e1bce5d24b6f0ce9d69a29f",
+  "files": {
+    "bench/runtime/prepare.py": "b3e7f70595f9eca352a491fe8e63e943721c4348901b6136deae2a39b8078dab",
+    "bench/c4_dispatch.py": "cb87f675bdda29872481f873115a8ff0a4084df311a2f81e9fea17fcf7095163",
+    "experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py": "1a91fcc625ca86611aaae6f7df13ad0ee665e7bcab0174849442e23aae61d82d",
+    "tests/test_c4_flat_retirement.py": "0b4365f01cc97a2295f5cbd3a8bc9fef9cdf79579f7313e9da31b53cd2fd445e",
+    "tests/test_runtime_adapters.py": "f2b0db4f3635784948db42c6fe31cf58dd683ab7992e9e1911815ebd56ccd425"
+  },
+  "resolved": [
+    {
+      "id": "workspace-identities",
+      "resolution": "Explicit workspace/native-workspace/entity-workspace membership requires both nonempty identities; tests cover each missing and empty value."
+    },
+    {
+      "id": "historical-flat-retirement",
+      "resolution": "Shared and standalone leaf dispatch gates recognize flat and flat-v1; real frozen old-plan claim/new-stage refusal and permitted completion stages are tested without rewriting plan hash."
+    },
+    {
+      "id": "current-snapshot-format",
+      "resolution": "Accept packed-snapshot and reject retired packed-metadata-v3; dynamic hint test now uses current format."
+    }
+  ],
+  "new_actionable_findings": [],
+  "decision": "Static fixes accepted for AX commit; production/runtime qualification is separate.",
+  "reported_validation_not_rerun": {
+    "linux_total": 719,
+    "passed": 693,
+    "skipped": 26,
+    "source": "Parent reported completed Linux/repository/archive checks"
+  },
+  "supersedes_identity_receipt": {
+    "path": "C:\\Users\\HXY\\.cache\\ax-issue-446\\ax-submission-review-01\\fix-addendum-01.json",
+    "sha256": "fe120f3c0abc79ce01626a8efadff1717a3c55db0e7a53f32b1f4f2e5d69cb55",
+    "original_preserved": true,
+    "reason": "The original git diff omitted staged changes and hashed an empty diff. By correction time the reviewed five-file delta had been committed as 0d324cae. This receipt hashes the exact parent 2a0c2f30 to 0d324cae diff, byte-equal to git diff against the original reviewed HEAD including index/worktree. All five file SHAs and review conclusions are unchanged."
+  },
+  "commit_at_correction": "0d324cae22792bb4a0b6f9baa99a33922b6233ee",
+  "diff_command": [
+    "git",
+    "diff",
+    "2a0c2f3038e36fd31c55190af9bc136d41d850b6",
+    "0d324cae22792bb4a0b6f9baa99a33922b6233ee",
+    "--",
+    "bench/runtime/prepare.py",
+    "bench/c4_dispatch.py",
+    "experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py",
+    "tests/test_c4_flat_retirement.py",
+    "tests/test_runtime_adapters.py"
+  ],
+  "diff_bytes": 8265
+}
