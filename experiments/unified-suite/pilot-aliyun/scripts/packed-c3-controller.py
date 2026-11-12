@@ -133,22 +133,23 @@ def overhead_gate(checked,pin,cell_id,arm):
         original_threshold=threshold,disclosure=record.get('disclosure'),text=deviation_disclosure(record,reference))
 
 
-def overhead_sample_check(c,checked):
-    """Sample-side observer_overhead predicate: passed:true, or one reviewed disclosed deviation.
-
-    With no pin the returned check is byte-identical to the original predicate, so the
-    sample keeps failing exactly as before.
-    """
-    pin=c.s.get('observer_overhead_deviation')
-    if checked.get('passed') is True or pin is None:return dict(evidence=c.s['overhead'],equals={'passed':True}),None
-    release=overhead_gate(checked,pin,c.id,c.arm)
+def overhead_disclosure_check(c,checked,original,release,name):
+    """Keep the original failed result pinned while asserting validity of the exception."""
     payload=dict(schema=DEVIATION_DISCLOSURE_SCHEMA,valid=True,cell_id=c.id,arm=c.arm,passed=False,
         measured_relative_changes=dict(checked['relative_changes']),reference=release['reference'],
-        original_threshold=release['original_threshold'],disclosure=release['text'])
+        original_overhead=original,original_threshold=release['original_threshold'],disclosure=release['text'])
     if 'max_relative_change' in checked:payload['max_relative_change']=checked['max_relative_change']
-    write_new(c.out/'observer-overhead-disclosure.json',payload)
-    return dict(evidence=ref(c.out/'observer-overhead-disclosure.json'),
-        equals={'valid':True,'cell_id':c.id,'passed':False,'reference.sha256':release['reference']['sha256']}),release['text']
+    path=c.out/name;write_new(path,payload)
+    return dict(evidence=ref(path),equals={'valid':True,'cell_id':c.id,'passed':False,
+        'reference.sha256':release['reference']['sha256'],'original_overhead.sha256':original['sha256']})
+
+
+def overhead_sample_check(c,checked):
+    """Preserve the original predicate unless the exact failure has a reviewed exception."""
+    original=c.s['overhead'];pin=c.s.get('observer_overhead_deviation')
+    if checked.get('passed') is True or pin is None:return dict(evidence=original,equals={'passed':True}),None
+    release=overhead_gate(checked,pin,c.id,c.arm)
+    return overhead_disclosure_check(c,checked,original,release,'observer-overhead-disclosure.json'),release['text']
 ROOTS=dict(client='/srv/ax-client',metadata='/srv/ax-metadata',objects='/srv/ax-objects-0')
 ENTITY_ALWAYS=['brewfs_fuse_op_total','brewfs_mount_info','brewfs_cache_hits_total','brewfs_cache_misses_total',
     'brewfs_entity_read_cache_capacity_bytes','brewfs_entity_read_cache_retained_bytes','brewfs_entity_read_cache_evictions_total']
@@ -564,7 +565,7 @@ def admit_locked(context,overhead,latest,cross,capacity):
         if hardware.get('passed') is not True or hardware.get('inventory_sha256')!=digest(c.runtime/'fleet.json'):raise ValueError('Current exact hardware required')
     allocation=load(c.runtime/'allocation.json')
     if allocation.get('passed') is not True or allocation.get('inventory_sha256')!=digest(c.runtime/'fleet.json'):raise ValueError('Current exact allocation required')
-    checked=load(overhead)
+    overhead_pin=ref(overhead);checked=load(pinned(overhead_pin))
     if (checked.get('metric_contract_sha256')!=digest(q/'metrics.json') or
             checked.get('workload_contract_sha256')!=digest(q/'workload.json')):
         raise ValueError(OVERHEAD_GATE_ERROR)
@@ -585,8 +586,12 @@ def admit_locked(context,overhead,latest,cross,capacity):
         if cross is None:raise ValueError('Actual cross-pool proof required')
         cross_pool_proof(cross,c.plan,c.runtime/'fleet.json');gates['cross-pool-hardware-equivalence']=cross
     if set(gates)!=set(c.cell['required_gates']):raise ValueError('All and only frozen cell gates required')
+    checks=[dict(gate=name,evidence=ref(gates[name]),equals={'passed':True}) for name in c.cell['required_gates']]
+    if release is not None:
+        check=next(item for item in checks if item['gate']=='complete-telemetry-and-overhead')
+        check.update(overhead_disclosure_check(c,checked,overhead_pin,release,'qualification-overhead-disclosure.json'))
     qualification=dict(schema='suite-qualification-v1',plan_sha256=c.plan['plan_sha256'],cell_id=c.id,
-        checks=[dict(gate=name,evidence=ref(gates[name]),equals={'passed':True}) for name in c.cell['required_gates']])
+        checks=checks)
     write_new(c.out/'qualification.json',qualification)
     original=load(q/'filesystem.json')['proofs'];normal=load(pinned(original['base_normal_exit']))
     if normal.get('exit_code')!=0 or normal.get('mount_absent') is not True:raise ValueError('Original base still mounted')
@@ -602,7 +607,7 @@ def admit_locked(context,overhead,latest,cross,capacity):
     if not exists:state.register_asset(c.control/'state.sqlite',ref(c.out/'asset.json'))
     lease=state.claim(c.control/'state.sqlite',c.pool,c.s['owner']);write_new(c.out/'lease.json',lease)
     if lease['already_claimed'] or lease['cell']!=c.cell:raise ValueError('Unexpected reservation; inspect original shared state')
-    request=deepcopy(c.s);request['overhead']=ref(overhead)
+    request=deepcopy(c.s);request['overhead']=overhead_pin
     if release is not None:
         request['observer_overhead_deviation']=release['reference']
         request['observer_overhead_disclosure']=release['text']

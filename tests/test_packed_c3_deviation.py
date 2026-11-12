@@ -16,6 +16,8 @@ import unittest
 from unittest.mock import patch
 
 from bench.runtime.common import digest,load,write_new
+from bench import suite_state
+from bench.suite_plan import build as build_plan
 from bench.suite_report import sample as suite_sample
 from bench.suite_state import predicates
 
@@ -196,7 +198,7 @@ class Admission(Records):
         write_new(runtime/'allocation.json',dict(passed=True,inventory_sha256=digest(runtime/'fleet.json')))
         qualification=root/'qualification';q=qualification/'packed';q.mkdir(parents=True)
         (qualification/'assets/packed').mkdir(parents=True)
-        normal=root/'normal-exit.json';write_new(normal,dict(exit_code=0,mount_absent=True))
+        normal=root/'normal-exit.json';write_new(normal,dict(passed=True,exit_code=0,mount_absent=True))
         source=root/'source.json';write_new(source,dict(passed=True))
         base_check=root/'full-base-check.json';write_new(base_check,dict(passed=True))
         cloud_base=root/'cloud-base.json';write_new(cloud_base,dict(passed=True))
@@ -244,12 +246,12 @@ class Admission(Records):
         return types.SimpleNamespace(c=c,state=state,pin=pin,latest=root/'latest.json',capacity=capacity,
             overhead=overhead_path,root=root)
 
-    def admit(self,env):
+    def admit(self,env,cross=None):
         namespace=CODE['admit_locked'].__globals__
         patches=dict(cell=lambda path:(env.c,{}),state=env.state,capacity_gate=lambda path,c:{'passed':True})
         stream=io.StringIO()
         with patch.dict(namespace,patches),redirect_stdout(stream):
-            CODE['admit_locked'](env.root/'admit-request.json',env.overhead,env.latest,None,env.capacity)
+            CODE['admit_locked'](env.root/'admit-request.json',env.overhead,env.latest,cross,env.capacity)
         return json.loads(stream.getvalue())
 
     def refused(self,env,pattern):
@@ -297,6 +299,34 @@ class Admission(Records):
         self.assertNotIn('observer_overhead_deviation',context)
         self.assertNotIn('observer_overhead_disclosure',context)
         self.assertEqual(context['overhead'],CODE['ref'](env.overhead))
+
+    def test_reviewed_failure_qualifies_and_claims_in_real_sqlite(self):
+        env=self.build();c=env.c
+        frozen=load(RECORD_PATH.parent.parent/'parallel-control-01/plan.json')
+        plan=build_plan(dict(frozen['config'],**c.plan['config']))
+        plan_path=c.control/'suite/plan.json';plan_path.write_text(json.dumps(plan))
+        c.plan=plan;c.cell=next(cell for cell in plan['cells'] if cell['id']==CELL_ID)
+        asset_path=c.qualification.parent/'assets/packed/asset.json';asset=load(asset_path)
+        asset['plan']['sha256']=digest(plan_path)
+        asset['config'].update(c.cell['client_settings']);asset_path.write_text(json.dumps(asset))
+        db=c.control/'state.sqlite';suite_state.initialize(db,plan);env.state=suite_state
+        cross=env.root/'cross-pool.json'
+        write_new(cross,dict(schema='pilot-cross-pool-equivalence-v1',passed=True,plan_sha256=plan['plan_sha256'],
+            inventory_sha256=digest(c.runtime/'fleet.json'),pools=sorted({x['pool'] for x in plan['cells']}),
+            checks={'fixture':True},source_pins=[CODE['ref'](env.latest)]))
+
+        original=CODE['ref'](env.overhead)
+        self.assertTrue(self.admit(env,cross=cross)['admitted'])
+        with suite_state.transaction(db) as state:
+            registered=json.loads(state.execute('SELECT receipt FROM qualifications WHERE cell_id=?',(CELL_ID,)).fetchone()[0])
+            self.assertEqual(state.execute('SELECT cell_id FROM cell_leases WHERE pool=?',(c.pool,)).fetchone()[0],CELL_ID)
+        check=next(x for x in suite_state.evidence(registered)['checks'] if x['gate']=='complete-telemetry-and-overhead')
+        result=suite_state.evidence(check['evidence']);predicates(result,check['equals'])
+        self.assertTrue(result['valid'])
+        self.assertFalse(result['passed'])
+        self.assertEqual(result['original_overhead'],original)
+        self.assertEqual(result['reference'],env.pin)
+        self.assertFalse(suite_state.evidence(original)['passed'])
 
 
 class SampleAcceptance(Records):
