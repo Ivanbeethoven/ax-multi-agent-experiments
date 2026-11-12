@@ -19,3 +19,12 @@
 组合候选（SHA256 `1ca4440af71d3da2041ce2c7cf6a51378d11559cc6d31cd451423ccb702e7fa9`）还提供只读的数据区间对照，尚未编译或实测。添加 `--extent-pair` 会从同一个 workspace 和 Packed manifest 依次创建两次新挂载，分别检查预热，核 `ro` 和对写打开返回 `EROFS`。普通臂必须实际查 upper 的区间，对照臂必须实际跳过；两臂都必须仍走 FUSE，且通过上述零后端读检查。该对照只隔离空 upper 的数据区间查询，不能代表全部 Overlay、首次写入或完整任务开销。
 
 两臂计时脚本已接好。资格检查时可在 `--extent-pair` 后加 `--timed-passes 128`，重复两文件读，保存每次 `pread` 延迟和整段耗时。每臂在自己的正式挂载上先读两遍，只有第二遍原生计数和 RustFS 入口都无后端读才开始计时。计时后再次确认零后端读、FUSE 操作与字节数、缓存命中以及实际的 upper 查询或绕过；中途回源的结果只留作失败证据。此诊断的延迟不作为论文中的 Overlay 开销数据。
+较宽的只读候选另用 `--namespace-pair`，对照 `overlay-read` 与 `lower-read`。两臂在同一份两文件 Packed 基线上，均先执行两遍相同的目录打开、目录读取、文件属性查询及文件读取，再以相同次序计时。
+
+```bash
+python3 -B experiments/unified-suite/pilot-aliyun/evidence/preparation/c2-local-packed-warm-01/fixture.py \
+  /path/to/new-result.json --candidate-binary "$BIN" --candidate-sha256 "$SHA" \
+  --retained-bytes 8388608 --namespace-pair --timed-passes 128
+```
+
+两臂都要求第二遍和计时期间独立 RustFS 探针及 BrewFS 原生计数为零后端读取，FUSE 实际完成相同字节数，且 lookup、getattr、目录打开、区间查询的原生计数证明确实走了各自路径。缺一项则拒绝计时结果。该入口只测空 upper 下的只读路径；候选仍需真实运行。

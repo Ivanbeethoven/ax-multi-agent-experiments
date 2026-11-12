@@ -80,8 +80,43 @@ def extent_counters(raw, arm):
 
 def extent_pass(first, second, arm):
     delta = {k:second[k]-first[k] for k in ('queries','bypasses')}
-    return (delta['queries'] > 0 and delta['bypasses'] == 0 if arm=='overlay' else
+    return (delta['queries'] > 0 and delta['bypasses'] == 0 if arm in ('overlay','overlay-read') else
             delta['queries'] == 0 and delta['bypasses'] > 0)
+
+
+def namespace_counters(raw):
+    values = re.findall(
+        r'^brewfs_workspace_read_namespace_control_(lookup|getattr|directory_probe)_(queries|cache_hits|bypasses)_total ([0-9]+)$',
+        raw,re.M)
+    if len(values) != 9 or len({(op,kind) for op,kind,_ in values}) != 9:
+        raise ValueError('Missing unique read namespace control counters')
+    return {op+'_'+kind:int(value) for op,kind,value in values}
+
+
+def namespace_pass(first, second, arm):
+    d = {k:second[k]-first[k] for k in second}
+    return all(value >= 0 for value in d.values()) and all(
+        (d[op+'_queries']+d[op+'_cache_hits'] > 0 and d[op+'_bypasses'] == 0)
+        if arm=='overlay-read' else
+        (d[op+'_queries'] == d[op+'_cache_hits'] == 0 and d[op+'_bypasses'] > 0)
+        for op in ('lookup','getattr','directory_probe'))
+
+
+def read_namespace(root):
+    # Repeat exactly the non-root directory and file touched by the two-file fixture.
+    start = time.monotonic_ns()
+    sub = os.open('sub',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=root)
+    try:
+        names = os.listdir(sub)
+        listing = time.monotonic_ns()-start
+        start = time.monotonic_ns()
+        attr = os.stat('b.txt',dir_fd=sub,follow_symlinks=False)
+        getattr = time.monotonic_ns()-start
+    finally:
+        os.close(sub)
+    if names != ['b.txt'] or attr.st_size != 64:
+        raise ValueError('Read namespace output differs from the fixture')
+    return dict(open_and_list_ns=listing,lookup_and_stat_ns=getattr)
 
 
 def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=None, timed_passes=0,
@@ -96,10 +131,12 @@ def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=N
     native_points = []
     retention_hits = []
     extent_points = []
+    namespace_points = []
+    compare_namespace = extent_arm in ('overlay-read','lower-read')
     original_mount = None
     if extent_arm is not None:
         entries = mounts(mount)
-        if (extent_arm not in ('overlay','lower-only') or retained_bytes is None or len(entries)!=1
+        if (extent_arm not in ('overlay','lower-only','overlay-read','lower-read') or retained_bytes is None or len(entries)!=1
                 or 'ro' not in entries[0]['options'].split(',') or not entries[0]['filesystem'].startswith('fuse')):
             raise ValueError('Extent control requires one read-only FUSE mount and verified retention')
         original_mount = entries[0]
@@ -133,12 +170,14 @@ def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=N
             retention_hits.append(int(hits[0]))
             native_points.append(parse(raw.encode()))
         if extent_arm is not None: extent_points.append(extent_counters(raw,extent_arm))
+        if compare_namespace: namespace_points.append(namespace_counters(raw))
         return {**dict((k,int(v)) for k,v in found),**s3_snapshot()}
 
     points = [collect('before')]
     fd = os.open(mount,os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:
         for label in ('pass-1','pass-2'):
+            if compare_namespace: read_namespace(fd)
             for row in rows: read_range(fd,row)
             points.append(collect(label))
     finally:
@@ -161,6 +200,9 @@ def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=N
         active = all(extent_pass(a,b,extent_arm) for a,b in zip(extent_points,extent_points[1:]))
         out.update(extent_arm=extent_arm,extent_points=extent_points.copy(),readonly_mount=original_mount,
                    writable_open='EROFS',expected_extent_path=active,hot=out['hot'] and active)
+    if compare_namespace:
+        active = all(namespace_pass(a,b,extent_arm) for a,b in zip(namespace_points,namespace_points[1:]))
+        out.update(namespace_points=namespace_points.copy(),expected_namespace_path=active,hot=out['hot'] and active)
     if timed_passes:
         out['timed_extent_reads'] = dict(passed=False,status='warmup_failed')
         if out['hot']:
@@ -169,7 +211,10 @@ def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=N
             fd = os.open(mount,os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
             try:
                 started = time.monotonic_ns()
-                latencies = [read_range(fd,row,timed=True) for _ in range(timed_passes) for row in rows]
+                latencies, namespace_latencies = [], []
+                for _ in range(timed_passes):
+                    if compare_namespace: namespace_latencies.append(read_namespace(fd))
+                    latencies.extend(read_range(fd,row,timed=True) for row in rows)
                 elapsed = time.monotonic_ns() - started
                 last = collect('timed-end')
             finally:
@@ -182,11 +227,15 @@ def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=N
                       all(native_timed[k] == 0 for k in ('range_requests','received_bytes','failures')) and
                       native_timed['logical_bytes'] == expected * timed_passes and
                       retention_hits[-1] > retention_hits[-2] and
-                      extent_pass(extent_points[-2],extent_points[-1],extent_arm))
+                      extent_pass(extent_points[-2],extent_points[-1],extent_arm) and
+                      (not compare_namespace or namespace_pass(namespace_points[-2],namespace_points[-1],extent_arm)))
             out['timed_extent_reads'] = dict(passed=passed,status='hot' if passed else 'rejected',
-                scope='Read-only data extent resolution; not lookup, write or whole Overlay',
+                scope=('Read-only data extent, lookup, non-root attributes and directory opening'
+                       if compare_namespace else 'Read-only data extent resolution'),
                 passes=timed_passes,elapsed_ns=elapsed,pread_ns=latencies,final_independent=last,
                 final_native=native_points[-1],final_extent=extent_points[-1],final_retention_hits=retention_hits[-1],
                 native_delta=native_timed,independent_delta=timed)
+            if compare_namespace:
+                out['timed_extent_reads'].update(namespace_ns=namespace_latencies,final_namespace=namespace_points[-1])
     with (output/'result.json').open('x') as stream: json.dump(out,stream,indent=2);stream.write('\n')
     return out

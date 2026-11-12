@@ -15,10 +15,12 @@ parser.add_argument('--retained-bytes',type=int)
 extent = parser.add_mutually_exclusive_group()
 extent.add_argument('--extent-arm',choices=('overlay','lower-only'))
 extent.add_argument('--extent-pair',action='store_true')
+extent.add_argument('--namespace-pair',action='store_true')
 parser.add_argument('--timed-passes',type=int,default=0)
 args = parser.parse_args()
-if not 0 <= args.timed_passes <= 5000 or (args.timed_passes and not args.extent_pair):
-    parser.error('--timed-passes requires --extent-pair and must be between 1 and 5000')
+args.pair = ('overlay-read','lower-read') if args.namespace_pair else (('overlay','lower-only') if args.extent_pair else ())
+if not 0 <= args.timed_passes <= 5000 or (args.timed_passes and not args.pair):
+    parser.error('--timed-passes requires a paired control and must be between 1 and 5000')
 upstream_binary_sha256 = '814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0'
 if args.candidate_binary is not None:
     if (not args.candidate_binary.is_file() or args.candidate_binary.resolve(strict=True) != args.candidate_binary
@@ -29,7 +31,7 @@ if args.candidate_binary is not None:
     with args.candidate_binary.open('rb') as stream:
         if hashlib.file_digest(stream,'sha256').hexdigest() != args.candidate_sha256:
             parser.error('candidate binary SHA-256 differs')
-elif args.extent_pair or any(value is not None for value in (args.candidate_sha256,args.retained_bytes,args.extent_arm)):
+elif args.pair or any(value is not None for value in (args.candidate_sha256,args.retained_bytes,args.extent_arm)):
     parser.error('candidate SHA-256, retained bytes and extent arm require --candidate-binary')
 
 here = Path(__file__).resolve()
@@ -50,10 +52,10 @@ end = text.index('\n\ntry:',start)
 text = text[:start]+"""    from loopback_probe import probe
     rows = [dict(path=k, offset=0, length=v['bytes'], sha256=v['sha256']) for k,v in expected.items()]
     diagnostic = probe(point,rows,s3_snapshot,
-                       result_path.with_suffix('.lower' if not options.extent_pair else '.'+extent_arm+'.lower'),
+                       result_path.with_suffix('.lower' if not options.pair else '.'+extent_arm+'.lower'),
                        retained_bytes=options.retained_bytes,extent_arm=extent_arm,timed_passes=options.timed_passes,
                        mount_alive=lambda:proc is not None and proc.poll() is None)
-    if options.extent_pair:
+    if options.pair:
         result.setdefault('lower_warmth_arms',{})[extent_arm] = diagnostic
     else:
         result['lower_warmth'] = diagnostic
@@ -65,20 +67,20 @@ assert old in text
 text = text.replace(old,"""    from loopback_probe import meter
     with meter(sp) as (observed_endpoint,s3_snapshot):
         metered_data = dict(data,s3=dict(data['s3'],endpoint=observed_endpoint))
-        for extent_arm in (('overlay','lower-only') if options.extent_pair else (options.extent_arm,)):
+        for extent_arm in (options.pair or (options.extent_arm,)):
             if extent_arm is not None:
                 env['BREWFS_PACKED_WORKSPACE_READ_CONTROL'] = extent_arm
-            side = 'parent' if not options.extent_pair else 'parent-'+extent_arm
+            side = 'parent' if not options.pair else 'parent-'+extent_arm
             if not visit(side,parent['workspace_id'],metered_data,rurl,namespace,extent_arm):
                 raise ValueError('Parent did not expose the expected two files')
 """,1)
 start = text.index("    phase='fork-exact-revision'")
 end = text.index('\nexcept Exception as error:',start)
-text = text[:start]+"""    if options.extent_pair:
-        result['passed'] = all(result['lower_warmth_arms'][arm]['hot'] for arm in ('overlay','lower-only'))
+text = text[:start]+"""    if options.pair:
+        result['passed'] = all(result['lower_warmth_arms'][arm]['hot'] for arm in options.pair)
         if options.timed_passes:
             result['timed_pair_passed'] = all(result['lower_warmth_arms'][arm]['timed_extent_reads']['passed']
-                                             for arm in ('overlay','lower-only'))
+                                             for arm in options.pair)
             result['passed'] = result['passed'] and result['timed_pair_passed']
     else:
         result['passed'] = result['lower_warmth']['hot']
@@ -98,6 +100,7 @@ env.pop('BREWFS_PACKED_WORKSPACE_READ_CONTROL',None)
 point = work/'mount' ''',1)
     text = text.replace('deadline = time.monotonic() + 138', '''result.update(candidate_binary=True,retained_payload_cap_bytes=options.retained_bytes,
               strict_frame_hash=True,extent_arm=options.extent_arm,extent_pair=options.extent_pair,
+              namespace_pair=options.namespace_pair,
               timed_passes=options.timed_passes)
 deadline = time.monotonic() + 138''',1)
 sys.path.insert(0,str(here.parents[6]))
