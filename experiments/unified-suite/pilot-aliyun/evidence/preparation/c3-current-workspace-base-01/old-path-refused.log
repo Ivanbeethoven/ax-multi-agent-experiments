@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/srv/ax-receipts/c3-current-base-20261112t061751z/qualify-c3-workspace-base.py", line 143, in <module>
+    run(args.tag,args.database)
+  File "/srv/ax-receipts/c3-current-base-20261112t061751z/qualify-c3-workspace-base.py", line 61, in run
+    require(hashlib.file_digest(stream,'sha256').hexdigest()==expected,'Artifact digest mismatch: '+str(path))
+  File "/srv/ax-receipts/c3-current-base-20261112t061751z/qualify-c3-workspace-base.py", line 48, in require
+    raise ValueError(reason)
+ValueError: Artifact digest mismatch: /srv/ax-client/assets/bin/brewfs

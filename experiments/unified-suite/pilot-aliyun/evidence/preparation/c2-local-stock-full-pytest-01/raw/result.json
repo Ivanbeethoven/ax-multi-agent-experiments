@@ -1,0 +1,59 @@
+{
+  "schema": "c2-local-stock-workspace-v1-full-trace-v1",
+  "passed": false,
+  "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "binary_sha256": {
+    "brewfs": "814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0",
+    "full-fuse-replay": "35c45abd910d826ea17b5d6dfc750c7083cda5e8ce8f3bbe5ef77a78ffbea1aa"
+  },
+  "image_sha256": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "no_model": true,
+  "no_cloud": true,
+  "no_copy_baseline": true,
+  "formal_sample": false,
+  "readbacks": {},
+  "scope": "One WSL FUSE host, original pytest-full-02 trace, ordinary stock workspace-v1 without a Packed lower, no performance acceptance.",
+  "case": "pytest-full-02",
+  "initial_tree_sha256": "c1b9b066e6660301ad944fff78de1910e6388021c6caa90923355848eb1c2847",
+  "archive_sha256": "9953d90517eaf520814150f80abccb11f9d74b7ac84ecc56fa394a5f8495aa3d",
+  "preflight_initial_entries": 714,
+  "volume_format": "workspace-v1",
+  "packed_lower": false,
+  "portable_terminal_probe": true,
+  "cache_parent_fds": true,
+  "automatic_retry": false,
+  "wall_limit_seconds": 420,
+  "workspace_id": "01a1ce70-b66c-7193-bfd0-1bf8d89cca63",
+  "packed_binding_absent": true,
+  "stages": {
+    "import": {
+      "exit_code": 0,
+      "wall_seconds": 17.446551231
+    },
+    "strict": {
+      "exit_code": -15,
+      "wall_seconds": 220.00645657800004,
+      "interrupted": true
+    }
+  },
+  "failed_phase": "strict-full-replay",
+  "error": "TimeoutExpired: Command '['/home/hxy/.cache/brewfs-entity-validation-venv/bin/python', '/mnt/c/Users/HXY/.cache/ax-pilot-20261111/publish-fsync-1911-01/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py', '--case', '/home/hxy/ax-unified-pilot-prep/inputs/cases/pytest-full-02', '--binary', '/home/hxy/ax-unified-pilot-prep/tools/parent-fd-cache-01/full-fuse-replay', '--root', '/tmp/ax-c2-stock-full-w9or71am/mount/trace-root', '--out', '/mnt/c/Users/HXY/.cache/ax-pilot-20261111/local-c2-stock-full-pytest-01/strict-proof', '--prepared-root', '--portable-terminal-probe', '--cache-parent-fds']' timed out after 220 seconds",
+  "mount_exits": {
+    "writer": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    }
+  },
+  "cleanup": {
+    "mount_absent": true,
+    "owned_containers_absent": {
+      "rustfs": true,
+      "redis": true
+    },
+    "scratch_removed": true
+  }
+}

@@ -22,6 +22,8 @@ ARTIFACTS = {
     CLIENT/'assets/bin/smallfiles': '8c45bca1348e936e0b8e5d01e7e8ee11f1db72120dc8aa7800aa72e1e0bcde96',
 }
 EXPECTED = dict(files=100000,bytes_checked=409600000)
+PARALLEL = CLIENT/'assets/bin/smallfiles-verify-c3-01'
+PARALLEL_SHA = '843e4137ed6692f7b7ca9ee7961964733cfd5ebca7f75aff6d70486c646ecf95'
 REDIS = 'redis://10.20.2.162:6379/'
 OBJECTS = 'http://10.20.2.163:9000'
 
@@ -49,14 +51,16 @@ def require(ok, reason):
         raise ValueError(reason)
 
 
-def run(tag, db):
+def run(tag, db, workers, verify_seconds):
     require(re.fullmatch(r'c3-current-base-[0-9]{8}t[0-9]{6}z',tag) and 20 <= db < 256 and db != 70,
             'Exact new tag and dedicated Redis DB required')
     require(socket.gethostname()=='ax-pilot-20261111-client' and active(CLIENT) is not None,
             'Pool A client data disk must be mounted')
     require(os.statvfs(CLIENT).f_bavail * os.statvfs(CLIENT).f_frsize >= 2*1024**3,
             'Client disk below this probe reserve')
-    for path,expected in ARTIFACTS.items():
+    require(0 <= workers <= 32 and 60 <= verify_seconds <= 900,'Bounded verifier workers and duration required')
+    pins = {**ARTIFACTS,**({PARALLEL:PARALLEL_SHA} if workers else {})}
+    for path,expected in pins.items():
         require(path.resolve(strict=True)==path,'Unexpected artifact path: '+str(path))
         with path.open('rb') as stream:
             require(hashlib.file_digest(stream,'sha256').hexdigest()==expected,'Artifact digest mismatch: '+str(path))
@@ -78,7 +82,8 @@ def run(tag, db):
     namespace = str(uuid.uuid4())
     write(out/'intent.json',dict(schema='c3-workspace-base-qualification-v1',tag=tag,namespace=namespace,
           redis_db=db,bucket=data['s3']['bucket'],manifest_key=asset['manifest_key'],
-          pins={str(p):h for p,h in ARTIFACTS.items()},formal_sample=False,automatic_retry=False,
+          pins={str(p):h for p,h in pins.items()},formal_sample=False,automatic_retry=False,
+          verifier_workers=workers or 1,verify_timeout_seconds=verify_seconds,
           boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip()))
     (slot/'cgroup.procs').write_text(str(os.getpid()))
     auth = dict(line.split('=',1) for line in (CLIENT/'private/rustfs.env').read_text().splitlines() if '=' in line)
@@ -108,10 +113,14 @@ def run(tag, db):
             identity = active(mount)
             require(identity and identity['type'].startswith('fuse') and proc.poll() is None,'Current FUSE mount did not start')
             write(out/'ready.json',dict(mount=identity,pid=proc.pid,workspace_id=workspace))
+            if workers:
+                (out/'verify').mkdir()
+                verify_cmd = [PARALLEL,mount,'base',out/'verify/result.json',str(EXPECTED['files']),str(workers),'1']
+            else:
+                verify_cmd = [CLIENT/'assets/bin/smallfiles','verify-base','--root',mount,
+                    '--output',out/'verify','--files',str(EXPECTED['files'])]
             with (out/'verify.log').open('xb') as verify:
-                subprocess.run([CLIENT/'assets/bin/smallfiles','verify-base','--root',mount,
-                    '--output',out/'verify','--files',str(EXPECTED['files'])],
-                    stdout=verify,stderr=subprocess.STDOUT,check=True,timeout=480)
+                subprocess.run(verify_cmd,stdout=verify,stderr=subprocess.STDOUT,check=True,timeout=verify_seconds)
             summary = json.loads((out/'verify/result.json').read_text())
             require(summary.get('passed') is True and all(summary.get(k)==v for k,v in EXPECTED.items()),
                     'Full base result mismatch')
@@ -137,8 +146,10 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--tag',required=True)
     parser.add_argument('--database',type=int,required=True)
+    parser.add_argument('--workers',type=int,default=0)
+    parser.add_argument('--verify-seconds',type=int,default=480)
     args=parser.parse_args()
     def terminate(_signum, _frame):
         raise TimeoutError('Qualification interrupted')
     signal.signal(signal.SIGTERM,terminate)
-    run(args.tag,args.database)
+    run(args.tag,args.database,args.workers,args.verify_seconds)

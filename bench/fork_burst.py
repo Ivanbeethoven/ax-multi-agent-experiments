@@ -131,8 +131,11 @@ def run_native(s, ref, commands, out, source=None):
             for task in tasks: futures.append(pool.submit(one,*task))
             if ready is not None:
                 ready.wait()
-                if root is not None and juicefs_mount(root) != original_mount:
-                    raise ValueError('JuiceFS measurement mount changed before releasing children')
+                if root is not None:
+                    from .fork_source import alive
+                    if (juicefs_mount(root) != original_mount or
+                            not alive(source['measurement_mount']['process'])):
+                        raise ValueError('JuiceFS measurement mount changed or its process exited before releasing children')
             started = time.monotonic_ns()
             gate.set()
         except BaseException:

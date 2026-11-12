@@ -61,7 +61,7 @@ class ForkSourceTest(unittest.TestCase):
         path.write_bytes(b'test binary identity only')
         return self.ref(path)
 
-    def mount(self, directory, config, binary, filesystem, point, ident):
+    def mount(self, directory, config, binary, filesystem, point, ident, pid=None):
         config_ref = self.record(directory+'/config.json', config)
         argv = [binary['path'], 'mount']
         argv += ['--config', config_ref['path']] if filesystem == 'brewfs' else [config['metadata_url']]
@@ -74,12 +74,13 @@ class ForkSourceTest(unittest.TestCase):
         mount_spec = self.record(directory+'/mount-spec.json', dict(schema='experiment-mount-v1',
             reviewed=True, filesystem=filesystem, mount_point=str(point), anchor=vol,
             allowed_fstypes=[mount['filesystem']], config=config_ref, command=command))
+        pid = pid if pid is not None else ident+100
         value = dict(passed=True, mount=mount,
-                     process=dict(pid=ident+100, boot_id='test-boot', start_ticks=9, state='S'),
+                     process=dict(pid=pid, boot_id='test-boot', start_ticks=9, state='S'),
                      anchor=vol, spec=mount_spec)
         self.status[self.root/directory] = value
         self.mounts[str(point)] = [mount]
-        self.processes.add(ident+100)
+        self.processes.add(pid)
         return mount_spec, self.record(directory+'/ready.json', value)
 
     def stop(self, ready):
@@ -179,6 +180,18 @@ class ForkSourceTest(unittest.TestCase):
         self.mounts[str(self.point)] = [dict(self.mounts[str(self.point)][0], mount_id=190)]
         with self.assertRaisesRegex(ValueError, 'mount or foreground process changed'):
             self.preflight(request, **fresh)
+
+    def test_juicefs_remount_can_reuse_kernel_mount_id_after_verified_stop(self):
+        request = self.juice()
+        original = self.qualify(request)['source_mount']
+        stopped = self.stop(request['ready'])
+        spec = load(request['mount_spec']['path'])
+        config = load(spec['config']['path'])
+        mount, ready = self.mount('measurement',config,request['native']['binary'],'juicefs',self.point,
+                                  original['mount']['mount_id'],pid=181)
+        checked = self.preflight(request,probe_stopped=stopped,measurement=dict(mount_spec=mount,ready=ready))
+        self.assertEqual(checked['measurement_mount']['mount'],original['mount'])
+        self.assertNotEqual(checked['measurement_mount']['process'],original['process'])
 
     def test_juicefs_must_not_measure_with_the_same_mount_used_for_readback(self):
         request = self.juice()
