@@ -37,9 +37,9 @@ def native_argv(filesystem, binary, config_path, config, point, cluster, metrics
         fmt = config['volume_format']; backend = config['meta']['backend']
         if backend != (metadata_backend if unified else 'tikv' if cluster == 'C2' else 'redis'): raise ValueError('wrong baseline metadata backend')
         if not unified and fmt.startswith('packed-') and cluster != 'C2': raise ValueError('Pack belongs only to legacy C2')
-        if fmt not in ('flat','workspace','native-workspace','packed-metadata-v3') and not (unified and fmt=='entity-workspace'):
+        if fmt not in ('flat','workspace','native-workspace','packed-snapshot') and not (unified and fmt=='entity-workspace'):
             raise ValueError('unqualified volume format')
-        if fmt.startswith('workspace-') and (not config.get('workspace') or not config.get('workspace_namespace')):
+        if fmt in ('workspace','native-workspace','entity-workspace') and (not config.get('workspace') or not config.get('workspace_namespace')):
             raise ValueError('workspace and namespace identities required')
         if config['data']['backend'] != 's3': raise ValueError('shared object backend required')
         if 'mount_point' in config and config['mount_point'] != point: raise ValueError('mount path mismatch')

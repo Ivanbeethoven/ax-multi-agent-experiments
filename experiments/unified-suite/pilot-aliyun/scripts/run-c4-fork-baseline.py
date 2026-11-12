@@ -99,8 +99,9 @@ def select_cell(plan, cell_id, pool, product):
 def require_dispatch(cell):
     # This leaf also runs standalone against a pinned historical runtime.
     arm = cell.get('arm') or {}
-    if (cell.get('suite'), cell.get('workload'), cell.get('arm_id'),
-            arm.get('product'), arm.get('engine')) == ('C4', 'fork', 'native', 'brewfs', 'flat'):
+    if ((cell.get('suite'), cell.get('workload'), cell.get('arm_id'),
+            arm.get('product')) == ('C4', 'fork', 'native', 'brewfs')
+            and arm.get('engine') in ('flat','flat-v1')):
         raise ValueError('Historical C4 BrewFS Flat full-copy dispatch is retired; existing evidence remains readable')
 
 

@@ -1,0 +1,85 @@
+{
+  "base_commit": "2a0c2f3038e36fd31c55190af9bc136d41d850b6",
+  "scope": "Repair current format admission and preserved historical retirement policy after naming change",
+  "changes": [
+    "Require nonempty workspace and namespace for all three named workspace formats",
+    "Accept current packed-snapshot; reject retired packed-metadata-v3",
+    "Block new C4 flat full-copy work for both flat and frozen flat-v1 labels, including standalone worker; retain teardown and frozen hashes"
+  ],
+  "source_files": [
+    {
+      "path": "bench/runtime/prepare.py",
+      "sha256": "b3e7f70595f9eca352a491fe8e63e943721c4348901b6136deae2a39b8078dab"
+    },
+    {
+      "path": "bench/c4_dispatch.py",
+      "sha256": "cb87f675bdda29872481f873115a8ff0a4084df311a2f81e9fea17fcf7095163"
+    },
+    {
+      "path": "experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py",
+      "sha256": "1a91fcc625ca86611aaae6f7df13ad0ee665e7bcab0174849442e23aae61d82d"
+    },
+    {
+      "path": "tests/test_runtime_adapters.py",
+      "sha256": "f2b0db4f3635784948db42c6fe31cf58dd683ab7992e9e1911815ebd56ccd425"
+    },
+    {
+      "path": "tests/test_c4_flat_retirement.py",
+      "sha256": "0b4365f01cc97a2295f5cbd3a8bc9fef9cdf79579f7313e9da31b53cd2fd445e"
+    }
+  ],
+  "red": {
+    "runtime_tests": 2,
+    "failures": 10,
+    "errors": 3,
+    "legacy_plan_tests": 1,
+    "legacy_plan_failures": 1,
+    "subprocess_exit_codes": [
+      1,
+      1
+    ]
+  },
+  "green": {
+    "environment": "WSL Ubuntu24.04 Python3.12.3",
+    "command": "python3 -m unittest discover -s tests -v",
+    "exit_code": 0,
+    "total": 719,
+    "passed": 693,
+    "skipped": 26,
+    "seconds": 25.334
+  },
+  "repository_check": {
+    "passed": true,
+    "documents": 122,
+    "python_sources": 392
+  },
+  "archive_check": {
+    "passed": true,
+    "files": [
+      181,
+      121,
+      53
+    ]
+  },
+  "logs": [
+    {
+      "path": "ax-naming-guards-red-01.log",
+      "bytes": 16848,
+      "sha256": "1072aff9448c846cc8f66266f2d09f55aca60bf8195fbb53c250a353ed923b7c"
+    },
+    {
+      "path": "ax-naming-guards-green-01.log",
+      "bytes": 112808,
+      "sha256": "95b267c15735a8ac5b3205ac0d5efd3de273514a82a422809c790cc819f0369e"
+    }
+  ],
+  "diff_check": {
+    "passed": true,
+    "scope": "All staged changes except these two byte-preserved raw artifacts",
+    "excluded_raw_artifacts": [
+      "ax-naming-guards-red-01.log",
+      "ax-submission-independent-review-01.json"
+    ],
+    "reason": "Preserve original log trailing whitespace and review CRLF bytes for SHA-256 verification; source and prose have no whitespace exceptions"
+  }
+}

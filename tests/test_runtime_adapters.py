@@ -137,7 +137,7 @@ class NativeBoundaries(unittest.TestCase):
     def test_dynamic_default_and_explicit_client_ablation(self):
         c=self.config()
         for cluster,fmt,backend in [('C1','native-workspace','redis'),('C4','native-workspace','redis'),
-                                    ('C2','packed-metadata-v3','tikv')]:
+                                    ('C2','packed-snapshot','tikv')]:
             c['volume_format']=fmt;c['meta']['backend']=backend
             self.assertEqual(prepare.native_argv('brewfs','/b','/c',c,'/m',cluster)[-2:],
                              ['--s3-rustfs-ec-block-size-hint','auto'])
@@ -148,6 +148,31 @@ class NativeBoundaries(unittest.TestCase):
             prepare.native_argv('brewfs','/b','/c',c,'/m','C2')
         self.assertEqual(prepare.native_argv('brewfs','/b','/c',c,'/m','C2',dynamic_block='65536')[-1],'65536')
         with self.assertRaises(ValueError):prepare.native_argv('brewfs','/b','/c',c,'/m','C2',dynamic_block='off')
+
+    def test_current_workspace_formats_require_both_identities(self):
+        for fmt in ('workspace','native-workspace','entity-workspace'):
+            c=self.config();c['volume_format']=fmt
+            if fmt=='entity-workspace':
+                c.update(workspace='11111111-1111-4111-8111-111111111111',
+                         entity_volume_id='22222222-2222-4222-8222-222222222222',
+                         packed_manifest_key='base/manifest',entity_read_cache_bytes=0)
+                c['fuse']['keep_cache']=False
+            prepare.native_argv('brewfs','/b','/c',c,'/m','C4',metadata_backend='redis')
+            for key in ('workspace','workspace_namespace'):
+                for missing in (True,False):
+                    bad=copy.deepcopy(c)
+                    if missing:bad.pop(key)
+                    else:bad[key]=''
+                    with self.subTest(format=fmt,key=key,missing=missing):
+                        with self.assertRaisesRegex(ValueError,'workspace and namespace identities required'):
+                            prepare.native_argv('brewfs','/b','/c',bad,'/m','C4',metadata_backend='redis')
+
+    def test_current_packed_snapshot_format_replaces_retired_metadata_format(self):
+        c=self.config();c.update(volume_format='packed-snapshot',meta={'backend':'tikv'})
+        self.assertIn('mount',prepare.native_argv('brewfs','/b','/c',c,'/m','C2'))
+        c['volume_format']='packed-metadata-v3'
+        with self.assertRaisesRegex(ValueError,'unqualified volume format'):
+            prepare.native_argv('brewfs','/b','/c',c,'/m','C2')
 
     def test_anchor_excludes_local_cache_but_binds_shared_storage(self):
         c=self.config(); expected=prepare.anchor('brewfs',c)

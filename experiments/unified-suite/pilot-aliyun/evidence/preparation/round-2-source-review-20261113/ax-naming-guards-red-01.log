@@ -1,0 +1,150 @@
+test_current_packed_snapshot_format_replaces_retired_metadata_format (test_runtime_adapters.NativeBoundaries.test_current_packed_snapshot_format_replaces_retired_metadata_format) ... ERROR
+test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) ... 
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='workspace', key='workspace', missing=True) ... FAIL
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='workspace', key='workspace', missing=False) ... FAIL
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='workspace', key='workspace_namespace', missing=True) ... FAIL
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='workspace', key='workspace_namespace', missing=False) ... FAIL
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='native-workspace', key='workspace', missing=True) ... FAIL
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='native-workspace', key='workspace', missing=False) ... FAIL
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='native-workspace', key='workspace_namespace', missing=True) ... FAIL
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='native-workspace', key='workspace_namespace', missing=False) ... FAIL
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='entity-workspace', key='workspace', missing=True) ... ERROR
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='entity-workspace', key='workspace', missing=False) ... FAIL
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='entity-workspace', key='workspace_namespace', missing=True) ... ERROR
+  test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='entity-workspace', key='workspace_namespace', missing=False) ... FAIL
+
+======================================================================
+ERROR: test_current_packed_snapshot_format_replaces_retired_metadata_format (test_runtime_adapters.NativeBoundaries.test_current_packed_snapshot_format_replaces_retired_metadata_format)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 172, in test_current_packed_snapshot_format_replaces_retired_metadata_format
+    self.assertIn('mount',prepare.native_argv('brewfs','/b','/c',c,'/m','C2'))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/bench/runtime/prepare.py", line 41, in native_argv
+    raise ValueError('unqualified volume format')
+ValueError: unqualified volume format
+
+======================================================================
+ERROR: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='entity-workspace', key='workspace', missing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 168, in test_current_workspace_formats_require_both_identities
+    prepare.native_argv('brewfs','/b','/c',bad,'/m','C4',metadata_backend='redis')
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/bench/runtime/prepare.py", line 60, in native_argv
+    if not uuid.UUID(config['entity_volume_id']).int or not uuid.UUID(config['workspace']).int:raise ValueError('non-nil entity identities required')
+                                                                      ~~~~~~^^^^^^^^^^^^^
+KeyError: 'workspace'
+
+======================================================================
+ERROR: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='entity-workspace', key='workspace_namespace', missing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 168, in test_current_workspace_formats_require_both_identities
+    prepare.native_argv('brewfs','/b','/c',bad,'/m','C4',metadata_backend='redis')
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/bench/runtime/prepare.py", line 69, in native_argv
+    '--workspace-namespace',config['workspace_namespace'],
+                            ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'workspace_namespace'
+
+======================================================================
+FAIL: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='workspace', key='workspace', missing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 167, in test_current_workspace_formats_require_both_identities
+    with self.assertRaisesRegex(ValueError,'workspace and namespace identities required'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='workspace', key='workspace', missing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 167, in test_current_workspace_formats_require_both_identities
+    with self.assertRaisesRegex(ValueError,'workspace and namespace identities required'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='workspace', key='workspace_namespace', missing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 167, in test_current_workspace_formats_require_both_identities
+    with self.assertRaisesRegex(ValueError,'workspace and namespace identities required'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='workspace', key='workspace_namespace', missing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 167, in test_current_workspace_formats_require_both_identities
+    with self.assertRaisesRegex(ValueError,'workspace and namespace identities required'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='native-workspace', key='workspace', missing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 167, in test_current_workspace_formats_require_both_identities
+    with self.assertRaisesRegex(ValueError,'workspace and namespace identities required'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='native-workspace', key='workspace', missing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 167, in test_current_workspace_formats_require_both_identities
+    with self.assertRaisesRegex(ValueError,'workspace and namespace identities required'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='native-workspace', key='workspace_namespace', missing=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 167, in test_current_workspace_formats_require_both_identities
+    with self.assertRaisesRegex(ValueError,'workspace and namespace identities required'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='native-workspace', key='workspace_namespace', missing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 167, in test_current_workspace_formats_require_both_identities
+    with self.assertRaisesRegex(ValueError,'workspace and namespace identities required'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='entity-workspace', key='workspace', missing=False)
+----------------------------------------------------------------------
+ValueError: badly formed hexadecimal UUID string
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 167, in test_current_workspace_formats_require_both_identities
+    with self.assertRaisesRegex(ValueError,'workspace and namespace identities required'):
+AssertionError: "workspace and namespace identities required" does not match "badly formed hexadecimal UUID string"
+
+======================================================================
+FAIL: test_current_workspace_formats_require_both_identities (test_runtime_adapters.NativeBoundaries.test_current_workspace_formats_require_both_identities) (format='entity-workspace', key='workspace_namespace', missing=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_runtime_adapters.py", line 167, in test_current_workspace_formats_require_both_identities
+    with self.assertRaisesRegex(ValueError,'workspace and namespace identities required'):
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.026s
+
+FAILED (failures=10, errors=3)
+test_original_flat_label_stays_retired_without_rewriting_frozen_plan (test_c4_flat_retirement.FlatRetirement.test_original_flat_label_stays_retired_without_rewriting_frozen_plan) ... FAIL
+
+======================================================================
+FAIL: test_original_flat_label_stays_retired_without_rewriting_frozen_plan (test_c4_flat_retirement.FlatRetirement.test_original_flat_label_stays_retired_without_rewriting_frozen_plan)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/Documents/Codex/2026-10-22/https-www-usenix-org-conferences-author/work/ax-packed-submission/tests/test_c4_flat_retirement.py", line 83, in test_original_flat_label_stays_retired_without_rewriting_frozen_plan
+    self.assertIsNone(state.claim(self.db,self.native['pool'],'tester')['cell'])
+AssertionError: {'id': '60e2d3a6b1c01c51-r1-native', 'paired_block': '60e2d3a6b1c01c51-r1', 'order': 0, 'pool': 'pool-a', 'suite': 'C4', 'case': 'fork-1', 'workload': 'fork', 'claim': 'system', 'params': {'agents': 1, 'children': 1, 'dataset': 'fork-fixture-100k-4k', 'creation': 'burst', 'files': 100000, 'file_bytes': 4096}, 'arm_id': 'native', 'arm': {'product': 'brewfs', 'role': 'internal-control', 'engine': 'flat-v1', 'delta': False, 'packed': False, 'hint': 'auto', 'payload_cache_bytes': 536870912}, 'asset_id': 'ae48e46115b8f69a565e801b', 'required_gates': ['exact-build-input-inventory', 'native-route-and-metadata', 'effective-cache-and-durability', 'host-capacity-and-maintenance', 'complete-telemetry-and-overhead', 'native-fork-or-copy-qualified', 'parent-sibling-isolation', 'capacity-for-eager-copy', 'cross-pool-hardware-equivalence'], 'stages': ['observe-start', 'create', 'mount', 'measure', 'drain', 'unmount', 'verify', 'observe-stop', 'archive'], 'observation_marks': ['measure-start', 'measure-end', 'drain-end', 'verify-end'], 'execution_enabled': False, 'client_settings': {'volume_format': 'flat-v1', 'volume': {'format': 'flat-v1'}, 'cache': {'read_memory_bytes': 536870912, 'read_ssd_bytes': 0, 'write_memory_bytes': 536870912, 'write_ssd_bytes': 1073741824, 'memory_budget_bytes': 536870912, 'writeback_mode': 'upload_before_commit', 'compression': 'none', 'verify_cache_checksum': 'full', 'prefetch_enabled': True, 'prefetch_max_bytes': 134217728, 'prefetch_concurrency': 64, 'range_background_prefetch': True, 'read_fetch_policy': 'backend-default', 'populate_write_cache_after_upload': True, 'persist_write_cache_after_upload': False}, 'fuse': {'cache_ttl_ms': 0, 'keep_cache': False}, 'data': {'s3': {'rustfs_ec_block_size_hint': 'auto'}}}, 'resource_ids': ['host:pool-a-client', 'host:pool-a-target', 'host:pool-a-metadata', 'host:pool-a-objects']} is not None
+
+----------------------------------------------------------------------
+Ran 1 test in 0.090s
+
+FAILED (failures=1)

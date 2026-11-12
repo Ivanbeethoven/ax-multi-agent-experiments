@@ -5,8 +5,9 @@ _NEW_WORK = {'observe-start', 'create', 'mount', 'measure'}
 
 def retired_flat_fork(cell):
     arm = cell.get('arm') or {}
-    return (cell.get('suite'), cell.get('workload'), cell.get('arm_id'),
-            arm.get('product'), arm.get('engine')) == ('C4', 'fork', 'native', 'brewfs', 'flat')
+    return ((cell.get('suite'), cell.get('workload'), cell.get('arm_id'),
+             arm.get('product')) == ('C4', 'fork', 'native', 'brewfs')
+            and arm.get('engine') in ('flat','flat-v1'))
 
 
 def require_allowed(cell, stage=None):

@@ -27,10 +27,11 @@ class FlatRetirement(unittest.TestCase):
         write_new(path, body)
         return state.reference(path)
 
-    def freeze(self, parallel):
+    def freeze(self, parallel, engine='flat'):
         config = select_pilot_files(template(), 100000)
         fork = next(c for c in config['cases'] if c['workload']=='fork')
         fork['arms'] = {name:fork['arms'][name] for name in ('native','juicefs')}
+        fork['arms']['native']['engine']=engine
         config['cases'] = [fork]
         config.update(input_manifest_sha256='a'*64, build_manifest_sha256='b'*64)
         for pool in config['clusters']:
@@ -74,6 +75,21 @@ class FlatRetirement(unittest.TestCase):
         self.assertIsNone(result['cell'])
         self.assertIn('frozen pair',result['reason'])
         self.assertEqual(state.status(self.db),before)
+
+    def test_original_flat_label_stays_retired_without_rewriting_frozen_plan(self):
+        self.freeze(parallel=True,engine='flat-v1')
+        before=state.status(self.db);identity=self.plan['plan_sha256']
+        self.assertEqual(check_plan(self.plan),self.plan)
+        self.assertIsNone(state.claim(self.db,self.native['pool'],'tester')['cell'])
+        self.assertEqual(state.status(self.db),before)
+        reject=runpy.run_path(str(SCRIPTS/'run-c4-fork-baseline.py'))['require_dispatch']
+        with self.assertRaisesRegex(ValueError,'retired'):reject(self.native)
+        for stage in (None,'observe-start','create','mount','measure'):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'retired'):
+                require_allowed(self.native,stage)
+        for stage in ('drain','unmount','verify','observe-stop','archive'):
+            require_allowed(self.native,stage)
+        self.assertEqual(check_plan(self.plan)['plan_sha256'],identity)
 
     def test_existing_lease_is_visible_but_cannot_restart_work(self):
         self.freeze(parallel=True)

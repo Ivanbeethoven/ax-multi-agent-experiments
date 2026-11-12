@@ -1,0 +1,78 @@
+{
+  "reviewed_head": "d460d0244658f27fd54e50eca2295cf24bf1215a",
+  "main_parent": "86f704be9129fbb5f6e466cfbbb15fdf383fc4e8",
+  "merge": "12a88c1a89c69e9323782c41aa4c3458f5a3dfd0",
+  "reviewer": "fix_issue_446",
+  "scope": "Read-only static review plus pure-function micro-reproductions; no full-suite rerun, cloud, mounts, or workloads. Root-owned later edits excluded.",
+  "decision": "fix three naming guard defects before accepting this HEAD; no other blocker found in examined conflict resolution",
+  "findings": [
+    {
+      "id": "AX-1",
+      "priority": "P2",
+      "path": "bench/runtime/prepare.py",
+      "line": 42,
+      "title": "Renamed workspace formats bypass required identity guard",
+      "proof": "fmt.startswith(workspace-) no longer matches workspace/native-workspace/entity-workspace. native_argv accepts workspace config with both workspace and workspace_namespace absent; main rejects equivalent workspace-v1 config.",
+      "recommendation": "Check explicit supported workspace-format set; add missing/empty ID/namespace cases."
+    },
+    {
+      "id": "AX-2",
+      "priority": "P1",
+      "path": "bench/c4_dispatch.py",
+      "line": 9,
+      "also": "experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py:103",
+      "title": "Historical flat-v1 cells bypass retired full-copy dispatch",
+      "proof": "suite_plan accepts old frozen flat-v1 names, but renamed retirement predicate matches flat only. Pure require_allowed(old C4/native/flat-v1, mount) passes here and is rejected on main.",
+      "recommendation": "Retire both flat and flat-v1 labels in central and standalone predicates; keep old plan bytes/hashes unchanged."
+    },
+    {
+      "id": "AX-3",
+      "priority": "P2",
+      "path": "bench/runtime/prepare.py",
+      "line": 40,
+      "title": "Readonly adapter still selects retired packed format",
+      "proof": "native_argv allowlist retains packed-metadata-v3 and omits packed-snapshot. Frozen BrewFS7093 config.rs416/424/1326 and tests2982-84 require new PackedSnapshot format and reject old packed-metadata-v3.",
+      "recommendation": "Use packed-snapshot in current runtime allowlist and test new-format acceptance/old-format rejection; keep historical source-pinned scripts intact."
+    }
+  ],
+  "main_behaviors_preserved": {
+    "AST_equal_after_only_flat_workspace_literal_rename": {
+      "bench/experiment_smoke.py": true,
+      "experiments/unified-suite/pilot-aliyun/scripts/rbm-lifecycle.py": true,
+      "experiments/unified-suite/pilot-aliyun/scripts/rbm-native-fork.py": true
+    },
+    "byte_identical_main_files": {
+      "bench/run_cleanup.py": true,
+      "bench/runtime/smoke_cleanup.py": true,
+      "bench/experiment_smoke_matrix.py": true,
+      "bench/runtime/handoff.py": true,
+      "experiments/unified-suite/pilot-aliyun/scripts/build-five-smoke-candidate.sh": true,
+      "experiments/unified-suite/pilot-aliyun/scripts/write-five-smoke-provenance.py": true,
+      "experiments/unified-suite/pilot-aliyun/scripts/run-rbm-script-check.sh": true
+    },
+    "existing_evidence_modified_or_deleted": []
+  },
+  "current_routes": {
+    "design_status": "design-only",
+    "execution_enabled": false,
+    "source_branch": "codex/packed-prefetch",
+    "reviewed_brewfs": "7093f141d8081e6b96cd0a80814876aed5a3b577",
+    "required_features": [
+      "workspace",
+      "observability",
+      "rustfs-ec-block-size-hint"
+    ],
+    "default_features": true,
+    "producer": "packed_snapshot_fixture",
+    "unified_candidate_and_build_manifest_interfaces_consistent": true,
+    "full_head_range_warm_gate_preserved": true
+  },
+  "history": "FIVE-CHECKS and scripts README explicitly require historical AX86f704be checkout for pinned old five-smoke build/provenance/run scripts. Existing evidence paths are not modified by net diff; new raw archives are additive.",
+  "existing_validation_receipt": {
+    "linux_total": 716,
+    "pass": 690,
+    "skip": 26,
+    "log_sha256_verified": "e1c86385ea55b1c1cde32bba3318d3ce931f8ec75f80bcadd86e883e52765007",
+    "rerun_by_reviewer": false
+  }
+}
