@@ -1,0 +1,84 @@
+{
+  "formal_sample": false,
+  "files": 128,
+  "arms": {
+    "brewfs": {
+      "phase": "complete",
+      "passed": true,
+      "verify_base": {
+        "passed": true,
+        "files": 128,
+        "bytes_checked": 524288
+      },
+      "run": {
+        "passed": true,
+        "files": 128,
+        "verified_reads": 432,
+        "writes": 64,
+        "actual_read_bytes": 1769472,
+        "actual_write_bytes": 262144
+      },
+      "initial_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "verify_touched": {
+        "passed": true,
+        "checked_files": 16
+      },
+      "reopen_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      }
+    },
+    "juicefs": {
+      "phase": "complete",
+      "passed": true,
+      "verify_base": {
+        "passed": true,
+        "files": 128,
+        "bytes_checked": 524288
+      },
+      "run": {
+        "passed": true,
+        "files": 128,
+        "verified_reads": 432,
+        "writes": 64,
+        "actual_read_bytes": 1769472,
+        "actual_write_bytes": 262144
+      },
+      "initial_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      },
+      "verify_touched": {
+        "passed": true,
+        "checked_files": 16
+      },
+      "reopen_unmount": {
+        "unmount_exit": 0,
+        "mount_exit": 0,
+        "mount_absent": true
+      }
+    }
+  },
+  "binary_sha256": {
+    "brewfs": "29dee6fcca1c70f90fbb853a9578b18530e1ba385eefa758ade13a17cc1a19da",
+    "producer": "ff1384013ee69d6327efd54845850e92b5eacc5828bbfe279367489e0fb59ac4",
+    "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+    "smallfiles": "1e27cb2204dff633aea1d21a61a6fa740cfe9aa2afdb501bc41eca33cb8fd62f"
+  },
+  "rustfs_image": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806",
+  "phase": "workload",
+  "source": {
+    "passed": true,
+    "files": 128
+  },
+  "mounts_absent": true,
+  "rustfs_removed": true,
+  "scratch_removed": true,
+  "passed": true
+}

@@ -14,4 +14,23 @@ BrewFS 上游 `main` 在 2026-11-12 核对为 `ca07159`。默认是普通卷 `fl
 | C4 原生派生 | workspace-v1 + Packed-v3 wire005 原生 fork / JuiceFS 原生 clone | 同一非空父数据；首次子读、覆盖后父不变、排空与冷重挂。rbm 两文件复测仍未通过 BrewFS 子读；不派发完整复制，也不做正式对比。 |
 | C4 干净迁移 | 同一 BrewFS 工作区 / JuiceFS | stay 与 move 使用同一输入；源停写、排空、释放后目标重开同一工作区。核旧写者拒绝、会话继续及数据；跨机脚本仍需验收。 |
 
-Cargo 构建与运行开关分开记录：冻结一次同一 BrewFS release（保留默认 features，加 `workspace-overlay` 和 `rustfs-ec-block-size-hint`），所有配对臂复用该产物。 `--overlay`、`--packed-metadata`、`--dynamic-block` 是计划中的运行接口，不能用按臂重编代替。动态块关闭时所有上传者 hint=off、RustFS 四项同时关闭；见[配置](CONFIGURATION.zh.md)。新一轮记录上游提交、实际 feature 列表、二进制 SHA 和镜像 ID；rbm 冒烟产物不作为正式冻结产物。
+Cargo 构建与运行开关分开记录：冻结一次同一 BrewFS release（保留默认 features，加 `workspace-overlay` 、`observability` 和 `rustfs-ec-block-size-hint`），所有配对臂复用该产物。 `--overlay`、`--packed-metadata`、`--dynamic-block` 是计划中的运行接口，不能用按臂重编代替。动态块关闭时所有上传者 hint=off、RustFS 四项同时关闭；见[配置](CONFIGURATION.zh.md)。新一轮记录上游提交、实际 feature 列表、二进制 SHA 和镜像 ID；rbm 冒烟产物不作为正式冻结产物。
+
+## 用 flag 选择模式
+
+```bash
+python3 -m bench.experiment_modes --experiment C1-layout --mode dynamic-off
+python3 -m bench.experiment_modes --experiment C2-runtime --mode overlay-off
+python3 -m bench.experiment_modes --experiment C4-handoff --mode brewfs-full --placement move
+```
+
+`--experiment` 选子项，`--mode` 选对照或消融，迁移另用 `--placement stay|move`。这里的模式是文件系统配置，不涉及模型调用。选择器输出预期格式、机制、hint 和尚未验收的条件；不会启动文件系统或派发任务。底层已经支持的 hint 参数是 `--s3-rustfs-ec-block-size-hint`；Overlay 和 Pack 的同引擎开关仍待接入。
+
+统一构建：
+
+```bash
+cargo build --release --locked --features workspace-overlay,observability,rustfs-ec-block-size-hint \
+  --bin brewfs --bin packed_v3_snapshot_fixture
+```
+
+保留 Cargo 默认 features。这里打开的是实验需要的三项能力；不额外开启实验未使用的网关替代路径、profiling 或其他挂载格式。rbm 已用现有二进制复验 128 文件的挂载、读写和冷客户端重挂，见 [回执](../pilot-aliyun/evidence/preparation/rbm-experiment-modes-20261112/lifecycle.json)。这份回执不证明统一构建或尚未接通的消融可用。

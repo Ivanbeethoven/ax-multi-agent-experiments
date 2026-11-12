@@ -13,7 +13,7 @@
 | BrewFS | `https://github.com/brewfs/brewfs` 的 main；campaign开始取最新提交，整个扩展曲线和重复固定 |
 | RustFS | `https://github.com/Ivanbeethoven/rustfs` 的 feat/dynamic-block-size-rebased；整个campaign固定镜像digest |
 | JuiceFS | ≥1.4.2；记录精确版本与 SHA；所需参数通过实际 `--help` 和挂载核对 |
-| 构建 | BrewFS 同一 release 构建保留 default features，额外包含 workspace-overlay、rustfs-ec-block-size-hint；若工具链要求更多能力，在资格阶段确定并统一构建 |
+| 构建 | BrewFS 同一 release 构建保留 default features，额外包含 workspace-overlay、observability、rustfs-ec-block-size-hint；若工具链要求更多能力，在资格阶段确定并统一构建 |
 | 分发 | 远端构建一次，产物经内网分发并逐机验 SHA；禁止按消融臂重编不同 feature |
 | 基础版 | 仅用于 C1/C2；volume_format=flat-v1；独立 metadata namespace 和 S3 前缀 |
 | 完整方案 | volume_format=workspace-v1；schema 1 catalog；Packed-v3 wire005 基线绑定、真实 workspace UUID、workspace_namespace |
