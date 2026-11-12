@@ -23,3 +23,5 @@
 | objects | [10:43:06](objects.released.json) | 5 | ¥0.546/h |
 
 三台实例、9 块盘共 520 GiB 已释放。按当日杭州按量报价，原 B 池磁盘约 ¥23.18/天、¥695.52/30 天；这是盘价估算。A 池三台和原跳板于 [10:43:44 UTC](kept.after-stop.json) 均为 Stopped / StopCharging；它们的盘、原网络及 OSS 保留。后续需要第二个池时，须按新实例和盘建立新清单。
+
+退役后又在 10:44:38 UTC 完成[独立只读核验](independent-audit.json)：按原 ID 查三台实例与九块盘均为零，A 池与跳板四台均已停机。可复用[核验脚本](../../../scripts/audit-retired-pool-b.ps1)，传入新的 `-ReceiptRoot` 目录；脚本只查询，不会启动或删除资源。
