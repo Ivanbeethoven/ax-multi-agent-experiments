@@ -1,0 +1,27 @@
+{
+  "schema": "ax-a-objects-discard-clarification-v1",
+  "recorded_at_utc": "2026-11-12T12:30:21.0379255Z",
+  "correction_to": {
+    "objects-discard-source-proof.private.json": "6d8251b55452b3d878470324c1a86ec4c3a082496e43038d5f5fa646f5cab057",
+    "objects-discard-args.private.json": "c002ce5d939ee99069af56446d67143159f42d4610e3fb6be50f086ac18cd377"
+  },
+  "corrected_c3_scope": {
+    "base_bucket": "axp-f50629e4f0f74d62",
+    "base_disposition": "Designated for discard as generated test backend state; the four base bucket roots are excluded from the archive.",
+    "empty_upper_bucket_groups": 8,
+    "empty_upper_disposition": "Excluded empty test bucket shells; all four shard directories were empty for each group.",
+    "retained": "Original deterministic input or its pinned generator, publication and qualification receipts, run logs, configuration and results. C3 live Packed base payload is not retained by this Objects archive.",
+    "supersedes": "The words \"Preserve system metadata and C3 primary base\" in the empty-upper rationale of the pinned source proof. RustFS system metadata is included; the C3 primary base is not."
+  },
+  "archive_scope": "Selective preservation of original experiment evidence and chosen state, including C2 diagnostic state, the actual C4 A-to-B checkpoint bucket, the RustFS system metadata directory and selected small qualification buckets. This is not a complete RustFS image and is not asserted to restore the previous service.",
+  "other_backend_state": "Other historical live test objects on this dedicated experiment backend were designated for discard under the task cleanup instruction. No independent copy or exact reconstruction of original bucket, object or version IDs is claimed.",
+  "review": {
+    "only_local_readback": true,
+    "pinned_files_unchanged": true,
+    "credentials_detected": false,
+    "inspected": "Structured JSON keys and values in the two pinned classification files; credential/secret markers, credential URL forms, signed URL markers, authorization headers, private keys and common provider token patterns.",
+    "raw_proof_metadata": "Contains test bucket names, local and private service paths, directory names and Redis database indices; these are operational identifiers, not credentials.",
+    "publication": "Safe to share this clarification and a minimized summary. Keep the raw classification proof, its source JSON files, and the original archive private unless separately reviewed for operational metadata and underlying content."
+  },
+  "attestation_limit": "This clarification describes archive and retirement scope. It is not a successful archive-transfer or cloud-deletion receipt."
+}

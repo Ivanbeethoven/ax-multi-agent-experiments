@@ -1,6 +1,6 @@
 # AX 实验脚本入口
 
-**实验已暂停。** 先收回结果并清理本任务新建的云资源，保留原跳板机。下列运行入口留待恢复时使用；旧机器 ID、盘和锁配置不可直接复用。
+**实验已暂停，原 A/B 测试机已释放，原跳板机保留。** [结果表](../../current/results-20261112/RESULT.zh.md)只含指标和关键回执。下列运行入口留待恢复时使用；旧机器 ID、盘和锁配置不可直接复用。
 
 ## 准备输入
 
@@ -28,6 +28,8 @@ python3 "$P/prepare-cloud-trace.py" --archive "$WORKER_ARCHIVE" \
 | C3 / C4 复查 | [C3 云端抽样回执](../evidence/preparation/cloud-c3-script-fixes-20261112/README.zh.md) · [C4 原生派生运行器](../../../../bench/fork_burst.py) · [C4 跨机执行草稿](../evidence/c4-state-reopen-draft-01/README.zh.md)。原拓扑只作记录；一万文件的云上运行尚无验收。 |
 | 归档结果 | 保存运行配置、指标原文、正确性、失败和卸载回执及 SHA。可公开的包用 [archive-cloud-to-oss.py](archive-cloud-to-oss.py) 走 OSS 内网并读回核对；含会话或私有配置的原档放私有位置。[归档示例](../OSS-ARCHIVE.zh.md) |
 | 清理资源 | 停止负载、正常卸载，核实原进程退出；删盘前在盘外独立核验不可再生证据。按创建账本圈定本任务的实例和盘，使用 [release-evidence.py](release-evidence.py) 的 `freeze` / `check` 记录范围并核对释放；仅云 API 查不到相应 ID 才记为已释放。[清理与核验](../RELEASE.zh.md) · [账单核对](../evidence/progress/pilot-evidence-audit-20261112/README.zh.md) |
+
+原 A 池收尾使用三个独立步骤：[冷备份](preserve-a-backend.py) → [精确释放](release-owned-a.ps1) → [云端确认消失](audit-retired-pool-a.ps1)。备份逐文件校验；符号链接只记录目标，不跟随。用户最后要求只交付结果，client 的原始包保留在 jump，本地大包下载已取消；释放记录明确标出此范围。释放脚本只接受创建回执中固定的三个实例和九块盘，保留 jump，不按名称前缀删除。这些固定 ID 的脚本只供本次清理查档；新部署须另建资源清单。
 
 旧 Entity、native-v2、Flat 完整复制和 JuiceFS 混合读写只用于查档，不再调度。
 

@@ -1,6 +1,6 @@
 # C1–C4 实验方案
 
-**实验已暂停。** 当前只归档和清理本任务创建的云资源，保留原跳板机及证据盘。[归档、清理与运行脚本入口](../pilot-aliyun/scripts/README.zh.md)
+**实验已暂停，清理已完成。** [C1–C4 结果表与关键指标](results-20261112/RESULT.zh.md) · [脚本入口](../pilot-aliyun/scripts/README.zh.md)
 
 本轮按用户要求跳过 JuiceFS 混合读写，不再补跑或补验收，原有结果保留。[C2–C4 未完成清单](PENDING.zh.md)按当前方案列项；旧 14/28 只用于解释历史账本，不能代表已删除完整复制实验后的当前进度。
 
@@ -62,7 +62,7 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 
 本轮为 1 Agent、一万文件；C3、C4 派生的[独立输入及本机全量核验](TENK-INPUTS.zh.md)已就绪，尚未运行一万文件挂载资格。耗时过大的项保存证据后跳过。[本轮收尾范围](../pilot-aliyun/evidence/progress/closing-small-pilot-20261112/README.zh.md)列明已完成与未完成。百万文件/最高32并发属于后续正式条件。旧 `bench.suite template` 只有显式 `--legacy-catalog` 才生成旧协议；它不生成本方案。
 
-[云资源清理已完成](../pilot-aliyun/evidence/preparation/b-pool-retirement-01/README.zh.md)：原 B 池三台、九盘（520 GiB）已释放；保留 A 池及跳板四台，均已停机。原始 trace、实验证据和部署信息已保留。后续使用第二个池须重新部署，不能再派发旧 B 实例 ID。
+[云资源清理已完成](../pilot-aliyun/evidence/preparation/a-pool-retirement-01/README.zh.md)：本任务的原 A、B 两池共六台、十八盘已释放；只保留原 jump 和其两块盘，jump 为 StopCharging。非本任务创建的资源、原网络和 OSS 未删除。本地只交付结果和关键 JSON；原始备份保留在 jump。后续恢复须重新部署，不能再派发旧 A/B 实例 ID。
 
 [数据与账单核查](../pilot-aliyun/evidence/progress/pilot-evidence-audit-20261112/README.zh.md)：七份历史 trace 的原 OSS 路径、清单和下载入口均已核对；本次未重新完整下载七个大归档计算 SHA。11 月 11–12 日专属资源已查到税前账单 ¥211.19，不含共享跳板、EIP、OSS，当天账单仍可能补记。
 

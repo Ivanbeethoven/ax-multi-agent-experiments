@@ -12,10 +12,13 @@ param(
     [Parameter(Mandatory)][ValidateSet('client','metadata','objects')][string]$Role,
     [Parameter(Mandatory)][string]$RepoRoot,
     [Parameter(Mandatory)][string]$ReceiptRoot,
-    [Parameter(Mandatory)][string]$LocalArchive,
+    [string]$LocalArchive,
     [Parameter(Mandatory)][string]$SourcePackReceipt,
-    [Parameter(Mandatory)][string]$LocalVerifyReceipt,
+    [string]$LocalVerifyReceipt,
     [Parameter(Mandatory)][string]$JumpVerifyReceipt,
+    [switch]$JumpArchiveOnly,
+    [string]$ArchivedInventory,
+    [string]$JumpFreshReceipt,
     [switch]$Execute
 )
 
@@ -97,6 +100,43 @@ Require ($created.preexisting -is [bool] -and -not $created.preexisting -and
     $created.request_id -ceq $pin.create_request_id -and $created.request_sha256 -ceq $pin.request_sha256) `
     'Original creation proof differs or resource was pre-existing'
 
+if ($JumpArchiveOnly) {
+    # 2026-11-12: user requested local results only and stopped raw client downloads.
+    # Preserve the fully verified raw archive on the explicitly retained jump.
+    Require ($Role -ceq 'client' -and -not $LocalArchive -and -not $LocalVerifyReceipt) `
+        'Jump-only retirement is limited to the final original client'
+    $receiptPaths = @($SourcePackReceipt,$JumpFreshReceipt,$JumpVerifyReceipt) | ForEach-Object {
+        (Resolve-Path -LiteralPath $_).ProviderPath
+    }
+    Require (@($receiptPaths | Sort-Object -Unique).Count -eq 3) 'Expected three separate source/jump receipts'
+    $pack = Get-Content -LiteralPath $receiptPaths[0] -Raw | ConvertFrom-Json
+    $fresh = Get-Content -LiteralPath $receiptPaths[1] -Raw | ConvertFrom-Json
+    $jumpProof = Get-Content -LiteralPath $receiptPaths[2] -Raw | ConvertFrom-Json
+    $actualSha = $fresh.sha256
+    $memberCount = $pack.archive.verified_members
+    Require ($fresh.path -ceq '/srv/ax-pilot-control/preparation/a-retire-20261112t2013/client-evidence.tar.gz' -and
+        $fresh.schema -ceq 'ax-retained-client-archive-readback-v1' -and
+        [DateTime]::UtcNow - (Utc-Stamp $fresh.observed_at_utc) -lt [TimeSpan]::FromMinutes(10) -and
+        (Utc-Stamp $fresh.observed_at_utc) -le [DateTime]::UtcNow -and
+        $actualSha -cmatch '^[a-f0-9]{64}$' -and $pack.role -ceq $Role -and $pack.instance -ceq $id -and
+        $pack.all_data_disks_unmounted -is [bool] -and $pack.all_data_disks_unmounted -and
+        $null -ne $pack.unknown_count -and $pack.unknown_count -eq 0 -and
+        $pack.archive.bytes -eq $fresh.bytes -and $fresh.bytes -gt 0 -and
+        $pack.archive.sha256 -ceq $actualSha -and $jumpProof.sha256 -ceq $actualSha -and
+        $memberCount -ge 2 -and $jumpProof.verified_members -eq $memberCount -and
+        $pack.evidence_files + 2 -eq $memberCount) 'Source and retained jump archive proofs differ'
+    $inventorySha = $pack.inventory_sha256
+    $inventory = Pinned-Json (Resolve-Path -LiteralPath $ArchivedInventory).ProviderPath $inventorySha
+    $archivedDisks = @($inventory.system_disk.disk_id) +
+        @($inventory.data_disks.PSObject.Properties | ForEach-Object {$_.Value.disk_id})
+    Require ($inventory.schema -ceq 'ax-a-backend-retirement-inventory-v1' -and
+        $inventory.instance -ceq $id -and $inventory.role -ceq $Role -and
+        $inventory.unknown -is [array] -and $inventory.unknown.Count -eq 0 -and
+        $inventory.evidence_files -eq $pack.evidence_files -and
+        (Same-Ids $diskIds $archivedDisks)) 'Source inventory does not bind all original client disks'
+} else {
+Require ($LocalArchive -and $LocalVerifyReceipt -and -not $ArchivedInventory -and -not $JumpFreshReceipt) `
+    'Original mode requires a local archive and its independent verification'
 $receiptPaths = @($SourcePackReceipt, $LocalVerifyReceipt, $JumpVerifyReceipt) | ForEach-Object {
     (Resolve-Path -LiteralPath $_).ProviderPath
 }
@@ -143,6 +183,7 @@ try {
             (Same-Ids $diskIds $archivedDisks)) 'Archived inventory does not bind all original disks'
     } finally { $tar.Dispose() }
 } finally { $archive.Dispose() }
+}
 
 Require (-not (Test-Path -LiteralPath $ReceiptRoot)) 'Use a new, private receipt directory'
 $dir = (New-Item -Path $ReceiptRoot -ItemType Directory -ErrorAction Stop).FullName
@@ -185,7 +226,9 @@ $proof = [ordered]@{
     archive_sha256 = $actualSha
     verified_members = $memberCount
     source_pack_receipt_sha256 = File-Sha $receiptPaths[0]
-    local_verify_receipt_sha256 = File-Sha $receiptPaths[1]
+    local_verify_receipt_sha256 = if ($JumpArchiveOnly) {$null} else {File-Sha $receiptPaths[1]}
+    jump_fresh_receipt_sha256 = if ($JumpArchiveOnly) {File-Sha $receiptPaths[1]} else {$null}
+    backup_scope = if ($JumpArchiveOnly) {'raw archive on retained jump; local results only at user request'} else {'raw archives verified locally and on jump'}
     jump_verify_receipt_sha256 = File-Sha $receiptPaths[2]
     instance_request_id = $node.RequestId
     attached_disks_request_id = $disks.RequestId

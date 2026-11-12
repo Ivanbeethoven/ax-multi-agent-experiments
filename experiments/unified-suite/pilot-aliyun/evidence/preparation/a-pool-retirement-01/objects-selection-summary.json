@@ -1,0 +1,183 @@
+{
+  "schema": "ax-a-retirement-selection-summary-v1",
+  "source_sha256": "6d8251b55452b3d878470324c1a86ec4c3a082496e43038d5f5fa646f5cab057",
+  "policy": "Retain logs, result/config/script/input archives and explicitly selected state. For other roots discard inactive dedicated test backend; no claim of identical object ID reconstruction or prior independent object copy.",
+  "groups": [
+    {
+      "name": ".rustfs.sys",
+      "disposition": "preserve",
+      "reason": "RustFS four-disk format and private backend metadata"
+    },
+    {
+      "name": "ax-pilot-juicefs-0da20fe6cb2147abb5cad79f95538447",
+      "disposition": "preserve",
+      "reason": "Small qualification-like bucket, preserve since exact historical receipt not matched"
+    },
+    {
+      "name": "ax-pilot-layout-29810543638a4cf89acbecf10e49d632",
+      "disposition": "preserve",
+      "reason": "Small layout probe, fully preserve"
+    },
+    {
+      "name": "ax-pilot-small-object-ceb94ede30934da4befbf5c8fd5bbe80",
+      "disposition": "preserve",
+      "reason": "Small probe, fully preserve for low copy cost"
+    },
+    {
+      "name": "axc2-e5dd9e90a54244ae",
+      "disposition": "preserve",
+      "reason": "C2 current-A full-trace interrupted publication"
+    },
+    {
+      "name": "axc2diag-6c488e741a194c6c869e9add1a1a7877",
+      "disposition": "preserve",
+      "reason": "C2 progress timeout, 145 objects and no manifest"
+    },
+    {
+      "name": "axc2diag-794b6e9ac93d4fca92f6f05bd257e66e",
+      "disposition": "preserve",
+      "reason": "C2 fresh-bucket timeout, four empty physical roots and matching service metadata"
+    },
+    {
+      "name": "axp-12fa8c32570b4db8",
+      "disposition": "discard_generated_test_backend_state",
+      "reason": "Historical C2 Native replay test volume, cell 05357b5089cd679c-r1-native; retained workload trace and run archives, discard only old live backend."
+    },
+    {
+      "name": "axp-208a2b765cc74a35",
+      "disposition": "discard_generated_test_backend_state",
+      "reason": "Historical C1 JuiceFS generated workload volume, exact C1 application layout readback."
+    },
+    {
+      "name": "axp-27c773f8d6a2416d",
+      "disposition": "discard_dedicated_test_backend_state_cell_unresolved",
+      "reason": "Exact root on the original dedicated A test backend; no cell or exact rebuild asserted. Logs and assets archived separately."
+    },
+    {
+      "name": "axp-3e019d715311",
+      "disposition": "discard_dedicated_test_backend_state_cell_unresolved",
+      "reason": "Exact root on the original dedicated A test backend; no cell or exact rebuild asserted. Logs and assets archived separately."
+    },
+    {
+      "name": "axp-3e019d715311-01a1c6e2-dc73-7a52-aba6-6a8eff605334",
+      "disposition": "discard_dedicated_test_backend_state_cell_unresolved",
+      "reason": "Exact root on the original dedicated A test backend; no cell or exact rebuild asserted. Logs and assets archived separately."
+    },
+    {
+      "name": "axp-5b2c28755dfc42cc",
+      "disposition": "discard_dedicated_test_backend_state_cell_unresolved",
+      "reason": "Exact root on the original dedicated A test backend; no cell or exact rebuild asserted. Logs and assets archived separately."
+    },
+    {
+      "name": "axp-669d738e02cc",
+      "disposition": "discard_dedicated_test_backend_state_cell_unresolved",
+      "reason": "Exact root on the original dedicated A test backend; no cell or exact rebuild asserted. Logs and assets archived separately."
+    },
+    {
+      "name": "axp-7486fb45ce9a4796",
+      "disposition": "discard_dedicated_test_backend_state_cell_unresolved",
+      "reason": "Exact root on the original dedicated A test backend; no cell or exact rebuild asserted. Logs and assets archived separately."
+    },
+    {
+      "name": "axp-83b5f60e317c4bfc",
+      "disposition": "discard_dedicated_test_backend_state_cell_unresolved",
+      "reason": "Exact root on the original dedicated A test backend; no cell or exact rebuild asserted. Logs and assets archived separately."
+    },
+    {
+      "name": "axp-95fd60bf6b144deb",
+      "disposition": "preserve",
+      "reason": "Actual shared C4 A-to-B OpenCode checkpoint volume"
+    },
+    {
+      "name": "axp-9c5d60610f504f0d",
+      "disposition": "discard_generated_test_backend_state",
+      "reason": "C3 Native small-file test volume, exact asset for cell 16f4ac389d2a2da6-r1-native."
+    },
+    {
+      "name": "axp-a12524a7ae52",
+      "disposition": "discard_generated_test_backend_state",
+      "reason": "Historical C1 Native Flat reopen/fio qualification volume, same config across workload arms."
+    },
+    {
+      "name": "axp-aa6a9d8e687b4641",
+      "disposition": "discard_dedicated_test_backend_state_cell_unresolved",
+      "reason": "Exact root on the original dedicated A test backend; no cell or exact rebuild asserted. Logs and assets archived separately."
+    },
+    {
+      "name": "axp-b52bfe64519447b0",
+      "disposition": "discard_generated_test_backend_state",
+      "reason": "Historical C1 Native test volume, exact cell 451ef1d28b5d875c-r1-native and 8e3d340ff23c3ece-r1-native assets."
+    },
+    {
+      "name": "axp-c58ba2e4053e428c",
+      "disposition": "discard_dedicated_test_backend_state_cell_unresolved",
+      "reason": "Exact root on the original dedicated A test backend; no cell or exact rebuild asserted. Logs and assets archived separately."
+    },
+    {
+      "name": "axp-c900c399c95841bf",
+      "disposition": "discard_dedicated_test_backend_state_cell_unresolved",
+      "reason": "Exact root on the original dedicated A test backend; no cell or exact rebuild asserted. Logs and assets archived separately."
+    },
+    {
+      "name": "axp-d40ad7813c4e4a30",
+      "disposition": "discard_generated_test_backend_state",
+      "reason": "Historical C4 native fork qualification asset, separate from retained A-to-B checkpoint."
+    },
+    {
+      "name": "axp-da7b0baf38f14247",
+      "disposition": "discard_dedicated_test_backend_state_cell_unresolved",
+      "reason": "Exact root on the original dedicated A test backend; no cell or exact rebuild asserted. Logs and assets archived separately."
+    },
+    {
+      "name": "axp-e79a256492c6467b",
+      "disposition": "discard_generated_test_backend_state",
+      "reason": "Historical C1 Native generated workload volume, exact c123 control cell assets and layout readback."
+    },
+    {
+      "name": "axp-f50629e4f0f74d62",
+      "disposition": "discard_generated_test_backend_state",
+      "reason": "C3 Packed 100k generated base from the pinned pilot-100k smallfiles-source, used by private entity workspaces/calibration; retain input and result records."
+    },
+    {
+      "name": "axp-f50629e4f0f74d62-01a1ce6c-14ad-7f22-898d-86d6340a81b7",
+      "disposition": "discard_empty_test_bucket_shell",
+      "reason": "Exact C3 init receipt and all four actual shard directories verified empty. Preserve system metadata and C3 primary base; no upper payload to copy."
+    },
+    {
+      "name": "axp-f50629e4f0f74d62-01a1ce76-ccfd-74d0-a2f1-5185a74de086",
+      "disposition": "discard_empty_test_bucket_shell",
+      "reason": "Exact C3 init receipt and all four actual shard directories verified empty. Preserve system metadata and C3 primary base; no upper payload to copy."
+    },
+    {
+      "name": "axp-f50629e4f0f74d62-01a1ce94-4a90-7c21-99a9-60908ef0de63",
+      "disposition": "discard_empty_test_bucket_shell",
+      "reason": "Exact C3 init receipt and all four actual shard directories verified empty. Preserve system metadata and C3 primary base; no upper payload to copy."
+    },
+    {
+      "name": "axp-f50629e4f0f74d62-01a1ce9a-2601-7a83-b8d2-fcaded0d2d6b",
+      "disposition": "discard_empty_test_bucket_shell",
+      "reason": "Exact C3 init receipt and all four actual shard directories verified empty. Preserve system metadata and C3 primary base; no upper payload to copy."
+    },
+    {
+      "name": "axp-f50629e4f0f74d62-01a1ce9d-3e14-7d60-af3c-6681dbe8565e",
+      "disposition": "discard_empty_test_bucket_shell",
+      "reason": "Exact C3 init receipt and all four actual shard directories verified empty. Preserve system metadata and C3 primary base; no upper payload to copy."
+    },
+    {
+      "name": "axp-f50629e4f0f74d62-01a1cea1-afb0-7391-a57a-fc886a53a249",
+      "disposition": "discard_empty_test_bucket_shell",
+      "reason": "Exact C3 init receipt and all four actual shard directories verified empty. Preserve system metadata and C3 primary base; no upper payload to copy."
+    },
+    {
+      "name": "axp-f50629e4f0f74d62-01a1cecd-ef06-7781-87fb-aaac9ea6b364",
+      "disposition": "discard_empty_test_bucket_shell",
+      "reason": "Exact C3 init receipt and all four actual shard directories verified empty. Preserve system metadata and C3 primary base; no upper payload to copy."
+    },
+    {
+      "name": "axp-f50629e4f0f74d62-01a1cefe-35e1-7322-8012-ac936866ea21",
+      "disposition": "discard_empty_test_bucket_shell",
+      "reason": "Exact C3 init receipt and all four actual shard directories verified empty. Preserve system metadata and C3 primary base; no upper payload to copy."
+    }
+  ],
+  "clarification": "objects-discard-clarification.json"
+}

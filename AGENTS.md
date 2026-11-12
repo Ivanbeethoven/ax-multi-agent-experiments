@@ -6,7 +6,7 @@
 
 - 选择实验路线前先读[子项与 feature 对照表](experiments/unified-suite/current/FEATURES.zh.md)，再用同目录 design.json 冻结参数。
 
-- 2026-11-12 实际资源：原 B 池 3 台实例、9 块盘已释放。保留 A 池 3 台及原跳板/协调盘，四台均为 StopCharging，保留磁盘仍收费。见[清理回执](experiments/unified-suite/pilot-aliyun/evidence/preparation/b-pool-retirement-01/README.zh.md)。旧 B 清单仅解释历史；重新部署须建立新实例、磁盘和运行清单。
+- 2026-11-12 收尾：本任务原 A、B 两池各 3 台实例、9 块盘均已释放。原 jump 及其 40 GiB 系统盘、100 GiB 协调盘保留，jump 为 StopCharging。未删除非本任务创建的资源，原网络与 OSS 保留。见 [A 池最终核验](experiments/unified-suite/pilot-aliyun/evidence/preparation/a-pool-retirement-01/README.zh.md)及 [B 池回执](experiments/unified-suite/pilot-aliyun/evidence/preparation/b-pool-retirement-01/README.zh.md)。旧 A/B ID 不可再派发；恢复实验须新建资源清单。用户只要本地结果，不再下载原始 trace、完整监控或运行产物包。
 
 
 - 2026-11-11 当前方案：新实验从 `experiments/unified-suite/current/README.zh.md` 开始，参数见同目录 `design.json`。主候选为 workspace-v1 + Packed-v3，flat-v1 只用于 C1/C2，外部仅 JuiceFS。C4 派生只比较 BrewFS 原生 fork 与 JuiceFS 原生 clone；Overlay 运行开销另做同引擎开关，在验证 lower 热态后计时。entity-v1 和 native-v2 不进入新实验。新 suite 适配及三开关统一接口尚未完成，规划文件不可直接执行。历史回执和活动测量保持原义。

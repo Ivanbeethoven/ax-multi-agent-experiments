@@ -6,6 +6,7 @@
 
 | 内容 | 入口 |
 |---|---|
+| 已有结果、关键指标与失败原因 | [C1–C4 结果表（2026-11-12）](experiments/unified-suite/current/results-20261112/RESULT.zh.md) |
 | RQ、对照、三个运行开关与消融 | [当前方案](experiments/unified-suite/current/README.zh.md) |
 | 输入、操作量、性能指标、正确性 | [负载与指标](experiments/unified-suite/current/WORKLOADS.zh.md) |
 | Redis、四节点 RustFS、缓存、机器与磁盘 | [详细配置](experiments/unified-suite/current/CONFIGURATION.zh.md) |
@@ -17,7 +18,7 @@
 | 采集与回放工具 | [Rust full-fuse-replay](tools/full-fuse-replay/README.md) |
 | 旧计划和实验记录 | [统一套件历史入口](experiments/unified-suite/README.md) · [实验目录](experiments/README.md) |
 
-**实验已暂停。** 当前只归档和清理。[C2–C4 未完成清单](experiments/unified-suite/current/PENDING.zh.md) · [归档、清理与运行脚本入口](experiments/unified-suite/pilot-aliyun/scripts/README.zh.md)。
+**实验已暂停，原 A/B 测试机已清理。** jump 保留并停机不收费。[C2–C4 未完成清单](experiments/unified-suite/current/PENDING.zh.md) · [脚本入口](experiments/unified-suite/pilot-aliyun/scripts/README.zh.md) · [资源核验](experiments/unified-suite/pilot-aliyun/evidence/preparation/a-pool-retirement-01/README.zh.md)。
 
 恢复后的小试用 1 Agent，C3 和 C4 派生各用独立的 10,000 个 4 KiB 文件。百万文件和最高 32 Agent 属于正式规模。`design.json` 记录规划参数；统一运行开关和套件适配尚未完成。
 
