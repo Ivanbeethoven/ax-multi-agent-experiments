@@ -72,6 +72,36 @@ def wait(fn, label, seconds):
         time.sleep(.25)
     raise TimeoutError(label)
 
+def wait_native_zero_debt(snapshot, out, seconds=60):
+    deadline=time.monotonic()+seconds
+    accepted=[]
+    index=0
+    with (out/'debt-samples.ndjson').open('x',buffering=1) as stream:
+        while time.monotonic()<deadline:
+            label=f'debt-sample-{index:03d}'
+            index+=1
+            try:
+                values,complete=snapshot(label)
+                row=dict(sample=label,utc_ns=time.time_ns(),monotonic_ns=time.monotonic_ns(),
+                         complete=complete,metrics=len(values),nonzero={k:v for k,v in values if v!=0})
+            except OSError as exc:
+                row=dict(sample=label,utc_ns=time.time_ns(),monotonic_ns=time.monotonic_ns(),
+                         complete=False,metrics=0,error_type=type(exc).__name__)
+            stream.write(json.dumps(row)+'\n')
+            if time.monotonic()>deadline:
+                break
+            if row['complete'] and not row['nonzero']:
+                if not accepted or row['monotonic_ns']-accepted[-1]['monotonic_ns']>=10**9:
+                    accepted.append(row)
+            else:
+                accepted.clear()
+            if len(accepted)==2:
+                for i,sample in enumerate(accepted):
+                    shutil.copyfile(out/(sample['sample']+'.prom'),out/f'debt-{i}.prom')
+                return accepted
+            time.sleep(min(1.05,max(0,deadline-time.monotonic())))
+    raise TimeoutError('No two complete zero-upload-debt samples within the drain window')
+
 def instance_id():
     client=urllib.request.build_opener(urllib.request.ProxyHandler({}))
     base='http://100.100.100.200/latest/'
@@ -496,14 +526,7 @@ def arm(root,spec,product):
         need(active != before,'Need fresh measurement mount process')
         snapshot_ready('before-measure')
         measured=fio_phase(mp,'measure','measure')
-        debts=[]
-        for i in range(2):
-            if i:
-                time.sleep(1.05)
-            timestamp=time.time_ns()
-            values, complete=snapshot_ready('debt-'+str(i))
-            need(complete and all(v==0 for k,v in values),'Missing or nonzero native upload debt')
-            debts.append(dict(utc_ns=timestamp,metrics=len(values)))
+        debts=wait_native_zero_debt(snapshot,a)
         event('drain-end')
         close_fs('measure')
         cold=open_fs('verify')

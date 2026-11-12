@@ -60,6 +60,25 @@ WORKER_SPEC.loader.exec_module(worker)
 
 
 class ScratchArmTests(unittest.TestCase):
+    def test_drain_waits_for_two_consecutive_zero_observations(self):
+        elapsed=[0.0]
+        samples=iter([(1,True),(0,True),(3,True),(0,True),(0,True)])
+        with tempfile.TemporaryDirectory() as tmp:
+            out=Path(tmp)
+            def snapshot(label):
+                debt,complete=next(samples)
+                (out/(label+'.prom')).write_text('dirty '+str(debt)+'\n')
+                return [('dirty',debt)],complete
+            with (
+                patch.object(worker.time,'monotonic',lambda:elapsed[0]),
+                patch.object(worker.time,'monotonic_ns',lambda:int(elapsed[0]*1e9)),
+                patch.object(worker.time,'sleep',lambda seconds:elapsed.__setitem__(0,elapsed[0]+seconds)),
+            ):
+                accepted=worker.wait_native_zero_debt(snapshot,out)
+            self.assertEqual([row['sample'] for row in accepted],['debt-sample-003','debt-sample-004'])
+            self.assertEqual(len((out/'debt-samples.ndjson').read_text().splitlines()),5)
+            self.assertEqual((out/'debt-0.prom').read_text(),'dirty 0\n')
+
     def test_remote_claim_submits_systemd_once_even_if_launch_rpc_replayed(self):
         with tempfile.TemporaryDirectory(prefix='ax-c1b-') as tmp, patch.object(worker,'run') as systemd:
             root=Path(tmp)

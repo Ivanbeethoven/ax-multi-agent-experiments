@@ -126,8 +126,22 @@ def run(root):
              p['read_bytes']==job['read']['io_bytes'] and p['write_bytes']==job['write']['io_bytes'] and
              verification['error']==job['error']==0 and verification['read']['io_bytes']==EXPECTED and
              all(p[k]==job[d]['total_ios'] for k,d in (('read_ios','read'),('write_ios','write'))) and
-             len(p['native_zero_debt'])==2 and p['native_zero_debt'][1]['utc_ns']-p['native_zero_debt'][0]['utc_ns']>=10**9,
+             len(p['native_zero_debt'])==2 and
+             p['native_zero_debt'][1].get('monotonic_ns',p['native_zero_debt'][1]['utc_ns'])-
+                 p['native_zero_debt'][0].get('monotonic_ns',p['native_zero_debt'][0]['utc_ns'])>=10**9,
              'Invalid native I/O, cold CRC or drain evidence: '+a)
+        if a+'/debt-samples.ndjson' in client:
+            consecutive=[]
+            for row in records(client[a+'/debt-samples.ndjson']):
+                if row['complete'] and not row['nonzero']:
+                    if not consecutive or row['monotonic_ns']-consecutive[-1]['monotonic_ns']>=10**9:
+                        consecutive.append(row)
+                else:
+                    consecutive.clear()
+            need(consecutive==p['native_zero_debt'] and
+                 all(client[f'{a}/debt-{i}.prom']==client[f'{a}/{sample["sample"]}.prom']
+                     for i,sample in enumerate(consecutive)),
+                 'Accepted zero debt samples do not match the bounded drain log: '+a)
         p.update(raw_fio_sha256=sha(raw_measure),cold_fio_sha256=sha(raw_verify),
                  native_debt_sha256=[sha(client[f'{a}/debt-{i}.prom']) for i in range(2)])
         p['latency_native_ns']={}
