@@ -9,3 +9,7 @@
 本次只有归档和盘上内容的只读比对，不是清理批准，也不替代本次开机的挂载、租约、空槽、Redis、容量和硬件资格检查。
 
 [清理审阅草案](cleanup.request.draft.json)逐项固定以上八个路径、盘序列号、UUID 和原 OSS/盘上证明，SHA-256 为 1248d9eae023bfa6407bd568c68981496703afbfc70e42d4eabad53b8fd0b6e4。仍为 reviewed:false；没有执行。确认后也须在 B 池持锁重新核对全部内容，只清已归档的数据文件；保留归档、历史回执、状态库、原始工作区和任何未归档文件。
+
+[协调机只读验证](cleanup-coordinator-validation.json)已在 5 个控制库、3 个实际锁目录下通过；未向工作节点发送命令。直接传 --apply 而没有审阅件与审批回执时，协调机已实测拒绝。入口为 [协调机守卫](../../../scripts/run-b-c2-observer-cleanup.py) 和 [工作节点执行器](../../../scripts/apply-b-c2-observer-cleanup.py)，代码 SHA 见 SHA256SUMS。执行器本地已测试，未对云盘执行。
+
+如用户确认该确切草案：在协调机保留原草案，另存只把 reviewed 改为 true 的审阅件；另写审批回执固定原草案、审阅件、执行器 SHA 与明确确认。用已部署协调机脚本的 --apply --approval PATH --approval-sha256 SHA --out PATH；输出为本准备目录下全新 approved-cleanup- 开头目录。协调机先锁定 B 的三套调度锁，再检查全部状态库，无冲突才派发。工作节点只检查盘 0、逐文件重新比对后处理、保留原空 socket，并对每项分别落回执。取回结果与实际可用量，再确认停机；任一步失败留首次证据，禁止自动重试。C3 需另按实际容量和两池硬件资格启动。
