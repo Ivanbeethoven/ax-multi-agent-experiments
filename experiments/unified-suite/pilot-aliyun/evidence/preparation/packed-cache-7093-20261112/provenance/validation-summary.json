@@ -1,0 +1,263 @@
+{
+  "scope": "Packed shared-workspace stats registration and output admission correctness; no performance qualification",
+  "source_identity": {
+    "commit": "7093f141d8081e6b96cd0a80814876aed5a3b577",
+    "branch": "codex/packed-prefetch",
+    "dirty": false,
+    "tree": "6a14aabea9a36693edea67dad39722db468123e6",
+    "ci_tested_tree": "6a14aabea9a36693edea67dad39722db468123e6",
+    "ci_source_patch_sha256": "2ffef62dca5f831bc2190845ca32eed3a6e47b776ed51589ee27e7431fbe6b5a",
+    "ci_attempt": "attempt-03",
+    "rust_test_threads": 4,
+    "parent": "65bc08e2d3dc447dcda4f73ce1c3ab096722f11d",
+    "changed_paths": [
+      "src/cadapter/read_observer/tests.rs",
+      "src/cli.rs",
+      "src/vfs/stats.rs",
+      "src/workspace/meta_layer/mod.rs",
+      "src/workspace/meta_layer/packed_lower.rs",
+      "src/workspace/meta_layer/row_cache.rs",
+      "src/workspace/meta_layer/tests/packed_lower_tests.rs",
+      "src/workspace/packed/readonly.rs",
+      "src/workspace/packed/snapshot/budget.rs"
+    ],
+    "bundle_sha256": "40854112793c6f292bd82ea1069ecc0ecc08417940bf69dd0b004a93e35f1659",
+    "debug_wiring_source_patch_sha256": "ae8a4639f37a04c9628cbde1becef26cbb5dbbd3ebf7c2d899b85f133400d96e",
+    "debug_wiring_receipt": "/srv/packed/stats-wiring-debug-02/wiring-receipt.json",
+    "budget_delta_sha256": "2204227d3c66989e8443159dd344aedab09b8015cfe4bca3a9dcd3d7425fc47a",
+    "existing_test_fixture_delta_sha256": "474ff2cf5f0a8f032f0f0922e5ab2e4812b023f600c858194839a3b9418d63f5"
+  },
+  "passed_ci_gates": [
+    [
+      "actual-features-typecheck",
+      "2026-11-12T15:17:19Z"
+    ],
+    [
+      "actual-feature-tests",
+      "2026-11-12T15:19:16Z"
+    ],
+    [
+      "fmt",
+      "2026-11-12T15:19:21Z"
+    ],
+    [
+      "scripts",
+      "2026-11-12T15:19:21Z"
+    ],
+    [
+      "workspace-check",
+      "2026-11-12T15:19:58Z"
+    ],
+    [
+      "workspace-build",
+      "2026-11-12T15:21:17Z"
+    ],
+    [
+      "fuse-tokio",
+      "2026-11-12T15:21:50Z"
+    ],
+    [
+      "fuse-uring",
+      "2026-11-12T15:22:23Z"
+    ],
+    [
+      "workspace-tests",
+      "2026-11-12T15:25:23Z"
+    ],
+    [
+      "clippy",
+      "2026-11-12T15:26:01Z"
+    ],
+    [
+      "ci-clippy-all-targets",
+      "2026-11-12T15:27:00Z"
+    ],
+    [
+      "diff-check",
+      "2026-11-12T15:27:00Z"
+    ]
+  ],
+  "tests": {
+    "actual-feature-tests": [
+      {
+        "passed": 2830,
+        "failed": 0,
+        "ignored": 483
+      },
+      {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 15,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    ],
+    "workspace-tests": [
+      {
+        "passed": 1354,
+        "failed": 0,
+        "ignored": 265
+      },
+      {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    ]
+  },
+  "test_totals_across_all_binaries": {
+    "actual-feature-tests": {
+      "passed": 2847,
+      "failed": 0,
+      "ignored": 483
+    },
+    "workspace-tests": {
+      "passed": 1356,
+      "failed": 0,
+      "ignored": 265
+    }
+  },
+  "rust_test_threads": 4,
+  "debug_wiring_receipt": {
+    "scope": "debug correctness and stats wiring only; timings are excluded from performance qualification",
+    "passed": true,
+    "reasons": [],
+    "raw_result": "debug-wiring.json",
+    "row_snapshots": {
+      "native-off-0-before.stats": {
+        "hits_total": 3.0,
+        "misses_total": 3.0,
+        "hit_ratio": 0.5
+      },
+      "native-off-0-bootstrap.stats": {
+        "hits_total": 0.0,
+        "misses_total": 3.0,
+        "hit_ratio": 0.0
+      },
+      "native-off-0-cold-drained.stats": {
+        "hits_total": 1751.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.814419
+      },
+      "native-off-0-cold-end.stats": {
+        "hits_total": 1748.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.814159
+      },
+      "native-off-0-warm-end.stats": {
+        "hits_total": 3892.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.907015
+      },
+      "native-off-2-before.stats": {
+        "hits_total": 3.0,
+        "misses_total": 3.0,
+        "hit_ratio": 0.5
+      },
+      "native-off-2-bootstrap.stats": {
+        "hits_total": 0.0,
+        "misses_total": 3.0,
+        "hit_ratio": 0.0
+      },
+      "native-off-2-cold-drained.stats": {
+        "hits_total": 1751.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.814419
+      },
+      "native-off-2-cold-end.stats": {
+        "hits_total": 1748.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.814159
+      },
+      "native-off-2-warm-end.stats": {
+        "hits_total": 3892.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.907015
+      },
+      "native-on-1-before.stats": {
+        "hits_total": 3.0,
+        "misses_total": 3.0,
+        "hit_ratio": 0.5
+      },
+      "native-on-1-bootstrap.stats": {
+        "hits_total": 0.0,
+        "misses_total": 3.0,
+        "hit_ratio": 0.0
+      },
+      "native-on-1-cold-drained.stats": {
+        "hits_total": 1751.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.814419
+      },
+      "native-on-1-cold-end.stats": {
+        "hits_total": 1748.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.814159
+      },
+      "native-on-1-warm-end.stats": {
+        "hits_total": 3892.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.907015
+      },
+      "native-on-3-before.stats": {
+        "hits_total": 3.0,
+        "misses_total": 3.0,
+        "hit_ratio": 0.5
+      },
+      "native-on-3-bootstrap.stats": {
+        "hits_total": 0.0,
+        "misses_total": 3.0,
+        "hit_ratio": 0.0
+      },
+      "native-on-3-cold-drained.stats": {
+        "hits_total": 1751.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.814419
+      },
+      "native-on-3-cold-end.stats": {
+        "hits_total": 1748.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.814159
+      },
+      "native-on-3-warm-end.stats": {
+        "hits_total": 3892.0,
+        "misses_total": 399.0,
+        "hit_ratio": 0.907015
+      }
+    },
+    "frozen_native_gate_passed": true,
+    "cleanup": {
+      "mount_absent": true,
+      "owned_containers_absent": {
+        "redis": true,
+        "rustfs": true
+      },
+      "scratch_removed": true,
+      "cgroups_absent": true
+    }
+  },
+  "binary_sha256_receipt": "05613fe60088e47fe7b12ddbfddc4f60afdf83f2a57ad86dd414abce11cfd7e6  /srv/packed/target/release/brewfs\n491733d3dbbadce52832ca2e75780e8052556aa28f900b709a05d492721d54ba  /srv/packed/target/release/packed_snapshot_fixture\n",
+  "retained_failed_attempts": [
+    {
+      "attempt": "attempt-01",
+      "reason": "Existing maximum-enum test fixture omitted both newly shared 256-byte allowances; both formulas were updated, with all assertions retained."
+    },
+    {
+      "attempt": "attempt-02",
+      "reason": "Unmodified entity writeback test exceeded its 200ms local-staging deadline during the full suite. Same frozen executable passed ten isolated runs. Full suite then passed with four test threads; no assertion or timeout changed."
+    }
+  ]
+}

@@ -1,0 +1,1103 @@
+{
+  "schema": "packed-independent-head-stall-diagnostic-v1",
+  "passed": true,
+  "files": 4,
+  "base_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "native_protocol": {
+    "schema": "head-gate-native-path-evidence",
+    "scope": "Raw snapshots; external decode and logical byte deltas identify requested frames. Not the formal paired warm gate."
+  },
+  "binary_sha256": {
+    "brewfs": "05613fe60088e47fe7b12ddbfddc4f60afdf83f2a57ad86dd414abce11cfd7e6",
+    "packed_snapshot_fixture": "491733d3dbbadce52832ca2e75780e8052556aa28f900b709a05d492721d54ba"
+  },
+  "image_sha256": {
+    "rustfs": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806"
+  },
+  "no_model": true,
+  "no_cloud": false,
+  "no_copy_baseline": true,
+  "formal_sample": false,
+  "readbacks": {
+    "on-head": {
+      "passed": true,
+      "scope": "Independent bounded HEAD registry diagnostic; not a throughput pair",
+      "trials": [
+        {
+          "index": 0,
+          "a": "A0.bin",
+          "b": "B.bin",
+          "b_offset": 4194304,
+          "head": {
+            "method": "HEAD",
+            "key": "base/objects/4/8e12385da1e66718d422563fcbdbae4e0e9961503f0fdc770247cd3670cdb964",
+            "range": null,
+            "start_ns": 5262299398686,
+            "gated": true,
+            "status": 200,
+            "bytes": 0,
+            "released_by_signal": true,
+            "release_ns": 5262549756286,
+            "end_ns": 5262550675290
+          },
+          "release_requested_ns": 5262549686139,
+          "b_finished_while_head_blocked": false,
+          "a_read": {
+            "start_ns": 5262293391065,
+            "sha256": "56c3ac28c585a7f593bedfedf2a5ca4609653e0c826f9e4d962d5a0bb025b654",
+            "valid": true,
+            "end_ns": 5262558013855
+          },
+          "b_read": {
+            "start_ns": 5262299588095,
+            "sha256": "dc25868dfba63f434abea2460e4122d73d036d849f92352365e1e143f21ba613",
+            "valid": true,
+            "end_ns": 5262551816022
+          },
+          "before": {
+            "raw_file": "head-trial-0-before.stats",
+            "runtime": {
+              "brewfs_packed_logical_bytes_total": 8192,
+              "brewfs_packed_runtime_backend_full_gets_total": 11,
+              "brewfs_packed_runtime_backend_heads_total": 11,
+              "brewfs_packed_runtime_backend_range_gets_total": 0,
+              "brewfs_packed_runtime_backend_received_bytes_total": 16838116,
+              "brewfs_packed_runtime_backend_failures_total": 0
+            },
+            "external_decode_count": 2,
+            "external_decode_series_present": true
+          },
+          "after": {
+            "raw_file": "head-trial-0-after.stats",
+            "runtime": {
+              "brewfs_packed_logical_bytes_total": 16384,
+              "brewfs_packed_runtime_backend_full_gets_total": 14,
+              "brewfs_packed_runtime_backend_heads_total": 14,
+              "brewfs_packed_runtime_backend_range_gets_total": 0,
+              "brewfs_packed_runtime_backend_received_bytes_total": 33637408,
+              "brewfs_packed_runtime_backend_failures_total": 0
+            },
+            "external_decode_count": 4,
+            "external_decode_series_present": true
+          },
+          "external_decode_delta": 2,
+          "logical_delta": 8192,
+          "b_network_events": [],
+          "events": [
+            {
+              "method": "HEAD",
+              "key": "base/indexes/11/4da147b55e77142153f82f08de44c6ec51132d5a594179ec4e2d11f0e4919801",
+              "range": null,
+              "start_ns": 5262294098053,
+              "gated": false,
+              "status": 200,
+              "bytes": 0,
+              "end_ns": 5262295083905
+            },
+            {
+              "method": "GET",
+              "key": "base/indexes/11/4da147b55e77142153f82f08de44c6ec51132d5a594179ec4e2d11f0e4919801",
+              "range": null,
+              "start_ns": 5262295474893,
+              "gated": false,
+              "status": 200,
+              "bytes": 10572,
+              "end_ns": 5262296238563
+            },
+            {
+              "method": "HEAD",
+              "key": "base/objects/3/d5fc346ee1faa4e4de378d01b72bdb4f0bb6366b89b5f1b110c8048c45d209c8",
+              "range": null,
+              "start_ns": 5262296776754,
+              "gated": false,
+              "status": 200,
+              "bytes": 0,
+              "end_ns": 5262297306745
+            },
+            {
+              "method": "GET",
+              "key": "base/objects/3/d5fc346ee1faa4e4de378d01b72bdb4f0bb6366b89b5f1b110c8048c45d209c8",
+              "range": null,
+              "start_ns": 5262297609197,
+              "gated": false,
+              "status": 200,
+              "bytes": 7312,
+              "end_ns": 5262298176763
+            },
+            {
+              "method": "HEAD",
+              "key": "base/objects/4/8e12385da1e66718d422563fcbdbae4e0e9961503f0fdc770247cd3670cdb964",
+              "range": null,
+              "start_ns": 5262299398686,
+              "gated": true,
+              "status": 200,
+              "bytes": 0,
+              "released_by_signal": true,
+              "release_ns": 5262549756286,
+              "end_ns": 5262550675290
+            },
+            {
+              "method": "GET",
+              "key": "base/objects/4/8e12385da1e66718d422563fcbdbae4e0e9961503f0fdc770247cd3670cdb964",
+              "range": null,
+              "start_ns": 5262551254948,
+              "gated": false,
+              "status": 200,
+              "bytes": 16781408,
+              "end_ns": 5262579770228
+            }
+          ],
+          "path_isolation_proven": true,
+          "observed_cross_object_wait": true
+        },
+        {
+          "index": 1,
+          "a": "A1.bin",
+          "b": "B.bin",
+          "b_offset": 8388608,
+          "head": {
+            "method": "HEAD",
+            "key": "base/objects/4/2a54b1dde87f651c60cc39afd8ff5f7156032b45368604f9fc4efd02da49f915",
+            "range": null,
+            "start_ns": 5262732122489,
+            "gated": true,
+            "status": 200,
+            "bytes": 0,
+            "released_by_signal": true,
+            "release_ns": 5262982418654,
+            "end_ns": 5262983597837
+          },
+          "release_requested_ns": 5262982374165,
+          "b_finished_while_head_blocked": false,
+          "a_read": {
+            "start_ns": 5262724805990,
+            "sha256": "01d8f5a863ad1eb3829ad6d8a0464397082f97f2a9cb2a6eee1a7a5a0db6e91a",
+            "valid": true,
+            "end_ns": 5262990926947
+          },
+          "b_read": {
+            "start_ns": 5262732278546,
+            "sha256": "be8c19ac559fd986dafe21d99c4a71d13207ac2ef2f62ddc1827ebf11d758b7a",
+            "valid": true,
+            "end_ns": 5262984765442
+          },
+          "before": {
+            "raw_file": "head-trial-1-before.stats",
+            "runtime": {
+              "brewfs_packed_logical_bytes_total": 16384,
+              "brewfs_packed_runtime_backend_full_gets_total": 14,
+              "brewfs_packed_runtime_backend_heads_total": 14,
+              "brewfs_packed_runtime_backend_range_gets_total": 0,
+              "brewfs_packed_runtime_backend_received_bytes_total": 33637408,
+              "brewfs_packed_runtime_backend_failures_total": 0
+            },
+            "external_decode_count": 4,
+            "external_decode_series_present": true
+          },
+          "after": {
+            "raw_file": "head-trial-1-after.stats",
+            "runtime": {
+              "brewfs_packed_logical_bytes_total": 24576,
+              "brewfs_packed_runtime_backend_full_gets_total": 17,
+              "brewfs_packed_runtime_backend_heads_total": 17,
+              "brewfs_packed_runtime_backend_range_gets_total": 0,
+              "brewfs_packed_runtime_backend_received_bytes_total": 50436700,
+              "brewfs_packed_runtime_backend_failures_total": 0
+            },
+            "external_decode_count": 6,
+            "external_decode_series_present": true
+          },
+          "external_decode_delta": 2,
+          "logical_delta": 8192,
+          "b_network_events": [],
+          "events": [
+            {
+              "method": "HEAD",
+              "key": "base/indexes/11/825362b33a34e20d131d2c60568fb8400ca3d39a8895e77d335cf4a521352f87",
+              "range": null,
+              "start_ns": 5262725551822,
+              "gated": false,
+              "status": 200,
+              "bytes": 0,
+              "end_ns": 5262726521190
+            },
+            {
+              "method": "GET",
+              "key": "base/indexes/11/825362b33a34e20d131d2c60568fb8400ca3d39a8895e77d335cf4a521352f87",
+              "range": null,
+              "start_ns": 5262726938638,
+              "gated": false,
+              "status": 200,
+              "bytes": 10572,
+              "end_ns": 5262727672847
+            },
+            {
+              "method": "HEAD",
+              "key": "base/objects/3/e261e696cca617b705bca6a0ac7f6142dafac68afa8954fff1dab73a13456133",
+              "range": null,
+              "start_ns": 5262728239023,
+              "gated": false,
+              "status": 200,
+              "bytes": 0,
+              "end_ns": 5262728806185
+            },
+            {
+              "method": "GET",
+              "key": "base/objects/3/e261e696cca617b705bca6a0ac7f6142dafac68afa8954fff1dab73a13456133",
+              "range": null,
+              "start_ns": 5262729156680,
+              "gated": false,
+              "status": 200,
+              "bytes": 7312,
+              "end_ns": 5262729728638
+            },
+            {
+              "method": "HEAD",
+              "key": "base/objects/4/2a54b1dde87f651c60cc39afd8ff5f7156032b45368604f9fc4efd02da49f915",
+              "range": null,
+              "start_ns": 5262732122489,
+              "gated": true,
+              "status": 200,
+              "bytes": 0,
+              "released_by_signal": true,
+              "release_ns": 5262982418654,
+              "end_ns": 5262983597837
+            },
+            {
+              "method": "GET",
+              "key": "base/objects/4/2a54b1dde87f651c60cc39afd8ff5f7156032b45368604f9fc4efd02da49f915",
+              "range": null,
+              "start_ns": 5262984182961,
+              "gated": false,
+              "status": 200,
+              "bytes": 16781408,
+              "end_ns": 5263015267802
+            }
+          ],
+          "path_isolation_proven": true,
+          "observed_cross_object_wait": true
+        },
+        {
+          "index": 2,
+          "a": "A2.bin",
+          "b": "B.bin",
+          "b_offset": 12582912,
+          "head": {
+            "method": "HEAD",
+            "key": "base/objects/4/9dc5e22865a2cdaa388e311845fdf6b223f2cac08a16b7bfbdc4d36e1c7b1f94",
+            "range": null,
+            "start_ns": 5263164215161,
+            "gated": true,
+            "status": 200,
+            "bytes": 0,
+            "released_by_signal": true,
+            "release_ns": 5263414483335,
+            "end_ns": 5263415702454
+          },
+          "release_requested_ns": 5263414447087,
+          "b_finished_while_head_blocked": false,
+          "a_read": {
+            "start_ns": 5263157654900,
+            "sha256": "c656b6548b48cd442b97f3d0852a1f036f8e46a172838013d46ab72f6fd6aa19",
+            "valid": true,
+            "end_ns": 5263423091468
+          },
+          "b_read": {
+            "start_ns": 5263164350793,
+            "sha256": "09f351fee7bc9547b81bd1bd0878b02520700057828fc22407ace6449fb0173c",
+            "valid": true,
+            "end_ns": 5263416839167
+          },
+          "before": {
+            "raw_file": "head-trial-2-before.stats",
+            "runtime": {
+              "brewfs_packed_logical_bytes_total": 24576,
+              "brewfs_packed_runtime_backend_full_gets_total": 17,
+              "brewfs_packed_runtime_backend_heads_total": 17,
+              "brewfs_packed_runtime_backend_range_gets_total": 0,
+              "brewfs_packed_runtime_backend_received_bytes_total": 50436700,
+              "brewfs_packed_runtime_backend_failures_total": 0
+            },
+            "external_decode_count": 6,
+            "external_decode_series_present": true
+          },
+          "after": {
+            "raw_file": "head-trial-2-after.stats",
+            "runtime": {
+              "brewfs_packed_logical_bytes_total": 32768,
+              "brewfs_packed_runtime_backend_full_gets_total": 20,
+              "brewfs_packed_runtime_backend_heads_total": 20,
+              "brewfs_packed_runtime_backend_range_gets_total": 0,
+              "brewfs_packed_runtime_backend_received_bytes_total": 67235992,
+              "brewfs_packed_runtime_backend_failures_total": 0
+            },
+            "external_decode_count": 8,
+            "external_decode_series_present": true
+          },
+          "external_decode_delta": 2,
+          "logical_delta": 8192,
+          "b_network_events": [],
+          "events": [
+            {
+              "method": "HEAD",
+              "key": "base/indexes/11/ba5c25dda226186250e2df783177e46adca70b1766bf18ea6767e2b17381db59",
+              "range": null,
+              "start_ns": 5263158392656,
+              "gated": false,
+              "status": 200,
+              "bytes": 0,
+              "end_ns": 5263159386645
+            },
+            {
+              "method": "GET",
+              "key": "base/indexes/11/ba5c25dda226186250e2df783177e46adca70b1766bf18ea6767e2b17381db59",
+              "range": null,
+              "start_ns": 5263159843169,
+              "gated": false,
+              "status": 200,
+              "bytes": 10572,
+              "end_ns": 5263160604563
+            },
+            {
+              "method": "HEAD",
+              "key": "base/objects/3/47c52d1854e5cf36a699bbaef6c9852aaca2f0a2044a00c610ead586bfa59416",
+              "range": null,
+              "start_ns": 5263161195767,
+              "gated": false,
+              "status": 200,
+              "bytes": 0,
+              "end_ns": 5263161807106
+            },
+            {
+              "method": "GET",
+              "key": "base/objects/3/47c52d1854e5cf36a699bbaef6c9852aaca2f0a2044a00c610ead586bfa59416",
+              "range": null,
+              "start_ns": 5263162182326,
+              "gated": false,
+              "status": 200,
+              "bytes": 7312,
+              "end_ns": 5263162878623
+            },
+            {
+              "method": "HEAD",
+              "key": "base/objects/4/9dc5e22865a2cdaa388e311845fdf6b223f2cac08a16b7bfbdc4d36e1c7b1f94",
+              "range": null,
+              "start_ns": 5263164215161,
+              "gated": true,
+              "status": 200,
+              "bytes": 0,
+              "released_by_signal": true,
+              "release_ns": 5263414483335,
+              "end_ns": 5263415702454
+            },
+            {
+              "method": "GET",
+              "key": "base/objects/4/9dc5e22865a2cdaa388e311845fdf6b223f2cac08a16b7bfbdc4d36e1c7b1f94",
+              "range": null,
+              "start_ns": 5263416318041,
+              "gated": false,
+              "status": 200,
+              "bytes": 16781408,
+              "end_ns": 5263447311865
+            }
+          ],
+          "path_isolation_proven": true,
+          "observed_cross_object_wait": true
+        }
+      ],
+      "b_ready": {
+        "key": "base/objects/4/ba26a15a7cfbe8c06eccbb3c6db85981e42211c59a9acc79b2469e90efb88076",
+        "object_bytes": 16781408,
+        "persisted_file": "cache-on-head/packed/8928e844c41faf6731808b635c12f4a01695a70d25f2f6f99debd87d0cdcb232/7ba46aecbb4a1205131fe011684336b2f1a5186e812741754f097156bdf7483e.pack",
+        "actual_bytes": 16781408,
+        "object_sha256": "ba26a15a7cfbe8c06eccbb3c6db85981e42211c59a9acc79b2469e90efb88076",
+        "unique_source_fragments": {
+          "2097152": {
+            "stored_offset": 2101280,
+            "bytes": 4096,
+            "sha256": "be7c465be09047826c8d1efa6edccb6311921887d49210172acbe67ad46da663"
+          },
+          "4194304": {
+            "stored_offset": 4198432,
+            "bytes": 4096,
+            "sha256": "dc25868dfba63f434abea2460e4122d73d036d849f92352365e1e143f21ba613"
+          },
+          "8388608": {
+            "stored_offset": 8392736,
+            "bytes": 4096,
+            "sha256": "be8c19ac559fd986dafe21d99c4a71d13207ac2ef2f62ddc1827ebf11d758b7a"
+          },
+          "12582912": {
+            "stored_offset": 12587040,
+            "bytes": 4096,
+            "sha256": "09f351fee7bc9547b81bd1bd0878b02520700057828fc22407ace6449fb0173c"
+          }
+        }
+      },
+      "b_control": {
+        "offset": 2097152,
+        "fd_policy": "preopened independent never-read descriptor",
+        "start_ns": 5262275117148,
+        "end_ns": 5262277185170,
+        "sha256": "be7c465be09047826c8d1efa6edccb6311921887d49210172acbe67ad46da663",
+        "before": {
+          "raw_file": "head-control-before.stats",
+          "runtime": {
+            "brewfs_packed_logical_bytes_total": 4096,
+            "brewfs_packed_runtime_backend_full_gets_total": 11,
+            "brewfs_packed_runtime_backend_heads_total": 11,
+            "brewfs_packed_runtime_backend_range_gets_total": 0,
+            "brewfs_packed_runtime_backend_received_bytes_total": 16838116,
+            "brewfs_packed_runtime_backend_failures_total": 0
+          },
+          "external_decode_count": 1,
+          "external_decode_series_present": true
+        },
+        "after": {
+          "raw_file": "head-control-after.stats",
+          "runtime": {
+            "brewfs_packed_logical_bytes_total": 8192,
+            "brewfs_packed_runtime_backend_full_gets_total": 11,
+            "brewfs_packed_runtime_backend_heads_total": 11,
+            "brewfs_packed_runtime_backend_range_gets_total": 0,
+            "brewfs_packed_runtime_backend_received_bytes_total": 16838116,
+            "brewfs_packed_runtime_backend_failures_total": 0
+          },
+          "external_decode_count": 2,
+          "external_decode_series_present": true
+        },
+        "events": [],
+        "external_decode_delta": 1,
+        "logical_delta": 4096,
+        "passed": true
+      },
+      "reproduced": true,
+      "interpretation": "reproduced",
+      "cache": {
+        "hits": 4,
+        "misses": 20,
+        "ready_hits": 4,
+        "inflight_hits": 0,
+        "local_bytes": 2203209,
+        "downloaded": 67235992
+      },
+      "cgroup_memory_peak_bytes": 82628608
+    }
+  },
+  "scope": "Separate post-qualification HEAD gate with four dense 20MiB files; no throughput conclusion",
+  "budgets": {
+    "packed_disk_bytes": 268435456,
+    "metadata_bytes": 268435456,
+    "payload_memory_bytes": 536870912,
+    "payload_ssd_bytes": 0,
+    "output_bytes": 134217728,
+    "control_bytes": 8388608,
+    "process_memory_bytes": 8589934592,
+    "cpu_cores": 2
+  },
+  "measured_source_commit": "7093f141d8081e6b96cd0a80814876aed5a3b577",
+  "diagnostic_tools": {
+    "packed_head_diagnostic.py": "b048fa11798a299308f362d09c971bb8f8abd5e62cba1c1773be5ba09b0c6758",
+    "packed_head_probe.py": "a81ccf604aadfc4ce01d230f09e16a914f1c8b3ca01b96b9937ad0c0940ef94c"
+  },
+  "rustfs_revision": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "redis_version": "Redis server v=7.0.15 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d064f9f48c901a92",
+  "input_sha256": "6dadebb9b38dc5697d44cdbd7d134d432546579dff0998c044fead7f7055a2ca",
+  "manifest_key": "base/objects/0/8928e844c41faf6731808b635c12f4a01695a70d25f2f6f99debd87d0cdcb232",
+  "object_sizes": [
+    {
+      "key": "base/indexes/10/f0c589912fdca1da1e45ba8aa4a060e8398caf63a319b19aeb8c4d2105036a7a",
+      "bytes": 4172
+    },
+    {
+      "key": "base/indexes/11/4da147b55e77142153f82f08de44c6ec51132d5a594179ec4e2d11f0e4919801",
+      "bytes": 10572
+    },
+    {
+      "key": "base/indexes/11/825362b33a34e20d131d2c60568fb8400ca3d39a8895e77d335cf4a521352f87",
+      "bytes": 10572
+    },
+    {
+      "key": "base/indexes/11/a570e836aadd3627a2d3dc6bdadf38ad68571ee737bc6812b2243c0c7c79ffd0",
+      "bytes": 10572
+    },
+    {
+      "key": "base/indexes/11/b2dfa266796265c2caacd592e228ea055255c3138ec0397cbbcb78c2922f2832",
+      "bytes": 5100
+    },
+    {
+      "key": "base/indexes/11/ba5c25dda226186250e2df783177e46adca70b1766bf18ea6767e2b17381db59",
+      "bytes": 10572
+    },
+    {
+      "key": "base/indexes/12/f7b884eeb09ed13e561d9af66495b76b1a3f3bbce0ded7c64567a7c5f546bb96",
+      "bytes": 4348
+    },
+    {
+      "key": "base/indexes/5/b345ee348d22997356200379f9978e6195e60010715913a809b8941bcfaa646b",
+      "bytes": 4382
+    },
+    {
+      "key": "base/indexes/6/0fe7662b5dd183e63ab95f3cce68b8a50e8de804100c50e8627afc5ae528b80e",
+      "bytes": 5319
+    },
+    {
+      "key": "base/indexes/7/5d6d19613ab41a0969cab28cc3ddcb3c4554aa59b186a18b4cf0c8cb6fbbe088",
+      "bytes": 5429
+    },
+    {
+      "key": "base/indexes/8/110ad42bfbd7d58a82370511892c4c220e6a5365193941d686f91017f2801dae",
+      "bytes": 5459
+    },
+    {
+      "key": "base/indexes/9/65d4d1802b706ca98d9c3ccc34cb168b4b62c6b1011e68829af8b107fd198e04",
+      "bytes": 5380
+    },
+    {
+      "key": "base/objects/0/8928e844c41faf6731808b635c12f4a01695a70d25f2f6f99debd87d0cdcb232",
+      "bytes": 5495
+    },
+    {
+      "key": "base/objects/1/970fab8e93110c67b1e5e5e4c10764a4be5f27c6564cd9a2e268e5c1f8a2c35f",
+      "bytes": 4664
+    },
+    {
+      "key": "base/objects/3/0e3463cb9f187a5e0680866c345b795e45d8329703f607612bbbe5308a701aea",
+      "bytes": 7312
+    },
+    {
+      "key": "base/objects/3/259057ec8fb471cfe9d860c4be805b2009854de3f0cea97a528943eb8b6e02db",
+      "bytes": 5008
+    },
+    {
+      "key": "base/objects/3/47c52d1854e5cf36a699bbaef6c9852aaca2f0a2044a00c610ead586bfa59416",
+      "bytes": 7312
+    },
+    {
+      "key": "base/objects/3/6fb585eeda198b4c6228bcaa3aa1fac00c273fd23c5892e2e1bd24c9df10cb73",
+      "bytes": 5008
+    },
+    {
+      "key": "base/objects/3/93040bb1aedd2ba2b41438a129a2d894ca70571eee64f2dc36abd0afb52fa013",
+      "bytes": 5008
+    },
+    {
+      "key": "base/objects/3/990e2d5e4804ce889da9c39ab2420c6ced1af7b8085299f7a6b6e47aa00b4c2e",
+      "bytes": 5008
+    },
+    {
+      "key": "base/objects/3/d5fc346ee1faa4e4de378d01b72bdb4f0bb6366b89b5f1b110c8048c45d209c8",
+      "bytes": 7312
+    },
+    {
+      "key": "base/objects/3/e261e696cca617b705bca6a0ac7f6142dafac68afa8954fff1dab73a13456133",
+      "bytes": 7312
+    },
+    {
+      "key": "base/objects/4/213b8fa5a0e2c0c536234ce7ed0eef7fd1bfe7c0780475d95cddceb35e66665f",
+      "bytes": 4198496
+    },
+    {
+      "key": "base/objects/4/2a54b1dde87f651c60cc39afd8ff5f7156032b45368604f9fc4efd02da49f915",
+      "bytes": 16781408
+    },
+    {
+      "key": "base/objects/4/82c162c08e2e6d2a289e8c96e26a99cef22e8b80227fd641ab826e0345a06868",
+      "bytes": 4198496
+    },
+    {
+      "key": "base/objects/4/8e12385da1e66718d422563fcbdbae4e0e9961503f0fdc770247cd3670cdb964",
+      "bytes": 16781408
+    },
+    {
+      "key": "base/objects/4/9dc5e22865a2cdaa388e311845fdf6b223f2cac08a16b7bfbdc4d36e1c7b1f94",
+      "bytes": 16781408
+    },
+    {
+      "key": "base/objects/4/ba26a15a7cfbe8c06eccbb3c6db85981e42211c59a9acc79b2469e90efb88076",
+      "bytes": 16781408
+    },
+    {
+      "key": "base/objects/4/ef84c53e4357fa4580103aba5e7052fcb47142674c774f67d112247de99092a5",
+      "bytes": 4198496
+    },
+    {
+      "key": "base/objects/4/fd1205b09b4c0e9cd947380f8b717c2a12d7abbb7df2885f60c62f1744e17cdd",
+      "bytes": 4198496
+    }
+  ],
+  "parent_workspace_id": "01a1d0af-5b24-77a2-b159-884232aad942",
+  "exact_revision": "01a1d0af-5b3d-7e12-ae01-c7a69138a8ee:1:e562ccb3acf28eb09a1c43965e7ba2f6ba38d87232767c94ab8cc6e559b2b8e0",
+  "parent_binding": true,
+  "large_objects": {
+    "base/objects/4/213b8fa5a0e2c0c536234ce7ed0eef7fd1bfe7c0780475d95cddceb35e66665f": 4198496,
+    "base/objects/4/2a54b1dde87f651c60cc39afd8ff5f7156032b45368604f9fc4efd02da49f915": 16781408,
+    "base/objects/4/82c162c08e2e6d2a289e8c96e26a99cef22e8b80227fd641ab826e0345a06868": 4198496,
+    "base/objects/4/8e12385da1e66718d422563fcbdbae4e0e9961503f0fdc770247cd3670cdb964": 16781408,
+    "base/objects/4/9dc5e22865a2cdaa388e311845fdf6b223f2cac08a16b7bfbdc4d36e1c7b1f94": 16781408,
+    "base/objects/4/ba26a15a7cfbe8c06eccbb3c6db85981e42211c59a9acc79b2469e90efb88076": 16781408,
+    "base/objects/4/ef84c53e4357fa4580103aba5e7052fcb47142674c774f67d112247de99092a5": 4198496,
+    "base/objects/4/fd1205b09b4c0e9cd947380f8b717c2a12d7abbb7df2885f60c62f1744e17cdd": 4198496
+  },
+  "fixture_contract": {
+    "files": 4,
+    "file_bytes": 20971520,
+    "dense": true,
+    "chunk_bytes": 67108864,
+    "content": "SHAKE256(packed-head:<filename>), varied across offsets",
+    "initial_b_offset": 0,
+    "control_b_offset": 2097152,
+    "previously_unread_b_offsets": [
+      4194304,
+      8388608,
+      12582912
+    ],
+    "b_descriptor_policy": "separate preopened never-read FD per target; exact unique payload fragment located in fully persisted B object",
+    "head_hold_seconds": 0.25,
+    "automatic_release_seconds": 2
+  },
+  "mount_exits": {
+    "on-head": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    }
+  },
+  "probe_events": [
+    {
+      "method": "GET",
+      "key": "base/objects/0/8928e844c41faf6731808b635c12f4a01695a70d25f2f6f99debd87d0cdcb232",
+      "range": "bytes=0-5494",
+      "start_ns": 5261906814254,
+      "gated": false,
+      "status": 206,
+      "bytes": 5495,
+      "end_ns": 5261907842842
+    },
+    {
+      "method": "HEAD",
+      "key": "base/indexes/10/f0c589912fdca1da1e45ba8aa4a060e8398caf63a319b19aeb8c4d2105036a7a",
+      "range": null,
+      "start_ns": 5262046283671,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262047245259
+    },
+    {
+      "method": "GET",
+      "key": "base/indexes/10/f0c589912fdca1da1e45ba8aa4a060e8398caf63a319b19aeb8c4d2105036a7a",
+      "range": null,
+      "start_ns": 5262047739524,
+      "gated": false,
+      "status": 200,
+      "bytes": 4172,
+      "end_ns": 5262048480389
+    },
+    {
+      "method": "HEAD",
+      "key": "base/indexes/5/b345ee348d22997356200379f9978e6195e60010715913a809b8941bcfaa646b",
+      "range": null,
+      "start_ns": 5262049329119,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262049900897
+    },
+    {
+      "method": "GET",
+      "key": "base/indexes/5/b345ee348d22997356200379f9978e6195e60010715913a809b8941bcfaa646b",
+      "range": null,
+      "start_ns": 5262050257823,
+      "gated": false,
+      "status": 200,
+      "bytes": 4382,
+      "end_ns": 5262050900797
+    },
+    {
+      "method": "HEAD",
+      "key": "base/indexes/8/110ad42bfbd7d58a82370511892c4c220e6a5365193941d686f91017f2801dae",
+      "range": null,
+      "start_ns": 5262055772135,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262056323772
+    },
+    {
+      "method": "GET",
+      "key": "base/indexes/8/110ad42bfbd7d58a82370511892c4c220e6a5365193941d686f91017f2801dae",
+      "range": null,
+      "start_ns": 5262056652343,
+      "gated": false,
+      "status": 200,
+      "bytes": 5459,
+      "end_ns": 5262057241268
+    },
+    {
+      "method": "HEAD",
+      "key": "base/objects/1/970fab8e93110c67b1e5e5e4c10764a4be5f27c6564cd9a2e268e5c1f8a2c35f",
+      "range": null,
+      "start_ns": 5262057678079,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262058225501
+    },
+    {
+      "method": "GET",
+      "key": "base/objects/1/970fab8e93110c67b1e5e5e4c10764a4be5f27c6564cd9a2e268e5c1f8a2c35f",
+      "range": null,
+      "start_ns": 5262058542085,
+      "gated": false,
+      "status": 200,
+      "bytes": 4664,
+      "end_ns": 5262059133725
+    },
+    {
+      "method": "HEAD",
+      "key": "base/indexes/12/f7b884eeb09ed13e561d9af66495b76b1a3f3bbce0ded7c64567a7c5f546bb96",
+      "range": null,
+      "start_ns": 5262059557313,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262060063718
+    },
+    {
+      "method": "GET",
+      "key": "base/indexes/12/f7b884eeb09ed13e561d9af66495b76b1a3f3bbce0ded7c64567a7c5f546bb96",
+      "range": null,
+      "start_ns": 5262060369672,
+      "gated": false,
+      "status": 200,
+      "bytes": 4348,
+      "end_ns": 5262060907097
+    },
+    {
+      "method": "HEAD",
+      "key": "base/indexes/6/0fe7662b5dd183e63ab95f3cce68b8a50e8de804100c50e8627afc5ae528b80e",
+      "range": null,
+      "start_ns": 5262061402451,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262061966488
+    },
+    {
+      "method": "GET",
+      "key": "base/indexes/6/0fe7662b5dd183e63ab95f3cce68b8a50e8de804100c50e8627afc5ae528b80e",
+      "range": null,
+      "start_ns": 5262062286525,
+      "gated": false,
+      "status": 200,
+      "bytes": 5319,
+      "end_ns": 5262062865397
+    },
+    {
+      "method": "HEAD",
+      "key": "base/indexes/11/b2dfa266796265c2caacd592e228ea055255c3138ec0397cbbcb78c2922f2832",
+      "range": null,
+      "start_ns": 5262065730759,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262066279170
+    },
+    {
+      "method": "GET",
+      "key": "base/indexes/11/b2dfa266796265c2caacd592e228ea055255c3138ec0397cbbcb78c2922f2832",
+      "range": null,
+      "start_ns": 5262066572259,
+      "gated": false,
+      "status": 200,
+      "bytes": 5100,
+      "end_ns": 5262067131815
+    },
+    {
+      "method": "HEAD",
+      "key": "base/indexes/11/a570e836aadd3627a2d3dc6bdadf38ad68571ee737bc6812b2243c0c7c79ffd0",
+      "range": null,
+      "start_ns": 5262067540543,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262068117281
+    },
+    {
+      "method": "GET",
+      "key": "base/indexes/11/a570e836aadd3627a2d3dc6bdadf38ad68571ee737bc6812b2243c0c7c79ffd0",
+      "range": null,
+      "start_ns": 5262068461791,
+      "gated": false,
+      "status": 200,
+      "bytes": 10572,
+      "end_ns": 5262069077022
+    },
+    {
+      "method": "HEAD",
+      "key": "base/indexes/9/65d4d1802b706ca98d9c3ccc34cb168b4b62c6b1011e68829af8b107fd198e04",
+      "range": null,
+      "start_ns": 5262069535665,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262070099134
+    },
+    {
+      "method": "GET",
+      "key": "base/indexes/9/65d4d1802b706ca98d9c3ccc34cb168b4b62c6b1011e68829af8b107fd198e04",
+      "range": null,
+      "start_ns": 5262070420998,
+      "gated": false,
+      "status": 200,
+      "bytes": 5380,
+      "end_ns": 5262070942338
+    },
+    {
+      "method": "HEAD",
+      "key": "base/objects/3/0e3463cb9f187a5e0680866c345b795e45d8329703f607612bbbe5308a701aea",
+      "range": null,
+      "start_ns": 5262071380654,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262071935221
+    },
+    {
+      "method": "GET",
+      "key": "base/objects/3/0e3463cb9f187a5e0680866c345b795e45d8329703f607612bbbe5308a701aea",
+      "range": null,
+      "start_ns": 5262072256513,
+      "gated": false,
+      "status": 200,
+      "bytes": 7312,
+      "end_ns": 5262072818201
+    },
+    {
+      "method": "HEAD",
+      "key": "base/objects/4/ba26a15a7cfbe8c06eccbb3c6db85981e42211c59a9acc79b2469e90efb88076",
+      "range": null,
+      "start_ns": 5262074258918,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262074771774
+    },
+    {
+      "method": "GET",
+      "key": "base/objects/4/ba26a15a7cfbe8c06eccbb3c6db85981e42211c59a9acc79b2469e90efb88076",
+      "range": null,
+      "start_ns": 5262075113689,
+      "gated": false,
+      "status": 200,
+      "bytes": 16781408,
+      "end_ns": 5262110889988
+    },
+    {
+      "method": "HEAD",
+      "key": "base/indexes/11/4da147b55e77142153f82f08de44c6ec51132d5a594179ec4e2d11f0e4919801",
+      "range": null,
+      "start_ns": 5262294098053,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262295083905
+    },
+    {
+      "method": "GET",
+      "key": "base/indexes/11/4da147b55e77142153f82f08de44c6ec51132d5a594179ec4e2d11f0e4919801",
+      "range": null,
+      "start_ns": 5262295474893,
+      "gated": false,
+      "status": 200,
+      "bytes": 10572,
+      "end_ns": 5262296238563
+    },
+    {
+      "method": "HEAD",
+      "key": "base/objects/3/d5fc346ee1faa4e4de378d01b72bdb4f0bb6366b89b5f1b110c8048c45d209c8",
+      "range": null,
+      "start_ns": 5262296776754,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262297306745
+    },
+    {
+      "method": "GET",
+      "key": "base/objects/3/d5fc346ee1faa4e4de378d01b72bdb4f0bb6366b89b5f1b110c8048c45d209c8",
+      "range": null,
+      "start_ns": 5262297609197,
+      "gated": false,
+      "status": 200,
+      "bytes": 7312,
+      "end_ns": 5262298176763
+    },
+    {
+      "method": "HEAD",
+      "key": "base/objects/4/8e12385da1e66718d422563fcbdbae4e0e9961503f0fdc770247cd3670cdb964",
+      "range": null,
+      "start_ns": 5262299398686,
+      "gated": true,
+      "status": 200,
+      "bytes": 0,
+      "released_by_signal": true,
+      "release_ns": 5262549756286,
+      "end_ns": 5262550675290
+    },
+    {
+      "method": "GET",
+      "key": "base/objects/4/8e12385da1e66718d422563fcbdbae4e0e9961503f0fdc770247cd3670cdb964",
+      "range": null,
+      "start_ns": 5262551254948,
+      "gated": false,
+      "status": 200,
+      "bytes": 16781408,
+      "end_ns": 5262579770228
+    },
+    {
+      "method": "HEAD",
+      "key": "base/indexes/11/825362b33a34e20d131d2c60568fb8400ca3d39a8895e77d335cf4a521352f87",
+      "range": null,
+      "start_ns": 5262725551822,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262726521190
+    },
+    {
+      "method": "GET",
+      "key": "base/indexes/11/825362b33a34e20d131d2c60568fb8400ca3d39a8895e77d335cf4a521352f87",
+      "range": null,
+      "start_ns": 5262726938638,
+      "gated": false,
+      "status": 200,
+      "bytes": 10572,
+      "end_ns": 5262727672847
+    },
+    {
+      "method": "HEAD",
+      "key": "base/objects/3/e261e696cca617b705bca6a0ac7f6142dafac68afa8954fff1dab73a13456133",
+      "range": null,
+      "start_ns": 5262728239023,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5262728806185
+    },
+    {
+      "method": "GET",
+      "key": "base/objects/3/e261e696cca617b705bca6a0ac7f6142dafac68afa8954fff1dab73a13456133",
+      "range": null,
+      "start_ns": 5262729156680,
+      "gated": false,
+      "status": 200,
+      "bytes": 7312,
+      "end_ns": 5262729728638
+    },
+    {
+      "method": "HEAD",
+      "key": "base/objects/4/2a54b1dde87f651c60cc39afd8ff5f7156032b45368604f9fc4efd02da49f915",
+      "range": null,
+      "start_ns": 5262732122489,
+      "gated": true,
+      "status": 200,
+      "bytes": 0,
+      "released_by_signal": true,
+      "release_ns": 5262982418654,
+      "end_ns": 5262983597837
+    },
+    {
+      "method": "GET",
+      "key": "base/objects/4/2a54b1dde87f651c60cc39afd8ff5f7156032b45368604f9fc4efd02da49f915",
+      "range": null,
+      "start_ns": 5262984182961,
+      "gated": false,
+      "status": 200,
+      "bytes": 16781408,
+      "end_ns": 5263015267802
+    },
+    {
+      "method": "HEAD",
+      "key": "base/indexes/11/ba5c25dda226186250e2df783177e46adca70b1766bf18ea6767e2b17381db59",
+      "range": null,
+      "start_ns": 5263158392656,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5263159386645
+    },
+    {
+      "method": "GET",
+      "key": "base/indexes/11/ba5c25dda226186250e2df783177e46adca70b1766bf18ea6767e2b17381db59",
+      "range": null,
+      "start_ns": 5263159843169,
+      "gated": false,
+      "status": 200,
+      "bytes": 10572,
+      "end_ns": 5263160604563
+    },
+    {
+      "method": "HEAD",
+      "key": "base/objects/3/47c52d1854e5cf36a699bbaef6c9852aaca2f0a2044a00c610ead586bfa59416",
+      "range": null,
+      "start_ns": 5263161195767,
+      "gated": false,
+      "status": 200,
+      "bytes": 0,
+      "end_ns": 5263161807106
+    },
+    {
+      "method": "GET",
+      "key": "base/objects/3/47c52d1854e5cf36a699bbaef6c9852aaca2f0a2044a00c610ead586bfa59416",
+      "range": null,
+      "start_ns": 5263162182326,
+      "gated": false,
+      "status": 200,
+      "bytes": 7312,
+      "end_ns": 5263162878623
+    },
+    {
+      "method": "HEAD",
+      "key": "base/objects/4/9dc5e22865a2cdaa388e311845fdf6b223f2cac08a16b7bfbdc4d36e1c7b1f94",
+      "range": null,
+      "start_ns": 5263164215161,
+      "gated": true,
+      "status": 200,
+      "bytes": 0,
+      "released_by_signal": true,
+      "release_ns": 5263414483335,
+      "end_ns": 5263415702454
+    },
+    {
+      "method": "GET",
+      "key": "base/objects/4/9dc5e22865a2cdaa388e311845fdf6b223f2cac08a16b7bfbdc4d36e1c7b1f94",
+      "range": null,
+      "start_ns": 5263416318041,
+      "gated": false,
+      "status": 200,
+      "bytes": 16781408,
+      "end_ns": 5263447311865
+    }
+  ],
+  "probe_totals": {
+    "gets": 21,
+    "ranges": 1,
+    "heads": 20,
+    "bytes": 67241487,
+    "errors": 0,
+    "active": 0,
+    "duplicate_gets": 0
+  },
+  "raw_logs_directory": "head-02-raw",
+  "cleanup": {
+    "mount_absent": true,
+    "owned_containers_absent": {
+      "redis": true,
+      "rustfs": true
+    },
+    "scratch_removed": true,
+    "cgroups_absent": true
+  }
+}

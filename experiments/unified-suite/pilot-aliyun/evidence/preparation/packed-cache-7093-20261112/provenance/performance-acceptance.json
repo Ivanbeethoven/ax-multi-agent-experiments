@@ -1,0 +1,50 @@
+{
+  "decided_at": "2026-11-12T17:07:35.113664+00:00",
+  "source_commit": "7093f141d8081e6b96cd0a80814876aed5a3b577",
+  "harness_commit": "3d756ff5b99a3b36fe28eec43cf35f122c756322",
+  "approved_for_measured_scope": true,
+  "criterion": "Same input, binary and configured budget; every matched complete E2E pair improves",
+  "user_authorization": "没事 首次读取降低没关系 只要总体性能提高也行",
+  "authorization_context": "Root relayed on 2026-11-13 Asia/Shanghai that the user accepts first-readdir regression when the matched complete E2E improves.",
+  "strict_metadata_no_regression": false,
+  "metadata_regression_accepted_by_user": true,
+  "default_budget_tested": false,
+  "scope": "Same frozen binary, per-run same immutable snapshot, same explicit budgets, single g7/32GiB worker with loopback RustFS; not a distributed C3/C4 suite.",
+  "paired_e2e_reductions_percent": {
+    "128": [
+      18.24551395343825,
+      15.643448650405622,
+      15.871815991570138,
+      16.035879076538293
+    ],
+    "10000": [
+      30.739915587582278,
+      30.691912523585753,
+      30.88562713956694,
+      30.92310649466229
+    ]
+  },
+  "first_readdir_increases_percent": {
+    "128": [
+      10.432186576675239,
+      26.177307679142125,
+      27.153481112942067,
+      22.753690672505435
+    ],
+    "10000": [
+      25.982074745132078,
+      25.21234105896173,
+      28.843867834428004,
+      24.080573582456523
+    ]
+  },
+  "known_followups": [
+    "Independent cold-HEAD blocking of ready-object reads reproduced; not assigned as readdir-regression cause",
+    "Default Control/Output/VFS budgets were not measured",
+    "Budget-pressure HEAD-before-final-admission fallback is source-review candidate, not measured"
+  ],
+  "prior_decisions_preserved": [
+    "small-sample-decision.json",
+    "review/decision-revisions/01-strict-metadata-policy/"
+  ]
+}

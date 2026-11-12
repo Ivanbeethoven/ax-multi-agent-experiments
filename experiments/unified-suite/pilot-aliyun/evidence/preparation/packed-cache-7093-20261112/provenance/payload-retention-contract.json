@@ -1,0 +1,185 @@
+{
+  "source_commit": "7093f141d8081e6b96cd0a80814876aed5a3b577",
+  "path": "src/workspace/packed/snapshot/pipeline.rs",
+  "file_sha256": "0a6be4da3c3a68b8a3afcbfbe69c61a73584084ad1e3f524c4354c37c3e68099",
+  "declared_payload_cache_bytes": 0,
+  "source_excerpt": [
+    {
+      "line": 1,
+      "text": "//! Mount-scoped wire-005 demand planning and shared-body cancellation contract."
+    },
+    {
+      "line": 2,
+      "text": "//! Results are in-flight owners, never a retained payload cache."
+    },
+    {
+      "line": 3,
+      "text": ""
+    },
+    {
+      "line": 4,
+      "text": "use std::collections::BTreeMap;"
+    },
+    {
+      "line": 5,
+      "text": "use std::sync::atomic::{AtomicUsize, Ordering};"
+    },
+    {
+      "line": 6,
+      "text": "use std::sync::{Arc, Mutex, Weak};"
+    },
+    {
+      "line": 7,
+      "text": "use std::time::Duration;"
+    },
+    {
+      "line": 8,
+      "text": "use tokio::sync::Notify;"
+    },
+    {
+      "line": 9,
+      "text": "mod coordinator;"
+    },
+    {
+      "line": 10,
+      "text": "mod verify_memo;"
+    },
+    {
+      "line": 11,
+      "text": "pub(super) use coordinator::{SnapshotDemandCoordinator, SnapshotSharedFrame, queue_roots_bytes};"
+    },
+    {
+      "line": 12,
+      "text": ""
+    },
+    {
+      "line": 13,
+      "text": "use super::budget::SnapshotOwned;"
+    },
+    {
+      "line": 14,
+      "text": "use super::{SnapshotBudgetPool, SnapshotMountBudget, SnapshotObjectRef, SnapshotOwnedPermit};"
+    },
+    {
+      "line": 15,
+      "text": "use crate::cadapter::read_observer::ReadContext;"
+    },
+    {
+      "line": 16,
+      "text": "use crate::chunk::read_plan::ReadGeneration;"
+    },
+    {
+      "line": 17,
+      "text": "use crate::workspace::packed::wire::{PackedResult, PackedWireError};"
+    },
+    {
+      "line": 18,
+      "text": "use crate::workspace::packed::{AccessProfile, PackedFrameDescriptor, SizeClass, SizeClassTable};"
+    },
+    {
+      "line": 19,
+      "text": ""
+    },
+    {
+      "line": 20,
+      "text": "pub(super) fn verify_memo_reservation_bytes() -> PackedResult<u64> {"
+    },
+    {
+      "line": 21,
+      "text": "    Ok(if verify_memo::VerifyMemo::enabled_from_env()? {"
+    },
+    {
+      "line": 22,
+      "text": "        verify_memo::RESERVATION_BYTES"
+    },
+    {
+      "line": 23,
+      "text": "    } else {"
+    },
+    {
+      "line": 24,
+      "text": "        0"
+    },
+    {
+      "line": 25,
+      "text": "    })"
+    },
+    {
+      "line": 26,
+      "text": "}"
+    },
+    {
+      "line": 27,
+      "text": ""
+    },
+    {
+      "line": 28,
+      "text": "pub(super) fn log_verify_memo_configuration() -> PackedResult<()> {"
+    },
+    {
+      "line": 29,
+      "text": "    let enabled = verify_memo::VerifyMemo::enabled_from_env()?;"
+    },
+    {
+      "line": 30,
+      "text": "    tracing::info!("
+    },
+    {
+      "line": 31,
+      "text": "        enabled,"
+    },
+    {
+      "line": 32,
+      "text": "        capacity_entries = if enabled { verify_memo::CAPACITY } else { 0 },"
+    },
+    {
+      "line": 33,
+      "text": "        metadata_reservation_bytes = verify_memo_reservation_bytes()?,"
+    },
+    {
+      "line": 34,
+      "text": "        payload_cache_bytes = 0,"
+    },
+    {
+      "line": 35,
+      "text": "        \"packed frame verification memo (requires immutable objects)\""
+    },
+    {
+      "line": 36,
+      "text": "    );"
+    },
+    {
+      "line": 37,
+      "text": "    Ok(())"
+    },
+    {
+      "line": 38,
+      "text": "}"
+    },
+    {
+      "line": 39,
+      "text": ""
+    },
+    {
+      "line": 40,
+      "text": "fn invalid(reason: &str) -> PackedWireError {"
+    },
+    {
+      "line": 41,
+      "text": "    PackedWireError::Invalid(format!(\"snapshot pipeline: {reason}\"))"
+    },
+    {
+      "line": 42,
+      "text": "}"
+    },
+    {
+      "line": 43,
+      "text": "fn cancelled() -> Arc<PackedWireError> {"
+    },
+    {
+      "line": 44,
+      "text": "    Arc::new(PackedWireError::Backend("
+    }
+  ],
+  "scope": "Demand pipeline explicitly reports no retained decoded payload cache; ordinary VFS read_memory_bytes is a separate budget. Runtime repeated Range GETs on off warm pass independently confirm the measured behavior."
+}

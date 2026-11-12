@@ -6,6 +6,8 @@
 
 已实现的整包缓存接口为 `--packed-cache on|off`（默认 `on`）和 `--packed-cache-bytes BYTES`（默认 256 MiB）；环境变量为 `BREWFS_PACKED_CACHE`、`BREWFS_PACKED_CACHE_BYTES`。此开关只控制整包异步本地缓存，不能替代下面计划中的 Pack/Overlay 消融。两臂使用同一 release 二进制、同一输入及相同缓存预算。正式结果以独立的缓存对照回执为准。
 
+2026-11-13 已复核固定源码 `7093f141` 的[整包缓存对照](../pilot-aliyun/evidence/preparation/packed-cache-7093-20261112/README.zh.md)：128 和 10,000 文件均完成同二进制、同显式预算的正反顺序验证；10,000 文件整轮耗时降低 30.81%，首次 readdir 增加 26.02%。用户明确按完整 E2E 改善验收并接受这一取舍，`strict_metadata_no_regression=false` 事实保留。Control 8 MiB / Output 128 MiB 是本轮显式配置，默认预算未测；独立复现的冷 HEAD 阻塞已缓存对象读取列为后续性能项。本记录不改变 `design-only`、`execution_enabled=false` 或 C3/C4 suite 执行资格。
+
 | 子项 | BrewFS / 对照 | 要启用的机制与资格 |
 | --- | --- | --- |
 | C1 五种 I/O | flat / JuiceFS | Overlay、Pack 关；动态块按主配置。逐次 fsync、排空、冷重挂 CRC。 |

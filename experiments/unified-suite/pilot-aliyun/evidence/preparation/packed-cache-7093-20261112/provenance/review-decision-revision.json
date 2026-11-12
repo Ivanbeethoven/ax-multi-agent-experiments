@@ -1,0 +1,59 @@
+{
+  "schema": "packed-acceptance-policy-revision-v1",
+  "revised_at": "2026-11-12T17:05:52.013313+00:00",
+  "authority": {
+    "kind": "explicit-user-instruction",
+    "quote": "没事 首次读取降低没关系 只要总体性能提高也行",
+    "scope": "This matched Packed experiment may accept the disclosed cold-readdir tradeoff when overall E2E improves."
+  },
+  "previous_review_sha256": "74747e64858b80464b74e4cee08535630c20aecb40be9340dfec64bbc8353c78",
+  "revised_review_sha256": "4c17864966785128b18bdb35e3fe8e3c12e5b69a70dfc1954f9cf0e5dcaeb8f6",
+  "previous_verdict": {
+    "approve_packed_pr": false,
+    "metadata_gate": "failed",
+    "reason": "AGENTS.md: A faster data path that regresses open/stat/readdir/rename is not acceptable.",
+    "formal_C3_C4_qualification": false
+  },
+  "revised_verdict": {
+    "approve_packed_pr": true,
+    "applicable_acceptance": "passed",
+    "strict_metadata_nonregression": false,
+    "metadata_policy": "Disclosed tradeoff accepted by the user; no longer a veto for this matched E2E experiment.",
+    "policy_authority": "User: 没事 首次读取降低没关系 只要总体性能提高也行",
+    "reason": "All eight matched pairs improve E2E and correctness/counter/budget checks pass. Accept under the user-authorized overall-E2E criterion; retain the cold-readdir regression and explicit-budget scope.",
+    "formal_C3_C4_qualification": false
+  },
+  "unchanged_factual_fields": [
+    "source_commit",
+    "harness_commit",
+    "host",
+    "final_four_runs_archived",
+    "binary_sha256",
+    "budgets",
+    "harness_scripts",
+    "checks_performed",
+    "integrity_failures",
+    "actual_native_pool_caps",
+    "max_native_pool_peaks_by_mode",
+    "source_review_followups",
+    "denominator_notes",
+    "runs",
+    "pairs",
+    "aggregates"
+  ],
+  "facts_sha256": "c9df1a65c1dbe9d042f8142f9f2a86c0083be475157683adb244c566d420f207",
+  "facts_equal": true,
+  "checks_sha256": "7ec14bbc8fc44231686b82932fa8ef2f171da0fbc3675f5ab022f895267e5ad1",
+  "checks_equal": true,
+  "fact_checks": 1778,
+  "raw_files_modified": false,
+  "source_or_workload_actions": false,
+  "prior_review_snapshot": "/home/dev/ax-packed-build/evidence-final-7093f141/review/decision-revisions/01-strict-metadata-policy",
+  "revised_artifact_hashes": {
+    "review.json": "4c17864966785128b18bdb35e3fe8e3c12e5b69a70dfc1954f9cf0e5dcaeb8f6",
+    "review.md": "286006f02812a5a24128ba789f328fc263c88be35d53f93b56efaee1e1043fc8",
+    "analyze.py": "d9732ccf4fb2a9b373fd5630b887d2e9271dafac7ddb927bfbbbdd59865a5e54",
+    "checks.json": "7ec14bbc8fc44231686b82932fa8ef2f171da0fbc3675f5ab022f895267e5ad1",
+    "source-followups.json": "d17c401e99568d947d21031915c418fdd828cdbe75e6afc3fda1a072887e945a"
+  }
+}

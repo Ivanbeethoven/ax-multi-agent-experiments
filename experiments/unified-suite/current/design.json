@@ -1,6 +1,6 @@
 {
   "schema": "ax-c1-c4-design-v2",
-  "updated": "2026-11-12",
+  "updated": "2026-11-13",
   "status": "design-only",
   "execution_enabled": false,
   "execution_blockers": [
@@ -19,14 +19,14 @@
       "repository": "https://github.com/brewfs/brewfs",
       "branch": "codex/packed-prefetch",
       "revision_policy": "branch-latest-per-campaign",
-      "reviewed_commit": "6912a796abddbd96c60aad6cc672fcd926a13712",
+      "reviewed_commit": "7093f141d8081e6b96cd0a80814876aed5a3b577",
       "cargo_features": [
         "workspace",
         "observability",
         "rustfs-ec-block-size-hint"
       ],
       "default_features": true,
-      "qualification": "candidate; exact tested commit is recorded with cache results"
+      "qualification": "matched explicit-budget E2E improvement verified; user accepts first-readdir regression; default-budget behavior not measured"
     },
     "rustfs": {
       "repository": "https://github.com/Ivanbeethoven/rustfs",
