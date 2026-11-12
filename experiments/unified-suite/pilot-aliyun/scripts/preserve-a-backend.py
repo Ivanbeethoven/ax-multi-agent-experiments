@@ -2,7 +2,7 @@
 """Inventory and privately pack the original A pool; no service or cloud mutations."""
 
 import argparse
-from contextlib import ExitStack
+from contextlib import closing, ExitStack
 import importlib.util
 import json
 import os
@@ -14,7 +14,7 @@ import subprocess
 
 
 # Exact Git blob at 00779c70ec0d0a0a4fd1f392cc688cdd18dc6136. Reuse its
-# read-only mount, no-follow walk, archive creation and independent verifier.
+# read-only mount, archive creation and independent verifier.
 COMMON_SHA = '038b673b396109f6d72fb09721c2d2d81b793900f9887fb844b609943a70d8c8'
 # Serial is the immutable cloud disk ID without "d-". Source: release-owned-sets-02.
 ROLES = {
@@ -107,51 +107,144 @@ def disks(core, role):
     }
 
 
+def identity(st):
+    return st.st_dev, st.st_ino, st.st_mode, st.st_size, st.st_mtime_ns, st.st_ctime_ns
+
+
+def open_directory(path):
+    # Anchor even the initial system path at /, without following an ancestor.
+    path = path.absolute()
+    fd = os.open(path.anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        for part in path.parts[1:]:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+            os.close(fd)
+            fd = child
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def names(fd):
+    with os.scandir(fd) as children:
+        return sorted(child.name for child in children)
+
+
 def selection(core, roots, include, exclude, *, system=Path('/srv'), home=Path('/root'),
               confs=()):
-    files, unknown, skipped, classified = [], [], [], set()
+    files, unknown, skipped, symlinks, classified = [], [], [], [], set()
+    ancestors = {rel.rsplit('/', depth)[0]
+                 for rel in include | set(exclude) for depth in range(1, rel.count('/') + 1)}
 
-    def consider(path, rel, dev, default=False, *, expand=False):
-        st = path.lstat()
+    def consider(parent, directory, name, rel, dev, selected=False, *, expand=False,
+                 allow_empty=False):
+        st = os.stat(name, dir_fd=parent, follow_symlinks=False)
         if not core.safe_name(rel) or st.st_dev != dev:
             unknown.append(rel)
-        elif rel in exclude:
-            classified.add(rel)
-        elif default or rel in include:
+            return
+        mode = st.st_mode
+        if stat.S_ISLNK(mode):
+            target = os.readlink(name, dir_fd=parent)
+            need(identity(os.stat(name, dir_fd=parent, follow_symlinks=False)) == identity(st),
+                 'Evidence symlink changed while recording: '+rel)
+            symlinks.append({'path': rel, 'target': target, 'mode': stat.S_IMODE(mode),
+                             'mtime_ns': st.st_mtime_ns})
             if rel in include:
                 classified.add(rel)
-            core.walk(path, rel, dev, files, unknown, skipped)
-        elif stat.S_ISDIR(st.st_mode) and path.name == 'lost+found' and not any(path.iterdir()):
+            if (not selected and rel not in include) or rel in exclude:
+                unknown.append(rel)
+            return
+        if rel in exclude and (stat.S_ISREG(mode) or stat.S_ISDIR(mode)):
+            classified.add(rel)
+            return
+        if rel in include:
+            classified.add(rel)
+            selected = True
+        if stat.S_ISDIR(mode):
+            empty_ok = allow_empty or name == 'lost+found'
+            if not (selected or expand or rel in ancestors or empty_ok):
+                unknown.append(rel)
+                return
+            child_fd = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+            try:
+                need(identity(os.fstat(child_fd)) == identity(st),
+                     'Evidence directory changed before traversal: '+rel)
+                children = names(child_fd)
+                if selected or expand or rel in ancestors:
+                    for child in children:
+                        consider(child_fd, directory/name, child, f'{rel}/{child}', dev, selected)
+                elif empty_ok and not children:
+                    skipped.append(rel)
+                else:
+                    unknown.append(rel)
+                need(identity(os.fstat(child_fd)) == identity(st)
+                     and identity(os.stat(name, dir_fd=parent, follow_symlinks=False)) == identity(st),
+                     'Evidence directory changed during traversal: '+rel)
+            finally:
+                os.close(child_fd)
+        elif selected and stat.S_ISREG(mode):
+            files.append((rel, directory/name, st))
+        elif selected and stat.S_ISSOCK(mode) and (name == 'observer.sock' or (
+                name == 'control.sock' and rel.split('/')[1:2] == ['m'])) and rel not in exclude:
             skipped.append(rel)
-        elif expand and stat.S_ISDIR(st.st_mode):
-            for child in sorted(path.iterdir()):
-                consider(child, f'{rel}/{child.name}', dev)
         else:
             unknown.append(rel)
 
     for serial, root in roots.items():
-        dev = root.stat().st_dev
-        for path in sorted(root.iterdir()):
-            consider(path, serial+'/'+path.name, dev, path.name in EVIDENCE,
-                     expand=path.name in {'rustfs-data', 'redis'})
+        fd = open_directory(root)
+        try:
+            dev = os.fstat(fd).st_dev
+            for name in names(fd):
+                consider(fd, root, name, serial+'/'+name, dev, name in EVIDENCE,
+                         expand=name in {'rustfs-data', 'redis'})
+        finally:
+            os.close(fd)
 
     root_dev = Path('/').stat().st_dev
     for directory, label in ((system, 'srv'), (home, 'root')):
-        need(directory.stat().st_dev == root_dev, 'Unexpected system evidence filesystem')
-        for path in sorted(directory.glob('ax-*')):
-            rel = f'system/{label}/{path.name}'
-            st = path.lstat()
-            if stat.S_ISDIR(st.st_mode) and st.st_dev == root_dev and not any(path.iterdir()):
-                skipped.append(rel)
-                continue
-            consider(path, rel, root_dev, default=path.name in {
-                'ax-receipts', 'ax-logs', 'ax-pool-a-bootstrap-01'})
+        fd = open_directory(directory)
+        try:
+            need(os.fstat(fd).st_dev == root_dev, 'Unexpected system evidence filesystem')
+            for name in names(fd):
+                if name.startswith('ax-'):
+                    consider(fd, directory, name, f'system/{label}/{name}', root_dev,
+                             selected=name in {'ax-receipts', 'ax-logs', 'ax-pool-a-bootstrap-01'},
+                             allow_empty=True)
+        finally:
+            os.close(fd)
     for path in confs:
-        if path.exists() or path.is_symlink():
-            consider(path, 'system'+str(path), root_dev, default=True)
+        fd = open_directory(path.parent)
+        try:
+            try:
+                os.stat(path.name, dir_fd=fd, follow_symlinks=False)
+            except FileNotFoundError:
+                continue
+            consider(fd, path.parent, path.name, 'system'+str(path), root_dev, selected=True)
+        finally:
+            os.close(fd)
 
     need(classified == include | set(exclude), 'Explicit archive/exclusion path not found')
-    return files, sorted(unknown), sorted(skipped)
+    return files, sorted(unknown), sorted(skipped), sorted(symlinks, key=lambda row: row['path'])
+
+
+def safe_pack_files(files):
+    # common.pack opens each leaf with O_NOFOLLOW. Keep its parent open as well,
+    # so the source path cannot be redirected through a symlink after scanning.
+    previous, fd = None, None
+    try:
+        for rel, path, st in files:
+            if previous != path.parent:
+                if fd is not None:
+                    os.close(fd)
+                    fd = None
+                fd = open_directory(path.parent)
+                previous = path.parent
+            need(os.fstat(fd).st_dev == st.st_dev, 'Evidence parent filesystem changed: '+rel)
+            yield rel, Path('/proc/self/fd')/str(fd)/path.name, st
+    finally:
+        if fd is not None:
+            os.close(fd)
 
 
 def main():
@@ -195,8 +288,8 @@ def main():
     data, system = disks(core, args.role)
     with ExitStack() as stack:
         roots = {serial: stack.enter_context(core.mount(row)) for serial, row in data.items()}
-        files, unknown, skipped = selection(core, roots, include, exclude,
-            confs=(REDIS_CONF, REDIS_UNIT) if args.role == 'metadata' else ())
+        confs = (REDIS_CONF, REDIS_UNIT) if args.role == 'metadata' else ()
+        files, unknown, skipped, symlinks = selection(core, roots, include, exclude, confs=confs)
         total = sum(st.st_size for _, _, st in files)
         value = {
             'schema': SCHEMA, 'tag': args.tag, 'role': args.role, 'instance': ROLES[args.role][0],
@@ -206,6 +299,7 @@ def main():
                 for serial, row in data.items()},
             'evidence_files': len(files), 'evidence_bytes': total,
             'inventory_digest': core.manifest(files), 'unknown': unknown, 'nondata': skipped,
+            'symlinks': symlinks,
             'included_roots': sorted(include), 'excluded_roots_with_external_proof': exclude,
         }
         if args.action == 'scan':
@@ -221,10 +315,17 @@ def main():
                 logs = core.command('journalctl', '-u',
                     REDIS_UNIT.name if args.role == 'metadata' else 'ax-*',
                     '--no-pager', '-o', 'short-iso', '-n', '4000', timeout=25).encode()
-            proof = core.pack(out/'evidence.tar.gz', files, value, logs)
+            with closing(safe_pack_files(files)) as sources:
+                proof = core.pack(out/'evidence.tar.gz', sources, value, logs)
+            after, unknown_after, skipped_after, symlinks_after = selection(
+                core, roots, include, exclude, confs=confs)
+            need(core.manifest(after) == value['inventory_digest'] and unknown_after == unknown
+                 and skipped_after == skipped and symlinks_after == symlinks,
+                 'Cold pack refused: inventory changed during archive')
     result = {'role': args.role, 'instance': ROLES[args.role][0], 'out': str(out),
               'all_data_disks_unmounted': True, 'inventory_sha256': core.sha(inventory),
-              'unknown_count': len(unknown), 'evidence_bytes': total, 'evidence_files': len(files)}
+              'unknown_count': len(unknown), 'evidence_bytes': total, 'evidence_files': len(files),
+              'symlink_count': len(symlinks)}
     if args.action == 'pack':
         result['archive'] = proof
         core.write(out/'packed.json', result)
