@@ -51,7 +51,38 @@ def require(ok, reason):
         raise ValueError(reason)
 
 
-def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_budget=False):
+def wait_verifier(command, log, abort_path, seconds, detect_worker_failure):
+    with log.open('xb') as output:
+        if not detect_worker_failure:
+            subprocess.run(command,stdout=output,stderr=subprocess.STDOUT,check=True,timeout=seconds)
+            return
+        proc = subprocess.Popen(command,stdout=output,stderr=subprocess.STDOUT)
+        deadline = time.monotonic() + seconds
+        try:
+            while proc.poll() is None:
+                if log.stat().st_size:
+                    errors = [x for x in log.read_text(errors='replace').splitlines()
+                              if re.match(r'^C3 verifier worker [0-9]+ failed: ',x)]
+                    if errors:
+                        write(abort_path,dict(reason='A verifier worker already failed',first_error=errors[0],
+                                              worker_errors_observed=len(errors),pid=proc.pid))
+                        raise ValueError(errors[0])
+                if time.monotonic() >= deadline:
+                    raise subprocess.TimeoutExpired(command,seconds)
+                time.sleep(1)
+            if proc.returncode:
+                raise subprocess.CalledProcessError(proc.returncode,command)
+        finally:
+            if proc.poll() is None:
+                proc.terminate()
+                try: proc.wait(timeout=4)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.wait(timeout=4)
+
+
+def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_budget=False,
+        packed_output_mib=0, packed_control_mib=0):
     require(re.fullmatch(r'c3-current-base-[0-9]{8}t[0-9]{6}z',tag) and 20 <= db < 256 and db != 70,
             'Exact new tag and dedicated Redis DB required')
     require(socket.gethostname()=='ax-pilot-20261111-client' and active(CLIENT) is not None,
@@ -61,6 +92,12 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_bud
     require(0 <= workers <= 32 and 60 <= verify_seconds <= 900,'Bounded verifier workers and duration required')
     require(not parallel_sha256 or (workers and re.fullmatch(r'[a-f0-9]{64}',parallel_sha256)),
             'Custom verifier requires a valid SHA and positive worker count')
+    require(packed_output_mib in (0,128) and
+            (not packed_output_mib or (trace_packed_budget and workers == 32)),
+            'The 128 MiB probe requires budget tracing and 32 workers')
+    require(packed_control_mib in (0,8) and
+            (not packed_control_mib or (parallel_sha256 and packed_output_mib == 128)),
+            'The 8 MiB control probe requires the diagnostic verifier and 128 MiB output')
     parallel = Path(__file__).resolve().with_name('smallfiles-verify') if parallel_sha256 else PARALLEL
     pins = {**ARTIFACTS,**({parallel:parallel_sha256 or PARALLEL_SHA} if workers else {})}
     for path,expected in pins.items():
@@ -87,6 +124,8 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_bud
           redis_db=db,bucket=data['s3']['bucket'],manifest_key=asset['manifest_key'],
           pins={str(p):h for p,h in pins.items()},formal_sample=False,automatic_retry=False,
           verifier_workers=workers or 1,verify_timeout_seconds=verify_seconds,trace_packed_budget=trace_packed_budget,
+          packed_output_budget_bytes=(packed_output_mib or 32)*1024**2,
+          packed_control_budget_bytes=(packed_control_mib or 1)*1024**2,
           boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip()))
     (slot/'cgroup.procs').write_text(str(os.getpid()))
     auth = dict(line.split('=',1) for line in (CLIENT/'private/rustfs.env').read_text().splitlines() if '=' in line)
@@ -95,6 +134,11 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_bud
             RUST_LOG='error,brewfs::packed_v3_budget=debug' if trace_packed_budget else 'error',
             NO_PROXY='10.20.2.162,10.20.2.163',
         no_proxy='10.20.2.162,10.20.2.163')
+    for name,budget in (('OUTPUT',packed_output_mib),('CONTROL',packed_control_mib)):
+        key = 'BREWFS_PACKED_V3_'+name+'_BUDGET_BYTES'
+        env.pop(key,None)
+        if budget:
+            env[key] = str(budget*1024**2)
     data_cfg = out/'data.json'; write(data_cfg,dict(data=data))
     brewfs = BREWFS
     with (out/'init.stdout').open('xb') as stdout,(out/'init.stderr').open('xb') as stderr:
@@ -124,8 +168,7 @@ def run(tag, db, workers, verify_seconds, parallel_sha256=None, trace_packed_bud
             else:
                 verify_cmd = [CLIENT/'assets/bin/smallfiles','verify-base','--root',mount,
                     '--output',out/'verify','--files',str(EXPECTED['files'])]
-            with (out/'verify.log').open('xb') as verify:
-                subprocess.run(verify_cmd,stdout=verify,stderr=subprocess.STDOUT,check=True,timeout=verify_seconds)
+            wait_verifier(verify_cmd,out/'verify.log',out/'verify-aborted.json',verify_seconds,bool(packed_control_mib))
             summary = json.loads((out/'verify/result.json').read_text())
             require(summary.get('passed') is True and all(summary.get(k)==v for k,v in EXPECTED.items()),
                     'Full base result mismatch')
@@ -155,8 +198,11 @@ if __name__=='__main__':
     parser.add_argument('--verify-seconds',type=int,default=480)
     parser.add_argument('--parallel-sha256')
     parser.add_argument('--trace-packed-budget',action='store_true')
+    parser.add_argument('--packed-output-mib',type=int,choices=(0,128),default=0)
+    parser.add_argument('--packed-control-mib',type=int,choices=(0,8),default=0)
     args=parser.parse_args()
     def terminate(_signum, _frame):
         raise TimeoutError('Qualification interrupted')
     signal.signal(signal.SIGTERM,terminate)
-    run(args.tag,args.database,args.workers,args.verify_seconds,args.parallel_sha256,args.trace_packed_budget)
+    run(args.tag,args.database,args.workers,args.verify_seconds,args.parallel_sha256,
+        args.trace_packed_budget,args.packed_output_mib,args.packed_control_mib)
