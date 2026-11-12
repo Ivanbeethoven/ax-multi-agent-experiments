@@ -92,6 +92,12 @@ bash experiments/unified-suite/pilot-aliyun/scripts/build-local.sh manifest "$BU
 | `scripts/link-brewfs-tool.py`、`verify-entity-remote.rs` | 复用本轮BrewFS库构建只读核验器；检查原namespace的远端字节、目录、硬链接、ownership及核验前后状态 |
 | `scripts/local-services.py` | 本机功能验证服务；四个目录共用一块盘，不能作为云上四独立盘的性能证据 |
 | `scripts/qualify-rustfs-local.py`、`metric-collector.py` | 核实际B/q、完整与Range读、已知请求数和原生计数；[采集部署](OBSERVABILITY.zh.md) |
+| `scripts/a-pool-up.py` | A 池节点重启后恢复现场：按 serial/UUID 重挂四块 RustFS 盘与采样盘、重建 bind、起 RustFS 容器、恢复原 Redis 并用 `CONFIG GET` 核生效值；**数据盘重启后不会自动挂载**，见[重启实测](evidence/preparation/a-pool-restart-20261112-0910/README.zh.md) |
+| `scripts/c4-on1-preflight.py` | 协调者侧一条命令生成 On1 前置链：清理复核 → 原生容量快照 → 采样盘快照 → placement → 容量文件 → 续跑请求，全部落在 900 秒时效窗内，并把对象观察预算挪到专用采样盘 |
+| `scripts/pack-c4-observer-split.py` | 拆包归档：观察原文单独 tar + 流式 NDJSON 索引，闭合证据仍走冻结校验器；真实 132,939 成员 / 22.47 GB 实测 6 分 52 秒、峰值内存 269 MB，见[规模验证](evidence/preparation/c4-observer-split-01/README.zh.md) |
+| `scripts/prepare-c4-observer-scratch.py` | 只认新盘 serial 与整盘 100 GiB 的采样盘初始化；mkfs 后等 udev 身份就绪，失败自行 umount 并写 `passed:false` 回执 |
+| `scripts/b-c1-gc-node.py`、`b-c1-gc-apply.py` | B 池 JuiceFS 维护窗口：释放镜像自带 redis、按 PID 核监听、只跑 `gc --threads 1`（删除模式需显式 `gc_mode=delete` 且 pin 只读证据）、AOF 与逐盘 du 前后比对 |
+| `scripts/b-meta-diagnose.py` | 只读诊断 B 元数据：实际监听、`INFO persistence`、各库 DBSIZE 与单位置放；用于判断“元数据到底在不在服务” |
 | `scripts/qualify-entity-local.py` | 实际挂载、hardlink/COW/空洞/重命名修改、正常卸载，再以只读Redis账号核原namespace |
 | `scripts/package-deployment.py` | 打包本轮二进制、运行依赖、镜像和执行代码，逐成员核SHA256，供私网分发 |
 | `scripts/package-code.py`、`install-code.py` | 单独冻结执行代码并安装到新的 `code-NN`，核所有成员；旧版本和正在运行的进程保持原路径 |

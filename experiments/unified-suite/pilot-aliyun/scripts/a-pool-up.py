@@ -40,6 +40,9 @@ METADATA = {
     'redis_ip': '10.20.2.162',
 }
 
+# Injected as a module constant only so offline tests can point at a fake /proc.
+PROC = Path('/proc')
+
 
 def require(ok, message):
     if not ok:
@@ -104,7 +107,7 @@ def bring_objects(actions):
 
 def foreign_redis_pids(conf):
     found = []
-    for entry in Path('/proc').iterdir():
+    for entry in PROC.iterdir():
         if not entry.name.isdigit():
             continue
         try:

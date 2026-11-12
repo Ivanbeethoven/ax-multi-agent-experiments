@@ -32,7 +32,7 @@ JuiceFS `gc --threads 1` **尚未执行**。九次尝试都停在协调者/节�
 | 07 | 上一次失败的 guard 进程没释放，物理锁被占 | 无（未启动实例） |
 | 08 | 上一次 stop 未落定，StartInstance 前状态检查拒绝 | `attempts/failed-08.json` |
 | 09 | 已运行的 Redis `INFO persistence` 没有 `aof_current_size` | `attempts/b-c1-gc-09-node-metadata.stderr.log` |
-| 10 | 同 09（加长等待后确认该字段在 Redis 7 里确实不存在） | `attempts/b-c1-gc-10-node-metadata.stderr.log` |
+| 10 | 同 09（当时的判断是「Redis 7 没有该字段」，**这个判断后来被证伪**，见下方更正） | `attempts/b-c1-gc-10-node-metadata.stderr.log` |
 | 11 | 上一次失败留下的 guard 仍占着 metadata 磁盘锁 | 无（未启动实例） |
 | 12 | 改由 appendonly 目录实测大小后，Redis 报 `aof_enabled = 0` | `attempts/b-c1-gc-12-node-metadata.stderr.log` |
 | 13 | JuiceFS 二进制首次 125 MB 上传被 ssh 断开（exit 255） | `attempts/failed-13.json` |
@@ -43,6 +43,16 @@ JuiceFS `gc --threads 1` **尚未执行**。九次尝试都停在协调者/节�
 第 09 次之后协议层还有一个真实缺陷：节点进程已退出时 `NodeSession.wait` 仍等到 1 小时 deadline，导致锁和两台实例被多占。已改为「进程退出且队列为空即立即报错」。
 
 ## 已修复并保留的接口问题（`b-c1-gc-apply.py`、`b-c1-gc-node.py`）
+
+### 更正：`aof_current_size` 不是「Redis 7 没有」
+
+第 09/10 次把「`INFO persistence` 缺 `aof_current_size`」归因为 Redis 7 去掉了该字段，**这个归因是错的**。第 18 次成功窗口的 `gc-18/result.json` 与 `gc-18/node-metadata.jsonl` 里明确有：
+
+```
+"aof": {"aof_enabled": 1, "aof_current_size": 232092056, "aof_current_size_source": "info", ...}
+```
+
+字段在**原实例真正服务时存在**；它缺失只会出现在读到镜像自带那个 `appendonly no` 的实例时（`metadata-redis-diagnosis-02.json` 里 `aof_enabled: "0"`、无该字段）。所以它是「原 AOF 没在服务」的诊断信号，不是版本差异。当时的错误归因掩盖了真问题（外来实例抢占 loopback），直到第 18 次才纠正。
 
 - 协调者 guard 改为「先上传脚本再执行」，不再把多行脚本塞进 `-c`；被拒绝的 guard 也会主动释放，不再留下持锁进程。
 - 重复 `StartInstance` 前先等 `Stopped/StopCharging` 落定；运行中实例不再因残留 `StoppedMode` 被误判。
