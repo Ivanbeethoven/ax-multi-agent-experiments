@@ -1,0 +1,1757 @@
+{
+  "schema": "ax-pilot-b-c1-gc-result-v1",
+  "passed": true,
+  "at": "2026-11-12T01:15:16.186585+00:00",
+  "attempt": "b-c1-gc-del-01",
+  "automatic_retry": false,
+  "out": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-c1-gc-del-01",
+  "instances": {
+    "objects": "i-bp1bhdngko7nq3c3jrhp",
+    "metadata": "i-bp14nenf7osz9v1snsp2",
+    "client": "i-bp1fmmfkcpr8w99j2bsy"
+  },
+  "start_roles": [
+    "objects",
+    "metadata"
+  ],
+  "never_started": "i-bp1fmmfkcpr8w99j2bsy",
+  "meta_url": "redis://10.20.2.169:6379/61",
+  "gc_mode": "delete",
+  "members": {
+    "request": {
+      "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-c1-gc-del-01-request/request.json",
+      "sha256": "8037d6e13f10cd1e4c1c80da5ec3bb9d8a9c381c64a3d53788ba81a72f151355"
+    },
+    "node_script": {
+      "path": "/mnt/c/Users/HXY/.cache/ax-pilot-20261111/publish-fsync-1911-01/experiments/unified-suite/pilot-aliyun/scripts/b-c1-gc-node.py",
+      "sha256": "ff087f7d4962f31a7d889d4987d3be46b4a45e9bbfa2c98d6e0585266ea0ea71"
+    },
+    "juicefs": {
+      "path": "/srv/ax-pilot-control/assets/bin/juicefs",
+      "sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+    },
+    "quote": {
+      "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/pool-b-quote-01/quote.json",
+      "sha256": "50d4268b7185058d104448b29cfae157831f414b3d66409abae9454d53b16a18"
+    },
+    "allowlist": {
+      "path": "/mnt/c/Users/HXY/.cache/ax-pilot-20261111/publish-fsync-1911-01/experiments/unified-suite/pilot-aliyun/evidence/preparation/release-pool-b-freeze-01/result.json",
+      "sha256": "0a7c6e3751f14f3b4d0a45a30d4352bc0e232fc2e39954fec78535ce770f38cf"
+    }
+  },
+  "resource_ids": [
+    "host:i-bp1bhdngko7nq3c3jrhp",
+    "disk:d-bp1bhdngko7nq3c2i33z",
+    "disk:d-bp1bhdngko7nq3c2i340",
+    "disk:d-bp1bhdngko7nq3c2i341",
+    "disk:d-bp1bhdngko7nq3c2i342",
+    "disk:d-bp1bhdngko7nq3c2i343",
+    "host:i-bp14nenf7osz9v1snsp2",
+    "disk:d-bp14nenf7osz9v1rkk5k",
+    "disk:d-bp14nenf7osz9v1rkk5l",
+    "host:i-bp1fmmfkcpr8w99j2bsy",
+    "disk:d-bp1fmmfkcpr8w99pwgc4",
+    "disk:d-bp1fmmfkcpr8w99pwgc5"
+  ],
+  "inputs": {
+    "ledger": {
+      "client.created.json": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/cloud/pool-b-ledger/client.created.json",
+        "sha256": "f95cab4aac4029284ea5deede58090f8ae4c0f26c2e8adf85eb7f676aa6557a8"
+      },
+      "metadata.created.json": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/cloud/pool-b-ledger/metadata.created.json",
+        "sha256": "0f06163b22fd5439de9a6d02a8a488049432326247bd3d52d83323110a52a654"
+      },
+      "objects.created.json": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/cloud/pool-b-ledger/objects.created.json",
+        "sha256": "ac09f7f6bf16772be3e5e47ba1c06fcb47484352b259e54cd257c120c98dc679"
+      }
+    }
+  },
+  "cloud": {
+    "starts": {
+      "objects": {
+        "role": "objects",
+        "instance_id": "i-bp1bhdngko7nq3c3jrhp",
+        "at": "2026-11-12T01:10:29.569826+00:00",
+        "request_id": "01A1CD4E-666D-5D1C-BCF7-E9CD4A7D61FD"
+      },
+      "metadata": {
+        "role": "metadata",
+        "instance_id": "i-bp14nenf7osz9v1snsp2",
+        "at": "2026-11-12T01:10:30.856763+00:00",
+        "request_id": "01A1CD4E-6B7A-560D-B1F8-062AC7D9EBB0"
+      }
+    },
+    "running": {
+      "objects": {
+        "at": "2026-11-12T01:10:37.310058+00:00",
+        "request_id": "01A1CD4E-83A6-5718-BFFA-64CB5F90EADF"
+      },
+      "metadata": {
+        "at": "2026-11-12T01:10:37.556005+00:00",
+        "request_id": "01A1CD4E-84A9-549F-AE80-F0FE8A528B2D"
+      }
+    },
+    "stops": {
+      "objects": {
+        "role": "objects",
+        "instance_id": "i-bp1bhdngko7nq3c3jrhp",
+        "at": "2026-11-12T01:14:42.266796+00:00",
+        "request_id": "01A1CD52-4185-5D6C-AD5E-B752D23277C6",
+        "readback_request_id": "01A1CD52-80CE-56FE-B07A-01E7BD1846A8",
+        "already_stopped": false
+      },
+      "metadata": {
+        "role": "metadata",
+        "instance_id": "i-bp14nenf7osz9v1snsp2",
+        "at": "2026-11-12T01:14:58.966326+00:00",
+        "request_id": "01A1CD52-82ED-5A21-B7DA-ED6057BB15CA",
+        "readback_request_id": "01A1CD52-C565-549B-BB25-9B275EB971A6",
+        "already_stopped": false
+      }
+    },
+    "client": {
+      "moment": "after stop",
+      "at": "2026-11-12T01:15:16.154541+00:00",
+      "request_id": "01A1CD52-C66A-5129-9806-1812D4C81962",
+      "row": {
+        "AdditionalInfo": {},
+        "AutoReleaseTime": "",
+        "ClockOptions": {},
+        "ClusterId": "",
+        "Cpu": 4,
+        "CpuOptions": {
+          "CoreCount": 2,
+          "Numa": "N/A",
+          "ThreadsPerCore": 2
+        },
+        "CreationTime": "2026-11-11T04:34Z",
+        "CreditSpecification": "",
+        "DedicatedHostAttribute": {
+          "DedicatedHostClusterId": "",
+          "DedicatedHostId": "",
+          "DedicatedHostName": ""
+        },
+        "DedicatedInstanceAttribute": {
+          "Affinity": "",
+          "Tenancy": ""
+        },
+        "DeletionProtection": false,
+        "DeploymentSetId": "",
+        "Description": "",
+        "DeviceAvailable": true,
+        "EcsCapacityReservationAttr": {
+          "CapacityReservationId": "",
+          "CapacityReservationPreference": ""
+        },
+        "EipAddress": {
+          "AllocationId": "",
+          "InternetChargeType": "",
+          "IpAddress": ""
+        },
+        "ExpiredTime": "2099-12-31T15:59Z",
+        "GPUAmount": 0,
+        "GPUSpec": "",
+        "HibernationOptions": {
+          "Configured": false
+        },
+        "HostName": "ax-pilot-20261111-b-client",
+        "ImageId": "ubuntu_24_04_x64_20G_alibase_20261016.vhd",
+        "ImageOptions": {},
+        "InnerIpAddress": {
+          "IpAddress": []
+        },
+        "InstanceChargeType": "PostPaid",
+        "InstanceId": "i-bp1fmmfkcpr8w99j2bsy",
+        "InstanceName": "ax-pilot-20261111-b-client",
+        "InstanceNetworkType": "vpc",
+        "InstanceType": "ecs.u1-c1m4.xlarge",
+        "InstanceTypeFamily": "ecs.u1",
+        "InternetChargeType": "PayByTraffic",
+        "InternetMaxBandwidthIn": -1,
+        "InternetMaxBandwidthOut": 0,
+        "IoOptimized": true,
+        "KeyPairName": "ax-c1-20261106",
+        "Memory": 16384,
+        "MetadataOptions": {
+          "HttpEndpoint": "",
+          "HttpTokens": ""
+        },
+        "NetworkInterfaces": {
+          "NetworkInterface": [
+            {
+              "MacAddress": "00:16:3e:69:ac:07",
+              "NetworkInterfaceId": "eni-bp1fmmfkcpr8w99mr08r",
+              "PrimaryIpAddress": "10.20.2.171",
+              "PrivateIpSets": {
+                "PrivateIpSet": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "10.20.2.171"
+                  }
+                ]
+              },
+              "Type": "Primary"
+            }
+          ]
+        },
+        "OSName": "Ubuntu  24.04 64\u4f4d",
+        "OSNameEn": "Ubuntu  24.04 64 bit",
+        "OSType": "linux",
+        "OperationLocks": {
+          "LockReason": []
+        },
+        "PrivateDnsNameOptions": {},
+        "PublicIpAddress": {
+          "IpAddress": []
+        },
+        "Recyclable": false,
+        "RegionId": "cn-hangzhou",
+        "ResourceGroupId": "",
+        "SaleCycle": "",
+        "SecurityGroupIds": {
+          "SecurityGroupId": [
+            "sg-bp1dj06kwe2uow3nlwsx"
+          ]
+        },
+        "SecurityOptions": {},
+        "SerialNumber": "c72b65ef-736c-4eef-a44a-6997eb705ea0",
+        "SpotPriceLimit": 0.0,
+        "SpotStrategy": "NoSpot",
+        "StartTime": "2026-11-11T04:34Z",
+        "Status": "Stopped",
+        "StoppedMode": "StopCharging",
+        "Tags": {
+          "Tag": [
+            {
+              "TagKey": "campaign",
+              "TagValue": "ax-pilot-20261111-b"
+            },
+            {
+              "TagKey": "role",
+              "TagValue": "client"
+            }
+          ]
+        },
+        "VlanId": "",
+        "VpcAttributes": {
+          "NatIpAddress": "",
+          "PrivateIpAddress": {
+            "IpAddress": [
+              "10.20.2.171"
+            ]
+          },
+          "VSwitchId": "vsw-bp1x2zf92629hnyormlcp",
+          "VpcId": "vpc-bp1cvvscvaviao4vzi6co"
+        },
+        "ZoneId": "cn-hangzhou-j"
+      }
+    }
+  },
+  "configuration": {
+    "objects": {
+      "instance": {
+        "AdditionalInfo": {},
+        "AutoReleaseTime": "",
+        "ClockOptions": {},
+        "ClusterId": "",
+        "Cpu": 8,
+        "CpuOptions": {
+          "CoreCount": 4,
+          "Numa": "",
+          "ThreadsPerCore": 2
+        },
+        "CreationTime": "2026-11-11T04:34Z",
+        "CreditSpecification": "",
+        "DedicatedHostAttribute": {
+          "DedicatedHostClusterId": "",
+          "DedicatedHostId": "",
+          "DedicatedHostName": ""
+        },
+        "DedicatedInstanceAttribute": {
+          "Affinity": "",
+          "Tenancy": ""
+        },
+        "DeletionProtection": false,
+        "DeploymentSetId": "",
+        "Description": "",
+        "DeviceAvailable": true,
+        "EcsCapacityReservationAttr": {
+          "CapacityReservationId": "",
+          "CapacityReservationPreference": ""
+        },
+        "EipAddress": {
+          "AllocationId": "",
+          "InternetChargeType": "",
+          "IpAddress": ""
+        },
+        "ExpiredTime": "2099-12-31T15:59Z",
+        "GPUAmount": 0,
+        "GPUSpec": "",
+        "HibernationOptions": {
+          "Configured": false
+        },
+        "HostName": "ax-pilot-20261111-b-objects",
+        "ImageId": "ubuntu_24_04_x64_20G_alibase_20261016.vhd",
+        "ImageOptions": {},
+        "InnerIpAddress": {
+          "IpAddress": []
+        },
+        "InstanceChargeType": "PostPaid",
+        "InstanceId": "i-bp1bhdngko7nq3c3jrhp",
+        "InstanceName": "ax-pilot-20261111-b-objects",
+        "InstanceNetworkType": "vpc",
+        "InstanceType": "ecs.u1-c1m4.2xlarge",
+        "InstanceTypeFamily": "ecs.u1",
+        "InternetChargeType": "PayByTraffic",
+        "InternetMaxBandwidthIn": -1,
+        "InternetMaxBandwidthOut": 0,
+        "IoOptimized": true,
+        "KeyPairName": "ax-c1-20261106",
+        "Memory": 32768,
+        "MetadataOptions": {
+          "HttpEndpoint": "",
+          "HttpTokens": ""
+        },
+        "NetworkInterfaces": {
+          "NetworkInterface": [
+            {
+              "MacAddress": "00:16:3e:69:a6:e2",
+              "NetworkInterfaceId": "eni-bp1bhdngko7nq3c3acwc",
+              "PrimaryIpAddress": "10.20.2.170",
+              "PrivateIpSets": {
+                "PrivateIpSet": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "10.20.2.170"
+                  }
+                ]
+              },
+              "Type": "Primary"
+            }
+          ]
+        },
+        "OSName": "Ubuntu  24.04 64\u4f4d",
+        "OSNameEn": "Ubuntu  24.04 64 bit",
+        "OSType": "linux",
+        "OperationLocks": {
+          "LockReason": []
+        },
+        "PrivateDnsNameOptions": {},
+        "PublicIpAddress": {
+          "IpAddress": []
+        },
+        "Recyclable": false,
+        "RegionId": "cn-hangzhou",
+        "ResourceGroupId": "",
+        "SaleCycle": "",
+        "SecurityGroupIds": {
+          "SecurityGroupId": [
+            "sg-bp1dj06kwe2uow3nlwsx"
+          ]
+        },
+        "SecurityOptions": {},
+        "SerialNumber": "2a13e40a-0de5-423a-bd80-c2a8c6c12a08",
+        "SpotPriceLimit": 0.0,
+        "SpotStrategy": "NoSpot",
+        "StartTime": "2026-11-12T01:10Z",
+        "Status": "Running",
+        "StoppedMode": "Not-applicable",
+        "Tags": {
+          "Tag": [
+            {
+              "TagKey": "campaign",
+              "TagValue": "ax-pilot-20261111-b"
+            },
+            {
+              "TagKey": "role",
+              "TagValue": "objects"
+            }
+          ]
+        },
+        "VlanId": "",
+        "VpcAttributes": {
+          "NatIpAddress": "",
+          "PrivateIpAddress": {
+            "IpAddress": [
+              "10.20.2.170"
+            ]
+          },
+          "VSwitchId": "vsw-bp1x2zf92629hnyormlcp",
+          "VpcId": "vpc-bp1cvvscvaviao4vzi6co"
+        },
+        "ZoneId": "cn-hangzhou-j"
+      },
+      "disks": [
+        {
+          "AttachedTime": "2026-11-11T04:34:16Z",
+          "Attachments": {
+            "Attachment": [
+              {
+                "AttachedTime": "2026-11-11T04:34:16Z",
+                "Device": "/dev/xvde",
+                "InstanceId": "i-bp1bhdngko7nq3c3jrhp"
+              }
+            ]
+          },
+          "AutoSnapshotPolicyId": "",
+          "BdfId": "",
+          "Category": "cloud_essd",
+          "CreationTime": "2026-11-11T04:34:14Z",
+          "DataSource": {},
+          "DeleteAutoSnapshot": false,
+          "DeleteWithInstance": true,
+          "Description": "",
+          "DetachedTime": "",
+          "Device": "/dev/xvde",
+          "DiskChargeType": "PostPaid",
+          "DiskId": "d-bp1bhdngko7nq3c2i343",
+          "DiskName": "",
+          "EnableAutoSnapshot": true,
+          "EnableAutomatedSnapshotPolicy": false,
+          "Encrypted": false,
+          "ExpiredTime": "2999-09-08T16:00Z",
+          "IOPS": 4800,
+          "ImageId": "",
+          "InstanceId": "i-bp1bhdngko7nq3c3jrhp",
+          "KMSKeyId": "",
+          "MultiAttach": "Disabled",
+          "OperationLocks": {
+            "OperationLock": []
+          },
+          "PerformanceLevel": "PL1",
+          "Placement": {},
+          "Portable": true,
+          "ProductCode": "",
+          "RegionId": "cn-hangzhou",
+          "ResourceGroupId": "",
+          "SerialNumber": "bp1bhdngko7nq3c2i343",
+          "Size": 60,
+          "SourceSnapshotId": "",
+          "Status": "In_use",
+          "StorageClusterId": "",
+          "StorageSetId": "",
+          "Tags": {
+            "Tag": [
+              {
+                "TagKey": "campaign",
+                "TagValue": "ax-pilot-20261111-b"
+              },
+              {
+                "TagKey": "role",
+                "TagValue": "objects"
+              }
+            ]
+          },
+          "Throughput": 150,
+          "Type": "data",
+          "ZoneId": "cn-hangzhou-j"
+        },
+        {
+          "AttachedTime": "2026-11-11T04:34:16Z",
+          "Attachments": {
+            "Attachment": [
+              {
+                "AttachedTime": "2026-11-11T04:34:16Z",
+                "Device": "/dev/xvdd",
+                "InstanceId": "i-bp1bhdngko7nq3c3jrhp"
+              }
+            ]
+          },
+          "AutoSnapshotPolicyId": "",
+          "BdfId": "",
+          "Category": "cloud_essd",
+          "CreationTime": "2026-11-11T04:34:14Z",
+          "DataSource": {},
+          "DeleteAutoSnapshot": false,
+          "DeleteWithInstance": true,
+          "Description": "",
+          "DetachedTime": "",
+          "Device": "/dev/xvdd",
+          "DiskChargeType": "PostPaid",
+          "DiskId": "d-bp1bhdngko7nq3c2i342",
+          "DiskName": "",
+          "EnableAutoSnapshot": true,
+          "EnableAutomatedSnapshotPolicy": false,
+          "Encrypted": false,
+          "ExpiredTime": "2999-09-08T16:00Z",
+          "IOPS": 4800,
+          "ImageId": "",
+          "InstanceId": "i-bp1bhdngko7nq3c3jrhp",
+          "KMSKeyId": "",
+          "MultiAttach": "Disabled",
+          "OperationLocks": {
+            "OperationLock": []
+          },
+          "PerformanceLevel": "PL1",
+          "Placement": {},
+          "Portable": true,
+          "ProductCode": "",
+          "RegionId": "cn-hangzhou",
+          "ResourceGroupId": "",
+          "SerialNumber": "bp1bhdngko7nq3c2i342",
+          "Size": 60,
+          "SourceSnapshotId": "",
+          "Status": "In_use",
+          "StorageClusterId": "",
+          "StorageSetId": "",
+          "Tags": {
+            "Tag": [
+              {
+                "TagKey": "campaign",
+                "TagValue": "ax-pilot-20261111-b"
+              },
+              {
+                "TagKey": "role",
+                "TagValue": "objects"
+              }
+            ]
+          },
+          "Throughput": 150,
+          "Type": "data",
+          "ZoneId": "cn-hangzhou-j"
+        },
+        {
+          "AttachedTime": "2026-11-11T04:34:16Z",
+          "Attachments": {
+            "Attachment": [
+              {
+                "AttachedTime": "2026-11-11T04:34:16Z",
+                "Device": "/dev/xvdc",
+                "InstanceId": "i-bp1bhdngko7nq3c3jrhp"
+              }
+            ]
+          },
+          "AutoSnapshotPolicyId": "",
+          "BdfId": "",
+          "Category": "cloud_essd",
+          "CreationTime": "2026-11-11T04:34:14Z",
+          "DataSource": {},
+          "DeleteAutoSnapshot": false,
+          "DeleteWithInstance": true,
+          "Description": "",
+          "DetachedTime": "",
+          "Device": "/dev/xvdc",
+          "DiskChargeType": "PostPaid",
+          "DiskId": "d-bp1bhdngko7nq3c2i341",
+          "DiskName": "",
+          "EnableAutoSnapshot": true,
+          "EnableAutomatedSnapshotPolicy": false,
+          "Encrypted": false,
+          "ExpiredTime": "2999-09-08T16:00Z",
+          "IOPS": 4800,
+          "ImageId": "",
+          "InstanceId": "i-bp1bhdngko7nq3c3jrhp",
+          "KMSKeyId": "",
+          "MultiAttach": "Disabled",
+          "OperationLocks": {
+            "OperationLock": []
+          },
+          "PerformanceLevel": "PL1",
+          "Placement": {},
+          "Portable": true,
+          "ProductCode": "",
+          "RegionId": "cn-hangzhou",
+          "ResourceGroupId": "",
+          "SerialNumber": "bp1bhdngko7nq3c2i341",
+          "Size": 60,
+          "SourceSnapshotId": "",
+          "Status": "In_use",
+          "StorageClusterId": "",
+          "StorageSetId": "",
+          "Tags": {
+            "Tag": [
+              {
+                "TagKey": "campaign",
+                "TagValue": "ax-pilot-20261111-b"
+              },
+              {
+                "TagKey": "role",
+                "TagValue": "objects"
+              }
+            ]
+          },
+          "Throughput": 150,
+          "Type": "data",
+          "ZoneId": "cn-hangzhou-j"
+        },
+        {
+          "AttachedTime": "2026-11-11T04:34:16Z",
+          "Attachments": {
+            "Attachment": [
+              {
+                "AttachedTime": "2026-11-11T04:34:16Z",
+                "Device": "/dev/xvdb",
+                "InstanceId": "i-bp1bhdngko7nq3c3jrhp"
+              }
+            ]
+          },
+          "AutoSnapshotPolicyId": "",
+          "BdfId": "",
+          "Category": "cloud_essd",
+          "CreationTime": "2026-11-11T04:34:14Z",
+          "DataSource": {},
+          "DeleteAutoSnapshot": false,
+          "DeleteWithInstance": true,
+          "Description": "",
+          "DetachedTime": "",
+          "Device": "/dev/xvdb",
+          "DiskChargeType": "PostPaid",
+          "DiskId": "d-bp1bhdngko7nq3c2i340",
+          "DiskName": "",
+          "EnableAutoSnapshot": true,
+          "EnableAutomatedSnapshotPolicy": false,
+          "Encrypted": false,
+          "ExpiredTime": "2999-09-08T16:00Z",
+          "IOPS": 4800,
+          "ImageId": "",
+          "InstanceId": "i-bp1bhdngko7nq3c3jrhp",
+          "KMSKeyId": "",
+          "MultiAttach": "Disabled",
+          "OperationLocks": {
+            "OperationLock": []
+          },
+          "PerformanceLevel": "PL1",
+          "Placement": {},
+          "Portable": true,
+          "ProductCode": "",
+          "RegionId": "cn-hangzhou",
+          "ResourceGroupId": "",
+          "SerialNumber": "bp1bhdngko7nq3c2i340",
+          "Size": 60,
+          "SourceSnapshotId": "",
+          "Status": "In_use",
+          "StorageClusterId": "",
+          "StorageSetId": "",
+          "Tags": {
+            "Tag": [
+              {
+                "TagKey": "campaign",
+                "TagValue": "ax-pilot-20261111-b"
+              },
+              {
+                "TagKey": "role",
+                "TagValue": "objects"
+              }
+            ]
+          },
+          "Throughput": 150,
+          "Type": "data",
+          "ZoneId": "cn-hangzhou-j"
+        },
+        {
+          "AttachedTime": "2026-11-11T04:34:16Z",
+          "Attachments": {
+            "Attachment": [
+              {
+                "AttachedTime": "2026-11-11T04:34:16Z",
+                "Device": "/dev/xvda",
+                "InstanceId": "i-bp1bhdngko7nq3c3jrhp"
+              }
+            ]
+          },
+          "AutoSnapshotPolicyId": "",
+          "BdfId": "",
+          "Category": "cloud_essd",
+          "CreationTime": "2026-11-11T04:34:14Z",
+          "DataSource": {},
+          "DeleteAutoSnapshot": false,
+          "DeleteWithInstance": true,
+          "Description": "",
+          "DetachedTime": "",
+          "Device": "/dev/xvda",
+          "DiskChargeType": "PostPaid",
+          "DiskId": "d-bp1bhdngko7nq3c2i33z",
+          "DiskName": "",
+          "EnableAutoSnapshot": true,
+          "EnableAutomatedSnapshotPolicy": false,
+          "Encrypted": false,
+          "ExpiredTime": "2999-09-08T16:00Z",
+          "IOPS": 2280,
+          "ImageId": "ubuntu_24_04_x64_20G_alibase_20261016.vhd",
+          "InstanceId": "i-bp1bhdngko7nq3c3jrhp",
+          "KMSKeyId": "",
+          "MultiAttach": "Disabled",
+          "OperationLocks": {
+            "OperationLock": []
+          },
+          "PerformanceLevel": "PL0",
+          "Placement": {},
+          "Portable": true,
+          "ProductCode": "",
+          "RegionId": "cn-hangzhou",
+          "ResourceGroupId": "",
+          "SerialNumber": "bp1bhdngko7nq3c2i33z",
+          "Size": 40,
+          "SourceSnapshotId": "",
+          "Status": "In_use",
+          "StorageClusterId": "",
+          "StorageSetId": "",
+          "Tags": {
+            "Tag": [
+              {
+                "TagKey": "campaign",
+                "TagValue": "ax-pilot-20261111-b"
+              },
+              {
+                "TagKey": "role",
+                "TagValue": "objects"
+              }
+            ]
+          },
+          "Throughput": 110,
+          "Type": "system",
+          "ZoneId": "cn-hangzhou-j"
+        }
+      ]
+    },
+    "metadata": {
+      "instance": {
+        "AdditionalInfo": {},
+        "AutoReleaseTime": "",
+        "ClockOptions": {},
+        "ClusterId": "",
+        "Cpu": 4,
+        "CpuOptions": {
+          "CoreCount": 2,
+          "Numa": "N/A",
+          "ThreadsPerCore": 2
+        },
+        "CreationTime": "2026-11-11T04:34Z",
+        "CreditSpecification": "",
+        "DedicatedHostAttribute": {
+          "DedicatedHostClusterId": "",
+          "DedicatedHostId": "",
+          "DedicatedHostName": ""
+        },
+        "DedicatedInstanceAttribute": {
+          "Affinity": "",
+          "Tenancy": ""
+        },
+        "DeletionProtection": false,
+        "DeploymentSetId": "",
+        "Description": "",
+        "DeviceAvailable": true,
+        "EcsCapacityReservationAttr": {
+          "CapacityReservationId": "",
+          "CapacityReservationPreference": ""
+        },
+        "EipAddress": {
+          "AllocationId": "",
+          "InternetChargeType": "",
+          "IpAddress": ""
+        },
+        "ExpiredTime": "2099-12-31T15:59Z",
+        "GPUAmount": 0,
+        "GPUSpec": "",
+        "HibernationOptions": {
+          "Configured": false
+        },
+        "HostName": "ax-pilot-20261111-b-metadata",
+        "ImageId": "ubuntu_24_04_x64_20G_alibase_20261016.vhd",
+        "ImageOptions": {},
+        "InnerIpAddress": {
+          "IpAddress": []
+        },
+        "InstanceChargeType": "PostPaid",
+        "InstanceId": "i-bp14nenf7osz9v1snsp2",
+        "InstanceName": "ax-pilot-20261111-b-metadata",
+        "InstanceNetworkType": "vpc",
+        "InstanceType": "ecs.u1-c1m4.xlarge",
+        "InstanceTypeFamily": "ecs.u1",
+        "InternetChargeType": "PayByTraffic",
+        "InternetMaxBandwidthIn": -1,
+        "InternetMaxBandwidthOut": 0,
+        "IoOptimized": true,
+        "KeyPairName": "ax-c1-20261106",
+        "Memory": 16384,
+        "MetadataOptions": {
+          "HttpEndpoint": "",
+          "HttpTokens": ""
+        },
+        "NetworkInterfaces": {
+          "NetworkInterface": [
+            {
+              "MacAddress": "00:16:3e:69:9c:bf",
+              "NetworkInterfaceId": "eni-bp14nenf7osz9v1vx3o8",
+              "PrimaryIpAddress": "10.20.2.169",
+              "PrivateIpSets": {
+                "PrivateIpSet": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "10.20.2.169"
+                  }
+                ]
+              },
+              "Type": "Primary"
+            }
+          ]
+        },
+        "OSName": "Ubuntu  24.04 64\u4f4d",
+        "OSNameEn": "Ubuntu  24.04 64 bit",
+        "OSType": "linux",
+        "OperationLocks": {
+          "LockReason": []
+        },
+        "PrivateDnsNameOptions": {},
+        "PublicIpAddress": {
+          "IpAddress": []
+        },
+        "Recyclable": false,
+        "RegionId": "cn-hangzhou",
+        "ResourceGroupId": "",
+        "SaleCycle": "",
+        "SecurityGroupIds": {
+          "SecurityGroupId": [
+            "sg-bp1dj06kwe2uow3nlwsx"
+          ]
+        },
+        "SecurityOptions": {},
+        "SerialNumber": "15883b67-dda1-4070-9834-72788e718cf3",
+        "SpotPriceLimit": 0.0,
+        "SpotStrategy": "NoSpot",
+        "StartTime": "2026-11-12T01:10Z",
+        "Status": "Running",
+        "StoppedMode": "Not-applicable",
+        "Tags": {
+          "Tag": [
+            {
+              "TagKey": "campaign",
+              "TagValue": "ax-pilot-20261111-b"
+            },
+            {
+              "TagKey": "role",
+              "TagValue": "metadata"
+            }
+          ]
+        },
+        "VlanId": "",
+        "VpcAttributes": {
+          "NatIpAddress": "",
+          "PrivateIpAddress": {
+            "IpAddress": [
+              "10.20.2.169"
+            ]
+          },
+          "VSwitchId": "vsw-bp1x2zf92629hnyormlcp",
+          "VpcId": "vpc-bp1cvvscvaviao4vzi6co"
+        },
+        "ZoneId": "cn-hangzhou-j"
+      },
+      "disks": [
+        {
+          "AttachedTime": "2026-11-11T04:34:10Z",
+          "Attachments": {
+            "Attachment": [
+              {
+                "AttachedTime": "2026-11-11T04:34:10Z",
+                "Device": "/dev/xvdb",
+                "InstanceId": "i-bp14nenf7osz9v1snsp2"
+              }
+            ]
+          },
+          "AutoSnapshotPolicyId": "",
+          "BdfId": "",
+          "Category": "cloud_essd",
+          "CreationTime": "2026-11-11T04:34:08Z",
+          "DataSource": {},
+          "DeleteAutoSnapshot": false,
+          "DeleteWithInstance": true,
+          "Description": "",
+          "DetachedTime": "",
+          "Device": "/dev/xvdb",
+          "DiskChargeType": "PostPaid",
+          "DiskId": "d-bp14nenf7osz9v1rkk5l",
+          "DiskName": "",
+          "EnableAutoSnapshot": true,
+          "EnableAutomatedSnapshotPolicy": false,
+          "Encrypted": false,
+          "ExpiredTime": "2999-09-08T16:00Z",
+          "IOPS": 4800,
+          "ImageId": "",
+          "InstanceId": "i-bp14nenf7osz9v1snsp2",
+          "KMSKeyId": "",
+          "MultiAttach": "Disabled",
+          "OperationLocks": {
+            "OperationLock": []
+          },
+          "PerformanceLevel": "PL1",
+          "Placement": {},
+          "Portable": true,
+          "ProductCode": "",
+          "RegionId": "cn-hangzhou",
+          "ResourceGroupId": "",
+          "SerialNumber": "bp14nenf7osz9v1rkk5l",
+          "Size": 60,
+          "SourceSnapshotId": "",
+          "Status": "In_use",
+          "StorageClusterId": "",
+          "StorageSetId": "",
+          "Tags": {
+            "Tag": [
+              {
+                "TagKey": "campaign",
+                "TagValue": "ax-pilot-20261111-b"
+              },
+              {
+                "TagKey": "role",
+                "TagValue": "metadata"
+              }
+            ]
+          },
+          "Throughput": 150,
+          "Type": "data",
+          "ZoneId": "cn-hangzhou-j"
+        },
+        {
+          "AttachedTime": "2026-11-11T04:34:10Z",
+          "Attachments": {
+            "Attachment": [
+              {
+                "AttachedTime": "2026-11-11T04:34:10Z",
+                "Device": "/dev/xvda",
+                "InstanceId": "i-bp14nenf7osz9v1snsp2"
+              }
+            ]
+          },
+          "AutoSnapshotPolicyId": "",
+          "BdfId": "",
+          "Category": "cloud_essd",
+          "CreationTime": "2026-11-11T04:34:08Z",
+          "DataSource": {},
+          "DeleteAutoSnapshot": false,
+          "DeleteWithInstance": true,
+          "Description": "",
+          "DetachedTime": "",
+          "Device": "/dev/xvda",
+          "DiskChargeType": "PostPaid",
+          "DiskId": "d-bp14nenf7osz9v1rkk5k",
+          "DiskName": "",
+          "EnableAutoSnapshot": true,
+          "EnableAutomatedSnapshotPolicy": false,
+          "Encrypted": false,
+          "ExpiredTime": "2999-09-08T16:00Z",
+          "IOPS": 2280,
+          "ImageId": "ubuntu_24_04_x64_20G_alibase_20261016.vhd",
+          "InstanceId": "i-bp14nenf7osz9v1snsp2",
+          "KMSKeyId": "",
+          "MultiAttach": "Disabled",
+          "OperationLocks": {
+            "OperationLock": []
+          },
+          "PerformanceLevel": "PL0",
+          "Placement": {},
+          "Portable": true,
+          "ProductCode": "",
+          "RegionId": "cn-hangzhou",
+          "ResourceGroupId": "",
+          "SerialNumber": "bp14nenf7osz9v1rkk5k",
+          "Size": 40,
+          "SourceSnapshotId": "",
+          "Status": "In_use",
+          "StorageClusterId": "",
+          "StorageSetId": "",
+          "Tags": {
+            "Tag": [
+              {
+                "TagKey": "campaign",
+                "TagValue": "ax-pilot-20261111-b"
+              },
+              {
+                "TagKey": "role",
+                "TagValue": "metadata"
+              }
+            ]
+          },
+          "Throughput": 110,
+          "Type": "system",
+          "ZoneId": "cn-hangzhou-j"
+        }
+      ]
+    },
+    "client": {
+      "instance": {
+        "AdditionalInfo": {},
+        "AutoReleaseTime": "",
+        "ClockOptions": {},
+        "ClusterId": "",
+        "Cpu": 4,
+        "CpuOptions": {
+          "CoreCount": 2,
+          "Numa": "N/A",
+          "ThreadsPerCore": 2
+        },
+        "CreationTime": "2026-11-11T04:34Z",
+        "CreditSpecification": "",
+        "DedicatedHostAttribute": {
+          "DedicatedHostClusterId": "",
+          "DedicatedHostId": "",
+          "DedicatedHostName": ""
+        },
+        "DedicatedInstanceAttribute": {
+          "Affinity": "",
+          "Tenancy": ""
+        },
+        "DeletionProtection": false,
+        "DeploymentSetId": "",
+        "Description": "",
+        "DeviceAvailable": true,
+        "EcsCapacityReservationAttr": {
+          "CapacityReservationId": "",
+          "CapacityReservationPreference": ""
+        },
+        "EipAddress": {
+          "AllocationId": "",
+          "InternetChargeType": "",
+          "IpAddress": ""
+        },
+        "ExpiredTime": "2099-12-31T15:59Z",
+        "GPUAmount": 0,
+        "GPUSpec": "",
+        "HibernationOptions": {
+          "Configured": false
+        },
+        "HostName": "ax-pilot-20261111-b-client",
+        "ImageId": "ubuntu_24_04_x64_20G_alibase_20261016.vhd",
+        "ImageOptions": {},
+        "InnerIpAddress": {
+          "IpAddress": []
+        },
+        "InstanceChargeType": "PostPaid",
+        "InstanceId": "i-bp1fmmfkcpr8w99j2bsy",
+        "InstanceName": "ax-pilot-20261111-b-client",
+        "InstanceNetworkType": "vpc",
+        "InstanceType": "ecs.u1-c1m4.xlarge",
+        "InstanceTypeFamily": "ecs.u1",
+        "InternetChargeType": "PayByTraffic",
+        "InternetMaxBandwidthIn": -1,
+        "InternetMaxBandwidthOut": 0,
+        "IoOptimized": true,
+        "KeyPairName": "ax-c1-20261106",
+        "Memory": 16384,
+        "MetadataOptions": {
+          "HttpEndpoint": "",
+          "HttpTokens": ""
+        },
+        "NetworkInterfaces": {
+          "NetworkInterface": [
+            {
+              "MacAddress": "00:16:3e:69:ac:07",
+              "NetworkInterfaceId": "eni-bp1fmmfkcpr8w99mr08r",
+              "PrimaryIpAddress": "10.20.2.171",
+              "PrivateIpSets": {
+                "PrivateIpSet": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "10.20.2.171"
+                  }
+                ]
+              },
+              "Type": "Primary"
+            }
+          ]
+        },
+        "OSName": "Ubuntu  24.04 64\u4f4d",
+        "OSNameEn": "Ubuntu  24.04 64 bit",
+        "OSType": "linux",
+        "OperationLocks": {
+          "LockReason": []
+        },
+        "PrivateDnsNameOptions": {},
+        "PublicIpAddress": {
+          "IpAddress": []
+        },
+        "Recyclable": false,
+        "RegionId": "cn-hangzhou",
+        "ResourceGroupId": "",
+        "SaleCycle": "",
+        "SecurityGroupIds": {
+          "SecurityGroupId": [
+            "sg-bp1dj06kwe2uow3nlwsx"
+          ]
+        },
+        "SecurityOptions": {},
+        "SerialNumber": "c72b65ef-736c-4eef-a44a-6997eb705ea0",
+        "SpotPriceLimit": 0.0,
+        "SpotStrategy": "NoSpot",
+        "StartTime": "2026-11-11T04:34Z",
+        "Status": "Stopped",
+        "StoppedMode": "StopCharging",
+        "Tags": {
+          "Tag": [
+            {
+              "TagKey": "campaign",
+              "TagValue": "ax-pilot-20261111-b"
+            },
+            {
+              "TagKey": "role",
+              "TagValue": "client"
+            }
+          ]
+        },
+        "VlanId": "",
+        "VpcAttributes": {
+          "NatIpAddress": "",
+          "PrivateIpAddress": {
+            "IpAddress": [
+              "10.20.2.171"
+            ]
+          },
+          "VSwitchId": "vsw-bp1x2zf92629hnyormlcp",
+          "VpcId": "vpc-bp1cvvscvaviao4vzi6co"
+        },
+        "ZoneId": "cn-hangzhou-j"
+      },
+      "disks": [
+        {
+          "AttachedTime": "2026-11-11T04:34:21Z",
+          "Attachments": {
+            "Attachment": [
+              {
+                "AttachedTime": "2026-11-11T04:34:21Z",
+                "Device": "/dev/xvdb",
+                "InstanceId": "i-bp1fmmfkcpr8w99j2bsy"
+              }
+            ]
+          },
+          "AutoSnapshotPolicyId": "",
+          "BdfId": "",
+          "Category": "cloud_essd",
+          "CreationTime": "2026-11-11T04:34:20Z",
+          "DataSource": {},
+          "DeleteAutoSnapshot": false,
+          "DeleteWithInstance": true,
+          "Description": "",
+          "DetachedTime": "",
+          "Device": "/dev/xvdb",
+          "DiskChargeType": "PostPaid",
+          "DiskId": "d-bp1fmmfkcpr8w99pwgc5",
+          "DiskName": "",
+          "EnableAutoSnapshot": true,
+          "EnableAutomatedSnapshotPolicy": false,
+          "Encrypted": false,
+          "ExpiredTime": "2999-09-08T16:00Z",
+          "IOPS": 6800,
+          "ImageId": "",
+          "InstanceId": "i-bp1fmmfkcpr8w99j2bsy",
+          "KMSKeyId": "",
+          "MultiAttach": "Disabled",
+          "OperationLocks": {
+            "OperationLock": []
+          },
+          "PerformanceLevel": "PL1",
+          "Placement": {},
+          "Portable": true,
+          "ProductCode": "",
+          "RegionId": "cn-hangzhou",
+          "ResourceGroupId": "",
+          "SerialNumber": "bp1fmmfkcpr8w99pwgc5",
+          "Size": 100,
+          "SourceSnapshotId": "",
+          "Status": "In_use",
+          "StorageClusterId": "",
+          "StorageSetId": "",
+          "Tags": {
+            "Tag": [
+              {
+                "TagKey": "campaign",
+                "TagValue": "ax-pilot-20261111-b"
+              },
+              {
+                "TagKey": "role",
+                "TagValue": "client"
+              }
+            ]
+          },
+          "Throughput": 170,
+          "Type": "data",
+          "ZoneId": "cn-hangzhou-j"
+        },
+        {
+          "AttachedTime": "2026-11-11T04:34:22Z",
+          "Attachments": {
+            "Attachment": [
+              {
+                "AttachedTime": "2026-11-11T04:34:22Z",
+                "Device": "/dev/xvda",
+                "InstanceId": "i-bp1fmmfkcpr8w99j2bsy"
+              }
+            ]
+          },
+          "AutoSnapshotPolicyId": "",
+          "BdfId": "",
+          "Category": "cloud_essd",
+          "CreationTime": "2026-11-11T04:34:20Z",
+          "DataSource": {},
+          "DeleteAutoSnapshot": false,
+          "DeleteWithInstance": true,
+          "Description": "",
+          "DetachedTime": "",
+          "Device": "/dev/xvda",
+          "DiskChargeType": "PostPaid",
+          "DiskId": "d-bp1fmmfkcpr8w99pwgc4",
+          "DiskName": "",
+          "EnableAutoSnapshot": true,
+          "EnableAutomatedSnapshotPolicy": false,
+          "Encrypted": false,
+          "ExpiredTime": "2999-09-08T16:00Z",
+          "IOPS": 2280,
+          "ImageId": "ubuntu_24_04_x64_20G_alibase_20261016.vhd",
+          "InstanceId": "i-bp1fmmfkcpr8w99j2bsy",
+          "KMSKeyId": "",
+          "MultiAttach": "Disabled",
+          "OperationLocks": {
+            "OperationLock": []
+          },
+          "PerformanceLevel": "PL0",
+          "Placement": {},
+          "Portable": true,
+          "ProductCode": "",
+          "RegionId": "cn-hangzhou",
+          "ResourceGroupId": "",
+          "SerialNumber": "bp1fmmfkcpr8w99pwgc4",
+          "Size": 40,
+          "SourceSnapshotId": "",
+          "Status": "In_use",
+          "StorageClusterId": "",
+          "StorageSetId": "",
+          "Tags": {
+            "Tag": [
+              {
+                "TagKey": "campaign",
+                "TagValue": "ax-pilot-20261111-b"
+              },
+              {
+                "TagKey": "role",
+                "TagValue": "client"
+              }
+            ]
+          },
+          "Throughput": 110,
+          "Type": "system",
+          "ZoneId": "cn-hangzhou-j"
+        }
+      ]
+    }
+  },
+  "nodes": {
+    "ready": {
+      "objects": {
+        "status": "ready",
+        "role": "objects",
+        "instance": "i-bp1bhdngko7nq3c3jrhp",
+        "boot_id": "5cffba74-6a41-46b2-ad63-aa717c316e8a",
+        "attempt": "b-c1-gc-del-01",
+        "capacity": [
+          {
+            "path": "/srv/ax-objects-0",
+            "device": "/dev/vdb",
+            "serial": "bp1bhdngko7nq3c2i340",
+            "f_bfree": 752271,
+            "f_ffree": 15014514,
+            "block_bytes": 4096,
+            "available_bytes": 3064524800,
+            "total_bytes": 60070604800,
+            "available_inodes": 15014514,
+            "total_inodes": 15728640,
+            "st_dev": 64784
+          },
+          {
+            "path": "/srv/ax-objects-1",
+            "device": "/dev/vdc",
+            "serial": "bp1bhdngko7nq3c2i341",
+            "f_bfree": 5391562,
+            "f_ffree": 15181150,
+            "block_bytes": 4096,
+            "available_bytes": 22067060736,
+            "total_bytes": 60070604800,
+            "available_inodes": 15181150,
+            "total_inodes": 15728640,
+            "st_dev": 64800
+          },
+          {
+            "path": "/srv/ax-objects-2",
+            "device": "/dev/vdd",
+            "serial": "bp1bhdngko7nq3c2i342",
+            "f_bfree": 5391590,
+            "f_ffree": 15181054,
+            "block_bytes": 4096,
+            "available_bytes": 22067175424,
+            "total_bytes": 60070604800,
+            "available_inodes": 15181054,
+            "total_inodes": 15728640,
+            "st_dev": 64816
+          },
+          {
+            "path": "/srv/ax-objects-3",
+            "device": "/dev/vde",
+            "serial": "bp1bhdngko7nq3c2i343",
+            "f_bfree": 5391740,
+            "f_ffree": 15181558,
+            "block_bytes": 4096,
+            "available_bytes": 22067789824,
+            "total_bytes": 60070604800,
+            "available_inodes": 15181558,
+            "total_inodes": 15728640,
+            "st_dev": 64832
+          }
+        ],
+        "usage": [
+          {
+            "path": "/srv/ax-objects-0",
+            "du_bytes": 56989388800,
+            "files": 438025
+          },
+          {
+            "path": "/srv/ax-objects-1",
+            "du_bytes": 37986762752,
+            "files": 273645
+          },
+          {
+            "path": "/srv/ax-objects-2",
+            "du_bytes": 37987065856,
+            "files": 273713
+          },
+          {
+            "path": "/srv/ax-objects-3",
+            "du_bytes": 37986451456,
+            "files": 273377
+          }
+        ]
+      },
+      "metadata": {
+        "status": "ready",
+        "role": "metadata",
+        "instance": "i-bp14nenf7osz9v1snsp2",
+        "boot_id": "48c55ecc-6ff1-44df-9cfc-34561e2c000d",
+        "attempt": "b-c1-gc-del-01",
+        "capacity": [
+          {
+            "path": "/srv/ax-metadata",
+            "device": "/dev/vdb",
+            "serial": "bp14nenf7osz9v1rkk5l",
+            "f_bfree": 14468678,
+            "f_ffree": 15607586,
+            "block_bytes": 4096,
+            "available_bytes": 59246927872,
+            "total_bytes": 60070604800,
+            "available_inodes": 15607586,
+            "total_inodes": 15728640,
+            "st_dev": 64784
+          }
+        ],
+        "usage": [
+          {
+            "path": "/srv/ax-metadata",
+            "du_bytes": 806895616,
+            "files": 116680
+          }
+        ],
+        "aof": {
+          "stage": "baseline",
+          "before": {
+            "path": "/srv/ax-metadata/redis",
+            "device": 64784,
+            "manifest": {
+              "name": "appendonly.aof.manifest",
+              "size": 88,
+              "mtime_ns": 1794392826959252910,
+              "sha256": "0237c5a6eb225bf371284e580ad1aaa8eba94927815f571da72a6cac92f6d1b9"
+            },
+            "parts": [
+              {
+                "name": "appendonly.aof.8.base.rdb",
+                "type": "b",
+                "size": 205782565,
+                "mtime_ns": 1794392826924252756,
+                "sha256": "b81d50aa79d48ef506ee6207fb352df5d0b70577c772b4170aa76d6f44767832"
+              },
+              {
+                "name": "appendonly.aof.8.incr.aof",
+                "type": "i",
+                "size": 26309491,
+                "mtime_ns": 1794402416642144759,
+                "sha256": "24762de6053bc0c2b7ee3996a8d9b5d9d00bf8c992f235bd9a973060b67ea1c1"
+              }
+            ],
+            "sha256": "f815a6d6c222d5171e6472a5bca14acf184e18aa839d1d051713c5115b18d691"
+          },
+          "after": {
+            "path": "/srv/ax-metadata/redis",
+            "device": 64784,
+            "manifest": {
+              "name": "appendonly.aof.manifest",
+              "size": 88,
+              "mtime_ns": 1794392826959252910,
+              "sha256": "0237c5a6eb225bf371284e580ad1aaa8eba94927815f571da72a6cac92f6d1b9"
+            },
+            "parts": [
+              {
+                "name": "appendonly.aof.8.base.rdb",
+                "type": "b",
+                "size": 205782565,
+                "mtime_ns": 1794392826924252756,
+                "sha256": "b81d50aa79d48ef506ee6207fb352df5d0b70577c772b4170aa76d6f44767832"
+              },
+              {
+                "name": "appendonly.aof.8.incr.aof",
+                "type": "i",
+                "size": 26309491,
+                "mtime_ns": 1794402416642144759,
+                "sha256": "24762de6053bc0c2b7ee3996a8d9b5d9d00bf8c992f235bd9a973060b67ea1c1"
+              }
+            ],
+            "sha256": "f815a6d6c222d5171e6472a5bca14acf184e18aa839d1d051713c5115b18d691"
+          },
+          "delta": {
+            "changed": false,
+            "removed": [],
+            "added": [],
+            "shrunk": [],
+            "rewritten": [],
+            "touched": []
+          },
+          "unchanged": true
+        },
+        "redis": {
+          "clients": {
+            "probe_connections": 1,
+            "peers": 0,
+            "suspect": [],
+            "connected_clients": 1
+          },
+          "aof": {
+            "aof_enabled": 1,
+            "aof_current_size": 232092056,
+            "aof_current_size_source": "info",
+            "aof_rewrite_in_progress": 0,
+            "aof_last_write_status": "ok",
+            "aof_base_size": 205782565
+          }
+        },
+        "redis_preparation": {
+          "actions": [
+            {
+              "stopped_unit": "redis-server"
+            },
+            {
+              "started_unit": "ax-pilot-redis.service"
+            }
+          ],
+          "running": true,
+          "effective": {
+            "appendonly": "yes",
+            "databases": "256",
+            "dir": "/srv/ax-metadata/redis",
+            "bind": "127.0.0.1 10.20.2.169"
+          }
+        }
+      }
+    },
+    "verify_before": {
+      "status": "verify",
+      "role": "metadata",
+      "stage": "before",
+      "aof": {
+        "stage": "before",
+        "before": {
+          "path": "/srv/ax-metadata/redis",
+          "device": 64784,
+          "manifest": {
+            "name": "appendonly.aof.manifest",
+            "size": 88,
+            "mtime_ns": 1794392826959252910,
+            "sha256": "0237c5a6eb225bf371284e580ad1aaa8eba94927815f571da72a6cac92f6d1b9"
+          },
+          "parts": [
+            {
+              "name": "appendonly.aof.8.base.rdb",
+              "type": "b",
+              "size": 205782565,
+              "mtime_ns": 1794392826924252756,
+              "sha256": "b81d50aa79d48ef506ee6207fb352df5d0b70577c772b4170aa76d6f44767832"
+            },
+            {
+              "name": "appendonly.aof.8.incr.aof",
+              "type": "i",
+              "size": 26309491,
+              "mtime_ns": 1794402416642144759,
+              "sha256": "24762de6053bc0c2b7ee3996a8d9b5d9d00bf8c992f235bd9a973060b67ea1c1"
+            }
+          ],
+          "sha256": "f815a6d6c222d5171e6472a5bca14acf184e18aa839d1d051713c5115b18d691"
+        },
+        "after": {
+          "path": "/srv/ax-metadata/redis",
+          "device": 64784,
+          "manifest": {
+            "name": "appendonly.aof.manifest",
+            "size": 88,
+            "mtime_ns": 1794392826959252910,
+            "sha256": "0237c5a6eb225bf371284e580ad1aaa8eba94927815f571da72a6cac92f6d1b9"
+          },
+          "parts": [
+            {
+              "name": "appendonly.aof.8.base.rdb",
+              "type": "b",
+              "size": 205782565,
+              "mtime_ns": 1794392826924252756,
+              "sha256": "b81d50aa79d48ef506ee6207fb352df5d0b70577c772b4170aa76d6f44767832"
+            },
+            {
+              "name": "appendonly.aof.8.incr.aof",
+              "type": "i",
+              "size": 26309491,
+              "mtime_ns": 1794402416642144759,
+              "sha256": "24762de6053bc0c2b7ee3996a8d9b5d9d00bf8c992f235bd9a973060b67ea1c1"
+            }
+          ],
+          "sha256": "f815a6d6c222d5171e6472a5bca14acf184e18aa839d1d051713c5115b18d691"
+        },
+        "delta": {
+          "changed": false,
+          "removed": [],
+          "added": [],
+          "shrunk": [],
+          "rewritten": [],
+          "touched": []
+        },
+        "unchanged": true
+      },
+      "redis_clients": {
+        "probe_connections": 1,
+        "peers": 0,
+        "suspect": [],
+        "connected_clients": 1
+      },
+      "redis_aof": {
+        "before": {
+          "aof_enabled": 1,
+          "aof_current_size": 232092056,
+          "aof_current_size_source": "info",
+          "aof_rewrite_in_progress": 0,
+          "aof_last_write_status": "ok",
+          "aof_base_size": 205782565
+        },
+        "after": {
+          "aof_enabled": 1,
+          "aof_current_size": 232092056,
+          "aof_current_size_source": "info",
+          "aof_rewrite_in_progress": 0,
+          "aof_last_write_status": "ok",
+          "aof_base_size": 205782565
+        },
+        "grew_bytes": 0
+      },
+      "passed": true
+    },
+    "gc": {
+      "status": "gc",
+      "role": "objects",
+      "outdir": "/run/b-c1-gc-b-c1-gc-del-01/gc",
+      "exit": {
+        "schema": "b-c1-juicefs-gc-v1",
+        "at": "2026-11-12T01:14:07.791017+00:00",
+        "argv": [
+          "/var/tmp/b-c1-gc-b-c1-gc-del-01/juicefs",
+          "gc",
+          "--threads",
+          "1",
+          "--delete",
+          "redis://10.20.2.169:6379/61"
+        ],
+        "threads": 1,
+        "juicefs": {
+          "path": "/var/tmp/b-c1-gc-b-c1-gc-del-01/juicefs",
+          "sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+        },
+        "started_at": "2026-11-12T01:14:01.264185+00:00",
+        "finished_at": "2026-11-12T01:14:07.791017+00:00",
+        "exit_code": 0,
+        "timed_out": false,
+        "stdout": {
+          "path": "/run/b-c1-gc-b-c1-gc-del-01/gc/gc.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "/run/b-c1-gc-b-c1-gc-del-01/gc/gc.stderr",
+          "sha256": "e3669276d622065aae84b8c49f5cc2a727725e320c56d9a9d2295684a5d2290c"
+        },
+        "forbidden_flags": []
+      },
+      "post": {
+        "schema": "b-c1-juicefs-gc-post-v1",
+        "at": "2026-11-12T01:14:07.811801+00:00",
+        "juicefs_processes": [],
+        "established_redis_sockets": [],
+        "passed": true,
+        "scope": "Objects node only: no JuiceFS process and no established metadata Redis socket remain. Redis-side CLIENT LIST/AOF proof comes from the metadata node."
+      }
+    },
+    "usage_after": [
+      {
+        "path": "/srv/ax-objects-0",
+        "du_bytes": 56002793472,
+        "files": 436996
+      },
+      {
+        "path": "/srv/ax-objects-1",
+        "du_bytes": 36932370432,
+        "files": 272549
+      },
+      {
+        "path": "/srv/ax-objects-2",
+        "du_bytes": 36932280320,
+        "files": 272613
+      },
+      {
+        "path": "/srv/ax-objects-3",
+        "du_bytes": 36931653632,
+        "files": 272277
+      }
+    ],
+    "verify_after": {
+      "status": "verify",
+      "role": "metadata",
+      "stage": "after",
+      "aof": {
+        "stage": "after",
+        "before": {
+          "path": "/srv/ax-metadata/redis",
+          "device": 64784,
+          "manifest": {
+            "name": "appendonly.aof.manifest",
+            "size": 88,
+            "mtime_ns": 1794392826959252910,
+            "sha256": "0237c5a6eb225bf371284e580ad1aaa8eba94927815f571da72a6cac92f6d1b9"
+          },
+          "parts": [
+            {
+              "name": "appendonly.aof.8.base.rdb",
+              "type": "b",
+              "size": 205782565,
+              "mtime_ns": 1794392826924252756,
+              "sha256": "b81d50aa79d48ef506ee6207fb352df5d0b70577c772b4170aa76d6f44767832"
+            },
+            {
+              "name": "appendonly.aof.8.incr.aof",
+              "type": "i",
+              "size": 26309491,
+              "mtime_ns": 1794402416642144759,
+              "sha256": "24762de6053bc0c2b7ee3996a8d9b5d9d00bf8c992f235bd9a973060b67ea1c1"
+            }
+          ],
+          "sha256": "f815a6d6c222d5171e6472a5bca14acf184e18aa839d1d051713c5115b18d691"
+        },
+        "after": {
+          "path": "/srv/ax-metadata/redis",
+          "device": 64784,
+          "manifest": {
+            "name": "appendonly.aof.manifest",
+            "size": 88,
+            "mtime_ns": 1794392826959252910,
+            "sha256": "0237c5a6eb225bf371284e580ad1aaa8eba94927815f571da72a6cac92f6d1b9"
+          },
+          "parts": [
+            {
+              "name": "appendonly.aof.8.base.rdb",
+              "type": "b",
+              "size": 205782565,
+              "mtime_ns": 1794392826924252756,
+              "sha256": "b81d50aa79d48ef506ee6207fb352df5d0b70577c772b4170aa76d6f44767832"
+            },
+            {
+              "name": "appendonly.aof.8.incr.aof",
+              "type": "i",
+              "size": 26315916,
+              "mtime_ns": 1794446047773624160,
+              "sha256": "296b456e14124d8efb2346fd13966d815fd697882ed7b1d8d0248f70ac7ec0a9"
+            }
+          ],
+          "sha256": "f881f7726f654d6007e7ee57f7182fb44bfbb1735d13970401df728330387607"
+        },
+        "delta": {
+          "changed": true,
+          "removed": [],
+          "added": [],
+          "shrunk": [],
+          "rewritten": [],
+          "touched": [
+            "appendonly.aof.8.incr.aof"
+          ]
+        },
+        "unchanged": false
+      },
+      "redis_clients": {
+        "probe_connections": 1,
+        "peers": 0,
+        "suspect": [],
+        "connected_clients": 1
+      },
+      "redis_aof": {
+        "before": {
+          "aof_enabled": 1,
+          "aof_current_size": 232092056,
+          "aof_current_size_source": "info",
+          "aof_rewrite_in_progress": 0,
+          "aof_last_write_status": "ok",
+          "aof_base_size": 205782565
+        },
+        "after": {
+          "aof_enabled": 1,
+          "aof_current_size": 232098481,
+          "aof_current_size_source": "info",
+          "aof_rewrite_in_progress": 0,
+          "aof_last_write_status": "ok",
+          "aof_base_size": 205782565
+        },
+        "grew_bytes": 6425
+      },
+      "passed": true
+    },
+    "closed": {
+      "objects": {
+        "status": "closed",
+        "role": "objects",
+        "instance": "i-bp1bhdngko7nq3c3jrhp",
+        "attempt": "b-c1-gc-del-01",
+        "started_marker": "/run/b-c1-gc-b-c1-gc-del-01.started",
+        "done_marker": "/run/b-c1-gc-b-c1-gc-del-01.done"
+      },
+      "metadata": {
+        "status": "closed",
+        "role": "metadata",
+        "instance": "i-bp14nenf7osz9v1snsp2",
+        "attempt": "b-c1-gc-del-01",
+        "started_marker": "/run/b-c1-gc-b-c1-gc-del-01.started",
+        "done_marker": "/run/b-c1-gc-b-c1-gc-del-01.done"
+      }
+    },
+    "files": {
+      "gc.stdout": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-c1-gc-del-01/gc/gc.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "gc.stderr": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-c1-gc-del-01/gc/gc.stderr",
+        "sha256": "e3669276d622065aae84b8c49f5cc2a727725e320c56d9a9d2295684a5d2290c"
+      },
+      "gc-exit.json": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-c1-gc-del-01/gc/gc-exit.json",
+        "sha256": "9f6a68c4a0f8e9a88c409bfe93f764b579a997b317ff7b662cf134cc8d099192"
+      },
+      "gc-post.json": {
+        "path": "/home/hxy/ax-unified-pilot-prep-next-01/receipts/b-c1-gc-del-01/gc/gc-post.json",
+        "sha256": "88308b597fc8413cea1bac23ca7a6423e5d86cd2e7991dcf4de92e27948fbcd5"
+      }
+    }
+  },
+  "cost": null,
+  "errors": [],
+  "warnings": [
+    "cost: ValueError('Dated CNY disk quote that did not change the cloud required')"
+  ],
+  "scope": "Only objects and metadata were woken for one guarded JuiceFS gc; the client stayed Stopped/StopCharging and both instances returned to StopCharging. Not a settled bill."
+}

@@ -128,6 +128,12 @@ def validate_request(value):
     for name in ('node_script', 'quote', 'allowlist'):
         require_pin(value.get(name), name)
     require(value['allowlist']['sha256'] == ALLOWLIST_SHA256, 'Frozen Pool B nine-disk allowlist pin required')
+    mode = value.get('gc_mode', 'readonly')
+    require(mode in ('readonly', 'delete'), 'gc_mode must be readonly or delete')
+    if mode == 'delete':
+        # A delete window must pin the read-only gc output that quantified the
+        # reclaimable set; nothing is deleted on an unproven list.
+        require_pin(value.get('delete_evidence'), 'delete_evidence')
     return value
 
 
@@ -461,6 +467,8 @@ def drive_nodes(ssh, request, out, options):
                       '--eof-grace', str(options['eof_grace_seconds'])]
             if role == 'objects':
                 remote += ['--juicefs', remote_binary, '--meta-url', request['meta_url']]
+                if request.get('gc_mode') == 'delete':
+                    remote += ['--gc-delete']
             sessions[role] = NodeSession(ssh, alias, remote, out/('node-'+role+'.jsonl'),
                                          out/('node-'+role+'.stderr.log'))
         ready = {role: sessions[role].wait('ready', deadline) for role in START_ROLES}
@@ -726,6 +734,7 @@ def apply(request, request_pin, out, cloud_client, ssh, options):
                                       request=request_pin, instances=INSTANCES,
                                       start_roles=list(START_ROLES), never_start=CLIENT,
                                       meta_url=request['meta_url'], juicefs=request['juicefs'],
+                                      gc_mode=request.get('gc_mode', 'readonly'), delete_evidence=request.get('delete_evidence'),
                                       node_script=request['node_script'], quote=request['quote'],
                                       allowlist=request['allowlist'], resource_ids=ids,
                                       inputs=dict(ledger=options.get('ledger')),
@@ -783,7 +792,7 @@ def apply(request, request_pin, out, cloud_client, ssh, options):
     result = dict(schema='ax-pilot-b-c1-gc-result-v1', passed=failure is None,
                   at=utcnow(), attempt=request['attempt'], automatic_retry=False, out=str(out),
                   instances=INSTANCES, start_roles=list(START_ROLES), never_started=CLIENT,
-                  meta_url=request['meta_url'], members=members, resource_ids=ids,
+                  meta_url=request['meta_url'], gc_mode=request.get('gc_mode', 'readonly'), members=members, resource_ids=ids,
                   inputs=dict(ledger=options.get('ledger')),
                   cloud=dict(starts=starts, running={role: {k: v for k, v in running[role].items()
                                                             if k != 'row'} for role in running},

@@ -87,9 +87,33 @@ Please add `--delete` to clean leaked objects
 
 **结论：B 池 C1 的 JuiceFS 元数据现在没有在服务。** 这不是「空间不够」，而是元数据前提缺失。
 
+## `gc --delete` 跑了，但只回收了约 4.1 GB（重要修正）
+
+用户授权后执行了一次 `gc --delete`（`b-c1-gc-del-01`，`passed: true`、`errors: []`、`gc_mode: delete`，`delete_evidence` pin 住第 18 次的只读输出）。结果与预期不符，必须如实记录：
+
+```
+scanned 19873 objects, 83 valid, 19787 pending delete (68004319232 bytes),
+0 compacted (0 bytes), 3 leaked (12582912 bytes), 0 delslices, 0 delfiles, 0 skipped
+```
+
+进程 6 秒退出（exit 0），并伴随 `stop deleting slice` 警告。逐盘 `du -sx -B1` 前后对比：
+
+| 盘 | 删除前已用 | 删除后已用 | 实际回收 |
+| --- | ---: | ---: | ---: |
+| objects-0 | 56,989,388,800 | 56,002,793,472 | 986,595,328 |
+| objects-1 | 37,986,762,752 | 36,932,370,432 | 1,054,392,320 |
+| objects-2 | 37,987,065,856 | 36,932,280,320 | 1,054,785,536 |
+| objects-3 | 37,986,451,456 | 36,931,653,632 | 1,054,797,824 |
+
+合计 **4,150,571,008 B（约 4.1 GB）**，远低于扫描列出的 68,004,319,232 B。
+
+**结论：`pending delete` 不等于 `gc --delete` 能立刻回收的量。** JuiceFS 把「已不被引用但仍在对象存储里」的对象列为 pending delete，真正删除受安全窗口保护（避免删掉正在写入的对象），或需要元数据侧处理（`--compact` 与后台清理）。盘 0 现在仍只有约 4 GB 可用，**C1 混合读写的容量门槛没有因此达到**。
+
+安全性仍然齐全：AOF 前后一致、无 JuiceFS 会话残留、client 未启动、两台回 `StopCharging`。成本报价 schema 仍是不影响结论的 warning。
+
 ## 下一步的前置
 
-1. **是否执行 `gc --delete` 需要一次明确审核。** 只读结果已经给出 69,078,298,624 B 的 pending delete 与 12.6 MB 的真正 leaked；按协议在删之前不动手。执行时应保留同样的 AOF 前后比对与逐盘 du 前后值。
+1. **pending delete 需要另一条路径。** 已执行的 `gc --delete` 只回收 4.1 GB，证明这批对象受 JuiceFS 的安全窗口或元数据处理约束。下一步要么等窗口过后再跑一次 `gc --delete`，要么评估 `--compact`（会改元数据，必须单独审核），要么按最小扩容解决盘 0 的 3–4 GB 缺口；三者都要新的 reviewed 决定。
 2. 每次开机窗口都要重复「释放镜像自带 redis → 起原 unit → `CONFIG GET` 核生效值」，因为镜像的 init 会在下次启动时再把它拉起来。若希望一次修好，需要另一次受审核的宿主改动（disable 该 init 或在镜像层去掉）。
 3. 回收之后按 `C1-B-STORAGE-STEP.zh.md` 建新 controller、重做 64 MiB 完整 CRC、六轮新校准与正式单元；本轮维护窗口不计入 C1 正式样本。
 4. `meta_url` 的 database 仍是 **61**，且已由第 18 次的 gc 明文确认是原 C1 卷（data 指向 B RustFS 桶、8 个 slice / 70.9 GB 活数据）。

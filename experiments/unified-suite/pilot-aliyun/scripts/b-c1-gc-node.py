@@ -433,21 +433,25 @@ def pin_meta_url(value):
     return value
 
 
-def require_gc_argv(argv):
+def require_gc_argv(argv, delete=False):
     require(isinstance(argv, list) and argv and all(isinstance(value, str) for value in argv),
             'JuiceFS gc argv must be a nonempty list of strings')
     require(Path(argv[0]).name == 'juicefs', 'JuiceFS gc argv must start with the pinned juicefs binary')
-    forbidden = [value for value in argv[1:] if value.split('=', 1)[0] in GC_FORBIDDEN]
+    forbidden = [value for value in argv[1:] if value.split('=', 1)[0] in GC_FORBIDDEN and
+                 not (delete and value.split('=', 1)[0] == '--delete')]
     require(not forbidden,
             'Forbidden destructive JuiceFS gc flags: '+', '.join(forbidden))
-    require(len(argv) == 5 and argv[1:4] == ['gc', '--threads', GC_THREADS],
-            'JuiceFS gc argv must be exactly: juicefs gc --threads '+GC_THREADS+' <meta-url>')
-    pin_meta_url(argv[4])
+    head = ['gc', '--threads', GC_THREADS] + (['--delete'] if delete else [])
+    require(argv[1:-1] == head and len(argv) == len(head)+2,
+            'JuiceFS gc argv must be exactly: juicefs gc --threads '+GC_THREADS+
+            (' --delete' if delete else '')+' <meta-url>')
+    pin_meta_url(argv[-1])
     return argv
 
 
-def gc_argv(meta_url, juicefs=DEFAULT_JUICEFS):
-    return require_gc_argv([str(juicefs), 'gc', '--threads', GC_THREADS, pin_meta_url(meta_url)])
+def gc_argv(meta_url, juicefs=DEFAULT_JUICEFS, delete=False):
+    head = ['gc', '--threads', GC_THREADS] + (['--delete'] if delete else [])
+    return require_gc_argv([str(juicefs), *head, pin_meta_url(meta_url)], delete=delete)
 
 
 def juicefs_processes():
@@ -514,7 +518,7 @@ def redis_aof(fallback=None, seconds=30):
                 aof_base_size=int(info.get('aof_base_size', '0')))
 
 
-def run_gc(outdir, meta_url, juicefs=DEFAULT_JUICEFS, timeout=14400):
+def run_gc(outdir, meta_url, juicefs=DEFAULT_JUICEFS, timeout=14400, delete=False):
     """Run exactly one pinned ``juicefs gc --threads 1 <meta>`` synchronously."""
     outdir = Path(outdir)
     require(outdir.is_absolute() and not outdir.is_symlink(), 'GC output must be an absolute plain path')
@@ -525,7 +529,7 @@ def run_gc(outdir, meta_url, juicefs=DEFAULT_JUICEFS, timeout=14400):
             'Pinned JuiceFS binary path required: '+str(binary))
     digest = sha256_file(binary)
     require(digest == JUICEFS_SHA256, 'Pinned JuiceFS binary SHA256 differs: '+str(binary))
-    argv = gc_argv(meta_url, str(binary))
+    argv = gc_argv(meta_url, str(binary), delete=delete)
     require(not juicefs_processes(), 'Another JuiceFS process runs on this node')
     require(not established_redis_sockets(), 'An established metadata Redis session exists before gc')
     outdir.mkdir(mode=0o700)
@@ -629,6 +633,8 @@ def main():
     parser.add_argument('--gc-timeout', type=float, default=14400)
     parser.add_argument('--du-timeout', type=float, default=1800)
     parser.add_argument('--eof-grace', type=float, default=60)
+    parser.add_argument('--gc-delete', action='store_true',
+                        help='Run the reviewed gc with --delete; only for an explicitly approved window')
     args = parser.parse_args()
     objects = args.role == 'objects'
     if objects:
@@ -767,7 +773,7 @@ def main():
             if command == 'gc':
                 require(objects, 'The JuiceFS collector runs on the objects node only')
                 require(len(options) == 1, 'gc requires exactly one output directory')
-                result = run_gc(options[0], args.meta_url, args.juicefs, args.gc_timeout)
+                result = run_gc(options[0], args.meta_url, args.juicefs, args.gc_timeout, delete=args.gc_delete)
                 emit(status='gc', role=args.role, **result)
                 emit(status='usage', phase='after', role=args.role,
                      usage=usage(roots, args.du_timeout))
