@@ -4,6 +4,8 @@
 
 ## 当前入口
 
+按 [8 个实验块](../../current/BLOCKS.zh.md)分别执行；`bench.experiment_smoke_matrix --block ... --dry-run` 可先看完整命令，去掉 `--dry-run` 才启动最小检查。每块失败即停，独立资源池不受阻；旧失败结果保留。
+
 | 工作 | 使用入口 |
 |---|---|
 | C1–C4 最小脚本检查 | [bench.experiment_smoke](../../../../bench/experiment_smoke.py)；[公共参数](../RBM-MINIMAL.zh.md) · [五项补充检查](../FIVE-CHECKS.zh.md) |

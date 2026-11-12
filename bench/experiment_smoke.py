@@ -7,7 +7,7 @@ import sys
 import time
 from bench.experiment_modes import CONFIG, MODES, resolve
 
-def main():
+def argument_parser():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--experiment', choices=MODES, required=True)
     p.add_argument('--mode', required=True)
@@ -33,6 +33,11 @@ def main():
     p.add_argument('--target-host')
     p.add_argument('--target-check-timeout',type=int,default=300)
     p.add_argument('--out', type=Path, required=True)
+    return p
+
+
+def main():
+    p = argument_parser()
     a = p.parse_args()
     for name in ('brewfs','producer','smallfiles','juicefs','trace','replay','out','brewfs_provenance','checkpoint','opencode'):
         value = getattr(a,name)

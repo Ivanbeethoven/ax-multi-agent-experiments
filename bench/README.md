@@ -2,6 +2,8 @@
 
 当前入口：[C1–C4 方案](../experiments/unified-suite/current/README.zh.md)。最小功能检查使用 [experiment_smoke.py](experiment_smoke.py)，参数见[五项检查](../experiments/unified-suite/pilot-aliyun/FIVE-CHECKS.zh.md)；C4 仅检查文件系统，不启动 Agent。
 
+[8 个实验块](../experiments/unified-suite/current/BLOCKS.zh.md)用 `experiment_smoke_matrix --block NAME` 选择，`--dry-run` 仅预览，`--common-args` 读取共享参数数组。块内串行，非零退出或缺回执即停；跨池锁仍由实际资源控制负责。
+
 下表包含当前工具和旧冻结套件的共用模块。节点、参数和版本来自实际清单；旧 profile 不能直接当新方案运行。
 
 | 职责 | 入口 |

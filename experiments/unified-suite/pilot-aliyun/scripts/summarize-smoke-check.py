@@ -11,7 +11,17 @@ def summarize(root):
     rows=[]
     for cell in json.loads((root/'summary.json').read_text()):
         receipt_path=root/cell['receipt']
-        receipt=json.loads(receipt_path.read_text())
+        receipt_error=None
+        receipt_sha=None
+        try:
+            raw=receipt_path.read_bytes()
+            receipt=json.loads(raw)
+            if not isinstance(receipt,dict):
+                raise ValueError('receipt must be an object')
+            receipt_sha=hashlib.sha256(raw).hexdigest()
+        except (OSError,ValueError) as error:
+            receipt={}
+            receipt_error=str(error)
         phases=[]
         for path in receipt_path.parent.rglob('stages.jsonl'):
             starts={}
@@ -30,10 +40,11 @@ def summarize(root):
         arms=evidence.get('arms',{})
         issues=[dict(arm=name,phase=arm.get('phase'),error=arm.get('error'))
                 for name,arm in arms.items() if isinstance(arm,dict) and arm.get('error')]
-        rows.append(dict(name=cell['name'],status=receipt['status'],
+        rows.append(dict(name=cell['name'],status='failed' if receipt_error else cell['status'],
+            reported_status=receipt.get('status'),
             seconds=receipt.get('elapsed_ns',0)/1e9 if 'elapsed_ns' in receipt else None,
-            reason=receipt.get('reason',evidence.get('error')),issues=issues,
-            receipt_sha256=hashlib.sha256(receipt_path.read_bytes()).hexdigest(),
+            reason=receipt_error or cell.get('reason') or receipt.get('reason',evidence.get('error')),issues=issues,
+            receipt_sha256=receipt_sha,
             phases=phases,cleanup={k:evidence[k] for k in ('mounts_absent','rustfs_removed',
                 'redis_exited','scratch_removed','cleanup') if k in evidence}))
     return dict(formal_sample=False,counts=dict(Counter(row['status'] for row in rows)),cases=rows)

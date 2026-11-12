@@ -16,6 +16,7 @@ python3 -m unittest discover -s tests -v
 
 | 测试 | 内容 |
 |---|---|
+| `test_smoke_matrix_selection.py` | 8 块覆盖、成组选择、无副作用预览、缺参数提前拒绝、失败即停和缺回执汇总 |
 | `test_unified_suite.py` | 新C1–C4计划/native消融、baseline跨池并行/独立领取关闭/跨池配对、旧同池模式、原子共享资源占用、禁止重放、失败归档/关闭、恢复与gap排除；可选fio/小文件原生验证 |
 | `test_suite_defaults.py` | 默认工作量/容量、非法参数提前拒绝、冻结缓存与pool绑定、memory store挂载参数复核、fio同字节错误参数拒绝 |
 | `test_ssh_fleet.py` | 任意 SSH 节点/端口与槽位、代码摘要、宿主观测映射、同 cgroup 拒绝放行、trace 配置；可选真实 SSH 集成 |

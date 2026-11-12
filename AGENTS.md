@@ -2,6 +2,8 @@
 
 先读 [当前 C1–C4 方案](experiments/unified-suite/current/README.zh.md)、[feature 对照](experiments/unified-suite/current/FEATURES.zh.md)和[未完成项](experiments/unified-suite/current/PENDING.zh.md)。
 
+2026-11-13 已按 [8 个实验块](experiments/unified-suite/current/BLOCKS.zh.md)整理分工。当前授权是检查流程和修改规划，未恢复云上正式实验。各块独立准备；配对条件仍同池顺序执行。运行器的 `--block` / `--dry-run` 仅用于最小功能检查，不能作为性能准入或跨池资源锁。
+
 - 正式实验暂停。2026-11-12 的 `ssh rbm` 最小检查已收尾：首轮 21 项通过，剩余 5 项由[后续检查](experiments/unified-suite/pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md)补齐。原失败不改写，功能通过不算性能验收。
 - 用户已取消实际 Agent 运行和 OpenCode resume；C4 只检查工作区文件树、跨机重挂和后续文件读写，状态文件按普通文件核验。
 - JuiceFS 混合读写已跳过。C4 删除 BrewFS 完整复制，只比较原生 fork 与原生 clone；Overlay 用同引擎开关，并在计时前验证 lower 热态。

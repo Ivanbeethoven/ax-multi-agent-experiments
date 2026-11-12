@@ -1,5 +1,7 @@
 # 执行与观测
 
+按 [8 个实验块](BLOCKS.zh.md)分工；先预览再执行最小检查。块内失败先收尾，独立池继续。本页记录正式性能方法，不能把最小入口的通过视为正式计时资格。
+
 各子项的工作区格式、构建 feature、运行开关与开跑条件见[统一对照表](FEATURES.zh.md)。
 
 [并行流程](../MAIN-SCALE.zh.md)规定分池、配对、资源锁和释放；[配置](CONFIGURATION.zh.md)规定软件与服务参数。当前适配进度见[方案入口](README.zh.md#实现状态)。
@@ -24,7 +26,7 @@ python3 scenarios/k8s-containers/scripts/download_archives.py \
   --out /srv/ax-data/archives
 ~~~
 
-杭州 ECS 可加 `--internal`。下载器核整包 SHA，解包见[数据目录](../../../scenarios/k8s-containers/data-catalog.md#解压和回放)，成员/初终态校验见[回放说明](../../../tools/full-fuse-replay/README.md)。TRACE使用catalog.root_dir对应的目录，case ID不一定等于解包目录。完整回调数：pytest 1,747,109；django 57,787,980；ripgrep 3,122,195；archive I/O 3,673,814。rbm 的140回调合成探针不属于这些输入。
+只在跳板下载一次；杭州 ECS 加 `--internal`，再经私网分发到 worker 并核 SHA。已有一致的归档和解包输入直接复用。每次新建可写初态，不重新下载。下载器核整包 SHA，解包见[数据目录](../../../scenarios/k8s-containers/data-catalog.md#解压和回放)，成员/初终态校验见[回放说明](../../../tools/full-fuse-replay/README.md)。TRACE 使用 catalog.root_dir 对应目录，case ID 不一定等于解包目录。完整回调数：pytest 1,747,109；django 57,787,980；ripgrep 3,122,195；archive I/O 3,673,814。最小 140/367 回调输入不属于这四份完整负载。
 
 每宿主共享一份只读 events/blobs，每 Agent 独立工作区；输入和结果都放被测挂载外。先严格回放，再从新初态测性能：
 
@@ -63,7 +65,7 @@ Overlay 热态回执至少含 `input_sha256`、两臂共同的 lower 工作集�
 
 ~~~text
 协调者：计划与SHA、state.sqlite、阶段事件、资源账单、归档索引
-  ├─ 每个客户端/目标：Agent + FUSE metrics + cgroup/proc/盘/网
+  ├─ 每个客户端/目标：固定文件负载 + FUSE metrics + cgroup/proc/盘/网
   ├─ Redis：INFO + 原生延迟数据 + AOF + 宿主指标
   └─ 每个RustFS节点：请求/字节/布局/债务 + 每盘/网卡
 ~~~
