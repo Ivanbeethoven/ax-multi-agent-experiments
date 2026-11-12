@@ -37,8 +37,8 @@ Use `--qa-scripts` to locate the figure-audit helpers when needed.
 ## Figure contract
 
 - Quantitative grid, structurally adapted from the two existing Python plots.
-- Final canvas: **504 × 188 pt** (177.8 × 66.3 mm), full USENIX text width.
-  The independent scenario stays at **240 × 174 pt**, one column.
+- Final canvas: **504 × 150 pt** (177.8 × 52.9 mm), full USENIX text width.
+  The independent 240 × 174 pt scenario is placed at 96% of a column.
 - Arial, 7.8 pt minimum, 8.2 pt ticks/labels, 8.6 pt panel titles. SVG text
   remains editable; PDF is vector; PNG is a 600 dpi preview.
 - Scoped legends separate the capture groups from operation categories.

@@ -125,7 +125,7 @@ def render(data, paper, qa_scripts):
         "ytick.color": "#303943", "pdf.fonttype": 42, "ps.fonttype": 42,
         "svg.fonttype": "none", "svg.hashsalt": "agent-workloads",
     })
-    width, height = 504, 188
+    width, height = 504, 150
     fig = plt.figure(figsize=(width/72, height/72))
     def axes(x, y, w, h):
         ax = fig.add_axes([x/width, y/height, w/width, h/height])
@@ -134,31 +134,29 @@ def render(data, paper, qa_scripts):
         ax.grid(axis="x", color="#E5E9EB", lw=.45)
         ax.set_axisbelow(True)
         return ax
-    a, b = axes(48, 92, 60, 44), axes(48, 30, 60, 30)
-    c, d, e = axes(126, 30, 107, 92), axes(305, 30, 88, 92), axes(412, 30, 88, 92)
+    a, b = axes(48, 70, 60, 40), axes(48, 23, 60, 22)
+    c, d, e = axes(126, 23, 107, 78), axes(305, 23, 88, 78), axes(412, 23, 88, 78)
     def text(x, y, s, **kw):
         return fig.text(x/width, y/height, s, **kw)
-    text(120, 179, "Eight coding-agent task runs", ha="center", weight="bold", fontsize=9)
-    text(377, 179, "Five agent/model profiles", ha="center", weight="bold", fontsize=9)
-    fig.add_artist(Line2D([247/width]*2, [21/height, 184/height],
+    text(120, 141, "Eight coding-agent task runs", ha="center", weight="bold", fontsize=9)
+    text(377, 141, "Five agent/model profiles", ha="center", weight="bold", fontsize=9)
+    fig.add_artist(Line2D([247/width]*2, [15/height, 146/height],
                           transform=fig.transFigure, color="#D5DBDF", lw=.6))
     fig.legend(handles=[Patch(facecolor=color, label=label)
                         for label, color in zip(GROUP_LABELS, GROUP_COLORS)],
-               loc="center", bbox_to_anchor=(120/width, 165/height), ncol=2,
+               loc="center", bbox_to_anchor=(120/width, 129/height), ncol=2,
                handlelength=1, handletextpad=.4, columnspacing=1.4, borderaxespad=0)
     handles = [Patch(facecolor=OPS["Metadata"], label="Metadata"),
                Line2D([], [], color=OPS["Read"], marker="o", linestyle="None", ms=4, label="Read"),
                Line2D([], [], color=OPS["Write"], marker="s", linestyle="None", ms=4, label="Write"),
                Patch(facecolor=OPS["Other"], label="Other")]
-    fig.legend(handles=handles, loc="center", bbox_to_anchor=(377/width, 165/height),
+    fig.legend(handles=handles, loc="center", bbox_to_anchor=(377/width, 129/height),
                ncol=4, handlelength=.85, handletextpad=.35, columnspacing=.9, borderaxespad=0)
-    for x, y, title in [(2,147,"a  Call mix (%)"), (2,72,"b  Request sizes (%)"),
-                        (126,147,"c  Burstiness (%)"), (305,147,"d  Calls (×1,000)"),
-                        (412,147,"e  I/O (MiB)")]:
+    for x, y, title in [(2,115,"a  Call mix (%)"), (2,50,"b  Request sizes (%)"),
+                        (126,115,"c  Burstiness (%)"), (305,115,"d  Calls (×1,000)"),
+                        (412,115,"e  I/O (MiB)")]:
         text(x, y, title, weight="bold", fontsize=8.6)
-    text(126,134,"Busiest 10% of 1-s bins",fontsize=8.2)
-    text(305,134,"Metadata share labeled",fontsize=8.2)
-    text(412,134,"Recorded bytes",fontsize=8.2)
+    text(126,104,"Busiest 10% of 1-s bins",fontsize=8.2)
 
     a.set(xlim=(0,70), ylim=(3.55,-.55), xticks=[0,30,60],
           yticks=range(4), yticklabels=list(OPS))
@@ -179,11 +177,11 @@ def render(data, paper, qa_scripts):
                 if end > start:
                     points=a.transData.inverted().transform([(start,y0+start-base),(end,y0+end-base)])
                     a.plot(points[:,0],points[:,1],color=color,lw=.55,zorder=3)
-    fig.add_artist(Rectangle((85/width,147/height),5/width,5/height,
+    fig.add_artist(Rectangle((85/width,115/height),5/width,5/height,
                              transform=fig.transFigure,facecolor="white",edgecolor="#666666",lw=.6))
-    fig.add_artist(Line2D([85/width,90/width],[147/height,152/height],
+    fig.add_artist(Line2D([85/width,90/width],[115/height,120/height],
                           transform=fig.transFigure,color="#666666",lw=.55))
-    text(94,147,"Error",fontsize=7.8)
+    text(94,115,"Error",fontsize=7.8)
 
     for mi, method in enumerate(("read","write")):
         for gi, (group,color) in enumerate(zip(GROUPS,GROUP_COLORS)):
