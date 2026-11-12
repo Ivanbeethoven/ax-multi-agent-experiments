@@ -51,6 +51,8 @@ Overlay 热态回执至少含 `input_sha256`、两臂共同的 lower 工作集�
 
 用 `python3 -m bench.warm_lower --mount MOUNT --working-set RANGES.json --working-set-sha256 SHA256 --out OUT` 检查本臂。清单记录每段的 `path`、`offset`、`length`、`sha256`。在[本地两文件诊断](../pilot-aliyun/evidence/preparation/c2-local-packed-warm-01/README.zh.md)中，当前 workspace-v1 的 `.stats` 缺这组 Packed 计数。独立检查对象端请求发现，两遍都经 FUSE 读出同样的 77 B，第二遍仍从 RustFS 取回全部 77 B（2 次 Range）。这个配置不能进入热态计时。该诊断未比较两臂或测量 Overlay 开销。
 
+实现上先让两个开关状态共用同一套 wire005 lower 读路径：为 `V3IndexReader` 加按字节限额的已校验数据缓存，并在 `.stats` 同时保留行缓存与 Packed 读计数。现有 `read_memory_bytes` 和旧版 frame 缓存不能预热这条路径。先验证同一 `WorkspaceMetaLayer` 中空 upper 的只读开关，两臂都走 FUSE；它只回答查找和读的开销。首次修改要等同引擎的可写对照实现后再测。正式窗口结束还要核 lower 计数，出现意外后端读的试次单列。
+
 ## 指标收集
 
 ~~~text
