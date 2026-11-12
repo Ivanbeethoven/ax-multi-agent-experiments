@@ -1,0 +1,20 @@
+{
+  "schema": "packed-cache-artifact-index-20261112",
+  "candidate_commit": "6912a796abddbd96c60aad6cc672fcd926a13712",
+  "archive": {
+    "file": "evidence.tar.gz",
+    "sha256": "93fb665180fbc03d57ee7dd2a6caf1197277a42bdc82dfda845f55b093e0d49e",
+    "bytes": 5535492,
+    "members": 94,
+    "uncompressed_bytes": 49611197,
+    "member_hashes": "raw-sha256.json"
+  },
+  "derived_summary": {
+    "file": "summary.json",
+    "sha256": "625900c78bb53d847c20844ae13952ddb0673fd0a1232b5eaeff9a0adbb7fb9d",
+    "producer": "analyze.py"
+  },
+  "raw_storage": "rbm:/home/dev/ax-packed-build/evidence",
+  "restore_command": "mkdir unpacked && tar -xzf evidence.tar.gz -C unpacked",
+  "recompute_command": "python3 analyze.py unpacked > recomputed-summary.json"
+}

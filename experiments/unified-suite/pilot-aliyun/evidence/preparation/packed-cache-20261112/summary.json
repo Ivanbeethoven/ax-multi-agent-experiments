@@ -1,0 +1,2418 @@
+{
+  "schema": "packed-cache-derived-summary-20261112",
+  "measured_source_commit": "6912a796abddbd96c60aad6cc672fcd926a13712",
+  "status": "candidate performance evidence; final default-on qualification pending failed-entry retry fix",
+  "definitions": {
+    "cold": "Fresh client mount/cache directory; server and host caches are not dropped.",
+    "cold_read_amplification": "cold S3 response body bytes / (files * 4096)",
+    "end_to_end_transfer_per_logical_read": "E2E S3 response body bytes / (2 * files * 4096)",
+    "download_per_unique_working_set": "E2E S3 response body bytes / (files * 4096)",
+    "cache_hit_fraction": "Whole-object boundary hits / (hits + misses), over the entire mount.",
+    "paired_reduction_percent": "100 * (1 - on / off), pairing adjacent off/on arms in either order.",
+    "end_to_end": "Mount + two readdir/read passes + approximately 500ms idle observation + unmount/drain."
+  },
+  "runs": {
+    "pair-128-05": {
+      "raw_sha256": "6700d3d9e622f887406413ac5c335c741fd2cbac5b2eedc72ef55485633845a3",
+      "files": 128,
+      "order": "off-on",
+      "input_sha256": "885168de392fa6fd5368fcab0ad6ab83cd132a04c60cae96ec93b4305e7d775e",
+      "manifest_key": "base/objects/0/8f58d569a217cc71af2d1c55a476c118de62c84bf73c5c728603ddaeeae4f64c",
+      "exact_revision": "01a1cf8c-0caf-7721-bd0c-7bad61089958:1:9fb09e0efe919170d8f98332e5258029e23ae3f40f2d2e62aef75c3dc81300f5",
+      "arms": {
+        "off-0": {
+          "timing": {
+            "cold_ms": 429.496692,
+            "warm_ms": 376.162249,
+            "cold_readdir_ms": 29.244341,
+            "warm_readdir_ms": 9.226405,
+            "mount_ms": 164.995117,
+            "idle_observation_ms": 502.898708,
+            "unmount_ms": 8.916734,
+            "end_to_end_ms": 1483.125466
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 148,
+              "ranges": 148,
+              "heads": 0,
+              "bytes": 16895099,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 129
+            },
+            "warm": {
+              "gets": 128,
+              "ranges": 128,
+              "heads": 0,
+              "bytes": 16777216,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 128
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 277,
+              "ranges": 277,
+              "heads": 0,
+              "bytes": 33677810,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 257
+            }
+          },
+          "cache": {},
+          "cache_hit_fraction": null,
+          "cold_read_amplification": 32.224843978881836,
+          "end_to_end_transfer_per_logical_read": 32.11766242980957,
+          "download_per_unique_working_set": 64.23532485961914,
+          "vm_hwm_kib": 65520,
+          "cgroup_memory_peak_bytes": 12648448
+        },
+        "on-1": {
+          "timing": {
+            "cold_ms": 325.56112,
+            "warm_ms": 256.126601,
+            "cold_readdir_ms": 38.477218,
+            "warm_readdir_ms": 9.902697,
+            "mount_ms": 161.111385,
+            "idle_observation_ms": 502.761952,
+            "unmount_ms": 8.945511,
+            "end_to_end_ms": 1254.99962
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 15,
+              "ranges": 0,
+              "heads": 15,
+              "bytes": 649755,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "warm": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 16,
+              "ranges": 1,
+              "heads": 15,
+              "bytes": 655250,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            }
+          },
+          "cache": {
+            "hits": 261,
+            "misses": 15,
+            "ready_hits": 261,
+            "inflight_hits": 0,
+            "local_bytes": 33672315,
+            "downloaded": 649755
+          },
+          "cache_hit_fraction": 0.9456521739130435,
+          "cold_read_amplification": 1.239309310913086,
+          "end_to_end_transfer_per_logical_read": 0.6248950958251953,
+          "download_per_unique_working_set": 1.2497901916503906,
+          "vm_hwm_kib": 65228,
+          "cgroup_memory_peak_bytes": 14008320
+        },
+        "off-2": {
+          "timing": {
+            "cold_ms": 428.16396,
+            "warm_ms": 376.333339,
+            "cold_readdir_ms": 29.532846,
+            "warm_readdir_ms": 9.651062,
+            "mount_ms": 168.868202,
+            "idle_observation_ms": 502.799004,
+            "unmount_ms": 8.886137,
+            "end_to_end_ms": 1485.578662
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 148,
+              "ranges": 148,
+              "heads": 0,
+              "bytes": 16895099,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 129
+            },
+            "warm": {
+              "gets": 128,
+              "ranges": 128,
+              "heads": 0,
+              "bytes": 16777216,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 128
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 277,
+              "ranges": 277,
+              "heads": 0,
+              "bytes": 33677810,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 257
+            }
+          },
+          "cache": {},
+          "cache_hit_fraction": null,
+          "cold_read_amplification": 32.224843978881836,
+          "end_to_end_transfer_per_logical_read": 32.11766242980957,
+          "download_per_unique_working_set": 64.23532485961914,
+          "vm_hwm_kib": 64764,
+          "cgroup_memory_peak_bytes": 12480512
+        },
+        "on-3": {
+          "timing": {
+            "cold_ms": 312.461474,
+            "warm_ms": 248.768052,
+            "cold_readdir_ms": 35.462667,
+            "warm_readdir_ms": 9.055719,
+            "mount_ms": 164.058826,
+            "idle_observation_ms": 502.692082,
+            "unmount_ms": 8.912411,
+            "end_to_end_ms": 1237.361595
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 15,
+              "ranges": 0,
+              "heads": 15,
+              "bytes": 649755,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "warm": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 16,
+              "ranges": 1,
+              "heads": 15,
+              "bytes": 655250,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            }
+          },
+          "cache": {
+            "hits": 261,
+            "misses": 15,
+            "ready_hits": 261,
+            "inflight_hits": 0,
+            "local_bytes": 33672315,
+            "downloaded": 649755
+          },
+          "cache_hit_fraction": 0.9456521739130435,
+          "cold_read_amplification": 1.239309310913086,
+          "end_to_end_transfer_per_logical_read": 0.6248950958251953,
+          "download_per_unique_working_set": 1.2497901916503906,
+          "vm_hwm_kib": 65464,
+          "cgroup_memory_peak_bytes": 14053376
+        }
+      },
+      "pairs": [
+        {
+          "off_arm": "off-0",
+          "on_arm": "on-1",
+          "reduction_percent": {
+            "cold_ms": 24.19938824581215,
+            "warm_ms": 31.91060461784936,
+            "cold_readdir_ms": -31.57149959371628,
+            "warm_readdir_ms": -7.329962211717356,
+            "mount_ms": 2.353846629291445,
+            "idle_observation_ms": 0.027193547691517495,
+            "unmount_ms": -0.32273027321438885,
+            "end_to_end_ms": 15.381425997306685
+          },
+          "speedup": {
+            "cold_ms": 1.319250566529566,
+            "warm_ms": 1.4686574823987142,
+            "cold_readdir_ms": 0.7600430207818039,
+            "warm_readdir_ms": 0.9317062816321654,
+            "mount_ms": 1.0241058817786215,
+            "idle_observation_ms": 1.0002720094459336,
+            "unmount_ms": 0.9967830792449979,
+            "end_to_end_ms": 1.1817736375091492
+          }
+        },
+        {
+          "off_arm": "off-2",
+          "on_arm": "on-3",
+          "reduction_percent": {
+            "cold_ms": 27.02293906287675,
+            "warm_ms": 33.89688708924085,
+            "cold_readdir_ms": -20.078731998941123,
+            "warm_readdir_ms": 6.168678638682456,
+            "mount_ms": 2.848005689075783,
+            "idle_observation_ms": 0.0212653563649412,
+            "unmount_ms": -0.29567403698593786,
+            "end_to_end_ms": 16.70844320460493
+          },
+          "speedup": {
+            "cold_ms": 1.3702936061807094,
+            "warm_ms": 1.5127880609042192,
+            "cold_readdir_ms": 0.8327869418281484,
+            "warm_readdir_ms": 1.0657422121865752,
+            "mount_ms": 1.0293149482856838,
+            "idle_observation_ms": 1.0002126987948061,
+            "unmount_ms": 0.9970519761712066,
+            "end_to_end_ms": 1.2006018838818089
+          }
+        }
+      ],
+      "correctness": {
+        "on-1-remount": {
+          "passed": true,
+          "cache": {
+            "hits": 276,
+            "misses": 0,
+            "ready_hits": 276,
+            "inflight_hits": 0,
+            "local_bytes": 33672315,
+            "downloaded": 0
+          },
+          "end_to_end_s3": {
+            "gets": 1,
+            "ranges": 1,
+            "heads": 0,
+            "bytes": 5495,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-private": {
+          "passed": true,
+          "cache": {
+            "hits": 257,
+            "misses": 15,
+            "ready_hits": 257,
+            "inflight_hits": 0,
+            "local_bytes": 33406420,
+            "downloaded": 649755
+          },
+          "end_to_end_s3": {
+            "gets": 0,
+            "ranges": 0,
+            "heads": 0,
+            "bytes": 0,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-private-cold": {
+          "passed": true,
+          "cache": {
+            "hits": 259,
+            "misses": 15,
+            "ready_hits": 259,
+            "inflight_hits": 0,
+            "local_bytes": 33410171,
+            "downloaded": 649755
+          },
+          "end_to_end_s3": {
+            "gets": 0,
+            "ranges": 0,
+            "heads": 0,
+            "bytes": 0,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-parent-isolation": {
+          "passed": true,
+          "cache": {
+            "hits": 261,
+            "misses": 15,
+            "ready_hits": 261,
+            "inflight_hits": 0,
+            "local_bytes": 33672315,
+            "downloaded": 649755
+          },
+          "end_to_end_s3": {
+            "gets": 16,
+            "ranges": 1,
+            "heads": 15,
+            "bytes": 655250,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        }
+      },
+      "cleanup": {
+        "mount_absent": true,
+        "owned_containers_absent": {
+          "redis": true,
+          "rustfs": true
+        },
+        "scratch_removed": true,
+        "cgroups_absent": true
+      },
+      "object_sizes": {
+        "base/indexes/10": {
+          "count": 1,
+          "total_bytes": 4172,
+          "min_bytes": 4172,
+          "max_bytes": 4172
+        },
+        "base/indexes/11": {
+          "count": 1,
+          "total_bytes": 4172,
+          "min_bytes": 4172,
+          "max_bytes": 4172
+        },
+        "base/indexes/12": {
+          "count": 1,
+          "total_bytes": 9980,
+          "min_bytes": 9980,
+          "max_bytes": 9980
+        },
+        "base/indexes/5": {
+          "count": 1,
+          "total_bytes": 5288,
+          "min_bytes": 5288,
+          "max_bytes": 5288
+        },
+        "base/indexes/6": {
+          "count": 1,
+          "total_bytes": 43700,
+          "min_bytes": 43700,
+          "max_bytes": 43700
+        },
+        "base/indexes/7": {
+          "count": 1,
+          "total_bytes": 48404,
+          "min_bytes": 48404,
+          "max_bytes": 48404
+        },
+        "base/indexes/8": {
+          "count": 1,
+          "total_bytes": 4887,
+          "min_bytes": 4887,
+          "max_bytes": 4887
+        },
+        "base/indexes/9": {
+          "count": 1,
+          "total_bytes": 4776,
+          "min_bytes": 4776,
+          "max_bytes": 4776
+        },
+        "base/objects/0": {
+          "count": 1,
+          "total_bytes": 5495,
+          "min_bytes": 5495,
+          "max_bytes": 5495
+        },
+        "base/objects/1": {
+          "count": 5,
+          "total_bytes": 559800,
+          "min_bytes": 4647,
+          "max_bytes": 138789
+        },
+        "base/objects/3": {
+          "count": 4,
+          "total_bytes": 17152,
+          "min_bytes": 4288,
+          "max_bytes": 4288
+        }
+      }
+    },
+    "pair-128-06": {
+      "raw_sha256": "70e6db74b868a6a0a48d99703e8c7424b3b9d7bd2d174c7011556c913a1d1942",
+      "files": 128,
+      "order": "on-off",
+      "input_sha256": "885168de392fa6fd5368fcab0ad6ab83cd132a04c60cae96ec93b4305e7d775e",
+      "manifest_key": "base/objects/0/6add60d898f626543bffbf6a67e4f61c586c1f0a46c35a691e4f6c380175200d",
+      "exact_revision": "01a1cf8d-1a11-7150-9e4d-809842db0805:1:486cd21cd092ff3ad1c0237b979a4b3fb077edeb6799830a84f37a27122d62bb",
+      "arms": {
+        "on-0": {
+          "timing": {
+            "cold_ms": 315.218476,
+            "warm_ms": 251.13749,
+            "cold_readdir_ms": 36.488168,
+            "warm_readdir_ms": 9.806583,
+            "mount_ms": 167.483211,
+            "idle_observation_ms": 502.785437,
+            "unmount_ms": 8.926897,
+            "end_to_end_ms": 1246.198295
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 15,
+              "ranges": 0,
+              "heads": 15,
+              "bytes": 649755,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "warm": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 16,
+              "ranges": 1,
+              "heads": 15,
+              "bytes": 655250,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            }
+          },
+          "cache": {
+            "hits": 261,
+            "misses": 15,
+            "ready_hits": 261,
+            "inflight_hits": 0,
+            "local_bytes": 33672315,
+            "downloaded": 649755
+          },
+          "cache_hit_fraction": 0.9456521739130435,
+          "cold_read_amplification": 1.239309310913086,
+          "end_to_end_transfer_per_logical_read": 0.6248950958251953,
+          "download_per_unique_working_set": 1.2497901916503906,
+          "vm_hwm_kib": 64916,
+          "cgroup_memory_peak_bytes": 13496320
+        },
+        "off-1": {
+          "timing": {
+            "cold_ms": 438.082773,
+            "warm_ms": 376.597673,
+            "cold_readdir_ms": 29.738894,
+            "warm_readdir_ms": 10.071727,
+            "mount_ms": 162.694891,
+            "idle_observation_ms": 502.817149,
+            "unmount_ms": 8.869756,
+            "end_to_end_ms": 1489.593302
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 148,
+              "ranges": 148,
+              "heads": 0,
+              "bytes": 16895099,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 129
+            },
+            "warm": {
+              "gets": 128,
+              "ranges": 128,
+              "heads": 0,
+              "bytes": 16777216,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 128
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 277,
+              "ranges": 277,
+              "heads": 0,
+              "bytes": 33677810,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 257
+            }
+          },
+          "cache": {},
+          "cache_hit_fraction": null,
+          "cold_read_amplification": 32.224843978881836,
+          "end_to_end_transfer_per_logical_read": 32.11766242980957,
+          "download_per_unique_working_set": 64.23532485961914,
+          "vm_hwm_kib": 65044,
+          "cgroup_memory_peak_bytes": 12759040
+        },
+        "on-2": {
+          "timing": {
+            "cold_ms": 301.040302,
+            "warm_ms": 245.81527,
+            "cold_readdir_ms": 34.006084,
+            "warm_readdir_ms": 9.048008,
+            "mount_ms": 163.887344,
+            "idle_observation_ms": 502.721963,
+            "unmount_ms": 8.869955,
+            "end_to_end_ms": 1222.83265
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 15,
+              "ranges": 0,
+              "heads": 15,
+              "bytes": 649755,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "warm": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 16,
+              "ranges": 1,
+              "heads": 15,
+              "bytes": 655250,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            }
+          },
+          "cache": {
+            "hits": 261,
+            "misses": 15,
+            "ready_hits": 261,
+            "inflight_hits": 0,
+            "local_bytes": 33672315,
+            "downloaded": 649755
+          },
+          "cache_hit_fraction": 0.9456521739130435,
+          "cold_read_amplification": 1.239309310913086,
+          "end_to_end_transfer_per_logical_read": 0.6248950958251953,
+          "download_per_unique_working_set": 1.2497901916503906,
+          "vm_hwm_kib": 65708,
+          "cgroup_memory_peak_bytes": 14577664
+        },
+        "off-3": {
+          "timing": {
+            "cold_ms": 423.622409,
+            "warm_ms": 370.749005,
+            "cold_readdir_ms": 28.830432,
+            "warm_readdir_ms": 9.212858,
+            "mount_ms": 162.788975,
+            "idle_observation_ms": 502.729295,
+            "unmount_ms": 8.972277,
+            "end_to_end_ms": 1469.380362
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 148,
+              "ranges": 148,
+              "heads": 0,
+              "bytes": 16895099,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 129
+            },
+            "warm": {
+              "gets": 128,
+              "ranges": 128,
+              "heads": 0,
+              "bytes": 16777216,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 128
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 277,
+              "ranges": 277,
+              "heads": 0,
+              "bytes": 33677810,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 257
+            }
+          },
+          "cache": {},
+          "cache_hit_fraction": null,
+          "cold_read_amplification": 32.224843978881836,
+          "end_to_end_transfer_per_logical_read": 32.11766242980957,
+          "download_per_unique_working_set": 64.23532485961914,
+          "vm_hwm_kib": 65572,
+          "cgroup_memory_peak_bytes": 12652544
+        }
+      },
+      "pairs": [
+        {
+          "off_arm": "off-1",
+          "on_arm": "on-0",
+          "reduction_percent": {
+            "cold_ms": 28.045909260166223,
+            "warm_ms": 33.31411529991052,
+            "cold_readdir_ms": -22.695107625724088,
+            "warm_readdir_ms": 2.6325574551415043,
+            "mount_ms": -2.943128681281082,
+            "idle_observation_ms": 0.006306865241778592,
+            "unmount_ms": -0.644222907597447,
+            "end_to_end_ms": 16.33969531637972
+          },
+          "speedup": {
+            "cold_ms": 1.3897750492264926,
+            "warm_ms": 1.499567718861887,
+            "cold_readdir_ms": 0.815028422364203,
+            "warm_readdir_ms": 1.027037348279212,
+            "mount_ms": 0.9714101492835602,
+            "idle_observation_ms": 1.0000630726303235,
+            "unmount_ms": 0.9935990075834862,
+            "end_to_end_ms": 1.195310014446778
+          }
+        },
+        {
+          "off_arm": "off-3",
+          "on_arm": "on-2",
+          "reduction_percent": {
+            "cold_ms": 28.936643670330486,
+            "warm_ms": 33.69765887841021,
+            "cold_readdir_ms": -17.952044561801927,
+            "warm_readdir_ms": 1.7893470191334915,
+            "mount_ms": -0.674719525692713,
+            "idle_observation_ms": 0.0014584389795624375,
+            "unmount_ms": 1.1404239971637198,
+            "end_to_end_ms": 16.779025933381842
+          },
+          "speedup": {
+            "cold_ms": 1.4071950040762315,
+            "warm_ms": 1.5082423683443262,
+            "cold_readdir_ms": 0.8478021756342188,
+            "warm_readdir_ms": 1.0182194799120428,
+            "mount_ms": 0.9932980242818504,
+            "idle_observation_ms": 1.0000145846025033,
+            "unmount_ms": 1.0115357969685304,
+            "end_to_end_ms": 1.2016201579177659
+          }
+        }
+      ],
+      "correctness": {
+        "on-0-remount": {
+          "passed": true,
+          "cache": {
+            "hits": 276,
+            "misses": 0,
+            "ready_hits": 276,
+            "inflight_hits": 0,
+            "local_bytes": 33672315,
+            "downloaded": 0
+          },
+          "end_to_end_s3": {
+            "gets": 1,
+            "ranges": 1,
+            "heads": 0,
+            "bytes": 5495,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-private": {
+          "passed": true,
+          "cache": {
+            "hits": 257,
+            "misses": 15,
+            "ready_hits": 257,
+            "inflight_hits": 0,
+            "local_bytes": 33406420,
+            "downloaded": 649755
+          },
+          "end_to_end_s3": {
+            "gets": 0,
+            "ranges": 0,
+            "heads": 0,
+            "bytes": 0,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-private-cold": {
+          "passed": true,
+          "cache": {
+            "hits": 259,
+            "misses": 15,
+            "ready_hits": 259,
+            "inflight_hits": 0,
+            "local_bytes": 33410171,
+            "downloaded": 649755
+          },
+          "end_to_end_s3": {
+            "gets": 0,
+            "ranges": 0,
+            "heads": 0,
+            "bytes": 0,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-parent-isolation": {
+          "passed": true,
+          "cache": {
+            "hits": 261,
+            "misses": 15,
+            "ready_hits": 261,
+            "inflight_hits": 0,
+            "local_bytes": 33672315,
+            "downloaded": 649755
+          },
+          "end_to_end_s3": {
+            "gets": 16,
+            "ranges": 1,
+            "heads": 15,
+            "bytes": 655250,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        }
+      },
+      "cleanup": {
+        "mount_absent": true,
+        "owned_containers_absent": {
+          "redis": true,
+          "rustfs": true
+        },
+        "scratch_removed": true,
+        "cgroups_absent": true
+      },
+      "object_sizes": {
+        "base/indexes/10": {
+          "count": 1,
+          "total_bytes": 4172,
+          "min_bytes": 4172,
+          "max_bytes": 4172
+        },
+        "base/indexes/11": {
+          "count": 1,
+          "total_bytes": 4172,
+          "min_bytes": 4172,
+          "max_bytes": 4172
+        },
+        "base/indexes/12": {
+          "count": 1,
+          "total_bytes": 9980,
+          "min_bytes": 9980,
+          "max_bytes": 9980
+        },
+        "base/indexes/5": {
+          "count": 1,
+          "total_bytes": 5288,
+          "min_bytes": 5288,
+          "max_bytes": 5288
+        },
+        "base/indexes/6": {
+          "count": 1,
+          "total_bytes": 43700,
+          "min_bytes": 43700,
+          "max_bytes": 43700
+        },
+        "base/indexes/7": {
+          "count": 1,
+          "total_bytes": 48404,
+          "min_bytes": 48404,
+          "max_bytes": 48404
+        },
+        "base/indexes/8": {
+          "count": 1,
+          "total_bytes": 4887,
+          "min_bytes": 4887,
+          "max_bytes": 4887
+        },
+        "base/indexes/9": {
+          "count": 1,
+          "total_bytes": 4776,
+          "min_bytes": 4776,
+          "max_bytes": 4776
+        },
+        "base/objects/0": {
+          "count": 1,
+          "total_bytes": 5495,
+          "min_bytes": 5495,
+          "max_bytes": 5495
+        },
+        "base/objects/1": {
+          "count": 5,
+          "total_bytes": 559800,
+          "min_bytes": 4647,
+          "max_bytes": 138789
+        },
+        "base/objects/3": {
+          "count": 4,
+          "total_bytes": 17152,
+          "min_bytes": 4288,
+          "max_bytes": 4288
+        }
+      }
+    },
+    "pair-10000-01": {
+      "raw_sha256": "67b1035d902b12ce02db53ba9132302a4d39decbcf2c2e58f0a1ce6d32a1a099",
+      "files": 10000,
+      "order": "off-on",
+      "input_sha256": "a6be37e6b0af24208b2dd0f95a1bfb7546e9cab9bc30ee97523dd8a09d7f41cc",
+      "manifest_key": "base/objects/0/c111bcdab5819c9102021047a4ae4127e287cf6daa43f1017aa91e43c88f02f8",
+      "exact_revision": "01a1cf8f-d119-7632-9240-093ed2bdcade:1:31e96f5ae46746dc3141baa0ff47b6886013f2d9d5fc530b04aa24d3faa3be2c",
+      "arms": {
+        "off-0": {
+          "timing": {
+            "cold_ms": 33026.070453,
+            "warm_ms": 29465.790478,
+            "cold_readdir_ms": 1581.419529,
+            "warm_readdir_ms": 718.806725,
+            "mount_ms": 166.667363,
+            "idle_observation_ms": 502.741737,
+            "unmount_ms": 74.795613,
+            "end_to_end_ms": 63242.568955
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 10970,
+              "ranges": 10970,
+              "heads": 0,
+              "bytes": 1317020299,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 10001
+            },
+            "warm": {
+              "gets": 10000,
+              "ranges": 10000,
+              "heads": 0,
+              "bytes": 1309671424,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 10000
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 20971,
+              "ranges": 20971,
+              "heads": 0,
+              "bytes": 2626697218,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 20001
+            }
+          },
+          "cache": {},
+          "cache_hit_fraction": null,
+          "cold_read_amplification": 32.153815893554686,
+          "end_to_end_transfer_per_logical_read": 32.06417502441406,
+          "download_per_unique_working_set": 64.12835004882812,
+          "vm_hwm_kib": 111736,
+          "cgroup_memory_peak_bytes": 59969536
+        },
+        "on-1": {
+          "timing": {
+            "cold_ms": 23353.376844,
+            "warm_ms": 19568.015903,
+            "cold_readdir_ms": 2046.496275,
+            "warm_readdir_ms": 741.470928,
+            "mount_ms": 168.967513,
+            "idle_observation_ms": 502.770728,
+            "unmount_ms": 125.514405,
+            "end_to_end_ms": 43725.206927
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 656,
+              "ranges": 0,
+              "heads": 656,
+              "bytes": 48574587,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "warm": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 657,
+              "ranges": 1,
+              "heads": 656,
+              "bytes": 48580082,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            }
+          },
+          "cache": {
+            "hits": 20314,
+            "misses": 656,
+            "ready_hits": 20314,
+            "inflight_hits": 0,
+            "local_bytes": 2626691723,
+            "downloaded": 48574587
+          },
+          "cache_hit_fraction": 0.9687172150691464,
+          "cold_read_amplification": 1.1859030029296875,
+          "end_to_end_transfer_per_logical_read": 0.5930185791015625,
+          "download_per_unique_working_set": 1.186037158203125,
+          "vm_hwm_kib": 112980,
+          "cgroup_memory_peak_bytes": 114667520
+        },
+        "off-2": {
+          "timing": {
+            "cold_ms": 32920.255989,
+            "warm_ms": 29448.751008,
+            "cold_readdir_ms": 1636.263738,
+            "warm_readdir_ms": 721.611284,
+            "mount_ms": 163.001335,
+            "idle_observation_ms": 502.803763,
+            "unmount_ms": 75.054151,
+            "end_to_end_ms": 63116.254325
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 10970,
+              "ranges": 10970,
+              "heads": 0,
+              "bytes": 1317020299,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 10001
+            },
+            "warm": {
+              "gets": 10000,
+              "ranges": 10000,
+              "heads": 0,
+              "bytes": 1309671424,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 10000
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 20971,
+              "ranges": 20971,
+              "heads": 0,
+              "bytes": 2626697218,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 20001
+            }
+          },
+          "cache": {},
+          "cache_hit_fraction": null,
+          "cold_read_amplification": 32.153815893554686,
+          "end_to_end_transfer_per_logical_read": 32.06417502441406,
+          "download_per_unique_working_set": 64.12835004882812,
+          "vm_hwm_kib": 111656,
+          "cgroup_memory_peak_bytes": 59772928
+        },
+        "on-3": {
+          "timing": {
+            "cold_ms": 23458.209963,
+            "warm_ms": 19547.426219,
+            "cold_readdir_ms": 1994.151744,
+            "warm_readdir_ms": 742.161143,
+            "mount_ms": 166.038285,
+            "idle_observation_ms": 502.76019,
+            "unmount_ms": 125.360623,
+            "end_to_end_ms": 43806.216493
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 656,
+              "ranges": 0,
+              "heads": 656,
+              "bytes": 48574587,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "warm": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 657,
+              "ranges": 1,
+              "heads": 656,
+              "bytes": 48580082,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            }
+          },
+          "cache": {
+            "hits": 20314,
+            "misses": 656,
+            "ready_hits": 20314,
+            "inflight_hits": 0,
+            "local_bytes": 2626691723,
+            "downloaded": 48574587
+          },
+          "cache_hit_fraction": 0.9687172150691464,
+          "cold_read_amplification": 1.1859030029296875,
+          "end_to_end_transfer_per_logical_read": 0.5930185791015625,
+          "download_per_unique_working_set": 1.186037158203125,
+          "vm_hwm_kib": 112120,
+          "cgroup_memory_peak_bytes": 114647040
+        }
+      },
+      "pairs": [
+        {
+          "off_arm": "off-0",
+          "on_arm": "on-1",
+          "reduction_percent": {
+            "cold_ms": 29.288054789216865,
+            "warm_ms": 33.59073153795064,
+            "cold_readdir_ms": -29.408815148127587,
+            "warm_readdir_ms": -3.1530315746558957,
+            "mount_ms": -1.380084234008061,
+            "idle_observation_ms": -0.005766579113375414,
+            "unmount_ms": -67.80984868724853,
+            "end_to_end_ms": 30.861115148386055
+          },
+          "speedup": {
+            "cold_ms": 1.4141882209846295,
+            "warm_ms": 1.5058139069420196,
+            "cold_readdir_ms": 0.7727448851574382,
+            "warm_readdir_ms": 0.9694334570053434,
+            "mount_ms": 0.9863870281383617,
+            "idle_observation_ms": 0.9999423375340181,
+            "unmount_ms": 0.5959125807113534,
+            "end_to_end_ms": 1.4463640860656093
+          }
+        },
+        {
+          "off_arm": "off-2",
+          "on_arm": "on-3",
+          "reduction_percent": {
+            "cold_ms": 28.74232214099931,
+            "warm_ms": 33.622223184644476,
+            "cold_readdir_ms": -21.872268980148956,
+            "warm_readdir_ms": -2.847774065572972,
+            "mount_ms": -1.8631442497081263,
+            "idle_observation_ms": 0.008666005150792522,
+            "unmount_ms": -67.02690168329264,
+            "end_to_end_ms": 30.59439765320706
+          },
+          "speedup": {
+            "cold_ms": 1.4033575469281,
+            "warm_ms": 1.5065283110968317,
+            "cold_readdir_ms": 0.8205312072780757,
+            "warm_readdir_ms": 0.9723107856106122,
+            "mount_ms": 0.9817093389033741,
+            "idle_observation_ms": 1.0000866675621234,
+            "unmount_ms": 0.5987059509109173,
+            "end_to_end_ms": 1.440805880486977
+          }
+        }
+      ],
+      "correctness": {
+        "on-1-remount": {
+          "passed": true,
+          "cache": {
+            "hits": 20970,
+            "misses": 0,
+            "ready_hits": 20970,
+            "inflight_hits": 0,
+            "local_bytes": 2626691723,
+            "downloaded": 0
+          },
+          "end_to_end_s3": {
+            "gets": 1,
+            "ranges": 1,
+            "heads": 0,
+            "bytes": 5495,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-private": {
+          "passed": true,
+          "cache": {
+            "hits": 20310,
+            "misses": 656,
+            "ready_hits": 20310,
+            "inflight_hits": 0,
+            "local_bytes": 2626401795,
+            "downloaded": 48574587
+          },
+          "end_to_end_s3": {
+            "gets": 0,
+            "ranges": 0,
+            "heads": 0,
+            "bytes": 0,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-private-cold": {
+          "passed": true,
+          "cache": {
+            "hits": 20312,
+            "misses": 656,
+            "ready_hits": 20312,
+            "inflight_hits": 0,
+            "local_bytes": 2626429579,
+            "downloaded": 48574587
+          },
+          "end_to_end_s3": {
+            "gets": 0,
+            "ranges": 0,
+            "heads": 0,
+            "bytes": 0,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-parent-isolation": {
+          "passed": true,
+          "cache": {
+            "hits": 20314,
+            "misses": 656,
+            "ready_hits": 20314,
+            "inflight_hits": 0,
+            "local_bytes": 2626691723,
+            "downloaded": 48574587
+          },
+          "end_to_end_s3": {
+            "gets": 657,
+            "ranges": 1,
+            "heads": 656,
+            "bytes": 48580082,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        }
+      },
+      "cleanup": {
+        "mount_absent": true,
+        "owned_containers_absent": {
+          "redis": true,
+          "rustfs": true
+        },
+        "scratch_removed": true,
+        "cgroups_absent": true
+      },
+      "object_sizes": {
+        "base/indexes/10": {
+          "count": 1,
+          "total_bytes": 4172,
+          "min_bytes": 4172,
+          "max_bytes": 4172
+        },
+        "base/indexes/11": {
+          "count": 1,
+          "total_bytes": 4172,
+          "min_bytes": 4172,
+          "max_bytes": 4172
+        },
+        "base/indexes/12": {
+          "count": 12,
+          "total_bytes": 505508,
+          "min_bytes": 5844,
+          "max_bytes": 49228
+        },
+        "base/indexes/5": {
+          "count": 1,
+          "total_bytes": 75740,
+          "min_bytes": 75740,
+          "max_bytes": 75740
+        },
+        "base/indexes/6": {
+          "count": 13,
+          "total_bytes": 3144314,
+          "min_bytes": 5984,
+          "max_bytes": 266204
+        },
+        "base/indexes/7": {
+          "count": 15,
+          "total_bytes": 3520970,
+          "min_bytes": 6784,
+          "max_bytes": 266234
+        },
+        "base/indexes/8": {
+          "count": 1,
+          "total_bytes": 49074,
+          "min_bytes": 49074,
+          "max_bytes": 49074
+        },
+        "base/indexes/9": {
+          "count": 1,
+          "total_bytes": 51435,
+          "min_bytes": 51435,
+          "max_bytes": 51435
+        },
+        "base/objects/0": {
+          "count": 1,
+          "total_bytes": 5495,
+          "min_bytes": 5495,
+          "max_bytes": 5495
+        },
+        "base/objects/1": {
+          "count": 314,
+          "total_bytes": 43402200,
+          "min_bytes": 28680,
+          "max_bytes": 138790
+        },
+        "base/objects/3": {
+          "count": 313,
+          "total_bytes": 1342144,
+          "min_bytes": 4288,
+          "max_bytes": 4288
+        }
+      }
+    },
+    "pair-10000-02": {
+      "raw_sha256": "d8481c70dc874de7fef4deca515a730263d113c0e0d1cec8038984c473992106",
+      "files": 10000,
+      "order": "on-off",
+      "input_sha256": "a6be37e6b0af24208b2dd0f95a1bfb7546e9cab9bc30ee97523dd8a09d7f41cc",
+      "manifest_key": "base/objects/0/af4cf5cfc2dd95ed42a3c6e7f1b923dbc43ff0211d434a591e43d51159e0a8bc",
+      "exact_revision": "01a1cfad-894e-7de0-b786-4c0ab0188e13:1:d6b54b3a496d577d28c20ea964cd408017c8c70bba11d32a05c6cf43e1ecc3e5",
+      "arms": {
+        "on-0": {
+          "timing": {
+            "cold_ms": 23412.432744,
+            "warm_ms": 19247.988621,
+            "cold_readdir_ms": 1997.154738,
+            "warm_readdir_ms": 724.460134,
+            "mount_ms": 167.809454,
+            "idle_observation_ms": 502.751504,
+            "unmount_ms": 124.121752,
+            "end_to_end_ms": 43461.698092
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 656,
+              "ranges": 0,
+              "heads": 656,
+              "bytes": 48574587,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "warm": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 657,
+              "ranges": 1,
+              "heads": 656,
+              "bytes": 48580082,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            }
+          },
+          "cache": {
+            "hits": 20314,
+            "misses": 656,
+            "ready_hits": 20314,
+            "inflight_hits": 0,
+            "local_bytes": 2626691723,
+            "downloaded": 48574587
+          },
+          "cache_hit_fraction": 0.9687172150691464,
+          "cold_read_amplification": 1.1859030029296875,
+          "end_to_end_transfer_per_logical_read": 0.5930185791015625,
+          "download_per_unique_working_set": 1.186037158203125,
+          "vm_hwm_kib": 112200,
+          "cgroup_memory_peak_bytes": 114393088
+        },
+        "off-1": {
+          "timing": {
+            "cold_ms": 32906.241773,
+            "warm_ms": 29053.361455,
+            "cold_readdir_ms": 1660.501543,
+            "warm_readdir_ms": 705.20113,
+            "mount_ms": 165.984223,
+            "idle_observation_ms": 502.801348,
+            "unmount_ms": 75.751611,
+            "end_to_end_ms": 62710.576873
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 10970,
+              "ranges": 10970,
+              "heads": 0,
+              "bytes": 1317020299,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 10001
+            },
+            "warm": {
+              "gets": 10000,
+              "ranges": 10000,
+              "heads": 0,
+              "bytes": 1309671424,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 10000
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 20971,
+              "ranges": 20971,
+              "heads": 0,
+              "bytes": 2626697218,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 20001
+            }
+          },
+          "cache": {},
+          "cache_hit_fraction": null,
+          "cold_read_amplification": 32.153815893554686,
+          "end_to_end_transfer_per_logical_read": 32.06417502441406,
+          "download_per_unique_working_set": 64.12835004882812,
+          "vm_hwm_kib": 111628,
+          "cgroup_memory_peak_bytes": 59727872
+        },
+        "on-2": {
+          "timing": {
+            "cold_ms": 23527.906465,
+            "warm_ms": 19244.591392,
+            "cold_readdir_ms": 2043.126905,
+            "warm_readdir_ms": 723.163735,
+            "mount_ms": 171.758161,
+            "idle_observation_ms": 502.795784,
+            "unmount_ms": 124.198524,
+            "end_to_end_ms": 43577.735563
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 656,
+              "ranges": 0,
+              "heads": 656,
+              "bytes": 48574587,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "warm": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 657,
+              "ranges": 1,
+              "heads": 656,
+              "bytes": 48580082,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            }
+          },
+          "cache": {
+            "hits": 20314,
+            "misses": 656,
+            "ready_hits": 20314,
+            "inflight_hits": 0,
+            "local_bytes": 2626691723,
+            "downloaded": 48574587
+          },
+          "cache_hit_fraction": 0.9687172150691464,
+          "cold_read_amplification": 1.1859030029296875,
+          "end_to_end_transfer_per_logical_read": 0.5930185791015625,
+          "download_per_unique_working_set": 1.186037158203125,
+          "vm_hwm_kib": 112368,
+          "cgroup_memory_peak_bytes": 114356224
+        },
+        "off-3": {
+          "timing": {
+            "cold_ms": 32816.858679,
+            "warm_ms": 29434.751855,
+            "cold_readdir_ms": 1605.045713,
+            "warm_readdir_ms": 712.06961,
+            "mount_ms": 169.123431,
+            "idle_observation_ms": 502.749775,
+            "unmount_ms": 75.086958,
+            "end_to_end_ms": 63004.927248
+          },
+          "s3": {
+            "mount": {
+              "gets": 1,
+              "ranges": 1,
+              "heads": 0,
+              "bytes": 5495,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "cold": {
+              "gets": 10970,
+              "ranges": 10970,
+              "heads": 0,
+              "bytes": 1317020299,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 10001
+            },
+            "warm": {
+              "gets": 10000,
+              "ranges": 10000,
+              "heads": 0,
+              "bytes": 1309671424,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 10000
+            },
+            "unmount": {
+              "gets": 0,
+              "ranges": 0,
+              "heads": 0,
+              "bytes": 0,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 0
+            },
+            "end_to_end": {
+              "gets": 20971,
+              "ranges": 20971,
+              "heads": 0,
+              "bytes": 2626697218,
+              "errors": 0,
+              "active": 0,
+              "duplicate_gets": 20001
+            }
+          },
+          "cache": {},
+          "cache_hit_fraction": null,
+          "cold_read_amplification": 32.153815893554686,
+          "end_to_end_transfer_per_logical_read": 32.06417502441406,
+          "download_per_unique_working_set": 64.12835004882812,
+          "vm_hwm_kib": 112184,
+          "cgroup_memory_peak_bytes": 59916288
+        }
+      },
+      "pairs": [
+        {
+          "off_arm": "off-1",
+          "on_arm": "on-0",
+          "reduction_percent": {
+            "cold_ms": 28.85108878276642,
+            "warm_ms": 33.74952963424658,
+            "cold_readdir_ms": -20.274187423624678,
+            "warm_readdir_ms": -2.7309944894728044,
+            "mount_ms": -1.0996412592779947,
+            "idle_observation_ms": 0.009913259023319743,
+            "unmount_ms": -63.85361362149777,
+            "end_to_end_ms": 30.69478824916948
+          },
+          "speedup": {
+            "cold_ms": 1.4055028852750475,
+            "warm_ms": 1.5094232455697791,
+            "cold_readdir_ms": 0.8314335947062707,
+            "warm_readdir_ms": 0.9734160610140626,
+            "mount_ms": 0.9891231932618051,
+            "idle_observation_ms": 1.000099142418478,
+            "unmount_ms": 0.6103008520214893,
+            "end_to_end_ms": 1.4428929293156896
+          }
+        },
+        {
+          "off_arm": "off-3",
+          "on_arm": "on-2",
+          "reduction_percent": {
+            "cold_ms": 28.305427721953592,
+            "warm_ms": 34.61948826067316,
+            "cold_readdir_ms": -27.294000940395648,
+            "warm_readdir_ms": -1.5580113017321429,
+            "mount_ms": -1.557874023972472,
+            "idle_observation_ms": -0.009151471027513125,
+            "unmount_ms": -65.40625337358854,
+            "end_to_end_ms": 30.834400631129512
+          },
+          "speedup": {
+            "cold_ms": 1.3948057268851437,
+            "warm_ms": 1.529507759111792,
+            "cold_readdir_ms": 0.7855829753267333,
+            "warm_readdir_ms": 0.9846589030076295,
+            "mount_ms": 0.984660233990279,
+            "idle_observation_ms": 0.9999084936639007,
+            "unmount_ms": 0.6045720639965093,
+            "end_to_end_ms": 1.4458054424813849
+          }
+        }
+      ],
+      "correctness": {
+        "on-0-remount": {
+          "passed": true,
+          "cache": {
+            "hits": 20970,
+            "misses": 0,
+            "ready_hits": 20970,
+            "inflight_hits": 0,
+            "local_bytes": 2626691723,
+            "downloaded": 0
+          },
+          "end_to_end_s3": {
+            "gets": 1,
+            "ranges": 1,
+            "heads": 0,
+            "bytes": 5495,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-private": {
+          "passed": true,
+          "cache": {
+            "hits": 20310,
+            "misses": 656,
+            "ready_hits": 20310,
+            "inflight_hits": 0,
+            "local_bytes": 2626401795,
+            "downloaded": 48574587
+          },
+          "end_to_end_s3": {
+            "gets": 0,
+            "ranges": 0,
+            "heads": 0,
+            "bytes": 0,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-private-cold": {
+          "passed": true,
+          "cache": {
+            "hits": 20312,
+            "misses": 656,
+            "ready_hits": 20312,
+            "inflight_hits": 0,
+            "local_bytes": 2626429579,
+            "downloaded": 48574587
+          },
+          "end_to_end_s3": {
+            "gets": 0,
+            "ranges": 0,
+            "heads": 0,
+            "bytes": 0,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        },
+        "on-parent-isolation": {
+          "passed": true,
+          "cache": {
+            "hits": 20314,
+            "misses": 656,
+            "ready_hits": 20314,
+            "inflight_hits": 0,
+            "local_bytes": 2626691723,
+            "downloaded": 48574587
+          },
+          "end_to_end_s3": {
+            "gets": 657,
+            "ranges": 1,
+            "heads": 656,
+            "bytes": 48580082,
+            "errors": 0,
+            "active": 0,
+            "duplicate_gets": 0
+          }
+        }
+      },
+      "cleanup": {
+        "mount_absent": true,
+        "owned_containers_absent": {
+          "redis": true,
+          "rustfs": true
+        },
+        "scratch_removed": true,
+        "cgroups_absent": true
+      },
+      "object_sizes": {
+        "base/indexes/10": {
+          "count": 1,
+          "total_bytes": 4172,
+          "min_bytes": 4172,
+          "max_bytes": 4172
+        },
+        "base/indexes/11": {
+          "count": 1,
+          "total_bytes": 4172,
+          "min_bytes": 4172,
+          "max_bytes": 4172
+        },
+        "base/indexes/12": {
+          "count": 12,
+          "total_bytes": 505508,
+          "min_bytes": 5844,
+          "max_bytes": 49228
+        },
+        "base/indexes/5": {
+          "count": 1,
+          "total_bytes": 75740,
+          "min_bytes": 75740,
+          "max_bytes": 75740
+        },
+        "base/indexes/6": {
+          "count": 13,
+          "total_bytes": 3144314,
+          "min_bytes": 5984,
+          "max_bytes": 266204
+        },
+        "base/indexes/7": {
+          "count": 15,
+          "total_bytes": 3520970,
+          "min_bytes": 6784,
+          "max_bytes": 266234
+        },
+        "base/indexes/8": {
+          "count": 1,
+          "total_bytes": 49074,
+          "min_bytes": 49074,
+          "max_bytes": 49074
+        },
+        "base/indexes/9": {
+          "count": 1,
+          "total_bytes": 51435,
+          "min_bytes": 51435,
+          "max_bytes": 51435
+        },
+        "base/objects/0": {
+          "count": 1,
+          "total_bytes": 5495,
+          "min_bytes": 5495,
+          "max_bytes": 5495
+        },
+        "base/objects/1": {
+          "count": 314,
+          "total_bytes": 43402200,
+          "min_bytes": 28680,
+          "max_bytes": 138790
+        },
+        "base/objects/3": {
+          "count": 313,
+          "total_bytes": 1342144,
+          "min_bytes": 4288,
+          "max_bytes": 4288
+        }
+      }
+    }
+  },
+  "aggregate": {
+    "128": {
+      "modes": {
+        "off": {
+          "count": 4,
+          "mean_timing_ms": {
+            "cold_ms": 429.8414585,
+            "warm_ms": 374.9605665,
+            "cold_readdir_ms": 29.336628249999997,
+            "warm_readdir_ms": 9.540513,
+            "mount_ms": 164.83679625,
+            "idle_observation_ms": 502.811039,
+            "unmount_ms": 8.911226,
+            "end_to_end_ms": 1481.919448
+          },
+          "median_timing_ms": {
+            "cold_ms": 428.830326,
+            "warm_ms": 376.247794,
+            "cold_readdir_ms": 29.3885935,
+            "warm_readdir_ms": 9.4387335,
+            "mount_ms": 163.892046,
+            "idle_observation_ms": 502.80807649999997,
+            "unmount_ms": 8.9014355,
+            "end_to_end_ms": 1484.352064
+          },
+          "range_timing_ms": {
+            "cold_ms": [
+              423.622409,
+              438.082773
+            ],
+            "warm_ms": [
+              370.749005,
+              376.597673
+            ],
+            "cold_readdir_ms": [
+              28.830432,
+              29.738894
+            ],
+            "warm_readdir_ms": [
+              9.212858,
+              10.071727
+            ],
+            "mount_ms": [
+              162.694891,
+              168.868202
+            ],
+            "idle_observation_ms": [
+              502.729295,
+              502.898708
+            ],
+            "unmount_ms": [
+              8.869756,
+              8.972277
+            ],
+            "end_to_end_ms": [
+              1469.380362,
+              1489.593302
+            ]
+          },
+          "vm_hwm_kib_range": [
+            64764,
+            65572
+          ],
+          "cgroup_memory_peak_bytes_range": [
+            12480512,
+            12759040
+          ]
+        },
+        "on": {
+          "count": 4,
+          "mean_timing_ms": {
+            "cold_ms": 313.570343,
+            "warm_ms": 250.46185325,
+            "cold_readdir_ms": 36.108534250000005,
+            "warm_readdir_ms": 9.45325175,
+            "mount_ms": 164.13519150000002,
+            "idle_observation_ms": 502.7403585,
+            "unmount_ms": 8.9136935,
+            "end_to_end_ms": 1240.34804
+          },
+          "median_timing_ms": {
+            "cold_ms": 313.839975,
+            "warm_ms": 249.952771,
+            "cold_readdir_ms": 35.975417500000006,
+            "warm_readdir_ms": 9.431151,
+            "mount_ms": 163.97308500000003,
+            "idle_observation_ms": 502.7419575,
+            "unmount_ms": 8.919654000000001,
+            "end_to_end_ms": 1241.779945
+          },
+          "range_timing_ms": {
+            "cold_ms": [
+              301.040302,
+              325.56112
+            ],
+            "warm_ms": [
+              245.81527,
+              256.126601
+            ],
+            "cold_readdir_ms": [
+              34.006084,
+              38.477218
+            ],
+            "warm_readdir_ms": [
+              9.048008,
+              9.902697
+            ],
+            "mount_ms": [
+              161.111385,
+              167.483211
+            ],
+            "idle_observation_ms": [
+              502.692082,
+              502.785437
+            ],
+            "unmount_ms": [
+              8.869955,
+              8.945511
+            ],
+            "end_to_end_ms": [
+              1222.83265,
+              1254.99962
+            ]
+          },
+          "vm_hwm_kib_range": [
+            64916,
+            65708
+          ],
+          "cgroup_memory_peak_bytes_range": [
+            13496320,
+            14577664
+          ]
+        }
+      },
+      "paired_reductions_percent": {
+        "cold_ms": [
+          24.19938824581215,
+          27.02293906287675,
+          28.045909260166223,
+          28.936643670330486
+        ],
+        "warm_ms": [
+          31.91060461784936,
+          33.89688708924085,
+          33.31411529991052,
+          33.69765887841021
+        ],
+        "cold_readdir_ms": [
+          -31.57149959371628,
+          -20.078731998941123,
+          -22.695107625724088,
+          -17.952044561801927
+        ],
+        "warm_readdir_ms": [
+          -7.329962211717356,
+          6.168678638682456,
+          2.6325574551415043,
+          1.7893470191334915
+        ],
+        "mount_ms": [
+          2.353846629291445,
+          2.848005689075783,
+          -2.943128681281082,
+          -0.674719525692713
+        ],
+        "idle_observation_ms": [
+          0.027193547691517495,
+          0.0212653563649412,
+          0.006306865241778592,
+          0.0014584389795624375
+        ],
+        "unmount_ms": [
+          -0.32273027321438885,
+          -0.29567403698593786,
+          -0.644222907597447,
+          1.1404239971637198
+        ],
+        "end_to_end_ms": [
+          15.381425997306685,
+          16.70844320460493,
+          16.33969531637972,
+          16.779025933381842
+        ]
+      },
+      "reduction_of_mean_percent": {
+        "cold_ms": 27.04976758308668,
+        "warm_ms": 33.2031483769374,
+        "cold_readdir_ms": -23.083450293917164,
+        "warm_readdir_ms": 0.9146389717198722,
+        "mount_ms": 0.4256360023740635,
+        "idle_observation_ms": 0.014057070055695231,
+        "unmount_ms": -0.02768979262788296,
+        "end_to_end_ms": 16.301250943566803
+      }
+    },
+    "10000": {
+      "modes": {
+        "off": {
+          "count": 4,
+          "mean_timing_ms": {
+            "cold_ms": 32917.3567235,
+            "warm_ms": 29350.663698999997,
+            "cold_readdir_ms": 1620.80763075,
+            "warm_readdir_ms": 714.42218725,
+            "mount_ms": 166.194088,
+            "idle_observation_ms": 502.77415575,
+            "unmount_ms": 75.17208325,
+            "end_to_end_ms": 63018.581850250004
+          },
+          "median_timing_ms": {
+            "cold_ms": 32913.248881,
+            "warm_ms": 29441.7514315,
+            "cold_readdir_ms": 1620.6547255,
+            "warm_readdir_ms": 715.4381675,
+            "mount_ms": 166.32579299999998,
+            "idle_observation_ms": 502.7755615,
+            "unmount_ms": 75.0705545,
+            "end_to_end_ms": 63060.590786500004
+          },
+          "range_timing_ms": {
+            "cold_ms": [
+              32816.858679,
+              33026.070453
+            ],
+            "warm_ms": [
+              29053.361455,
+              29465.790478
+            ],
+            "cold_readdir_ms": [
+              1581.419529,
+              1660.501543
+            ],
+            "warm_readdir_ms": [
+              705.20113,
+              721.611284
+            ],
+            "mount_ms": [
+              163.001335,
+              169.123431
+            ],
+            "idle_observation_ms": [
+              502.741737,
+              502.803763
+            ],
+            "unmount_ms": [
+              74.795613,
+              75.751611
+            ],
+            "end_to_end_ms": [
+              62710.576873,
+              63242.568955
+            ]
+          },
+          "vm_hwm_kib_range": [
+            111628,
+            112184
+          ],
+          "cgroup_memory_peak_bytes_range": [
+            59727872,
+            59969536
+          ]
+        },
+        "on": {
+          "count": 4,
+          "mean_timing_ms": {
+            "cold_ms": 23437.981504,
+            "warm_ms": 19402.00553375,
+            "cold_readdir_ms": 2020.2324155000001,
+            "warm_readdir_ms": 732.813985,
+            "mount_ms": 168.64335325,
+            "idle_observation_ms": 502.76955150000003,
+            "unmount_ms": 124.798826,
+            "end_to_end_ms": 43642.71426875
+          },
+          "median_timing_ms": {
+            "cold_ms": 23435.321353500003,
+            "warm_ms": 19397.70742,
+            "cold_readdir_ms": 2020.1408215000001,
+            "warm_readdir_ms": 732.965531,
+            "mount_ms": 168.3884835,
+            "idle_observation_ms": 502.765459,
+            "unmount_ms": 124.7795735,
+            "end_to_end_ms": 43651.471245
+          },
+          "range_timing_ms": {
+            "cold_ms": [
+              23353.376844,
+              23527.906465
+            ],
+            "warm_ms": [
+              19244.591392,
+              19568.015903
+            ],
+            "cold_readdir_ms": [
+              1994.151744,
+              2046.496275
+            ],
+            "warm_readdir_ms": [
+              723.163735,
+              742.161143
+            ],
+            "mount_ms": [
+              166.038285,
+              171.758161
+            ],
+            "idle_observation_ms": [
+              502.751504,
+              502.795784
+            ],
+            "unmount_ms": [
+              124.121752,
+              125.514405
+            ],
+            "end_to_end_ms": [
+              43461.698092,
+              43806.216493
+            ]
+          },
+          "vm_hwm_kib_range": [
+            112120,
+            112980
+          ],
+          "cgroup_memory_peak_bytes_range": [
+            114356224,
+            114667520
+          ]
+        }
+      },
+      "paired_reductions_percent": {
+        "cold_ms": [
+          29.288054789216865,
+          28.74232214099931,
+          28.85108878276642,
+          28.305427721953592
+        ],
+        "warm_ms": [
+          33.59073153795064,
+          33.622223184644476,
+          33.74952963424658,
+          34.61948826067316
+        ],
+        "cold_readdir_ms": [
+          -29.408815148127587,
+          -21.872268980148956,
+          -20.274187423624678,
+          -27.294000940395648
+        ],
+        "warm_readdir_ms": [
+          -3.1530315746558957,
+          -2.847774065572972,
+          -2.7309944894728044,
+          -1.5580113017321429
+        ],
+        "mount_ms": [
+          -1.380084234008061,
+          -1.8631442497081263,
+          -1.0996412592779947,
+          -1.557874023972472
+        ],
+        "idle_observation_ms": [
+          -0.005766579113375414,
+          0.008666005150792522,
+          0.009913259023319743,
+          -0.009151471027513125
+        ],
+        "unmount_ms": [
+          -67.80984868724853,
+          -67.02690168329264,
+          -63.85361362149777,
+          -65.40625337358854
+        ],
+        "end_to_end_ms": [
+          30.861115148386055,
+          30.59439765320706,
+          30.69478824916948,
+          30.834400631129512
+        ]
+      },
+      "reduction_of_mean_percent": {
+        "cold_ms": 28.797498229050056,
+        "warm_ms": 33.895854169692775,
+        "cold_readdir_ms": -24.643565169123338,
+        "warm_readdir_ms": -2.5743598222774944,
+        "mount_ms": -1.473737892529603,
+        "idle_observation_ms": 0.0009157690281536013,
+        "unmount_ms": -66.01751688184059,
+        "end_to_end_ms": 30.746276753010005
+      }
+    }
+  },
+  "frozen_identity": {
+    "binary_sha256": {
+      "brewfs": "d60704479f511559d7b6211f5070eeeb0728e24c9dfb460af966a79f17e87456",
+      "packed_snapshot_fixture": "2a0164001031a2ecf1372f4f3fdc54cb98e3ef44716329335b8f6148645eeb17"
+    },
+    "image_sha256": {
+      "rustfs": "sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806"
+    },
+    "rustfs_revision": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "budgets": {
+      "packed_disk_bytes": 268435456,
+      "metadata_bytes": 268435456,
+      "payload_memory_bytes": 536870912,
+      "payload_ssd_bytes": 0,
+      "output_bytes": 134217728,
+      "control_bytes": 8388608,
+      "process_memory_bytes": 8589934592,
+      "cpu_cores": 2
+    },
+    "scripts": {
+      "qualify-packed-cache.py": "6ded783fcc8188aaa3c68d6d51f3ad7be19557828c501606d548f7148b0475ab",
+      "whole_pack_meter.py": "4646ca21451e1c92f62b7e917f78de158334632303eab4391ffb6a94b6c1e9d5"
+    }
+  }
+}

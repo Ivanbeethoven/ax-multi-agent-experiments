@@ -1,0 +1,24 @@
+{
+  "pair-128-01": "Invalid setup attempt: Packed cache CLI environment leaked into workspace initialization; no timed mount. All owned resources cleaned.",
+  "pair-128-02": {
+    "change": "Pass cache mode/bytes only in mount_env; same frozen binaries and budgets.",
+    "script_sha256": "b976752bdfdaba9987ae615107aac6389db425bfe3e2b4a5897d1aeeb0c17914",
+    "outcome": "Invalid/incomplete qualification: mount reads correct, but trace parser only accepted equals; pretty tracing used colon. All owned resources cleaned."
+  },
+  "pair-128-03": {
+    "change": "Accept colon and equals in tracing metrics; unchanged binary, input policy, and budgets.",
+    "script_sha256": "f381ca8a9838180689903597ce329dbea61881263360a564aed35beda7ccd1dd",
+    "outcome": "Incomplete qualification: four timed arms and retained-cache remount completed, but independent-workspace initialization reused original DB and was rejected as already initialized. All owned resources cleaned."
+  },
+  "pair-128-04": {
+    "change": "Initialize private-write workspace in private Redis DB1 and a separate namespace; timed arms remain on DB0, same binary/budgets. This is not a native fork qualification.",
+    "script_sha256": "11e83e6753e33f97c1c42391e84c0836a6b53185a5cefde0ebfd89442061bcbe",
+    "outcome": "Invalid setup: S3 API returned 503 after port started listening, before any timed arm. All owned resources cleaned."
+  },
+  "pair-128-05": {
+    "change": "Bounded authenticated S3 readiness before CreateBucket. First complete valid attempt."
+  },
+  "pair-128-06": {
+    "change": "Reverse order only, otherwise same script/binary/budgets. Complete valid attempt."
+  }
+}

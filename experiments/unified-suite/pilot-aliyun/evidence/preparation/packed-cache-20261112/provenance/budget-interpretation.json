@@ -1,0 +1,34 @@
+{
+  "source_commit": "6912a796abddbd96c60aad6cc672fcd926a13712",
+  "same_configured_budgets_across_arms": true,
+  "ordinary_vfs_read_memory_bytes": 536870912,
+  "ordinary_vfs_read_ssd_bytes": 0,
+  "packed_decoded_payload_retention_bytes": 0,
+  "packed_decoded_payload_retention_evidence": "src/workspace/packed/snapshot/pipeline.rs:2 and log_verify_memo_configuration payload_cache_bytes=0; this active snapshot demand pipeline does not retain completed payload frames. Do not equate ordinary read_memory with this cache.",
+  "packed_metadata_cache_configured_bytes": 268435456,
+  "packed_disk_cache_configured_bytes": 268435456,
+  "packed_disk_cache_usage_note": "Configured equally in both arms; off does not allocate/use the whole-object disk cache. On uses the cache and its existing Stored/Control admission pools.",
+  "snapshot_mount_budgets_bytes": {
+    "roots": 16777216,
+    "metadata_owned": 268435456,
+    "plans": 33554432,
+    "control": 8388608,
+    "stored": 33554432,
+    "raw": 33554432,
+    "decode_workspace": 8388608,
+    "output": 134217728
+  },
+  "client_cpu_cores": 2,
+  "client_memory_bytes": 8589934592,
+  "rustfs_cpu_cores": 2,
+  "rustfs_memory_bytes": 2147483648,
+  "input": "4096-byte SHAKE256-generated files, 32 files per directory, sorted traversal; producer default random-small-file profile, raw metadata/data, inline-data off",
+  "cache_state": "Each timed arm starts a fresh mount and fresh local cache directory; same private RustFS container and host page cache within a paired run. Not server/disk cold.",
+  "phases": "Each timed arm readdir + reads all files twice, with an approximately 500ms no-active-GET observation between passes; end-to-end includes mount, both passes, observation wait and unmount/drain.",
+  "ratio_definitions": {
+    "cold_read_amplification": "cold phase S3 response body bytes divided by files*4096 logical payload bytes read in the cold pass",
+    "end_to_end_transfer_per_logical_read": "end-to-end S3 response body bytes divided by 2*files*4096 logical payload bytes read over both passes",
+    "download_per_unique_working_set": "end-to-end S3 response body bytes divided by files*4096 unique payload bytes; reported separately, not unlabeled amplification"
+  },
+  "isolation_scope": "Independent workspace in private Redis DB1 and namespace shares the same immutable Packed snapshot; private first write, cold remount, and original parent readback. Not native fork qualification."
+}
