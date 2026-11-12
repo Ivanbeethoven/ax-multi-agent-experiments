@@ -1,0 +1,413 @@
+{
+  "schema": "c4-packed-root-principal-candidate-smoke-receipt-v1",
+  "original_receipt_sha256": "ec3e5e8b1fc3f62be47ce65d811ef1e3137683e1804589efa29560b518fd6b62",
+  "environment": "one WSL host, private loopback RustFS and Redis",
+  "payload_bytes": 77,
+  "artifact_sha256": "3ecde1a2a4a55d450b7680661c655fd8d08491afc6aebacef84b58cea76bd6ee",
+  "candidate_patch_sha256": "4464b9aaeb287d31c0dd6b8f2fcfdef02193e16d0e85e193b913f86acc1177a2",
+  "producer_sha256": "aa45b1ee9640da92051ead72b17ed41836b57812e05623f860b963e09373b3ab",
+  "published_carrier_distinct": true,
+  "child_workspaces_created": 2,
+  "passed": true,
+  "formal_sample": false,
+  "files": 2,
+  "source_commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "image_sha256": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "previous_unprivileged_receipt_sha256": "0d03b86dd659f36e15804dd36be82a86453c628ab9f86db766f58201abc346a3",
+  "effective_principal": {
+    "uid": 0,
+    "gid": 0
+  },
+  "fixture_source_permissions": {
+    ".": {
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0755"
+    },
+    "a.txt": {
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0644"
+    },
+    "sub": {
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0755"
+    },
+    "sub/b.txt": {
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0644"
+    }
+  },
+  "root_permissions_match_source_rationale": true,
+  "expected_files": {
+    "a.txt": {
+      "bytes": 13,
+      "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+    },
+    "sub/b.txt": {
+      "bytes": 64,
+      "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+    }
+  },
+  "readbacks": {
+    "parent": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      },
+      "nlinks": {
+        ".": 3,
+        "a.txt": 1,
+        "sub": 2,
+        "sub/b.txt": 1
+      },
+      "expected_nlinks": {
+        ".": 3,
+        "sub": 2,
+        "a.txt": 1,
+        "sub/b.txt": 1
+      },
+      "permissions": {
+        ".": {
+          "uid": 0,
+          "gid": 0,
+          "mode": "0755"
+        },
+        "a.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        },
+        "sub": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0755"
+        },
+        "sub/b.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        }
+      }
+    },
+    "child-before-write": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      },
+      "nlinks": {
+        ".": 3,
+        "a.txt": 1,
+        "sub": 2,
+        "sub/b.txt": 1
+      },
+      "expected_nlinks": {
+        ".": 3,
+        "sub": 2,
+        "a.txt": 1,
+        "sub/b.txt": 1
+      },
+      "permissions": {
+        ".": {
+          "uid": 0,
+          "gid": 0,
+          "mode": "0755"
+        },
+        "a.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        },
+        "sub": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0755"
+        },
+        "sub/b.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        }
+      }
+    },
+    "child-after-write": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "private.txt": {
+          "bytes": 15,
+          "sha256": "8cc1dcf86ad63c9d31db988170c2bbe94f40295e740194193be14c5acb53b739"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      },
+      "nlinks": {
+        ".": 3,
+        "a.txt": 1,
+        "private.txt": 1,
+        "sub": 2,
+        "sub/b.txt": 1
+      },
+      "expected_nlinks": {
+        ".": 3,
+        "sub": 2,
+        "a.txt": 1,
+        "sub/b.txt": 1,
+        "private.txt": 1
+      },
+      "permissions": {
+        ".": {
+          "uid": 0,
+          "gid": 0,
+          "mode": "0755"
+        },
+        "a.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        },
+        "private.txt": {
+          "uid": 0,
+          "gid": 0,
+          "mode": "0644"
+        },
+        "sub": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0755"
+        },
+        "sub/b.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        }
+      }
+    },
+    "child-after-cold-reopen": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "private.txt": {
+          "bytes": 15,
+          "sha256": "8cc1dcf86ad63c9d31db988170c2bbe94f40295e740194193be14c5acb53b739"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      },
+      "nlinks": {
+        ".": 3,
+        "a.txt": 1,
+        "private.txt": 1,
+        "sub": 2,
+        "sub/b.txt": 1
+      },
+      "expected_nlinks": {
+        ".": 3,
+        "sub": 2,
+        "a.txt": 1,
+        "sub/b.txt": 1,
+        "private.txt": 1
+      },
+      "permissions": {
+        ".": {
+          "uid": 0,
+          "gid": 0,
+          "mode": "0755"
+        },
+        "a.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        },
+        "private.txt": {
+          "uid": 0,
+          "gid": 0,
+          "mode": "0644"
+        },
+        "sub": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0755"
+        },
+        "sub/b.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        }
+      }
+    },
+    "sibling": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      },
+      "nlinks": {
+        ".": 3,
+        "a.txt": 1,
+        "sub": 2,
+        "sub/b.txt": 1
+      },
+      "expected_nlinks": {
+        ".": 3,
+        "sub": 2,
+        "a.txt": 1,
+        "sub/b.txt": 1
+      },
+      "permissions": {
+        ".": {
+          "uid": 0,
+          "gid": 0,
+          "mode": "0755"
+        },
+        "a.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        },
+        "sub": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0755"
+        },
+        "sub/b.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        }
+      }
+    },
+    "parent-after-write": {
+      "passed": true,
+      "files": {
+        "a.txt": {
+          "bytes": 13,
+          "sha256": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9"
+        },
+        "sub/b.txt": {
+          "bytes": 64,
+          "sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+        }
+      },
+      "nlinks": {
+        ".": 3,
+        "a.txt": 1,
+        "sub": 2,
+        "sub/b.txt": 1
+      },
+      "expected_nlinks": {
+        ".": 3,
+        "sub": 2,
+        "a.txt": 1,
+        "sub/b.txt": 1
+      },
+      "permissions": {
+        ".": {
+          "uid": 0,
+          "gid": 0,
+          "mode": "0755"
+        },
+        "a.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        },
+        "sub": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0755"
+        },
+        "sub/b.txt": {
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0644"
+        }
+      }
+    }
+  },
+  "mount_exits": {
+    "parent": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    },
+    "child-before-write": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    },
+    "child-after-write": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    },
+    "child-after-cold-reopen": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    },
+    "sibling": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    },
+    "parent-after-write": {
+      "exit_code": 0,
+      "mount_absent": true,
+      "unmount_exit_code": 0
+    }
+  },
+  "import_fork_rejected_before_bucket_create": true,
+  "both_exact_carrier": true,
+  "separate_upper_buckets": true,
+  "both_child_bindings": true,
+  "shared_object_keys_unchanged": true,
+  "child_buckets_initially_empty": true,
+  "parent_binding": true,
+  "cleanup": {
+    "mount_absent": true,
+    "owned_containers_absent": {
+      "rustfs": true,
+      "redis": true
+    },
+    "scratch_removed": true
+  },
+  "no_model": true,
+  "no_cloud": true,
+  "no_copy_baseline": true
+}
