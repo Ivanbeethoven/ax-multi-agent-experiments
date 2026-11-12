@@ -32,7 +32,12 @@ def run(args):
         raise ValueError('Bounded verifier workers and duration required')
     if args.packed_output_mib and (not args.trace_packed_budget or args.workers != 32):
         raise ValueError('The 128 MiB probe requires budget tracing and 32 workers')
-    if args.packed_control_mib and (not args.parallel_sha256 or args.packed_output_mib != 128):
+    if args.diagnostic_cohort and (args.parallel_sha256 or args.workers != 32
+            or args.verify_seconds != 120 or not args.trace_packed_budget
+            or (args.packed_output_mib,args.packed_control_mib) != (128,8)):
+        raise ValueError('Cohort requires a 120-second window, both raised budgets, and no separate verifier')
+    if args.packed_control_mib and (not (args.parallel_sha256 or args.diagnostic_cohort)
+            or args.packed_output_mib != 128):
         raise ValueError('The 8 MiB control probe requires the diagnostic verifier and 128 MiB output')
     worker = out/'qualify-c3-workspace-base.py'
     script = worker.read_bytes()
@@ -114,12 +119,17 @@ def run(args):
             cmd.extend(('--packed-output-mib',str(args.packed_output_mib)))
         if args.packed_control_mib:
             cmd.extend(('--packed-control-mib',str(args.packed_control_mib)))
+        if args.diagnostic_cohort:
+            cmd.append('--diagnostic-cohort')
         try:
             with (out/'worker.log').open('xb') as stream:
                 ssh('client',shlex.join(cmd),stdout=stream,stderr=subprocess.STDOUT,timeout=args.verify_seconds+140)
         finally:
-            for name in ('intent.json','init.stdout','init.stderr','ready.json','mount.log','mount-exit.json','verify.log','verify-aborted.json',
-                         'verify/result.json','result.json'):
+            names = ('intent.json','init.stdout','init.stderr','ready.json','mount.log','mount-exit.json','verify.log','verify-aborted.json',
+                     'verify/result.json','result.json')
+            if args.diagnostic_cohort:
+                names += ('cohort-events.ndjson','cohort-result.json')
+            for name in names:
                 source = '/srv/ax-client/preparation/'+tag+'/'+name
                 proc = subprocess.run(['ssh',*FLAGS,'pool-a-client','test -f '+source+' && cat '+source],
                                       capture_output=True,timeout=10)
@@ -137,4 +147,5 @@ if __name__=='__main__':
     p.add_argument('--trace-packed-budget',action='store_true')
     p.add_argument('--packed-output-mib',type=int,choices=(0,128),default=0)
     p.add_argument('--packed-control-mib',type=int,choices=(0,8),default=0)
+    p.add_argument('--diagnostic-cohort',action='store_true')
     run(p.parse_args())
