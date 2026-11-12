@@ -74,7 +74,7 @@ def check_ranges(rows):
         keys.add(key)
 
 
-def read_range(root, row):
+def read_range(root, row, *, timed=False):
     parts = PurePosixPath(row['path']).parts
     parent = os.dup(root)
     try:
@@ -89,11 +89,19 @@ def read_range(root, row):
             if not stat.S_ISREG(st.st_mode) or offset+remaining > st.st_size:
                 raise ValueError('Expected a regular file and complete read range')
             sha = hashlib.sha256()
+            pread_ns = 0
             while remaining:
-                data = os.pread(fd,min(remaining,1024**2),offset)
+                count = min(remaining,1024**2)
+                if timed:
+                    started = time.monotonic_ns()
+                    data = os.pread(fd,count,offset)
+                    pread_ns += time.monotonic_ns() - started
+                else:
+                    data = os.pread(fd,count,offset)
                 if not data: raise ValueError('Unexpected EOF in lower working set')
                 sha.update(data); remaining -= len(data); offset += len(data)
             if sha.hexdigest() != row['sha256']: raise ValueError('Lower range SHA differs')
+            if timed: return pread_ns
         finally:
             os.close(fd)
     finally:

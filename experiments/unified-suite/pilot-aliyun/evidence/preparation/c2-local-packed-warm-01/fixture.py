@@ -15,7 +15,10 @@ parser.add_argument('--retained-bytes',type=int)
 extent = parser.add_mutually_exclusive_group()
 extent.add_argument('--extent-arm',choices=('overlay','lower-only'))
 extent.add_argument('--extent-pair',action='store_true')
+parser.add_argument('--timed-passes',type=int,default=0)
 args = parser.parse_args()
+if not 0 <= args.timed_passes <= 5000 or (args.timed_passes and not args.extent_pair):
+    parser.error('--timed-passes requires --extent-pair and must be between 1 and 5000')
 upstream_binary_sha256 = '814499855a949cad7a8752c04f272fa1b02524b36b7ea77b0e4b3bcc6031c5c0'
 if args.candidate_binary is not None:
     if (not args.candidate_binary.is_file() or args.candidate_binary.resolve(strict=True) != args.candidate_binary
@@ -48,7 +51,7 @@ text = text[:start]+"""    from loopback_probe import probe
     rows = [dict(path=k, offset=0, length=v['bytes'], sha256=v['sha256']) for k,v in expected.items()]
     diagnostic = probe(point,rows,s3_snapshot,
                        result_path.with_suffix('.lower' if not options.extent_pair else '.'+extent_arm+'.lower'),
-                       retained_bytes=options.retained_bytes,extent_arm=extent_arm)
+                       retained_bytes=options.retained_bytes,extent_arm=extent_arm,timed_passes=options.timed_passes)
     if options.extent_pair:
         result.setdefault('lower_warmth_arms',{})[extent_arm] = diagnostic
     else:
@@ -72,13 +75,17 @@ start = text.index("    phase='fork-exact-revision'")
 end = text.index('\nexcept Exception as error:',start)
 text = text[:start]+"""    if options.extent_pair:
         result['passed'] = all(result['lower_warmth_arms'][arm]['hot'] for arm in ('overlay','lower-only'))
+        if options.timed_passes:
+            result['timed_pair_passed'] = all(result['lower_warmth_arms'][arm]['timed_extent_reads']['passed']
+                                             for arm in ('overlay','lower-only'))
+            result['passed'] = result['passed'] and result['timed_pair_passed']
     else:
         result['passed'] = result['lower_warmth']['hot']
 """+text[end:]
 if args.native_stats:
     text = text.replace('from loopback_probe import probe','from bench.warm_lower import probe',1)
     text = text.replace('probe(point,rows,s3_snapshot,','probe(point,rows,',1)
-    text = text.replace(",\n                       retained_bytes=options.retained_bytes,extent_arm=extent_arm",'',1)
+    text = text.replace(",\n                       retained_bytes=options.retained_bytes,extent_arm=extent_arm,timed_passes=options.timed_passes",'',1)
     text = text.replace("result['lower_warmth']['hot']","result['lower_warmth']['passed']",1)
     text = text.replace('metered_data,rurl,namespace','data,rurl,namespace',1)
 elif args.candidate_binary is not None:
@@ -89,7 +96,8 @@ env['BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES'] = str(options.retained_bytes)
 env.pop('BREWFS_PACKED_WORKSPACE_READ_CONTROL',None)
 point = work/'mount' ''',1)
     text = text.replace('deadline = time.monotonic() + 138', '''result.update(candidate_binary=True,retained_payload_cap_bytes=options.retained_bytes,
-              strict_frame_hash=True,extent_arm=options.extent_arm,extent_pair=options.extent_pair)
+              strict_frame_hash=True,extent_arm=options.extent_arm,extent_pair=options.extent_pair,
+              timed_passes=options.timed_passes)
 deadline = time.monotonic() + 138''',1)
 sys.path.insert(0,str(here.parents[6]))
 exec(compile(text,str(source),'exec'),{'__name__':'__main__','options':args})

@@ -7,6 +7,7 @@ import json
 import os
 import re
 from threading import Lock, Thread
+import time
 
 
 @contextmanager
@@ -82,10 +83,12 @@ def extent_pass(first, second, arm):
             delta['queries'] == 0 and delta['bypasses'] > 0)
 
 
-def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=None):
+def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=None, timed_passes=0):
     from bench.warm_lower import assess, check_ranges, parse, read_range
     from bench.runtime.common import mounts
     check_ranges(rows)
+    if timed_passes and (extent_arm is None or not 1 <= timed_passes * len(rows) <= 10000):
+        raise ValueError('Timed diagnostic needs an extent arm and at most 10000 reads')
     output.mkdir(mode=0o700)
     stats_pattern = r'^(brewfs_fuse_read_(?:ops|bytes)_total) ([0-9]+)$'
     native_points = []
@@ -148,11 +151,38 @@ def probe(mount, rows, s3_snapshot, output, *, retained_bytes=None, extent_arm=N
         native = assess(native_points,expected)
         retention_proved = retention_hits[0] <= retention_hits[1] < retention_hits[2]
         exact_fuse = all(delta['brewfs_fuse_read_ops_total'] == len(rows) for delta in (first,second))
-        out.update(native=native,native_points=native_points,retention_hits=retention_hits,retained_bytes=retained_bytes,
+        out.update(native=native,native_points=native_points.copy(),retention_hits=retention_hits.copy(),retained_bytes=retained_bytes,
                    hot=out['hot'] and native['passed'] and retention_proved and exact_fuse)
     if extent_arm is not None:
         active = all(extent_pass(a,b,extent_arm) for a,b in zip(extent_points,extent_points[1:]))
-        out.update(extent_arm=extent_arm,extent_points=extent_points,readonly_mount=original_mount,
+        out.update(extent_arm=extent_arm,extent_points=extent_points.copy(),readonly_mount=original_mount,
                    writable_open='EROFS',expected_extent_path=active,hot=out['hot'] and active)
+    if timed_passes:
+        out['timed_extent_reads'] = dict(passed=False,status='warmup_failed')
+        if out['hot']:
+            # The second warm snapshot is the start fence. Use the same mount and
+            # working set, and verify backend, FUSE, and mode counters at the end.
+            fd = os.open(mount,os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            try:
+                started = time.monotonic_ns()
+                latencies = [read_range(fd,row,timed=True) for _ in range(timed_passes) for row in rows]
+                elapsed = time.monotonic_ns() - started
+                last = collect('timed-end')
+            finally:
+                os.close(fd)
+            timed = {k:last[k]-points[-1][k] for k in last}
+            native_timed = {k:native_points[-1][k]-native_points[-2][k] for k in native_points[-1]}
+            passed = (all(timed[k] == 0 for k in ('gets','ranges','bytes','errors')) and
+                      timed['brewfs_fuse_read_ops_total'] == len(latencies) and
+                      timed['brewfs_fuse_read_bytes_total'] == expected * timed_passes and
+                      all(native_timed[k] == 0 for k in ('range_requests','received_bytes','failures')) and
+                      native_timed['logical_bytes'] == expected * timed_passes and
+                      retention_hits[-1] > retention_hits[-2] and
+                      extent_pass(extent_points[-2],extent_points[-1],extent_arm))
+            out['timed_extent_reads'] = dict(passed=passed,status='hot' if passed else 'rejected',
+                scope='Read-only data extent resolution; not lookup, write or whole Overlay',
+                passes=timed_passes,elapsed_ns=elapsed,pread_ns=latencies,final_independent=last,
+                final_native=native_points[-1],final_extent=extent_points[-1],final_retention_hits=retention_hits[-1],
+                native_delta=native_timed,independent_delta=timed)
     with (output/'result.json').open('x') as stream: json.dump(out,stream,indent=2);stream.write('\n')
     return out

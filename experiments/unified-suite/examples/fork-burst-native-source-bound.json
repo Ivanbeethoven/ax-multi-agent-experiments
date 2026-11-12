@@ -1,0 +1,26 @@
+{
+  "schema": "suite-fork-burst-native-v3",
+  "reviewed": false,
+  "cell_id": "FILL_CELL_ID",
+  "method": "juicefs-clone",
+  "parallelism": 1,
+  "input_tree": {"path": "/srv/ax/specs/fork-parent-tree.json", "sha256": "FILL_TREE_SHA"},
+  "native": {
+    "binary": {"path": "/srv/ax/bin/juicefs", "sha256": "FILL_BINARY_SHA"},
+    "mount": "/srv/ax/mount",
+    "source": "/srv/ax/mount/parent",
+    "destination_parent": "/srv/ax/mount/children",
+    "threads": 4
+  },
+  "source_qualification": {
+    "receipt": {"path": "/srv/ax/proof/fork-source.json", "sha256": "FILL_QUALIFICATION_SHA"},
+    "probe_stopped": {"path": "/srv/ax/proof/source-readback/stopped.json", "sha256": "FILL_STOP_SHA"},
+    "measurement": {
+      "mount_spec": {"path": "/srv/ax/specs/measure-mount.json", "sha256": "FILL_MOUNT_SPEC_SHA"},
+      "ready": {"path": "/srv/ax/proof/measurement-mount/ready.json", "sha256": "FILL_MOUNT_READY_SHA"}
+    }
+  },
+  "children": [
+    {"id": "child-01", "step": {"path": "/srv/ax/specs/fork-child-01.json", "sha256": "FILL_STEP_SHA"}}
+  ]
+}
