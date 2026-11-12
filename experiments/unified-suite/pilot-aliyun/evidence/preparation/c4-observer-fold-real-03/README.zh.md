@@ -23,4 +23,4 @@
 
 [请求草案](recovery-request.draft.json)固定原 On1 请求、原 Off1、原 plan、三个角色包及协调者副本证明。已在协调者实际运行 `recover-c4-on1-archive.py --validate-only`：[只读回执](recovery-validation.json)确认原 On1 仍为退出码 1，三份原始归档 SHA-256 匹配，恢复预计占 25.69 GB 和 178,084 个 inode，当前数据盘可用 82.69 GB，仍能保留 20%。没有生成恢复目录。该检查不代替解包后的三角色观测、工作结果与冷验审计。
 
-审阅通过后，在协调者另存审阅件；原草案、旧失败和旧试验目录保留。使用原代码副本中的 `recovery-code/experiments/unified-suite/pilot-aliyun/scripts/recover-c4-on1-archive.py --request <审阅件绝对路径> --sha256 <审阅件SHA256>`，输出新 `recovered-trial`。无需开实验节点。该回执仍只是原采集器的 On1 校准输入；更换为直接写 NDJSON 后需单独重新校准。
+用户已确认，协调者按审阅件执行成功。见[恢复回执与结果](recovered-01/README.zh.md)。该回执仍只是原采集器的 On1 校准输入；更换为直接写 NDJSON 后需单独重新校准。

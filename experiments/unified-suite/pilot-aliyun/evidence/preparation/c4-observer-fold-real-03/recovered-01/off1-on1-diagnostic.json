@@ -1,0 +1,39 @@
+{
+  "schema": "c4-observer-first-pair-diagnostic-v1",
+  "pairs": 1,
+  "original_order": [
+    "Off1",
+    "On1"
+  ],
+  "contracts": {
+    "workload_contract_sha256": "3b91988fa2834691e6e899bd1f818515c90f4e370b089c67ccb1c37085f80b53",
+    "metric_contract_sha256": "220b64cee573132ba9c2738e40dbae2a8594e5b0d82686cf12dec15d1aa4d4f1"
+  },
+  "compared_same_work": true,
+  "results": {
+    "off": {
+      "cohort": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-off1/cohort/result.json",
+        "sha256": "19767eab3f41a77956d043b26cf1506090df97ef56a5a135108937f8f1750f35"
+      },
+      "coordinator_makespan_seconds": 8453.367125642,
+      "task_p99_seconds": 8453.364858169,
+      "tasks": 1
+    },
+    "on": {
+      "cohort": {
+        "path": "/srv/ax-pilot-control/fork-control-01/calibration/flat-on1/cohort/result.json",
+        "sha256": "8d27d952b4c18825aa6adaf964fcf4f2a38c23d7dc411d353d19a8641641f710"
+      },
+      "coordinator_makespan_seconds": 15329.941439043,
+      "task_p99_seconds": 15329.938762031,
+      "tasks": 1
+    }
+  },
+  "signed_relative_change": {
+    "coordinator_makespan_seconds": 0.813471627482256,
+    "task_p99_seconds": 0.8134717972354819
+  },
+  "overhead_gate_evaluated": false,
+  "scope": "Descriptive original first pair only; frozen gate requires at least three signed paired differences and uses their median"
+}
