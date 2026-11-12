@@ -1,0 +1,69 @@
+{
+  "schema": "ax-small-pilot-qualification-v1",
+  "status": "planned-not-run",
+  "dispatchable": false,
+  "formal_sample": false,
+  "scope": "Independent 10k-file qualification only; original 100k and frozen million-file plans and thresholds are unchanged.",
+  "c3": {
+    "agents": 1,
+    "files": 10000,
+    "file_bytes": 4096,
+    "total_file_bytes": 40960000,
+    "fixture": "independent-smallfiles-10k-v1",
+    "verify_all_files": true,
+    "minimum_evidence": [
+      "source-manifest-sha256",
+      "verified-files-bytes-and-content",
+      "elapsed-by-phase",
+      "clean-unmount"
+    ]
+  },
+  "c4-fork": {
+    "agents": 1,
+    "files": 10000,
+    "file_bytes": 4096,
+    "total_file_bytes": 40960000,
+    "fixture": "independent-fork-10k-v1",
+    "children_per_arm": 1,
+    "arms": [
+      {
+        "system": "brewfs",
+        "method": "native-fork"
+      },
+      {
+        "system": "juicefs",
+        "method": "native-clone",
+        "clone_threads": 4
+      }
+    ],
+    "candidate_binary_for_qualification_only": true,
+    "minimum_evidence": [
+      "same-parent-manifest-on-both-arms",
+      "packed-lower-inherited-on-brewfs",
+      "first-child-read",
+      "child-mutation-isolated-from-parent",
+      "fresh-cache-child-and-parent-tree-readback",
+      "clean-unmount"
+    ]
+  },
+  "c4-state-reopen": {
+    "changed": false,
+    "checkpoint_entries": 894,
+    "route": "pool-a-to-pool-b",
+    "model_calls": 0
+  },
+  "c2-trace": {
+    "changed": false,
+    "case": "pytest-full-02",
+    "expected_callbacks": 1747109,
+    "packed_initial_files": 614,
+    "packed_initial_directories": 100,
+    "packed_initial_bytes": 35526497
+  },
+  "execution": {
+    "skip_if_window_insufficient": true,
+    "automatic_retry": false,
+    "existing_100k_and_million_runners_unchanged": true,
+    "requires_separate_10k_qualification_runner_and_fixture": true
+  }
+}
