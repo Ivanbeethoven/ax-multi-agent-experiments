@@ -47,7 +47,7 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 
 | 项目 | 已验证 | 还缺 |
 |---|---|---|
-| C1 | [64 MiB 同步混合读写](../pilot-aliyun/evidence/preparation/c1-b-randrw-scratch-02/README.zh.md)完成一组配对，两边均通过冷挂载 CRC | 重复与反向顺序；布局开关的单独影响 |
+| C1 | [64 MiB 同步混合读写](../pilot-aliyun/evidence/preparation/c1-b-randrw-scratch-reverse-02/README.zh.md)完成正序、反序各一组配对，四臂均通过全量冷挂载 CRC | 增加重复；布局开关的单独影响 |
 | C2 | [两文件热态对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/README.zh.md)两组都跑通，计时期间零对象存储读取 | [完整 trace](../pilot-aliyun/evidence/preparation/c2-current-trace-a-draft-01/README.zh.md)回放与冷验；扩大并重复热态对照 |
 | C3 | [云上抽样](../pilot-aliyun/evidence/preparation/c3-current-workspace-cohort-01/README.zh.md)首次读完 64 个文件并通过内容校验；复读阶段到上限，未完成十万文件核验 | 完整读回；同样设置下的性能对照 |
 | C4 | [BrewFS 原生 fork](../pilot-aliyun/evidence/preparation/c4-local-packed-fork-candidate-01/)与 [JuiceFS 原生 clone](../pilot-aliyun/evidence/preparation/c4-workspace-v1-packed-fork-01/README.zh.md)均通过两文件本机隔离与冷读；[十万文件运行草稿](../pilot-aliyun/C4-NATIVE-100K.zh.md)已准备 | 100,000 文件资格、配对计时、跨机续跑 |
