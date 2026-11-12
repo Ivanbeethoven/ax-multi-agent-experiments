@@ -25,3 +25,5 @@ sudo /srv/ax-data/workspace-adapter-20261111/venv/bin/python \
   --rustfs-image sha256:9750c5eaaac37e2d6ebaa8aaf39a4aa98a35fca5fba8de5ade26585123058806 \
   --out /var/tmp/ax-rbm-c4-native-next
 ```
+
+同一上游 HEAD、同一脚本独立复跑，结论一致。见[复跑回执](receipt-repeat.json)及[当前各子项适用格式](../../../current/FEATURES.zh.md)。

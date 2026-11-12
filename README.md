@@ -10,6 +10,7 @@
 | 输入、操作量、性能指标、正确性 | [负载与指标](experiments/unified-suite/current/WORKLOADS.zh.md) |
 | Redis、四节点 RustFS、缓存、机器与磁盘 | [详细配置](experiments/unified-suite/current/CONFIGURATION.zh.md) |
 | 下载、Rust 回放、指标收集与交接 | [执行步骤](experiments/unified-suite/current/EXECUTION.zh.md) |
+| 子项所需格式、feature 与开跑条件 | [C1–C4 对照表](experiments/unified-suite/current/FEATURES.zh.md) |
 | 完整参数 | [design.json](experiments/unified-suite/current/design.json) |
 | 并行与按需资源 | [实验 pipeline](experiments/unified-suite/MAIN-SCALE.zh.md) |
 | 全部 trace 下载地址与 SHA | [数据目录](scenarios/k8s-containers/data-catalog.md) · [archives.json](scenarios/k8s-containers/archives.json) |

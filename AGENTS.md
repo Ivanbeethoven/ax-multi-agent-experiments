@@ -1,5 +1,8 @@
 # 实验 Agent 入口
 
+- 选择实验路线前先读[子项与 feature 对照表](experiments/unified-suite/current/FEATURES.zh.md)，再用同目录 design.json 冻结参数。
+
+
 - 2026-11-11 当前方案：新实验从 `experiments/unified-suite/current/README.zh.md` 开始，参数见同目录 `design.json`。主候选为 workspace-v1 + Packed-v3，flat-v1 只用于 C1/C2，外部仅 JuiceFS。C4 派生只比较 BrewFS 原生 fork 与 JuiceFS 原生 clone；Overlay 运行开销另做同引擎开关，在验证 lower 热态后计时。entity-v1 和 native-v2 不进入新实验。新 suite 适配及三开关统一接口尚未完成，规划文件不可直接执行。历史回执和活动测量保持原义。
 
 - 新 pilot 为 1 Agent、C3/C4 派生 100,000×4KiB；正式百万文件、并发最高32，参数与资格要求以 current 为准。不要从旧合成 trace 或 entity 结果推导新路线已通过。

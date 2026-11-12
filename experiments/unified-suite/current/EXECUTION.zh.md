@@ -1,5 +1,7 @@
 # 执行与观测
 
+各子项的工作区格式、构建 feature、运行开关与开跑条件见[统一对照表](FEATURES.zh.md)。
+
 [并行流程](../MAIN-SCALE.zh.md)规定分池、配对、资源锁和释放；[配置](CONFIGURATION.zh.md)规定软件与服务参数。当前适配进度见[方案入口](README.zh.md#实现状态)。
 
 ## 准备与下载
