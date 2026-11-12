@@ -29,8 +29,8 @@ OPENCODE_SHA = '025e625d7ee316f9ce246056997551869b72e4bffa778dd3ad8248ba0e014233
 FIRST_BODY_SHA = '3a792e6a0068fc3e73332289cb8be92e16315ae8cb4a2c496ed7d2d630631537'
 WORKSPACE = '/srv/ax-pilot-session/workspace'
 SESSION_STATE = {'workspace': WORKSPACE, 'project': WORKSPACE + '/repo',
-                 'config': WORKSPACE + '/opencode.json',
-                 'xdg': {name: WORKSPACE + '/' + name for name in ('data', 'state', 'cache', 'config')}}
+                 'config': WORKSPACE + '/config/opencode.json',
+                 'xdg': {name: WORKSPACE + '/source/' + name for name in ('data', 'state', 'cache', 'config')}}
 ANCHOR = {'volume': 'workspace-native-v2', 'workspace': 'ws-c4-native-handoff'}
 
 
@@ -87,9 +87,10 @@ class Fixture:
         self.checkpoint_dir.mkdir()
         self.put('checkpoint/checkpoint.json', {
             'session_id': SESSION_ID, 'session_export_sha256': self.export_sha,
+            'canonical_workspace': WORKSPACE, 'canonical_project': SESSION_STATE['project'],
             'opencode_binary_sha256': OPENCODE_SHA, 'source_process_exited': True,
             'sqlite_quick_check': 'ok', 'contains_provider_master_key': False,
-            'contains_active_relay_key': False, 'resume_prompt': 'offline fixture only',
+            'resume_prompt': 'offline fixture only',
             'expected_final_sha256': '0' * 64})
         self.put('checkpoint/source-tree.json', {
             'repo/checkpoint.txt': {'type': 'file', 'mode': 0o644, 'bytes': 6,

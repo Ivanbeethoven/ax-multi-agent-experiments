@@ -25,8 +25,8 @@ FIRST_BODY_SHA256 = '3a792e6a0068fc3e73332289cb8be92e16315ae8cb4a2c496ed7d2d6306
 ACTIVE_RELAY_PORT = 18443
 WORKSPACE = '/srv/ax-pilot-session/workspace'
 SESSION_STATE = {'workspace': WORKSPACE, 'project': WORKSPACE + '/repo',
-                 'config': WORKSPACE + '/opencode.json',
-                 'xdg': {name: WORKSPACE + '/' + name for name in ('data', 'state', 'cache', 'config')}}
+                 'config': WORKSPACE + '/config/opencode.json',
+                 'xdg': {name: WORKSPACE + '/source/' + name for name in ('data', 'state', 'cache', 'config')}}
 PHASES = [
     dict(order=1, name='quiesce', via='outer', peer='source', timeout_seconds=60),
     dict(order=2, name='export', via='local', peer='source', timeout_seconds=60),
@@ -265,6 +265,9 @@ def inspect(pins, checkpoint_directory):
                     fail('checkpoint.checkpoint.json', 'JSON object required')
                 else:
                     facts['checkpoint_document'] = checkpoint
+                    if (checkpoint.get('canonical_workspace') != SESSION_STATE['workspace'] or
+                            checkpoint.get('canonical_project') != SESSION_STATE['project']):
+                        fail('checkpoint.canonical_workspace', 'differs from the original shared workspace/project')
                     if checkpoint.get('session_id') != session_id:
                         fail('checkpoint.session_id', 'differs from the pinned original session')
                     if checkpoint.get('session_export_sha256') != export_sha:
@@ -275,7 +278,8 @@ def inspect(pins, checkpoint_directory):
                         fail('checkpoint.sqlite_quick_check', 'the original native database must be intact')
                     if checkpoint.get('contains_provider_master_key') is not False:
                         fail('checkpoint.contains_provider_master_key', 'no provider master key may be in the checkpoint')
-                    if checkpoint.get('contains_active_relay_key') is not False:
+                    # The original checkpoint.json predates this field. The pinned package receipt below must assert false.
+                    if checkpoint.get('contains_active_relay_key', False) is not False:
                         fail('checkpoint.contains_active_relay_key', 'no active relay key may be in the checkpoint')
                 if not isinstance(tree, dict) or not tree:
                     fail('checkpoint.source-tree.json', 'nonempty frozen tree required')

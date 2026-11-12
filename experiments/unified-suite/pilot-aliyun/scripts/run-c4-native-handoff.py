@@ -33,8 +33,8 @@ REQUEST_SCHEMA = 'c4-native-handoff-request-v1'
 FIRST_BODY_SHA256 = '3a792e6a0068fc3e73332289cb8be92e16315ae8cb4a2c496ed7d2d630631537'
 WORKSPACE = '/srv/ax-pilot-session/workspace'
 SESSION_STATE = {'workspace': WORKSPACE, 'project': WORKSPACE + '/repo',
-                 'config': WORKSPACE + '/opencode.json',
-                 'xdg': {name: WORKSPACE + '/' + name for name in ('data', 'state', 'cache', 'config')}}
+                 'config': WORKSPACE + '/config/opencode.json',
+                 'xdg': {name: WORKSPACE + '/source/' + name for name in ('data', 'state', 'cache', 'config')}}
 PHASES = ('quiesce', 'export', 'source-stop', 'lease_check', 'target-start', 'restore', 'resume', 'export_after')
 SIDE = {'quiesce': 'source', 'export': 'source', 'source-stop': 'source', 'lease_check': 'source',
         'target-start': 'target', 'restore': 'target', 'resume': 'target', 'export_after': 'target'}
