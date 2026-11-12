@@ -1,5 +1,7 @@
 # rbm：统一构建与最小模式验证
 
+最新[脚本复验](evidence/preparation/rbm-script-check-20261112/README.zh.md)：26 个入口最终 21 通过、5 阻塞。新增 `--tiny`（8 文件）、矩阵 `--only CASE`、`--case-overrides JSON` 和逐阶段记录；修复了回放继承启动器 umask 的问题。正式规模未改。下文旧批次数字保留其历史含义。
+
 入口：从仓库根运行 `python3 -m bench.experiment_smoke`。所有输出目录必须是新路径。
 模式参数由 `bench.experiment_modes` 解析，运行入口把 engine、hint、RustFS layout 和原生 fork/clone 传入真实探针。
 

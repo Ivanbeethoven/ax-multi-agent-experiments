@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import time
 from bench.experiment_modes import CONFIG, MODES, resolve
 
 def main():
@@ -23,6 +24,8 @@ def main():
     p.add_argument('--replay', type=Path)
     p.add_argument('--full-trace', action='store_true', help='Use complete trace counts, links and SQLite verification')
     p.add_argument('--trace-timeout', type=int, default=300, help='Seconds for each full trace qualification step')
+    p.add_argument('--tiny', action='store_true', help='Use the eight-file lifecycle fixture')
+    p.add_argument('--prepare-timeout',type=int,default=60,help='Seconds for importing a preexisting workspace')
     p.add_argument('--checkpoint',type=Path)
     p.add_argument('--opencode',type=Path)
     p.add_argument('--out', type=Path, required=True)
@@ -63,6 +66,9 @@ def main():
         for name in ('brewfs','producer','juicefs','rustfs_image'):
             cmd += ['--'+name.replace('_','-'), str(getattr(a,name))]
         if a.experiment != 'C4-fork':
+            cmd += ['--prepare-timeout',str(a.prepare_timeout)]
+            if a.tiny:
+                cmd.append('--tiny')
             cmd += ['--smallfiles',str(a.smallfiles), '--workload', 'c1' if a.experiment.startswith('C1') else 'c2' if a.experiment == 'C2-replay' else 'c3', '--hint', plan['brewfs_hint'] or 'auto', '--layout', plan['rustfs_layout_profile']]
             cmd += ['--engine', 'flat-v1' if plan['engine'] == 'flat-v1' else 'workspace-v1']
             if a.experiment=='C4-handoff':
@@ -85,7 +91,9 @@ def main():
     if cmd is not None:
         receipt['argv'] = cmd
         # The child owns service teardown; don't kill its cleanup with an outer timeout.
+        started = time.monotonic_ns()
         proc = subprocess.run(cmd)
+        receipt['elapsed_ns'] = time.monotonic_ns()-started
         receipt['exit_code'] = proc.returncode
         try:
             evidence = json.loads((a.out/'run/receipt.json').read_text())

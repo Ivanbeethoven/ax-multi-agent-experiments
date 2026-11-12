@@ -15,6 +15,7 @@ import uuid
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 from bench.runtime.smoke_tree import file_tree
+from bench.runtime.smoke_journal import SmokeJournal
 
 p = argparse.ArgumentParser(description=__doc__)
 for flag in ('brewfs', 'producer', 'juicefs', 'smallfiles', 'out'):
@@ -31,23 +32,32 @@ p.add_argument('--opencode',type=Path)
 p.add_argument('--hint', default='auto')
 p.add_argument('--layout', choices=('enabled','disabled','block-only'), default='enabled')
 p.add_argument('--product', choices=('brewfs','juicefs'), required=True)
+p.add_argument('--tiny', action='store_true', help='8 files and one worker; script checks only')
+p.add_argument('--prepare-timeout',type=int,default=60)
 a = p.parse_args()
 if a.trace_timeout <= 0:
     p.error('--trace-timeout must be positive')
+if a.prepare_timeout <= 0:
+    p.error('--prepare-timeout must be positive')
 if a.workload=='c4-stay' and (not a.checkpoint or not a.opencode):
     p.error('C4 stay requires --checkpoint and --opencode')
 a.out.mkdir(mode=0o700)
 result = {'formal_sample': False, 'workload': a.workload, 'engine': a.engine, 'hint': a.hint, 'layout': a.layout, 'arms': {}}
 run_id = 'ax-rbm-' + uuid.uuid4().hex[:12]
 key, secret = secrets.token_hex(12), secrets.token_hex(24)
+journal = SmokeJournal(a.out/'stages.jsonl', (key, secret))
 env = dict(os.environ, AWS_ACCESS_KEY_ID=key, AWS_SECRET_ACCESS_KEY=secret,
            AWS_REGION='us-east-1', AWS_EC2_METADATA_DISABLED='true', NO_PROXY='127.0.0.1,localhost')
 opts = ['--files','128','--hot-files','32','--workers','2','--read-ops','128',
         '--cow-files','16','--write-ops','32','--mixed-ops','64']
+if a.tiny:
+    opts = ['--files','8','--hot-files','4','--workers','1','--read-ops','8',
+            '--cow-files','2','--write-ops','4','--mixed-ops','8']
+result['smallfiles_options'] = opts
 
-def call(*argv, timeout=60, check=True):
-    return sp.run(list(map(str, argv)), env=env, check=check, timeout=timeout,
-                  capture_output=True, text=True)
+def call(*argv, timeout=60, check=True, umask=-1):
+    return journal.run(argv, env=env, check=check, timeout=timeout,
+                  capture_output=True, text=True, umask=umask)
 
 def error(e):
     return (str(e) + ' ' + (getattr(e, 'stderr', None) or ''))[-3000:].replace(secret,'[redacted]').replace(key,'[redacted]')
@@ -65,6 +75,11 @@ def local_port():
         return s.getsockname()[1]
 
 def workload(stage, root, out, *extra):
+    with journal.stage('workload:'+stage, timeout=a.trace_timeout+20):
+        return run_workload(stage, root, out, *extra)
+
+
+def run_workload(stage, root, out, *extra):
     if a.workload=='c4-stay':
         from bench.runtime.session_export import export
         import runpy
@@ -135,7 +150,7 @@ def workload(stage, root, out, *extra):
             return proof
         elif stage == 'run':
             out.mkdir()
-            call(a.replay,a.trace/'capture/events.jsonl',a.trace/'capture/blobs',root,out/'replay.json')
+            call(a.replay,a.trace/'capture/events.jsonl',a.trace/'capture/blobs',root,out/'replay.json',umask=0)
             report = json.loads((out/'replay.json').read_text())
             if not report.get('valid'):
                 raise RuntimeError('Strict Rust replay did not validate')
@@ -208,7 +223,10 @@ def visit(product, point, work, out, cmd, arm, reopen=False):
                 if product == 'juicefs' or a.engine == 'flat-v1':
                     import shutil
                     if a.workload in ('c2','c4-stay'):
-                        call('cp','-a','--',str(work/'source')+'/.',str(point)+'/')
+                        with journal.stage('import-workspace',timeout_seconds=a.prepare_timeout):
+                            copied=call('stdbuf','-oL','cp','-av','--',str(work/'source')+'/.',str(point)+'/',
+                                        timeout=a.prepare_timeout)
+                            arm['import_entries_reported']=len(copied.stdout.splitlines())
                     else:
                         shutil.copytree(work/'source'/'small',point/'small')
                 arm['verify_base'] = workload('verify-base',point,out/'verify-base')
@@ -240,12 +258,13 @@ def run(work):
     from boto3 import client
     from botocore.config import Config
     result['binary_sha256'] = {}
-    for name in ('brewfs','producer','juicefs','smallfiles'):
-        with getattr(a,name).open('rb') as f:
-            result['binary_sha256'][name] = hashlib.file_digest(f,'sha256').hexdigest()
-    if a.replay:
-        with a.replay.open('rb') as f:
-            result['binary_sha256']['replay'] = hashlib.file_digest(f,'sha256').hexdigest()
+    with journal.stage('verify-tool-sha256'):
+        for name in ('brewfs','producer','juicefs','smallfiles'):
+            with getattr(a,name).open('rb') as f:
+                result['binary_sha256'][name] = hashlib.file_digest(f,'sha256').hexdigest()
+        if a.replay:
+            with a.replay.open('rb') as f:
+                result['binary_sha256']['replay'] = hashlib.file_digest(f,'sha256').hexdigest()
     result['rustfs_image'] = call('docker','image','inspect','-f','{{.Id}}',a.rustfs_image).stdout.strip()
     rp = local_port()
     redis = sp.Popen(['redis-server','--bind','127.0.0.1','--port',str(rp),
@@ -273,7 +292,7 @@ def run(work):
         ef = work/'rustfs.env'
         ef.write_text(''.join(f'{k}={v}\n' for k,v in knobs.items()))
         ef.chmod(0o600)
-        call('docker','run','--pull=never','-d','--name',run_id,
+        call('docker','run','--pull=never','-d','--name',run_id,'--cpus','2','--memory','2g',
              '-p','127.0.0.1::9000','--env-file',ef,
              *[part for n in range(4) for part in ('-v',f'{work/str(n)}:/data/d{n}')],
              result['rustfs_image'])
@@ -292,7 +311,8 @@ def run(work):
                 result['last_s3_probe_error'] = error(e)
                 return False
         result['phase'] = 'rustfs-readiness'
-        wait(s3_ready)
+        with journal.stage('rustfs-readiness'):
+            wait(s3_ready)
         result.pop('last_s3_probe_error', None)
         result['phase'] = 'workload'
         result['source'] = workload('prepare',work/'source',a.out/'prepare')
@@ -309,7 +329,8 @@ def run(work):
             points.append(point)
             try:
                 bucket = run_id+'-'+product
-                s3.create_bucket(Bucket=bucket)
+                with journal.stage('create-bucket'):
+                    s3.create_bucket(Bucket=bucket)
                 url = f'redis://127.0.0.1:{rp}/{db}'
                 if product == 'brewfs' and a.engine == 'workspace-v1':
                     manifest = work/'manifest'

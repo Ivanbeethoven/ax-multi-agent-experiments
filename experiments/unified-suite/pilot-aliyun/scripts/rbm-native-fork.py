@@ -16,6 +16,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 from bench.runtime.fork_candidate import verify_candidate
 from bench.runtime.smoke_tree import file_tree
+from bench.runtime.smoke_journal import SmokeJournal
 
 p = argparse.ArgumentParser(description=__doc__)
 for flag in ('brewfs', 'producer', 'juicefs', 'out'):
@@ -29,11 +30,12 @@ a.out.mkdir(mode=0o700)
 result = {'brewfs_revision': a.brewfs_revision, 'formal_sample': False, 'files': 2, 'arms': {}}
 run_id = 'ax-rbm-' + uuid.uuid4().hex[:12]
 key, secret = secrets.token_hex(12), secrets.token_hex(24)
+journal = SmokeJournal(a.out/'stages.jsonl', (key, secret))
 env = dict(os.environ, AWS_ACCESS_KEY_ID=key, AWS_SECRET_ACCESS_KEY=secret,
            AWS_REGION='us-east-1', AWS_EC2_METADATA_DISABLED='true', NO_PROXY='127.0.0.1,localhost',
            RUST_LOG='warn', NO_COLOR='1')
 def call(*argv, timeout=60, check=True):
-    return sp.run(list(map(str, argv)), env=env, check=check, timeout=timeout,
+    return journal.run(argv, env=env, check=check, timeout=timeout,
                   capture_output=True, text=True)
 
 def error(e):
@@ -68,7 +70,8 @@ def visit(product, point, out, cmd, arm, label, action):
                 return mounted(point)
             wait(ready)
             arm['phase'] = label+'-check'
-            action()
+            with journal.stage(label+'-check', timeout=90):
+                action()
         finally:
             was_mounted = mounted(point)
             rc = call('fusermount3','-u',point,check=False).returncode if was_mounted else None
@@ -138,7 +141,7 @@ def run(work):
         ef = work/'rustfs.env'
         ef.write_text(''.join(f'{k}={v}\n' for k,v in knobs.items()))
         ef.chmod(0o600)
-        call('docker','run','--pull=never','-d','--name',run_id,
+        call('docker','run','--pull=never','-d','--name',run_id,'--cpus','2','--memory','2g',
              '-p','127.0.0.1::9000','--env-file',ef,
              *[part for n in range(4) for part in ('-v',f'{work/str(n)}:/data/d{n}')],
              result['rustfs_image'])
@@ -157,7 +160,8 @@ def run(work):
                 result['last_s3_probe_error'] = error(e)
                 return False
         result['phase'] = 'rustfs-readiness'
-        wait(s3_ready)
+        with journal.stage('rustfs-readiness'):
+            wait(s3_ready)
         result.pop('last_s3_probe_error', None)
         result['phase'] = 'workload'
         source = work/'source'
@@ -174,7 +178,8 @@ def run(work):
             points.append(point)
             try:
                 bucket = run_id+'-'+product
-                s3.create_bucket(Bucket=bucket)
+                with journal.stage('create-bucket'):
+                    s3.create_bucket(Bucket=bucket)
                 url = f'redis://127.0.0.1:{rp}/{db}'
                 if product == 'brewfs':
                     manifest = work/'manifest'

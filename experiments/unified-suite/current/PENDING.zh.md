@@ -1,5 +1,7 @@
 # C2–C4 还没完成什么
 
+最新[rbm 最小脚本复验](../pilot-aliyun/evidence/preparation/rbm-script-check-20261112/README.zh.md)已验证 367 回调的小 trace、8 文件 C3、两文件 fork/clone 和两产品原会话重挂。21 个入口通过；Pack/全关三个入口和跨机两个入口仍阻塞。这些小样不抵扣下表的正式输入、规模与跨机缺项。
+
 截至 2026-11-12，实验已暂停。当前只归档结果、清理本任务新建的资源，保留原跳板机及证据盘。[归档、清理与运行脚本入口](../pilot-aliyun/scripts/README.zh.md)；恢复须有新的用户指令和资源清单。
 
 本轮小试为 1 Agent；C3、C4 派生各用独立的 10,000 个 4 KiB 文件。JuiceFS 混合读写已跳过，BrewFS 完整复制已从计划删除；历史证据保留。

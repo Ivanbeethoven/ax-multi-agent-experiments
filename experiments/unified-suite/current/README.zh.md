@@ -2,6 +2,8 @@
 
 **实验已暂停，清理已完成。** [C1–C4 结果表与关键指标](results-20261112/RESULT.zh.md) · [脚本入口](../pilot-aliyun/scripts/README.zh.md)
 
+随后按用户要求，仅在 rbm 做了[最小脚本复验](../pilot-aliyun/evidence/preparation/rbm-script-check-20261112/README.zh.md)：26 个入口最终 21 通过、5 阻塞。修复回放权限掩码、补充导入超时参数，逐阶段定位等待。没有新开云机，临时服务已清理；正式规模和历史结果未改，正式实验仍暂停。
+
 本轮按用户要求跳过 JuiceFS 混合读写，不再补跑或补验收，原有结果保留。[C2–C4 未完成清单](PENDING.zh.md)按当前方案列项；旧 14/28 只用于解释历史账本，不能代表已删除完整复制实验后的当前进度。
 
 各子项的工作区格式、构建 feature、运行开关与开跑条件见[统一对照表](FEATURES.zh.md)。
