@@ -20,6 +20,8 @@ def main():
     parser.add_argument('--repository', type=Path, required=True)
     parser.add_argument('--binary', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--tools', nargs='+', choices=('fio-seqwrite', 'fio-randwrite', 'fio-randrw'), default=['fio-randrw'])
+    parser.add_argument('--direct', type=int, choices=(0, 1))
     args = parser.parse_args()
     args.repository = args.repository.resolve()
     args.binary = args.binary.resolve()
@@ -36,6 +38,8 @@ def main():
                AWS_ACCESS_KEY_ID='localguard', AWS_SECRET_ACCESS_KEY='localguardsecret',
                AWS_EC2_METADATA_DISABLED='true', BREWFS_S3_BUCKET='hot-guard',
                RUST_LOG='warn')
+    if args.direct is not None:
+        env['PERF_FIO_DIRECT'] = str(args.direct)
     def invoke(argv, **kw):
         return subprocess.run(list(map(str, argv)), env=env, check=True, text=True, **kw)
     def image(name):
@@ -90,14 +94,19 @@ def main():
     artifacts.mkdir(parents=True, exist_ok=True)
     before = set(artifacts.iterdir())
     command = ['bash', args.repository / 'docker/compose-xfstests/run_redis_perf.sh', '--s3',
-               '--writeback-throughput-profile', '--tools', 'fio-randrw']
+               '--writeback-throughput-profile', '--tools', ' '.join(args.tools)]
     record = dict(binary_sha256=sha(args.binary), argv=list(map(str, command)), passed=False,
                   backend_version=backend,
                   source_commit=invoke(['git', '-C', args.repository, 'rev-parse', 'HEAD'], capture_output=True).stdout.strip(),
-                  project=project, images=dict(redis=REDIS, rustfs=RUSTFS, perf=perf_image, aws_cli=aws_image))
+                  project=project, tools=args.tools, direct=env.get('PERF_FIO_DIRECT', '0'),
+                  images=dict(redis=REDIS, rustfs=RUSTFS, perf=perf_image, aws_cli=aws_image))
     try:
-        with (args.out / 'source.patch').open('w') as patch:
-            invoke(['git', '-C', args.repository, 'diff', '--binary', 'HEAD'], stdout=patch)
+        if source_patch := env.get('BREWFS_SOURCE_PATCH'):
+            shutil.copyfile(source_patch, args.out / 'source.patch')
+            record['source_patch_origin'] = source_patch
+        else:
+            with (args.out / 'source.patch').open('w') as patch:
+                invoke(['git', '-C', args.repository, 'diff', '--binary', 'HEAD'], stdout=patch)
         record['source_patch_sha256'] = sha(args.out / 'source.patch')
         with (args.out / 'runner.log').open('x') as log:
             invoke(command, stdout=log, stderr=subprocess.STDOUT)

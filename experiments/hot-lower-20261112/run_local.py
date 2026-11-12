@@ -189,9 +189,14 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--pairs', type=int, default=3)
     parser.add_argument('--passes', type=int, default=128)
+    parser.add_argument('--metadata-sync', choices=('remote', 'local-journal', 'local-buffered'), default='remote',
+                        help='Metadata acknowledgement mode; each cell gets an independent local journal')
+    parser.add_argument('--metadata-edits', type=int, default=0,
+                        help='After hot reads, time repeated chmod/stat plus final fsync/close separately')
     args = parser.parse_args()
     assert os.geteuid() == 0, 'run under sudo for private RustFS volume ownership'
     assert args.pairs >= 3 and 1 <= args.passes <= 4096
+    assert 0 <= args.metadata_edits <= 4096
     assert re.fullmatch('[0-9a-f]{40}', args.source_commit)
     for path in [args.binary, args.producer, args.source_patch]:
         assert path.is_absolute() and path.is_file()
@@ -201,6 +206,7 @@ def main():
     containers = [owner + '-redis', owner + '-rustfs']
     access, secret = secrets.token_hex(12), secrets.token_hex(24)
     env = dict(os.environ, AWS_ACCESS_KEY_ID=access, AWS_SECRET_ACCESS_KEY=secret,
+               BREWFS_METADATA_SYNC=args.metadata_sync,
                AWS_REGION='us-east-1', AWS_EC2_METADATA_DISABLED='true',
                RUST_LOG='warn', NO_PROXY='127.0.0.1,localhost',
                BREWFS_PACKED_VERIFY_MEMO='0', BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES=str(8 << 20),
@@ -216,6 +222,7 @@ def main():
                   producer_sha256=sha(args.producer), images=dict(redis=REDIS, rustfs=RUSTFS),
                   argv=list(map(str, __import__('sys').argv)), cells=[], commands=[],
                   runtime_env={key: value for key, value in env.items() if key.startswith('BREWFS_') or key in ('RUST_LOG', 'AWS_EC2_METADATA_DISABLED')},
+                  metadata_sync=args.metadata_sync,
                   comparison='same optimized binary; new empty-query cache disabled/enabled; writable Overlay in both arms')
     save(args.out / 'ownership.json', dict(owner=owner, temporary_directory=str(work), containers=containers))
     process, logfile, point = None, None, None
@@ -343,6 +350,10 @@ def main():
                         config_path = out / 'config.json'
                         save(config_path, config)
                         env['BREWFS_WORKSPACE_EMPTY_QUERY_CACHE'] = str(int(enabled))
+                        if args.metadata_sync != 'remote':
+                            env['BREWFS_METADATA_JOURNAL_DIR'] = str(work / ('journal-' + label))
+                        else:
+                            env.pop('BREWFS_METADATA_JOURNAL_DIR', None)
                         logfile = (out / 'mount.log').open('wb')
                         mount_command = [str(args.binary), 'mount', '--config', str(config_path), str(point)]
                         result['commands'].append(mount_command)
@@ -411,11 +422,62 @@ def main():
                                     redis_before=before_redis, redis_after=after_redis,
                                     redis_delta={key: delta({field: number for field, number in value.items() if field != 'usec_per_call'}, before_redis.get(key, {})) for key, value in after_redis.items()},
                                     expected_sha256={name: hashlib.sha256(content).hexdigest() for name, content in expected.items()}, samples=samples)
-                        save(out / 'result.json', cell)
+                        save(out / 'hot-read.json', cell)
                         assert after_s3['inflight'] == 0, 'object request still active after measurement'
                         assert all(value == 0 for value in remote_delta.values()), 'remote traffic in measured phase'
                         assert stats_delta['brewfs_fuse_read_ops_total'] == args.passes * len(expected)
+                        if args.metadata_edits:
+                            name = sorted(expected)[0]
+                            target = point / name
+                            fd = os.open(target, os.O_RDONLY)
+                            metadata_before = commandstats(redis_port)
+                            metadata_s3_before = s3_counts()
+                            samples = []
+                            started = time.monotonic_ns()
+                            try:
+                                for index in range(args.metadata_edits):
+                                    permissions = 0o600 if index % 2 == 0 else 0o640
+                                    operation_start = time.monotonic_ns()
+                                    os.chmod(target, permissions)
+                                    assert os.stat(target).st_mode & 0o777 == permissions
+                                    samples.append(time.monotonic_ns() - operation_start)
+                                active_ns = time.monotonic_ns() - started
+                                os.fsync(fd)
+                            finally:
+                                os.close(fd)
+                            total_ns = time.monotonic_ns() - started
+                            metadata_after = commandstats(redis_port)
+                            metadata_s3_after = s3_counts()
+                            cell['metadata_edits'] = dict(path=name, count=args.metadata_edits,
+                                final_mode=permissions, operation_ns=samples, active_ns=active_ns,
+                                total_with_drain_ns=total_ns, redis_before=metadata_before,
+                                redis_after=metadata_after,
+                                rustfs_before=metadata_s3_before, rustfs_after=metadata_s3_after,
+                                rustfs_delta=delta(metadata_s3_after, metadata_s3_before),
+                                redis_delta={key: delta({field: number for field, number in value.items() if field != 'usec_per_call'}, metadata_before.get(key, {})) for key, value in metadata_after.items()})
+                            save(out / 'metadata-phase.json', cell)
                         stop()
+                        if args.metadata_sync != 'remote':
+                            journal = work / ('journal-' + label) / 'state.bin'
+                            shutil.copyfile(journal, out / 'metadata-journal.bin')
+                            cell['metadata_journal_sha256'] = sha(journal)
+                            cell['metadata_journal_bytes'] = journal.stat().st_size
+                        if args.metadata_sync != 'remote' or args.metadata_edits:
+                            # A fresh process in remote mode must see the final
+                            # tree without reading our local journal. This is
+                            # outside the timed hot-read interval.
+                            remount_env = dict(env, BREWFS_METADATA_SYNC='remote')
+                            remount_env.pop('BREWFS_METADATA_JOURNAL_DIR', None)
+                            logfile = (out / 'remount-remote.log').open('wb')
+                            result['commands'].append(mount_command)
+                            process = subprocess.Popen(mount_command, env=remount_env, stdout=logfile, stderr=subprocess.STDOUT)
+                            wait_for(ready, 'remote-only remount')
+                            cell['remote_remount_samples'] = measured_round(point, expected)
+                            if args.metadata_edits:
+                                assert os.stat(point / cell['metadata_edits']['path']).st_mode & 0o777 == cell['metadata_edits']['final_mode']
+                            stop()
+                            cell['remote_remount_verified'] = True
+                        save(out / 'result.json', cell)
                         result['cells'].append({key: cell[key] for key in ('label', 'scenario', 'pair', 'cache_enabled', 'elapsed_ns')})
                         print(label, round(elapsed / 1e6, 3), 'ms', flush=True)
             result['passed'] = True

@@ -1,0 +1,25 @@
+ Volume hot-guard-7335c0f03c_state Creating 
+ Volume hot-guard-7335c0f03c_state Creating 
+ Volume hot-guard-7335c0f03c_state Created 
+ Volume hot-guard-7335c0f03c_state Created 
+ Container hot-guard-7335c0f03c-perf-run-9e5c9b701912 Creating 
+ Container hot-guard-7335c0f03c-perf-run-9e5c9b701912 Created 
+[20:03:48] INFO  nofile limit: 1048576
+[20:03:48] INFO  写入 BrewFS 配置: /run/brewfs/config.yaml
+[20:03:48] INFO  准备产物目录: /artifacts/perf-run-1794513828-19086-brewfs
+[20:03:49] INFO  安装 mount helper: /usr/sbin/mount.fuse.brewfs
+[20:03:49] INFO  挂载 BrewFS: /mnt/brewfs
+[20:03:51] OK    BrewFS 已挂载
+[20:03:51] INFO  执行挂载点预检: /mnt/brewfs
+[20:03:51] OK    预检通过: 写入/读取正常
+[20:03:51] INFO  开始性能测试: tools=fio-randwrite
+[20:03:51] INFO  运行压力工具: fio-randwrite
+[20:03:51] INFO    命令: run_observed_fio fio-randwrite --name=brewfs-randwrite --directory=/mnt/brewfs/.perf-fio-randwrite --rw=randwrite --bs=4m --size=512m --numjobs=4 --ioengine=io_uring --iodepth=1 --direct=1 --runtime=20 --time_based --group_reporting --eta=never --lat_percentiles=1 --clat_percentiles=1 --slat_percentiles=1 --percentile_list=50:95:99:99.9 --randseed=20261112 --randrepeat=1 --output-format=json --output=/artifacts/perf-run-1794513828-19086-brewfs/results/fio-randwrite.json --write_lat_log=/artifacts/perf-run-1794513828-19086-brewfs/results/fio-randwrite_lat --log_avg_msec=1000
+[20:04:13] OK    压力工具完成: fio-randwrite (22s, log=0 bytes)
+[20:04:13] INFO  等待 post-write 写回严格排空: fio-randwrite (threshold=0 bytes, stable=3, timeout=600s)
+[20:04:13] INFO    post-write 写回等待中: pending=3217031168 dirty=3217031168 buffer_dirty=3217031168 put_bytes=2139097112 elapsed=0s
+[20:04:43] OK    post-write 写回已严格排空: fio-randwrite (runner=26s extended=30s pending=0 dirty=0 buffer_dirty=0 put_bytes=5322576920 uploaded=0 stable=3s)
+[20:04:43] INFO  测试完成后文件系统统计:
+[20:04:43] INFO    磁盘使用: 2.0G / 1.0P (1%)
+[20:04:43] INFO    残留文件数: 4
+[20:04:43] OK    性能测试全部完成

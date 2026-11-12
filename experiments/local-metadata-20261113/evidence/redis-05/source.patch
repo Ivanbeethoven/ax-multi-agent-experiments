@@ -1,0 +1,2158 @@
+diff --git a/doc/architecture/private-workspace-sync.md b/doc/architecture/private-workspace-sync.md
+index 7918205..c1f1f24 100644
+--- a/doc/architecture/private-workspace-sync.md
++++ b/doc/architecture/private-workspace-sync.md
+@@ -1,146 +1,89 @@
+-# Private workspace 的本地缓存与后台同步
+-
+-状态：同步协议设计，尚未实现后台元数据提交。当前实现仍等待远端确认。
+-本轮热读优化只缓存经过查询的空结果，不改变写入、fsync、发布或迁移语义。
+-
+-所有上层修改最终必须提交到远端元数据库，包括 inode 属性、目录项、删除标记、
+-extent 映射及其版本。半异步只调整返回成功的时机与合批方式；本地缓存和日志是
+-待提交视图，不能成为这些修改的唯一长期记录。后台同步即使没有新请求也要继续
+-推进，提交失败保留记录、重试并报告错误，不能清掉待提交状态后假装完成。
+-
+-## 模式与承诺
+-
+-| 模式 | 操作何时返回成功 | 断电后恢复 | 源机器和本地盘一起丢失 |
+-|---|---|---|---|
+-| `remote`（默认） | 相关数据对象持久化，远端元数据事务确认 | 从远端恢复 | 已确认操作仍在 |
+-| `local-journal`（可选，待实现） | 必要数据和元数据日志在本地持久化，本地视图更新 | 日志所在盘还在时重放 | 尚未远端确认的部分可能丢失 |
+-
+-两种模式都只允许一个租约持有者修改 workspace。同一挂载内，已返回成功的
+-修改立即可见；其他 agent 通过显式发布的不可变版本共享数据。这里调整的是
+-写入确认和远端持久化时机，不降低同一 workspace 内 rename、link、unlink 的原子性。
+-不提供“只放内存就确认成功”的模式。
+-
+-建议配置接口（尚不接受这些配置）：
+-
+-```toml
+-[workspace.sync]
+-mode = "remote"
+-flush_interval_ms = 10
+-max_pending_operations = 1024
+-max_pending_bytes = 16777216
+-max_pending_age_ms = 100
+-journal_directory = "/local-durable/brewfs"
++# Private workspace 元数据本地更新与合并提交
++
++实现位于 `src/workspace_overlay/stores/local_metadata.rs`，作用于 Redis/TiKV
++Packed workspace 的应用元数据事务。默认 `remote`，每次等待元数据库确认。
++`local-journal` 先同步本地日志，再返回；后台把合并结果写回同一个元数据库。
++
++## 配置
++
++```bash
++export BREWFS_METADATA_SYNC=local-journal
++export BREWFS_METADATA_JOURNAL_DIR=/local-durable/workspace-123/metadata
++export BREWFS_METADATA_FLUSH_MS=10
++export BREWFS_METADATA_MAX_OPERATIONS=1024
++export BREWFS_METADATA_MAX_BYTES=1048576
++# 随后执行原有 brewfs mount 命令。
+ ```
+ 
+-间隔是合批触发条件，不是网络故障时仍可保证的远端完成时限。达到条数、字节数、
+-最老记录年龄上限后，新修改等待同步；后台发生永久错误则返回错误并停止接收写入。
+-日志空间不足不得静默退成内存确认。配置阈值需校验为非零且有明确上限。
+-日志目录必须位于挂载点之外的持久化文件系统，按 workspace 和租约代数隔离，
+-避免写日志再次进入同一个 FUSE 挂载。待同步字节包括元数据日志和它引用的本地数据。
+-
+-## 本地状态与提交顺序
+-
+-每个 workspace 维护 `visible_seq`（本地可见）、`journal_seq`（本地已落盘）、
+-`remote_seq`（远端已确认），以及当前租约代数和远端 head 版本。
+-已确认的本地操作满足 `remote_seq <= visible_seq <= journal_seq`。
+-单条日志是完整原子操作；rename 及其两端目录项不能拆成独立可见步骤。
+-
+-1. 在现有 `mutation_gate` 下生成下一序号和完整变更集，校验权限和当前视图。
+-2. 写入新数据的本地持久化文件，再写日志。日志包含 workspace、租约代数、序号、
+-   操作 ID、前序号、原 head、变更集及数据摘要；记录带长度和校验和。
+-3. 同步本地数据和日志，必要时同步新建文件的父目录。更新本地待提交视图与
+-   `visible_seq`；失效对应缓存。`local-journal` 此时才返回成功。
+-4. 后台沿序号合批：先上传不可变数据，再以带 fencing 的 CAS 原子提交元数据、
+-   操作 ID 和 `remote_seq`。确认应答后推进 `remote_seq`。
+-5. 远端确认前保留日志及其数据文件。检查点落盘并原子替换后才回收已确认段。
+-
+-首版每个 workspace 只允许一批在途，确认后再发送下一批；重试沿用原批次 ID。
+-远端确认序号只能前进，不能被晚到的旧应答回退。
+-
+-上传中的远端对象需要可恢复的批次保留记录，提交时将它转成正式引用；未确认的
+-对象不能仅因尚未出现在文件元数据中就被 GC 删除。失败批次在核对日志、租约和
+-保留期限后再回收；本地日志仍持有的数据允许重新上传。
+-
+-可以复用现有 `write_queue`、`commit_next_write_batch` 和 `commit_with_written`，
+-但当前队列仅合并数据写入，且每个调用者都等待远端结果。新增日志必须覆盖目录、
+-属性、删除和截断；仅提前发送现有 oneshot 应答不构成正确的异步实现。
+-当前远端协议还需要事务性的操作 ID/序号记录，不能假定其已经支持日志重放。
+-
+-## 缓存如何看到未同步的修改
+-
+-读取顺序为：本地待提交修改 → 已确认上层缓存/远端上层 → 不可变 lower。
+-本地删除标记必须遮住下面两层；本地 hole 与缩短后的 EOF 必须遮住旧数据。
+-缓存键包含 workspace、租约代数、head/base 身份与版本、inode/目录、查询范围。
+-缓存的有效性绑定本地可见版本，不能只绑定滞后的 `remote_seq`。
+-
+-### 连续修改同一个对象
+-
+-目前行缓存采用修改前后失效，不包含下面这套通用待提交状态；现有数据写队列也不能
+-替代它。半异步实现需要为每个 inode、目录项和数据区间保存本地最新值及其修改序号。
+-更新仍经过 `mutation_gate`，完整日志落盘后才能把整个操作加入本地可见视图。
+-读取先检查这份视图；本地删除和 hole 必须遮住已确认状态。
+-
+-后台发起提交时捕获边界 S，把该批次需要的值复制成不可变记录。发出后新修改继续
+-更新本地视图，但不能改动正在发送的记录。例如：
+-
+-| 时刻 | 本地最新大小/序号 | 正在提交 | 远端已确认 |
+-|---|---|---|---|
+-| 连续修改后 | 120 / 2 | 无 | 100 / 1 |
+-| 后台发出该批 | 120 / 2 | 120 / 2 | 100 / 1 |
+-| 提交期间再次修改 | 160 / 3 | 120 / 2 | 100 / 1 |
+-| 收到序号 2 的确认 | **160 / 3，仍待提交** | 无 | 120 / 2 |
+-| 下一批确认后 | 160 / 3 | 无 | 160 / 3 |
+-
+-确认仅释放被该批覆盖的旧版本。对象若有更大的本地修改序号，仍保留待提交状态；
+-旧应答不能覆盖本地新值，不能把整个对象直接标成干净。失败则保留该批和后续修改，
+-先核对远端是否已应用，再重试。
+-
+-尚未发出的同字段属性更新可以合并成最终值，如 `100 → 120 → 160` 只提交 `160`。
+-批次仍记录覆盖的连续序号范围及摘要，远端数据变更与确认序号在同一事务中落盘。
+-完整本地日志保留到远端确认并完成检查点；合并网络提交不等于提前丢弃恢复日志。
+-不同数据区间不能互相丢掉；重叠区间按顺序保留最终可见部分及完整数据引用。
+-rename、link、unlink、创建后删除等涉及命名和引用计数的操作，首版保留完整顺序，
+-不使用“同 key 只留最后一个值”的通用规则。所有合并都不能跨越 fsync、发布或迁移边界。
+-
+-普通读缓存可以淘汰；未确认修改不能被同一 LRU 淘汰规则丢弃。待提交状态、日志和
+-数据有独立预算，满额时等待同步，不能通过清空脏项腾出空间。
+-
+-本轮空结果缓存采用现有 65,536 项上限，并复用提交前后失效、版本票据、取消后
+-永久禁用缓存权限的机制。任何提交令之前的空结果失效；数据或删除标记不放入
+-空结果缓存。将来接入本地日志时，失效必须移到“本地可见”之前，后台确认后
+-不能覆盖更新的本地缓存。缓存和日志采用不同容量预算，缓存淘汰不得丢弃待提交操作。
+-
+-## 强制同步点
+-
+-- `fsync`/`fdatasync`：捕获调用时的 `visible_seq = S`，等待相关数据上传且
+-  `remote_seq >= S`。首版保守地排空 workspace 到 S；之后的新写入不延长本次等待。
+-- 发布、fork、快照：先停止进入发布范围的新修改，排空到 S，再发布远端版本。
+-- 迁移：源端停止新写入，排空到 S，记录 head/版本/序号并释放租约；目标取得
+-  新租约并核对 S 后恢复。仅复制 workspace 文件而遗漏日志不算完整迁移。
+-- 卸载与 `local-journal → remote` 切换：等待相同的远端屏障；失败必须明确返回，
+-  保留日志。`remote → local-journal` 仅在队列为空、持久化目录已校验时切换。
+-- 租约失效：停止写入及后台提交，拒绝旧代数继续重放，不自动取得新租约续写。
+-
+-## 崩溃与不确定应答
+-
+-部分写入的日志尾部依靠长度/校验和截断；已落盘完整记录才能重放。请求超时后先
+-查询远端操作 ID 和序号：已应用则只补确认，未应用且原版本仍匹配才重试。
+-远端版本已由其他持有者推进时，保留日志并报告冲突，不覆盖、不跳过该记录。
+-新持有者接管旧日志需要显式核对远端 head、已确认序号和完整数据；旧租约凭证
+-不能直接复用。源盘丢失时恢复边界是 `remote_seq`，必须向调用者说明缺失区间。
+-
+-## 必需观测与验收
+-
+-记录 visible/journal/remote 三个序号、待同步字节/条数/最老年龄、合批大小、日志
+-fsync 时延、远端提交时延、重试数、屏障等待时延、租约拒绝数及最后同步错误。
+-同步错误必须在 API 和监控中可见，不能只有日志警告。
+-
+-在提交前、服务端已提交但应答前、本地检查点写到一半、日志回收中分别杀进程；
+-覆盖本地磁盘满、Redis 断连、对象上传失败、租约转移、重复重放及模式切换。
+-对每个返回成功的操作检查恢复状态；对每个成功 fsync 检查丢弃本地日志后仍能
+-仅从远端恢复。比较两种模式的总耗时、fsync P99、实际数据/元数据请求数及恢复时间。
+-通过这些检查之前，后台元数据提交保持未实现状态，不用于本轮热读收益。
+-
+-重复修改还须验证：同 inode 连续改属性、提交中再次修改、旧确认晚到、应答丢失后重试、
+-交叠与不交叠区间写入、rename 后删除、两次修改之间 fsync，以及重启后恢复最新已确认
+-本地状态。检查本地读取值、远端最终值、待提交数量、实际提交次数和日志回收边界。
++恢复同步模式：`BREWFS_METADATA_SYNC=remote`。切换前必须正常卸载并排空，不能
++通过关闭配置忽略遗留日志。日志目录使用本地持久盘，必须在 FUSE 挂载点之外。
++每个 workspace 独占目录；文件锁拒绝第二个进程使用同一目录。日志绑定数据库、
++namespace 和 workspace 的摘要，不能拿一个 workspace 的日志恢复另一个。
++
++| 参数 | 默认值 | 允许范围 |
++|---|---:|---:|
++| 后台触发间隔 | 10 ms | 1–1000 ms |
++| 每批操作数 | 1024 | 1–4096 |
++| 每批元数据键和值的字节数 | 1 MiB | 1 KiB–4 MiB |
++
++最多保留一批正在提交的数据和一批新修改，另有序列化及日志快照的临时内存。
++超过条数或字节上限时先提交再接收；单笔过大的事务走原来的同步路径。
++后台没有新请求也会触发提交。间隔不是网络故障下的完成时限。
++原来的上层读取缓存仍为 65536 项，与待提交队列是两项独立预算。
++
++## 连续修改如何合并
++
++已有事务生成权限检查、inode、目录项、删除标记、extent 和 head 版本。
++本实现保留这些检查和完整事务，只把实际远端提交推迟：
++
++1. 校验远端时钟、租约截止时间和本地合并视图中的前置值。
++2. 把完整操作写入带校验和的日志快照；文件 fsync、原子替换、目录 fsync。
++3. 新视图一次性可见。相同 KV 键只保留最后一次修改，删除值也参与合并。
++4. 后台固定当前批次。下一次修改进入新批次，不能改变正在发送的数据。
++5. 元数据库 CAS 同时写入元数据、head 和批次确认摘要，再同步本地确认状态。
++
++例如 inode 先改为 v1，提交 v1 时又改成 v2：本地读到 v2；v1 确认只移除 v1
++批次。v2 仍待提交。即便 v2 的内容恰好等于 v1，也保留新操作的序号。
++远端回复丢失时，读取同一事务写入的确认摘要，判断该批次是否已经完成。
++不会重新执行一个结果不明的文件操作。
++
++extent 的区间覆盖仍由现有代码处理，不能把不同区间直接当成一个键覆盖。
++只有现有代码生成的相同存储键才合并；序号不同的 extent 保留其顺序。
++
++## 必须等待远端的边界
++
++以下操作排空待提交元数据，再继续：
++
++- 文件 fsync、flush、目录 fsync 和正常卸载。
++- 上传完成并释放本地脏数据副本之前。
++- ID 分配、租约更新、所有权变更、发布、切层等非应用元数据 CAS。
++- 范围扫描和发布证明。
++
++因此目录枚举、数据写入收尾等操作可能提前结束合批。这里保留原有的上传、GC、
++发布和范围读取检查，没有把“本地已保存”算成“远端已持久化”。
++点读取优先使用新修改，其次使用正在提交的批次，最后读取远端。
++普通读权限验证将本地 head 还原成批次最初的远端 head，继续校验原有租约和
++权限条件；不能还原的检查先排空。它不会为了合批跳过租约或版本验证。
++
++## 失败与恢复
++
++提交失败保留两批数据和日志，后台重试；fsync/卸载返回真实错误。达到队列上限
++后不能继续无界接收修改。租约过期或其他写者改变前置条件时，拒绝旧批次写回。
++
++重新打开日志会先尝试完成旧批次，再允许获取新的挂载会话。已提交但未写本地
++确认的批次，通过远端确认摘要恢复。**过期租约的未提交日志不会自动换成新租约
++重放**；此时挂载失败并保留日志，需要单独恢复流程。不能删除日志强行重挂。
++
++本机和本地盘一起丢失时，尚未远端确认的修改可能丢失。迁移、fork、发布前必须
++成功排空；当前实现没有提供“丢弃未同步修改后继续成功”的选项。
++
++## 本地验证
++
++`tools/perf/check_local_metadata.sh NEW_OUTPUT_DIRECTORY` 启动一个仅监听本机的
++临时 Redis，运行真实 Redis 三对交替测试，保存逐次耗时和 commandstats，退出时
++删除该容器。需要本地已有 `redis:7.2-alpine`，脚本不会拉取镜像或申请云资源。
++
++单元测试覆盖重复修改、旧确认、新批次、确认丢失、重试、重开日志、租约失效、
++容量限制、删除标记、空闲后台同步。Packed 集成测试覆盖 chmod、重复覆盖写、
++truncate、rename、unlink 以及远端排空。
++完整正确性检查使用 `tools/perf/check_hot_overlay.sh`，不能用小测试代替。
+diff --git a/src/cli.rs b/src/cli.rs
+index 5214816..4166edc 100644
+--- a/src/cli.rs
++++ b/src/cli.rs
+@@ -1841,8 +1841,23 @@ where
+     S: BlockStore + Send + Sync + 'static,
+ {
+     let packed_budget = workspace_overlay::packed_v3::wire005::V3MountBudget::from_env()?;
++    use workspace_overlay::stores::local_metadata::{LocalMetadataBackend, LocalMetadataConfig};
++    let metadata_sync = LocalMetadataConfig::from_env(&args.mount_point)?;
++    let metadata_scope = format!(
++        "{:?}|{}|{:?}|{}|{:?}",
++        args.meta_backend,
++        args.workspace_namespace,
++        args.workspace,
++        args.meta_url,
++        args.meta_tikv_pd_endpoints
++    );
+     match args.meta_backend {
+         MetaBackendKind::Sqlx => {
++            if metadata_sync.is_some() {
++                anyhow::bail!(
++                    "local-journal metadata sync requires a Redis or TiKV Packed workspace"
++                )
++            }
+             if !args.meta_url.starts_with("sqlite:") {
+                 anyhow::bail!("workspace-v1 sqlx catalog requires a SQLite URL")
+             }
+@@ -1852,6 +1867,9 @@ where
+         MetaBackendKind::Redis => {
+             let backend =
+                 RedisWorkspaceBackend::connect(&args.meta_url, &args.workspace_namespace).await?;
++            let backend =
++                LocalMetadataBackend::new(backend, metadata_sync, metadata_scope.as_bytes())
++                    .await?;
+             let catalog = KvWorkspaceStore::new(backend)
+                 .with_packed_reader_pin_budget(packed_budget.clone())
+                 .with_inode_id_blocks();
+@@ -1870,6 +1888,9 @@ where
+                 args.meta_tikv_tls.as_ref(),
+             )
+             .await?;
++            let backend =
++                LocalMetadataBackend::new(backend, metadata_sync, metadata_scope.as_bytes())
++                    .await?;
+             let catalog = KvWorkspaceStore::new(backend)
+                 .with_packed_reader_pin_budget(packed_budget.clone())
+                 .with_inode_id_blocks();
+diff --git a/src/fuse/mod.rs b/src/fuse/mod.rs
+index dd919c5..3ae0b22 100644
+--- a/src/fuse/mod.rs
++++ b/src/fuse/mod.rs
+@@ -2496,7 +2496,10 @@ where
+         _fh: u64,
+         _datasync: bool,
+     ) -> FuseResult<()> {
+-        Ok(())
++        self.meta_layer()
++            .flush_metadata()
++            .await
++            .map_err(|error| Errno::from(VfsError::from_meta(PathHint::none(), error)))
+     }
+ 
+     // Test for a POSIX file lock
+diff --git a/src/meta/layer.rs b/src/meta/layer.rs
+index c55eb40..1d3d304 100644
+--- a/src/meta/layer.rs
++++ b/src/meta/layer.rs
+@@ -625,6 +625,11 @@ pub trait MetaLayer: Send + Sync {
+     }
+ 
+     // ---------- Session lifecycle ----------
++    /// Flush locally acknowledged metadata; data upload is drained by VFS first.
++    async fn flush_metadata(&self) -> Result<(), MetaError> {
++        Ok(())
++    }
++
+     async fn start_session(&self, session_info: SessionInfo) -> Result<(), MetaError>;
+ 
+     async fn shutdown_session(&self) -> Result<(), MetaError>;
+diff --git a/src/vfs/fs/mod.rs b/src/vfs/fs/mod.rs
+index 5d03407..7b3000c 100644
+--- a/src/vfs/fs/mod.rs
++++ b/src/vfs/fs/mod.rs
+@@ -6773,6 +6773,10 @@ where
+                 VfsError::Anyhow(anyhow::anyhow!(error.to_string()))
+             })?;
+             self.update_mtime_ctime(handle.ino).await?;
++            self.meta_layer()
++                .flush_metadata()
++                .await
++                .map_err(|error| VfsError::from_meta(PathHint::none(), error))?;
+             return Ok(handle.ino);
+         }
+ 
+@@ -6801,6 +6805,10 @@ where
+             }
+             return Err(err);
+         }
++        self.meta_layer()
++            .flush_metadata()
++            .await
++            .map_err(|error| VfsError::from_meta(PathHint::none(), error))?;
+         Ok(handle.ino)
+     }
+ 
+@@ -6858,6 +6866,10 @@ where
+             if !report.committed.is_empty() {
+                 self.update_mtime_ctime(ino as i64).await?;
+             }
++            self.meta_layer()
++                .flush_metadata()
++                .await
++                .map_err(|error| VfsError::from_meta(PathHint::none(), error))?;
+             return Ok(());
+         }
+ 
+@@ -6879,6 +6891,10 @@ where
+             }
+             return Err(error);
+         }
++        self.meta_layer()
++            .flush_metadata()
++            .await
++            .map_err(|error| VfsError::from_meta(PathHint::none(), error))?;
+         Ok(())
+     }
+ 
+@@ -6927,6 +6943,10 @@ where
+                     VfsError::Anyhow(anyhow::anyhow!(error.to_string()))
+                 })?;
+             self.update_mtime_ctime(handle.ino).await?;
++            self.meta_layer()
++                .flush_metadata()
++                .await
++                .map_err(|error| VfsError::from_meta(PathHint::none(), error))?;
+             return Ok(());
+         }
+ 
+@@ -6974,6 +6994,10 @@ where
+             return Err(err);
+         }
+ 
++        self.meta_layer()
++            .flush_metadata()
++            .await
++            .map_err(|error| VfsError::from_meta(PathHint::none(), error))?;
+         tracing::trace!(fh, ino = handle.ino, "vfs.fsync_snapshot_done");
+         Ok(())
+     }
+diff --git a/src/vfs/io/writer.rs b/src/vfs/io/writer.rs
+index 78f777e..0114a79 100644
+--- a/src/vfs/io/writer.rs
++++ b/src/vfs/io/writer.rs
+@@ -1249,6 +1249,10 @@ where
+                 .meta()
+                 .write_with_coalesced_reservation(ino, desc.chunk_id, desc, new_size, coalesced)
+                 .await;
++            let result = match result {
++                Ok(()) => self.shared.backend.meta().flush_metadata().await,
++                Err(error) => Err(error),
++            };
+             drop(metadata_commit);
+             match result {
+                 Ok(()) => {
+@@ -5060,6 +5064,10 @@ where
+             .meta()
+             .write(ino, desc.chunk_id, desc, new_size)
+             .await;
++        let result = match result {
++            Ok(()) => shared.backend.meta().flush_metadata().await,
++            Err(error) => Err(error),
++        };
+         drop(metadata_commit);
+ 
+         match result {
+@@ -5405,6 +5413,12 @@ where
+                                 new_size
+                             ))
+                             .await;
++                        // Remote metadata must own this slice before releasing
++                        // its local dirty record or reporting upload debt paid.
++                        let result = match result {
++                            Ok(()) => shared.backend.meta().flush_metadata().await,
++                            Err(error) => Err(error),
++                        };
+                         drop(metadata_commit);
+ 
+                         if let Err(err) = result {
+diff --git a/src/workspace_overlay/catalog.rs b/src/workspace_overlay/catalog.rs
+index e55789f..6f9e597 100644
+--- a/src/workspace_overlay/catalog.rs
++++ b/src/workspace_overlay/catalog.rs
+@@ -479,6 +479,9 @@ pub struct MutationResult {
+ 
+ #[async_trait]
+ pub trait WorkspaceStore: Send + Sync {
++    async fn flush_metadata(&self) -> Result<(), WorkspaceError> {
++        Ok(())
++    }
+     fn name(&self) -> &'static str;
+     fn capabilities(&self) -> WorkspaceStoreCapabilities;
+     /// Called after reader/session/GC retirement by the catalog's mount owner.
+diff --git a/src/workspace_overlay/meta_layer/mod.rs b/src/workspace_overlay/meta_layer/mod.rs
+index 18e1dee..eb8842a 100644
+--- a/src/workspace_overlay/meta_layer/mod.rs
++++ b/src/workspace_overlay/meta_layer/mod.rs
+@@ -600,6 +600,10 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+     // This is the real original lower transport/reader drain. Only the clean proof
+     // owner defers budget closure until the clean release CAS becomes terminal.
+     pub(crate) async fn shutdown_packed_runtime_for_clean_release(&self) -> Result<(), MetaError> {
++        self.store
++            .flush_metadata()
++            .await
++            .map_err(workspace_to_meta)?;
+         let lower = self.packed_lower().ok_or_else(|| {
+             MetaError::NotSupported("packed original shutdown requires its attached lower".into())
+         })?;
+@@ -3509,6 +3513,10 @@ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
+     }
+ 
+     async fn shutdown_session(&self) -> Result<(), MetaError> {
++        self.store
++            .flush_metadata()
++            .await
++            .map_err(workspace_to_meta)?;
+         if let Some(lower) = self.packed_lower() {
+             self.shutdown_packed_runtime_for_clean_release().await?;
+             lower.budget.close();
+@@ -3516,6 +3524,10 @@ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
+         Ok(())
+     }
+ 
++    async fn flush_metadata(&self) -> Result<(), MetaError> {
++        self.store.flush_metadata().await.map_err(workspace_to_meta)
++    }
++
+     async fn get_plock(
+         &self,
+         inode: i64,
+diff --git a/src/workspace_overlay/meta_layer/tests/packed_open_preparation_tests.rs b/src/workspace_overlay/meta_layer/tests/packed_open_preparation_tests.rs
+index 5a23337..b9a0fbc 100644
+--- a/src/workspace_overlay/meta_layer/tests/packed_open_preparation_tests.rs
++++ b/src/workspace_overlay/meta_layer/tests/packed_open_preparation_tests.rs
+@@ -62,6 +62,7 @@ const AUTH_BACKEND_MESSAGE: &str = "binding authentication injected backend resp
+ const BACKEND_MESSAGE: &str = "record_open preparation injected backend response";
+ 
+ struct ValidationControl {
++    metadata_transactions: AtomicUsize,
+     group_commit: group_commit_tests::Control,
+     renewal_mutation: renewal_mutation_tests::Control,
+     mode: AtomicU8,
+@@ -81,6 +82,7 @@ struct ValidationControl {
+ impl ValidationControl {
+     fn new() -> Self {
+         Self {
++            metadata_transactions: AtomicUsize::new(0),
+             group_commit: group_commit_tests::Control::new(),
+             renewal_mutation: renewal_mutation_tests::Control::default(),
+             mode: AtomicU8::new(IDLE),
+@@ -281,6 +283,14 @@ impl<B: WorkspaceKvBackend> WorkspaceKvBackend for ValidationBackend<B> {
+         expires_at_ns: i64,
+     ) -> Result<bool, WorkspaceError> {
+         self.control.group_commit.before_commit(writes).await;
++        if writes
++            .iter()
++            .any(|w| matches!(w, KvWrite::Put { key, .. } if key.starts_with(b"delta/inode/")))
++        {
++            self.control
++                .metadata_transactions
++                .fetch_add(1, Ordering::SeqCst);
++        }
+         let local_mutation = self.control.renewal_mutation.before_commit(writes).await;
+         self.control.validations.fetch_add(1, Ordering::SeqCst);
+         let mode = self.control.mode.load(Ordering::SeqCst);
+@@ -408,7 +418,9 @@ impl BlockStore for UnusedUpper {
+ struct Fixture<B: WorkspaceKvBackend> {
+     _objects: tempfile::TempDir,
+     lower: Arc<PackedV3ReadonlyMeta<crate::cadapter::localfs::LocalFsBackend>>,
+-    meta: WorkspaceMetaLayer<KvWorkspaceStore<ValidationBackend<B>>>,
++    meta: WorkspaceMetaLayer<
++        KvWorkspaceStore<crate::workspace_overlay::stores::local_metadata::LocalMetadataBackend>,
++    >,
+     inner: Arc<B>,
+     control: Arc<ValidationControl>,
+     authority: Arc<dyn PackedMountAuthority>,
+@@ -435,6 +447,14 @@ async fn fixture_with_cache(metadata_bytes: u64) -> Fixture<impl WorkspaceKvBack
+ async fn fixture_with_backend<B: WorkspaceKvBackend>(
+     metadata_bytes: u64,
+     inner: Arc<B>,
++) -> Fixture<B> {
++    fixture_with_sync(metadata_bytes, inner, None).await
++}
++
++async fn fixture_with_sync<B: WorkspaceKvBackend>(
++    metadata_bytes: u64,
++    inner: Arc<B>,
++    sync: Option<crate::workspace_overlay::stores::local_metadata::LocalMetadataConfig>,
+ ) -> Fixture<B> {
+     let (objects, client, snapshot, proof, _payload) = packed().await;
+     let lower = Arc::new(PackedV3ReadonlyMeta::from_v3(
+@@ -445,10 +465,18 @@ async fn fixture_with_backend<B: WorkspaceKvBackend>(
+     ));
+     let control = Arc::new(ValidationControl::new());
+     let store = Arc::new(
+-        KvWorkspaceStore::new(ValidationBackend {
+-            inner: inner.clone(),
+-            control: control.clone(),
+-        })
++        KvWorkspaceStore::new(
++            crate::workspace_overlay::stores::local_metadata::LocalMetadataBackend::new(
++                ValidationBackend {
++                    inner: inner.clone(),
++                    control: control.clone(),
++                },
++                sync,
++                b"packed-meta-integration",
++            )
++            .await
++            .unwrap(),
++        )
+         .with_packed_reader_pin_budget(lower.mount_budget()),
+     );
+     let install = request(store.as_ref(), proof).await;
+@@ -504,6 +532,84 @@ async fn shutdown<B: WorkspaceKvBackend>(fixture: &Fixture<B>) {
+     fixture.meta.shutdown_session().await.unwrap();
+ }
+ 
++#[tokio::test]
++async fn local_metadata_packed_edits_read_latest_then_survive_remote_barrier() {
++    use crate::meta::store::{SetAttrFlags, SetAttrRequest};
++    use crate::workspace_overlay::stores::local_metadata::LocalMetadataConfig;
++    let journal = tempfile::tempdir().unwrap();
++    let f = fixture_with_sync(
++        64 << 20,
++        Arc::new(packed_open_preparation_test_backend()),
++        Some(LocalMetadataConfig {
++            directory: journal.path().into(),
++            flush_interval: Duration::from_millis(1000),
++            max_operations: 1024,
++            max_bytes: 1 << 20,
++        }),
++    )
++    .await;
++    let ino = f.meta.create_file(1, "journal-file".into()).await.unwrap();
++    f.meta.flush_metadata().await.unwrap();
++    let before = f.control.metadata_transactions.load(Ordering::SeqCst);
++    for mode in [0o600, 0o640, 0o644] {
++        f.meta
++            .set_attr(
++                ino,
++                &SetAttrRequest {
++                    mode: Some(mode),
++                    ..Default::default()
++                },
++                SetAttrFlags::empty(),
++            )
++            .await
++            .unwrap();
++        assert_eq!(f.meta.stat(ino).await.unwrap().unwrap().mode & 0o777, mode);
++    }
++    f.meta.flush_metadata().await.unwrap();
++    assert_eq!(
++        f.control.metadata_transactions.load(Ordering::SeqCst) - before,
++        1,
++        "three actual Packed chmod operations must coalesce"
++    );
++    let chunk_id = crate::vfs::chunk_id_for(ino, 0).unwrap();
++    for index in 0..8 {
++        f.meta
++            .write(
++                ino,
++                chunk_id,
++                crate::chunk::SliceDesc {
++                    slice_id: 80000 + index,
++                    chunk_id,
++                    offset: 0,
++                    length: 64,
++                },
++                64,
++            )
++            .await
++            .unwrap();
++        assert_eq!(f.meta.stat(ino).await.unwrap().unwrap().size, 64);
++    }
++    f.meta.flush_metadata().await.unwrap();
++    f.meta.truncate(ino, 16, 4096).await.unwrap();
++    assert_eq!(f.meta.stat(ino).await.unwrap().unwrap().size, 16);
++    f.meta
++        .rename(1, "journal-file", 1, "renamed-journal-file".into())
++        .await
++        .unwrap();
++    assert_eq!(f.meta.lookup(1, "journal-file").await.unwrap(), None);
++    assert_eq!(
++        f.meta.lookup(1, "renamed-journal-file").await.unwrap(),
++        Some(ino)
++    );
++    f.meta.unlink(1, "renamed-journal-file").await.unwrap();
++    f.meta.flush_metadata().await.unwrap();
++    assert_eq!(
++        f.meta.lookup(1, "renamed-journal-file").await.unwrap(),
++        None
++    );
++    shutdown(&f).await;
++}
++
+ fn observed_native_record<T: serde::de::DeserializeOwned>(raw: &Option<Vec<u8>>) -> T {
+     bincode::deserialize(
+         raw.as_deref()
+diff --git a/src/workspace_overlay/stores/kv_backend.rs b/src/workspace_overlay/stores/kv_backend.rs
+index e4489f0..d6c6e88 100644
+--- a/src/workspace_overlay/stores/kv_backend.rs
++++ b/src/workspace_overlay/stores/kv_backend.rs
+@@ -341,6 +341,22 @@ pub(crate) mod scan_page_contract {
+ 
+ #[async_trait]
+ pub trait WorkspaceKvBackend: Send + Sync + 'static {
++    /// Drain locally acknowledged application metadata to the remote catalog.
++    async fn flush_metadata(&self) -> Result<(), WorkspaceError> {
++        Ok(())
++    }
++
++    /// Only ordinary, lease-guarded Packed application mutations may coalesce.
++    /// Allocation, ownership, upload completion and lifecycle CAS stay barriers.
++    async fn compare_and_swap_metadata_before(
++        &self,
++        checks: &[KvCheck],
++        writes: &[KvWrite],
++        expires_at_ns: i64,
++    ) -> Result<bool, WorkspaceError> {
++        self.compare_and_swap_before(checks, writes, expires_at_ns)
++            .await
++    }
+     /// Authenticate a distinct operator connection created by the trusted
+     /// administrator Secret factory. This application boundary is inside the
+     /// SPEC sidecar/operator TCB; it does not promise native per-RPC/transition
+diff --git a/src/workspace_overlay/stores/kv_store.rs b/src/workspace_overlay/stores/kv_store.rs
+index de47465..74fe887 100644
+--- a/src/workspace_overlay/stores/kv_store.rs
++++ b/src/workspace_overlay/stores/kv_store.rs
+@@ -2389,6 +2389,10 @@ where
+         self.backend.shutdown_metadata_backend().await
+     }
+ 
++    async fn flush_metadata(&self) -> Result<(), WorkspaceError> {
++        self.backend.flush_metadata().await
++    }
++
+     async fn open_packed_reader_session(
+         self: Arc<Self>,
+         guard: HeadGuard,
+diff --git a/src/workspace_overlay/stores/kv_store/packed_permissions.rs b/src/workspace_overlay/stores/kv_store/packed_permissions.rs
+index 13797e6..7de4837 100644
+--- a/src/workspace_overlay/stores/kv_store/packed_permissions.rs
++++ b/src/workspace_overlay/stores/kv_store/packed_permissions.rs
+@@ -623,7 +623,7 @@ impl<B: WorkspaceKvBackend> KvWorkspaceStore<B> {
+             // uncertainty is returned, never blindly replayed or rolled back.
+             let committed = match self
+                 .backend
+-                .compare_and_swap_before(&checks, &writes, view.lease.expires_at_ns)
++                .compare_and_swap_metadata_before(&checks, &writes, view.lease.expires_at_ns)
+                 .await
+             {
+                 Ok(committed) => committed,
+diff --git a/src/workspace_overlay/stores/local_metadata.rs b/src/workspace_overlay/stores/local_metadata.rs
+new file mode 100644
+index 0000000..8e5ba0b
+--- /dev/null
++++ b/src/workspace_overlay/stores/local_metadata.rs
+@@ -0,0 +1,848 @@
++//! Private mount metadata journal. Only application CAS can be deferred.
++//! Every other CAS and range read is a remote-commit barrier. This deliberately
++//! preserves existing ownership, upload, publication and bounded-scan proofs.
++use super::kv_backend::{KvCheck, KvEntry, KvReadLimits, KvWrite, WorkspaceKvBackend};
++use crate::workspace_overlay::error::WorkspaceError;
++use async_trait::async_trait;
++use bincode::Options;
++use serde::{Deserialize, Serialize};
++use sha2::{Digest, Sha256};
++use std::{
++    collections::BTreeMap,
++    fs::{File, OpenOptions},
++    io::{Read, Write},
++    path::{Path, PathBuf},
++    sync::{
++        Arc,
++        atomic::{AtomicBool, Ordering},
++    },
++    time::Duration,
++};
++use tokio::sync::Mutex;
++
++type Values = BTreeMap<Vec<u8>, Option<Vec<u8>>>;
++const MAX_JOURNAL: u64 = 32 << 20;
++const MAGIC: &[u8; 8] = b"BWSLMD01";
++
++#[derive(Clone, Debug)]
++pub struct LocalMetadataConfig {
++    pub directory: PathBuf,
++    pub flush_interval: Duration,
++    pub max_operations: usize,
++    pub max_bytes: usize,
++}
++
++impl LocalMetadataConfig {
++    /// Remote is the default. Explicit opt-in requires a durable local path.
++    pub fn from_env(mount: &Path) -> Result<Option<Self>, WorkspaceError> {
++        match std::env::var("BREWFS_METADATA_SYNC")
++            .as_deref()
++            .unwrap_or("remote")
++        {
++            "remote" => return Ok(None),
++            "local-journal" => {}
++            _ => {
++                return Err(invalid(
++                    "BREWFS_METADATA_SYNC must be remote or local-journal",
++                ));
++            }
++        }
++        fn number(name: &str, default: usize) -> Result<usize, WorkspaceError> {
++            std::env::var(name).map_or(Ok(default), |v| v.parse().map_err(|_| invalid(name)))
++        }
++        let directory = PathBuf::from(
++            std::env::var("BREWFS_METADATA_JOURNAL_DIR")
++                .map_err(|_| invalid("BREWFS_METADATA_JOURNAL_DIR is required"))?,
++        );
++        if !directory.is_absolute() {
++            return Err(invalid("journal path must be absolute"));
++        }
++        std::fs::create_dir_all(&directory)?;
++        let directory = directory.canonicalize()?;
++        if directory.starts_with(mount.canonicalize()?) {
++            return Err(invalid("metadata journal must be outside the FUSE mount"));
++        }
++        let config = Self {
++            directory,
++            flush_interval: Duration::from_millis(number("BREWFS_METADATA_FLUSH_MS", 10)? as u64),
++            max_operations: number("BREWFS_METADATA_MAX_OPERATIONS", 1024)?,
++            max_bytes: number("BREWFS_METADATA_MAX_BYTES", 1 << 20)?,
++        };
++        config.validate()?;
++        Ok(Some(config))
++    }
++
++    fn validate(&self) -> Result<(), WorkspaceError> {
++        if !self.directory.is_absolute()
++            || self.flush_interval.is_zero()
++            || self.flush_interval > Duration::from_millis(1000)
++            || !(1..=4096).contains(&self.max_operations)
++            || !(1024..=4 << 20).contains(&self.max_bytes)
++        {
++            return Err(invalid(
++                "metadata journal limits: interval 1..1000 ms, operations 1..4096, bytes 1024..4194304",
++            ));
++        }
++        Ok(())
++    }
++}
++
++fn invalid(message: &str) -> WorkspaceError {
++    WorkspaceError::InvalidReadPlan(message.into())
++}
++fn codec(error: impl std::fmt::Display) -> WorkspaceError {
++    WorkspaceError::CorruptMetadata(error.to_string())
++}
++
++#[derive(Clone, Default, Serialize, Deserialize)]
++struct Batch {
++    sequence: u64,
++    operations: usize,
++    checks: Values,
++    writes: Values,
++    deadline: i64,
++}
++
++impl Batch {
++    fn merge(&mut self, sequence: u64, checks: &[KvCheck], writes: &[KvWrite], deadline: i64) {
++        for check in checks {
++            if !self.writes.contains_key(&check.key) {
++                self.checks
++                    .entry(check.key.clone())
++                    .or_insert_with(|| check.expected.clone());
++            }
++        }
++        for write in writes {
++            let (key, value) = match write {
++                KvWrite::Put { key, value } => (key, Some(value.clone())),
++                KvWrite::Delete { key } => (key, None),
++            };
++            self.writes.insert(key.clone(), value);
++        }
++        self.sequence = sequence;
++        self.operations += 1;
++        self.deadline = if self.deadline == 0 {
++            deadline
++        } else {
++            self.deadline.min(deadline)
++        };
++    }
++    fn bytes(&self) -> usize {
++        self.checks
++            .iter()
++            .chain(&self.writes)
++            .map(|(k, v)| k.len() + v.as_ref().map_or(0, Vec::len))
++            .sum()
++    }
++    fn receipt(&self) -> Result<Vec<u8>, WorkspaceError> {
++        Ok(Sha256::digest(bincode::serialize(self).map_err(codec)?).to_vec())
++    }
++}
++
++#[derive(Clone, Default, Serialize, Deserialize)]
++struct JournalState {
++    scope: Vec<u8>,
++    sequence: u64,
++    confirmed: Option<Vec<u8>>,
++    in_flight: Option<Batch>,
++    pending: Batch,
++}
++
++impl JournalState {
++    fn overlay(&self, key: &[u8]) -> Option<&Option<Vec<u8>>> {
++        self.pending
++            .writes
++            .get(key)
++            .or_else(|| self.in_flight.as_ref().and_then(|b| b.writes.get(key)))
++    }
++    fn dirty(&self) -> bool {
++        self.in_flight.is_some() || self.pending.operations > 0
++    }
++}
++
++struct Journal {
++    directory: PathBuf,
++    // The separate lock inode survives atomic replacement of state.bin.
++    _lock: File,
++    #[cfg(test)]
++    pause: std::sync::Mutex<Option<JournalPause>>,
++}
++
++#[cfg(test)]
++type JournalPause = (
++    tokio::sync::oneshot::Sender<()>,
++    std::sync::mpsc::Receiver<()>,
++);
++
++impl Journal {
++    fn open(
++        config: &LocalMetadataConfig,
++        scope: &[u8],
++    ) -> Result<(Self, JournalState), WorkspaceError> {
++        config.validate()?;
++        std::fs::create_dir_all(&config.directory)?;
++        // Persist newly created directory entries too, not just state.bin.
++        for directory in config.directory.ancestors() {
++            File::open(directory)?.sync_all()?;
++        }
++        let lock = OpenOptions::new()
++            .read(true)
++            .write(true)
++            .create(true)
++            .truncate(false)
++            .open(config.directory.join("lock"))?;
++        #[cfg(unix)]
++        {
++            use std::os::fd::AsRawFd;
++            // SAFETY: the descriptor remains owned by Journal until it is dropped.
++            if unsafe { libc::flock(lock.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) } != 0 {
++                return Err(WorkspaceError::Io(std::io::Error::last_os_error()));
++            }
++        }
++        #[cfg(not(unix))]
++        return Err(WorkspaceError::UnsupportedCapability(
++            "local metadata journal requires Unix file locking",
++        ));
++        let journal = Self {
++            directory: config.directory.clone(),
++            _lock: lock,
++            #[cfg(test)]
++            pause: std::sync::Mutex::new(None),
++        };
++        let path = journal.directory.join("state.bin");
++        let state = if path.exists() {
++            let file = File::open(path)?;
++            if file.metadata()?.len() > MAX_JOURNAL {
++                return Err(codec("oversized metadata journal"));
++            }
++            let mut bytes = Vec::new();
++            file.take(MAX_JOURNAL + 1).read_to_end(&mut bytes)?;
++            if bytes.len() < 40
++                || &bytes[..8] != MAGIC
++                || Sha256::digest(&bytes[40..]).as_slice() != &bytes[8..40]
++            {
++                return Err(codec("invalid metadata journal checksum/version"));
++            }
++            let state: JournalState = bincode::DefaultOptions::new()
++                .with_fixint_encoding()
++                .with_limit(MAX_JOURNAL)
++                .reject_trailing_bytes()
++                .deserialize(&bytes[40..])
++                .map_err(codec)?;
++            if state.scope != scope {
++                return Err(invalid(
++                    "metadata journal belongs to another catalog/workspace",
++                ));
++            }
++            state
++        } else {
++            JournalState {
++                scope: scope.to_vec(),
++                ..Default::default()
++            }
++        };
++        Ok((journal, state))
++    }
++    fn persist(&self, state: &JournalState) -> Result<(), WorkspaceError> {
++        #[cfg(test)]
++        {
++            let pause = self.pause.lock().unwrap().take();
++            if let Some((reached, resume)) = pause {
++                let _ = reached.send(());
++                resume.recv().map_err(codec)?;
++            }
++        }
++        let payload = bincode::serialize(state).map_err(codec)?;
++        if payload.len() as u64 + 40 > MAX_JOURNAL {
++            return Err(invalid("metadata journal capacity exceeded"));
++        }
++        let path = self.directory.join("state.tmp");
++        let mut file = OpenOptions::new()
++            .write(true)
++            .create(true)
++            .truncate(true)
++            .open(&path)?;
++        file.write_all(MAGIC)?;
++        file.write_all(&Sha256::digest(&payload))?;
++        file.write_all(&payload)?;
++        file.sync_all()?;
++        std::fs::rename(path, self.directory.join("state.bin"))?;
++        File::open(&self.directory)?.sync_all()?;
++        Ok(())
++    }
++}
++
++struct Core {
++    remote: Arc<dyn WorkspaceKvBackend>,
++    config: LocalMetadataConfig,
++    journal: Arc<Journal>,
++    state: Arc<Mutex<JournalState>>,
++    admission: Mutex<()>,
++    flush: Mutex<()>,
++    receipt_key: Vec<u8>,
++    failed: AtomicBool,
++}
++
++async fn read_receipt(
++    remote: &dyn WorkspaceKvBackend,
++    key: &[u8],
++) -> Result<Option<Vec<u8>>, WorkspaceError> {
++    let keys = [key.to_vec()];
++    let (mut values, _) = remote
++        .get_many_consistent_with_time_bounded(
++            &keys,
++            KvReadLimits {
++                max_records: 1,
++                max_key_bytes: 1024,
++                max_value_bytes: 32,
++                max_total_bytes: 2048,
++                max_response_bytes: 8192,
++                max_data_requests: 1,
++            },
++        )
++        .await?;
++    if values.len() != 1 || values[0].as_ref().is_some_and(|v| v.len() != 32) {
++        return Err(codec("invalid metadata batch receipt"));
++    }
++    Ok(values.remove(0))
++}
++
++impl Core {
++    async fn install(
++        &self,
++        mut state: tokio::sync::OwnedMutexGuard<JournalState>,
++        next: JournalState,
++    ) -> Result<(), WorkspaceError> {
++        let journal = self.journal.clone();
++        // The blocking job owns the state lock AND its installation. Cancelling
++        // an awaiter cannot let a later edit race a still-running fsync/rename,
++        // or leave a durable snapshot newer than the in-memory view.
++        tokio::task::spawn_blocking(move || {
++            journal.persist(&next)?;
++            *state = next;
++            Ok(())
++        })
++        .await
++        .map_err(|e| WorkspaceError::Backend(e.to_string()))?
++    }
++
++    // Never holds state across remote commit. New edits go into pending while
++    // the immutable in-flight batch is being acknowledged.
++    async fn flush_to(&self, target: u64) -> Result<(), WorkspaceError> {
++        let _driver = self.flush.lock().await;
++        loop {
++            let (batch, confirmed) = {
++                let state = self.state.clone().lock_owned().await;
++                if state.in_flight.is_none() {
++                    if state.pending.operations == 0 {
++                        return Ok(());
++                    }
++                    let mut next = state.clone();
++                    next.in_flight = Some(std::mem::take(&mut next.pending));
++                    let batch = next.in_flight.clone().unwrap();
++                    let confirmed = next.confirmed.clone();
++                    self.install(state, next).await?;
++                    (batch, confirmed)
++                } else {
++                    (state.in_flight.clone().unwrap(), state.confirmed.clone())
++                }
++            };
++            let receipt = batch.receipt()?;
++            // A lost commit reply or a crash after remote commit is resolved by
++            // its receipt, written in the SAME CAS as the metadata and head.
++            if read_receipt(self.remote.as_ref(), &self.receipt_key).await? != Some(receipt.clone())
++            {
++                let mut checks: Vec<_> = batch
++                    .checks
++                    .iter()
++                    .map(|(key, expected)| KvCheck {
++                        key: key.clone(),
++                        expected: expected.clone(),
++                    })
++                    .collect();
++                checks.push(KvCheck {
++                    key: self.receipt_key.clone(),
++                    expected: confirmed,
++                });
++                let mut writes: Vec<_> = batch
++                    .writes
++                    .iter()
++                    .map(|(key, value)| match value {
++                        Some(value) => KvWrite::Put {
++                            key: key.clone(),
++                            value: value.clone(),
++                        },
++                        None => KvWrite::Delete { key: key.clone() },
++                    })
++                    .collect();
++                writes.push(KvWrite::Put {
++                    key: self.receipt_key.clone(),
++                    value: receipt.clone(),
++                });
++                match self
++                    .remote
++                    .compare_and_swap_before(&checks, &writes, batch.deadline)
++                    .await
++                {
++                    Ok(true) => {}
++                    result => {
++                        if read_receipt(self.remote.as_ref(), &self.receipt_key).await?
++                            != Some(receipt.clone())
++                        {
++                            return result.and(Err(WorkspaceError::Fenced));
++                        }
++                    }
++                }
++            }
++            let state = self.state.clone().lock_owned().await;
++            let mut next = state.clone();
++            // Only this batch is retired. Never clear pending or its new values.
++            next.in_flight = None;
++            next.confirmed = Some(receipt);
++            self.install(state, next).await?;
++            tracing::debug!(
++                sequence = batch.sequence,
++                operations = batch.operations,
++                keys = batch.writes.len(),
++                "local metadata batch committed"
++            );
++            if batch.sequence >= target {
++                return Ok(());
++            }
++        }
++    }
++
++    async fn flush(&self) -> Result<(), WorkspaceError> {
++        let target = self.state.lock().await.sequence;
++        let result = self.flush_to(target).await;
++        self.failed.store(result.is_err(), Ordering::Release);
++        result
++    }
++}
++
++/// Wrap the actual backend once, at mount construction. No journal in remote
++/// mode; object identity and all native budget registrations stay stable.
++pub struct LocalMetadataBackend {
++    remote: Arc<dyn WorkspaceKvBackend>,
++    core: Option<Arc<Core>>,
++}
++
++impl LocalMetadataBackend {
++    pub async fn new<B: WorkspaceKvBackend>(
++        remote: B,
++        config: Option<LocalMetadataConfig>,
++        scope: &[u8],
++    ) -> Result<Self, WorkspaceError> {
++        let remote: Arc<dyn WorkspaceKvBackend> = Arc::new(remote);
++        let Some(config) = config else {
++            return Ok(Self { remote, core: None });
++        };
++        let scope = Sha256::digest(scope).to_vec();
++        let (journal, mut state) = Journal::open(&config, &scope)?;
++        let receipt_key = format!("local-metadata/{}", hex::encode(&scope)).into_bytes();
++        if !state.dirty() && state.confirmed.is_none() {
++            state.confirmed = read_receipt(remote.as_ref(), &receipt_key).await?;
++        }
++        let core = Arc::new(Core {
++            remote: remote.clone(),
++            config,
++            journal: Arc::new(journal),
++            state: Arc::new(Mutex::new(state)),
++            admission: Mutex::new(()),
++            flush: Mutex::new(()),
++            receipt_key,
++            failed: AtomicBool::new(false),
++        });
++        // Recover before lease acquisition/lifecycle mutations. Expired or
++        // changed authority fails closed, preserving the journal for recovery.
++        core.flush().await?;
++        let weak = Arc::downgrade(&core);
++        let interval = core.config.flush_interval;
++        tokio::spawn(async move {
++            loop {
++                tokio::time::sleep(interval).await;
++                let Some(core) = weak.upgrade() else {
++                    break;
++                };
++                let dirty = core.state.lock().await.dirty();
++                if dirty && let Err(error) = core.flush().await {
++                    tracing::warn!(%error, "metadata sync retained pending journal; remote barrier will report failure");
++                    drop(core);
++                    tokio::time::sleep(Duration::from_secs(1)).await;
++                }
++            }
++        });
++        Ok(Self {
++            remote,
++            core: Some(core),
++        })
++    }
++
++    async fn barrier(&self) -> Result<Option<tokio::sync::MutexGuard<'_, ()>>, WorkspaceError> {
++        let Some(core) = &self.core else {
++            return Ok(None);
++        };
++        let admission = core.admission.lock().await;
++        core.flush().await?;
++        Ok(Some(admission))
++    }
++
++    async fn overlay_values(
++        &self,
++        keys: &[Vec<u8>],
++        limits: Option<KvReadLimits>,
++    ) -> Result<(Vec<Option<Vec<u8>>>, i64), WorkspaceError> {
++        let state = match &self.core {
++            Some(core) => Some(core.state.lock().await),
++            None => None,
++        };
++        let (mut values, now) = match limits {
++            Some(limits) => {
++                self.remote
++                    .get_many_consistent_with_time_bounded(keys, limits)
++                    .await?
++            }
++            None => self.remote.get_many_consistent_with_time(keys).await?,
++        };
++        if values.len() != keys.len() {
++            return Err(codec("metadata read cardinality mismatch"));
++        }
++        if let Some(state) = state {
++            for (key, value) in keys.iter().zip(&mut values) {
++                if let Some(local) = state.overlay(key) {
++                    *value = local.clone();
++                }
++            }
++        }
++        if let Some(limits) = limits {
++            let mut total = 0usize;
++            for (key, value) in keys.iter().zip(&values) {
++                let size = value.as_ref().map_or(0, Vec::len);
++                total = total
++                    .checked_add(key.len() + size)
++                    .ok_or_else(|| invalid("local metadata read overflow"))?;
++                if size > limits.max_value_bytes || total > limits.max_total_bytes {
++                    return Err(invalid("local metadata read exceeds caller byte budget"));
++                }
++            }
++        }
++        Ok((values, now))
++    }
++}
++
++#[async_trait]
++impl WorkspaceKvBackend for LocalMetadataBackend {
++    fn name(&self) -> &'static str {
++        self.remote.name()
++    }
++    fn supports_consistent_reads(&self) -> bool {
++        self.remote.supports_consistent_reads()
++    }
++    fn short_scan_page_is_end(&self) -> bool {
++        self.remote.short_scan_page_is_end()
++    }
++    fn scan_page_record_limit(&self, limits: KvReadLimits) -> Result<usize, WorkspaceError> {
++        self.remote.scan_page_record_limit(limits)
++    }
++    fn native_gc_metadata_page_quota(&self) -> Option<usize> {
++        self.remote.native_gc_metadata_page_quota()
++    }
++    async fn authenticate_gc_admin(&self) -> Result<(), WorkspaceError> {
++        self.remote.authenticate_gc_admin().await
++    }
++    async fn flush_metadata(&self) -> Result<(), WorkspaceError> {
++        let _guard = self.barrier().await?;
++        Ok(())
++    }
++    async fn shutdown_metadata_backend(&self) -> Result<(), WorkspaceError> {
++        let _guard = self.barrier().await?;
++        self.remote.shutdown_metadata_backend().await
++    }
++
++    async fn compare_and_swap_metadata_before(
++        &self,
++        checks: &[KvCheck],
++        writes: &[KvWrite],
++        deadline: i64,
++    ) -> Result<bool, WorkspaceError> {
++        let Some(core) = &self.core else {
++            return self
++                .remote
++                .compare_and_swap_before(checks, writes, deadline)
++                .await;
++        };
++        let _admission = core.admission.lock().await;
++        if core.failed.load(Ordering::Acquire) {
++            core.flush().await?;
++        }
++        // Retain the existing bounded transport contract. Oversized packets
++        // use the original synchronous path rather than an unbounded read.
++        if checks.is_empty()
++            || checks.len() > 32
++            || checks.iter().any(|c| {
++                c.key.len() > 1024 || c.expected.as_ref().is_some_and(|v| v.len() > 96 << 10)
++            })
++        {
++            core.flush().await?;
++            return self
++                .remote
++                .compare_and_swap_before(checks, writes, deadline)
++                .await;
++        }
++        loop {
++            let state = core.state.clone().lock_owned().await;
++            let sequence = state
++                .sequence
++                .checked_add(1)
++                .ok_or_else(|| invalid("metadata sequence exhausted"))?;
++            let mut next = state.clone();
++            next.pending.merge(sequence, checks, writes, deadline);
++            if next.pending.operations > core.config.max_operations
++                || next.pending.bytes() > core.config.max_bytes
++                || next.pending.checks.len() + next.pending.writes.len() > 8192
++            {
++                drop(state);
++                core.flush().await?;
++                // A single large operation stays synchronous; it must not
++                // overflow the local queue or relax the catalog packet bound.
++                let mut single = Batch::default();
++                single.merge(sequence, checks, writes, deadline);
++                if single.bytes() > core.config.max_bytes
++                    || single.checks.len() + single.writes.len() > 8192
++                {
++                    return self
++                        .remote
++                        .compare_and_swap_before(checks, writes, deadline)
++                        .await;
++                }
++                continue;
++            }
++            let keys: Vec<_> = checks.iter().map(|c| c.key.clone()).collect();
++            let (values, now) = self
++                .remote
++                .get_many_consistent_with_time_bounded(
++                    &keys,
++                    KvReadLimits {
++                        max_records: 32,
++                        max_key_bytes: 1024,
++                        max_value_bytes: 96 << 10,
++                        max_total_bytes: 4 << 20,
++                        max_response_bytes: 4 << 20,
++                        max_data_requests: 32,
++                    },
++                )
++                .await?;
++            if now >= deadline {
++                return Err(WorkspaceError::Fenced);
++            }
++            if values.len() != checks.len() {
++                return Err(codec("metadata check cardinality mismatch"));
++            }
++            for (check, remote) in checks.iter().zip(values) {
++                let actual = state.overlay(&check.key).unwrap_or(&remote);
++                if actual != &check.expected {
++                    return Ok(false);
++                }
++            }
++            next.sequence = sequence;
++            // ACK means this exact local view is durable, not remotely visible.
++            core.install(state, next).await?;
++            return Ok(true);
++        }
++    }
++
++    async fn get(&self, key: &[u8]) -> Result<Option<Vec<u8>>, WorkspaceError> {
++        if let Some(core) = &self.core {
++            let state = core.state.lock().await;
++            if let Some(value) = state.overlay(key) {
++                return Ok(value.clone());
++            }
++            return self.remote.get(key).await;
++        }
++        self.remote.get(key).await
++    }
++    async fn get_many(&self, keys: &[Vec<u8>]) -> Result<Vec<Option<Vec<u8>>>, WorkspaceError> {
++        if self.core.is_none() {
++            return self.remote.get_many(keys).await;
++        }
++        Ok(self.overlay_values(keys, None).await?.0)
++    }
++    async fn get_many_consistent(
++        &self,
++        keys: &[Vec<u8>],
++    ) -> Result<Vec<Option<Vec<u8>>>, WorkspaceError> {
++        if self.core.is_none() {
++            return self.remote.get_many_consistent(keys).await;
++        }
++        Ok(self.overlay_values(keys, None).await?.0)
++    }
++    async fn get_many_consistent_with_time(
++        &self,
++        keys: &[Vec<u8>],
++    ) -> Result<(Vec<Option<Vec<u8>>>, i64), WorkspaceError> {
++        if self.core.is_none() {
++            return self.remote.get_many_consistent_with_time(keys).await;
++        }
++        self.overlay_values(keys, None).await
++    }
++    async fn get_many_with_time(
++        &self,
++        keys: &[Vec<u8>],
++    ) -> Result<(Vec<Option<Vec<u8>>>, i64), WorkspaceError> {
++        if self.core.is_none() {
++            return self.remote.get_many_with_time(keys).await;
++        }
++        self.overlay_values(keys, None).await
++    }
++    async fn get_many_consistent_with_time_bounded(
++        &self,
++        keys: &[Vec<u8>],
++        limits: KvReadLimits,
++    ) -> Result<(Vec<Option<Vec<u8>>>, i64), WorkspaceError> {
++        if self.core.is_none() {
++            return self
++                .remote
++                .get_many_consistent_with_time_bounded(keys, limits)
++                .await;
++        }
++        self.overlay_values(keys, Some(limits)).await
++    }
++    async fn get_publication_packet_consistent_with_time_bounded(
++        &self,
++        keys: &[Vec<u8>],
++        limits: KvReadLimits,
++    ) -> Result<(Vec<Option<Vec<u8>>>, i64), WorkspaceError> {
++        let _guard = self.barrier().await?;
++        self.remote
++            .get_publication_packet_consistent_with_time_bounded(keys, limits)
++            .await
++    }
++    async fn scan_prefix(&self, prefix: &[u8]) -> Result<Vec<KvEntry>, WorkspaceError> {
++        let _guard = self.barrier().await?;
++        self.remote.scan_prefix(prefix).await
++    }
++    async fn scan_prefix_bounded(
++        &self,
++        prefix: &[u8],
++        max_records: usize,
++    ) -> Result<Vec<KvEntry>, WorkspaceError> {
++        let _guard = self.barrier().await?;
++        self.remote.scan_prefix_bounded(prefix, max_records).await
++    }
++    async fn scan_prefix_with_byte_limits(
++        &self,
++        prefix: &[u8],
++        limits: KvReadLimits,
++    ) -> Result<Vec<KvEntry>, WorkspaceError> {
++        let _guard = self.barrier().await?;
++        self.remote
++            .scan_prefix_with_byte_limits(prefix, limits)
++            .await
++    }
++    async fn scan_prefix_page_with_byte_limits(
++        &self,
++        prefix: &[u8],
++        after: Option<&[u8]>,
++        limits: KvReadLimits,
++    ) -> Result<Vec<KvEntry>, WorkspaceError> {
++        let _guard = self.barrier().await?;
++        self.remote
++            .scan_prefix_page_with_byte_limits(prefix, after, limits)
++            .await
++    }
++    async fn compare_and_swap(
++        &self,
++        checks: &[KvCheck],
++        writes: &[KvWrite],
++    ) -> Result<bool, WorkspaceError> {
++        let _guard = self.barrier().await?;
++        self.remote.compare_and_swap(checks, writes).await
++    }
++    async fn compare_and_swap_before(
++        &self,
++        checks: &[KvCheck],
++        writes: &[KvWrite],
++        deadline: i64,
++    ) -> Result<bool, WorkspaceError> {
++        let _guard = self.barrier().await?;
++        self.remote
++            .compare_and_swap_before(checks, writes, deadline)
++            .await
++    }
++    async fn compare_and_swap_in_empty_namespace(
++        &self,
++        checks: &[KvCheck],
++        writes: &[KvWrite],
++        deadline: i64,
++    ) -> Result<bool, WorkspaceError> {
++        let _guard = self.barrier().await?;
++        self.remote
++            .compare_and_swap_in_empty_namespace(checks, writes, deadline)
++            .await
++    }
++    async fn compare_and_swap_in_time_window(
++        &self,
++        checks: &[KvCheck],
++        writes: &[KvWrite],
++        after: Option<i64>,
++        before: Option<i64>,
++    ) -> Result<bool, WorkspaceError> {
++        let _guard = self.barrier().await?;
++        self.remote
++            .compare_and_swap_in_time_window(checks, writes, after, before)
++            .await
++    }
++    async fn authenticate_checks_before_bounded(
++        &self,
++        checks: &[KvCheck],
++        deadline: i64,
++        limits: KvReadLimits,
++    ) -> Result<bool, WorkspaceError> {
++        if let Some(core) = &self.core {
++            let state = core.state.lock().await;
++            let mut translated = checks.to_vec();
++            let mut complete = true;
++            for check in &mut translated {
++                if let Some(local) = state.overlay(&check.key) {
++                    if local != &check.expected {
++                        return Ok(false);
++                    }
++                    // Authenticate the virtual head against its ORIGINAL remote
++                    // head, keeping the lease and authority checks unchanged.
++                    // A racing commit may return false; a foreign head or an
++                    // expired lease must never authenticate this local view.
++                    let first = state
++                        .in_flight
++                        .as_ref()
++                        .filter(|b| b.writes.contains_key(&check.key));
++                    let batch = first.unwrap_or(&state.pending);
++                    if let Some(expected) = batch.checks.get(&check.key) {
++                        check.expected = expected.clone();
++                    } else {
++                        complete = false;
++                        break;
++                    }
++                }
++            }
++            if complete {
++                super::kv_backend::validate_bounded_authentication_checks(checks, limits)?;
++                return self
++                    .remote
++                    .authenticate_checks_before_bounded(&translated, deadline, limits)
++                    .await;
++            }
++        }
++        // A newly inserted key has no original exact check: commit it before
++        // authenticating its remote value.
++        let _guard = self.barrier().await?;
++        self.remote
++            .authenticate_checks_before_bounded(checks, deadline, limits)
++            .await
++    }
++    async fn server_time_ns(&self) -> Result<i64, WorkspaceError> {
++        self.remote.server_time_ns().await
++    }
++}
++
++#[cfg(test)]
++mod tests;
+diff --git a/src/workspace_overlay/stores/local_metadata/tests.rs b/src/workspace_overlay/stores/local_metadata/tests.rs
+new file mode 100644
+index 0000000..4861cf0
+--- /dev/null
++++ b/src/workspace_overlay/stores/local_metadata/tests.rs
+@@ -0,0 +1,539 @@
++use super::*;
++use std::sync::atomic::{AtomicBool, AtomicI64, AtomicUsize, Ordering};
++use tokio::sync::Semaphore;
++
++struct Memory {
++    rows: Mutex<Values>,
++    commits: AtomicUsize,
++    now: AtomicI64,
++    fail: AtomicBool,
++    lost_reply: AtomicBool,
++    pause: AtomicBool,
++    reached: Semaphore,
++    resume: Semaphore,
++}
++impl Default for Memory {
++    fn default() -> Self {
++        Self {
++            rows: Mutex::new(Values::new()),
++            commits: AtomicUsize::new(0),
++            now: AtomicI64::new(1),
++            fail: AtomicBool::new(false),
++            lost_reply: AtomicBool::new(false),
++            pause: AtomicBool::new(false),
++            reached: Semaphore::new(0),
++            resume: Semaphore::new(0),
++        }
++    }
++}
++#[async_trait]
++impl WorkspaceKvBackend for Arc<Memory> {
++    fn name(&self) -> &'static str {
++        "local-metadata-test"
++    }
++    fn supports_consistent_reads(&self) -> bool {
++        true
++    }
++    async fn get(&self, key: &[u8]) -> Result<Option<Vec<u8>>, WorkspaceError> {
++        Ok(self.rows.lock().await.get(key).cloned().flatten())
++    }
++    async fn get_many_consistent_with_time(
++        &self,
++        keys: &[Vec<u8>],
++    ) -> Result<(Vec<Option<Vec<u8>>>, i64), WorkspaceError> {
++        let rows = self.rows.lock().await;
++        Ok((
++            keys.iter()
++                .map(|k| rows.get(k).cloned().flatten())
++                .collect(),
++            self.now.load(Ordering::SeqCst),
++        ))
++    }
++    async fn get_many_consistent_with_time_bounded(
++        &self,
++        keys: &[Vec<u8>],
++        limits: KvReadLimits,
++    ) -> Result<(Vec<Option<Vec<u8>>>, i64), WorkspaceError> {
++        limits.validate_keys(keys)?;
++        self.get_many_consistent_with_time(keys).await
++    }
++    async fn scan_prefix(&self, prefix: &[u8]) -> Result<Vec<KvEntry>, WorkspaceError> {
++        Ok(self
++            .rows
++            .lock()
++            .await
++            .iter()
++            .filter_map(|(key, value)| {
++                value
++                    .as_ref()
++                    .filter(|_| key.starts_with(prefix))
++                    .map(|value| KvEntry {
++                        key: key.clone(),
++                        value: value.clone(),
++                    })
++            })
++            .collect())
++    }
++    async fn compare_and_swap(
++        &self,
++        checks: &[KvCheck],
++        writes: &[KvWrite],
++    ) -> Result<bool, WorkspaceError> {
++        self.compare_and_swap_before(checks, writes, i64::MAX).await
++    }
++    async fn compare_and_swap_before(
++        &self,
++        checks: &[KvCheck],
++        writes: &[KvWrite],
++        deadline: i64,
++    ) -> Result<bool, WorkspaceError> {
++        if self.pause.swap(false, Ordering::SeqCst) {
++            self.reached.add_permits(1);
++            self.resume.acquire().await.unwrap().forget();
++        }
++        if self.fail.swap(false, Ordering::SeqCst) {
++            return Err(WorkspaceError::Backend(
++                "injected connection failure".into(),
++            ));
++        }
++        let mut rows = self.rows.lock().await;
++        if self.now.load(Ordering::SeqCst) >= deadline {
++            return Err(WorkspaceError::Fenced);
++        }
++        if checks
++            .iter()
++            .any(|c| rows.get(&c.key).cloned().flatten() != c.expected)
++        {
++            return Ok(false);
++        }
++        for write in writes {
++            match write {
++                KvWrite::Put { key, value } => {
++                    rows.insert(key.clone(), Some(value.clone()));
++                }
++                KvWrite::Delete { key } => {
++                    rows.remove(key);
++                }
++            }
++        }
++        self.commits.fetch_add(1, Ordering::SeqCst);
++        if self.lost_reply.swap(false, Ordering::SeqCst) {
++            return Err(WorkspaceError::Backend("lost commit reply".into()));
++        }
++        Ok(true)
++    }
++    async fn server_time_ns(&self) -> Result<i64, WorkspaceError> {
++        Ok(self.now.load(Ordering::SeqCst))
++    }
++    async fn authenticate_checks_before_bounded(
++        &self,
++        checks: &[KvCheck],
++        deadline: i64,
++        limits: KvReadLimits,
++    ) -> Result<bool, WorkspaceError> {
++        super::super::kv_backend::validate_bounded_authentication_checks(checks, limits)?;
++        if self.now.load(Ordering::SeqCst) >= deadline {
++            return Err(WorkspaceError::Fenced);
++        }
++        let rows = self.rows.lock().await;
++        Ok(checks
++            .iter()
++            .all(|c| rows.get(&c.key).cloned().flatten() == c.expected))
++    }
++}
++
++fn config(path: &Path) -> LocalMetadataConfig {
++    LocalMetadataConfig {
++        directory: path.into(),
++        flush_interval: Duration::from_millis(1000),
++        max_operations: 1024,
++        max_bytes: 1 << 20,
++    }
++}
++// No timer in deterministic race tests. Production constructor has an idle timer.
++fn backend(remote: Arc<Memory>, config: LocalMetadataConfig) -> LocalMetadataBackend {
++    let scope = b"test-workspace";
++    let (journal, state) = Journal::open(&config, scope).unwrap();
++    let remote: Arc<dyn WorkspaceKvBackend> = Arc::new(remote);
++    let core = Arc::new(Core {
++        remote: remote.clone(),
++        config,
++        journal: Arc::new(journal),
++        state: Arc::new(Mutex::new(state)),
++        admission: Mutex::new(()),
++        flush: Mutex::new(()),
++        receipt_key: b"local-metadata/test".to_vec(),
++        failed: AtomicBool::new(false),
++    });
++    LocalMetadataBackend {
++        remote,
++        core: Some(core),
++    }
++}
++fn check(value: Option<u8>) -> Vec<KvCheck> {
++    vec![KvCheck {
++        key: b"inode/1".to_vec(),
++        expected: value.map(|v| vec![v]),
++    }]
++}
++fn put(value: u8) -> Vec<KvWrite> {
++    vec![KvWrite::Put {
++        key: b"inode/1".to_vec(),
++        value: vec![value],
++    }]
++}
++async fn edit(b: &LocalMetadataBackend, old: Option<u8>, new: u8) {
++    assert!(
++        b.compare_and_swap_metadata_before(&check(old), &put(new), 10000)
++            .await
++            .unwrap()
++    );
++}
++
++#[tokio::test]
++async fn repeated_file_edits_are_locally_visible_and_one_remote_commit() {
++    let dir = tempfile::tempdir().unwrap();
++    let remote = Arc::new(Memory::default());
++    let b = backend(remote.clone(), config(dir.path()));
++    for value in 0..100u8 {
++        edit(&b, value.checked_sub(1), value).await;
++        assert_eq!(b.get(b"inode/1").await.unwrap(), Some(vec![value]));
++        assert_eq!(remote.get(b"inode/1").await.unwrap(), None);
++    }
++    b.flush_metadata().await.unwrap();
++    assert_eq!(remote.get(b"inode/1").await.unwrap(), Some(vec![99]));
++    assert_eq!(remote.commits.load(Ordering::SeqCst), 1);
++}
++
++#[tokio::test]
++async fn old_ack_never_clears_new_edit_including_same_value() {
++    for new in [1, 2] {
++        let dir = tempfile::tempdir().unwrap();
++        let remote = Arc::new(Memory::default());
++        let b = Arc::new(backend(remote.clone(), config(dir.path())));
++        edit(&b, None, 1).await;
++        remote.pause.store(true, Ordering::SeqCst);
++        let core = b.core.clone().unwrap();
++        let first = tokio::spawn(async move { core.flush_to(1).await });
++        remote.reached.acquire().await.unwrap().forget();
++        edit(&b, Some(1), new).await;
++        remote.resume.add_permits(1);
++        first.await.unwrap().unwrap();
++        assert_eq!(b.get(b"inode/1").await.unwrap(), Some(vec![new]));
++        assert_eq!(
++            b.core
++                .as_ref()
++                .unwrap()
++                .state
++                .lock()
++                .await
++                .pending
++                .operations,
++            1
++        );
++        b.flush_metadata().await.unwrap();
++        assert_eq!(remote.get(b"inode/1").await.unwrap(), Some(vec![new]));
++        assert_eq!(remote.commits.load(Ordering::SeqCst), 2);
++    }
++}
++
++#[tokio::test]
++async fn uncertain_commit_is_resolved_by_atomic_receipt() {
++    let dir = tempfile::tempdir().unwrap();
++    let remote = Arc::new(Memory::default());
++    let b = backend(remote.clone(), config(dir.path()));
++    edit(&b, None, 1).await;
++    remote.lost_reply.store(true, Ordering::SeqCst);
++    b.flush_metadata().await.unwrap();
++    b.flush_metadata().await.unwrap();
++    assert_eq!(remote.commits.load(Ordering::SeqCst), 1);
++    assert!(!b.core.as_ref().unwrap().state.lock().await.dirty());
++}
++
++#[tokio::test]
++async fn failed_commit_retains_journal_and_replays_after_reopen() {
++    let dir = tempfile::tempdir().unwrap();
++    let remote = Arc::new(Memory::default());
++    let b = backend(remote.clone(), config(dir.path()));
++    edit(&b, None, 1).await;
++    remote.fail.store(true, Ordering::SeqCst);
++    assert!(b.flush_metadata().await.is_err());
++    drop(b);
++    let b = backend(remote.clone(), config(dir.path()));
++    assert_eq!(b.get(b"inode/1").await.unwrap(), Some(vec![1]));
++    b.flush_metadata().await.unwrap();
++    assert_eq!(remote.commits.load(Ordering::SeqCst), 1);
++}
++
++#[tokio::test]
++async fn committed_but_unacknowledged_batch_recovers_without_reapply() {
++    let dir = tempfile::tempdir().unwrap();
++    let remote = Arc::new(Memory::default());
++    let b = backend(remote.clone(), config(dir.path()));
++    edit(&b, None, 1).await;
++    let stale = std::fs::read(dir.path().join("state.bin")).unwrap();
++    b.flush_metadata().await.unwrap();
++    drop(b);
++    std::fs::write(dir.path().join("state.bin"), stale).unwrap();
++    let b = backend(remote.clone(), config(dir.path()));
++    b.flush_metadata().await.unwrap();
++    assert_eq!(remote.commits.load(Ordering::SeqCst), 1);
++}
++
++#[tokio::test]
++async fn expired_lease_and_foreign_changes_preserve_pending() {
++    for expire in [false, true] {
++        let dir = tempfile::tempdir().unwrap();
++        let remote = Arc::new(Memory::default());
++        let b = backend(remote.clone(), config(dir.path()));
++        edit(&b, None, 1).await;
++        if expire {
++            remote.now.store(10000, Ordering::SeqCst);
++        } else {
++            remote
++                .rows
++                .lock()
++                .await
++                .insert(b"inode/1".to_vec(), Some(vec![9]));
++        }
++        assert!(matches!(
++            b.flush_metadata().await,
++            Err(WorkspaceError::Fenced)
++        ));
++        assert!(b.core.as_ref().unwrap().state.lock().await.dirty());
++        assert_eq!(remote.commits.load(Ordering::SeqCst), 0);
++    }
++}
++
++#[tokio::test]
++async fn queue_capacity_drains_instead_of_evicting_dirty_values() {
++    let dir = tempfile::tempdir().unwrap();
++    let remote = Arc::new(Memory::default());
++    let mut cfg = config(dir.path());
++    cfg.max_operations = 2;
++    let b = backend(remote.clone(), cfg);
++    edit(&b, None, 1).await;
++    edit(&b, Some(1), 2).await;
++    edit(&b, Some(2), 3).await;
++    assert_eq!(remote.get(b"inode/1").await.unwrap(), Some(vec![2]));
++    assert_eq!(b.get(b"inode/1").await.unwrap(), Some(vec![3]));
++    b.flush_metadata().await.unwrap();
++    assert_eq!(remote.get(b"inode/1").await.unwrap(), Some(vec![3]));
++}
++
++#[tokio::test]
++async fn delete_tombstone_and_namespace_barrier_preserve_order() {
++    let dir = tempfile::tempdir().unwrap();
++    let remote = Arc::new(Memory::default());
++    let b = backend(remote.clone(), config(dir.path()));
++    edit(&b, None, 1).await;
++    assert!(
++        b.compare_and_swap_metadata_before(
++            &check(Some(1)),
++            &[KvWrite::Delete {
++                key: b"inode/1".to_vec()
++            }],
++            10000
++        )
++        .await
++        .unwrap()
++    );
++    assert_eq!(b.get(b"inode/1").await.unwrap(), None);
++    assert!(b.scan_prefix(b"inode/").await.unwrap().is_empty());
++    assert_eq!(remote.commits.load(Ordering::SeqCst), 1);
++    edit(&b, None, 3).await;
++    assert!(
++        b.compare_and_swap_before(&check(Some(3)), &put(4), 10000)
++            .await
++            .unwrap()
++    );
++    assert_eq!(remote.get(b"inode/1").await.unwrap(), Some(vec![4]));
++}
++
++#[tokio::test]
++async fn idle_timer_flushes_without_another_write() {
++    let dir = tempfile::tempdir().unwrap();
++    let remote = Arc::new(Memory::default());
++    let mut cfg = config(dir.path());
++    cfg.flush_interval = Duration::from_millis(5);
++    let b = LocalMetadataBackend::new(remote.clone(), Some(cfg), b"idle")
++        .await
++        .unwrap();
++    edit(&b, None, 1).await;
++    tokio::time::timeout(Duration::from_secs(5), async {
++        while remote.get(b"inode/1").await.unwrap() != Some(vec![1]) {
++            tokio::time::sleep(Duration::from_millis(5)).await;
++        }
++    })
++    .await
++    .unwrap();
++    b.flush_metadata().await.unwrap();
++}
++
++#[test]
++fn journal_rejects_wrong_scope_corruption_and_second_writer() {
++    let dir = tempfile::tempdir().unwrap();
++    let cfg = config(dir.path());
++    let (journal, state) = Journal::open(&cfg, b"one").unwrap();
++    journal.persist(&state).unwrap();
++    assert!(Journal::open(&cfg, b"one").is_err());
++    drop(journal);
++    assert!(Journal::open(&cfg, b"two").is_err());
++    let path = dir.path().join("state.bin");
++    let mut bytes = std::fs::read(&path).unwrap();
++    *bytes.last_mut().unwrap() ^= 1;
++    std::fs::write(path, bytes).unwrap();
++    assert!(Journal::open(&cfg, b"one").is_err());
++}
++
++#[tokio::test]
++async fn remote_mode_remains_synchronous() {
++    let remote = Arc::new(Memory::default());
++    let b = LocalMetadataBackend::new(remote.clone(), None, b"remote")
++        .await
++        .unwrap();
++    edit(&b, None, 1).await;
++    edit(&b, Some(1), 2).await;
++    assert_eq!(remote.get(b"inode/1").await.unwrap(), Some(vec![2]));
++    assert_eq!(remote.commits.load(Ordering::SeqCst), 2);
++}
++
++#[tokio::test]
++async fn local_head_authentication_keeps_remote_fences_without_forcing_commit() {
++    let dir = tempfile::tempdir().unwrap();
++    let remote = Arc::new(Memory::default());
++    let b = backend(remote.clone(), config(dir.path()));
++    let limits = KvReadLimits {
++        max_records: 1,
++        max_key_bytes: 100,
++        max_value_bytes: 100,
++        max_total_bytes: 1000,
++        max_response_bytes: 1024,
++        max_data_requests: 1,
++    };
++    edit(&b, None, 1).await;
++    assert!(
++        b.authenticate_checks_before_bounded(&check(Some(1)), 10000, limits)
++            .await
++            .unwrap()
++    );
++    assert_eq!(remote.commits.load(Ordering::SeqCst), 0);
++    assert!(
++        !b.authenticate_checks_before_bounded(&check(Some(9)), 10000, limits)
++            .await
++            .unwrap()
++    );
++    remote
++        .rows
++        .lock()
++        .await
++        .insert(b"inode/1".to_vec(), Some(vec![9]));
++    assert!(
++        !b.authenticate_checks_before_bounded(&check(Some(1)), 10000, limits)
++            .await
++            .unwrap()
++    );
++    remote.now.store(10000, Ordering::SeqCst);
++    assert!(matches!(
++        b.authenticate_checks_before_bounded(&check(Some(1)), 10000, limits)
++            .await,
++        Err(WorkspaceError::Fenced)
++    ));
++}
++
++#[tokio::test]
++async fn cancelled_awaiter_does_not_race_journal_installation() {
++    let dir = tempfile::tempdir().unwrap();
++    let remote = Arc::new(Memory::default());
++    let b = Arc::new(backend(remote.clone(), config(dir.path())));
++    let (reached, wait) = tokio::sync::oneshot::channel();
++    let (resume, pause) = std::sync::mpsc::channel();
++    *b.core.as_ref().unwrap().journal.pause.lock().unwrap() = Some((reached, pause));
++    let first_backend = b.clone();
++    let first = tokio::spawn(async move { edit(&first_backend, None, 1).await });
++    wait.await.unwrap();
++    first.abort();
++    assert!(first.await.unwrap_err().is_cancelled());
++    let second_backend = b.clone();
++    let second = tokio::spawn(async move { edit(&second_backend, Some(1), 2).await });
++    resume.send(()).unwrap();
++    second.await.unwrap();
++    assert_eq!(b.get(b"inode/1").await.unwrap(), Some(vec![2]));
++    drop(b);
++    let b = backend(remote.clone(), config(dir.path()));
++    b.flush_metadata().await.unwrap();
++    assert_eq!(remote.get(b"inode/1").await.unwrap(), Some(vec![2]));
++}
++
++/// Runs only against an explicitly supplied, disposable local Redis instance.
++#[tokio::test]
++#[ignore = "requires BREWFS_LOCAL_SYNC_REDIS_URL pointing at disposable local Redis"]
++async fn local_metadata_real_redis_pairs() {
++    use crate::workspace_overlay::stores::redis::RedisWorkspaceBackend;
++    let url = std::env::var("BREWFS_LOCAL_SYNC_REDIS_URL").unwrap();
++    assert!(url.starts_with("redis://127.0.0.1:") || url.starts_with("redis://localhost:"));
++    let client = redis::Client::open(url.clone()).unwrap();
++    let mut connection = client.get_multiplexed_async_connection().await.unwrap();
++    for pair in 0..3 {
++        for local in if pair % 2 == 0 {
++            [false, true]
++        } else {
++            [true, false]
++        } {
++            let namespace = format!("local-sync-{}", uuid::Uuid::new_v4());
++            let remote = RedisWorkspaceBackend::connect(&url, &namespace)
++                .await
++                .unwrap();
++            let reader = RedisWorkspaceBackend::connect(&url, &namespace)
++                .await
++                .unwrap();
++            let deadline = remote.server_time_ns().await.unwrap() + 60_000_000_000;
++            let dir = tempfile::tempdir().unwrap();
++            let b = LocalMetadataBackend::new(
++                remote,
++                local.then(|| {
++                    let mut cfg = config(dir.path());
++                    cfg.flush_interval = Duration::from_millis(10);
++                    cfg
++                }),
++                namespace.as_bytes(),
++            )
++            .await
++            .unwrap();
++            let before: String = redis::cmd("INFO")
++                .arg("commandstats")
++                .query_async(&mut connection)
++                .await
++                .unwrap();
++            let start = std::time::Instant::now();
++            let mut samples = Vec::new();
++            for value in 0..100u8 {
++                let operation = std::time::Instant::now();
++                assert!(
++                    b.compare_and_swap_metadata_before(
++                        &check(value.checked_sub(1)),
++                        &put(value),
++                        deadline
++                    )
++                    .await
++                    .unwrap()
++                );
++                assert_eq!(b.get(b"inode/1").await.unwrap(), Some(vec![value]));
++                samples.push(operation.elapsed().as_nanos() as u64);
++            }
++            let active_ns = start.elapsed().as_nanos() as u64;
++            b.flush_metadata().await.unwrap();
++            let total_ns = start.elapsed().as_nanos() as u64;
++            assert_eq!(reader.get(b"inode/1").await.unwrap(), Some(vec![99]));
++            let after: String = redis::cmd("INFO")
++                .arg("commandstats")
++                .query_async(&mut connection)
++                .await
++                .unwrap();
++            println!(
++                "LOCAL_SYNC_RESULT {}",
++                serde_json::json!({"pair": pair, "mode": if local { "local-journal" } else { "remote" }, "operations":100, "active_ns":active_ns,"total_with_drain_ns":total_ns,"operation_ns":samples,"redis_before":before,"redis_after":after,"final_value":99})
++            );
++        }
++    }
++}
+diff --git a/src/workspace_overlay/stores/mod.rs b/src/workspace_overlay/stores/mod.rs
+index 41d0691..5078d7f 100644
+--- a/src/workspace_overlay/stores/mod.rs
++++ b/src/workspace_overlay/stores/mod.rs
+@@ -1,6 +1,7 @@
+ pub mod database;
+ pub mod kv_backend;
+ pub mod kv_store;
++pub mod local_metadata;
+ pub mod manager_guard;
+ pub mod redis;
+ pub mod tikv;
+diff --git a/tools/perf/check_local_metadata.sh b/tools/perf/check_local_metadata.sh
+new file mode 100644
+index 0000000..224237f
+--- /dev/null
++++ b/tools/perf/check_local_metadata.sh
+@@ -0,0 +1,39 @@
++#!/usr/bin/env bash
++# Local-only Redis experiment; per-operation evidence includes the final drain.
++set -euo pipefail
++root=$(cd -- "$(dirname -- "$0")/../.." && pwd)
++out=${1:?usage: check_local_metadata.sh NEW_ABSOLUTE_OUTPUT_DIRECTORY}
++[[ $out == /* && ! -e $out ]] || { echo 'Output must be new and absolute' >&2; exit 2; }
++mkdir -p -- "$out"
++cd -- "$root"
++exec > >(tee "$out/run.log") 2>&1
++name=brewfs-local-metadata-$$
++container=
++cleanup() { if [[ -n $container ]]; then docker rm -f "$container" >/dev/null; fi; }
++trap cleanup EXIT
++docker image inspect redis:7.2-alpine --format '{{.Id}}' > "$out/redis-image.txt"
++container=$(docker run --pull=never --detach --name "$name" --publish 127.0.0.1::6379 redis:7.2-alpine redis-server --save '' --appendonly no)
++printf '%s\n' "$container" > "$out/container.txt"
++port=$(docker port "$container" 6379/tcp)
++export BREWFS_LOCAL_SYNC_REDIS_URL="redis://$port/"
++for attempt in $(seq 1 50); do
++    if docker exec "$container" redis-cli ping | rg -q PONG; then break; fi
++    sleep 0.1
++done
++git rev-parse HEAD > "$out/source-commit.txt"
++git diff --binary HEAD -- src doc tools Cargo.toml > "$out/source.patch"
++rustc -Vv > "$out/rustc.txt"
++export CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0
++export CARGO_BUILD_JOBS=${CARGO_BUILD_JOBS:-1}
++features=fuse-io-uring-runtime,workspace-overlay,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability
++cargo test --locked --lib --no-default-features --features "$features" local_metadata -- --nocapture
++cargo test --locked --lib --no-default-features --features "$features" local_metadata_real_redis_pairs -- --ignored --nocapture --test-threads=1 | tee "$out/redis-pairs.log"
++python3 - "$out" <<'PY'
++import json, pathlib, sys
++p = pathlib.Path(sys.argv[1])
++rows = [json.loads(line.split('LOCAL_SYNC_RESULT ', 1)[1])
++        for line in (p / 'redis-pairs.log').read_text().splitlines() if 'LOCAL_SYNC_RESULT ' in line]
++assert len(rows) == 6
++(p / 'results.json').write_text(json.dumps(rows, indent=2) + '\n')
++PY
++printf '%s\n' passed > "$out/status.txt"

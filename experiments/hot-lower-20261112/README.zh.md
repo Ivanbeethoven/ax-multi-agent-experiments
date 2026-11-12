@@ -75,5 +75,5 @@ Redis 计数只扣除采集器自身的 INFO，包含 Lua 内部命令，不能�
 总耗时包含 Python 循环与内容校验。退出时只清理本次 owner/随机名称对应的容器、
 卷与临时目录；失败日志保留。
 
-私有 workspace 后台同步目前是设计，见 BrewFS 的
-`doc/architecture/private-workspace-sync.md`。本次代码仍等待远端元数据确认。
+上面的热读数据使用同步元数据提交。后续实现与验证见
+[本地修改与合并提交](../local-metadata-20261113/README.zh.md)，不改变本批历史结果。

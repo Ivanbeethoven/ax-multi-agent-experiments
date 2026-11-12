@@ -1,0 +1,39 @@
+{
+  "binary_sha256": "f73436bd9be87a811dce384f714b7acaf13492bb57e2b8095bd5c35d3e5a324d",
+  "argv": [
+    "bash",
+    "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/candidate/docker/compose-xfstests/run_redis_perf.sh",
+    "--s3",
+    "--writeback-throughput-profile",
+    "--tools",
+    "fio-seqwrite fio-randwrite fio-randrw"
+  ],
+  "passed": true,
+  "backend_version": {
+    "repository": "https://github.com/Ivanbeethoven/rustfs.git",
+    "branch": "feat/dynamic-block-size-rebased",
+    "revision_policy": "branch-latest",
+    "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "built_from_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "image_digest": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "resolved_at_unix_ns": 1794513097049971337,
+    "resolved_by": "git ls-remote + Docker OCI revision/source labels"
+  },
+  "source_commit": "579ee04a047e153ffb5ed6179174194be9172644",
+  "project": "hot-guard-ce57ce8476",
+  "tools": [
+    "fio-seqwrite",
+    "fio-randwrite",
+    "fio-randrw"
+  ],
+  "direct": "0",
+  "images": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "perf": "sha256:1569105ef15e3611e9cd6849d9318798583e39a50b3cc81a39d23e044d74ea15",
+    "aws_cli": "sha256:ad55930568d8f80fc446c4c3d7f9cb0e4fc64d6d94d9e8ee022eebda3f238855"
+  },
+  "source_patch_origin": "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/sync-source-07.patch",
+  "source_patch_sha256": "d4d99eb60a9a7b3f79ebc644347081391f79d1b302311d22d0f376e79d17d018",
+  "cleanup_exit": 0
+}

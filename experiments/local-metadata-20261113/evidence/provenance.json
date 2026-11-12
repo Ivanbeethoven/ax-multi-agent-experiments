@@ -1,0 +1,45 @@
+{
+  "code_repository": "https://github.com/brewfs/brewfs",
+  "code_commit": "6c422594bbc2fc152f259d2637ca40e7ff0ddb22",
+  "tested_source_base": "579ee04a047e153ffb5ed6179174194be9172644",
+  "code_branch": "codex/workspace-local-metadata-sync-20261113",
+  "source_patch_sha256": "d4d99eb60a9a7b3f79ebc644347081391f79d1b302311d22d0f376e79d17d018",
+  "brewfs_binary_sha256": "f73436bd9be87a811dce384f714b7acaf13492bb57e2b8095bd5c35d3e5a324d",
+  "producer_binary_sha256": "cf72573791f7dcb7117f1c9dd1a64dd34f2547859aa53bcc59061ef16e1275fd",
+  "release_opt_level": 3,
+  "cloud_resources_started": 0,
+  "rustfs": {
+    "repository": "https://github.com/Ivanbeethoven/rustfs.git",
+    "branch": "feat/dynamic-block-size-rebased",
+    "revision_policy": "branch-latest",
+    "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "built_from_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "image_digest": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "resolved_at_unix_ns": 1794512960661727735,
+    "resolved_by": "git ls-remote + Docker OCI revision/source labels"
+  },
+  "validation": {
+    "default_tests_passed": 1355,
+    "overlay_tests_passed": 2806,
+    "focused_tests_passed": 16,
+    "fuse_cells_passed": 48,
+    "fio_jobs_passed": 8,
+    "summary": "summary.json",
+    "verification": "verification.json"
+  },
+  "failed_runs_preserved": [
+    "smoke-07/fuse-remote",
+    "smoke-08/write-guard-1"
+  ],
+  "unverified": [
+    "TiKV runtime",
+    "cross-machine crash recovery",
+    "new-lease replay of expired dirty journals",
+    "large-scale workload performance"
+  ],
+  "cleanup": {
+    "owned_containers_removed": true,
+    "mounts_removed": true,
+    "compilation_swap_removed": true
+  }
+}

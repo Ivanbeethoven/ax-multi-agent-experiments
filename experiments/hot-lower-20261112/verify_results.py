@@ -34,6 +34,14 @@ def verify(root):
             assert {(c['pair'], c['cache_enabled']) for c in group} == {(p, enabled) for p in pairs for enabled in (False, True)}
             assert len({json.dumps(c['expected_sha256'], sort_keys=True) for c in group}) == 1
         for cell in cells:
+            if edits := cell.get('metadata_edits'):
+                assert edits['count'] == len(edits['operation_ns'])
+                assert edits['total_with_drain_ns'] >= edits['active_ns'] > 0
+                assert cell['remote_remount_verified']
+            if run.get('metadata_sync', 'remote') != 'remote':
+                assert cell['remote_remount_verified']
+                assert digest(root / cell['label'] / 'metadata-journal.bin') == cell['metadata_journal_sha256']
+                assert len(cell['remote_remount_samples']['pread']) == len(cell['expected_sha256'])
             assert not any(cell['warm_s3'][-1].values())
             assert not any(cell['rustfs_delta'].values())
             assert cell['rustfs_before']['inflight'] == cell['rustfs_after']['inflight'] == 0
