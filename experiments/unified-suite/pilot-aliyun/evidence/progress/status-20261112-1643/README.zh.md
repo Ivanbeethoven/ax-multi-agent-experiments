@@ -5,7 +5,7 @@
 | 项目 | 已得到的结果 | 下一项 |
 |---|---|---|
 | C1 读写 | 64 MiB、4 KiB 混合读写、每写 fsync。正序 BrewFS 36.160 s / JuiceFS 792.007 s；反序 63.425 s / 741.537 s。四臂全量冷挂 CRC、零上传债务、正常卸载通过 | 重复及动态块开关，区分具体设计的作用 |
-| C2 trace 与热 lower | 同引擎两文件、每臂 256 次实际 FUSE 读；计时内对象存储读取为零。准备了完整 pytest trace：1,747,109 次回调 | 完整 trace、冷读校验，再扩大热 lower 对照 |
+| C2 trace 与热 lower | 同引擎两文件、每臂 256 次实际 FUSE 读；计时内对象存储读取为零。17:09 更新：[A 池首次云端预检](../../preparation/c2-current-trace-a-preflight-failed-01/README.zh.md)通过容量、Redis、RustFS 检查，客户端准备报错，尚未回放 1,747,109 次回调 | 修复客户端准备后做完整回放和冷读校验，再扩大热 lower 对照 |
 | C3 小文件 | 10 万文件输入已存在；限时抽样读完 64 个首次访问文件并校验内容，复读阶段未完成 | 当前聊天暂停预取诊断；完整 10 万文件对照仍未完成 |
 | C4 派生 | BrewFS 原生 fork 与 JuiceFS 原生 clone 各通过两文件隔离、冷读。BrewFS fork 依赖候选补丁；[优化版在 rbm 的 30 分钟构建窗口超时，无优化产物](../../preparation/c4-rbm-release-timeout-03/README.zh.md) | 优化版产物核验、10 万文件资格和配对计时 |
 | C4 迁移 | 已保留 894 项 checkpoint；准备了 A→B 无模型共享工作区重开步骤 | 两台真实主机重开后验证，再做少量真实 OpenCode resume |
