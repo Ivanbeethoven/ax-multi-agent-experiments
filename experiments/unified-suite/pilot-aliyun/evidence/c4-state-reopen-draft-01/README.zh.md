@@ -12,6 +12,16 @@
 2. 跑一次 `verify-latest.py`，生成新回执。写新的请求 `schema=pilot-c4-state-reopen-request-v1`、`reviewed=true`、唯一 `attempt`；各文件引用均为绝对路径和 SHA256。
 3. 用 `run-c4-state-reopen.py --request "$REQUEST" --sha256 "$SHA" --runtime-repo /srv/ax-pilot-control/code-15 --out "$FRESH_OUT"` 启动。归档各端原始导出、网络隔离、两次债务采样和正常退出回执；目标不再传工作区内容。
 
+若使用 A 作源、B 作目标，先以 `draft-c4-state-reopen.py --source pool-a` 另生成 route。此时只启动 A client/Redis/RustFS 和 B client，B 的存储服务不参与。重启过的客户端不得覆盖原 `probes/*/probe.json`。两池交接后，从协调者执行只读探针：
+
+```bash
+python3 "$RUNNER" probe-current-boots --draft "$DRAFT" \
+  --draft-sha256 "$(sha256sum "$DRAFT" | cut -d' ' -f1)" \
+  --runtime-repo "$RUNTIME_REPO" --out "$CURRENT_BOOTS"
+```
+
+`RUNNER` 是含此命令的 `run-c4-state-reopen.py`。审阅探针结果，把 `CURRENT_BOOTS` 的绝对路径和 SHA256 作为 `current_boots` 加入已审阅运行请求。执行器在同一把物理资源锁内重读两个客户端，逐项比对实例 ID、原数据盘、boot ID 和空的 2 CPU / 8 GiB 槽；记录超过 900 秒、boot/盘变动或任一槽被占用都停止。旧请求未带 `current_boots` 时仍严格匹配原 boot 证据。
+
 请求字段：
 
 | 字段 | 来源 |
@@ -22,5 +32,6 @@
 | `worker` | `c4-state-reopen-node.py` 的实际文件引用 |
 | `verified_checkpoint`、`source_tree` | 同批协调机 `verified-checkpoint/checkpoint.json`、`source-tree.json` |
 | `peers.source`、`peers.target` | 各含实际 `repo`、`opencode`、`juicefs` 引用 |
+| `current_boots` | 可选；重启后的两端只读探针回执，随请求一并审阅 |
 
 保留三个时间：目标挂载到就绪、就绪到验证原会话、源关闭到目标完整结束。第三项含配置传送、目标同步、排空和卸载；没有正式观测校准，不作为接续性能结果。
