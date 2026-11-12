@@ -3,7 +3,9 @@ from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 import sys
+from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
 REPO = Path(__file__).resolve().parents[1]
 SCRIPT = REPO/'experiments/unified-suite/pilot-aliyun/scripts/c4-on1-preflight.py'
@@ -140,6 +142,67 @@ class Placement(unittest.TestCase):
                                    self.probe(42), dict(path='/srv/ax-pilot-control/fork-control-01/runtime-a-03/binding.json', sha256='0'*64), now=NOW)
 
 
+class ReviewedDraft(unittest.TestCase):
+    def test_blocked_draft_is_refused_before_any_remote_call(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            draft = root/'draft.json'
+            draft.write_text(json.dumps(dict(reviewed=False, passed=False, step=2, prefix=[],
+                                             draft_status='blocked-object-disk-capacity')))
+            argv = ['--control', str(root), '--runtime', str(root), '--draft', str(draft),
+                    '--request-draft', str(draft), '--records', str(root/'r'), '--code', str(root),
+                    '--out', str(root/'o'), '--ownership', str(root), '--ownership-sha256', '0'*64,
+                    '--remediation', str(root), '--scratch-remote-dir', '/tmp/x', '--cell', 'c',
+                    '--tag', 't', '--reclaim', str(root)]
+            with patch.object(sys, 'argv', ['p', *argv]):
+                with self.assertRaises(ValueError) as caught:
+                    module.main()
+            self.assertIn('reviewed capacity draft', str(caught.exception))
+
+    def test_prefix_must_match_the_step(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            draft = root/'draft.json'
+            draft.write_text(json.dumps(dict(reviewed=True, passed=True, step=3, prefix=[])))
+            argv = ['--control', str(root), '--runtime', str(root), '--draft', str(draft),
+                    '--request-draft', str(draft), '--records', str(root/'r'), '--code', str(root),
+                    '--out', str(root/'o'), '--ownership', str(root), '--ownership-sha256', '0'*64,
+                    '--remediation', str(root), '--scratch-remote-dir', '/tmp/x', '--cell', 'c',
+                    '--tag', 't', '--reclaim', str(root)]
+            with patch.object(sys, 'argv', ['p', *argv]):
+                with self.assertRaises(ValueError) as caught:
+                    module.main()
+            self.assertIn('prefix', str(caught.exception))
+
+
+class SampleSpan(unittest.TestCase):
+    def test_node_sample_before_cleanup_is_refused(self):
+        cleanup = NOW-timedelta(minutes=2)
+        with self.assertRaises(ValueError):
+            module.check_order(cleanup, cleanup+timedelta(seconds=2), cleanup+timedelta(seconds=3),
+                               cleanup+timedelta(seconds=4),
+                               sampled=[cleanup-timedelta(seconds=1)], now=NOW)
+
+    def test_node_sample_after_snapshot_is_refused(self):
+        cleanup = NOW-timedelta(minutes=2)
+        with self.assertRaises(ValueError):
+            module.check_order(cleanup, cleanup+timedelta(seconds=2), cleanup+timedelta(seconds=3),
+                               cleanup+timedelta(seconds=4),
+                               sampled=[cleanup+timedelta(seconds=3)], now=NOW)
+
+    def test_node_samples_inside_the_span_pass(self):
+        cleanup = NOW-timedelta(minutes=2)
+        moment = cleanup+timedelta(seconds=1)
+        self.assertTrue(module.check_order(cleanup, cleanup+timedelta(seconds=2), cleanup+timedelta(seconds=3),
+                                           cleanup+timedelta(seconds=4), sampled=[moment, moment], now=NOW))
+
+    def test_placement_must_follow_the_snapshot(self):
+        cleanup = NOW-timedelta(minutes=2)
+        with self.assertRaises(ValueError):
+            module.check_order(cleanup, cleanup+timedelta(seconds=4), cleanup+timedelta(seconds=1),
+                               cleanup+timedelta(seconds=5), now=NOW)
+
+
 class Documents(unittest.TestCase):
     def test_cleanup_requires_the_applied_reclaim(self):
         live = dict(left=[], newer=[], free_bytes=1, free_inodes=1)
@@ -151,7 +214,7 @@ class Documents(unittest.TestCase):
             module.cleanup_block('pool-a', {}, 2, [], dict(live, left=['x']), {}, now=NOW)
 
     def test_request_pins_capacity_and_overlay(self):
-        draft = dict(original_request={'path': 'o', 'sha256': '0'*64})
+        draft = dict(original_request={'path': 'o', 'sha256': '0'*64}, step=2, prefix=[{'path': 'first', 'sha256': '6'*64}])
         request_draft = dict(original_batch_tool={'path': 'b', 'sha256': '1'*64},
                              original_unit='u', original_invocation='i')
         overlay = dict(runner={'path': 'r', 'sha256': '2'*64}, helper={'path': 'h', 'sha256': '3'*64},

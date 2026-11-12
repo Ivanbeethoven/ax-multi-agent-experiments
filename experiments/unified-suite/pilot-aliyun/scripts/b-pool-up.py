@@ -1,0 +1,196 @@
+#!/usr/bin/env python3
+"""Bring one stopped B-pool host back to its original mounted state.
+
+Same shape as a-pool-up.py but with the B topology: four RustFS data disks, the
+metadata disk that carries the original Redis AOF, and the 100 GiB client disk.
+Every disk is mounted by serial and filesystem UUID and is never formatted.
+A stopped-then-started node loses its mounts and boots the image's own
+redis-server, so both are restored explicitly and recorded.
+"""
+import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+from datetime import datetime, timezone
+
+OBJECTS = {
+    'instance': 'i-bp1bhdngko7nq3c3jrhp',
+    'hostname': 'ax-pilot-20261111-b-objects',
+    'disks': [
+        ('bp1bhdngko7nq3c2i340', '/srv/ax-objects-0'),
+        ('bp1bhdngko7nq3c2i341', '/srv/ax-objects-1'),
+        ('bp1bhdngko7nq3c2i342', '/srv/ax-objects-2'),
+        ('bp1bhdngko7nq3c2i343', '/srv/ax-objects-3'),
+    ],
+    'container': 'ax-pilot-20261111-b-pool-b-objects-01-rustfs-1',
+}
+METADATA = {
+    'instance': 'i-bp14nenf7osz9v1snsp2',
+    'hostname': 'ax-pilot-20261111-b-metadata',
+    'disks': [('bp14nenf7osz9v1rkk5l', '/srv/ax-metadata')],
+    'redis_unit': 'ax-pilot-redis.service',
+    'redis_conf': '/etc/redis/ax-pilot-20261111-b.conf',
+    'redis_ip': '10.20.2.169',
+}
+CLIENT = {
+    'instance': 'i-bp1fmmfkcpr8w99j2bsy',
+    'hostname': 'ax-pilot-20261111-b-client',
+    'disks': [('bp1fmmfkcpr8w99pwgc5', '/srv/ax-client')],
+}
+
+# Injected as a module constant only so offline tests can point at a fake /proc.
+PROC = Path('/proc')
+
+
+def require(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+
+def run(argv, codes=(0,)):
+    result = subprocess.run(argv, capture_output=True, text=True)
+    require(result.returncode in codes, 'failed: %s (%d): %s' % (argv, result.returncode, result.stderr[-400:]))
+    return result.stdout
+
+
+def blocks():
+    return json.loads(run(['lsblk', '--json', '--bytes', '--paths', '--output',
+                           'NAME,TYPE,SERIAL,SIZE,UUID,FSTYPE,MOUNTPOINTS']))['blockdevices']
+
+
+def whole(serial):
+    rows = [r for r in blocks() if (r.get('serial') or '').strip() == serial]
+    require(len(rows) == 1, 'original whole disk not unique: '+serial)
+    row = rows[0]
+    require(row['type'] == 'disk' and not row.get('children'), 'wrong topology: '+serial)
+    return row
+
+
+def mount_disk(serial, target, actions):
+    row = whole(serial)
+    require(row.get('fstype') == 'ext4' and row.get('uuid'), 'original ext4 identity required: '+serial)
+    target = Path(target)
+    if target.is_mount():
+        actions.append(dict(serial=serial, target=str(target), already_mounted=True))
+        return row
+    target.mkdir(exist_ok=True)
+    run(['mount', '-t', 'ext4', '-o', 'rw,noatime', row['name'], str(target)])
+    require(target.is_mount(), 'mount did not take: '+str(target))
+    actions.append(dict(serial=serial, target=str(target), device=row['name'], uuid=row['uuid']))
+    return row
+
+
+def bring_objects(actions):
+    for serial, target in OBJECTS['disks']:
+        mount_disk(serial, target, actions)
+    for index, (_serial, target) in enumerate(OBJECTS['disks']):
+        data = Path(target)/'rustfs-data'
+        bind = Path('/srv/ax-rustfs-data-'+str(index))
+        require(data.is_dir(), 'original RustFS data dir missing: '+str(data))
+        if not bind.is_mount():
+            bind.mkdir(exist_ok=True)
+            run(['mount', '--bind', str(data), str(bind)])
+            actions.append(dict(bind=str(bind), source=str(data)))
+    run(['docker', 'start', OBJECTS['container']])
+    for _ in range(60):
+        if run(['docker', 'inspect', '--format', '{{.State.Running}}', OBJECTS['container']]).strip() == 'true':
+            actions.append(dict(container=OBJECTS['container'], started=True))
+            return
+        time.sleep(1)
+    raise ValueError('rustfs container did not start')
+
+
+def foreign_redis_pids(conf):
+    """redis-server processes that are not the original configuration."""
+    found = []
+    for entry in PROC.iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            argv = [part.decode() for part in (entry/'cmdline').read_bytes().split(b'\0') if part]
+        except OSError:
+            continue
+        if argv and Path(argv[0]).name == 'redis-server' and argv[1:] != [conf]:
+            found.append(dict(pid=int(entry.name), argv=argv))
+    return found
+
+
+def listening():
+    # ss lines end with users:(...), so match the address:port anywhere.
+    return any(':6379' in line for line in run(['ss', '-H', '-ltn']).splitlines())
+
+
+def effective(key):
+    lines = run(['redis-cli', '-h', METADATA['redis_ip'], 'CONFIG', 'GET', key]).splitlines()
+    require(len(lines) == 2 and lines[0] == key, 'unexpected CONFIG GET answer: '+key)
+    return lines[1]
+
+
+def bring_metadata(actions):
+    mount_disk(METADATA['disks'][0][0], METADATA['disks'][0][1], actions)
+    require(Path('/srv/ax-metadata/redis').is_dir(), 'original Redis data dir missing after mount')
+    if listening() and run(['systemctl', 'is-active', METADATA['redis_unit']], codes=(0, 3)).strip() != 'active':
+        # The image unit is enabled and would respawn a killed process; stop it
+        # first, then any process that is not the original configuration.
+        for name in ('redis-server.service', 'redis.service'):
+            if run(['systemctl', 'is-active', name], codes=(0, 3)).strip() == 'active':
+                run(['systemctl', 'stop', name])
+                actions.append(dict(stopped_unit=name))
+        for row in foreign_redis_pids(METADATA['redis_conf']):
+            os.kill(row['pid'], 15)
+            actions.append(dict(terminated=row))
+        for _ in range(30):
+            if not listening():
+                break
+            time.sleep(1)
+        require(not listening(), 'port 6379 still held')
+    if run(['systemctl', 'is-active', METADATA['redis_unit']], codes=(0, 3)).strip() != 'active':
+        run(['systemctl', 'start', METADATA['redis_unit']])
+        actions.append(dict(started_unit=METADATA['redis_unit']))
+    last = None
+    for _ in range(60):
+        try:
+            values = {k: effective(k) for k in ('appendonly', 'databases', 'dir', 'bind')}
+            require(values['appendonly'] == 'yes' and values['databases'] == '256'
+                    and values['dir'] == '/srv/ax-metadata/redis'
+                    and METADATA['redis_ip'] in values['bind'].split(),
+                    'effective Redis configuration differs: '+str(values))
+            actions.append(dict(effective=values))
+            return
+        except Exception as error:
+            last = repr(error)
+            time.sleep(1)
+    raise ValueError('original Redis did not serve: '+str(last))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('role', choices=('objects', 'metadata', 'client'))
+    parser.add_argument('--out', type=Path, required=True)
+    args = parser.parse_args()
+    expected = OBJECTS if args.role == 'objects' else (METADATA if args.role == 'metadata' else CLIENT)
+    require(os.geteuid() == 0 and os.uname().nodename == expected['hostname'], 'wrong B host')
+    require(not args.out.exists(), 'fresh receipt directory required')
+    args.out.mkdir(parents=True)
+    actions = []
+    if args.role == 'objects':
+        bring_objects(actions)
+    elif args.role == 'metadata':
+        bring_metadata(actions)
+    else:
+        for serial, target in CLIENT['disks']:
+            mount_disk(serial, target, actions)
+    result = dict(schema='b-pool-bringup-v1', passed=True, role=args.role,
+                  at=datetime.now(timezone.utc).isoformat(), instance=expected['instance'],
+                  actions=actions, automatic_retry=False)
+    with (args.out/'result.json').open('x', encoding='utf-8') as stream:
+        json.dump(result, stream, indent=2)
+        stream.write('\n')
+    print(json.dumps(result, indent=2)[:2000])
+
+
+if __name__ == '__main__':
+    main()

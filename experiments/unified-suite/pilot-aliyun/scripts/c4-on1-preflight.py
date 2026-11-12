@@ -61,17 +61,29 @@ def instant(text):
     return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
 
 
-def check_order(cleanup_at, snapshot_at, placement_at, capacity_at, now=None):
-    """Every sample must follow the cleanup check and stay inside one window."""
+def check_order(cleanup_at, snapshot_at, placement_at, capacity_at, sampled=(), now=None):
+    """Every sample must follow the cleanup check and stay inside one window.
+
+    The gate also bounds each node's own ``sampled_at`` by the cleanup check and
+    the snapshot, so that is checked here too: a node clock that lags by more
+    than the margin would otherwise pass this preflight and be refused later.
+    """
     clock = now or datetime.now(timezone.utc)
     cleanup = instant(cleanup_at)
+    snapshot = instant(snapshot_at)
     for name, value in (('snapshot', snapshot_at), ('placement', placement_at), ('capacity', capacity_at)):
         moment = instant(value)
         require(moment >= cleanup, name+' must not precede the cleanup check')
         require(moment <= clock, name+' is in the future')
         require((clock-moment).total_seconds() <= FRESH_SECONDS,
                 name+' is older than %d seconds' % FRESH_SECONDS)
-    require(instant(snapshot_at) >= cleanup, 'snapshot must follow the cleanup check')
+    require(snapshot >= cleanup, 'snapshot must follow the cleanup check')
+    require(instant(placement_at) >= snapshot, 'placement must follow the snapshot')
+    require(instant(capacity_at) >= instant(placement_at), 'capacity must follow the placement')
+    for index, value in enumerate(sampled):
+        moment = instant(value)
+        require(cleanup <= moment <= snapshot,
+                'native capacity sample %d is outside the cleanup-to-snapshot span' % index)
     return True
 
 
@@ -105,11 +117,12 @@ def coordinator_block(out, targets, device_of):
     return dict(path=str(parent), device=parent_device, targets=mapping)
 
 
-def placement_block(snapshot, scratch, probe, runtime_pin, now=None):
+def placement_block(snapshot, scratch, probe, runtime_pin, scratch_root=None, now=None):
     """Per-role device placement, including the dedicated observer root."""
-    require(scratch['root'] == SCRATCH, 'only the dedicated observer root is allowed')
+    root_expected = scratch_root or SCRATCH
+    require(scratch['root'] == root_expected, 'only the dedicated observer root is allowed')
     workers = {}
-    for role, root in (('client', ROOTS['client']), ('metadata', ROOTS['metadata']), ('objects', SCRATCH)):
+    for role, root in (('client', ROOTS['client']), ('metadata', ROOTS['metadata']), ('objects', root_expected)):
         row = probe(role, root)
         require(row['boot_id'] == snapshot['nodes'][role]['boot_id'],
                 'boot identity changed since the capacity sample: '+role)
@@ -123,14 +136,15 @@ def placement_block(snapshot, scratch, probe, runtime_pin, now=None):
                 runtime=runtime_pin, pool='pool-a', workers=workers)
 
 
-def cleanup_block(pool, request, step, prefix, live, reclaim_pin, now=None):
+def cleanup_block(pool, request, step, prefix, live, reclaim_pin, tags=(), now=None):
     require(live['left'] == [] and live['newer'] == [], 'the applied reclaim is not in effect')
     return dict(schema='pilot-prestep-cleanup-v1', pool=pool, original_request=request, step=step,
                 prefix=prefix, outcome='not-needed', actions=[],
                 finished_at=(now or datetime.now(timezone.utc)).isoformat(),
-                checked=dict(reclaimed_tags_absent=True, new_staging_since_apply=live['newer'],
+                checked=dict(reclaimed_tags=list(tags), reclaimed_tags_absent=not live['left'],
+                             new_staging_since_apply=live['newer'],
                              object_free_bytes=live['free_bytes'], object_free_inodes=live['free_inodes'],
-                             scratch_next_attempt_absent=True, prior_applied_cleanup=reclaim_pin),
+                             scratch_next_attempt_absent=not live.get('tag'), prior_applied_cleanup=reclaim_pin),
                 scope='Read-only recheck of the already applied object reclaim; this step needed no deletion')
 
 
@@ -148,14 +162,16 @@ def capacity_doc(draft, step, prefix, cleanup_pin, snapshot_pin, placement_pin,
                 budgeting_notes=draft['budgeting_notes'])
 
 
-def request_doc(draft, request_draft, continuation_tool, capacity_pin, out, overlay):
+def request_doc(draft, request_draft, continuation_tool, capacity_pin, out, overlay, step=None, prefix=None):
+    step = draft['step'] if step is None else step
+    prefix = list(draft['prefix'][1:]) if prefix is None else prefix
     return dict(schema='c4-after-directory-hold-v1', reviewed=True,
                 original_request=draft['original_request'],
                 original_batch_tool=request_draft['original_batch_tool'],
                 continuation_tool=continuation_tool,
                 original_unit=request_draft['original_unit'],
                 original_invocation=request_draft['original_invocation'],
-                step=2, prefix=[], out=str(out), capacity=capacity_pin, archive_overlay=overlay)
+                step=step, prefix=prefix, out=str(out), capacity=capacity_pin, archive_overlay=overlay)
 
 
 def ssh(conf, host, script):
@@ -212,8 +228,18 @@ def main():
     cont = args.code/scripts/'continue-c4-formal.py'
     runner = args.code/scripts/'calibrate-c4-closed-observer.py'
     helper = args.code/scripts/'archive-c4-closed-observer.py'
+    # The draft itself must be reviewed and unblocked: this script may not sign
+    # a budget that a human has not accepted, or an armed-but-blocked draft would
+    # silently come out as passed.
+    require(draft.get('reviewed') is True, 'reviewed capacity draft required')
+    require(draft.get('passed') is True and not draft.get('draft_status'),
+            'the capacity draft is still blocked: '+str(draft.get('draft_status')))
+    step = draft['step']
+    require(isinstance(step, int) and step >= 2, 'draft step must be an int >= 2')
+    require(len(draft['prefix']) == step-1, 'draft prefix must hold step-1 entries')
     for path in (cont, runner, helper):
         require(path.is_file(), 'deployed continuation code missing: '+str(path))
+
 
     # 1) Read-only recheck that the applied object reclaim is still in effect.
     applied = load(args.reclaim)
@@ -243,8 +269,8 @@ def main():
     # 2) The cleanup receipt precedes every sample of this window.
     records.mkdir(parents=True, mode=0o700)
     cleanup_path = records/'cleanup.json'
-    cleanup = cleanup_block('pool-a', draft['original_request'], 2, draft['prefix'],
-                            live, ref(args.reclaim))
+    cleanup = cleanup_block('pool-a', draft['original_request'], step, draft['prefix'],
+                            live, ref(args.reclaim), tags=[group['tag'] for group in applied['groups']])
     write_new(cleanup_path, cleanup)
 
     # 3) Native capacity snapshot through the frozen original tool.
@@ -288,7 +314,8 @@ def main():
                             ' trees={n:r.joinpath(n).stat().st_dev for n in ("o","archives","evidence")})))'])
         return json.loads(ssh(conf, alias[role], script))
 
-    placement = placement_block(snapshot, scratch, probe_role, ref(runtime/'binding.json'))
+    placement = placement_block(snapshot, scratch, probe_role, ref(runtime/'binding.json'),
+                                scratch_root=args.scratch_root)
     placement_path = records/'placement.json'
     write_new(placement_path, placement)
 
@@ -305,12 +332,20 @@ def main():
             *(pin for sources in draft['observer_basis'].values() for pin in sources),
             ref(args.reclaim), ref(args.remediation)]
     require(len({pin['path'] for pin in pins}) == len(pins), 'duplicate capacity source pin')
-    capacity = capacity_doc(draft, 2, draft['prefix'], ref(cleanup_path), ref(snapshot_path),
+    capacity = capacity_doc(draft, step, draft['prefix'], ref(cleanup_path), ref(snapshot_path),
                             ref(placement_path), ref(scratch_path), rows, coordinator, pins)
+    # Validate the whole chain before anything else lands, so a rejected window
+    # does not leave a half-written receipt set behind.
+    sampled = [node['sampled_at'] for node in (snapshot.get('nodes') or {}).values()
+               if node.get('sampled_at')]
+    check_order(cleanup['finished_at'], snapshot['at'], placement['at'], capacity['at'], sampled=sampled)
     capacity_path = records/'capacity.json'
     write_new(capacity_path, capacity)
-    check_order(cleanup['finished_at'], snapshot['at'], placement['at'], capacity['at'])
 
+    require(request_draft.get('reviewed') is True, 'reviewed continuation request draft required')
+    require(request_draft.get('original_request') == draft.get('original_request'),
+            'both drafts must attest the same original request')
+    require(out.is_absolute() and out.resolve() == out, 'canonical absolute continuation directory required')
     request = request_doc(draft, request_draft, ref(cont), ref(capacity_path), out,
                           dict(runner=ref(runner), helper=ref(helper),
                                worker_code=request_draft['archive_overlay']['worker_code']))
