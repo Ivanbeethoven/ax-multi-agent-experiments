@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read-only staging of the original failed On1 archive from its exact scratch disk."""
 import argparse
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -10,6 +11,7 @@ import signal
 import socket
 import stat
 import subprocess
+import tarfile
 import urllib.request
 
 
@@ -21,6 +23,15 @@ SIZE = 107374182400
 REJECTED = 'archives/c4-a-flat-on1-objects.tar.gz'
 REJECTED_SIZE = 379864420
 REJECTED_SHA256 = 'b9362d9f84d724d7afdeeaefbf82b032a772c1dfad456c015c47c806e818ffde'
+KNOWN = {
+    'o/c4-a-flat-on1/samples.ndjson': (23497612644,
+        'd46e937826d88931bb2238ad22f6f3e87677b546e6ed5b8df5d08dc5a7d8d5a0'),
+    'archives-split-01/c4-a-flat-on1-objects-observer.tar.gz': (379794692,
+        '504e8450b20fd032053b0fd6e161035db300fc0508ad88251e725d304901236c'),
+    'archives-split-01/c4-a-flat-on1-objects.tar.gz': (552,
+        '7327fd1fcb11755ffda3f597f81eb937ebccea69490dd316103f46b42f97c4c2'),
+}
+PACK_LIMIT = 64*1024**2
 RUN = Path('/run')
 RECEIPTS = Path('/srv/ax-receipts')
 PROC = Path('/proc')
@@ -114,7 +125,8 @@ def inventory(target):
     return sorted(regular,key=lambda row:row['path']),sorted(special,key=lambda row:row['path'])
 
 
-def archive_sha(target, relative=REJECTED, size=REJECTED_SIZE):
+@contextmanager
+def regular_file(target, relative, size):
     base = os.open(target,DIR_FLAGS)
     handles = [base]
     try:
@@ -129,11 +141,16 @@ def archive_sha(target, relative=REJECTED, size=REJECTED_SIZE):
         with os.fdopen(fd,'rb') as stream:
             info = os.fstat(stream.fileno())
             need(stat.S_ISREG(info.st_mode) and info.st_dev==st_dev and info.st_size==size,
-                 'Original rejected archive shape differs')
-            return hashlib.file_digest(stream,'sha256').hexdigest()
+                 'Expected regular source type, device and size: '+relative)
+            yield stream, info
     finally:
         for fd in reversed(handles):
             os.close(fd)
+
+
+def archive_sha(target, relative=REJECTED, size=REJECTED_SIZE):
+    with regular_file(target,relative,size) as (stream,_):
+        return hashlib.file_digest(stream,'sha256').hexdigest()
 
 
 def checked_path(path):
@@ -195,7 +212,7 @@ def mount_readonly(tag, out):
         raise
 
 
-def unmount(receipt, sha256):
+def bind_mount(receipt, sha256):
     boot = host()
     d = disk()
     receipt = checked_path(receipt)
@@ -211,6 +228,82 @@ def unmount(receipt, sha256):
          'Receipt is not this exact disk and current boot')
     target = target_for(value['tag'])
     need(mount_at(target,d)==value['mount'],'Current mount differs from receipt')
+    return target,d,value
+
+
+def pack_extras(receipt, sha256, out, report):
+    target,d,value = bind_mount(receipt,sha256)
+    out,report = checked_path(out),checked_path(report)
+    need(out!=report and not os.path.lexists(out) and not os.path.lexists(report),
+         'New and distinct pack/report paths required')
+    need(out.parent.stat().st_dev!=target.stat().st_dev and
+         report.parent.stat().st_dev!=target.stat().st_dev, 'Output must be off scratch')
+    regular,special = inventory(target)
+    need(regular==value['regular'] and special==value['special'],'Readonly inventory changed')
+    rows = {row['path']:row for row in regular}
+    need(len(rows)==len(regular) and rows[REJECTED]['bytes']==REJECTED_SIZE and
+         value['rejected_archive']==dict(path=str(target/REJECTED),bytes=REJECTED_SIZE,
+                                         sha256=REJECTED_SHA256), 'Exact separately copied archive was not pinned')
+    extras = [row for row in regular if row['path'] not in KNOWN and row['path']!=REJECTED]
+    total = sum(row['bytes'] for row in extras)
+    need(len(extras)<=16384 and total<=PACK_LIMIT,
+         'Unaccounted ordinary files exceed pack bounds: %d members, %d bytes' % (len(extras),total))
+    excluded = {REJECTED:dict(bytes=REJECTED_SIZE,sha256=REJECTED_SHA256,source='separate rejected archive copy')}
+    for name,(size,pin) in KNOWN.items():
+        if name not in rows:
+            continue
+        need(rows[name]['bytes']==size and archive_sha(target,name,size)==pin,'Changed known large source: '+name)
+        excluded[name] = dict(bytes=size,sha256=pin,source='existing off-disk verified copy')
+    members = []
+
+    class HashingReader:
+        def __init__(self, raw):
+            self.raw = raw
+            self.digest = hashlib.sha256()
+
+        def read(self, size):
+            block = self.raw.read(size)
+            self.digest.update(block)
+            return block
+
+    # An incomplete output never has a report and never qualifies for deletion.
+    with out.open('xb') as sink:
+        os.fchmod(sink.fileno(),0o600)
+        with tarfile.open(fileobj=sink,mode='w:gz',compresslevel=1) as bundle:
+            for row in extras:
+                name,size = row['path'],row['bytes']
+                with regular_file(target,name,size) as (stream,info):
+                    reader = HashingReader(stream)
+                    header = tarfile.TarInfo(name)
+                    header.size = size
+                    header.mode = stat.S_IMODE(info.st_mode) & 0o777
+                    header.mtime = info.st_mtime_ns//10**9
+                    bundle.addfile(header,reader)
+                    members.append(dict(row,sha256=reader.digest.hexdigest()))
+        sink.flush()
+        os.fsync(sink.fileno())
+    need(out.stat().st_size<=PACK_LIMIT,'Packed extras exceeded output cap')
+    with out.open('rb') as stream:
+        packed_sha = hashlib.file_digest(stream,'sha256').hexdigest()
+    need(mount_at(target,d)==value['mount'],'Mount changed during pack')
+    with tarfile.open(out,mode='r:gz') as bundle:
+        found = bundle.getmembers()
+        need(len(found)==len(members),'Pack member count differs')
+        for entry,row in zip(found,members):
+            need(entry.isfile() and entry.name==row['path'] and entry.size==row['bytes'],
+                 'Pack file identity differs')
+            with bundle.extractfile(entry) as stream:
+                need(hashlib.file_digest(stream,'sha256').hexdigest()==row['sha256'],'Pack member digest differs')
+    proof = dict(schema='ax-retired-on1-scratch-extras-v1',passed=True,inventory_sha256=sha256,
+                 archive=dict(path=str(out),bytes=out.stat().st_size,sha256=packed_sha),
+                 cap_bytes=PACK_LIMIT,uncompressed_bytes=total,excluded=excluded,members=members,
+                 non_regular_not_copied=special)
+    write(report,proof)
+    print(json.dumps(dict(packed=True,report=str(report),archive=proof['archive'],regular_files=len(members))),flush=True)
+
+
+def unmount(receipt, sha256):
+    target,d,value = bind_mount(receipt,sha256)
     command('umount','--',str(target))
     need(not any(x['target']==str(target) or x['device']==d['maj:min'] for x in mounts()),
          'Scratch device remains mounted')
@@ -227,9 +320,16 @@ if __name__=='__main__':
     u = sub.add_parser('unmount')
     u.add_argument('--receipt',type=Path,required=True)
     u.add_argument('--sha256',required=True)
+    p = sub.add_parser('pack')
+    p.add_argument('--receipt',type=Path,required=True)
+    p.add_argument('--sha256',required=True)
+    p.add_argument('--out',type=Path,required=True)
+    p.add_argument('--report',type=Path,required=True)
     args = parser.parse_args()
     if args.operation=='mount':
         signal.signal(signal.SIGTERM,interrupted)
         mount_readonly(args.tag,args.out)
+    elif args.operation=='pack':
+        pack_extras(args.receipt,args.sha256,args.out,args.report)
     else:
         unmount(args.receipt,args.sha256)
