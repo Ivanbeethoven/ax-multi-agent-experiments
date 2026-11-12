@@ -52,7 +52,7 @@ Flat 只作为 C1、C2 的系统对照。C4 派生只比较原生 fork 和原生
 | C1 | [64 MiB 同步混合读写](../pilot-aliyun/evidence/preparation/c1-b-randrw-scratch-reverse-02/README.zh.md)完成正序、反序各一组配对，四臂均通过全量冷挂载 CRC；[固定 B 的读帧开关](../pilot-aliyun/evidence/preparation/c1-rbm-rustfs-quantum-01/README.zh.md)通过落盘布局与读回核验 | 增加重复；读帧变化对物理 I/O 和任务时间的影响 |
 | C2 | [两文件热态对照](../pilot-aliyun/evidence/preparation/c2-rbm-namespace-seqfix-01/README.zh.md)两组都跑通，计时期间零对象存储读取；[完整 trace 的初态发布](../pilot-aliyun/evidence/preparation/c2-current-trace-a-producer-timeout-03/README.zh.md)在 300 秒超时，回放未启动 | 本轮按限时跳过完整回放与冷验，保留失败；后续解决初态生成 |
 | C3 | [云上抽样四阶段完成](../pilot-aliyun/evidence/preparation/cloud-c3-script-fixes-20261112/README.zh.md)：64 个固定文件、128 次内容校验，正常卸载；十万文件全量仍未完成 | 完整读回；同样设置下的性能对照 |
-| C4 | [rbm 同输入原生 fork / clone](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)均通过子读父、覆盖后父不变、空缓存重挂；[一万文件资格配置](../pilot-aliyun/evidence/progress/closing-small-pilot-20261112/qualification-10k.json)已记录 | 一万文件资格尚未运行；优化版缺失，性能配对本轮跳过；优先跨机状态验证 |
+| C4 | [rbm 同输入原生 fork / clone](../pilot-aliyun/evidence/preparation/rbm-c4-published-20261112/README.zh.md)均通过子读父、覆盖后父不变、空缓存重挂；[阿里云 A→B](../pilot-aliyun/evidence/preparation/c4-state-reopen-a-b-result-01/README.zh.md)读回同一工作区和完全相同的 OpenCode 会话导出 | 跨机整项未通过：目标子进程退出超时，未采目标零债务；无模型续跑。优化版缺失，一万文件派生性能配对本轮跳过 |
 
 小试用于排除实现和部署问题，独立保存，不回填旧套件的正式验收。
 
