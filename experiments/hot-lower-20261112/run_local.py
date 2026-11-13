@@ -208,7 +208,7 @@ def measured_round(root, expected):
 
 def total_overlay_config(config, arm, manifest_key):
     """Pair the shared Packed caches; the standalone arm has no workspace."""
-    assert arm in ('production', 'packed-direct')
+    assert arm in ('production', 'candidate', 'packed-direct')
     config = dict(config, cache=dict(config['cache']))
     config['cache'].update(read_memory_bytes=0, read_ssd_bytes=0, packed_cache='off',
                            packed_cache_bytes=0, prefetch_enabled=False, range_background_prefetch=False)
@@ -223,6 +223,9 @@ def total_overlay_config(config, arm, manifest_key):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', type=Path, required=True)
+    parser.add_argument('--candidate-binary', type=Path,
+                        help='Optional optimized Overlay binary; overlay-total adds a third, interleaved arm')
+    parser.add_argument('--candidate-source-patch', type=Path)
     parser.add_argument('--producer', type=Path, required=True)
     parser.add_argument('--source-commit', required=True)
     parser.add_argument('--source-patch', type=Path, required=True)
@@ -243,10 +246,20 @@ def main():
                         help='Metadata acknowledgement mode; each cell gets an independent local journal')
     parser.add_argument('--metadata-edits', type=int, default=0,
                         help='After hot reads, time repeated chmod/stat plus final fsync/close separately')
+    parser.add_argument('--rust-log', default='warn',
+                        help='Rust tracing filter; verbose diagnosis must use a separate output from performance runs')
+    parser.add_argument('--total-fixture', choices=('standard', 'many10000'), default='standard')
+    parser.add_argument('--total-temperatures', choices=('both', 'warm'), default='both')
+    parser.add_argument('--total-row-cache-bytes', type=int, default=64 << 20)
+    parser.add_argument('--total-payload-cache-bytes', type=int, default=8 << 20)
     args = parser.parse_args()
     assert os.geteuid() == 0, 'run under sudo for private RustFS volume ownership'
     assert args.pairs >= 3 and 1 <= args.passes <= 4096
     assert 0 <= args.metadata_edits <= 4096
+    assert args.total_row_cache_bytes >= 0 and args.total_payload_cache_bytes >= 0
+    if args.comparison != 'overlay-total':
+        assert (args.total_fixture, args.total_temperatures, args.total_row_cache_bytes,
+                args.total_payload_cache_bytes) == ('standard', 'both', 64 << 20, 8 << 20)
     phased = args.comparison in ('cold-native', 'overlay-total')
     assert args.object_meter == 'proxy' or phased
     if args.comparison in ('overlay-tax', 'cold-native', 'overlay-total'):
@@ -256,6 +269,13 @@ def main():
     assert re.fullmatch('[0-9a-f]{40}', args.source_commit)
     for path in [args.binary, args.producer, args.source_patch]:
         assert path.is_absolute() and path.is_file()
+    if args.candidate_binary:
+        assert args.comparison == 'overlay-total' and args.candidate_source_patch
+        for path in (args.candidate_binary, args.candidate_source_patch):
+            assert path.is_absolute() and path.is_file()
+    else:
+        assert args.candidate_source_patch is None
+    active_binary = args.binary
     args.out.mkdir(parents=True, exist_ok=False)
     work = Path(tempfile.mkdtemp(prefix='brewfs-hot-local-'))
     owner = 'brewfs-hot-' + uuid.uuid4().hex[:10]
@@ -264,7 +284,7 @@ def main():
     env = dict(os.environ, AWS_ACCESS_KEY_ID=access, AWS_SECRET_ACCESS_KEY=secret,
                BREWFS_METADATA_SYNC=args.metadata_sync,
                AWS_REGION='us-east-1', AWS_EC2_METADATA_DISABLED='true',
-               RUST_LOG='warn', NO_PROXY='127.0.0.1,localhost',
+               RUST_LOG=args.rust_log, NO_PROXY='127.0.0.1,localhost',
                BREWFS_PACKED_VERIFY_MEMO='0',
                BREWFS_FUSE_READ_DIRECT_IO='1', BREWFS_WORKSPACE_ROW_CACHE_TTL_MS='600000')
     payload_cache_setting = ('BREWFS_PACKED_RETAINED_PAYLOAD_BYTES' if args.workspace_format == 'workspace'
@@ -279,6 +299,8 @@ def main():
         env['BREWFS_WORKSPACE_ROW_CACHE_BYTES'] = str(64 << 20)
     if args.comparison == 'overlay-total':
         env['BREWFS_PACKED_METADATA_CACHE_BYTES'] = str(256 << 20)
+        env['BREWFS_WORKSPACE_ROW_CACHE_BYTES'] = str(args.total_row_cache_bytes)
+        env[payload_cache_setting] = str(args.total_payload_cache_bytes)
         env.pop('BREWFS_PACKED_METADATA_ARM', None)
     result = dict(schema='hot-overlay-local-v1', passed=False, source_commit=args.source_commit,
                   owner=owner, temporary_directory=str(work), containers=containers,
@@ -306,8 +328,17 @@ def main():
                       cold_scope='client process and client cache only; backend Redis/RustFS and host caches are not flushed')
     if args.comparison == 'overlay-total':
         result.update(schema='overlay-total-v1', object_meter=args.object_meter,
+                      total_settings=dict(fixture=args.total_fixture, temperatures=args.total_temperatures,
+                                          upper_row_cache_bytes=args.total_row_cache_bytes,
+                                          retained_payload_bytes=args.total_payload_cache_bytes,
+                                          packed_metadata_bytes=256 << 20),
                       comparison='writable WorkspaceMetaLayer vs standalone PackedReadonlyMeta; same immutable manifest, binary and shared cache budgets; no upper-bypass ablation',
                       cold_scope='client process and client cache only; backend Redis/RustFS and host caches are not flushed')
+        if args.candidate_binary:
+            result.update(schema='overlay-version-total-v1',
+                          candidate_binary_sha256=sha(args.candidate_binary),
+                          candidate_source_patch_sha256=sha(args.candidate_source_patch),
+                          comparison='baseline Overlay, candidate Overlay and standalone Packed; one immutable manifest and identical cache budgets')
     process, logfile, point = None, None, None
 
     def invoke(argv, *, check=True, timeout=60):
@@ -356,7 +387,7 @@ def main():
         nonlocal process, logfile
         assert process is None
         logfile = log_path.open('xb')
-        mount_command = [str(args.binary), 'mount', '--config', str(config_path), str(point)]
+        mount_command = [str(active_binary), 'mount', '--config', str(config_path), str(point)]
         result['commands'].append(mount_command)
         process = subprocess.Popen(mount_command, env=env if mount_env is None else mount_env,
                                    stdout=logfile, stderr=subprocess.STDOUT)
@@ -411,8 +442,15 @@ def main():
                           config=Config(signature_version='s3v4', connect_timeout=2, read_timeout=10, retries={'total_max_attempts': 3}, s3={'addressing_style': 'path'}))
         with meter(rustfs_port) as (metered_endpoint, s3_counts):
             scenarios = ('two-files', 'small-files-32') if args.comparison in ('overlay-tax', 'cold-native', 'overlay-total') else ('two-files', 'modified-upper')
+            if args.comparison == 'overlay-total' and args.total_fixture == 'many10000':
+                scenarios = ('many-files-10000',)
             for scenario in scenarios:
                 payload = {'a.txt': b'packed smoke\n', 'sub/b.txt': bytes(range(64))}
+                if scenario == 'many-files-10000':
+                    payload = {'a.txt': bytes(range(256)) * 16, 'sub/b.txt': bytes(reversed(range(256))) * 16}
+                    payload.update({f'sub/item-{i:05}.bin': bytes((i + j) % 256 for j in range(4096))
+                                    for i in range(9998)})
+                    assert len(payload) == 10000 and sum(map(len, payload.values())) == 40960000
                 if scenario == 'small-files-32':
                     payload.update({f'sub/item-{i:02}.bin': bytes((i + j) % 256 for j in range(4096)) for i in range(30)})
                 if scenario == 'modified-upper':
@@ -449,7 +487,12 @@ def main():
                         arms = [(True, arm, state) for arm, state in conditions]
                     if args.comparison == 'overlay-total':
                         order = ('production', 'packed-direct') if pair % 2 == 0 else ('packed-direct', 'production')
+                        if args.candidate_binary:
+                            from itertools import permutations
+                            order = list(permutations(('production', 'candidate', 'packed-direct')))[pair % 6]
                         temperatures = ('cold', 'warm') if pair % 2 == 0 else ('warm', 'cold')
+                        if args.total_temperatures == 'warm':
+                            temperatures = ('warm',)
                         arms = [(True, arm, state) for state in temperatures for arm in order]
                     for enabled, arm, cache_temperature in arms:
                         suffix = arm if args.comparison == 'overlay-tax' else ('on' if enabled else 'off')
@@ -457,6 +500,9 @@ def main():
                             suffix = arm + '-' + cache_temperature
                         label = f'{scenario}-pair{pair+1}-' + suffix
                         assert sha(args.binary) == result['binary_sha256'], 'binary changed during pairing'
+                        active_binary = args.candidate_binary if arm == 'candidate' else args.binary
+                        if args.candidate_binary:
+                            assert sha(args.candidate_binary) == result['candidate_binary_sha256'], 'candidate changed during pairing'
                         out = args.out / label
                         out.mkdir()
                         namespace = label + '-' + uuid.uuid4().hex[:8]
@@ -464,7 +510,7 @@ def main():
                         init = ['init-volume'] if arm == 'native-overlay' else ['init-packed-volume', '--manifest-key', manifest.read_text().strip()]
                         parent = {'workspace_id': None}
                         if arm != 'packed-direct':
-                            parent = json.loads(invoke([args.binary, 'workspace', '--meta-backend', 'redis', '--meta-url', rurl,
+                            parent = json.loads(invoke([active_binary, 'workspace', '--meta-backend', 'redis', '--meta-url', rurl,
                                                        '--workspace-namespace', namespace, *init, '--data-config', data_config]).stdout)
                         point = work / label
                         point.mkdir()
@@ -569,8 +615,11 @@ def main():
                         (out / 'before.stats').write_text((point / '.stats').read_text())
                         before_stats = metrics((out / 'before.stats').read_text())
                         if args.comparison == 'overlay-total':
-                            assert before_stats['brewfs_packed_v3_payload_retention_capacity_bytes'] == 8 << 20
+                            assert before_stats['brewfs_packed_v3_payload_retention_capacity_bytes'] == args.total_payload_cache_bytes
                             assert before_stats['brewfs_packed_index_cache_configured_bytes'] == 256 << 20
+                            if arm != 'packed-direct':
+                                assert before_stats['brewfs_workspace_row_cache_capacity_bytes'] == args.total_row_cache_bytes
+                                assert before_stats['brewfs_workspace_row_cache_retained_bytes'] <= args.total_row_cache_bytes
                         before_redis = commandstats(redis_port)
                         before_s3 = s3_counts()
                         assert before_s3['inflight'] == 0, 'object request still active before measurement'
@@ -600,6 +649,7 @@ def main():
                         stats_delta = delta(metrics((out / 'after.stats').read_text()), before_stats)
                         remote_delta = delta(after_s3, before_s3)
                         cell = dict(label=label, cache_enabled=enabled, scenario=scenario, pair=pair+1, arm=arm, elapsed_ns=elapsed,
+                                    binary_sha256=sha(active_binary),
                                     rustfs_before=before_s3, rustfs_after=after_s3,
                                     warm_s3=warm, rustfs_delta=remote_delta, stats_delta=stats_delta,
                                     redis_before=before_redis, redis_after=after_redis,

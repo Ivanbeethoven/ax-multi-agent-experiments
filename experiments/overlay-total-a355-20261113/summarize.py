@@ -20,7 +20,10 @@ def summarize(root):
         with path.open('rb') as stream:
             assert hashlib.file_digest(stream, 'sha256').hexdigest() == digest, name
     run = read(root / 'run.json')
-    assert run['schema'] == 'overlay-total-v1' and run['passed']
+    assert run['schema'] in ('overlay-total-v1', 'overlay-version-total-v1') and run['passed']
+    versioned = run['schema'] == 'overlay-version-total-v1'
+    arm_names = ('production', 'candidate', 'packed-direct') if versioned else ('production', 'packed-direct')
+    temperatures_used = ('warm',) if run.get('total_settings', {}).get('temperatures') == 'warm' else ('cold', 'warm')
     assert run['build_profile'] == 'optimized-release'
     assert run['cleanup']['mount_absent'] and all(run['cleanup'][c] for c in run['containers'])
     cells = [read(root / c['label'] / 'result.json') for c in run['cells']]
@@ -30,15 +33,29 @@ def summarize(root):
         group = [c for c in cells if c['scenario'] == scenario]
         pairs = sorted({c['pair'] for c in group})
         assert len(pairs) >= 3 and pairs == list(range(1, len(pairs) + 1))
-        assert len(group) == 4 * len(pairs)
+        assert len(group) == len(temperatures_used) * len(arm_names) * len(pairs)
         for key in ('expected_sha256', 'manifest_key', 'cache_config'):
             assert len({json.dumps(c[key], sort_keys=True) for c in group}) == 1, key
         for pair in pairs:
             arms = ('production', 'packed-direct') if pair % 2 else ('packed-direct', 'production')
+            if versioned:
+                from itertools import permutations
+                arms = list(permutations(arm_names))[(pair - 1) % 6]
             temperatures = ('cold', 'warm') if pair % 2 else ('warm', 'cold')
+            if temperatures_used == ('warm',):
+                temperatures = ('warm',)
             assert [(c['arm'], c['cache_temperature']) for c in group if c['pair'] == pair] == [(a, t) for t in temperatures for a in arms]
         for cell in group:
             c = cell
+            if versioned:
+                expected_binary = run['candidate_binary_sha256'] if c['arm'] == 'candidate' else run['binary_sha256']
+                assert c['binary_sha256'] == expected_binary
+            if run.get('detail_runner', {}).get('effective_kernel_ttl') == 'zero-checked':
+                assert c['effective_kernel_ttl_checked_zero']
+                for phase in ('before', 'first', 'after'):
+                    stats = dict(line.split() for line in (root / c['label'] / (phase + '.stats')).read_text().splitlines()
+                                 if line.startswith(('brewfs_fuse_attr_valid_ns ', 'brewfs_fuse_entry_valid_ns ')))
+                    assert stats == {'brewfs_fuse_attr_valid_ns': '0', 'brewfs_fuse_entry_valid_ns': '0'}
             proof = read(root / c['label'] / 'remount-proof.json')
             assert proof['clean_unmount'] and proof['measured_cache_absent_before_mount']
             assert proof['preparation_cache'] != proof['measured_cache']
@@ -61,9 +78,9 @@ def summarize(root):
                     assert all(v.get('calls', 0) == 0 for k, v in c[stage].items() if k != 'info')
             else:
                 assert c['mount_format'] == 'workspace' and proof['same_workspace']
-        for temperature in ('cold', 'warm'):
+        for temperature in temperatures_used:
             by_arm = {}
-            for arm in ('production', 'packed-direct'):
+            for arm in arm_names:
                 values = [c for c in group if c['arm'] == arm and c['cache_temperature'] == temperature]
                 assert [c['pair'] for c in values] == pairs
                 first = [c['first_round']['round_elapsed_ns'] / 1e6 for c in values]
@@ -89,6 +106,15 @@ def summarize(root):
                     extra_pct=100 * (median(by_arm['production'][measure]) / median(by_arm['packed-direct'][measure]) - 1),
                     paired_extra_pct=[100 * (a / b - 1) for a, b in zip(by_arm['production'][measure], by_arm['packed-direct'][measure])])
                 for measure in ('first', 'steady', 'start_read')}))
+            if versioned:
+                differences[-1]['candidate_vs_baseline'] = {
+                    measure: dict(delta_ms=median(by_arm['candidate'][measure]) - median(by_arm['production'][measure]),
+                        reduction_pct=100 * (1 - median(by_arm['candidate'][measure]) / median(by_arm['production'][measure])),
+                        paired_reduction_pct=[100 * (1 - a / b) for a, b in zip(by_arm['candidate'][measure], by_arm['production'][measure])])
+                    for measure in ('first', 'steady', 'start_read')}
+                differences[-1]['candidate_vs_direct'] = {
+                    measure: dict(extra_pct=100 * (median(by_arm['candidate'][measure]) / median(by_arm['packed-direct'][measure]) - 1))
+                    for measure in ('first', 'steady', 'start_read')}
     return dict(passed=True, cells=len(cells), object_meter=run['object_meter'], rows=rows, differences=differences,
                 source_commit=run['source_commit'], source_patch_sha256=run['source_patch_sha256'],
                 binary_sha256=run['binary_sha256'], harness_sha256=run['harness_sha256'], scope=run['comparison'])

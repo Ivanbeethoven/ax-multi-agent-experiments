@@ -1,5 +1,12 @@
 # A355：完整 Overlay 读取路径对比直接 Packed 读取
 
+> **2026-11-13 更正：下表不能作为内核缓存相同条件下的 Overlay 开销。**
+> 后续拆分发现：虽然两边 JSON 都写了 TTL=0，独立 Packed 实际返回 1 秒，Workspace 返回 0；
+> 原始 `after.stats` 中 `brewfs_fuse_attr_valid_ns` / `brewfs_fuse_entry_valid_ns` 已能证明这一点。
+> 原因是只读路径读取 `BREWFS_CACHE_TTL_MS`，默认 1000 ms，并未采用这项挂载配置。
+> 下方历史数字、原始包和回执保留。实际 TTL 对齐后的测量与代码优化见
+> [打开关闭路径诊断](../overlay-open-a355-20261113/README.zh.md)。修正对照条件不算代码提速。
+
 目标：读取同一个不可变 Packed 快照，测量增加完整 Workspace Overlay 后的耗时。
 本轮使用现有 A355，Redis/RustFS 在本机回环地址运行；没有新建云资源。
 

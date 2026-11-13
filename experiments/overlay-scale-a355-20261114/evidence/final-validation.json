@@ -1,0 +1,90 @@
+{
+  "read_measurements_passed": 54,
+  "all_original_summary_values_unchanged": true,
+  "full_source_files_verified": 2015,
+  "sqlite_tests_executed": false,
+  "complete_acceptance": false,
+  "blockers": [
+    "Concurrent replace/open returned ENOENT on baseline and candidate",
+    "Prepared-file fio randrw returned EIO on baseline and candidate; debug logs show workspace is busy"
+  ],
+  "runs": [
+    {
+      "path": "measure-01/small/run.json",
+      "passed": false,
+      "cells": 2,
+      "cleanup_complete": true,
+      "error": "AssertionError: standalone snapshot accessed Redis"
+    },
+    {
+      "path": "measure-02/large16/run.json",
+      "passed": true,
+      "cells": 9,
+      "cleanup_complete": true,
+      "error": null
+    },
+    {
+      "path": "measure-02/small/run.json",
+      "passed": true,
+      "cells": 36,
+      "cleanup_complete": true,
+      "error": null
+    },
+    {
+      "path": "measure-02/large64/run.json",
+      "passed": true,
+      "cells": 9,
+      "cleanup_complete": true,
+      "error": null
+    },
+    {
+      "path": "mutations-01/run.json",
+      "passed": false,
+      "cells": 0,
+      "cleanup_complete": true,
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/tmp/brewfs-hot-local-qs6jtf8z/two-files-pair1-on/.ax-concurrent.bin'"
+    },
+    {
+      "path": "mutations-baseline-01/run.json",
+      "passed": false,
+      "cells": 1,
+      "cleanup_complete": true,
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/tmp/brewfs-hot-local-qer6dv8j/two-files-pair2-on/.ax-concurrent.bin'"
+    },
+    {
+      "path": "mutations-chmod-01/run.json",
+      "passed": true,
+      "cells": 6,
+      "cleanup_complete": true,
+      "error": null
+    },
+    {
+      "path": "fio-prepared-01/pair1-baseline/run.json",
+      "passed": false,
+      "cells": 0,
+      "cleanup_complete": true,
+      "error": "AssertionError: fio: io_u error on file /tmp/brewfs-hot-local-br65qf4x/two-files-pair1-on/.ax-randrw-guard.bin: Input/output error: read offset=15466496, buflen=4096\n"
+    },
+    {
+      "path": "fio-prepared-candidate-01/run.json",
+      "passed": false,
+      "cells": 0,
+      "cleanup_complete": true,
+      "error": "AssertionError: fio: io_u error on file /tmp/brewfs-hot-local-_88b8ta4/two-files-pair1-on/.ax-randrw-guard.bin: Input/output error: read offset=618496, buflen=4096\n"
+    },
+    {
+      "path": "fio-debug-baseline-01/run.json",
+      "passed": false,
+      "cells": 0,
+      "cleanup_complete": true,
+      "error": "AssertionError: fio: io_u error on file /tmp/brewfs-hot-local-r34om5i5/two-files-pair1-on/.ax-randrw-guard.bin: Input/output error: read offset=13033472, buflen=4096\n"
+    },
+    {
+      "path": "fio-debug-candidate-01/run.json",
+      "passed": false,
+      "cells": 0,
+      "cleanup_complete": true,
+      "error": "AssertionError: fio: io_u error on file /tmp/brewfs-hot-local-7arce7z6/two-files-pair1-on/.ax-randrw-guard.bin: Input/output error: read offset=6725632, buflen=4096\n"
+    }
+  ]
+}
