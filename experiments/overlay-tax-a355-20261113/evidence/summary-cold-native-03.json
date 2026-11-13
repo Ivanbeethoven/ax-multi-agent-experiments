@@ -1,0 +1,421 @@
+{
+  "passed": true,
+  "object_meter": "proxy",
+  "source_commit": "03c8cc55d61473533c00a8afe13b4ef1fcd9b725",
+  "binary_sha256": "4c354ad2abc27fe4b9da509e92a246d0cc120183ee45f6046d61826d6ff115d0",
+  "cells": 48,
+  "rows": [
+    {
+      "scenario": "small-files-32",
+      "arm": "production",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "files": 32,
+      "first_round_ms": 144.622519,
+      "first_round_runs_ms": [
+        144.622519,
+        144.918226,
+        141.884496
+      ],
+      "mount_ms": 101.885702,
+      "warmup_ms": 0.201874,
+      "steady_ms_per_round": 42.978424,
+      "first_read_requests": 16.0,
+      "first_gets": 8,
+      "first_download_bytes": 172153.0,
+      "mount_gets": 3,
+      "first_redis_commands": 183.0,
+      "first_pread_total_ms": 44.148405,
+      "first_open_list_ms": 37.183146
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "production",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "files": 32,
+      "first_round_ms": 47.576263,
+      "first_round_runs_ms": [
+        42.021311,
+        47.576263,
+        48.246044
+      ],
+      "mount_ms": 101.870885,
+      "warmup_ms": 289.902065,
+      "steady_ms_per_round": 45.922469,
+      "first_read_requests": 0.0,
+      "first_gets": 0,
+      "first_download_bytes": 0.0,
+      "mount_gets": 3,
+      "first_redis_commands": 16.0,
+      "first_pread_total_ms": 8.487386,
+      "first_open_list_ms": 3.391554
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "overlay-read",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "files": 32,
+      "first_round_ms": 140.359049,
+      "first_round_runs_ms": [
+        136.777192,
+        156.758665,
+        140.359049
+      ],
+      "mount_ms": 101.854174,
+      "warmup_ms": 0.184782,
+      "steady_ms_per_round": 42.450256,
+      "first_read_requests": 16.0,
+      "first_gets": 8,
+      "first_download_bytes": 172153.0,
+      "mount_gets": 3,
+      "first_redis_commands": 183.0,
+      "first_pread_total_ms": 42.716308,
+      "first_open_list_ms": 37.435694
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "overlay-read",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "files": 32,
+      "first_round_ms": 41.982979,
+      "first_round_runs_ms": [
+        43.917394,
+        41.982979,
+        35.472597
+      ],
+      "mount_ms": 101.905729,
+      "warmup_ms": 287.199127,
+      "steady_ms_per_round": 43.107433,
+      "first_read_requests": 0.0,
+      "first_gets": 0,
+      "first_download_bytes": 0.0,
+      "mount_gets": 3,
+      "first_redis_commands": 16.0,
+      "first_pread_total_ms": 7.85829,
+      "first_open_list_ms": 3.264078
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "lower-read",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "files": 32,
+      "first_round_ms": 119.459986,
+      "first_round_runs_ms": [
+        119.459986,
+        120.610026,
+        117.313758
+      ],
+      "mount_ms": 101.84141,
+      "warmup_ms": 0.183259,
+      "steady_ms_per_round": 43.044436,
+      "first_read_requests": 16.0,
+      "first_gets": 8,
+      "first_download_bytes": 172153.0,
+      "mount_gets": 3,
+      "first_redis_commands": 81.0,
+      "first_pread_total_ms": 36.790668,
+      "first_open_list_ms": 29.876437
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "lower-read",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "files": 32,
+      "first_round_ms": 43.147487,
+      "first_round_runs_ms": [
+        42.449424,
+        43.821336,
+        43.147487
+      ],
+      "mount_ms": 101.907202,
+      "warmup_ms": 279.061829,
+      "steady_ms_per_round": 43.534584,
+      "first_read_requests": 0.0,
+      "first_gets": 0,
+      "first_download_bytes": 0.0,
+      "mount_gets": 3,
+      "first_redis_commands": 16.0,
+      "first_pread_total_ms": 7.997811,
+      "first_open_list_ms": 3.212573
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "native-overlay",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "files": 32,
+      "first_round_ms": 206.111811,
+      "first_round_runs_ms": [
+        203.841374,
+        207.553242,
+        206.111811
+      ],
+      "mount_ms": 101.893627,
+      "warmup_ms": 0.182418,
+      "steady_ms_per_round": 40.745026,
+      "first_read_requests": 32.0,
+      "first_gets": 32,
+      "first_download_bytes": 123085.0,
+      "mount_gets": 0,
+      "first_redis_commands": 969.0,
+      "first_pread_total_ms": 132.369445,
+      "first_open_list_ms": 11.243743
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "native-overlay",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "files": 32,
+      "first_round_ms": 38.024996,
+      "first_round_runs_ms": [
+        38.024996,
+        41.150618,
+        37.146418
+      ],
+      "mount_ms": 101.839607,
+      "warmup_ms": 341.810705,
+      "steady_ms_per_round": 39.359628,
+      "first_read_requests": 0.0,
+      "first_gets": 0,
+      "first_download_bytes": 0.0,
+      "mount_gets": 0,
+      "first_redis_commands": 198.0,
+      "first_pread_total_ms": 5.809716,
+      "first_open_list_ms": 5.29432
+    },
+    {
+      "scenario": "two-files",
+      "arm": "production",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "files": 2,
+      "first_round_ms": 59.911359,
+      "first_round_runs_ms": [
+        59.911359,
+        53.878801,
+        60.089799
+      ],
+      "mount_ms": 101.859343,
+      "warmup_ms": 0.18914,
+      "steady_ms_per_round": 7.453671,
+      "first_read_requests": 16.0,
+      "first_gets": 8,
+      "first_download_bytes": 35873.0,
+      "mount_gets": 3,
+      "first_redis_commands": 33.0,
+      "first_pread_total_ms": 21.826301,
+      "first_open_list_ms": 30.39045
+    },
+    {
+      "scenario": "two-files",
+      "arm": "production",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "files": 2,
+      "first_round_ms": 6.537653,
+      "first_round_runs_ms": [
+        6.085986,
+        7.035345,
+        6.537653
+      ],
+      "mount_ms": 101.890471,
+      "warmup_ms": 81.080773,
+      "steady_ms_per_round": 6.953163,
+      "first_read_requests": 0.0,
+      "first_gets": 0,
+      "first_download_bytes": 0.0,
+      "mount_gets": 3,
+      "first_redis_commands": 16.0,
+      "first_pread_total_ms": 0.666134,
+      "first_open_list_ms": 3.072092
+    },
+    {
+      "scenario": "two-files",
+      "arm": "overlay-read",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "files": 2,
+      "first_round_ms": 58.263075,
+      "first_round_runs_ms": [
+        56.39858,
+        58.263075,
+        62.169923
+      ],
+      "mount_ms": 101.830951,
+      "warmup_ms": 0.185133,
+      "steady_ms_per_round": 6.053796,
+      "first_read_requests": 16.0,
+      "first_gets": 8,
+      "first_download_bytes": 35873.0,
+      "mount_gets": 3,
+      "first_redis_commands": 33.0,
+      "first_pread_total_ms": 21.665603,
+      "first_open_list_ms": 30.021928
+    },
+    {
+      "scenario": "two-files",
+      "arm": "overlay-read",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "files": 2,
+      "first_round_ms": 6.230835,
+      "first_round_runs_ms": [
+        5.89903,
+        6.230835,
+        6.91334
+      ],
+      "mount_ms": 101.892715,
+      "warmup_ms": 75.488291,
+      "steady_ms_per_round": 6.561277,
+      "first_read_requests": 0.0,
+      "first_gets": 0,
+      "first_download_bytes": 0.0,
+      "mount_gets": 3,
+      "first_redis_commands": 16.0,
+      "first_pread_total_ms": 0.576699,
+      "first_open_list_ms": 2.776024
+    },
+    {
+      "scenario": "two-files",
+      "arm": "lower-read",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "files": 2,
+      "first_round_ms": 57.786802,
+      "first_round_runs_ms": [
+        57.80165,
+        57.786802,
+        57.016194
+      ],
+      "mount_ms": 101.657209,
+      "warmup_ms": 0.154536,
+      "steady_ms_per_round": 6.654861,
+      "first_read_requests": 16.0,
+      "first_gets": 8,
+      "first_download_bytes": 35873.0,
+      "mount_gets": 3,
+      "first_redis_commands": 21.0,
+      "first_pread_total_ms": 20.936623,
+      "first_open_list_ms": 30.688632
+    },
+    {
+      "scenario": "two-files",
+      "arm": "lower-read",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "files": 2,
+      "first_round_ms": 5.442674,
+      "first_round_runs_ms": [
+        6.067693,
+        5.442674,
+        5.241642
+      ],
+      "mount_ms": 101.807487,
+      "warmup_ms": 78.149512,
+      "steady_ms_per_round": 6.456092,
+      "first_read_requests": 0.0,
+      "first_gets": 0,
+      "first_download_bytes": 0.0,
+      "mount_gets": 3,
+      "first_redis_commands": 16.0,
+      "first_pread_total_ms": 0.565148,
+      "first_open_list_ms": 2.516282
+    },
+    {
+      "scenario": "two-files",
+      "arm": "native-overlay",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "files": 2,
+      "first_round_ms": 23.125418,
+      "first_round_runs_ms": [
+        25.32244,
+        23.125418,
+        23.017078
+      ],
+      "mount_ms": 101.831081,
+      "warmup_ms": 0.200952,
+      "steady_ms_per_round": 6.691879,
+      "first_read_requests": 2.0,
+      "first_gets": 2,
+      "first_download_bytes": 85.0,
+      "mount_gets": 0,
+      "first_redis_commands": 69.0,
+      "first_pread_total_ms": 13.628633,
+      "first_open_list_ms": 4.387199
+    },
+    {
+      "scenario": "two-files",
+      "arm": "native-overlay",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "files": 2,
+      "first_round_ms": 6.307287,
+      "first_round_runs_ms": [
+        6.243147,
+        6.307287,
+        6.971096
+      ],
+      "mount_ms": 101.882646,
+      "warmup_ms": 47.385369,
+      "steady_ms_per_round": 7.284447,
+      "first_read_requests": 0.0,
+      "first_gets": 0,
+      "first_download_bytes": 0.0,
+      "mount_gets": 0,
+      "first_redis_commands": 18.0,
+      "first_pread_total_ms": 0.548998,
+      "first_open_list_ms": 3.123046
+    }
+  ],
+  "empty_upper_comparisons": [
+    {
+      "scenario": "small-files-32",
+      "cache_temperature": "cold",
+      "first_round_empty_upper_extra_pct": 17.494613635732392,
+      "paired_first_round_extra_pct": [
+        14.496239770193853,
+        29.971504193192033,
+        19.644150347651458
+      ]
+    },
+    {
+      "scenario": "small-files-32",
+      "cache_temperature": "warm",
+      "first_round_empty_upper_extra_pct": -2.6989010970673633,
+      "paired_first_round_extra_pct": [
+        3.458162353392602,
+        -4.195118560511258,
+        -17.78757126689673
+      ]
+    },
+    {
+      "scenario": "two-files",
+      "cache_temperature": "cold",
+      "first_round_empty_upper_extra_pct": 0.8241899248897733,
+      "paired_first_round_extra_pct": [
+        -2.4273874534723516,
+        0.8241899248897733,
+        9.039061779535817
+      ]
+    },
+    {
+      "scenario": "two-files",
+      "cache_temperature": "warm",
+      "first_round_empty_upper_extra_pct": 14.481135559469482,
+      "paired_first_round_extra_pct": [
+        -2.779689084467518,
+        14.481135559469482,
+        31.89263974914731
+      ]
+    }
+  ],
+  "scope": "fresh remount and cache directory; first round vs subsequent reads; native-overlay is workspace without Packed lower, files in writable layer",
+  "cold_scope": "client process and client cache only; backend Redis/RustFS and host caches are not flushed"
+}
