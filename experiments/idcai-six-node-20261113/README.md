@@ -1,5 +1,7 @@
 # 六台 IDCAI：C1–C4 十万文件验收
 
+**开测前先落实 [RustFS 句柄上限配置与检查](../../infra/rustfs/NOFILE.zh.md)。C1 独立复现抓到了 `Too many open files`，四个 RustFS 容器的软上限均为 1024。本文档已补充要求；配置代码和调高后的复验尚未完成。**
+
 在现有两台客户端和四台存储机上运行。RustFS 四节点、每台一盘，Redis 自建；BrewFS 和 JuiceFS 顺序使用同一后端。C2 使用完整 `pytest-full-02`，C3/C4 派生各十万个 4 KiB 文件，迁移使用 894 项工作区。全程不调用模型。
 
 [下次运行的命令](NEXT-RUN.zh.md) · [问题、修复与验证](ISSUES.zh.md) · [本批配置](performance-100k-brewfs-8a215a6.json) · [脚本](scripts/)

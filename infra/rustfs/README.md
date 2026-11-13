@@ -1,5 +1,7 @@
 # RustFS 后端准备
 
+**开测前必读：[RustFS 文件句柄上限](NOFILE.zh.md)。本次 C1 已复现 `nofile=1024` 下的句柄耗尽和冷重挂失败。部署须显式设为 `1048576:1048576`，并逐台核实际进程；当前部署脚本尚未落实这项修正，不能只凭 health 检查放行。**
+
 阿里云、已有服务器和 SSH 容器使用同一套步骤。只跟随 [Ivanbeethoven/rustfs](https://github.com/Ivanbeethoven/rustfs) 的 `feat/dynamic-block-size-rebased` 分支最新代码。每批构建前同步；提交号和镜像 digest 记录本批实际产物，同批对照共用，下批重新同步。
 
 | 工具 | 职责 |
