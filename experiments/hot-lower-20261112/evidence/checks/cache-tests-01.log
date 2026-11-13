@@ -1,0 +1,32 @@
+2026-11-12T14:19:57+00:00
+ba638f7127a4fc282e5d7f2a4e1d2605246ed3ae02d80c5254e1c6260281ca04  /home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/brewfs-fb52a78de0c91dc1
++ /home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/brewfs-fb52a78de0c91dc1 workspace_overlay::meta_layer::row_cache:: --test-threads=2
+
+running 8 tests
+test workspace_overlay::meta_layer::row_cache::cancellation_tests::confirmed_commit_does_not_disable_unrelated_cached_rows ... ok
+test workspace_overlay::meta_layer::row_cache::cancellation_tests::canceling_the_await_disables_authority_even_with_a_live_lease ... ok
+test workspace_overlay::meta_layer::row_cache::cancellation_tests::negative_keys_separate_workspaces_leases_layer_versions_and_ranges ... ok
+test workspace_overlay::meta_layer::row_cache::cancellation_tests::negative_rows_cannot_survive_unrelated_mutation_or_cancelled_commit ... ok
+test workspace_overlay::meta_layer::row_cache::cancellation_tests::unresolved_commit_disables_both_caches_and_later_refills ... ok
+test workspace_overlay::meta_layer::row_cache::tests::key_invalidation_keeps_unrelated_rows_and_drops_racing_insert ... ok
+test workspace_overlay::meta_layer::row_cache::tests::racing_invalidation_drops_stale_insert ... ok
+test workspace_overlay::meta_layer::row_cache::cancellation_tests::negative_rows_share_the_existing_capacity_and_expire ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 3265 filtered out; finished in 0.29s
+
++ /home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/brewfs-fb52a78de0c91dc1 payload_retention::tests --test-threads=2
+
+running 1 test
+test workspace_overlay::packed_v3::wire005::payload_retention::tests::payload_byte_cap_eviction_and_epoch_do_not_serve_old_bytes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3272 filtered out; finished in 0.00s
+
++ /home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/brewfs-fb52a78de0c91dc1 retained_authenticated_inode_frame_needs_no_second_backend_get --test-threads=2
+
+running 1 test
+test workspace_overlay::packed_v3::wire005::metadata_cache_tests::retained_authenticated_inode_frame_needs_no_second_backend_get ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3272 filtered out; finished in 0.18s
+
++ date -u --iso-8601=seconds
+2026-11-12T14:19:59+00:00

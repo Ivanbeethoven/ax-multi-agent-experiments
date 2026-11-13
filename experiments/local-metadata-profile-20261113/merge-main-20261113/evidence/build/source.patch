@@ -1,0 +1,44 @@
+diff --git a/doc/operations/workspace-read-cache.md b/doc/operations/workspace-read-cache.md
+index 639d9aa..80c8915 100644
+--- a/doc/operations/workspace-read-cache.md
++++ b/doc/operations/workspace-read-cache.md
+@@ -5,7 +5,7 @@ Workspace mounts with a Packed lower enable these caches by default:
+ | Cache | Default limit | Control |
+ |---|---|---|
+ | Upper metadata rows, including empty extent/directory results | 64 MiB shared by upper and namespace caches; at most 65,536 entries per cache; 60-second TTL | `BREWFS_WORKSPACE_ROW_CACHE_BYTES`, `BREWFS_WORKSPACE_ROW_CACHE_TTL_MS`; `BREWFS_WORKSPACE_EMPTY_QUERY_CACHE=0` disables only empty-result caching |
+-| Authenticated lower payload frames | 8 MiB per mount, filled on demand | `BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES`; `0` disables retention; nonzero capacity must be 513 bytes–64 MiB |
++| Authenticated lower payload frames | 8 MiB per mount, filled on demand | `BREWFS_PACKED_RETAINED_PAYLOAD_BYTES`; `0` disables retention; nonzero capacity must be 513 bytes–64 MiB |
+ 
+ The 8 MiB default matches the local hot-lower validation and limits additional
+ memory per workspace. The charge includes decoded frame bytes and 512 bytes of
+@@ -17,7 +17,7 @@ No environment variables are required to enable these defaults. To give lower
+ frames 32 MiB on a larger workspace:
+ 
+ ```bash
+-export BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES=33554432
++export BREWFS_PACKED_RETAINED_PAYLOAD_BYTES=33554432
+ ```
+ 
+ Every newly fetched frame entering retention is authenticated, including after
+diff --git a/src/cli.rs b/src/cli.rs
+index 778a0d7..71470c6 100644
+--- a/src/cli.rs
++++ b/src/cli.rs
+@@ -2283,7 +2283,7 @@ fn workspace_packed_payload_cache_bytes(value: Option<&str>) -> anyhow::Result<u
+     let bytes = value.map(str::parse::<u64>).transpose()?.unwrap_or(8 << 20);
+     anyhow::ensure!(
+         bytes == 0 || (513..=64 << 20).contains(&bytes),
+-        "BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES must be 0 or 513 bytes through 64 MiB"
++        "BREWFS_PACKED_RETAINED_PAYLOAD_BYTES must be 0 or 513 bytes through 64 MiB"
+     );
+     Ok(bytes)
+ }
+@@ -2360,7 +2360,7 @@ where
+             .unwrap_or(256 << 20);
+         // Retain a small working set by default. The retaining reader hashes
+         // every fetched frame, independently of the verification memo switch.
+-        let retained_payload = match std::env::var("BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES") {
++        let retained_payload = match std::env::var("BREWFS_PACKED_RETAINED_PAYLOAD_BYTES") {
+             Ok(value) => workspace_packed_payload_cache_bytes(Some(&value))?,
+             Err(std::env::VarError::NotPresent) => workspace_packed_payload_cache_bytes(None)?,
+             Err(error) => return Err(error.into()),

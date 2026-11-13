@@ -1,0 +1,48 @@
+mount_point: /mnt/brewfs
+
+data:
+  backend: s3
+  s3:
+    bucket: hot-guard
+    region: us-east-1
+    part_size: 16777216
+    max_concurrency: 16
+    force_path_style: true
+    disable_payload_checksum: true
+    endpoint: http://rustfs:9000
+
+meta:
+  backend: redis
+  redis:
+    url: "redis://redis:6379/0"
+  open_file_cache_ttl_ms: 1000
+  open_file_cache_capacity: 65536
+
+layout:
+  chunk_size: 67108864
+  block_size: 4194304
+
+fuse:
+  cache_ttl_ms: 0
+  workers: 16
+  max_background: 512
+
+cache:
+  root: /var/lib/brewfs/cache
+  read_memory_bytes: 4294967296
+  read_ssd_bytes: 8589934592
+  write_memory_bytes: 4294967296
+  write_ssd_bytes: 4294967296
+  dirty_slice_target_size: 67108864
+  upload_concurrency: 32
+  prefetch_max_bytes: 1073741824
+  populate_write_cache_after_upload: true
+  persist_write_cache_after_upload: true
+  memory_budget_bytes: 12884901888
+  compression: none
+  verify_cache_checksum: full
+  writeback_persist_sync: false
+  writeback_require_stage_before_commit: false
+  writeback_recent_pending_soft_bytes: 2147483648
+  writeback_recent_pending_hard_bytes: 3221225472
+  writeback_mode: commit_before_upload

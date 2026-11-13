@@ -1,0 +1,859 @@
+{
+  "label": "two-files-pair3-on",
+  "cache_enabled": true,
+  "scenario": "two-files",
+  "pair": 3,
+  "elapsed_ns": 13275304,
+  "rustfs_before": {
+    "requests": 82,
+    "gets": 76,
+    "heads": 3,
+    "puts": 3,
+    "deletes": 0,
+    "received_bytes": 239863,
+    "sent_bytes": 0,
+    "errors": 0,
+    "inflight": 0
+  },
+  "rustfs_after": {
+    "requests": 82,
+    "gets": 76,
+    "heads": 3,
+    "puts": 3,
+    "deletes": 0,
+    "received_bytes": 239863,
+    "sent_bytes": 0,
+    "errors": 0,
+    "inflight": 0
+  },
+  "warm_s3": [
+    {
+      "requests": 0,
+      "gets": 0,
+      "heads": 0,
+      "puts": 0,
+      "deletes": 0,
+      "received_bytes": 0,
+      "sent_bytes": 0,
+      "errors": 0,
+      "inflight": 0
+    },
+    {
+      "requests": 0,
+      "gets": 0,
+      "heads": 0,
+      "puts": 0,
+      "deletes": 0,
+      "received_bytes": 0,
+      "sent_bytes": 0,
+      "errors": 0,
+      "inflight": 0
+    },
+    {
+      "requests": 0,
+      "gets": 0,
+      "heads": 0,
+      "puts": 0,
+      "deletes": 0,
+      "received_bytes": 0,
+      "sent_bytes": 0,
+      "errors": 0,
+      "inflight": 0
+    }
+  ],
+  "rustfs_delta": {
+    "requests": 0,
+    "gets": 0,
+    "heads": 0,
+    "puts": 0,
+    "deletes": 0,
+    "received_bytes": 0,
+    "sent_bytes": 0,
+    "errors": 0,
+    "inflight": 0
+  },
+  "stats_delta": {
+    "brewfs_uptime_seconds": 0.0,
+    "brewfs_fuse_read_ops_total": 8.0,
+    "brewfs_fuse_read_bytes_total": 308.0,
+    "brewfs_fuse_read_lat_us_total": 365.0,
+    "brewfs_fuse_write_ops_total": 0.0,
+    "brewfs_fuse_write_bytes_total": 0.0,
+    "brewfs_fuse_write_lat_us_total": 0.0,
+    "brewfs_fuse_lookup_ops_total": 20.0,
+    "brewfs_fuse_lookup_lat_us_total": 166.0,
+    "brewfs_fuse_getattr_ops_total": 52.0,
+    "brewfs_fuse_getattr_lat_us_total": 1088.0,
+    "brewfs_fuse_attr_valid_ns": 0.0,
+    "brewfs_fuse_entry_valid_ns": 0.0,
+    "brewfs_fuse_open_ops_total": 0.0,
+    "brewfs_fuse_create_ops_total": 0.0,
+    "brewfs_fuse_unlink_ops_total": 0.0,
+    "brewfs_fuse_readdir_ops_total": 0.0,
+    "brewfs_fuse_flush_ops_total": 0.0,
+    "brewfs_fuse_flush_lat_us_total": 0.0,
+    "brewfs_fuse_read_avg_lat_us": -4793.055556,
+    "brewfs_fuse_write_avg_lat_us": 0.0,
+    "brewfs_fuse_flush_avg_lat_us": 0.0,
+    "brewfs_meta_ops_total": 0.0,
+    "brewfs_meta_lat_us_total": 0.0,
+    "brewfs_meta_txn_ops_total": 0.0,
+    "brewfs_meta_txn_lat_us_total": 0.0,
+    "brewfs_vfs_create_total_ops_total": 0.0,
+    "brewfs_vfs_create_total_lat_us_total": 0.0,
+    "brewfs_vfs_create_meta_ops_total": 0.0,
+    "brewfs_vfs_create_meta_lat_us_total": 0.0,
+    "brewfs_vfs_unlink_total_ops_total": 0.0,
+    "brewfs_vfs_unlink_total_lat_us_total": 0.0,
+    "brewfs_vfs_unlink_lookup_ops_total": 0.0,
+    "brewfs_vfs_unlink_lookup_lat_us_total": 0.0,
+    "brewfs_vfs_unlink_stat_ops_total": 0.0,
+    "brewfs_vfs_unlink_stat_lat_us_total": 0.0,
+    "brewfs_vfs_unlink_meta_ops_total": 0.0,
+    "brewfs_vfs_unlink_meta_lat_us_total": 0.0,
+    "brewfs_vfs_unlink_recent_ops_total": 0.0,
+    "brewfs_vfs_unlink_recent_lat_us_total": 0.0,
+    "brewfs_vfs_setattr_recent_remove_ops_total": 0.0,
+    "brewfs_vfs_setattr_recent_remove_lat_us_total": 0.0,
+    "brewfs_vfs_setattr_recent_get_mut_ops_total": 0.0,
+    "brewfs_vfs_setattr_recent_get_mut_lat_us_total": 0.0,
+    "brewfs_vfs_read_dirty_probe_ops_total": 0.0,
+    "brewfs_vfs_read_dirty_probe_lat_us_total": 0.0,
+    "brewfs_vfs_read_handle_ops_total": 0.0,
+    "brewfs_vfs_read_handle_lat_us_total": 0.0,
+    "brewfs_vfs_read_overlay_ops_total": 0.0,
+    "brewfs_vfs_read_overlay_lat_us_total": 0.0,
+    "brewfs_s3_get_ops_total": 0.0,
+    "brewfs_s3_get_bytes_total": 0.0,
+    "brewfs_s3_get_lat_us_total": 0.0,
+    "brewfs_s3_put_ops_total": 0.0,
+    "brewfs_s3_put_bytes_total": 0.0,
+    "brewfs_s3_put_lat_us_total": 0.0,
+    "brewfs_s3_put_prepare_lat_us_total": 0.0,
+    "brewfs_s3_put_cache_lat_us_total": 0.0,
+    "brewfs_s3_del_ops_total": 0.0,
+    "brewfs_s3_get_avg_lat_us": 0.0,
+    "brewfs_s3_put_avg_lat_us": 0.0,
+    "brewfs_s3_put_prepare_avg_lat_us": 0.0,
+    "brewfs_s3_put_cache_avg_lat_us": 0.0,
+    "brewfs_buffer_dirty_bytes": 0.0,
+    "brewfs_buffer_read_bytes": 0.0,
+    "brewfs_memory_cas_retries_total": 0.0,
+    "brewfs_memory_allocation_rejections_total": 0.0,
+    "brewfs_writeback_dirty_bytes": 0.0,
+    "brewfs_writeback_live_dirty_bytes": 0.0,
+    "brewfs_writeback_live_slices": 0.0,
+    "brewfs_writeback_live_normal_only_bytes": 0.0,
+    "brewfs_writeback_live_normal_only_slices": 0.0,
+    "brewfs_writeback_live_cached_only_bytes": 0.0,
+    "brewfs_writeback_live_cached_only_slices": 0.0,
+    "brewfs_writeback_live_mixed_origin_bytes": 0.0,
+    "brewfs_writeback_live_mixed_origin_slices": 0.0,
+    "brewfs_writeback_live_unknown_origin_bytes": 0.0,
+    "brewfs_writeback_live_unknown_origin_slices": 0.0,
+    "brewfs_writeback_recent_pending_upload_bytes": 0.0,
+    "brewfs_writeback_recent_pending_upload_slices": 0.0,
+    "brewfs_writeback_recent_uploaded_bytes": 0.0,
+    "brewfs_writeback_recent_uploaded_slices": 0.0,
+    "brewfs_writeback_backpressure_soft_sleep_ops": 0.0,
+    "brewfs_writeback_backpressure_soft_sleep_us": 0.0,
+    "brewfs_writeback_backpressure_hard_wait_ops": 0.0,
+    "brewfs_writeback_backpressure_hard_wait_us": 0.0,
+    "brewfs_writeback_buffer_soft_sleep_ops": 0.0,
+    "brewfs_writeback_buffer_soft_sleep_us": 0.0,
+    "brewfs_writeback_buffer_moderate_sleep_ops": 0.0,
+    "brewfs_writeback_buffer_moderate_sleep_us": 0.0,
+    "brewfs_writeback_buffer_hard_sleep_ops": 0.0,
+    "brewfs_writeback_buffer_hard_sleep_us": 0.0,
+    "brewfs_writeback_stage_inflight_bytes": 0.0,
+    "brewfs_writeback_remote_upload_inflight_bytes": 0.0,
+    "brewfs_writeback_metadata_inflight": 0.0,
+    "brewfs_writeback_stage_ops_total": 0.0,
+    "brewfs_writeback_stage_bytes_total": 0.0,
+    "brewfs_writeback_stage_lat_us_total": 0.0,
+    "brewfs_writeback_stage_failures_total": 0.0,
+    "brewfs_writeback_commit_before_stage_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_size_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_size_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_max_unflushed_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_max_unflushed_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_explicit_flush_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_explicit_flush_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_auto_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_auto_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_commit_age_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_commit_age_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_unknown_reason_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_unknown_reason_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_normal_only_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_normal_only_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_mixed_origin_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_mixed_origin_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_unknown_origin_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_unknown_origin_us_total": 0.0,
+    "brewfs_writeback_commit_wait_retry_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_retry_us_total": 0.0,
+    "brewfs_writeback_flush_wait_ops_total": 0.0,
+    "brewfs_writeback_flush_wait_us_total": 0.0,
+    "brewfs_writeback_flush_wait_slices_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_ops_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_slices_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_bytes_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_full_block_slices_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_full_block_bytes_total": 0.0,
+    "brewfs_writeback_slice_create_ops_total": 0.0,
+    "brewfs_writeback_slice_reuse_ops_total": 0.0,
+    "brewfs_writeback_slice_reject_older_unique_ops_total": 0.0,
+    "brewfs_writeback_slice_reject_dispatched_prefix_ops_total": 0.0,
+    "brewfs_writeback_freeze_size_ops_total": 0.0,
+    "brewfs_writeback_freeze_size_bytes_total": 0.0,
+    "brewfs_writeback_freeze_max_unflushed_ops_total": 0.0,
+    "brewfs_writeback_freeze_max_unflushed_bytes_total": 0.0,
+    "brewfs_writeback_freeze_explicit_flush_ops_total": 0.0,
+    "brewfs_writeback_freeze_explicit_flush_bytes_total": 0.0,
+    "brewfs_writeback_freeze_auto_ops_total": 0.0,
+    "brewfs_writeback_freeze_auto_bytes_total": 0.0,
+    "brewfs_writeback_freeze_commit_age_ops_total": 0.0,
+    "brewfs_writeback_freeze_commit_age_bytes_total": 0.0,
+    "brewfs_writeback_upload_batch_ops_total": 0.0,
+    "brewfs_writeback_upload_batch_bytes_total": 0.0,
+    "brewfs_writeback_upload_batch_blocks_total": 0.0,
+    "brewfs_writeback_upload_batch_single_block_ops_total": 0.0,
+    "brewfs_writeback_upload_batch_multi_block_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_size_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_max_unflushed_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_explicit_flush_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_normal_only_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_mixed_origin_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_unknown_origin_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_age_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_idle_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_pressure_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_too_many_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_buffer_high_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_flush_duration_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_unknown_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_normal_only_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_mixed_origin_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_unknown_origin_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_commit_age_ops_total": 0.0,
+    "brewfs_reader_buffer_bytes": 0.0,
+    "brewfs_cache_hits_total": 0.0,
+    "brewfs_cache_misses_total": 0.0,
+    "brewfs_cache_requests_total": 0.0,
+    "brewfs_cache_hit_ratio": 0.0,
+    "brewfs_read_block_cache_hits_total": 0.0,
+    "brewfs_read_page_cache_hits_total": 0.0,
+    "brewfs_read_page_cache_misses_total": 0.0,
+    "brewfs_read_range_gets_total": 0.0,
+    "brewfs_read_full_gets_total": 0.0,
+    "brewfs_read_piggyback_full_total": 0.0,
+    "brewfs_read_background_prefetch_total": 0.0,
+    "brewfs_read_background_prefetch_dropped_total": 0.0,
+    "brewfs_read_background_prefetch_suppressed_total": 0.0,
+    "brewfs_meta_stat_cache_hit_total": 0.0,
+    "brewfs_meta_stat_cache_miss_total": 0.0,
+    "brewfs_meta_stat_fresh_store_hit_total": 0.0,
+    "brewfs_meta_lookup_cache_hit_total": 0.0,
+    "brewfs_meta_lookup_cache_miss_total": 0.0,
+    "brewfs_meta_get_slices_cache_hit_total": 0.0,
+    "brewfs_meta_get_slices_cache_miss_total": 0.0,
+    "brewfs_meta_open_fresh_stat_total": 0.0,
+    "brewfs_meta_open_file_cache_hit_total": 0.0,
+    "brewfs_meta_open_file_cache_miss_total": 0.0,
+    "brewfs_meta_lookup_attr_fused_hit_total": 0.0,
+    "brewfs_meta_lookup_attr_fused_miss_total": 0.0,
+    "brewfs_meta_lookup_attr_fused_error_total": 0.0,
+    "brewfs_request_observation_enabled": 0.0,
+    "brewfs_request_observation_sample_rate": 0.0,
+    "brewfs_request_observation_received_total": 0.0,
+    "brewfs_request_observation_sampled_total": 0.0,
+    "brewfs_request_observation_closed_total": 0.0,
+    "brewfs_request_observation_cancelled_total": 0.0,
+    "brewfs_request_observation_errors_total": 0.0,
+    "brewfs_request_observation_dropped_total": 0.0,
+    "brewfs_request_observation_active": 0.0,
+    "brewfs_request_observation_closure_gap_ns_total": 0.0,
+    "brewfs_request_observation_closure_gap_ns_max": 0.0,
+    "brewfs_request_fuse_queue_depth": 0.0,
+    "brewfs_request_fuse_queue_oldest_age_ns": 0.0,
+    "brewfs_request_fuse_queue_wait_ns_count": 0.0,
+    "brewfs_request_fuse_queue_wait_ns_sum": 0.0,
+    "brewfs_request_fuse_queue_wait_queue_depth": 0.0,
+    "brewfs_request_fuse_queue_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_file_lock_wait_ns_count": 0.0,
+    "brewfs_request_file_lock_wait_ns_sum": 0.0,
+    "brewfs_request_file_lock_wait_queue_depth": 0.0,
+    "brewfs_request_file_lock_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_chunk_lock_wait_ns_count": 0.0,
+    "brewfs_request_chunk_lock_wait_ns_sum": 0.0,
+    "brewfs_request_chunk_lock_wait_queue_depth": 0.0,
+    "brewfs_request_chunk_lock_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_dirty_merge_ns_count": 0.0,
+    "brewfs_request_dirty_merge_ns_sum": 0.0,
+    "brewfs_request_dirty_merge_queue_depth": 0.0,
+    "brewfs_request_dirty_merge_queue_oldest_age_ns": 0.0,
+    "brewfs_request_flush_wait_ns_count": 0.0,
+    "brewfs_request_flush_wait_ns_sum": 0.0,
+    "brewfs_request_flush_wait_queue_depth": 0.0,
+    "brewfs_request_flush_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_metadata_rpc_wait_ns_count": 0.0,
+    "brewfs_request_metadata_rpc_wait_ns_sum": 0.0,
+    "brewfs_request_metadata_rpc_wait_queue_depth": 0.0,
+    "brewfs_request_metadata_rpc_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_metadata_commit_ns_count": 0.0,
+    "brewfs_request_metadata_commit_ns_sum": 0.0,
+    "brewfs_request_metadata_commit_queue_depth": 0.0,
+    "brewfs_request_metadata_commit_queue_oldest_age_ns": 0.0,
+    "brewfs_request_object_put_queue_wait_ns_count": 0.0,
+    "brewfs_request_object_put_queue_wait_ns_sum": 0.0,
+    "brewfs_request_object_put_queue_wait_queue_depth": 0.0,
+    "brewfs_request_object_put_queue_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_object_put_ns_count": 0.0,
+    "brewfs_request_object_put_ns_sum": 0.0,
+    "brewfs_request_object_put_queue_depth": 0.0,
+    "brewfs_request_object_put_queue_oldest_age_ns": 0.0,
+    "brewfs_request_reply_ns_count": 0.0,
+    "brewfs_request_reply_ns_sum": 0.0,
+    "brewfs_request_reply_queue_depth": 0.0,
+    "brewfs_request_reply_queue_oldest_age_ns": 0.0,
+    "brewfs_request_handler_ns_count": 0.0,
+    "brewfs_request_handler_ns_sum": 0.0,
+    "brewfs_request_handler_queue_depth": 0.0,
+    "brewfs_request_handler_queue_oldest_age_ns": 0.0,
+    "brewfs_request_handler_poll_ns_count": 0.0,
+    "brewfs_request_handler_poll_ns_sum": 0.0,
+    "brewfs_request_handler_poll_queue_depth": 0.0,
+    "brewfs_request_handler_poll_queue_oldest_age_ns": 0.0,
+    "brewfs_request_operation_read_ns_count": 0.0,
+    "brewfs_request_operation_read_ns_sum": 0.0,
+    "brewfs_request_operation_write_ns_count": 0.0,
+    "brewfs_request_operation_write_ns_sum": 0.0,
+    "brewfs_request_operation_close_ns_count": 0.0,
+    "brewfs_request_operation_close_ns_sum": 0.0,
+    "brewfs_request_operation_fsync_ns_count": 0.0,
+    "brewfs_request_operation_fsync_ns_sum": 0.0,
+    "brewfs_request_operation_metadata_ns_count": 0.0,
+    "brewfs_request_operation_metadata_ns_sum": 0.0,
+    "brewfs_request_trace_records_dropped_total": 0.0,
+    "brewfs_workspace_row_cache_hits_total": 211.0,
+    "brewfs_workspace_row_cache_misses_total": 0.0,
+    "brewfs_workspace_row_cache_hit_ratio": 0.025388000000000077,
+    "brewfs_workspace_upper_extent_queries_total": 0.0,
+    "brewfs_workspace_upper_extent_empty_cache_hits_total": 8.0,
+    "brewfs_workspace_upper_directory_queries_total": 0.0,
+    "brewfs_workspace_upper_directory_empty_cache_hits_total": 8.0,
+    "brewfs_packed_v3_runtime_backend_range_gets_total": 0.0,
+    "brewfs_packed_v3_runtime_backend_requested_bytes_total": 0.0,
+    "brewfs_packed_v3_runtime_backend_received_bytes_total": 0.0,
+    "brewfs_packed_v3_runtime_backend_failures_total": 0.0,
+    "brewfs_packed_v3_logical_bytes_total": 308.0,
+    "brewfs_packed_v3_budget_roots_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_roots_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_roots_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_metadata_owned_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_metadata_owned_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_metadata_owned_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_plans_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_plans_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_plans_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_control_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_control_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_control_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_stored_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_stored_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_stored_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_raw_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_raw_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_raw_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_decode_workspace_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_decode_workspace_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_decode_workspace_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_output_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_output_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_output_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_rejections_total": 0.0,
+    "brewfs_packed_v3_budget_closed": 0.0,
+    "brewfs_packed_v3_index_cache_configured_bytes": 0.0,
+    "brewfs_packed_v3_index_cache_retained_weighted_bytes": 838.0,
+    "brewfs_packed_v3_index_cache_retained_pages": 1.0,
+    "brewfs_packed_v3_index_cache_owned_bytes": 0.0,
+    "brewfs_packed_v3_index_cache_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_payload_retention_capacity_bytes": 0.0,
+    "brewfs_packed_v3_payload_retention_resident_charge_bytes": 0.0,
+    "brewfs_packed_v3_payload_retention_entries": 0.0,
+    "brewfs_packed_v3_payload_retention_hits_total": 8.0,
+    "brewfs_packed_v3_payload_retention_misses_total": 0.0,
+    "brewfs_packed_v3_payload_retention_evictions_total": 0.0,
+    "brewfs_object_read_counters_valid": 0.0,
+    "brewfs_object_read_http_attempts_observed": 0.0,
+    "brewfs_object_read_http_body_bytes_observed": 0.0,
+    "brewfs_object_read_raw_union_observed": 0.0
+  },
+  "redis_before": {
+    "mget": {
+      "calls": 513.0,
+      "usec": 1030.0,
+      "usec_per_call": 2.01,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "time": {
+      "calls": 1115.0,
+      "usec": 669.0,
+      "usec_per_call": 0.6,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exists": {
+      "calls": 2.0,
+      "usec": 1.0,
+      "usec_per_call": 0.5,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "scan": {
+      "calls": 3.0,
+      "usec": 27.0,
+      "usec_per_call": 9.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "strlen": {
+      "calls": 2215.0,
+      "usec": 952.0,
+      "usec_per_call": 0.43,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "type": {
+      "calls": 758.0,
+      "usec": 282.0,
+      "usec_per_call": 0.37,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exec": {
+      "calls": 491.0,
+      "usec": 1618.0,
+      "usec_per_call": 3.3,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "set": {
+      "calls": 231.0,
+      "usec": 164.0,
+      "usec_per_call": 0.71,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "del": {
+      "calls": 11.0,
+      "usec": 7.0,
+      "usec_per_call": 0.64,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "info": {
+      "calls": 8.0,
+      "usec": 470.0,
+      "usec_per_call": 58.75,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "ping": {
+      "calls": 1.0,
+      "usec": 2.0,
+      "usec_per_call": 2.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "multi": {
+      "calls": 491.0,
+      "usec": 220.0,
+      "usec_per_call": 0.45,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zrem": {
+      "calls": 11.0,
+      "usec": 18.0,
+      "usec_per_call": 1.64,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zadd": {
+      "calls": 228.0,
+      "usec": 223.0,
+      "usec_per_call": 0.98,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "evalsha": {
+      "calls": 658.0,
+      "usec": 17938.0,
+      "usec_per_call": 27.26,
+      "rejected_calls": 0.0,
+      "failed_calls": 3.0
+    },
+    "zrangebylex": {
+      "calls": 41.0,
+      "usec": 184.0,
+      "usec_per_call": 4.49,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "get": {
+      "calls": 2920.0,
+      "usec": 850.0,
+      "usec_per_call": 0.29,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "client|setinfo": {
+      "calls": 16.0,
+      "usec": 19.0,
+      "usec_per_call": 1.19,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "script|load": {
+      "calls": 3.0,
+      "usec": 327.0,
+      "usec_per_call": 109.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    }
+  },
+  "redis_after": {
+    "mget": {
+      "calls": 521.0,
+      "usec": 1045.0,
+      "usec_per_call": 2.01,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "time": {
+      "calls": 1131.0,
+      "usec": 680.0,
+      "usec_per_call": 0.6,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exists": {
+      "calls": 2.0,
+      "usec": 1.0,
+      "usec_per_call": 0.5,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "scan": {
+      "calls": 3.0,
+      "usec": 27.0,
+      "usec_per_call": 9.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "strlen": {
+      "calls": 2223.0,
+      "usec": 961.0,
+      "usec_per_call": 0.43,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "type": {
+      "calls": 758.0,
+      "usec": 282.0,
+      "usec_per_call": 0.37,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exec": {
+      "calls": 499.0,
+      "usec": 1643.0,
+      "usec_per_call": 3.29,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "set": {
+      "calls": 231.0,
+      "usec": 164.0,
+      "usec_per_call": 0.71,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "del": {
+      "calls": 11.0,
+      "usec": 7.0,
+      "usec_per_call": 0.64,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "info": {
+      "calls": 9.0,
+      "usec": 532.0,
+      "usec_per_call": 59.11,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "ping": {
+      "calls": 1.0,
+      "usec": 2.0,
+      "usec_per_call": 2.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "multi": {
+      "calls": 499.0,
+      "usec": 226.0,
+      "usec_per_call": 0.45,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zrem": {
+      "calls": 11.0,
+      "usec": 18.0,
+      "usec_per_call": 1.64,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zadd": {
+      "calls": 228.0,
+      "usec": 223.0,
+      "usec_per_call": 0.98,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "evalsha": {
+      "calls": 666.0,
+      "usec": 18085.0,
+      "usec_per_call": 27.15,
+      "rejected_calls": 0.0,
+      "failed_calls": 3.0
+    },
+    "zrangebylex": {
+      "calls": 41.0,
+      "usec": 184.0,
+      "usec_per_call": 4.49,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "get": {
+      "calls": 2928.0,
+      "usec": 852.0,
+      "usec_per_call": 0.29,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "client|setinfo": {
+      "calls": 16.0,
+      "usec": 19.0,
+      "usec_per_call": 1.19,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "script|load": {
+      "calls": 3.0,
+      "usec": 327.0,
+      "usec_per_call": 109.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    }
+  },
+  "redis_delta": {
+    "mget": {
+      "calls": 8.0,
+      "usec": 15.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "time": {
+      "calls": 16.0,
+      "usec": 11.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exists": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "scan": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "strlen": {
+      "calls": 8.0,
+      "usec": 9.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "type": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exec": {
+      "calls": 8.0,
+      "usec": 25.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "set": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "del": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "info": {
+      "calls": 1.0,
+      "usec": 62.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "ping": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "multi": {
+      "calls": 8.0,
+      "usec": 6.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zrem": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zadd": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "evalsha": {
+      "calls": 8.0,
+      "usec": 147.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zrangebylex": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "get": {
+      "calls": 8.0,
+      "usec": 2.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "client|setinfo": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "script|load": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    }
+  },
+  "expected_sha256": {
+    "a.txt": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9",
+    "sub/b.txt": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108"
+  },
+  "samples": [
+    {
+      "open_and_list_ns": 2253478,
+      "lookup_and_stat_ns": 265896,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 129498,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 105346,
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 1737012,
+      "lookup_and_stat_ns": 208521,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 103435,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 100655,
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 1622327,
+      "lookup_and_stat_ns": 219569,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 97208,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 94636,
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 1551044,
+      "lookup_and_stat_ns": 220334,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 89897,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 109329,
+          "bytes": 64
+        }
+      ]
+    }
+  ]
+}

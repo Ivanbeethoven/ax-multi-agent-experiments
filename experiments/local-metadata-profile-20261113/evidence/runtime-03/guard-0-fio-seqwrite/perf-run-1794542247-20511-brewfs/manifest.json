@@ -1,0 +1,95 @@
+{
+  "comparability": {
+    "cache_preparation": {
+      "PERF_FIO_COLD_READ": "false",
+      "PERF_FIO_COLD_READ_CLEAR_CACHE": "false",
+      "PERF_FIO_COLD_READ_DROP_CACHES": "0",
+      "PERF_FIO_DROP_CACHES": "0",
+      "PERF_FIO_PREFILL_DRAIN": "true",
+      "PERF_FIO_PREFILL_REMOUNT": "true"
+    },
+    "completion": {
+      "PERF_FIO_POST_WRITE_DRAIN": "true",
+      "PERF_METADATA_POST_TOOL_DRAIN": "true"
+    },
+    "dataset": {
+      "PERF_FIO_SIZE": "512m"
+    },
+    "filesystem": {
+      "BREWFS_BLOCK_SIZE": "4194304",
+      "BREWFS_CHUNK_SIZE": "67108864",
+      "BREWFS_COMPRESSION": "none",
+      "BREWFS_FUSE_DIRECT_IO": "",
+      "BREWFS_FUSE_KEEP_CACHE": "",
+      "BREWFS_FUSE_MAX_BACKGROUND": "512",
+      "BREWFS_FUSE_READ_DIRECT_IO": "1",
+      "BREWFS_FUSE_WORKERS": "16",
+      "BREWFS_FUSE_WRITEBACK": "",
+      "BREWFS_FUSE_WRITE_DIRECT_IO": "",
+      "BREWFS_MEMORY_BUDGET_BYTES": "12884901888",
+      "BREWFS_METADATA_ALLOW_WRITE_OPEN_CACHE": "",
+      "BREWFS_METADATA_OPEN_CACHE_TTL_MS": "1000",
+      "BREWFS_PREFETCH_CONCURRENCY": "",
+      "BREWFS_PREFETCH_ENABLED": "",
+      "BREWFS_PREFETCH_MAX_BYTES": "1073741824",
+      "BREWFS_READ_MEMORY_BYTES": "4294967296",
+      "BREWFS_READ_SSD_BYTES": "8589934592",
+      "BREWFS_REQUEST_TRACE": "",
+      "BREWFS_REQUEST_TRACE_SAMPLE_RATE": "",
+      "BREWFS_S3_MAX_CONCURRENCY": "16",
+      "BREWFS_UPLOAD_CONCURRENCY": "32",
+      "BREWFS_WRITEBACK_MODE": "commit_before_upload",
+      "BREWFS_WRITEBACK_PERSIST_SYNC": "false",
+      "BREWFS_WRITEBACK_REQUIRE_STAGE_BEFORE_COMMIT": "false",
+      "BREWFS_WRITEBACK_UPLOAD_CONCURRENCY": "6",
+      "BREWFS_WRITE_MEMORY_BYTES": "4294967296",
+      "BREWFS_WRITE_SSD_BYTES": "4294967296",
+      "TOKIO_WORKER_THREADS": ""
+    },
+    "observation": {
+      "BREWFS_REQUEST_TRACE": "",
+      "BREWFS_REQUEST_TRACE_SAMPLE_RATE": "",
+      "TOKIO_WORKER_THREADS": ""
+    },
+    "resources": {
+      "cpu_limit": "400000 100000",
+      "memory_limit_bytes": "17179869184"
+    },
+    "topology": {
+      "metadata": "redis",
+      "metadata_endpoint": "redis://redis:6379/0",
+      "object": "s3",
+      "object_endpoint": "http://rustfs:9000",
+      "runner": "compose"
+    },
+    "workload": {
+      "PERF_FIO_CLAT_PERCENTILES": "1",
+      "PERF_FIO_DIRECT": "0",
+      "PERF_FIO_DIRECT_MATRIX": "",
+      "PERF_FIO_IODEPTH": "1",
+      "PERF_FIO_IOENGINE": "io_uring",
+      "PERF_FIO_LAT_PERCENTILES": "1",
+      "PERF_FIO_PERCENTILE_LIST": "50:95:99:99.9",
+      "PERF_FIO_RANDREPEAT": "1",
+      "PERF_FIO_RANDSEED": "20261112",
+      "PERF_FIO_RUNTIME": "20",
+      "PERF_TOOLS": "fio-seqwrite"
+    }
+  },
+  "experiment": {
+    "declared_changes": [],
+    "variable": null
+  },
+  "generated_at": "2026-11-13T03:57:28.318203+00:00",
+  "resolved_endpoints": {
+    "metadata": "redis://redis:6379/0",
+    "object": "http://rustfs:9000"
+  },
+  "schema_version": 1,
+  "source": {
+    "binary_sha256": "73167baf7aea20d47e75743e3165be8e93f1036c99d58b3b12c7598044cbe7ba",
+    "dirty": true,
+    "dirty_diff_sha256": "6ea6a10284a037533f7342a22b590752b45147d4a3f67292a03fa712138e6e9d",
+    "revision": "6c422594bbc2fc152f259d2637ca40e7ff0ddb22"
+  }
+}

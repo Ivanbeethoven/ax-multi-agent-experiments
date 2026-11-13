@@ -1,0 +1,33 @@
+...............................................From /tmp/tmpjkc8vk4i/seed
+ * branch            feat/dynamic-block-size-rebased -> FETCH_HEAD
+From /tmp/tmpjkc8vk4i/seed
+ * branch            feat/dynamic-block-size-rebased -> FETCH_HEAD
+........................................................................................................................................................................................................................s............ss..............................................ssssssssss........................................................................................................................................................s.......................................ssss..............................{"draft": {"path": "/tmp/tmpt1hm_qiw/stage.json", "sha256": "eefb690c28c5b7c67956e96295f1cf92f3b835a2a6ec793b50b18607b18d311a"}, "reviewed": false, "stage": "create-w01", "scope": "Use the existing suite review/run-stage entry and original state.sqlite/lease. No new state, claim, sample, or acceptance is created."}
+{"passed": true, "public_url": "https://brewfs-agent-traces-20261023-4ccdae73.oss-cn-hangzhou.aliyuncs.com/pilot-results/20261111/test/proof.json", "bytes": 7, "receipt": "/tmp/tmpuyk79rw2/receipt.json"}
+{"type":"started","job":"w000-job","process":{"pid":1372,"start_ticks":18963,"boot_id":"7dd0ce07-7676-4951-842c-f9555c770a23","state":"R"}}
+.............................................C4-fork-brewfs-full: passed
+..............s..........ss....................sss.....ss..........................................
+----------------------------------------------------------------------
+Ran 704 tests in 24.880s
+
+OK (skipped=26)
+E
+======================================================================
+ERROR: test_meter (unittest.loader._FailedTest.test_meter)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_meter
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/test_meter.py", line 8, in <module>
+    from run_local import meter
+  File "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/run_local.py", line 26, in <module>
+    import boto3
+ModuleNotFoundError: No module named 'boto3'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

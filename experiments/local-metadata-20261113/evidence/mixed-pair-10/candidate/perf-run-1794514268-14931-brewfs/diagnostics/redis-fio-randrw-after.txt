@@ -1,0 +1,106 @@
+# Redis diagnostics after fio-randrw
+2026-11-12T20:11:59+00:00
+
+## INFO commandstats
+# Commandstats
+cmdstat_set:calls=4,usec=56,usec_per_call=14.00,rejected_calls=0,failed_calls=0
+cmdstat_incr:calls=1031,usec=1127,usec_per_call=1.09,rejected_calls=0,failed_calls=0
+cmdstat_rpush:calls=1031,usec=5715,usec_per_call=5.54,rejected_calls=0,failed_calls=0
+cmdstat_get:calls=4490,usec=7682,usec_per_call=1.71,rejected_calls=0,failed_calls=0
+cmdstat_lrange:calls=1072,usec=2987,usec_per_call=2.79,rejected_calls=0,failed_calls=0
+cmdstat_incrby:calls=1031,usec=4124,usec_per_call=4.00,rejected_calls=0,failed_calls=0
+cmdstat_config|resetstat:calls=1,usec=126,usec_per_call=126.00,rejected_calls=0,failed_calls=0
+cmdstat_ping:calls=11,usec=20,usec_per_call=1.82,rejected_calls=0,failed_calls=0
+cmdstat_hget:calls=1252,usec=1533,usec_per_call=1.22,rejected_calls=0,failed_calls=0
+cmdstat_exec:calls=2300,usec=12443,usec_per_call=5.41,rejected_calls=0,failed_calls=0
+cmdstat_evalsha:calls=1055,usec=61314,usec_per_call=58.12,rejected_calls=0,failed_calls=0
+cmdstat_latency|reset:calls=1,usec=52,usec_per_call=52.00,rejected_calls=0,failed_calls=0
+cmdstat_slowlog|reset:calls=1,usec=1,usec_per_call=1.00,rejected_calls=0,failed_calls=0
+cmdstat_multi:calls=2300,usec=2265,usec_per_call=0.98,rejected_calls=0,failed_calls=0
+
+## INFO stats
+# Stats
+total_connections_received:15
+total_commands_processed:15581
+instantaneous_ops_per_sec:293
+total_net_input_bytes:665722
+total_net_output_bytes:1643414
+total_net_repl_input_bytes:0
+total_net_repl_output_bytes:0
+instantaneous_input_kbps:11.69
+instantaneous_output_kbps:79.49
+instantaneous_input_repl_kbps:0.00
+instantaneous_output_repl_kbps:0.00
+rejected_connections:0
+sync_full:0
+sync_partial_ok:0
+sync_partial_err:0
+expired_keys:0
+expired_stale_perc:0.00
+expired_time_cap_reached_count:0
+expire_cycle_cpu_milliseconds:0
+evicted_keys:0
+evicted_clients:0
+total_eviction_exceeded_time:0
+current_eviction_exceeded_time:0
+keyspace_hits:5586
+keyspace_misses:1228
+pubsub_channels:0
+pubsub_patterns:0
+pubsubshard_channels:0
+latest_fork_usec:0
+total_forks:0
+migrate_cached_sockets:0
+slave_expires_tracked_keys:0
+active_defrag_hits:0
+active_defrag_misses:0
+active_defrag_key_hits:0
+active_defrag_key_misses:0
+total_active_defrag_time:0
+current_active_defrag_time:0
+tracking_total_keys:0
+tracking_total_items:0
+tracking_total_prefixes:0
+unexpected_error_replies:0
+total_error_replies:0
+dump_payload_sanitizations:0
+total_reads_processed:4140
+total_writes_processed:4125
+io_threaded_reads_processed:0
+io_threaded_writes_processed:0
+reply_buffer_shrinks:4
+reply_buffer_expands:18
+eventloop_cycles:4343
+eventloop_duration_sum:464873
+eventloop_duration_cmd_sum:82805
+instantaneous_eventloop_cycles_per_sec:72
+instantaneous_eventloop_duration_usec:76
+acl_access_denied_auth:0
+acl_access_denied_cmd:0
+acl_access_denied_key:0
+acl_access_denied_channel:0
+
+## SLOWLOG GET 20
+
+
+## LATENCY LATEST
+aof-write
+1794514318
+2
+97
+aof-write-alone
+1794514318
+2
+97
+
+## LATENCY DOCTOR
+Dave, I have observed latency spikes in this Redis instance. You don't mind talking about it, do you Dave?
+
+1. aof-write: 20 latency spikes (average 7ms, mean deviation 9ms, period 1.00 sec). Worst all time event 97ms.
+2. aof-write-alone: 20 latency spikes (average 7ms, mean deviation 9ms, period 1.00 sec). Worst all time event 97ms.
+
+I have a few advices for you:
+
+- It is strongly advised to use local disks for persistence, especially if you are using AOF. Remote disks provided by platform-as-a-service providers are known to be slow.
+- SSD disks are able to reduce fsync latency, and total time needed for snapshotting and AOF log rewriting (resulting in smaller memory usage). With extremely high write load SSD disks can be a good option. However Redis should perform reasonably with high load using normal disks. Use this advice as a last resort.
+- Mounting ext3/4 filesystems with data=writeback can provide a performance boost compared to data=ordered, however this mode of operation provides less guarantees, and sometimes it can happen that after a hard crash the AOF file will have a half-written command at the end and will require to be repaired before Redis restarts.

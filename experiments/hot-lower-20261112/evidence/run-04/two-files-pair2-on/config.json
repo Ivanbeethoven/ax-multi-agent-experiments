@@ -1,0 +1,41 @@
+{
+  "volume_format": "workspace-v1",
+  "volume": {
+    "format": "workspace-v1"
+  },
+  "workspace": "01a1d059-86f3-7931-810d-417e4833a4b8",
+  "workspace_namespace": "two-files-pair2-on-bbe7c604",
+  "data": {
+    "backend": "s3",
+    "s3": {
+      "bucket": "hot-572725e375-a",
+      "endpoint": "http://127.0.0.1:46195",
+      "region": "us-east-1",
+      "force_path_style": true,
+      "rustfs_ec_block_size_hint": "auto"
+    }
+  },
+  "meta": {
+    "backend": "redis",
+    "redis": {
+      "url": "redis://127.0.0.1:44620/0"
+    }
+  },
+  "layout": {
+    "chunk_size": 67108864,
+    "block_size": 4194304
+  },
+  "fuse": {
+    "workers": 4,
+    "max_background": 128,
+    "cache_ttl_ms": 0,
+    "keep_cache": false
+  },
+  "cache": {
+    "cache_root": "/tmp/brewfs-hot-local-o1g4b9pp/cache-two-files-pair2-on",
+    "writeback_mode": "upload_before_commit",
+    "read_memory_bytes": 536870912,
+    "read_ssd_bytes": 0,
+    "compression": "none"
+  }
+}

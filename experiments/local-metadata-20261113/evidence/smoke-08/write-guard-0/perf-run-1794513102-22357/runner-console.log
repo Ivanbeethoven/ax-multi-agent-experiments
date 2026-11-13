@@ -1,0 +1,44 @@
+ Volume hot-guard-ce57ce8476_state Creating 
+ Volume hot-guard-ce57ce8476_state Creating 
+ Volume hot-guard-ce57ce8476_state Created 
+ Volume hot-guard-ce57ce8476_state Created 
+ Container hot-guard-ce57ce8476-perf-run-229fe28be558 Creating 
+ Container hot-guard-ce57ce8476-perf-run-229fe28be558 Created 
+[19:51:50] INFO  nofile limit: 1048576
+[19:51:50] INFO  写入 BrewFS 配置: /run/brewfs/config.yaml
+[19:51:50] INFO  准备产物目录: /artifacts/perf-run-1794513110-30242-brewfs
+[19:51:51] INFO  安装 mount helper: /usr/sbin/mount.fuse.brewfs
+[19:51:52] INFO  挂载 BrewFS: /mnt/brewfs
+[19:51:54] OK    BrewFS 已挂载
+[19:51:54] INFO  执行挂载点预检: /mnt/brewfs
+[19:51:54] OK    预检通过: 写入/读取正常
+[19:51:54] INFO  开始性能测试: tools=fio-seqwrite fio-randwrite fio-randrw
+[19:51:54] INFO  运行压力工具: fio-seqwrite
+[19:51:54] INFO    命令: run_observed_fio fio-seqwrite --name=brewfs-seqwrite --directory=/mnt/brewfs/.perf-fio-seqwrite --rw=write --bs=4m --size=512m --numjobs=1 --ioengine=io_uring --iodepth=1 --direct=0 --runtime=20 --time_based --group_reporting --eta=never --lat_percentiles=1 --clat_percentiles=1 --slat_percentiles=1 --percentile_list=50:95:99:99.9 --randseed=20261112 --randrepeat=1 --output-format=json --output=/artifacts/perf-run-1794513110-30242-brewfs/results/fio-seqwrite.json --write_lat_log=/artifacts/perf-run-1794513110-30242-brewfs/results/fio-seqwrite_lat --log_avg_msec=1000
+[19:52:15] OK    压力工具完成: fio-seqwrite (20s, log=0 bytes)
+[19:52:15] INFO  等待 post-write 写回严格排空: fio-seqwrite (threshold=0 bytes, stable=3, timeout=600s)
+[19:52:15] INFO    post-write 写回等待中: pending=3166699520 dirty=3166699520 buffer_dirty=3166699520 put_bytes=1753220776 elapsed=0s
+[19:52:45] INFO    post-write 写回等待中: pending=0 dirty=0 buffer_dirty=0 put_bytes=4911534700 elapsed=30s
+[19:52:47] OK    post-write 写回已严格排空: fio-seqwrite (runner=28s extended=32s pending=0 dirty=0 buffer_dirty=0 put_bytes=4911534700 uploaded=0 stable=3s)
+[19:52:47] INFO  运行压力工具: fio-randwrite
+[19:52:47] INFO    命令: run_observed_fio fio-randwrite --name=brewfs-randwrite --directory=/mnt/brewfs/.perf-fio-randwrite --rw=randwrite --bs=4m --size=512m --numjobs=4 --ioengine=io_uring --iodepth=1 --direct=0 --runtime=20 --time_based --group_reporting --eta=never --lat_percentiles=1 --clat_percentiles=1 --slat_percentiles=1 --percentile_list=50:95:99:99.9 --randseed=20261112 --randrepeat=1 --output-format=json --output=/artifacts/perf-run-1794513110-30242-brewfs/results/fio-randwrite.json --write_lat_log=/artifacts/perf-run-1794513110-30242-brewfs/results/fio-randwrite_lat --log_avg_msec=1000
+[19:53:08] OK    压力工具完成: fio-randwrite (21s, log=0 bytes)
+[19:53:08] INFO  等待 post-write 写回严格排空: fio-randwrite (threshold=0 bytes, stable=3, timeout=600s)
+[19:53:22] OK    post-write 写回已严格排空: fio-randwrite (runner=9s extended=14s pending=0 dirty=0 buffer_dirty=0 put_bytes=6782196104 uploaded=0 stable=3s)
+[19:53:22] INFO  预填充 fio 数据集: fio-randrw
+[19:53:48] INFO  等待 prefill 写回严格排空: fio-randrw (threshold=0 bytes, stable=3, timeout=600s)
+[19:54:05] OK    prefill 写回已严格排空: fio-randrw (runner=13s extended=17s pending=0 dirty=0 buffer_dirty=0 put_bytes=8929681852 uploaded=0 stable=3s)
+[19:54:05] INFO  为 fio cold-read 重挂载 BrewFS: fio-randrw
+[19:54:05] INFO  挂载 BrewFS: /mnt/brewfs
+[19:54:09] OK    BrewFS 已挂载
+[19:54:09] INFO  运行压力工具: fio-randrw
+[19:54:09] INFO    命令: run_observed_fio fio-randrw --name=brewfs-randrw --directory=/mnt/brewfs/.perf-fio-randrw --rw=randrw --bs=4m --size=512m --numjobs=4 --ioengine=io_uring --iodepth=1 --direct=0 --runtime=20 --time_based --group_reporting --eta=never --rwmixread=70 --lat_percentiles=1 --clat_percentiles=1 --slat_percentiles=1 --percentile_list=50:95:99:99.9 --randseed=20261112 --randrepeat=1 --output-format=json --output=/artifacts/perf-run-1794513110-30242-brewfs/results/fio-randrw.json --write_lat_log=/artifacts/perf-run-1794513110-30242-brewfs/results/fio-randrw_lat --log_avg_msec=1000
+[19:54:33] OK    压力工具完成: fio-randrw (22s, log=0 bytes)
+[19:54:33] INFO  等待 post-write 写回严格排空: fio-randrw (threshold=0 bytes, stable=3, timeout=600s)
+[19:54:33] INFO    post-write 写回等待中: pending=1904214016 dirty=1904214016 buffer_dirty=1904214016 put_bytes=482345420 elapsed=0s
+[19:54:53] INFO    post-write 写回等待中: pending=121634816 dirty=121634816 buffer_dirty=121634816 put_bytes=2264926320 elapsed=20s
+[19:55:00] OK    post-write 写回已严格排空: fio-randrw (runner=22s extended=27s pending=0 dirty=0 buffer_dirty=0 put_bytes=2386561252 uploaded=0 stable=3s)
+[19:55:00] INFO  测试完成后文件系统统计:
+[19:55:00] INFO    磁盘使用: 4.5G / 1.0P (1%)
+[19:55:00] INFO    残留文件数: 9
+[19:55:00] OK    性能测试全部完成

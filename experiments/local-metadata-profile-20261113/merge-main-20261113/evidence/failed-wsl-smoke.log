@@ -1,0 +1,16 @@
+/home/hxy/.cache/brewfs-hot-lower-20261112-defaults.swap
+Filename				Type		Size		Used		Priority
+Temporary compilation swap removed.
+++ cat /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/merge-smoke-build-01/source-commit.txt
++ /home/hxy/.cache/brewfs-entity-validation-venv/bin/python /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/run_local.py --binary /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/merge-smoke-build-01/brewfs --producer /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/merge-smoke-build-01/packed_snapshot_fixture --source-commit 10813952eaa35c7f4fe29ac447f823bc203558fe --source-patch /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/merge-smoke-build-01/source.patch --workspace-format workspace --pairs 3 --passes 4 --metadata-edits 16 --metadata-sync local-buffered --cache-state both --out /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/merge-smoke-01
+Traceback (most recent call last):
+  File "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/run_local.py", line 531, in <module>
+    main()
+  File "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/run_local.py", line 351, in main
+    parent = json.loads(invoke([args.binary, 'workspace', '--meta-backend', 'redis', '--meta-url', rurl,
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/run_local.py", line 242, in invoke
+    raise RuntimeError(f'{argv[0]} exited {done.returncode}: {done.stderr[-2000:]}')
+RuntimeError: /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/merge-smoke-build-01/brewfs exited 1: Error: invalid packed v3 object: removed versioned setting BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES; use the BREWFS_PACKED_ setting names
+
++ printf '%s\n' 1

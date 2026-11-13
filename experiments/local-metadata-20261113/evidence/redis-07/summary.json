@@ -1,0 +1,205 @@
+{
+  "scope": "debug-test diagnostic; not release/FUSE performance",
+  "modes": {
+    "local-buffered": {
+      "total_ms_median": 84.676125,
+      "set_calls": [
+        6,
+        8,
+        8
+      ],
+      "pairs": [
+        {
+          "pair": 0,
+          "total_ms": 82.676701,
+          "active_ms": 55.998806,
+          "drain_ms": 26.677895,
+          "redis_calls": {
+            "type": 9,
+            "zadd": 6,
+            "evalsha": 106,
+            "time": 106,
+            "client|setinfo": 0,
+            "strlen": 103,
+            "get": 110,
+            "ping": 0,
+            "script|load": 0,
+            "set": 6,
+            "scan": 0
+          }
+        },
+        {
+          "pair": 1,
+          "total_ms": 88.498376,
+          "active_ms": 74.865927,
+          "drain_ms": 13.632449,
+          "redis_calls": {
+            "type": 12,
+            "zadd": 8,
+            "evalsha": 108,
+            "time": 108,
+            "client|setinfo": 0,
+            "strlen": 104,
+            "get": 113,
+            "ping": 0,
+            "script|load": 0,
+            "set": 8,
+            "scan": 0
+          }
+        },
+        {
+          "pair": 2,
+          "total_ms": 84.676125,
+          "active_ms": 74.660709,
+          "drain_ms": 10.015416,
+          "redis_calls": {
+            "type": 12,
+            "zadd": 8,
+            "evalsha": 108,
+            "time": 108,
+            "client|setinfo": 0,
+            "strlen": 104,
+            "get": 113,
+            "ping": 0,
+            "script|load": 0,
+            "set": 8,
+            "scan": 0
+          }
+        }
+      ]
+    },
+    "local-journal": {
+      "total_ms_median": 836.508252,
+      "set_calls": [
+        50,
+        48,
+        50
+      ],
+      "pairs": [
+        {
+          "pair": 0,
+          "total_ms": 837.820179,
+          "active_ms": 831.92443,
+          "drain_ms": 5.895749,
+          "redis_calls": {
+            "type": 75,
+            "zadd": 50,
+            "evalsha": 150,
+            "time": 150,
+            "client|setinfo": 0,
+            "strlen": 125,
+            "get": 176,
+            "ping": 0,
+            "script|load": 0,
+            "set": 50,
+            "scan": 0
+          }
+        },
+        {
+          "pair": 1,
+          "total_ms": 820.654288,
+          "active_ms": 810.360784,
+          "drain_ms": 10.293504,
+          "redis_calls": {
+            "type": 72,
+            "zadd": 48,
+            "evalsha": 148,
+            "time": 148,
+            "client|setinfo": 0,
+            "strlen": 124,
+            "get": 173,
+            "ping": 0,
+            "script|load": 0,
+            "set": 48,
+            "scan": 0
+          }
+        },
+        {
+          "pair": 2,
+          "total_ms": 836.508252,
+          "active_ms": 825.730651,
+          "drain_ms": 10.777601,
+          "redis_calls": {
+            "type": 75,
+            "zadd": 50,
+            "evalsha": 150,
+            "time": 150,
+            "client|setinfo": 0,
+            "strlen": 125,
+            "get": 176,
+            "ping": 0,
+            "script|load": 0,
+            "set": 50,
+            "scan": 0
+          }
+        }
+      ]
+    },
+    "remote": {
+      "total_ms_median": 68.441478,
+      "set_calls": [
+        100,
+        100,
+        100
+      ],
+      "pairs": [
+        {
+          "pair": 0,
+          "total_ms": 68.441478,
+          "active_ms": 68.400341,
+          "drain_ms": 0.041137,
+          "redis_calls": {
+            "type": 200,
+            "zadd": 100,
+            "evalsha": 101,
+            "time": 100,
+            "client|setinfo": 0,
+            "ping": 0,
+            "get": 201,
+            "script|load": 1,
+            "set": 100,
+            "scan": 0
+          }
+        },
+        {
+          "pair": 1,
+          "total_ms": 67.888126,
+          "active_ms": 67.882557,
+          "drain_ms": 0.005569,
+          "redis_calls": {
+            "type": 200,
+            "zadd": 100,
+            "evalsha": 100,
+            "time": 100,
+            "client|setinfo": 0,
+            "strlen": 0,
+            "get": 201,
+            "ping": 0,
+            "script|load": 0,
+            "set": 100,
+            "scan": 0
+          }
+        },
+        {
+          "pair": 2,
+          "total_ms": 68.785329,
+          "active_ms": 68.780959,
+          "drain_ms": 0.00437,
+          "redis_calls": {
+            "type": 200,
+            "zadd": 100,
+            "evalsha": 100,
+            "time": 100,
+            "client|setinfo": 0,
+            "strlen": 0,
+            "get": 201,
+            "ping": 0,
+            "script|load": 0,
+            "set": 100,
+            "scan": 0
+          }
+        }
+      ]
+    }
+  }
+}

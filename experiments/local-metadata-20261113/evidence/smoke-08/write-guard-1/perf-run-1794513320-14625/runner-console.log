@@ -1,0 +1,35 @@
+ Volume hot-guard-e2eea1de9d_state Creating 
+ Volume hot-guard-e2eea1de9d_state Creating 
+ Volume hot-guard-e2eea1de9d_state Created 
+ Volume hot-guard-e2eea1de9d_state Created 
+ Container hot-guard-e2eea1de9d-perf-run-318c18475662 Creating 
+ Container hot-guard-e2eea1de9d-perf-run-318c18475662 Created 
+[19:55:36] INFO  nofile limit: 1048576
+[19:55:36] INFO  写入 BrewFS 配置: /run/brewfs/config.yaml
+[19:55:36] INFO  准备产物目录: /artifacts/perf-run-1794513336-3325-brewfs
+[19:55:37] INFO  安装 mount helper: /usr/sbin/mount.fuse.brewfs
+[19:55:37] INFO  挂载 BrewFS: /mnt/brewfs
+[19:55:40] OK    BrewFS 已挂载
+[19:55:40] INFO  执行挂载点预检: /mnt/brewfs
+[19:55:40] OK    预检通过: 写入/读取正常
+[19:55:40] INFO  开始性能测试: tools=fio-seqwrite fio-randwrite fio-randrw
+[19:55:40] INFO  运行压力工具: fio-seqwrite
+[19:55:40] INFO    命令: run_observed_fio fio-seqwrite --name=brewfs-seqwrite --directory=/mnt/brewfs/.perf-fio-seqwrite --rw=write --bs=4m --size=512m --numjobs=1 --ioengine=io_uring --iodepth=1 --direct=1 --runtime=20 --time_based --group_reporting --eta=never --lat_percentiles=1 --clat_percentiles=1 --slat_percentiles=1 --percentile_list=50:95:99:99.9 --randseed=20261112 --randrepeat=1 --output-format=json --output=/artifacts/perf-run-1794513336-3325-brewfs/results/fio-seqwrite.json --write_lat_log=/artifacts/perf-run-1794513336-3325-brewfs/results/fio-seqwrite_lat --log_avg_msec=1000
+[19:56:01] OK    压力工具完成: fio-seqwrite (21s, log=0 bytes)
+[19:56:01] INFO  等待 post-write 写回严格排空: fio-seqwrite (threshold=0 bytes, stable=3, timeout=600s)
+[19:56:01] INFO    post-write 写回等待中: pending=3217031168 dirty=3217031168 buffer_dirty=3217031168 put_bytes=1908410172 elapsed=0s
+[19:56:31] OK    post-write 写回已严格排空: fio-seqwrite (runner=26s extended=30s pending=0 dirty=0 buffer_dirty=0 put_bytes=5096084252 uploaded=0 stable=3s)
+[19:56:31] INFO  运行压力工具: fio-randwrite
+[19:56:31] INFO    命令: run_observed_fio fio-randwrite --name=brewfs-randwrite --directory=/mnt/brewfs/.perf-fio-randwrite --rw=randwrite --bs=4m --size=512m --numjobs=4 --ioengine=io_uring --iodepth=1 --direct=1 --runtime=20 --time_based --group_reporting --eta=never --lat_percentiles=1 --clat_percentiles=1 --slat_percentiles=1 --percentile_list=50:95:99:99.9 --randseed=20261112 --randrepeat=1 --output-format=json --output=/artifacts/perf-run-1794513336-3325-brewfs/results/fio-randwrite.json --write_lat_log=/artifacts/perf-run-1794513336-3325-brewfs/results/fio-randwrite_lat --log_avg_msec=1000
+[19:56:52] ERROR 写回时序采样缺少必需指标
+[19:56:52] ERROR 压力工具失败: fio-randwrite (exit=1, 21s, log=0 bytes)
+[19:56:52] INFO  等待 post-write 写回严格排空: fio-randwrite (threshold=0 bytes, stable=3, timeout=600s)
+[19:56:53] INFO    post-write 写回等待中: pending=2147483648 dirty=2147483648 buffer_dirty=2147483648 put_bytes=5867836924 elapsed=0s
+[19:57:17] OK    post-write 写回已严格排空: fio-randwrite (runner=19s extended=24s pending=0 dirty=0 buffer_dirty=0 put_bytes=8002739700 uploaded=0 stable=3s)
+[19:57:17] INFO  预填充 fio 数据集: fio-randrw
+[19:57:21] ERROR 写回时序采样缺少必需指标
+[19:57:21] INFO  测试完成后文件系统统计:
+[19:57:21] INFO    磁盘使用: 2.5G / 1.0P (1%)
+[19:57:21] INFO    残留文件数: 9
+[19:57:22] ERROR 性能测试存在失败项 (exit=1)
+

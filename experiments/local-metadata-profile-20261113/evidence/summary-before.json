@@ -1,0 +1,1057 @@
+{
+  "local-buffered": {
+    "runs": 9,
+    "total_ms": [
+      87.491413,
+      94.591506,
+      92.523392,
+      76.552293,
+      81.173465,
+      83.794709,
+      110.39308,
+      187.099025,
+      92.943531
+    ],
+    "median_total_ms": 92.523392,
+    "median_active_ms": 77.830841,
+    "median_drain_ms": 13.912423,
+    "redis_commands": [
+      {
+        "client|setinfo": 0,
+        "evalsha": 108,
+        "get": 113,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 8,
+        "strlen": 104,
+        "time": 108,
+        "type": 12,
+        "zadd": 8
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 108,
+        "get": 113,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 8,
+        "strlen": 104,
+        "time": 108,
+        "type": 12,
+        "zadd": 8
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 108,
+        "get": 113,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 8,
+        "strlen": 104,
+        "time": 108,
+        "type": 12,
+        "zadd": 8
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 108,
+        "get": 113,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 8,
+        "strlen": 104,
+        "time": 108,
+        "type": 12,
+        "zadd": 8
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 108,
+        "get": 113,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 8,
+        "strlen": 104,
+        "time": 108,
+        "type": 12,
+        "zadd": 8
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 108,
+        "get": 113,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 8,
+        "strlen": 104,
+        "time": 108,
+        "type": 12,
+        "zadd": 8
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 106,
+        "get": 110,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 6,
+        "strlen": 103,
+        "time": 106,
+        "type": 9,
+        "zadd": 6
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 108,
+        "get": 113,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 8,
+        "strlen": 104,
+        "time": 108,
+        "type": 12,
+        "zadd": 8
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 108,
+        "get": 113,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 8,
+        "strlen": 104,
+        "time": 108,
+        "type": 12,
+        "zadd": 8
+      }
+    ],
+    "stages": {
+      "ack_install": {
+        "median_total_ms": 22.463567,
+        "calls": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          3,
+          4,
+          4
+        ]
+      },
+      "ack_state_wait": {
+        "median_total_ms": 0.660484,
+        "calls": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          3,
+          4,
+          4
+        ]
+      },
+      "admission_wait": {
+        "median_total_ms": 0.090829,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "auth_remote": {
+        "median_total_ms": 0.0,
+        "calls": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "auth_state_wait": {
+        "median_total_ms": 0.0,
+        "calls": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "blocking_queue": {
+        "median_total_ms": 0.302373,
+        "calls": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          6,
+          8,
+          8
+        ]
+      },
+      "flush_wait": {
+        "median_total_ms": 5.345364,
+        "calls": [
+          6,
+          6,
+          6,
+          5,
+          5,
+          5,
+          5,
+          6,
+          6
+        ]
+      },
+      "freeze_install": {
+        "median_total_ms": 22.952538,
+        "calls": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          3,
+          4,
+          4
+        ]
+      },
+      "freeze_state_wait": {
+        "median_total_ms": 1.142933,
+        "calls": [
+          6,
+          6,
+          6,
+          5,
+          5,
+          5,
+          5,
+          6,
+          6
+        ]
+      },
+      "journal_encode": {
+        "median_total_ms": 0.333798,
+        "calls": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          6,
+          8,
+          8
+        ]
+      },
+      "journal_file_sync": {
+        "median_total_ms": 22.778827,
+        "calls": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          6,
+          8,
+          8
+        ]
+      },
+      "journal_rename_sync": {
+        "median_total_ms": 20.364886,
+        "calls": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          6,
+          8,
+          8
+        ]
+      },
+      "journal_write": {
+        "median_total_ms": 0.387836,
+        "calls": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          6,
+          8,
+          8
+        ]
+      },
+      "merge": {
+        "median_total_ms": 0.37283,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "read_remote": {
+        "median_total_ms": 0.0,
+        "calls": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "read_state_wait": {
+        "median_total_ms": 35.412381,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "receipt_read": {
+        "median_total_ms": 2.573112,
+        "calls": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          3,
+          4,
+          4
+        ]
+      },
+      "remote_commit": {
+        "median_total_ms": 1.955263,
+        "calls": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          3,
+          4,
+          4
+        ]
+      },
+      "update": {
+        "median_total_ms": 40.429357,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "update_install": {
+        "median_total_ms": 0.327482,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "update_state_wait": {
+        "median_total_ms": 0.074502,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "validate_remote": {
+        "median_total_ms": 38.65222,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      }
+    }
+  },
+  "local-journal": {
+    "runs": 9,
+    "total_ms": [
+      919.805283,
+      928.991848,
+      894.008083,
+      854.702111,
+      851.827699,
+      872.993223,
+      1030.667217,
+      900.1961,
+      896.243219
+    ],
+    "median_total_ms": 896.243219,
+    "median_active_ms": 888.001735,
+    "median_drain_ms": 11.237982,
+    "redis_commands": [
+      {
+        "client|setinfo": 0,
+        "evalsha": 150,
+        "get": 176,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 50,
+        "strlen": 125,
+        "time": 150,
+        "type": 75,
+        "zadd": 50
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 150,
+        "get": 176,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 50,
+        "strlen": 125,
+        "time": 150,
+        "type": 75,
+        "zadd": 50
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 150,
+        "get": 176,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 50,
+        "strlen": 125,
+        "time": 150,
+        "type": 75,
+        "zadd": 50
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 150,
+        "get": 176,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 50,
+        "strlen": 125,
+        "time": 150,
+        "type": 75,
+        "zadd": 50
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 150,
+        "get": 176,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 50,
+        "strlen": 125,
+        "time": 150,
+        "type": 75,
+        "zadd": 50
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 150,
+        "get": 176,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 50,
+        "strlen": 125,
+        "time": 150,
+        "type": 75,
+        "zadd": 50
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 150,
+        "get": 176,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 50,
+        "strlen": 125,
+        "time": 150,
+        "type": 75,
+        "zadd": 50
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 148,
+        "get": 173,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 48,
+        "strlen": 124,
+        "time": 148,
+        "type": 72,
+        "zadd": 48
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 150,
+        "get": 176,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 50,
+        "strlen": 125,
+        "time": 150,
+        "type": 75,
+        "zadd": 50
+      }
+    ],
+    "stages": {
+      "ack_install": {
+        "median_total_ms": 120.963752,
+        "calls": [
+          25,
+          25,
+          25,
+          25,
+          25,
+          25,
+          25,
+          24,
+          25
+        ]
+      },
+      "ack_state_wait": {
+        "median_total_ms": 120.795492,
+        "calls": [
+          25,
+          25,
+          25,
+          25,
+          25,
+          25,
+          25,
+          24,
+          25
+        ]
+      },
+      "admission_wait": {
+        "median_total_ms": 0.187263,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "auth_remote": {
+        "median_total_ms": 0.0,
+        "calls": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "auth_state_wait": {
+        "median_total_ms": 0.0,
+        "calls": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "blocking_queue": {
+        "median_total_ms": 5.562782,
+        "calls": [
+          150,
+          150,
+          150,
+          150,
+          150,
+          150,
+          150,
+          148,
+          150
+        ]
+      },
+      "flush_wait": {
+        "median_total_ms": 6.066128,
+        "calls": [
+          27,
+          27,
+          27,
+          27,
+          27,
+          26,
+          27,
+          26,
+          27
+        ]
+      },
+      "freeze_install": {
+        "median_total_ms": 157.745328,
+        "calls": [
+          25,
+          25,
+          25,
+          25,
+          25,
+          25,
+          25,
+          24,
+          25
+        ]
+      },
+      "freeze_state_wait": {
+        "median_total_ms": 124.493798,
+        "calls": [
+          27,
+          27,
+          27,
+          27,
+          27,
+          26,
+          27,
+          26,
+          27
+        ]
+      },
+      "journal_encode": {
+        "median_total_ms": 5.361413,
+        "calls": [
+          150,
+          150,
+          150,
+          150,
+          150,
+          150,
+          150,
+          148,
+          150
+        ]
+      },
+      "journal_file_sync": {
+        "median_total_ms": 397.282909,
+        "calls": [
+          150,
+          150,
+          150,
+          150,
+          150,
+          150,
+          150,
+          148,
+          150
+        ]
+      },
+      "journal_rename_sync": {
+        "median_total_ms": 398.059557,
+        "calls": [
+          150,
+          150,
+          150,
+          150,
+          150,
+          150,
+          150,
+          148,
+          150
+        ]
+      },
+      "journal_write": {
+        "median_total_ms": 5.870297,
+        "calls": [
+          150,
+          150,
+          150,
+          150,
+          150,
+          150,
+          150,
+          148,
+          150
+        ]
+      },
+      "merge": {
+        "median_total_ms": 0.819822,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "read_remote": {
+        "median_total_ms": 0.0,
+        "calls": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "read_state_wait": {
+        "median_total_ms": 261.752869,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "receipt_read": {
+        "median_total_ms": 20.412617,
+        "calls": [
+          25,
+          25,
+          25,
+          25,
+          25,
+          25,
+          25,
+          24,
+          25
+        ]
+      },
+      "remote_commit": {
+        "median_total_ms": 12.505128,
+        "calls": [
+          25,
+          25,
+          25,
+          25,
+          25,
+          25,
+          25,
+          24,
+          25
+        ]
+      },
+      "update": {
+        "median_total_ms": 630.638784,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "update_install": {
+        "median_total_ms": 563.892224,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "update_state_wait": {
+        "median_total_ms": 0.227584,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      },
+      "validate_remote": {
+        "median_total_ms": 63.793434,
+        "calls": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ]
+      }
+    }
+  },
+  "remote": {
+    "runs": 9,
+    "total_ms": [
+      73.888686,
+      74.784878,
+      72.877474,
+      62.451748,
+      77.970533,
+      70.220003,
+      61.366346,
+      69.362049,
+      64.925988
+    ],
+    "median_total_ms": 70.220003,
+    "median_active_ms": 70.216545,
+    "median_drain_ms": 0.003552,
+    "redis_commands": [
+      {
+        "client|setinfo": 0,
+        "evalsha": 101,
+        "get": 201,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 1,
+        "set": 100,
+        "time": 100,
+        "type": 200,
+        "zadd": 100
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 100,
+        "get": 201,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 100,
+        "strlen": 0,
+        "time": 100,
+        "type": 200,
+        "zadd": 100
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 100,
+        "get": 201,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 100,
+        "strlen": 0,
+        "time": 100,
+        "type": 200,
+        "zadd": 100
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 100,
+        "get": 201,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 100,
+        "strlen": 0,
+        "time": 100,
+        "type": 200,
+        "zadd": 100
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 100,
+        "get": 201,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 100,
+        "strlen": 0,
+        "time": 100,
+        "type": 200,
+        "zadd": 100
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 100,
+        "get": 201,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 100,
+        "strlen": 0,
+        "time": 100,
+        "type": 200,
+        "zadd": 100
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 100,
+        "get": 201,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 100,
+        "strlen": 0,
+        "time": 100,
+        "type": 200,
+        "zadd": 100
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 100,
+        "get": 201,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 100,
+        "strlen": 0,
+        "time": 100,
+        "type": 200,
+        "zadd": 100
+      },
+      {
+        "client|setinfo": 0,
+        "evalsha": 100,
+        "get": 201,
+        "info": 1,
+        "ping": 0,
+        "scan": 0,
+        "script|load": 0,
+        "set": 100,
+        "strlen": 0,
+        "time": 100,
+        "type": 200,
+        "zadd": 100
+      }
+    ],
+    "stages": {}
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "schema": "merge-main-validation-v1",
+  "date": "2026-11-13",
+  "brewfs_main": "8a215a65cad19d34fd3fd7f04029f97d09617364",
+  "integration_commit": "10813952eaa35c7f4fe29ac447f823bc203558fe",
+  "integration_tree": "9bb380d1832859962b52e960f58cfe37a6c099e2",
+  "checked_commit": "7fa274e40277123e206aa911f7f8f6b0499404e8",
+  "checked_tree": "01d7e5952301925b068f2c028add5361677960d0",
+  "ax_main": "86f704be9129fbb5f6e466cfbbb15fdf383fc4e8",
+  "full_overlay_checks_commit": "10813952eaa35c7f4fe29ac447f823bc203558fe",
+  "final_checks": [
+    "default workspace tests",
+    "default all-targets clippy -D warnings",
+    "full-feature all-targets clippy -D warnings",
+    "fmt",
+    "12 A355 FUSE cells"
+  ],
+  "build": {
+    "profile": "debug",
+    "scope": "integration correctness only",
+    "base_commit": "10813952eaa35c7f4fe29ac447f823bc203558fe",
+    "patch_sha256": "94ce37e2fda56468a28a499c60b3eae63467d01bb6ee5d14581fe55e6898df59",
+    "patch_equals_committed_diff": true,
+    "binary_sha256": "40944a715275866f46fd4380584251c973b40fc7b33ab22537983aa471c637ef",
+    "producer_sha256": "d50a4491db08e9efb96caf78c16d9755d99812486fe6fbd99995eac804fe58a1",
+    "features": "fuse-io-uring-runtime,workspace,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability",
+    "git_embedded_revision_not_rewritten": true
+  },
+  "a355": {
+    "host": "A355",
+    "ssh_alias": "idcai-client2",
+    "existing_machine": true,
+    "new_cloud_resources": false,
+    "shared_c2_services_used": false,
+    "backend": {
+      "repository": "https://github.com/Ivanbeethoven/rustfs.git",
+      "branch": "feat/dynamic-block-size-rebased",
+      "revision_policy": "branch-latest",
+      "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+      "built_from_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+      "image_digest": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+      "resolved_at_unix_ns": 1794554539481058724,
+      "resolved_by": "git ls-remote + Docker OCI revision/source labels"
+    },
+    "images": {
+      "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+      "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+    },
+    "runtime": "TOKIO_WORKER_THREADS=4; isolated loopback Redis/RustFS",
+    "cells": 12,
+    "pairs_per_scenario": 3,
+    "passes": 4,
+    "edits_per_cell": 16,
+    "files_verified": 134,
+    "cleanup": {
+      "brewfs-hot-eba0ca0d9e-redis": true,
+      "brewfs-hot-eba0ca0d9e-rustfs": true,
+      "mount_absent": true
+    },
+    "result_archive_sha256": "d82331f934da68285de67e6de7d9ff4c1b768faa30bfc16a2c387b7877c6805f"
+  },
+  "unverified": [
+    "current-main Overlay versus lower-only performance",
+    "TiKV runtime",
+    "cross-machine crash recovery"
+  ]
+}

@@ -1,0 +1,367 @@
+diff --git a/README.md b/README.md
+index d2c8536..d6c0b20 100644
+--- a/README.md
++++ b/README.md
+@@ -165,6 +165,9 @@ flowchart LR
+     Base -. shared immutable blocks .-> Objects[(Object storage)]
+ ```
+ 
++Workspace mounts enable bounded upper-result caching and an 8 MiB authenticated
++lower-frame cache by default. See [cache limits and configuration](doc/operations/workspace-read-cache.md).
++
+ The feature is opt-in and does not alter regular flat volumes:
+ 
+ ```bash
+diff --git a/doc/architecture/private-workspace-sync.md b/doc/architecture/private-workspace-sync.md
+index 7bd4120..7918205 100644
+--- a/doc/architecture/private-workspace-sync.md
++++ b/doc/architecture/private-workspace-sync.md
+@@ -3,6 +3,11 @@
+ 状态：同步协议设计，尚未实现后台元数据提交。当前实现仍等待远端确认。
+ 本轮热读优化只缓存经过查询的空结果，不改变写入、fsync、发布或迁移语义。
+ 
++所有上层修改最终必须提交到远端元数据库，包括 inode 属性、目录项、删除标记、
++extent 映射及其版本。半异步只调整返回成功的时机与合批方式；本地缓存和日志是
++待提交视图，不能成为这些修改的唯一长期记录。后台同步即使没有新请求也要继续
++推进，提交失败保留记录、重试并报告错误，不能清掉待提交状态后假装完成。
++
+ ## 模式与承诺
+ 
+ | 模式 | 操作何时返回成功 | 断电后恢复 | 源机器和本地盘一起丢失 |
+@@ -49,6 +54,9 @@ journal_directory = "/local-durable/brewfs"
+    操作 ID 和 `remote_seq`。确认应答后推进 `remote_seq`。
+ 5. 远端确认前保留日志及其数据文件。检查点落盘并原子替换后才回收已确认段。
+ 
++首版每个 workspace 只允许一批在途，确认后再发送下一批；重试沿用原批次 ID。
++远端确认序号只能前进，不能被晚到的旧应答回退。
++
+ 上传中的远端对象需要可恢复的批次保留记录，提交时将它转成正式引用；未确认的
+ 对象不能仅因尚未出现在文件元数据中就被 GC 删除。失败批次在核对日志、租约和
+ 保留期限后再回收；本地日志仍持有的数据允许重新上传。
+@@ -65,6 +73,38 @@ journal_directory = "/local-durable/brewfs"
+ 缓存键包含 workspace、租约代数、head/base 身份与版本、inode/目录、查询范围。
+ 缓存的有效性绑定本地可见版本，不能只绑定滞后的 `remote_seq`。
+ 
++### 连续修改同一个对象
++
++目前行缓存采用修改前后失效，不包含下面这套通用待提交状态；现有数据写队列也不能
++替代它。半异步实现需要为每个 inode、目录项和数据区间保存本地最新值及其修改序号。
++更新仍经过 `mutation_gate`，完整日志落盘后才能把整个操作加入本地可见视图。
++读取先检查这份视图；本地删除和 hole 必须遮住已确认状态。
++
++后台发起提交时捕获边界 S，把该批次需要的值复制成不可变记录。发出后新修改继续
++更新本地视图，但不能改动正在发送的记录。例如：
++
++| 时刻 | 本地最新大小/序号 | 正在提交 | 远端已确认 |
++|---|---|---|---|
++| 连续修改后 | 120 / 2 | 无 | 100 / 1 |
++| 后台发出该批 | 120 / 2 | 120 / 2 | 100 / 1 |
++| 提交期间再次修改 | 160 / 3 | 120 / 2 | 100 / 1 |
++| 收到序号 2 的确认 | **160 / 3，仍待提交** | 无 | 120 / 2 |
++| 下一批确认后 | 160 / 3 | 无 | 160 / 3 |
++
++确认仅释放被该批覆盖的旧版本。对象若有更大的本地修改序号，仍保留待提交状态；
++旧应答不能覆盖本地新值，不能把整个对象直接标成干净。失败则保留该批和后续修改，
++先核对远端是否已应用，再重试。
++
++尚未发出的同字段属性更新可以合并成最终值，如 `100 → 120 → 160` 只提交 `160`。
++批次仍记录覆盖的连续序号范围及摘要，远端数据变更与确认序号在同一事务中落盘。
++完整本地日志保留到远端确认并完成检查点；合并网络提交不等于提前丢弃恢复日志。
++不同数据区间不能互相丢掉；重叠区间按顺序保留最终可见部分及完整数据引用。
++rename、link、unlink、创建后删除等涉及命名和引用计数的操作，首版保留完整顺序，
++不使用“同 key 只留最后一个值”的通用规则。所有合并都不能跨越 fsync、发布或迁移边界。
++
++普通读缓存可以淘汰；未确认修改不能被同一 LRU 淘汰规则丢弃。待提交状态、日志和
++数据有独立预算，满额时等待同步，不能通过清空脏项腾出空间。
++
+ 本轮空结果缓存采用现有 65,536 项上限，并复用提交前后失效、版本票据、取消后
+ 永久禁用缓存权限的机制。任何提交令之前的空结果失效；数据或删除标记不放入
+ 空结果缓存。将来接入本地日志时，失效必须移到“本地可见”之前，后台确认后
+@@ -100,3 +140,7 @@ fsync 时延、远端提交时延、重试数、屏障等待时延、租约拒
+ 对每个返回成功的操作检查恢复状态；对每个成功 fsync 检查丢弃本地日志后仍能
+ 仅从远端恢复。比较两种模式的总耗时、fsync P99、实际数据/元数据请求数及恢复时间。
+ 通过这些检查之前，后台元数据提交保持未实现状态，不用于本轮热读收益。
++
++重复修改还须验证：同 inode 连续改属性、提交中再次修改、旧确认晚到、应答丢失后重试、
++交叠与不交叠区间写入、rename 后删除、两次修改之间 fsync，以及重启后恢复最新已确认
++本地状态。检查本地读取值、远端最终值、待提交数量、实际提交次数和日志回收边界。
+diff --git a/doc/operations/workspace-read-cache.md b/doc/operations/workspace-read-cache.md
+new file mode 100644
+index 0000000..4494257
+--- /dev/null
++++ b/doc/operations/workspace-read-cache.md
+@@ -0,0 +1,40 @@
++# Workspace Overlay read cache
++
++Workspace mounts with a Packed-v3 lower enable these caches by default:
++
++| Cache | Default limit | Control |
++|---|---|---|
++| Upper metadata rows, including empty extent/directory results | 65,536 entries shared by the row cache; 60-second TTL | `BREWFS_WORKSPACE_ROW_CACHE_TTL_MS`; `BREWFS_WORKSPACE_EMPTY_QUERY_CACHE=0` disables only empty-result caching |
++| Authenticated wire005 lower payload frames | 8 MiB per mount, filled on demand | `BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES`; `0` disables retention; nonzero capacity must be 513 bytes–64 MiB |
++
++The 8 MiB default matches the local hot-lower validation and limits additional
++memory per workspace. The charge includes decoded frame bytes and 512 bytes of
++entry overhead; frames larger than the limit are read without being retained.
++Old frames are evicted as the cache fills. This is separate from the existing
++VFS chunk and Packed metadata cache budgets, which are unchanged.
++
++No environment variables are required to enable these defaults. To give lower
++frames 32 MiB on a larger workspace:
++
++```bash
++export BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES=33554432
++```
++
++Every newly fetched frame entering retention is authenticated, including after
++eviction or lease invalidation. Retaining readers enforce this even if
++`BREWFS_PACKED_VERIFY_MEMO=1`; that switch remains effective for readers without
++payload retention. Local hits reuse the already authenticated immutable bytes.
++
++Upper cache entries require the current workspace lease and matching layer
++identity/version. Mutations invalidate empty results; lease loss and view
++changes stop old entries from being served. TTL limits residency, not how long
++stale data may be served. Positive upper data and deletion markers still take
++part in Overlay resolution. No write acknowledgement or fsync semantics change.
++
++Inspect `.stats` for `brewfs_workspace_upper_extent_queries_total`,
++`brewfs_workspace_upper_extent_empty_cache_hits_total`,
++`brewfs_workspace_upper_directory_queries_total`, and
++`brewfs_workspace_upper_directory_empty_cache_hits_total`. Lower retention
++reports `brewfs_packed_v3_payload_retention_capacity_bytes`, `resident_charge_bytes`,
++`hits_total`, `misses_total`, and `evictions_total` under the same prefix.
++RustFS request counts and Redis commandstats remain separate evidence.
+diff --git a/src/cli.rs b/src/cli.rs
+index 048aeac..5214816 100644
+--- a/src/cli.rs
++++ b/src/cli.rs
+@@ -2285,6 +2285,16 @@ where
+     Ok(())
+ }
+ 
++#[cfg(feature = "workspace-overlay")]
++fn workspace_packed_payload_cache_bytes(value: Option<&str>) -> anyhow::Result<u64> {
++    let bytes = value.map(str::parse::<u64>).transpose()?.unwrap_or(8 << 20);
++    anyhow::ensure!(
++        bytes == 0 || (513..=64 << 20).contains(&bytes),
++        "BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES must be 0 or 513 bytes through 64 MiB"
++    );
++    Ok(bytes)
++}
++
+ #[cfg(feature = "workspace-overlay")]
+ async fn attach_workspace_packed_lower<B, S, W>(
+     meta: WorkspaceMetaLayer<W>,
+@@ -2356,21 +2366,13 @@ where
+             .ok()
+             .and_then(|value| value.parse::<u64>().ok())
+             .unwrap_or(256 << 20);
+-        // Retention is shared by both arms of a hot-lower comparison. Only
+-        // fully authenticated payload frames may enter this bounded cache.
++        // Retain a small working set by default. The retaining reader hashes
++        // every fetched frame, independently of the verification memo switch.
+         let retained_payload = match std::env::var("BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES") {
+-            Ok(value) => value.parse::<u64>()?,
+-            Err(std::env::VarError::NotPresent) => 0,
++            Ok(value) => workspace_packed_payload_cache_bytes(Some(&value))?,
++            Err(std::env::VarError::NotPresent) => workspace_packed_payload_cache_bytes(None)?,
+             Err(error) => return Err(error.into()),
+         };
+-        if retained_payload > 0
+-            && !matches!(
+-                std::env::var("BREWFS_PACKED_VERIFY_MEMO").as_deref(),
+-                Ok("0")
+-            )
+-        {
+-            anyhow::bail!("retained Packed payload requires BREWFS_PACKED_VERIFY_MEMO=0");
+-        }
+         let lower = Arc::new(PackedV3ReadonlyMeta::from_v3_budget_with_payload_retention(
+             client,
+             snapshot,
+@@ -3144,6 +3146,40 @@ fn database_type_from_url(url: &str) -> DatabaseType {
+ mod volume_format_tests {
+     use super::*;
+ 
++    #[cfg(feature = "workspace-overlay")]
++    #[test]
++    fn workspace_payload_cache_defaults_to_eight_mib_and_can_be_disabled() {
++        assert_eq!(workspace_packed_payload_cache_bytes(None).unwrap(), 8 << 20);
++        assert_eq!(workspace_packed_payload_cache_bytes(Some("0")).unwrap(), 0);
++        assert_eq!(
++            workspace_packed_payload_cache_bytes(Some("513")).unwrap(),
++            513
++        );
++        assert_eq!(
++            workspace_packed_payload_cache_bytes(Some("67108864")).unwrap(),
++            64 << 20
++        );
++    }
++
++    #[cfg(feature = "workspace-overlay")]
++    #[test]
++    fn workspace_payload_cache_rejects_invalid_or_unbounded_capacity() {
++        for value in [
++            "",
++            "-1",
++            "1",
++            "512",
++            "67108865",
++            "8MiB",
++            "18446744073709551616",
++        ] {
++            assert!(
++                workspace_packed_payload_cache_bytes(Some(value)).is_err(),
++                "{value}"
++            );
++        }
++    }
++
+     #[test]
+     fn entity_format_is_explicit_and_mount_fails_closed() {
+         use clap::ValueEnum;
+diff --git a/src/workspace_overlay/packed_v3/wire005/index.rs b/src/workspace_overlay/packed_v3/wire005/index.rs
+index 1e9b9a9..4e2b83e 100644
+--- a/src/workspace_overlay/packed_v3/wire005/index.rs
++++ b/src/workspace_overlay/packed_v3/wire005/index.rs
+@@ -707,6 +707,11 @@ impl<B: ObjectBackend + Clone + 'static> V3IndexReader<B> {
+             self.payload_retention = Some(Arc::new(
+                 super::payload_retention::PayloadRetention::new(capacity, self.budget.clone())?,
+             ));
++            tracing::info!(
++                capacity_bytes = capacity,
++                verify_every_fetched_frame = true,
++                "packed retained payload cache"
++            );
+         }
+         Ok(self)
+     }
+@@ -850,11 +855,19 @@ impl<B: ObjectBackend + Clone + 'static> V3IndexReader<B> {
+         if let Some(coordinator) = &runtime.coordinator {
+             return Ok(coordinator.clone());
+         }
+-        let coordinator = super::pipeline::V3DemandCoordinator::new(
+-            self.client.clone(),
+-            self.budget.clone(),
+-            super::pipeline::V3PipelineLimits::default(),
+-        )?;
++        let coordinator = if self.payload_retention.is_some() {
++            super::pipeline::V3DemandCoordinator::new_authenticated(
++                self.client.clone(),
++                self.budget.clone(),
++                super::pipeline::V3PipelineLimits::default(),
++            )?
++        } else {
++            super::pipeline::V3DemandCoordinator::new(
++                self.client.clone(),
++                self.budget.clone(),
++                super::pipeline::V3PipelineLimits::default(),
++            )?
++        };
+         runtime.coordinator = Some(coordinator.clone());
+         Ok(coordinator)
+     }
+diff --git a/src/workspace_overlay/packed_v3/wire005/metadata_cache_tests.rs b/src/workspace_overlay/packed_v3/wire005/metadata_cache_tests.rs
+index 137c105..9f26a98 100644
+--- a/src/workspace_overlay/packed_v3/wire005/metadata_cache_tests.rs
++++ b/src/workspace_overlay/packed_v3/wire005/metadata_cache_tests.rs
+@@ -9,13 +9,14 @@ use crate::workspace_overlay::packed_v3::{
+ };
+ use std::sync::{
+     Arc,
+-    atomic::{AtomicUsize, Ordering},
++    atomic::{AtomicBool, AtomicUsize, Ordering},
+ };
+ 
+ #[derive(Clone)]
+ struct CountingBackend {
+     inner: LocalFsBackend,
+     gets: Arc<AtomicUsize>,
++    corrupt_payload: Arc<AtomicBool>,
+ }
+ 
+ #[async_trait::async_trait]
+@@ -37,7 +38,13 @@ impl ObjectBackend for CountingBackend {
+         bytes: &mut [u8],
+     ) -> anyhow::Result<usize> {
+         self.gets.fetch_add(1, Ordering::SeqCst);
+-        self.inner.get_object_range(key, offset, bytes).await
++        let read = self.inner.get_object_range(key, offset, bytes).await?;
++        // This fixture's external frame is one raw 256 KiB payload. Metadata
++        // responses remain intact, so rejection must come from payload hashing.
++        if read == 256 << 10 && self.corrupt_payload.load(Ordering::SeqCst) {
++            bytes[0] ^= 1;
++        }
++        Ok(read)
+     }
+     async fn get_object_size_bounded(&self, key: &str) -> anyhow::Result<Option<u64>> {
+         self.inner.get_object_size_bounded(key).await
+@@ -64,9 +71,11 @@ async fn assert_repeated_authenticated_inode_read(retention_bytes: u64, repeat_g
+     let objects = tempfile::tempdir().unwrap();
+     let scratch = tempfile::tempdir().unwrap();
+     let gets = Arc::new(AtomicUsize::new(0));
++    let corrupt_payload = Arc::new(AtomicBool::new(false));
+     let client = ObjectClient::new(CountingBackend {
+         inner: LocalFsBackend::new(objects.path()),
+         gets: gets.clone(),
++        corrupt_payload: corrupt_payload.clone(),
+     });
+     let policy = V3BuildPolicy {
+         frames: V3FramePolicy::Static256Kib,
+@@ -162,6 +171,28 @@ async fn assert_repeated_authenticated_inode_read(retention_bytes: u64, repeat_g
+         3,
+         "lease fence retires both metadata caches"
+     );
++    if retention_bytes > 0 {
++        // An evicted frame is fetched again under the same immutable identity.
++        // A verification memo must not admit a corrupt replacement to retention.
++        corrupt_payload.store(true, Ordering::SeqCst);
++        reader.budget().invalidate_read_caches();
++        assert!(
++            snapshot
++                .read_inode_range(&client, &reader, 2, 0, &mut output, 32 << 20)
++                .await
++                .is_err(),
++            "retained frames must authenticate every newly fetched response"
++        );
++        corrupt_payload.store(false, Ordering::SeqCst);
++        snapshot
++            .read_inode_range(&client, &reader, 2, 0, &mut output, 32 << 20)
++            .await
++            .unwrap();
++        assert_eq!(
++            output, [0x5a; 4096],
++            "a failed refill must not populate the cache"
++        );
++    }
+ }
+ 
+ async fn sequential_smallfile_cache_fixture() -> (
+@@ -175,6 +206,7 @@ async fn sequential_smallfile_cache_fixture() -> (
+     let client = ObjectClient::new(CountingBackend {
+         inner: LocalFsBackend::new(objects.path()),
+         gets: gets.clone(),
++        corrupt_payload: Arc::new(AtomicBool::new(false)),
+     });
+     let options = V3ProducerOptions {
+         snapshot_id: [1; 32],
+diff --git a/src/workspace_overlay/packed_v3/wire005/pipeline/coordinator.rs b/src/workspace_overlay/packed_v3/wire005/pipeline/coordinator.rs
+index 2c5e5d1..28f5780 100644
+--- a/src/workspace_overlay/packed_v3/wire005/pipeline/coordinator.rs
++++ b/src/workspace_overlay/packed_v3/wire005/pipeline/coordinator.rs
+@@ -74,6 +74,16 @@ impl<B: ObjectBackend + Clone + 'static> V3DemandCoordinator<B> {
+         Self::new_configured(client, budget, limits, VerifyMemo::enabled_from_env()?)
+     }
+ 
++    /// Retained payload must come from this response's authenticated bytes,
++    /// never from a prior response's identity-only verification evidence.
++    pub(crate) fn new_authenticated(
++        client: ObjectClient<B>,
++        budget: Arc<V3MountBudget>,
++        limits: V3PipelineLimits,
++    ) -> PackedResult<Arc<Self>> {
++        Self::new_configured(client, budget, limits, false)
++    }
++
+     fn new_configured(
+         client: ObjectClient<B>,
+         budget: Arc<V3MountBudget>,

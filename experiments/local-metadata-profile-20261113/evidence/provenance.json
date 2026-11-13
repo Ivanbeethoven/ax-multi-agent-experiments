@@ -1,0 +1,50 @@
+{
+  "code_commit": "076cd91c83a35fe9b36767832134840abdd7001e",
+  "tested_after_base": "6c422594bbc2fc152f259d2637ca40e7ff0ddb22",
+  "before_code_commit": "6c422594bbc2fc152f259d2637ca40e7ff0ddb22",
+  "before_fuse_build_base": "579ee04a047e153ffb5ed6179174194be9172644",
+  "source_capture": "Canonical patches exported with native Windows Git and rechecked before commit. WSL Git diffs are omitted because its different LFS filter expands unrelated fixture archives.",
+  "source_patches": {
+    "source-before-profile.patch": "07debed7c652ef8a171d9c856a36e4cceae9c9998eadb8faf6217ad8750d3047",
+    "source-before-fuse.patch": "d4d99eb60a9a7b3f79ebc644347081391f79d1b302311d22d0f376e79d17d018",
+    "source-unlock-only.patch": "df936b87c56567f5620f0e0ec77d49b53e68a47619f1dd83c316eda5e04898d3",
+    "source-after.patch": "070013b283be454ec7ef773af1c39f8766adc9e27a81656c6194aa8b12df9cf9"
+  },
+  "binaries": {
+    "before": {
+      "brewfs": "f73436bd9be87a811dce384f714b7acaf13492bb57e2b8095bd5c35d3e5a324d",
+      "packed_v3_snapshot_fixture": "cf72573791f7dcb7117f1c9dd1a64dd34f2547859aa53bcc59061ef16e1275fd"
+    },
+    "after": {
+      "brewfs": "73167baf7aea20d47e75743e3165be8e93f1036c99d58b3b12c7598044cbe7ba",
+      "packed_v3_snapshot_fixture": "c7063da7b9ba1466ff1da1414f75c5f107c75559a03ef3fc9a3ca6f1e94e96b2"
+    }
+  },
+  "release_opt_level": 3,
+  "build_concurrency": {
+    "before": 1,
+    "after": 2
+  },
+  "test_scripts": {
+    "local-metadata-profile-20261113/run_redis_pairs.sh": "3c6eaed803664aca5cb7a209e96a34b6c5ce667da41aa444d61ac9ec65e21818",
+    "local-metadata-profile-20261113/run_fuse_pairs.py": "3d79ba2ac18408a75a69037539a63153764ca00a30b4078e101576b0f270dd6c",
+    "local-metadata-profile-20261113/summarize.py": "f68586146831ef58ea97ef4789de3bb846a0b11cbee478c71c5aead12503f08a",
+    "local-metadata-profile-20261113/summarize_fuse.py": "fc370b4b2193fff9fec734bb1871091c18951c8814eb0afeee51b780310d55b7",
+    "local-metadata-profile-20261113/summarize_mixed.py": "29c50f06b831e61a3345a0b9c1ba5d390467aa8365088fbdfa36e54d88f8533a",
+    "hot-lower-20261112/run_local.py": "63da53a86d998df69b7c524dc47d41251b9d82288b2490ece885d7476d7828a1",
+    "hot-lower-20261112/run_compose_guard.py": "b9c41704351bbfca4c565eadca3ddfc16a9fcd780213da2a7c62de7d878636c6",
+    "hot-lower-20261112/verify_results.py": "da5b24e04259518547314d5d65a5c9db05d7f09efc36db365567fbba93c5bbf2"
+  },
+  "mixed_comparison_tool_sha256": "8b944f449b9fbc71923c1282a7575445d2bd10254100363b2b46a236cc1f54ea",
+  "cloud_resources_started": 0,
+  "interrupted_runs": {
+    "before-01": "WSL connection timeout 0x8007274c during compilation; no timing accepted",
+    "build-01": "Interrupted intentionally to remove redundant timed reads; full CI had passed; no release binary accepted",
+    "ci-02": "Exec session disappeared during full-feature Clippy after all tests and default Clippy passed; WSL later booted fresh, cause unverified. Same-source remaining checks completed in ci-03; resume.json preserves log hash."
+  },
+  "limits": [
+    "local small workloads",
+    "TiKV runtime not tested",
+    "cross-machine crash recovery not tested"
+  ]
+}

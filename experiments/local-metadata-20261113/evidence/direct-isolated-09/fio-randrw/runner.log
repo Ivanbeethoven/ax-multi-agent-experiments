@@ -1,0 +1,77 @@
+[04:04:58] INFO  构建宿主机 brewfs release 二进制（供镜像 COPY）
+[04:04:58] OK    复用 Docker build context 二进制: /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/candidate/target/docker/brewfs
+[04:04:58] INFO  构建 perf runner 镜像
+time="2026-11-13T04:04:58+08:00" level=warning msg="No services to build"
+[04:05:00] INFO  启动依赖服务: redis rustfs
+ Network hot-guard-6dc40ea0c0_default Creating 
+ Network hot-guard-6dc40ea0c0_default Creating 
+ Volume hot-guard-6dc40ea0c0_disk0 Creating 
+ Volume hot-guard-6dc40ea0c0_disk0 Creating 
+ Volume hot-guard-6dc40ea0c0_disk3 Creating 
+ Volume hot-guard-6dc40ea0c0_disk3 Creating 
+ Volume hot-guard-6dc40ea0c0_disk1 Creating 
+ Volume hot-guard-6dc40ea0c0_disk1 Creating 
+ Volume hot-guard-6dc40ea0c0_disk2 Creating 
+ Volume hot-guard-6dc40ea0c0_disk2 Creating 
+ Volume hot-guard-6dc40ea0c0_disk0 Created 
+ Volume hot-guard-6dc40ea0c0_disk0 Created 
+ Volume hot-guard-6dc40ea0c0_disk3 Created 
+ Volume hot-guard-6dc40ea0c0_disk3 Created 
+ Volume hot-guard-6dc40ea0c0_disk1 Created 
+ Volume hot-guard-6dc40ea0c0_disk1 Created 
+ Volume hot-guard-6dc40ea0c0_disk2 Created 
+ Volume hot-guard-6dc40ea0c0_disk2 Created 
+ Network hot-guard-6dc40ea0c0_default Created 
+ Network hot-guard-6dc40ea0c0_default Created 
+ Container hot-guard-6dc40ea0c0-rustfs-1 Creating 
+ Container hot-guard-6dc40ea0c0-redis-1 Creating 
+ Container hot-guard-6dc40ea0c0-rustfs-1 Created 
+ Container hot-guard-6dc40ea0c0-redis-1 Created 
+ Container hot-guard-6dc40ea0c0-rustfs-1 Starting 
+ Container hot-guard-6dc40ea0c0-redis-1 Starting 
+ Container hot-guard-6dc40ea0c0-rustfs-1 Started 
+ Container hot-guard-6dc40ea0c0-redis-1 Started 
+[04:05:02] INFO  初始化 rustfs bucket（一次性容器）
+ Container hot-guard-6dc40ea0c0-redis-1 Running 
+ Container hot-guard-6dc40ea0c0-rustfs-1 Running 
+ Container hot-guard-6dc40ea0c0-redis-1 Waiting 
+ Container hot-guard-6dc40ea0c0-redis-1 Healthy 
+ Container hot-guard-6dc40ea0c0-rustfs-init-run-f9b6ece4c509 Creating 
+ Container hot-guard-6dc40ea0c0-rustfs-init-run-f9b6ece4c509 Created 
+[04:05:06] INFO  运行容器内性能测试（退出码由 perf 容器决定）
+ Volume hot-guard-6dc40ea0c0_state Creating 
+ Volume hot-guard-6dc40ea0c0_state Creating 
+ Volume hot-guard-6dc40ea0c0_state Created 
+ Volume hot-guard-6dc40ea0c0_state Created 
+ Container hot-guard-6dc40ea0c0-perf-run-fc932b396439 Creating 
+ Container hot-guard-6dc40ea0c0-perf-run-fc932b396439 Created 
+[20:05:06] INFO  nofile limit: 1048576
+[20:05:06] INFO  写入 BrewFS 配置: /run/brewfs/config.yaml
+[20:05:06] INFO  准备产物目录: /artifacts/perf-run-1794513906-28853-brewfs
+[20:05:07] INFO  安装 mount helper: /usr/sbin/mount.fuse.brewfs
+[20:05:07] INFO  挂载 BrewFS: /mnt/brewfs
+[20:05:10] OK    BrewFS 已挂载
+[20:05:10] INFO  执行挂载点预检: /mnt/brewfs
+[20:05:10] OK    预检通过: 写入/读取正常
+[20:05:10] INFO  开始性能测试: tools=fio-randrw
+[20:05:10] INFO  预填充 fio 数据集: fio-randrw
+[20:05:13] INFO  等待 prefill 写回严格排空: fio-randrw (threshold=0 bytes, stable=3, timeout=600s)
+[20:05:13] INFO    prefill 写回等待中: pending=1879048192 dirty=1879048192 buffer_dirty=1879048192 put_bytes=289407284 elapsed=0s
+[20:05:23] INFO    prefill 写回等待中: pending=1409286144 dirty=1409286144 buffer_dirty=1409286144 put_bytes=767558396 elapsed=10s
+[20:05:40] OK    prefill 写回已严格排空: fio-randrw (runner=23s extended=27s pending=0 dirty=0 buffer_dirty=0 put_bytes=2147485728 uploaded=0 stable=3s)
+[20:05:40] INFO  为 fio cold-read 重挂载 BrewFS: fio-randrw
+[20:05:40] INFO  挂载 BrewFS: /mnt/brewfs
+[20:05:42] OK    BrewFS 已挂载
+[20:05:42] INFO  运行压力工具: fio-randrw
+[20:05:42] INFO    命令: run_observed_fio fio-randrw --name=brewfs-randrw --directory=/mnt/brewfs/.perf-fio-randrw --rw=randrw --bs=4m --size=512m --numjobs=4 --ioengine=io_uring --iodepth=1 --direct=1 --runtime=20 --time_based --group_reporting --eta=never --rwmixread=70 --lat_percentiles=1 --clat_percentiles=1 --slat_percentiles=1 --percentile_list=50:95:99:99.9 --randseed=20261112 --randrepeat=1 --output-format=json --output=/artifacts/perf-run-1794513906-28853-brewfs/results/fio-randrw.json --write_lat_log=/artifacts/perf-run-1794513906-28853-brewfs/results/fio-randrw_lat --log_avg_msec=1000
+[20:06:03] OK    压力工具完成: fio-randrw (21s, log=0 bytes)
+[20:06:03] INFO  等待 post-write 写回严格排空: fio-randrw (threshold=0 bytes, stable=3, timeout=600s)
+[20:06:03] INFO    post-write 写回等待中: pending=3309305856 dirty=3309305856 buffer_dirty=3309305856 put_bytes=1912604448 elapsed=0s
+[20:06:23] INFO    post-write 写回等待中: pending=935329792 dirty=935329792 buffer_dirty=935329792 put_bytes=4282388468 elapsed=20s
+[20:06:45] OK    post-write 写回已严格排空: fio-randrw (runner=37s extended=42s pending=0 dirty=0 buffer_dirty=0 put_bytes=5213524860 uploaded=0 stable=3s)
+[20:06:45] INFO  测试完成后文件系统统计:
+[20:06:45] INFO    磁盘使用: 2.0G / 1.0P (1%)
+[20:06:45] INFO    残留文件数: 4
+[20:06:45] OK    性能测试全部完成
+[04:06:45] OK    perf compose 运行结束 (container=0, bench=0)
+[04:06:45] OK    产物目录: /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/candidate/docker/compose-xfstests/artifacts/perf-run-1794513898-29673

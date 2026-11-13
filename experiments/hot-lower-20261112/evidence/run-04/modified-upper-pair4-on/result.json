@@ -1,0 +1,4766 @@
+{
+  "label": "modified-upper-pair4-on",
+  "cache_enabled": true,
+  "scenario": "modified-upper",
+  "pair": 4,
+  "elapsed_ns": 1263501458,
+  "rustfs_before": {
+    "requests": 284,
+    "gets": 240,
+    "heads": 15,
+    "puts": 29,
+    "deletes": 0,
+    "received_bytes": 857123,
+    "sent_bytes": 259,
+    "errors": 0,
+    "inflight": 0
+  },
+  "rustfs_after": {
+    "requests": 284,
+    "gets": 240,
+    "heads": 15,
+    "puts": 29,
+    "deletes": 0,
+    "received_bytes": 857123,
+    "sent_bytes": 259,
+    "errors": 0,
+    "inflight": 0
+  },
+  "warm_s3": [
+    {
+      "requests": 0,
+      "gets": 0,
+      "heads": 0,
+      "puts": 0,
+      "deletes": 0,
+      "received_bytes": 0,
+      "sent_bytes": 0,
+      "errors": 0,
+      "inflight": 0
+    },
+    {
+      "requests": 0,
+      "gets": 0,
+      "heads": 0,
+      "puts": 0,
+      "deletes": 0,
+      "received_bytes": 0,
+      "sent_bytes": 0,
+      "errors": 0,
+      "inflight": 0
+    },
+    {
+      "requests": 0,
+      "gets": 0,
+      "heads": 0,
+      "puts": 0,
+      "deletes": 0,
+      "received_bytes": 0,
+      "sent_bytes": 0,
+      "errors": 0,
+      "inflight": 0
+    }
+  ],
+  "rustfs_delta": {
+    "requests": 0,
+    "gets": 0,
+    "heads": 0,
+    "puts": 0,
+    "deletes": 0,
+    "received_bytes": 0,
+    "sent_bytes": 0,
+    "errors": 0,
+    "inflight": 0
+  },
+  "stats_delta": {
+    "brewfs_uptime_seconds": 1.0,
+    "brewfs_fuse_read_ops_total": 640.0,
+    "brewfs_fuse_read_bytes_total": 1060224.0,
+    "brewfs_fuse_read_lat_us_total": 214615.0,
+    "brewfs_fuse_write_ops_total": 0.0,
+    "brewfs_fuse_write_bytes_total": 0.0,
+    "brewfs_fuse_write_lat_us_total": 0.0,
+    "brewfs_fuse_lookup_ops_total": 1280.0,
+    "brewfs_fuse_lookup_lat_us_total": 10335.0,
+    "brewfs_fuse_getattr_ops_total": 2948.0,
+    "brewfs_fuse_getattr_lat_us_total": 8986.0,
+    "brewfs_fuse_attr_valid_ns": 0.0,
+    "brewfs_fuse_entry_valid_ns": 0.0,
+    "brewfs_fuse_open_ops_total": 0.0,
+    "brewfs_fuse_create_ops_total": 0.0,
+    "brewfs_fuse_unlink_ops_total": 0.0,
+    "brewfs_fuse_readdir_ops_total": 0.0,
+    "brewfs_fuse_flush_ops_total": 0.0,
+    "brewfs_fuse_flush_lat_us_total": 0.0,
+    "brewfs_fuse_read_avg_lat_us": -1216.5428570000001,
+    "brewfs_fuse_write_avg_lat_us": 0.0,
+    "brewfs_fuse_flush_avg_lat_us": 0.0,
+    "brewfs_meta_ops_total": 0.0,
+    "brewfs_meta_lat_us_total": 0.0,
+    "brewfs_meta_txn_ops_total": 0.0,
+    "brewfs_meta_txn_lat_us_total": 0.0,
+    "brewfs_vfs_create_total_ops_total": 0.0,
+    "brewfs_vfs_create_total_lat_us_total": 0.0,
+    "brewfs_vfs_create_meta_ops_total": 0.0,
+    "brewfs_vfs_create_meta_lat_us_total": 0.0,
+    "brewfs_vfs_unlink_total_ops_total": 0.0,
+    "brewfs_vfs_unlink_total_lat_us_total": 0.0,
+    "brewfs_vfs_unlink_lookup_ops_total": 0.0,
+    "brewfs_vfs_unlink_lookup_lat_us_total": 0.0,
+    "brewfs_vfs_unlink_stat_ops_total": 0.0,
+    "brewfs_vfs_unlink_stat_lat_us_total": 0.0,
+    "brewfs_vfs_unlink_meta_ops_total": 0.0,
+    "brewfs_vfs_unlink_meta_lat_us_total": 0.0,
+    "brewfs_vfs_unlink_recent_ops_total": 0.0,
+    "brewfs_vfs_unlink_recent_lat_us_total": 0.0,
+    "brewfs_vfs_setattr_recent_remove_ops_total": 0.0,
+    "brewfs_vfs_setattr_recent_remove_lat_us_total": 0.0,
+    "brewfs_vfs_setattr_recent_get_mut_ops_total": 0.0,
+    "brewfs_vfs_setattr_recent_get_mut_lat_us_total": 0.0,
+    "brewfs_vfs_read_dirty_probe_ops_total": 0.0,
+    "brewfs_vfs_read_dirty_probe_lat_us_total": 0.0,
+    "brewfs_vfs_read_handle_ops_total": 0.0,
+    "brewfs_vfs_read_handle_lat_us_total": 0.0,
+    "brewfs_vfs_read_overlay_ops_total": 0.0,
+    "brewfs_vfs_read_overlay_lat_us_total": 0.0,
+    "brewfs_s3_get_ops_total": 0.0,
+    "brewfs_s3_get_bytes_total": 0.0,
+    "brewfs_s3_get_lat_us_total": 0.0,
+    "brewfs_s3_put_ops_total": 1.0,
+    "brewfs_s3_put_bytes_total": 18.0,
+    "brewfs_s3_put_lat_us_total": 16222.0,
+    "brewfs_s3_put_prepare_lat_us_total": 0.0,
+    "brewfs_s3_put_cache_lat_us_total": 5.0,
+    "brewfs_s3_del_ops_total": 0.0,
+    "brewfs_s3_get_avg_lat_us": 0.0,
+    "brewfs_s3_put_avg_lat_us": 2253.5,
+    "brewfs_s3_put_prepare_avg_lat_us": -57.5,
+    "brewfs_s3_put_cache_avg_lat_us": -187.5,
+    "brewfs_buffer_dirty_bytes": -65536.0,
+    "brewfs_buffer_read_bytes": 0.0,
+    "brewfs_memory_cas_retries_total": 0.0,
+    "brewfs_memory_allocation_rejections_total": 0.0,
+    "brewfs_writeback_dirty_bytes": -65536.0,
+    "brewfs_writeback_live_dirty_bytes": -65536.0,
+    "brewfs_writeback_live_slices": -1.0,
+    "brewfs_writeback_live_normal_only_bytes": -65536.0,
+    "brewfs_writeback_live_normal_only_slices": -1.0,
+    "brewfs_writeback_live_cached_only_bytes": 0.0,
+    "brewfs_writeback_live_cached_only_slices": 0.0,
+    "brewfs_writeback_live_mixed_origin_bytes": 0.0,
+    "brewfs_writeback_live_mixed_origin_slices": 0.0,
+    "brewfs_writeback_live_unknown_origin_bytes": 0.0,
+    "brewfs_writeback_live_unknown_origin_slices": 0.0,
+    "brewfs_writeback_recent_pending_upload_bytes": 0.0,
+    "brewfs_writeback_recent_pending_upload_slices": 0.0,
+    "brewfs_writeback_recent_uploaded_bytes": 0.0,
+    "brewfs_writeback_recent_uploaded_slices": 0.0,
+    "brewfs_writeback_backpressure_soft_sleep_ops": 0.0,
+    "brewfs_writeback_backpressure_soft_sleep_us": 0.0,
+    "brewfs_writeback_backpressure_hard_wait_ops": 0.0,
+    "brewfs_writeback_backpressure_hard_wait_us": 0.0,
+    "brewfs_writeback_buffer_soft_sleep_ops": 0.0,
+    "brewfs_writeback_buffer_soft_sleep_us": 0.0,
+    "brewfs_writeback_buffer_moderate_sleep_ops": 0.0,
+    "brewfs_writeback_buffer_moderate_sleep_us": 0.0,
+    "brewfs_writeback_buffer_hard_sleep_ops": 0.0,
+    "brewfs_writeback_buffer_hard_sleep_us": 0.0,
+    "brewfs_writeback_stage_inflight_bytes": 0.0,
+    "brewfs_writeback_remote_upload_inflight_bytes": -14.0,
+    "brewfs_writeback_metadata_inflight": 0.0,
+    "brewfs_writeback_stage_ops_total": 0.0,
+    "brewfs_writeback_stage_bytes_total": 0.0,
+    "brewfs_writeback_stage_lat_us_total": 0.0,
+    "brewfs_writeback_stage_failures_total": 0.0,
+    "brewfs_writeback_commit_before_stage_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_size_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_size_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_max_unflushed_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_max_unflushed_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_explicit_flush_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_explicit_flush_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_auto_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_auto_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_commit_age_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_commit_age_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_unknown_reason_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_unknown_reason_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_normal_only_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_normal_only_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_mixed_origin_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_mixed_origin_us_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_unknown_origin_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_upload_unknown_origin_us_total": 0.0,
+    "brewfs_writeback_commit_wait_retry_ops_total": 0.0,
+    "brewfs_writeback_commit_wait_retry_us_total": 0.0,
+    "brewfs_writeback_flush_wait_ops_total": 1.0,
+    "brewfs_writeback_flush_wait_us_total": 17334.0,
+    "brewfs_writeback_flush_wait_slices_total": 1.0,
+    "brewfs_writeback_flush_fragmentation_ops_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_slices_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_bytes_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_full_block_slices_total": 0.0,
+    "brewfs_writeback_flush_fragmentation_full_block_bytes_total": 0.0,
+    "brewfs_writeback_slice_create_ops_total": 0.0,
+    "brewfs_writeback_slice_reuse_ops_total": 0.0,
+    "brewfs_writeback_slice_reject_older_unique_ops_total": 0.0,
+    "brewfs_writeback_slice_reject_dispatched_prefix_ops_total": 0.0,
+    "brewfs_writeback_freeze_size_ops_total": 0.0,
+    "brewfs_writeback_freeze_size_bytes_total": 0.0,
+    "brewfs_writeback_freeze_max_unflushed_ops_total": 0.0,
+    "brewfs_writeback_freeze_max_unflushed_bytes_total": 0.0,
+    "brewfs_writeback_freeze_explicit_flush_ops_total": 0.0,
+    "brewfs_writeback_freeze_explicit_flush_bytes_total": 0.0,
+    "brewfs_writeback_freeze_auto_ops_total": 0.0,
+    "brewfs_writeback_freeze_auto_bytes_total": 0.0,
+    "brewfs_writeback_freeze_commit_age_ops_total": 0.0,
+    "brewfs_writeback_freeze_commit_age_bytes_total": 0.0,
+    "brewfs_writeback_upload_batch_ops_total": 0.0,
+    "brewfs_writeback_upload_batch_bytes_total": 0.0,
+    "brewfs_writeback_upload_batch_blocks_total": 0.0,
+    "brewfs_writeback_upload_batch_single_block_ops_total": 0.0,
+    "brewfs_writeback_upload_batch_multi_block_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_size_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_max_unflushed_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_explicit_flush_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_normal_only_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_mixed_origin_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_unknown_origin_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_age_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_idle_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_pressure_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_too_many_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_buffer_high_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_flush_duration_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_unknown_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_normal_only_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_mixed_origin_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_auto_unknown_origin_ops_total": 0.0,
+    "brewfs_writeback_upload_partial_tail_commit_age_ops_total": 0.0,
+    "brewfs_reader_buffer_bytes": 0.0,
+    "brewfs_cache_hits_total": 256.0,
+    "brewfs_cache_misses_total": 0.0,
+    "brewfs_cache_requests_total": 256.0,
+    "brewfs_cache_hit_ratio": 1.0,
+    "brewfs_read_block_cache_hits_total": 256.0,
+    "brewfs_read_page_cache_hits_total": 0.0,
+    "brewfs_read_page_cache_misses_total": 0.0,
+    "brewfs_read_range_gets_total": 0.0,
+    "brewfs_read_full_gets_total": 0.0,
+    "brewfs_read_piggyback_full_total": 0.0,
+    "brewfs_read_background_prefetch_total": 0.0,
+    "brewfs_read_background_prefetch_dropped_total": 0.0,
+    "brewfs_read_background_prefetch_suppressed_total": 0.0,
+    "brewfs_meta_stat_cache_hit_total": 0.0,
+    "brewfs_meta_stat_cache_miss_total": 0.0,
+    "brewfs_meta_stat_fresh_store_hit_total": 0.0,
+    "brewfs_meta_lookup_cache_hit_total": 0.0,
+    "brewfs_meta_lookup_cache_miss_total": 0.0,
+    "brewfs_meta_get_slices_cache_hit_total": 0.0,
+    "brewfs_meta_get_slices_cache_miss_total": 0.0,
+    "brewfs_meta_open_fresh_stat_total": 0.0,
+    "brewfs_meta_open_file_cache_hit_total": 0.0,
+    "brewfs_meta_open_file_cache_miss_total": 0.0,
+    "brewfs_meta_lookup_attr_fused_hit_total": 0.0,
+    "brewfs_meta_lookup_attr_fused_miss_total": 0.0,
+    "brewfs_meta_lookup_attr_fused_error_total": 0.0,
+    "brewfs_request_observation_enabled": 0.0,
+    "brewfs_request_observation_sample_rate": 0.0,
+    "brewfs_request_observation_received_total": 0.0,
+    "brewfs_request_observation_sampled_total": 0.0,
+    "brewfs_request_observation_closed_total": 0.0,
+    "brewfs_request_observation_cancelled_total": 0.0,
+    "brewfs_request_observation_errors_total": 0.0,
+    "brewfs_request_observation_dropped_total": 0.0,
+    "brewfs_request_observation_active": 0.0,
+    "brewfs_request_observation_closure_gap_ns_total": 0.0,
+    "brewfs_request_observation_closure_gap_ns_max": 0.0,
+    "brewfs_request_fuse_queue_depth": 0.0,
+    "brewfs_request_fuse_queue_oldest_age_ns": 0.0,
+    "brewfs_request_fuse_queue_wait_ns_count": 0.0,
+    "brewfs_request_fuse_queue_wait_ns_sum": 0.0,
+    "brewfs_request_fuse_queue_wait_queue_depth": 0.0,
+    "brewfs_request_fuse_queue_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_file_lock_wait_ns_count": 0.0,
+    "brewfs_request_file_lock_wait_ns_sum": 0.0,
+    "brewfs_request_file_lock_wait_queue_depth": 0.0,
+    "brewfs_request_file_lock_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_chunk_lock_wait_ns_count": 0.0,
+    "brewfs_request_chunk_lock_wait_ns_sum": 0.0,
+    "brewfs_request_chunk_lock_wait_queue_depth": 0.0,
+    "brewfs_request_chunk_lock_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_dirty_merge_ns_count": 0.0,
+    "brewfs_request_dirty_merge_ns_sum": 0.0,
+    "brewfs_request_dirty_merge_queue_depth": 0.0,
+    "brewfs_request_dirty_merge_queue_oldest_age_ns": 0.0,
+    "brewfs_request_flush_wait_ns_count": 0.0,
+    "brewfs_request_flush_wait_ns_sum": 0.0,
+    "brewfs_request_flush_wait_queue_depth": 0.0,
+    "brewfs_request_flush_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_metadata_rpc_wait_ns_count": 0.0,
+    "brewfs_request_metadata_rpc_wait_ns_sum": 0.0,
+    "brewfs_request_metadata_rpc_wait_queue_depth": 0.0,
+    "brewfs_request_metadata_rpc_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_metadata_commit_ns_count": 0.0,
+    "brewfs_request_metadata_commit_ns_sum": 0.0,
+    "brewfs_request_metadata_commit_queue_depth": 0.0,
+    "brewfs_request_metadata_commit_queue_oldest_age_ns": 0.0,
+    "brewfs_request_object_put_queue_wait_ns_count": 0.0,
+    "brewfs_request_object_put_queue_wait_ns_sum": 0.0,
+    "brewfs_request_object_put_queue_wait_queue_depth": 0.0,
+    "brewfs_request_object_put_queue_wait_queue_oldest_age_ns": 0.0,
+    "brewfs_request_object_put_ns_count": 0.0,
+    "brewfs_request_object_put_ns_sum": 0.0,
+    "brewfs_request_object_put_queue_depth": 0.0,
+    "brewfs_request_object_put_queue_oldest_age_ns": 0.0,
+    "brewfs_request_reply_ns_count": 0.0,
+    "brewfs_request_reply_ns_sum": 0.0,
+    "brewfs_request_reply_queue_depth": 0.0,
+    "brewfs_request_reply_queue_oldest_age_ns": 0.0,
+    "brewfs_request_handler_ns_count": 0.0,
+    "brewfs_request_handler_ns_sum": 0.0,
+    "brewfs_request_handler_queue_depth": 0.0,
+    "brewfs_request_handler_queue_oldest_age_ns": 0.0,
+    "brewfs_request_handler_poll_ns_count": 0.0,
+    "brewfs_request_handler_poll_ns_sum": 0.0,
+    "brewfs_request_handler_poll_queue_depth": 0.0,
+    "brewfs_request_handler_poll_queue_oldest_age_ns": 0.0,
+    "brewfs_request_operation_read_ns_count": 0.0,
+    "brewfs_request_operation_read_ns_sum": 0.0,
+    "brewfs_request_operation_write_ns_count": 0.0,
+    "brewfs_request_operation_write_ns_sum": 0.0,
+    "brewfs_request_operation_close_ns_count": 0.0,
+    "brewfs_request_operation_close_ns_sum": 0.0,
+    "brewfs_request_operation_fsync_ns_count": 0.0,
+    "brewfs_request_operation_fsync_ns_sum": 0.0,
+    "brewfs_request_operation_metadata_ns_count": 0.0,
+    "brewfs_request_operation_metadata_ns_sum": 0.0,
+    "brewfs_request_trace_records_dropped_total": 0.0,
+    "brewfs_workspace_row_cache_hits_total": 12419.0,
+    "brewfs_workspace_row_cache_misses_total": 512.0,
+    "brewfs_workspace_row_cache_hit_ratio": 0.0649860000000001,
+    "brewfs_workspace_upper_extent_queries_total": 256.0,
+    "brewfs_workspace_upper_extent_empty_cache_hits_total": 384.0,
+    "brewfs_workspace_upper_directory_queries_total": 512.0,
+    "brewfs_workspace_upper_directory_empty_cache_hits_total": 0.0,
+    "brewfs_packed_v3_runtime_backend_range_gets_total": 0.0,
+    "brewfs_packed_v3_runtime_backend_requested_bytes_total": 0.0,
+    "brewfs_packed_v3_runtime_backend_received_bytes_total": 0.0,
+    "brewfs_packed_v3_runtime_backend_failures_total": 0.0,
+    "brewfs_packed_v3_logical_bytes_total": 1060224.0,
+    "brewfs_packed_v3_budget_roots_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_roots_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_roots_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_metadata_owned_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_metadata_owned_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_metadata_owned_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_plans_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_plans_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_plans_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_control_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_control_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_control_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_stored_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_stored_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_stored_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_raw_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_raw_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_raw_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_decode_workspace_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_decode_workspace_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_decode_workspace_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_output_capacity_bytes": 0.0,
+    "brewfs_packed_v3_budget_output_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_output_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_budget_rejections_total": 0.0,
+    "brewfs_packed_v3_budget_closed": 0.0,
+    "brewfs_packed_v3_index_cache_configured_bytes": 0.0,
+    "brewfs_packed_v3_index_cache_retained_weighted_bytes": 0.0,
+    "brewfs_packed_v3_index_cache_retained_pages": 0.0,
+    "brewfs_packed_v3_index_cache_owned_bytes": 0.0,
+    "brewfs_packed_v3_index_cache_peak_owned_bytes": 0.0,
+    "brewfs_packed_v3_payload_retention_capacity_bytes": 0.0,
+    "brewfs_packed_v3_payload_retention_resident_charge_bytes": 0.0,
+    "brewfs_packed_v3_payload_retention_entries": 0.0,
+    "brewfs_packed_v3_payload_retention_hits_total": 640.0,
+    "brewfs_packed_v3_payload_retention_misses_total": 0.0,
+    "brewfs_packed_v3_payload_retention_evictions_total": 0.0,
+    "brewfs_object_read_counters_valid": 0.0,
+    "brewfs_object_read_http_attempts_observed": 0.0,
+    "brewfs_object_read_http_body_bytes_observed": 0.0,
+    "brewfs_object_read_raw_union_observed": 0.0
+  },
+  "redis_before": {
+    "script|load": {
+      "calls": 3.0,
+      "usec": 328.0,
+      "usec_per_call": 109.33,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "client|setinfo": {
+      "calls": 60.0,
+      "usec": 64.0,
+      "usec_per_call": 1.07,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "set": {
+      "calls": 1121.0,
+      "usec": 847.0,
+      "usec_per_call": 0.76,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "strlen": {
+      "calls": 14177.0,
+      "usec": 7679.0,
+      "usec_per_call": 0.54,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "get": {
+      "calls": 17115.0,
+      "usec": 5311.0,
+      "usec_per_call": 0.31,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "time": {
+      "calls": 9017.0,
+      "usec": 5059.0,
+      "usec_per_call": 0.56,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exec": {
+      "calls": 3749.0,
+      "usec": 12373.0,
+      "usec_per_call": 3.3,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "mget": {
+      "calls": 5759.0,
+      "usec": 12271.0,
+      "usec_per_call": 2.13,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zrem": {
+      "calls": 50.0,
+      "usec": 89.0,
+      "usec_per_call": 1.78,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "del": {
+      "calls": 50.0,
+      "usec": 40.0,
+      "usec_per_call": 0.8,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "scan": {
+      "calls": 15.0,
+      "usec": 543.0,
+      "usec_per_call": 36.2,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "evalsha": {
+      "calls": 14676.0,
+      "usec": 255206.0,
+      "usec_per_call": 17.39,
+      "rejected_calls": 0.0,
+      "failed_calls": 3.0
+    },
+    "type": {
+      "calls": 3177.0,
+      "usec": 1166.0,
+      "usec_per_call": 0.37,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "info": {
+      "calls": 28.0,
+      "usec": 1755.0,
+      "usec_per_call": 62.68,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "ping": {
+      "calls": 1.0,
+      "usec": 2.0,
+      "usec_per_call": 2.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zadd": {
+      "calls": 1106.0,
+      "usec": 1252.0,
+      "usec_per_call": 1.13,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exists": {
+      "calls": 7108.0,
+      "usec": 1686.0,
+      "usec_per_call": 0.24,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "multi": {
+      "calls": 3749.0,
+      "usec": 1300.0,
+      "usec_per_call": 0.35,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zrangebylex": {
+      "calls": 17145.0,
+      "usec": 40938.0,
+      "usec_per_call": 2.39,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    }
+  },
+  "redis_after": {
+    "script|load": {
+      "calls": 3.0,
+      "usec": 328.0,
+      "usec_per_call": 109.33,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "client|setinfo": {
+      "calls": 60.0,
+      "usec": 64.0,
+      "usec_per_call": 1.07,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "set": {
+      "calls": 1121.0,
+      "usec": 847.0,
+      "usec_per_call": 0.76,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "strlen": {
+      "calls": 15585.0,
+      "usec": 8171.0,
+      "usec_per_call": 0.52,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "get": {
+      "calls": 18523.0,
+      "usec": 5659.0,
+      "usec_per_call": 0.31,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "time": {
+      "calls": 9529.0,
+      "usec": 5335.0,
+      "usec_per_call": 0.56,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exec": {
+      "calls": 4005.0,
+      "usec": 13186.0,
+      "usec_per_call": 3.29,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "mget": {
+      "calls": 6271.0,
+      "usec": 13176.0,
+      "usec_per_call": 2.1,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zrem": {
+      "calls": 50.0,
+      "usec": 89.0,
+      "usec_per_call": 1.78,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "del": {
+      "calls": 50.0,
+      "usec": 40.0,
+      "usec_per_call": 0.8,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "scan": {
+      "calls": 15.0,
+      "usec": 543.0,
+      "usec_per_call": 36.2,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "evalsha": {
+      "calls": 16084.0,
+      "usec": 275698.0,
+      "usec_per_call": 17.14,
+      "rejected_calls": 0.0,
+      "failed_calls": 3.0
+    },
+    "type": {
+      "calls": 3177.0,
+      "usec": 1166.0,
+      "usec_per_call": 0.37,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "info": {
+      "calls": 29.0,
+      "usec": 1817.0,
+      "usec_per_call": 62.66,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "ping": {
+      "calls": 1.0,
+      "usec": 2.0,
+      "usec_per_call": 2.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zadd": {
+      "calls": 1106.0,
+      "usec": 1252.0,
+      "usec_per_call": 1.13,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exists": {
+      "calls": 8260.0,
+      "usec": 1925.0,
+      "usec_per_call": 0.23,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "multi": {
+      "calls": 4005.0,
+      "usec": 1384.0,
+      "usec_per_call": 0.35,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zrangebylex": {
+      "calls": 18809.0,
+      "usec": 44908.0,
+      "usec_per_call": 2.39,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    }
+  },
+  "redis_delta": {
+    "script|load": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "client|setinfo": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "set": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "strlen": {
+      "calls": 1408.0,
+      "usec": 492.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "get": {
+      "calls": 1408.0,
+      "usec": 348.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "time": {
+      "calls": 512.0,
+      "usec": 276.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exec": {
+      "calls": 256.0,
+      "usec": 813.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "mget": {
+      "calls": 512.0,
+      "usec": 905.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zrem": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "del": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "scan": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "evalsha": {
+      "calls": 1408.0,
+      "usec": 20492.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "type": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "info": {
+      "calls": 1.0,
+      "usec": 62.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "ping": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zadd": {
+      "calls": 0.0,
+      "usec": 0.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "exists": {
+      "calls": 1152.0,
+      "usec": 239.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "multi": {
+      "calls": 256.0,
+      "usec": 84.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    },
+    "zrangebylex": {
+      "calls": 1664.0,
+      "usec": 3970.0,
+      "rejected_calls": 0.0,
+      "failed_calls": 0.0
+    }
+  },
+  "expected_sha256": {
+    "a.txt": "882013fca3138096ca7818523755aec16ee7f6f2ce8ad5c649faaf4df38e7cb9",
+    "sub/b.txt": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108",
+    "sub/edit.bin": "bac9f8eece2abe305f0004f74a3a4b2fb0ecbe4b3610b2612d64178a8b5050e4",
+    "stable.bin": "c8f5d0341d54d951a71b136e6e2afcb14d11ed8489a7ae126a8fee0df6ecf193",
+    "sub/renamed.txt": "63a69e99d4d1291a3d5efb10b09ec9102e7a0c6db20f810d59e3553692aa8427"
+  },
+  "samples": [
+    {
+      "open_and_list_ns": 3916176,
+      "lookup_and_stat_ns": 259239,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 163145,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 104173,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 720500,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 96517,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 831285,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3712122,
+      "lookup_and_stat_ns": 232038,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 117745,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 110867,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 738792,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 100191,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 727453,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3318300,
+      "lookup_and_stat_ns": 209316,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 107374,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 143930,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 753365,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 119378,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 700043,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3320557,
+      "lookup_and_stat_ns": 212098,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 98134,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 107250,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 804502,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 94771,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 631343,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3202045,
+      "lookup_and_stat_ns": 229374,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 125733,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 102653,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 932098,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 131418,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 721666,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3285076,
+      "lookup_and_stat_ns": 192126,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 103971,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 106426,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 803081,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 109335,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 700036,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3596773,
+      "lookup_and_stat_ns": 270727,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 150022,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 113686,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 797898,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 133395,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 969827,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4387476,
+      "lookup_and_stat_ns": 316054,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 170691,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 143314,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1088348,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 149109,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 1074430,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4405746,
+      "lookup_and_stat_ns": 385981,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 185161,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 174071,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 985805,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 122530,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 916980,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 5005932,
+      "lookup_and_stat_ns": 360737,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 339967,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 155846,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1009576,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 141334,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 948715,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4329923,
+      "lookup_and_stat_ns": 354608,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 199836,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 212135,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1253692,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 155126,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 1068685,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4006503,
+      "lookup_and_stat_ns": 301445,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 107111,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 135791,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 911839,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 117484,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 954706,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4022437,
+      "lookup_and_stat_ns": 327796,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 171529,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 161653,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 860092,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 96299,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 831868,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3705125,
+      "lookup_and_stat_ns": 275810,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 100112,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 133047,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 874116,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 131183,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 796483,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3706074,
+      "lookup_and_stat_ns": 277632,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 133538,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 135087,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 930817,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 148062,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 778598,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3716706,
+      "lookup_and_stat_ns": 270360,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 181764,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 109687,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 848299,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 122130,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 785179,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3737283,
+      "lookup_and_stat_ns": 357717,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 126041,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 143369,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 975691,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 118144,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 764797,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3733576,
+      "lookup_and_stat_ns": 282414,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 141040,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 138106,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 832823,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 153014,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 788232,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3601499,
+      "lookup_and_stat_ns": 371642,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 146619,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 124736,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 825048,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 129174,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 940454,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3613355,
+      "lookup_and_stat_ns": 282659,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 132757,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 141437,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 828553,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 127991,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 829316,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4351190,
+      "lookup_and_stat_ns": 287796,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 157974,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 124767,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 816465,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 160534,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 952238,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3980932,
+      "lookup_and_stat_ns": 277312,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 130656,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 249821,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 923590,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 129299,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 823350,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3766358,
+      "lookup_and_stat_ns": 329719,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 121858,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 148209,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 975489,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 156652,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 744674,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3866385,
+      "lookup_and_stat_ns": 310272,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 157953,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 108637,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 868252,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 153676,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 738141,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3578200,
+      "lookup_and_stat_ns": 275011,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 130763,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 96474,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 808559,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 145149,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 936554,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3660151,
+      "lookup_and_stat_ns": 251145,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 114836,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 106141,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 811167,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 126100,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 775978,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3754858,
+      "lookup_and_stat_ns": 279542,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 114607,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 104841,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 965451,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 128293,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 742464,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4168087,
+      "lookup_and_stat_ns": 250147,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 131389,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 159621,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 843452,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 134320,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 822993,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4422898,
+      "lookup_and_stat_ns": 301815,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 156861,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 112014,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 888412,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 141864,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 717968,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3706539,
+      "lookup_and_stat_ns": 286140,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 115769,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 131699,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1046230,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 102477,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 802681,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3547666,
+      "lookup_and_stat_ns": 246097,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 127713,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 134320,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 865125,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 134182,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 959891,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3916327,
+      "lookup_and_stat_ns": 275379,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 161740,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 106126,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 848508,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 126872,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 910746,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3897942,
+      "lookup_and_stat_ns": 245671,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 144115,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 118472,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 837674,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 129175,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 791781,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3838267,
+      "lookup_and_stat_ns": 326652,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 126333,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 134900,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 824511,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 146432,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 738784,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3705898,
+      "lookup_and_stat_ns": 398719,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 136610,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 120325,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 814401,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 152679,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 735681,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3897315,
+      "lookup_and_stat_ns": 267751,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 164602,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 141115,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 997967,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 134790,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 702152,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4050970,
+      "lookup_and_stat_ns": 278328,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 154607,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 119939,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 815399,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 128675,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 765704,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3747352,
+      "lookup_and_stat_ns": 343543,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 161681,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 237291,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1144790,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 151279,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 837834,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3953198,
+      "lookup_and_stat_ns": 335446,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 173664,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 126753,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 886159,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 114021,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 945118,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4107165,
+      "lookup_and_stat_ns": 275565,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 186390,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 115255,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 896138,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 115050,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 786744,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3933620,
+      "lookup_and_stat_ns": 309090,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 142402,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 126407,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 957783,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 141551,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 790862,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3932960,
+      "lookup_and_stat_ns": 330654,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 177313,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 112591,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 854583,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 135644,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 939618,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4173219,
+      "lookup_and_stat_ns": 295492,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 138461,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 118865,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 876843,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 163844,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 729256,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4375699,
+      "lookup_and_stat_ns": 256922,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 144578,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 137608,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1016780,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 141093,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 952347,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4174130,
+      "lookup_and_stat_ns": 311368,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 134580,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 128115,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1026693,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 105743,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 774483,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4185583,
+      "lookup_and_stat_ns": 298308,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 163678,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 137754,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 934365,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 117642,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 849060,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4122894,
+      "lookup_and_stat_ns": 289998,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 128418,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 112623,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 980727,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 123752,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 800792,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4140757,
+      "lookup_and_stat_ns": 329763,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 153740,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 139483,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 930078,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 105153,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 914650,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4440179,
+      "lookup_and_stat_ns": 335426,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 141528,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 162732,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 885990,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 138244,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 870290,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4140930,
+      "lookup_and_stat_ns": 410838,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 122249,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 132069,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 882803,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 107828,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 832140,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4111529,
+      "lookup_and_stat_ns": 294568,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 138771,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 148637,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 806090,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 130669,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 765272,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4447728,
+      "lookup_and_stat_ns": 377550,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 123099,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 123620,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 977122,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 113819,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 879774,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3787184,
+      "lookup_and_stat_ns": 266448,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 122285,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 122063,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 857799,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 122589,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 902737,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4417912,
+      "lookup_and_stat_ns": 278646,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 167302,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 150194,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1080505,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 113052,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 803701,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4592919,
+      "lookup_and_stat_ns": 356176,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 116822,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 151576,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 877806,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 137914,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 866602,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3709187,
+      "lookup_and_stat_ns": 290191,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 150347,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 123219,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 864054,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 137723,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 819797,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3855231,
+      "lookup_and_stat_ns": 275485,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 124660,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 131406,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 891999,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 159527,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 767035,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3997979,
+      "lookup_and_stat_ns": 412437,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 139324,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 125845,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 881228,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 141524,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 791385,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3870182,
+      "lookup_and_stat_ns": 324038,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 120171,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 113429,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 879980,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 143700,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 905695,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3850354,
+      "lookup_and_stat_ns": 297697,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 123256,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 96666,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 817806,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 152462,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 877137,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3899590,
+      "lookup_and_stat_ns": 309907,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 115844,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 137237,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1004196,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 163618,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 861007,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3852985,
+      "lookup_and_stat_ns": 262380,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 121668,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 128286,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 811911,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 115039,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 823736,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3937903,
+      "lookup_and_stat_ns": 294547,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 153042,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 141527,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 797936,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 132555,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 794466,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3819006,
+      "lookup_and_stat_ns": 371290,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 151088,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 110024,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 881320,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 135674,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 973086,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4006197,
+      "lookup_and_stat_ns": 281699,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 189322,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 201527,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 855800,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 107885,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 792430,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3807210,
+      "lookup_and_stat_ns": 365185,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 116640,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 127288,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 879495,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 151538,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 794561,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4161913,
+      "lookup_and_stat_ns": 277983,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 153528,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 117190,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 900258,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 113666,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 863477,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3966446,
+      "lookup_and_stat_ns": 286453,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 165222,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 151827,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 872918,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 107005,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 908915,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3505767,
+      "lookup_and_stat_ns": 356808,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 135462,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 130847,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 881276,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 144679,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 790842,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3875071,
+      "lookup_and_stat_ns": 303550,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 127054,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 103316,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 779447,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 118146,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 803583,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3981889,
+      "lookup_and_stat_ns": 316033,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 158351,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 107271,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 820257,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 123209,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 825132,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3735501,
+      "lookup_and_stat_ns": 338888,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 129894,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 130043,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 851736,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 115652,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 719814,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3666000,
+      "lookup_and_stat_ns": 298757,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 109788,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 161346,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 878569,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 109243,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 771470,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4102451,
+      "lookup_and_stat_ns": 266807,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 125672,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 168415,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 790068,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 114032,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 778511,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4081753,
+      "lookup_and_stat_ns": 335195,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 166490,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 136162,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 872567,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 144338,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 782627,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4047107,
+      "lookup_and_stat_ns": 266441,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 134952,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 115774,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 950007,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 109798,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 875996,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4095981,
+      "lookup_and_stat_ns": 324110,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 163179,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 126524,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 959524,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 145418,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 815362,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3729011,
+      "lookup_and_stat_ns": 302338,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 120358,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 136805,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 882026,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 119335,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 955969,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4149754,
+      "lookup_and_stat_ns": 285256,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 161498,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 143980,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 863276,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 120023,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 790668,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4101848,
+      "lookup_and_stat_ns": 402744,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 110624,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 100578,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 844782,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 167631,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 767028,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3785541,
+      "lookup_and_stat_ns": 294019,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 136384,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 127539,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 924308,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 135152,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 852292,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3759747,
+      "lookup_and_stat_ns": 254413,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 111426,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 127603,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 811678,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 139312,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 806219,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3802808,
+      "lookup_and_stat_ns": 338533,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 135793,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 161307,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1018695,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 163561,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 816574,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3791087,
+      "lookup_and_stat_ns": 275442,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 146695,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 143777,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 964160,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 134106,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 849931,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4667940,
+      "lookup_and_stat_ns": 348901,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 154499,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 121619,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 886042,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 131501,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 786075,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3712170,
+      "lookup_and_stat_ns": 320282,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 120330,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 144073,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1144139,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 128852,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 819685,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3865717,
+      "lookup_and_stat_ns": 276057,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 152073,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 169893,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 899420,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 137134,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 930829,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4138020,
+      "lookup_and_stat_ns": 294228,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 112624,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 110373,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 916898,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 110985,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 812554,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3963451,
+      "lookup_and_stat_ns": 245253,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 110461,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 129606,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 900106,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 148308,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 852049,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3947937,
+      "lookup_and_stat_ns": 271465,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 167377,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 116969,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 870232,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 115216,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 758525,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4235512,
+      "lookup_and_stat_ns": 361441,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 129215,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 124222,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1052435,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 137522,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 821024,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3941050,
+      "lookup_and_stat_ns": 289189,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 129373,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 108377,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 842442,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 109988,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 879879,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3887826,
+      "lookup_and_stat_ns": 264286,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 121222,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 106716,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 848472,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 128723,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 863059,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3952064,
+      "lookup_and_stat_ns": 279039,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 128033,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 115373,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 954648,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 145037,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 752261,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3808199,
+      "lookup_and_stat_ns": 281299,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 105753,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 108811,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 824892,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 127223,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 821565,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3977641,
+      "lookup_and_stat_ns": 273048,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 128712,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 119655,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 891599,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 119795,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 730038,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3843984,
+      "lookup_and_stat_ns": 293586,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 138257,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 219786,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 884284,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 106446,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 816818,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4021374,
+      "lookup_and_stat_ns": 382108,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 130369,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 115966,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 862481,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 130429,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 747581,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4179097,
+      "lookup_and_stat_ns": 331030,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 153377,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 123893,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1006938,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 129508,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 834013,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3792470,
+      "lookup_and_stat_ns": 309463,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 146336,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 120779,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 881259,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 148120,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 891946,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4270670,
+      "lookup_and_stat_ns": 290626,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 146233,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 339473,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 952283,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 134319,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 941340,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3996178,
+      "lookup_and_stat_ns": 279295,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 120086,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 130467,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 844961,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 112047,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 866887,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3904195,
+      "lookup_and_stat_ns": 256946,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 117856,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 106642,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 838620,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 142662,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 829952,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3824373,
+      "lookup_and_stat_ns": 262708,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 149087,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 155009,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 842343,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 150763,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 800005,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4172685,
+      "lookup_and_stat_ns": 279297,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 128108,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 129321,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 949147,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 166914,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 873017,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3881739,
+      "lookup_and_stat_ns": 266875,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 121004,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 119913,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1189397,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 164452,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 778312,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3928796,
+      "lookup_and_stat_ns": 269812,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 143750,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 139531,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 812095,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 136902,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 891604,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3865696,
+      "lookup_and_stat_ns": 224625,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 153902,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 118786,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 921011,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 121056,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 670078,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4034760,
+      "lookup_and_stat_ns": 248572,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 124051,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 104087,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 769105,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 155464,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 747855,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4078816,
+      "lookup_and_stat_ns": 328796,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 107355,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 176226,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 914604,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 162418,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 855575,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4099952,
+      "lookup_and_stat_ns": 340057,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 145957,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 130882,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 854360,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 125535,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 897159,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4553339,
+      "lookup_and_stat_ns": 351452,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 174414,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 140145,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1086748,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 105242,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 986375,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4323561,
+      "lookup_and_stat_ns": 262875,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 157019,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 158427,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1092988,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 140051,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 881319,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4302966,
+      "lookup_and_stat_ns": 339664,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 183398,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 126028,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 916030,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 165394,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 915379,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4224029,
+      "lookup_and_stat_ns": 282404,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 130002,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 165464,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 956241,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 157712,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 738821,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3675013,
+      "lookup_and_stat_ns": 327211,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 168099,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 120866,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 903694,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 120802,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 927060,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3682200,
+      "lookup_and_stat_ns": 298526,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 149994,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 142188,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 1199808,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 191848,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 1102171,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3712618,
+      "lookup_and_stat_ns": 259137,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 141337,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 123462,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 916892,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 116632,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 723279,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3976859,
+      "lookup_and_stat_ns": 267492,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 163035,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 132301,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 868210,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 121057,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 893072,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3482784,
+      "lookup_and_stat_ns": 280699,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 134529,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 113275,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 816048,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 142803,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 898146,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3813979,
+      "lookup_and_stat_ns": 277201,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 136413,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 118003,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 855991,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 137284,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 837458,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4029769,
+      "lookup_and_stat_ns": 297245,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 145750,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 119415,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 905905,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 148253,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 752035,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 4147691,
+      "lookup_and_stat_ns": 238364,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 164679,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 113178,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 835821,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 110853,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 959982,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3342578,
+      "lookup_and_stat_ns": 324326,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 149726,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 108891,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 996701,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 114862,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 930423,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3625495,
+      "lookup_and_stat_ns": 268417,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 122950,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 110682,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 911479,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 157451,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 736194,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3571621,
+      "lookup_and_stat_ns": 252903,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 119609,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 106606,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 942030,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 108642,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 716913,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3581590,
+      "lookup_and_stat_ns": 238102,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 206397,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 110350,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 955705,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 115712,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 731510,
+          "bytes": 14
+        }
+      ]
+    },
+    {
+      "open_and_list_ns": 3601234,
+      "lookup_and_stat_ns": 236744,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 112730,
+          "bytes": 13
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 123515,
+          "bytes": 64
+        },
+        {
+          "path": "sub/edit.bin",
+          "elapsed_ns": 804266,
+          "bytes": 4096
+        },
+        {
+          "path": "stable.bin",
+          "elapsed_ns": 111579,
+          "bytes": 4096
+        },
+        {
+          "path": "sub/renamed.txt",
+          "elapsed_ns": 698394,
+          "bytes": 14
+        }
+      ]
+    }
+  ]
+}

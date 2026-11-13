@@ -1,0 +1,162 @@
+{
+  "argv": [
+    "/usr/local/bin/brewfs",
+    "mount",
+    "--privileged",
+    "--config",
+    "/run/brewfs/config.yaml",
+    "/mnt/brewfs"
+  ],
+  "binary_sha256": "73167baf7aea20d47e75743e3165be8e93f1036c99d58b3b12c7598044cbe7ba",
+  "environment": {
+    "BREWFS_ARTIFACT_ROOT": "/artifacts",
+    "BREWFS_CACHED_BLOCK_ASSEMBLER": "true",
+    "BREWFS_CACHE_ROOT": "/var/lib/brewfs/cache",
+    "BREWFS_COMPRESSION": "none",
+    "BREWFS_CONFIG_PATH": "/run/brewfs/config.yaml",
+    "BREWFS_DATA_BACKEND": "s3",
+    "BREWFS_DATA_DIR": "/var/lib/brewfs/data",
+    "BREWFS_DIRTY_SLICE_TARGET_SIZE": "67108864",
+    "BREWFS_FUSE_MAX_BACKGROUND": "512",
+    "BREWFS_FUSE_OP_LOG": "0",
+    "BREWFS_FUSE_READ_DIRECT_IO": "1",
+    "BREWFS_FUSE_WORKERS": "16",
+    "BREWFS_HOME": "/var/lib/brewfs",
+    "BREWFS_LOG_FILE": "/artifacts/perf-run-1794543581-30332-brewfs/brewfs.log",
+    "BREWFS_MEMORY_BUDGET_BYTES": "12884901888",
+    "BREWFS_METADATA_OPEN_CACHE_CAPACITY": "65536",
+    "BREWFS_METADATA_OPEN_CACHE_TTL_MS": "1000",
+    "BREWFS_META_BACKEND": "redis",
+    "BREWFS_META_URL": "redis://redis:6379/0",
+    "BREWFS_MOUNT_POINT": "/mnt/brewfs",
+    "BREWFS_MOUNT_READY_DELAY_SECS": "1",
+    "BREWFS_MOUNT_WAIT_SECS": "60",
+    "BREWFS_NOFILE_LIMIT": "1048576",
+    "BREWFS_PERSIST_WRITE_CACHE_AFTER_UPLOAD": "true",
+    "BREWFS_POPULATE_WRITE_CACHE_AFTER_UPLOAD": "true",
+    "BREWFS_PREFETCH_MAX_BYTES": "1073741824",
+    "BREWFS_PRE_MOUNT_WAIT_SECS": "10",
+    "BREWFS_READ_MEMORY_BYTES": "4294967296",
+    "BREWFS_READ_SSD_BYTES": "8589934592",
+    "BREWFS_S3_BUCKET": "hot-guard",
+    "BREWFS_S3_ENDPOINT": "http://rustfs:9000",
+    "BREWFS_S3_FORCE_PATH_STYLE": "true",
+    "BREWFS_S3_MAX_CONCURRENCY": "16",
+    "BREWFS_S3_REGION": "us-east-1",
+    "BREWFS_SOURCE_DIFF_SHA256": "6ea6a10284a037533f7342a22b590752b45147d4a3f67292a03fa712138e6e9d",
+    "BREWFS_SOURCE_DIRTY": "true",
+    "BREWFS_SOURCE_REVISION": "6c422594bbc2fc152f259d2637ca40e7ff0ddb22",
+    "BREWFS_UPLOAD_CONCURRENCY": "32",
+    "BREWFS_VERIFY_CACHE_CHECKSUM": "full",
+    "BREWFS_VFS_TIMING": "0",
+    "BREWFS_WRITEBACK_MODE": "commit_before_upload",
+    "BREWFS_WRITEBACK_PERSIST_SYNC": "false",
+    "BREWFS_WRITEBACK_RECENT_PENDING_HARD_BYTES": "3221225472",
+    "BREWFS_WRITEBACK_RECENT_PENDING_SOFT_BYTES": "2147483648",
+    "BREWFS_WRITEBACK_REQUIRE_STAGE_BEFORE_COMMIT": "false",
+    "BREWFS_WRITEBACK_UPLOAD_CONCURRENCY": "6",
+    "BREWFS_WRITE_MEMORY_BYTES": "4294967296",
+    "BREWFS_WRITE_SSD_BYTES": "4294967296",
+    "RUST_LOG": "warn"
+  },
+  "fio_version": "fio-3.39",
+  "generated_yaml": {
+    "cache.compression": "none",
+    "cache.dirty_slice_target_size": "67108864",
+    "cache.memory_budget_bytes": "12884901888",
+    "cache.persist_write_cache_after_upload": "true",
+    "cache.populate_write_cache_after_upload": "true",
+    "cache.prefetch_max_bytes": "1073741824",
+    "cache.read_memory_bytes": "4294967296",
+    "cache.read_ssd_bytes": "8589934592",
+    "cache.root": "/var/lib/brewfs/cache",
+    "cache.upload_concurrency": "32",
+    "cache.verify_cache_checksum": "full",
+    "cache.write_memory_bytes": "4294967296",
+    "cache.write_ssd_bytes": "4294967296",
+    "cache.writeback_mode": "commit_before_upload",
+    "cache.writeback_persist_sync": "false",
+    "cache.writeback_recent_pending_hard_bytes": "3221225472",
+    "cache.writeback_recent_pending_soft_bytes": "2147483648",
+    "cache.writeback_require_stage_before_commit": "false",
+    "data.backend": "s3",
+    "data.s3.bucket": "hot-guard",
+    "data.s3.disable_payload_checksum": "true",
+    "data.s3.endpoint": "http://rustfs:9000",
+    "data.s3.force_path_style": "true",
+    "data.s3.max_concurrency": "16",
+    "data.s3.part_size": "16777216",
+    "data.s3.region": "us-east-1",
+    "fuse.cache_ttl_ms": "0",
+    "fuse.max_background": "512",
+    "fuse.workers": "16",
+    "layout.block_size": "4194304",
+    "layout.chunk_size": "67108864",
+    "meta.backend": "redis",
+    "meta.open_file_cache_capacity": "65536",
+    "meta.open_file_cache_ttl_ms": "1000",
+    "meta.redis.url": "redis://redis:6379/0",
+    "mount_point": "/mnt/brewfs"
+  },
+  "kernel": "6.18.33.2-microsoft-standard-WSL2",
+  "kernel_io_pages_fix": "unverified",
+  "network_rtt": "unavailable",
+  "pid": 1464,
+  "protocol_mismatches": [
+    {
+      "actual": null,
+      "expected": "2",
+      "field": "cache.prefetch_concurrency"
+    },
+    {
+      "actual": "false",
+      "expected": "true",
+      "field": "cache.writeback_persist_sync"
+    },
+    {
+      "actual": "false",
+      "expected": "true",
+      "field": "cache.writeback_require_stage_before_commit"
+    },
+    {
+      "actual": "1000",
+      "expected": "0",
+      "field": "meta.open_file_cache_ttl_ms"
+    },
+    {
+      "actual": null,
+      "expected": "false",
+      "field": "meta.allow_write_open_cache"
+    },
+    {
+      "actual": null,
+      "expected": "1",
+      "field": "TOKIO_WORKER_THREADS"
+    },
+    {
+      "actual": null,
+      "expected": "0",
+      "field": "BREWFS_FUSE_DIRECT_IO"
+    },
+    {
+      "actual": "1",
+      "expected": "0",
+      "field": "BREWFS_FUSE_READ_DIRECT_IO"
+    },
+    {
+      "actual": null,
+      "expected": "0",
+      "field": "BREWFS_FUSE_WRITE_DIRECT_IO"
+    },
+    {
+      "actual": null,
+      "expected": "0",
+      "field": "BREWFS_FUSE_WRITEBACK"
+    },
+    {
+      "actual": null,
+      "expected": "false",
+      "field": "BREWFS_FUSE_KEEP_CACHE"
+    }
+  ]
+}

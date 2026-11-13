@@ -1,0 +1,138 @@
+{
+  "scope": "debug-test diagnostic; not release/FUSE performance",
+  "modes": {
+    "local-journal": {
+      "total_ms_median": 844.541064,
+      "set_calls": [
+        50,
+        50,
+        52
+      ],
+      "pairs": [
+        {
+          "pair": 0,
+          "total_ms": 844.541064,
+          "active_ms": 832.283968,
+          "drain_ms": 12.257096,
+          "redis_calls": {
+            "evalsha": 150,
+            "client|setinfo": 0,
+            "set": 50,
+            "ping": 0,
+            "scan": 0,
+            "get": 176,
+            "zadd": 50,
+            "type": 75,
+            "strlen": 125,
+            "script|load": 0,
+            "time": 150
+          }
+        },
+        {
+          "pair": 1,
+          "total_ms": 842.589674,
+          "active_ms": 830.451078,
+          "drain_ms": 12.138596,
+          "redis_calls": {
+            "evalsha": 150,
+            "client|setinfo": 0,
+            "set": 50,
+            "ping": 0,
+            "scan": 0,
+            "get": 176,
+            "zadd": 50,
+            "type": 75,
+            "strlen": 125,
+            "script|load": 0,
+            "time": 150
+          }
+        },
+        {
+          "pair": 2,
+          "total_ms": 882.236625,
+          "active_ms": 869.178288,
+          "drain_ms": 13.058337,
+          "redis_calls": {
+            "evalsha": 152,
+            "client|setinfo": 0,
+            "set": 52,
+            "ping": 0,
+            "scan": 0,
+            "get": 179,
+            "zadd": 52,
+            "type": 78,
+            "strlen": 126,
+            "script|load": 0,
+            "time": 152
+          }
+        }
+      ]
+    },
+    "remote": {
+      "total_ms_median": 74.508231,
+      "set_calls": [
+        100,
+        100,
+        100
+      ],
+      "pairs": [
+        {
+          "pair": 0,
+          "total_ms": 76.962473,
+          "active_ms": 76.939453,
+          "drain_ms": 0.02302,
+          "redis_calls": {
+            "evalsha": 101,
+            "client|setinfo": 0,
+            "set": 100,
+            "ping": 0,
+            "scan": 0,
+            "get": 201,
+            "zadd": 100,
+            "type": 200,
+            "script|load": 1,
+            "time": 100
+          }
+        },
+        {
+          "pair": 1,
+          "total_ms": 71.639835,
+          "active_ms": 71.636159,
+          "drain_ms": 0.003676,
+          "redis_calls": {
+            "evalsha": 100,
+            "client|setinfo": 0,
+            "set": 100,
+            "ping": 0,
+            "scan": 0,
+            "get": 201,
+            "zadd": 100,
+            "type": 200,
+            "strlen": 0,
+            "script|load": 0,
+            "time": 100
+          }
+        },
+        {
+          "pair": 2,
+          "total_ms": 74.508231,
+          "active_ms": 74.502879,
+          "drain_ms": 0.005352,
+          "redis_calls": {
+            "evalsha": 100,
+            "client|setinfo": 0,
+            "set": 100,
+            "ping": 0,
+            "scan": 0,
+            "get": 201,
+            "zadd": 100,
+            "type": 200,
+            "strlen": 0,
+            "script|load": 0,
+            "time": 100
+          }
+        }
+      ]
+    }
+  }
+}

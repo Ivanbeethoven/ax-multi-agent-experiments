@@ -1,0 +1,112 @@
+# Redis diagnostics after fio-seqwrite
+2026-11-12T19:56:01+00:00
+
+## INFO commandstats
+# Commandstats
+cmdstat_set:calls=4,usec=30,usec_per_call=7.50,rejected_calls=0,failed_calls=0
+cmdstat_zadd:calls=1,usec=5,usec_per_call=5.00,rejected_calls=0,failed_calls=0
+cmdstat_zscore:calls=1,usec=1,usec_per_call=1.00,rejected_calls=0,failed_calls=0
+cmdstat_hget:calls=1235,usec=1539,usec_per_call=1.25,rejected_calls=0,failed_calls=0
+cmdstat_script|load:calls=1,usec=84,usec_per_call=84.00,rejected_calls=0,failed_calls=0
+cmdstat_ping:calls=10,usec=35,usec_per_call=3.50,rejected_calls=0,failed_calls=0
+cmdstat_hset:calls=1,usec=4,usec_per_call=4.00,rejected_calls=0,failed_calls=0
+cmdstat_slowlog|reset:calls=1,usec=0,usec_per_call=0.00,rejected_calls=0,failed_calls=0
+cmdstat_get:calls=1295,usec=3581,usec_per_call=2.77,rejected_calls=0,failed_calls=0
+cmdstat_incr:calls=77,usec=113,usec_per_call=1.47,rejected_calls=0,failed_calls=0
+cmdstat_incrby:calls=76,usec=481,usec_per_call=6.33,rejected_calls=0,failed_calls=0
+cmdstat_latency|reset:calls=1,usec=9,usec_per_call=9.00,rejected_calls=0,failed_calls=0
+cmdstat_hlen:calls=1,usec=1,usec_per_call=1.00,rejected_calls=0,failed_calls=0
+cmdstat_config|resetstat:calls=1,usec=33,usec_per_call=33.00,rejected_calls=0,failed_calls=0
+cmdstat_hexists:calls=1,usec=1,usec_per_call=1.00,rejected_calls=0,failed_calls=0
+cmdstat_evalsha:calls=98,usec=7652,usec_per_call=78.08,rejected_calls=0,failed_calls=1
+cmdstat_rpush:calls=76,usec=738,usec_per_call=9.71,rejected_calls=0,failed_calls=0
+cmdstat_exec:calls=1216,usec=7306,usec_per_call=6.01,rejected_calls=0,failed_calls=0
+cmdstat_multi:calls=1216,usec=1663,usec_per_call=1.37,rejected_calls=0,failed_calls=0
+cmdstat_del:calls=1,usec=0,usec_per_call=0.00,rejected_calls=0,failed_calls=0
+
+## INFO stats
+# Stats
+total_connections_received:14
+total_commands_processed:5314
+instantaneous_ops_per_sec:134
+total_net_input_bytes:153863
+total_net_output_bytes:363639
+total_net_repl_input_bytes:0
+total_net_repl_output_bytes:0
+instantaneous_input_kbps:4.07
+instantaneous_output_kbps:8.83
+instantaneous_input_repl_kbps:0.00
+instantaneous_output_repl_kbps:0.00
+rejected_connections:0
+sync_full:0
+sync_partial_ok:0
+sync_partial_err:0
+expired_keys:0
+expired_stale_perc:0.00
+expired_time_cap_reached_count:0
+expire_cycle_cpu_milliseconds:0
+evicted_keys:0
+evicted_clients:0
+total_eviction_exceeded_time:0
+current_eviction_exceeded_time:0
+keyspace_hits:1315
+keyspace_misses:1218
+pubsub_channels:0
+pubsub_patterns:0
+pubsubshard_channels:0
+latest_fork_usec:0
+total_forks:0
+migrate_cached_sockets:0
+slave_expires_tracked_keys:0
+active_defrag_hits:0
+active_defrag_misses:0
+active_defrag_key_hits:0
+active_defrag_key_misses:0
+total_active_defrag_time:0
+current_active_defrag_time:0
+tracking_total_keys:0
+tracking_total_items:0
+tracking_total_prefixes:0
+unexpected_error_replies:0
+total_error_replies:1
+dump_payload_sanitizations:0
+total_reads_processed:1420
+total_writes_processed:1406
+io_threaded_reads_processed:0
+io_threaded_writes_processed:0
+reply_buffer_shrinks:0
+reply_buffer_expands:0
+eventloop_cycles:1623
+eventloop_duration_sum:567854
+eventloop_duration_cmd_sum:17508
+instantaneous_eventloop_cycles_per_sec:47
+instantaneous_eventloop_duration_usec:75
+acl_access_denied_auth:0
+acl_access_denied_cmd:0
+acl_access_denied_key:0
+acl_access_denied_channel:0
+
+## SLOWLOG GET 20
+
+
+## LATENCY LATEST
+aof-write
+1794513359
+1
+352
+aof-write-alone
+1794513359
+1
+352
+
+## LATENCY DOCTOR
+Dave, I have observed latency spikes in this Redis instance. You don't mind talking about it, do you Dave?
+
+1. aof-write: 9 latency spikes (average 50ms, mean deviation 76ms, period 2.22 sec). Worst all time event 352ms.
+2. aof-write-alone: 9 latency spikes (average 50ms, mean deviation 76ms, period 2.22 sec). Worst all time event 352ms.
+
+I have a few advices for you:
+
+- It is strongly advised to use local disks for persistence, especially if you are using AOF. Remote disks provided by platform-as-a-service providers are known to be slow.
+- SSD disks are able to reduce fsync latency, and total time needed for snapshotting and AOF log rewriting (resulting in smaller memory usage). With extremely high write load SSD disks can be a good option. However Redis should perform reasonably with high load using normal disks. Use this advice as a last resort.
+- Mounting ext3/4 filesystems with data=writeback can provide a performance boost compared to data=ordered, however this mode of operation provides less guarantees, and sometimes it can happen that after a hard crash the AOF file will have a half-written command at the end and will require to be repaired before Redis restarts.

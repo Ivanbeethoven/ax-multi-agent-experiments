@@ -1,0 +1,219 @@
+warning: associated functions `new` and `with_decoding_limit` are never used
+   --> vendor/tikv-client/src/pd/cluster.rs:124:12
+    |
+123 | impl Connection {
+    | --------------- associated functions in this implementation
+124 |     pub fn new(security_mgr: Arc<SecurityManager>) -> Connection {
+    |            ^^^
+...
+131 |     pub fn with_decoding_limit(
+    |            ^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `StreamBackupError` is never constructed
+   --> vendor/tikv-client/src/generated/backup.rs:744:12
+    |
+744 | pub struct StreamBackupError {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `FileDictionary` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:29:12
+   |
+29 | pub struct FileDictionary {
+   |            ^^^^^^^^^^^^^^
+
+warning: struct `KeyDictionary` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:53:12
+   |
+53 | pub struct KeyDictionary {
+   |            ^^^^^^^^^^^^^
+
+warning: struct `MasterKey` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:64:12
+   |
+64 | pub struct MasterKey {
+   |            ^^^^^^^^^
+
+warning: struct `MasterKeyPlaintext` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:84:12
+   |
+84 | pub struct MasterKeyPlaintext {}
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `MasterKeyFile` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:89:12
+   |
+89 | pub struct MasterKeyFile {
+   |            ^^^^^^^^^^^^^
+
+warning: struct `MasterKeyKms` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:98:12
+   |
+98 | pub struct MasterKeyKms {
+   |            ^^^^^^^^^^^^
+
+warning: struct `EncryptedContent` is never constructed
+   --> vendor/tikv-client/src/generated/encryptionpb.rs:114:12
+    |
+114 | pub struct EncryptedContent {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: enum `Backend` is never used
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:72:14
+   |
+72 |     pub enum Backend {
+   |              ^^^^^^^
+
+warning: struct `Http` is never constructed
+ --> vendor/tikv-client/src/generated/google.api.rs:7:12
+  |
+7 | pub struct Http {
+  |            ^^^^
+
+warning: struct `HttpRule` is never constructed
+   --> vendor/tikv-client/src/generated/google.api.rs:306:12
+    |
+306 | pub struct HttpRule {
+    |            ^^^^^^^^
+
+warning: struct `CustomHttpPattern` is never constructed
+   --> vendor/tikv-client/src/generated/google.api.rs:374:12
+    |
+374 | pub struct CustomHttpPattern {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: enum `Pattern` is never used
+   --> vendor/tikv-client/src/generated/google.api.rs:346:14
+    |
+346 |     pub enum Pattern {
+    |              ^^^^^^^
+
+warning: struct `RaftResponseHeader` is never constructed
+   --> vendor/tikv-client/src/generated/raft_cmdpb.rs:508:12
+    |
+508 | pub struct RaftResponseHeader {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `RaftCmdRequest` is never constructed
+   --> vendor/tikv-client/src/generated/raft_cmdpb.rs:518:12
+    |
+518 | pub struct RaftCmdRequest {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `RaftCmdResponse` is never constructed
+   --> vendor/tikv-client/src/generated/raft_cmdpb.rs:532:12
+    |
+532 | pub struct RaftCmdResponse {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `SnapshotCfFile` is never constructed
+  --> vendor/tikv-client/src/generated/raft_serverpb.rs:43:12
+   |
+43 | pub struct SnapshotCfFile {
+   |            ^^^^^^^^^^^^^^
+
+warning: struct `SnapshotMeta` is never constructed
+  --> vendor/tikv-client/src/generated/raft_serverpb.rs:53:12
+   |
+53 | pub struct SnapshotMeta {
+   |            ^^^^^^^^^^^^
+
+warning: struct `RaftSnapshotData` is never constructed
+   --> vendor/tikv-client/src/generated/raft_serverpb.rs:192:12
+    |
+192 | pub struct RaftSnapshotData {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: struct `StoreRecoverState` is never constructed
+   --> vendor/tikv-client/src/generated/raft_serverpb.rs:220:12
+    |
+220 | pub struct StoreRecoverState {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `RegionSequenceNumberRelation` is never constructed
+   --> vendor/tikv-client/src/generated/raft_serverpb.rs:312:12
+    |
+312 | pub struct RegionSequenceNumberRelation {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Participant` is never constructed
+   --> vendor/tikv-client/src/generated/resource_manager.rs:279:12
+    |
+279 | pub struct Participant {
+    |            ^^^^^^^^^^^
+
+warning: struct `Participant` is never constructed
+  --> vendor/tikv-client/src/generated/schedulingpb.rs:31:12
+   |
+31 | pub struct Participant {
+   |            ^^^^^^^^^^^
+
+warning: struct `Participant` is never constructed
+  --> vendor/tikv-client/src/generated/tsopb.rs:63:12
+   |
+63 | pub struct Participant {
+   |            ^^^^^^^^^^^
+
+warning: associated function `new` is never used
+  --> vendor/tikv-client/src/region_cache.rs:64:12
+   |
+63 | impl<Client> RegionCache<Client> {
+   | -------------------------------- associated function in this implementation
+64 |     pub fn new(inner_client: Arc<Client>) -> RegionCache<Client> {
+   |            ^^^
+
+warning: `tikv-client` (lib) generated 26 warnings
+warning: constant `DEFAULT_POOL_CAPACITY` is never used
+  --> vendor/asyncfuse/src/raw/buffer_pool.rs:27:7
+   |
+27 | const DEFAULT_POOL_CAPACITY: usize = 64;
+   |       ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `try_new` is never used
+  --> vendor/asyncfuse/src/raw/buffer_pool.rs:47:12
+   |
+45 | impl AlignedBuffer {
+   | ------------------ associated function in this implementation
+46 |     /// Create a new aligned buffer with the specified size
+47 |     pub fn try_new(size: usize) -> Result<Self, Box<dyn Error + Send + Sync>> {
+   |            ^^^^^^^
+
+warning: associated items `new`, `with_capacity`, `try_acquire`, `release`, `available`, and `stats` are never used
+   --> vendor/asyncfuse/src/raw/buffer_pool.rs:139:12
+    |
+137 | impl BufferPool {
+    | --------------- associated items in this implementation
+138 |     /// Create a new buffer pool with the specified buffer size
+139 |     pub fn new(buffer_size: usize) -> Self {
+    |            ^^^
+...
+144 |     pub fn with_capacity(buffer_size: usize, max_capacity: usize) -> Self {
+    |            ^^^^^^^^^^^^^
+...
+189 |     pub fn try_acquire(&self) -> Option<IoResult<AlignedBuffer>> {
+    |            ^^^^^^^^^^^
+...
+215 |     pub async fn release(&self, buf: AlignedBuffer) {
+    |                  ^^^^^^^
+...
+244 |     pub async fn available(&self) -> usize {
+    |                  ^^^^^^^^^
+...
+249 |     pub fn stats(&self) -> BufferPoolStats {
+    |            ^^^^^
+
+warning: struct `BufferPoolStats` is never constructed
+   --> vendor/asyncfuse/src/raw/buffer_pool.rs:267:12
+    |
+267 | pub struct BufferPoolStats {
+    |            ^^^^^^^^^^^^^^^
+
+warning: `asyncfuse` (lib) generated 4 warnings
+   Compiling brewfs v0.1.2 (/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/candidate)
+error: could not compile `brewfs` (lib test)
+
+Caused by:
+  process didn't exit successfully: `/home/hxy/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc --crate-name brewfs --edition=2024 src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no --test --cfg 'feature="frozen-base-metadata"' --cfg 'feature="fuse-io-uring-runtime"' --cfg 'feature="native-packed-base"' --cfg 'feature="observability"' --cfg 'feature="rustfs-ec-block-size-hint"' --cfg 'feature="workspace"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("default", "frozen-base-metadata", "fuse-io-uring-runtime", "fuse-tokio-runtime", "gateway-s3", "gateway-webdav", "hdfs-sdk", "jemalloc", "jemalloc-profiling", "native-packed-base", "observability", "profiling", "rkyv-serialization", "rustfs-ec-block-size-hint", "workspace"))' -C metadata=283b1c9761243701 -C extra-filename=-3b98b2e55bd86571 --out-dir /home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps -C strip=debuginfo -L dependency=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps --extern anyhow=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libanyhow-f70af89774c60e92.rlib --extern async_recursion=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libasync_recursion-be0e660feacf9257.so --extern async_trait=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libasync_trait-5642b8d6ac107245.so --extern asyncfuse=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libasyncfuse-690d8a68eb455592.rlib --extern auto_impl=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libauto_impl-eaf9345d813a0664.so --extern aws_config=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libaws_config-1c81c01bc231236a.rlib --extern aws_sdk_s3=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libaws_sdk_s3-81fcf311328d45ed.rlib --extern aws_smithy_http_client=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libaws_smithy_http_client-830237aab484ba5c.rlib --extern aws_smithy_runtime_api=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libaws_smithy_runtime_api-5108ed2a5ed47b8b.rlib --extern aws_smithy_types=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libaws_smithy_types-1809d6ce038f9dc2.rlib --extern axum=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libaxum-7d85ee65c6b8347a.rlib --extern base64=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libbase64-31e2b5c523263982.rlib --extern bincode=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libbincode-fa158bdd0879006a.rlib --extern bitflags=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libbitflags-84c8fbc20cbaef7e.rlib --extern blake3=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libblake3-26937d9f11fdc832.rlib --extern bytes=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libbytes-5c7552e459571a76.rlib --extern chrono=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libchrono-7a74d9bd881c5de9.rlib --extern clap=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libclap-8e97edec7070d77e.rlib --extern crc32c=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libcrc32c-9d597bbd77be4db6.rlib --extern criterion=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libcriterion-b1baccc9e6b3a979.rlib --extern dashmap=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libdashmap-8a9093bffa4bc4f2.rlib --extern dirs=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libdirs-2fd271458e1eb037.rlib --extern dotenv=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libdotenv-d213bb6c62224d0c.rlib --extern env_logger=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libenv_logger-17693262958fded7.rlib --extern etcd_client=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libetcd_client-c25b12d433a977db.rlib --extern futures=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libfutures-39fedd3c83201626.rlib --extern futures_util=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libfutures_util-c33d8e5d038bd582.rlib --extern governor=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libgovernor-3776c43575e6dba9.rlib --extern hex=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libhex-ab54def7bd8849ec.rlib --extern hostname=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libhostname-ec811b38afe1bf4c.rlib --extern http=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libhttp-529d7246193601b7.rlib --extern http_body_1x=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libhttp_body-36c9db34a91a4b65.rlib --extern http_body_util=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libhttp_body_util-23fe0235293b022a.rlib --extern hyper=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libhyper-ad09822b1e2c8389.rlib --extern if_addrs=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libif_addrs-cd1584eeaebd4151.rlib --extern k8s_openapi=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libk8s_openapi-f358fa6c84f5b4fe.rlib --extern kube=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libkube-762c160399f447f4.rlib --extern libc=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/liblibc-8d8c6a3d48958c80.rlib --extern log=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/liblog-6f3a8298a4497c55.rlib --extern lru=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/liblru-728da95f49769284.rlib --extern lz4_flex=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/liblz4_flex-634506b727b7cffe.rlib --extern md5=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libmd5-9d76d48483a27a2f.rlib --extern moka=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libmoka-c56cfd20c555acb6.rlib --extern parking_lot=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libparking_lot-305105dfb5bc1a04.rlib --extern pprof=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libpprof-1836469bc8256539.rlib --extern qlean=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libqlean-1ebc5ba0c65639b5.rlib --extern rand=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/librand-17cc035f81eda18f.rlib --extern redis=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libredis-654b48a4d266bf65.rlib --extern ring=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libring-922d37c4b12f850b.rlib --extern sea_orm=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libsea_orm-c068a2c76a7b6110.rlib --extern serde=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libserde-79f5bbd68cf55e2a.rlib --extern serde_json=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libserde_json-08365db5c4cc0e47.rlib --extern serde_yaml=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libserde_yaml-23ec2470ce16b0bc.rlib --extern serial_test=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libserial_test-5d85d7f006b58b88.rlib --extern sha2=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libsha2-943effd101aff8e9.rlib --extern tempfile=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libtempfile-a1b16fe36fcde0fe.rlib --extern thiserror=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libthiserror-791edc19a1d6a03d.rlib --extern tikv_client=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libtikv_client-beb8759098aedce6.rlib --extern tokio=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libtokio-5facc975bac10d04.rlib --extern tokio_util=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libtokio_util-2c00ceb7d9305a96.rlib --extern tower=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libtower-72335bd45b265722.rlib --extern tower_http=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libtower_http-612cf6b04643b24c.rlib --extern tracing=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libtracing-8220c807df287db6.rlib --extern tracing_appender=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libtracing_appender-d60bbb686b176155.rlib --extern tracing_chrome=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libtracing_chrome-bcfddc8da4c00f0e.rlib --extern tracing_subscriber=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libtracing_subscriber-32c131b9f460c1cb.rlib --extern url=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/liburl-ce5d6be937e28492.rlib --extern uuid=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libuuid-d4ed1fe4169de55d.rlib --extern zstd=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/libzstd-2e0cf662cd953110.rlib -L native=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/build/ring-a628ede279ade631/out -L native=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/build/aws-lc-sys-b8d24031a99fa837/out -L native=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/build/blake3-dcdca0fd59c4d4bc/out -L native=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/build/blake3-dcdca0fd59c4d4bc/out -L native=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/build/libsqlite3-sys-817a42c61cb0f0f2/out -L native=/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/build/zstd-sys-3e407b9ee478d349/out` (signal: 15, SIGTERM: termination signal)
