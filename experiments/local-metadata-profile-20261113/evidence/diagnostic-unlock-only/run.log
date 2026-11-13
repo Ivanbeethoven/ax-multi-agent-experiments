@@ -1,0 +1,477 @@
+warning: associated functions `new` and `with_decoding_limit` are never used
+   --> vendor/tikv-client/src/pd/cluster.rs:124:12
+    |
+123 | impl Connection {
+    | --------------- associated functions in this implementation
+124 |     pub fn new(security_mgr: Arc<SecurityManager>) -> Connection {
+    |            ^^^
+...
+131 |     pub fn with_decoding_limit(
+    |            ^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `StreamBackupError` is never constructed
+   --> vendor/tikv-client/src/generated/backup.rs:744:12
+    |
+744 | pub struct StreamBackupError {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `FileDictionary` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:29:12
+   |
+29 | pub struct FileDictionary {
+   |            ^^^^^^^^^^^^^^
+
+warning: struct `KeyDictionary` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:53:12
+   |
+53 | pub struct KeyDictionary {
+   |            ^^^^^^^^^^^^^
+
+warning: struct `MasterKey` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:64:12
+   |
+64 | pub struct MasterKey {
+   |            ^^^^^^^^^
+
+warning: struct `MasterKeyPlaintext` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:84:12
+   |
+84 | pub struct MasterKeyPlaintext {}
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `MasterKeyFile` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:89:12
+   |
+89 | pub struct MasterKeyFile {
+   |            ^^^^^^^^^^^^^
+
+warning: struct `MasterKeyKms` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:98:12
+   |
+98 | pub struct MasterKeyKms {
+   |            ^^^^^^^^^^^^
+
+warning: struct `EncryptedContent` is never constructed
+   --> vendor/tikv-client/src/generated/encryptionpb.rs:114:12
+    |
+114 | pub struct EncryptedContent {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: enum `Backend` is never used
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:72:14
+   |
+72 |     pub enum Backend {
+   |              ^^^^^^^
+
+warning: struct `Http` is never constructed
+ --> vendor/tikv-client/src/generated/google.api.rs:7:12
+  |
+7 | pub struct Http {
+  |            ^^^^
+
+warning: struct `HttpRule` is never constructed
+   --> vendor/tikv-client/src/generated/google.api.rs:306:12
+    |
+306 | pub struct HttpRule {
+    |            ^^^^^^^^
+
+warning: struct `CustomHttpPattern` is never constructed
+   --> vendor/tikv-client/src/generated/google.api.rs:374:12
+    |
+374 | pub struct CustomHttpPattern {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: enum `Pattern` is never used
+   --> vendor/tikv-client/src/generated/google.api.rs:346:14
+    |
+346 |     pub enum Pattern {
+    |              ^^^^^^^
+
+warning: struct `RaftResponseHeader` is never constructed
+   --> vendor/tikv-client/src/generated/raft_cmdpb.rs:508:12
+    |
+508 | pub struct RaftResponseHeader {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `RaftCmdRequest` is never constructed
+   --> vendor/tikv-client/src/generated/raft_cmdpb.rs:518:12
+    |
+518 | pub struct RaftCmdRequest {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `RaftCmdResponse` is never constructed
+   --> vendor/tikv-client/src/generated/raft_cmdpb.rs:532:12
+    |
+532 | pub struct RaftCmdResponse {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `SnapshotCfFile` is never constructed
+  --> vendor/tikv-client/src/generated/raft_serverpb.rs:43:12
+   |
+43 | pub struct SnapshotCfFile {
+   |            ^^^^^^^^^^^^^^
+
+warning: struct `SnapshotMeta` is never constructed
+  --> vendor/tikv-client/src/generated/raft_serverpb.rs:53:12
+   |
+53 | pub struct SnapshotMeta {
+   |            ^^^^^^^^^^^^
+
+warning: struct `RaftSnapshotData` is never constructed
+   --> vendor/tikv-client/src/generated/raft_serverpb.rs:192:12
+    |
+192 | pub struct RaftSnapshotData {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: struct `StoreRecoverState` is never constructed
+   --> vendor/tikv-client/src/generated/raft_serverpb.rs:220:12
+    |
+220 | pub struct StoreRecoverState {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `RegionSequenceNumberRelation` is never constructed
+   --> vendor/tikv-client/src/generated/raft_serverpb.rs:312:12
+    |
+312 | pub struct RegionSequenceNumberRelation {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Participant` is never constructed
+   --> vendor/tikv-client/src/generated/resource_manager.rs:279:12
+    |
+279 | pub struct Participant {
+    |            ^^^^^^^^^^^
+
+warning: struct `Participant` is never constructed
+  --> vendor/tikv-client/src/generated/schedulingpb.rs:31:12
+   |
+31 | pub struct Participant {
+   |            ^^^^^^^^^^^
+
+warning: struct `Participant` is never constructed
+  --> vendor/tikv-client/src/generated/tsopb.rs:63:12
+   |
+63 | pub struct Participant {
+   |            ^^^^^^^^^^^
+
+warning: associated function `new` is never used
+  --> vendor/tikv-client/src/region_cache.rs:64:12
+   |
+63 | impl<Client> RegionCache<Client> {
+   | -------------------------------- associated function in this implementation
+64 |     pub fn new(inner_client: Arc<Client>) -> RegionCache<Client> {
+   |            ^^^
+
+warning: `tikv-client` (lib) generated 26 warnings
+warning: constant `DEFAULT_POOL_CAPACITY` is never used
+  --> vendor/asyncfuse/src/raw/buffer_pool.rs:27:7
+   |
+27 | const DEFAULT_POOL_CAPACITY: usize = 64;
+   |       ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `try_new` is never used
+  --> vendor/asyncfuse/src/raw/buffer_pool.rs:47:12
+   |
+45 | impl AlignedBuffer {
+   | ------------------ associated function in this implementation
+46 |     /// Create a new aligned buffer with the specified size
+47 |     pub fn try_new(size: usize) -> Result<Self, Box<dyn Error + Send + Sync>> {
+   |            ^^^^^^^
+
+warning: associated items `new`, `with_capacity`, `try_acquire`, `release`, `available`, and `stats` are never used
+   --> vendor/asyncfuse/src/raw/buffer_pool.rs:139:12
+    |
+137 | impl BufferPool {
+    | --------------- associated items in this implementation
+138 |     /// Create a new buffer pool with the specified buffer size
+139 |     pub fn new(buffer_size: usize) -> Self {
+    |            ^^^
+...
+144 |     pub fn with_capacity(buffer_size: usize, max_capacity: usize) -> Self {
+    |            ^^^^^^^^^^^^^
+...
+189 |     pub fn try_acquire(&self) -> Option<IoResult<AlignedBuffer>> {
+    |            ^^^^^^^^^^^
+...
+215 |     pub async fn release(&self, buf: AlignedBuffer) {
+    |                  ^^^^^^^
+...
+244 |     pub async fn available(&self) -> usize {
+    |                  ^^^^^^^^^
+...
+249 |     pub fn stats(&self) -> BufferPoolStats {
+    |            ^^^^^
+
+warning: struct `BufferPoolStats` is never constructed
+   --> vendor/asyncfuse/src/raw/buffer_pool.rs:267:12
+    |
+267 | pub struct BufferPoolStats {
+    |            ^^^^^^^^^^^^^^^
+
+warning: `asyncfuse` (lib) generated 4 warnings
+   Compiling brewfs v0.1.2 (/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/candidate)
+    Finished `test` profile [unoptimized] target(s) in 11m 08s
+warning: the following packages contain code that will be rejected by a future version of Rust: proc-macro-error2 v2.0.1
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/brewfs-fb52a78de0c91dc1)
+
+running 20 tests
+test workspace_overlay::stores::local_metadata::tests::buffered_updates_are_volatile_until_flush_then_survive_reopen ... ok
+test workspace_overlay::stores::local_metadata::tests::cancelled_awaiter_does_not_race_journal_installation ... ok
+test workspace_overlay::stores::local_metadata::tests::clean_journal_reopens_after_another_mount_commits ... ok
+test workspace_overlay::stores::local_metadata::tests::committed_but_unacknowledged_batch_recovers_without_reapply ... ok
+test workspace_overlay::stores::local_metadata::tests::concurrency::buffered_failed_ack_checkpoint_retries_even_with_no_pending_edits ... ok
+test workspace_overlay::stores::local_metadata::tests::concurrency::buffered_failed_freeze_is_persisted_before_retrying_remote_commit ... ok
+test workspace_overlay::stores::local_metadata::tests::concurrency::buffered_journal_io_does_not_block_new_edits_even_if_waiter_is_cancelled ... ok
+test workspace_overlay::stores::local_metadata::tests::delete_tombstone_and_namespace_barrier_preserve_order ... ok
+test workspace_overlay::stores::local_metadata::tests::expired_lease_and_foreign_changes_preserve_pending ... ok
+test workspace_overlay::stores::local_metadata::tests::failed_commit_retains_journal_and_replays_after_reopen ... ok
+test workspace_overlay::stores::local_metadata::tests::idle_timer_flushes_without_another_write ... ok
+test workspace_overlay::stores::local_metadata::tests::journal_rejects_wrong_scope_corruption_and_second_writer ... ok
+test workspace_overlay::stores::local_metadata::tests::local_head_authentication_keeps_remote_fences_without_forcing_commit ... ok
+test workspace_overlay::stores::local_metadata::tests::local_metadata_real_redis_pairs ... ignored, requires BREWFS_LOCAL_SYNC_REDIS_URL pointing at disposable local Redis
+test workspace_overlay::meta_layer::tests::packed_open_preparation_tests::local_metadata_packed_edits_read_latest_then_survive_remote_barrier ... ok
+test workspace_overlay::stores::local_metadata::tests::queue_capacity_drains_instead_of_evicting_dirty_values ... ok
+test workspace_overlay::stores::local_metadata::tests::remote_mode_remains_synchronous ... ok
+test workspace_overlay::stores::local_metadata::tests::old_ack_never_clears_new_edit_including_same_value ... ok
+test workspace_overlay::stores::local_metadata::tests::uncertain_commit_is_resolved_by_atomic_receipt ... ok
+test workspace_overlay::stores::local_metadata::tests::repeated_file_edits_are_locally_visible_and_one_remote_commit ... ok
+
+test result: ok. 19 passed; 0 failed; 1 ignored; 0 measured; 3275 filtered out; finished in 3.05s
+
+warning: associated functions `new` and `with_decoding_limit` are never used
+   --> vendor/tikv-client/src/pd/cluster.rs:124:12
+    |
+123 | impl Connection {
+    | --------------- associated functions in this implementation
+124 |     pub fn new(security_mgr: Arc<SecurityManager>) -> Connection {
+    |            ^^^
+...
+131 |     pub fn with_decoding_limit(
+    |            ^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `StreamBackupError` is never constructed
+   --> vendor/tikv-client/src/generated/backup.rs:744:12
+    |
+744 | pub struct StreamBackupError {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `FileDictionary` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:29:12
+   |
+29 | pub struct FileDictionary {
+   |            ^^^^^^^^^^^^^^
+
+warning: struct `KeyDictionary` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:53:12
+   |
+53 | pub struct KeyDictionary {
+   |            ^^^^^^^^^^^^^
+
+warning: struct `MasterKey` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:64:12
+   |
+64 | pub struct MasterKey {
+   |            ^^^^^^^^^
+
+warning: struct `MasterKeyPlaintext` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:84:12
+   |
+84 | pub struct MasterKeyPlaintext {}
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `MasterKeyFile` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:89:12
+   |
+89 | pub struct MasterKeyFile {
+   |            ^^^^^^^^^^^^^
+
+warning: struct `MasterKeyKms` is never constructed
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:98:12
+   |
+98 | pub struct MasterKeyKms {
+   |            ^^^^^^^^^^^^
+
+warning: struct `EncryptedContent` is never constructed
+   --> vendor/tikv-client/src/generated/encryptionpb.rs:114:12
+    |
+114 | pub struct EncryptedContent {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: enum `Backend` is never used
+  --> vendor/tikv-client/src/generated/encryptionpb.rs:72:14
+   |
+72 |     pub enum Backend {
+   |              ^^^^^^^
+
+warning: struct `Http` is never constructed
+ --> vendor/tikv-client/src/generated/google.api.rs:7:12
+  |
+7 | pub struct Http {
+  |            ^^^^
+
+warning: struct `HttpRule` is never constructed
+   --> vendor/tikv-client/src/generated/google.api.rs:306:12
+    |
+306 | pub struct HttpRule {
+    |            ^^^^^^^^
+
+warning: struct `CustomHttpPattern` is never constructed
+   --> vendor/tikv-client/src/generated/google.api.rs:374:12
+    |
+374 | pub struct CustomHttpPattern {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: enum `Pattern` is never used
+   --> vendor/tikv-client/src/generated/google.api.rs:346:14
+    |
+346 |     pub enum Pattern {
+    |              ^^^^^^^
+
+warning: struct `RaftResponseHeader` is never constructed
+   --> vendor/tikv-client/src/generated/raft_cmdpb.rs:508:12
+    |
+508 | pub struct RaftResponseHeader {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `RaftCmdRequest` is never constructed
+   --> vendor/tikv-client/src/generated/raft_cmdpb.rs:518:12
+    |
+518 | pub struct RaftCmdRequest {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `RaftCmdResponse` is never constructed
+   --> vendor/tikv-client/src/generated/raft_cmdpb.rs:532:12
+    |
+532 | pub struct RaftCmdResponse {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `SnapshotCfFile` is never constructed
+  --> vendor/tikv-client/src/generated/raft_serverpb.rs:43:12
+   |
+43 | pub struct SnapshotCfFile {
+   |            ^^^^^^^^^^^^^^
+
+warning: struct `SnapshotMeta` is never constructed
+  --> vendor/tikv-client/src/generated/raft_serverpb.rs:53:12
+   |
+53 | pub struct SnapshotMeta {
+   |            ^^^^^^^^^^^^
+
+warning: struct `RaftSnapshotData` is never constructed
+   --> vendor/tikv-client/src/generated/raft_serverpb.rs:192:12
+    |
+192 | pub struct RaftSnapshotData {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: struct `StoreRecoverState` is never constructed
+   --> vendor/tikv-client/src/generated/raft_serverpb.rs:220:12
+    |
+220 | pub struct StoreRecoverState {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `RegionSequenceNumberRelation` is never constructed
+   --> vendor/tikv-client/src/generated/raft_serverpb.rs:312:12
+    |
+312 | pub struct RegionSequenceNumberRelation {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Participant` is never constructed
+   --> vendor/tikv-client/src/generated/resource_manager.rs:279:12
+    |
+279 | pub struct Participant {
+    |            ^^^^^^^^^^^
+
+warning: struct `Participant` is never constructed
+  --> vendor/tikv-client/src/generated/schedulingpb.rs:31:12
+   |
+31 | pub struct Participant {
+   |            ^^^^^^^^^^^
+
+warning: struct `Participant` is never constructed
+  --> vendor/tikv-client/src/generated/tsopb.rs:63:12
+   |
+63 | pub struct Participant {
+   |            ^^^^^^^^^^^
+
+warning: associated function `new` is never used
+  --> vendor/tikv-client/src/region_cache.rs:64:12
+   |
+63 | impl<Client> RegionCache<Client> {
+   | -------------------------------- associated function in this implementation
+64 |     pub fn new(inner_client: Arc<Client>) -> RegionCache<Client> {
+   |            ^^^
+
+warning: `tikv-client` (lib) generated 26 warnings
+warning: constant `DEFAULT_POOL_CAPACITY` is never used
+  --> vendor/asyncfuse/src/raw/buffer_pool.rs:27:7
+   |
+27 | const DEFAULT_POOL_CAPACITY: usize = 64;
+   |       ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `try_new` is never used
+  --> vendor/asyncfuse/src/raw/buffer_pool.rs:47:12
+   |
+45 | impl AlignedBuffer {
+   | ------------------ associated function in this implementation
+46 |     /// Create a new aligned buffer with the specified size
+47 |     pub fn try_new(size: usize) -> Result<Self, Box<dyn Error + Send + Sync>> {
+   |            ^^^^^^^
+
+warning: associated items `new`, `with_capacity`, `try_acquire`, `release`, `available`, and `stats` are never used
+   --> vendor/asyncfuse/src/raw/buffer_pool.rs:139:12
+    |
+137 | impl BufferPool {
+    | --------------- associated items in this implementation
+138 |     /// Create a new buffer pool with the specified buffer size
+139 |     pub fn new(buffer_size: usize) -> Self {
+    |            ^^^
+...
+144 |     pub fn with_capacity(buffer_size: usize, max_capacity: usize) -> Self {
+    |            ^^^^^^^^^^^^^
+...
+189 |     pub fn try_acquire(&self) -> Option<IoResult<AlignedBuffer>> {
+    |            ^^^^^^^^^^^
+...
+215 |     pub async fn release(&self, buf: AlignedBuffer) {
+    |                  ^^^^^^^
+...
+244 |     pub async fn available(&self) -> usize {
+    |                  ^^^^^^^^^
+...
+249 |     pub fn stats(&self) -> BufferPoolStats {
+    |            ^^^^^
+
+warning: struct `BufferPoolStats` is never constructed
+   --> vendor/asyncfuse/src/raw/buffer_pool.rs:267:12
+    |
+267 | pub struct BufferPoolStats {
+    |            ^^^^^^^^^^^^^^^
+
+warning: `asyncfuse` (lib) generated 4 warnings
+    Finished `test` profile [unoptimized] target(s) in 2.19s
+warning: the following packages contain code that will be rejected by a future version of Rust: proc-macro-error2 v2.0.1
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (/home/hxy/.cache/brewfs-hot-lower-20261112-checks/debug/deps/brewfs-fb52a78de0c91dc1)
+
+running 1 test
+test workspace_overlay::stores::local_metadata::tests::local_metadata_real_redis_pairs ... LOCAL_SYNC_RESULT {"active_ns":80249494,"final_value":99,"mode":"remote","operation_ns":[5741256,955147,706204,764356,871565,682697,812782,856991,810298,732125,747140,720289,761349,691689,751778,815097,819226,833913,840470,768185,786428,802630,723426,828360,742055,678384,720575,965330,873472,722968,781185,757091,825436,751970,921383,802749,739323,803123,733820,740121,737282,792560,682471,748183,708649,702297,718063,804813,677962,695561,696645,634718,670485,630960,758315,857648,713852,715426,776757,706514,818475,639866,935528,757589,705592,732020,600445,689521,791686,689212,657563,772325,727123,642070,650415,838063,731385,643540,700361,749384,730760,658764,727661,675332,663836,729295,727475,727043,894528,995475,799401,740492,690494,760192,789260,756832,677490,717716,744945,692510],"operations":100,"pair":0,"redis_after":"# Commandstats\r\ncmdstat_type:calls=200,usec=129,usec_per_call=0.64,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=101,usec=144,usec_per_call=1.43,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=1,usec=2525,usec_per_call=2525.00,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=1,usec=4,usec_per_call=4.00,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=100,usec=83,usec_per_call=0.83,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=101,usec=52,usec_per_call=0.51,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=1,usec=494,usec_per_call=494.00,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=101,usec=3004,usec_per_call=29.74,rejected_calls=0,failed_calls=1\r\ncmdstat_get:calls=203,usec=244,usec_per_call=1.20,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=6,usec=46,usec_per_call=7.67,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","redis_before":"# Commandstats\r\ncmdstat_set:calls=1,usec=22,usec_per_call=22.00,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=1,usec=4,usec_per_call=4.00,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=1,usec=1,usec_per_call=1.00,rejected_calls=0,failed_calls=0\r\ncmdstat_get:calls=2,usec=64,usec_per_call=32.00,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=6,usec=46,usec_per_call=7.67,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","stages":null,"total_with_drain_ns":80276874}
+LOCAL_SYNC_RESULT {"active_ns":834626477,"final_value":99,"mode":"local-journal","operation_ns":[8539020,4797813,13193949,9430643,7654634,3439641,7380015,9652014,12994984,4680808,7962249,9907602,14091088,5246263,7855321,9177616,12467844,5326727,7420695,9222193,11989986,5661970,8438891,10126957,12317589,5500789,8182128,10086840,10818738,5508258,7237114,8104341,10125201,7802513,5327458,13016773,10868765,8225102,3975103,14358523,8720184,7440333,3461335,5810655,9704858,11101744,3726249,6831107,5887686,11851278,9197476,7743639,5083165,12724219,10056821,7608330,4518107,13922894,11080096,4213176,6827602,8045165,11717035,4774694,7712123,9011285,12261347,5853977,7776192,8904857,10123408,5751182,7075280,7740327,10069475,5017009,6987169,8308340,10374978,7211047,5227520,11468479,9008390,7329220,5182221,11714171,9357864,7900177,5544085,11367562,9046770,7311304,3924090,11027091,8213430,7081356,4043458,5236059,10919001,13291803],"operations":100,"pair":0,"redis_after":"# Commandstats\r\ncmdstat_type:calls=275,usec=178,usec_per_call=0.65,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=152,usec=216,usec_per_call=1.42,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=126,usec=269,usec_per_call=2.13,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=2,usec=40,usec_per_call=20.00,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=150,usec=137,usec_per_call=0.91,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=253,usec=227,usec_per_call=0.90,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=3,usec=625,usec_per_call=208.33,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=253,usec=7071,usec_per_call=27.95,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=382,usec=379,usec_per_call=0.99,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=10,usec=48,usec_per_call=4.80,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","redis_before":"# Commandstats\r\ncmdstat_type:calls=200,usec=129,usec_per_call=0.64,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=102,usec=146,usec_per_call=1.43,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=1,usec=12,usec_per_call=12.00,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=2,usec=40,usec_per_call=20.00,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=100,usec=83,usec_per_call=0.83,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=103,usec=55,usec_per_call=0.53,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=2,usec=542,usec_per_call=271.00,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=103,usec=3098,usec_per_call=30.08,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=206,usec=250,usec_per_call=1.21,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=10,usec=48,usec_per_call=4.80,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","stages":{"ack_install":{"calls":25,"total_ns":114953551},"ack_state_wait":{"calls":25,"total_ns":121983377},"admission_wait":{"calls":100,"total_ns":169648},"auth_remote":{"calls":0,"total_ns":0},"auth_state_wait":{"calls":0,"total_ns":0},"blocking_queue":{"calls":150,"total_ns":5161099},"flush_wait":{"calls":26,"total_ns":64345},"freeze_install":{"calls":25,"total_ns":136260398},"freeze_state_wait":{"calls":26,"total_ns":123475844},"journal_encode":{"calls":150,"total_ns":5117417},"journal_file_sync":{"calls":150,"total_ns":393157232},"journal_rename_sync":{"calls":150,"total_ns":368115718},"journal_write":{"calls":150,"total_ns":4908880},"merge":{"calls":100,"total_ns":775749},"read_remote":{"calls":0,"total_ns":0},"read_state_wait":{"calls":100,"total_ns":236987628},"receipt_read":{"calls":25,"total_ns":15823180},"remote_commit":{"calls":25,"total_ns":10885565},"update":{"calls":100,"total_ns":595961602},"update_install":{"calls":100,"total_ns":542166052},"update_state_wait":{"calls":100,"total_ns":241424},"validate_remote":{"calls":100,"total_ns":50806367}},"total_with_drain_ns":844751972}
+LOCAL_SYNC_RESULT {"active_ns":37680597,"final_value":99,"mode":"local-buffered","operation_ns":[378388,344815,329918,434412,374951,471995,368511,377198,383916,395146,395101,364078,340456,360780,353420,385585,371295,346532,482540,412484,466340,413429,365963,346231,335731,329990,389240,388487,364135,376031,417061,355992,336500,375619,375064,370930,394678,413078,379855,347186,446283,364572,509465,345578,350494,405004,384684,371970,348476,354994,348615,362947,388340,405046,336184,365153,373934,389502,318365,552649,379931,558419,468831,327942,324311,346737,322123,388965,350001,326484,320594,344702,323059,348221,338980,341323,377756,334787,443743,334639,342680,346918,369764,419561,357998,371662,404230,374790,389123,409215,379401,358792,337155,336511,319286,408309,372371,359031,356957,390416],"operations":100,"pair":0,"redis_after":"# Commandstats\r\ncmdstat_type:calls=284,usec=183,usec_per_call=0.64,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=159,usec=225,usec_per_call=1.42,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=230,usec=354,usec_per_call=1.54,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=3,usec=43,usec_per_call=14.33,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=156,usec=145,usec_per_call=0.93,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=361,usec=286,usec_per_call=0.79,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=5,usec=738,usec_per_call=147.60,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=360,usec=8513,usec_per_call=23.65,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=495,usec=422,usec_per_call=0.85,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=14,usec=50,usec_per_call=3.57,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","redis_before":"# Commandstats\r\ncmdstat_type:calls=275,usec=178,usec_per_call=0.65,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=153,usec=218,usec_per_call=1.42,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=127,usec=271,usec_per_call=2.13,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=3,usec=43,usec_per_call=14.33,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=150,usec=137,usec_per_call=0.91,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=255,usec=229,usec_per_call=0.90,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=4,usec=699,usec_per_call=174.75,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=254,usec=7098,usec_per_call=27.94,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=385,usec=382,usec_per_call=0.99,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=14,usec=50,usec_per_call=3.57,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","stages":{"ack_install":{"calls":3,"total_ns":16405200},"ack_state_wait":{"calls":3,"total_ns":208310},"admission_wait":{"calls":100,"total_ns":74145},"auth_remote":{"calls":0,"total_ns":0},"auth_state_wait":{"calls":0,"total_ns":0},"blocking_queue":{"calls":6,"total_ns":203841},"flush_wait":{"calls":5,"total_ns":9488879},"freeze_install":{"calls":3,"total_ns":17244893},"freeze_state_wait":{"calls":5,"total_ns":692678},"journal_encode":{"calls":6,"total_ns":183179},"journal_file_sync":{"calls":6,"total_ns":18577749},"journal_rename_sync":{"calls":6,"total_ns":14094304},"journal_write":{"calls":6,"total_ns":198838},"merge":{"calls":100,"total_ns":364165},"read_remote":{"calls":0,"total_ns":0},"read_state_wait":{"calls":100,"total_ns":350197},"receipt_read":{"calls":3,"total_ns":1497913},"remote_commit":{"calls":3,"total_ns":1359446},"update":{"calls":100,"total_ns":36761362},"update_install":{"calls":100,"total_ns":340268},"update_state_wait":{"calls":100,"total_ns":87936},"validate_remote":{"calls":100,"total_ns":35051307}},"total_with_drain_ns":58905733}
+LOCAL_SYNC_RESULT {"active_ns":40113331,"final_value":99,"mode":"local-buffered","operation_ns":[362797,311252,322967,329909,336509,322161,308670,299340,308188,293496,330203,407878,345851,335901,375089,404252,398606,309895,438057,372862,407896,429355,347926,373426,363272,358395,342866,409029,399498,419183,406517,331305,345085,359926,795979,675082,719781,731114,707466,738194,681256,886179,636247,452218,403898,402989,347915,331005,399138,338510,392225,348427,323525,313704,747932,406736,570528,418075,355928,588832,758065,349678,328343,358975,317242,346220,367139,314291,328872,358974,311283,327569,317027,329647,328820,362056,317221,328990,321984,325993,307223,381133,382614,416180,385950,345309,359951,331946,316901,270388,352433,390508,338952,338012,406735,366828,365961,319398,364470,314479],"operations":100,"pair":1,"redis_after":"# Commandstats\r\ncmdstat_type:calls=293,usec=189,usec_per_call=0.65,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=166,usec=237,usec_per_call=1.43,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=334,usec=441,usec_per_call=1.32,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=4,usec=47,usec_per_call=11.75,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=162,usec=156,usec_per_call=0.96,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=469,usec=342,usec_per_call=0.73,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=7,usec=810,usec_per_call=115.71,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=467,usec=10087,usec_per_call=21.60,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=608,usec=460,usec_per_call=0.76,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=18,usec=51,usec_per_call=2.83,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","redis_before":"# Commandstats\r\ncmdstat_type:calls=284,usec=183,usec_per_call=0.64,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=160,usec=228,usec_per_call=1.42,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=231,usec=356,usec_per_call=1.54,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=4,usec=47,usec_per_call=11.75,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=156,usec=145,usec_per_call=0.93,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=363,usec=287,usec_per_call=0.79,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=6,usec=779,usec_per_call=129.83,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=361,usec=8538,usec_per_call=23.65,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=498,usec=424,usec_per_call=0.85,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=18,usec=51,usec_per_call=2.83,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","stages":{"ack_install":{"calls":3,"total_ns":15763331},"ack_state_wait":{"calls":3,"total_ns":290230},"admission_wait":{"calls":100,"total_ns":74611},"auth_remote":{"calls":0,"total_ns":0},"auth_state_wait":{"calls":0,"total_ns":0},"blocking_queue":{"calls":6,"total_ns":235299},"flush_wait":{"calls":5,"total_ns":8328971},"freeze_install":{"calls":3,"total_ns":17439741},"freeze_state_wait":{"calls":5,"total_ns":678425},"journal_encode":{"calls":6,"total_ns":255522},"journal_file_sync":{"calls":6,"total_ns":17395635},"journal_rename_sync":{"calls":6,"total_ns":14520419},"journal_write":{"calls":6,"total_ns":321356},"merge":{"calls":100,"total_ns":355202},"read_remote":{"calls":0,"total_ns":0},"read_state_wait":{"calls":100,"total_ns":319536},"receipt_read":{"calls":3,"total_ns":1984378},"remote_commit":{"calls":3,"total_ns":1370347},"update":{"calls":100,"total_ns":39271240},"update_install":{"calls":100,"total_ns":327476},"update_state_wait":{"calls":100,"total_ns":110031},"validate_remote":{"calls":100,"total_ns":37604851}},"total_with_drain_ns":59326101}
+LOCAL_SYNC_RESULT {"active_ns":1069922868,"final_value":99,"mode":"local-journal","operation_ns":[6713453,4920612,11737318,9873231,8152934,4524034,12881511,10146739,8445256,4927059,13184680,28816823,11099327,6002021,11507989,14404037,4791727,5839339,8784768,9209376,10925585,4976542,7734742,10183839,9371926,7375896,5774119,11462540,9792260,8296611,5776614,11371353,9431854,8045363,5157679,11678760,9375530,7683859,4752078,12564151,9676463,8388920,4766103,11868528,11607441,7740775,3267309,5199375,10397064,12606030,3592290,5837417,8170720,11238666,11825372,8911010,6134303,12739711,71336202,118985440,12948762,12996006,5847708,4950954,12698322,13052546,4446598,5555030,8049132,9211992,11838077,5224826,7770657,9837876,12129021,5984652,8299228,11084492,11685991,6852186,8147877,8567184,9890651,6311531,6738643,11606043,9843546,8385349,5033145,13673427,10134329,8175882,4536353,13352397,9460382,7896210,4528568,13007547,10525603,7547798],"operations":100,"pair":1,"redis_after":"# Commandstats\r\ncmdstat_type:calls=368,usec=249,usec_per_call=0.68,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=217,usec=318,usec_per_call=1.47,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=460,usec=731,usec_per_call=1.59,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=5,usec=50,usec_per_call=10.00,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=212,usec=221,usec_per_call=1.04,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=621,usec=438,usec_per_call=0.71,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=9,usec=895,usec_per_call=99.44,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=618,usec=14372,usec_per_call=23.26,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=787,usec=628,usec_per_call=0.80,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=22,usec=54,usec_per_call=2.45,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","redis_before":"# Commandstats\r\ncmdstat_type:calls=293,usec=189,usec_per_call=0.65,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=167,usec=241,usec_per_call=1.44,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=335,usec=443,usec_per_call=1.32,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=5,usec=50,usec_per_call=10.00,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=162,usec=156,usec_per_call=0.96,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=471,usec=344,usec_per_call=0.73,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=8,usec=857,usec_per_call=107.12,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=468,usec=10119,usec_per_call=21.62,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=611,usec=464,usec_per_call=0.76,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=22,usec=54,usec_per_call=2.45,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","stages":{"ack_install":{"calls":25,"total_ns":196676174},"ack_state_wait":{"calls":25,"total_ns":117740312},"admission_wait":{"calls":100,"total_ns":185166},"auth_remote":{"calls":0,"total_ns":0},"auth_state_wait":{"calls":0,"total_ns":0},"blocking_queue":{"calls":150,"total_ns":5520388},"flush_wait":{"calls":27,"total_ns":7471166},"freeze_install":{"calls":25,"total_ns":156194623},"freeze_state_wait":{"calls":27,"total_ns":128212005},"journal_encode":{"calls":150,"total_ns":5376583},"journal_file_sync":{"calls":150,"total_ns":510500463},"journal_rename_sync":{"calls":150,"total_ns":472162461},"journal_write":{"calls":150,"total_ns":5516096},"merge":{"calls":100,"total_ns":823838},"read_remote":{"calls":0,"total_ns":0},"read_state_wait":{"calls":100,"total_ns":337426029},"receipt_read":{"calls":25,"total_ns":19912380},"remote_commit":{"calls":25,"total_ns":12618787},"update":{"calls":100,"total_ns":730605787},"update_install":{"calls":100,"total_ns":665188122},"update_state_wait":{"calls":100,"total_ns":243003},"validate_remote":{"calls":100,"total_ns":62174782}},"total_with_drain_ns":1080833242}
+LOCAL_SYNC_RESULT {"active_ns":68297745,"final_value":99,"mode":"remote","operation_ns":[752028,756352,667686,689728,682562,684123,731655,732998,643966,612030,704206,678644,683823,671100,723681,729029,631042,564264,576651,856143,650599,667105,584527,573794,738260,702624,654209,678107,849169,810693,667373,634412,700633,719819,697044,719700,660823,624281,670029,614869,664269,644375,690760,653961,652165,648312,655674,683157,731882,668704,681775,759015,690927,685320,653429,613848,590795,622225,596762,645178,650886,750008,728892,809946,715514,664789,672553,683244,709345,685879,635384,610979,662795,661864,979171,724593,720427,759143,666566,632690,759511,664059,608922,733489,714594,617994,655791,671143,605352,703648,654208,614930,667369,650026,663691,721375,802403,703531,648064,636409],"operations":100,"pair":1,"redis_after":"# Commandstats\r\ncmdstat_type:calls=568,usec=362,usec_per_call=0.64,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=318,usec=421,usec_per_call=1.32,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=460,usec=731,usec_per_call=1.59,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=6,usec=56,usec_per_call=9.33,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=312,usec=294,usec_per_call=0.94,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=722,usec=482,usec_per_call=0.67,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=11,usec=986,usec_per_call=89.64,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=718,usec=16538,usec_per_call=23.03,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=990,usec=790,usec_per_call=0.80,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=26,usec=83,usec_per_call=3.19,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","redis_before":"# Commandstats\r\ncmdstat_type:calls=368,usec=249,usec_per_call=0.68,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=218,usec=321,usec_per_call=1.47,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=460,usec=731,usec_per_call=1.59,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=6,usec=56,usec_per_call=9.33,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=212,usec=221,usec_per_call=1.04,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=622,usec=440,usec_per_call=0.71,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=10,usec=944,usec_per_call=94.40,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=618,usec=14372,usec_per_call=23.26,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=789,usec=632,usec_per_call=0.80,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=26,usec=83,usec_per_call=3.19,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","stages":null,"total_with_drain_ns":68302152}
+LOCAL_SYNC_RESULT {"active_ns":73592580,"final_value":99,"mode":"remote","operation_ns":[1681264,1096284,665935,654641,728511,776665,739344,814006,840411,786199,748324,688880,698440,781647,791710,710698,733606,635570,655822,717785,695105,767715,759468,632580,762580,788849,728144,679654,674697,801855,753282,723799,765349,716545,675190,654219,793457,714707,667829,661872,648282,704295,702862,697110,744576,737530,713246,760270,725664,728445,726794,772266,752115,748882,670418,676024,721202,725229,714453,749620,763080,654032,722469,687243,709361,650472,656968,726700,622291,708037,674546,658090,704932,797225,745421,757812,698690,638976,680852,746954,740423,759277,740091,742514,695612,650437,694160,680763,715353,676744,673545,781692,709151,700392,829284,959319,815637,746334,780961,660717],"operations":100,"pair":2,"redis_after":"# Commandstats\r\ncmdstat_type:calls=768,usec=471,usec_per_call=0.61,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=419,usec=523,usec_per_call=1.25,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=460,usec=731,usec_per_call=1.59,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=7,usec=61,usec_per_call=8.71,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=412,usec=361,usec_per_call=0.88,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=823,usec=525,usec_per_call=0.64,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=13,usec=1122,usec_per_call=86.31,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=818,usec=18650,usec_per_call=22.80,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=1193,usec=971,usec_per_call=0.81,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=30,usec=85,usec_per_call=2.83,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","redis_before":"# Commandstats\r\ncmdstat_type:calls=568,usec=362,usec_per_call=0.64,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=319,usec=423,usec_per_call=1.33,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=460,usec=731,usec_per_call=1.59,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=7,usec=61,usec_per_call=8.71,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=312,usec=294,usec_per_call=0.94,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=723,usec=483,usec_per_call=0.67,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=12,usec=1084,usec_per_call=90.33,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=718,usec=16538,usec_per_call=23.03,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=992,usec=794,usec_per_call=0.80,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=30,usec=85,usec_per_call=2.83,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","stages":null,"total_with_drain_ns":73599616}
+LOCAL_SYNC_RESULT {"active_ns":829880202,"final_value":99,"mode":"local-journal","operation_ns":[4577721,6738571,11250798,12729940,4216787,6731462,5171220,9951445,8481591,7027577,4728181,11730566,8476580,7055105,4470368,10324997,8487039,7115511,4399639,12074206,9207169,7930213,4381368,13209771,9215935,7205685,3361518,5135452,9712462,11652702,4119385,7114232,15669240,9739592,7391995,4117247,5568408,11295640,12411831,4242163,5662466,8431487,9521629,12067064,6075561,7737853,9995200,11909192,6843743,7367968,10507935,10894971,6275258,7483783,9256359,10983357,6495166,7478369,9530675,10984511,6535767,7721244,9014289,10700536,5957823,7361208,8103496,10040420,5430125,6741747,12005206,9794481,7771245,5832620,10811071,9205243,7123819,5912065,10159484,9034655,7027665,5740141,13238427,10206377,8265271,3448164,5876930,11768019,14378861,4905263,9155731,9884289,12807043,5473722,7398976,8458780,10592854,4952895,7242439,9792582],"operations":100,"pair":2,"redis_after":"# Commandstats\r\ncmdstat_type:calls=840,usec=526,usec_per_call=0.63,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=468,usec=602,usec_per_call=1.29,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=585,usec=968,usec_per_call=1.65,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=8,usec=67,usec_per_call=8.38,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=460,usec=411,usec_per_call=0.89,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=973,usec=623,usec_per_call=0.64,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=15,usec=1254,usec_per_call=83.60,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=967,usec=22495,usec_per_call=23.26,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=1369,usec=1098,usec_per_call=0.80,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=34,usec=87,usec_per_call=2.56,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","redis_before":"# Commandstats\r\ncmdstat_type:calls=768,usec=471,usec_per_call=0.61,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=420,usec=526,usec_per_call=1.25,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=461,usec=732,usec_per_call=1.59,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=8,usec=67,usec_per_call=8.38,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=412,usec=361,usec_per_call=0.88,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=825,usec=528,usec_per_call=0.64,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=14,usec=1201,usec_per_call=85.79,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=819,usec=18678,usec_per_call=22.81,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=1196,usec=977,usec_per_call=0.82,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=34,usec=87,usec_per_call=2.56,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","stages":{"ack_install":{"calls":24,"total_ns":108624617},"ack_state_wait":{"calls":24,"total_ns":114230501},"admission_wait":{"calls":100,"total_ns":149756},"auth_remote":{"calls":0,"total_ns":0},"auth_state_wait":{"calls":0,"total_ns":0},"blocking_queue":{"calls":148,"total_ns":4798069},"flush_wait":{"calls":26,"total_ns":9227303},"freeze_install":{"calls":24,"total_ns":136613396},"freeze_state_wait":{"calls":26,"total_ns":122975806},"journal_encode":{"calls":148,"total_ns":4607181},"journal_file_sync":{"calls":148,"total_ns":390202220},"journal_rename_sync":{"calls":148,"total_ns":366735858},"journal_write":{"calls":148,"total_ns":4667428},"merge":{"calls":100,"total_ns":665362},"read_remote":{"calls":0,"total_ns":0},"read_state_wait":{"calls":100,"total_ns":233126248},"receipt_read":{"calls":24,"total_ns":17272397},"remote_commit":{"calls":24,"total_ns":11922625},"update":{"calls":100,"total_ns":595248784},"update_install":{"calls":100,"total_ns":541373790},"update_state_wait":{"calls":100,"total_ns":210412},"validate_remote":{"calls":100,"total_ns":51218639}},"total_with_drain_ns":839111826}
+LOCAL_SYNC_RESULT {"active_ns":38348870,"final_value":99,"mode":"local-buffered","operation_ns":[375621,457940,355537,362648,428990,360844,383499,373210,372263,374406,357833,328090,405725,397742,465133,329128,358898,396707,349037,364092,319524,314403,333033,422696,369910,365223,370982,448752,406296,389436,346333,392011,392264,470261,382122,385971,369802,340159,353703,337738,364765,500482,503360,375767,360697,323696,366679,399663,428320,441535,389105,389208,437722,485454,399818,412501,398036,382433,404471,357552,344356,362200,388412,378024,370243,345092,330618,329376,341227,341774,358397,326723,350493,419616,399116,425461,346199,321937,318364,378238,366925,435577,379383,352690,391004,393953,350275,342129,333783,346084,381617,375155,421146,371749,431905,680008,412988,370466,397511,367958],"operations":100,"pair":2,"redis_after":"# Commandstats\r\ncmdstat_type:calls=849,usec=532,usec_per_call=0.63,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=475,usec=649,usec_per_call=1.37,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=689,usec=1064,usec_per_call=1.54,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=9,usec=73,usec_per_call=8.11,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=466,usec=421,usec_per_call=0.90,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=1081,usec=692,usec_per_call=0.64,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=17,usec=1360,usec_per_call=80.00,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=1074,usec=24211,usec_per_call=22.54,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=1482,usec=1151,usec_per_call=0.78,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=38,usec=89,usec_per_call=2.34,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","redis_before":"# Commandstats\r\ncmdstat_type:calls=840,usec=526,usec_per_call=0.63,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=469,usec=606,usec_per_call=1.29,rejected_calls=0,failed_calls=0\r\ncmdstat_script|load:calls=2,usec=2604,usec_per_call=1302.00,rejected_calls=0,failed_calls=0\r\ncmdstat_strlen:calls=586,usec=970,usec_per_call=1.66,rejected_calls=0,failed_calls=0\r\ncmdstat_scan:calls=9,usec=73,usec_per_call=8.11,rejected_calls=0,failed_calls=0\r\ncmdstat_zadd:calls=460,usec=411,usec_per_call=0.89,rejected_calls=0,failed_calls=0\r\ncmdstat_time:calls=975,usec=625,usec_per_call=0.64,rejected_calls=0,failed_calls=0\r\ncmdstat_info:calls=16,usec=1316,usec_per_call=82.25,rejected_calls=0,failed_calls=0\r\ncmdstat_evalsha:calls=968,usec=22531,usec_per_call=23.28,rejected_calls=0,failed_calls=2\r\ncmdstat_get:calls=1372,usec=1103,usec_per_call=0.80,rejected_calls=0,failed_calls=0\r\ncmdstat_client|setinfo:calls=38,usec=89,usec_per_call=2.34,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=3,usec_per_call=3.00,rejected_calls=0,failed_calls=0\r\n","stages":{"ack_install":{"calls":3,"total_ns":46459273},"ack_state_wait":{"calls":3,"total_ns":253239},"admission_wait":{"calls":100,"total_ns":74536},"auth_remote":{"calls":0,"total_ns":0},"auth_state_wait":{"calls":0,"total_ns":0},"blocking_queue":{"calls":6,"total_ns":279482},"flush_wait":{"calls":5,"total_ns":39182155},"freeze_install":{"calls":3,"total_ns":16597414},"freeze_state_wait":{"calls":5,"total_ns":763010},"journal_encode":{"calls":6,"total_ns":297014},"journal_file_sync":{"calls":6,"total_ns":46018096},"journal_rename_sync":{"calls":6,"total_ns":15609147},"journal_write":{"calls":6,"total_ns":299608},"merge":{"calls":100,"total_ns":372152},"read_remote":{"calls":0,"total_ns":0},"read_state_wait":{"calls":100,"total_ns":318175},"receipt_read":{"calls":3,"total_ns":1686429},"remote_commit":{"calls":3,"total_ns":1335528},"update":{"calls":100,"total_ns":37487943},"update_install":{"calls":100,"total_ns":349580},"update_state_wait":{"calls":100,"total_ns":118644},"validate_remote":{"calls":100,"total_ns":35712405}},"total_with_drain_ns":88461534}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3294 filtered out; finished in 3.29s
+

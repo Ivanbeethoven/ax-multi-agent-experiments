@@ -1,0 +1,69 @@
+[11:58:47] INFO  构建宿主机 brewfs release 二进制（供镜像 COPY）
+[11:58:47] OK    复用 Docker build context 二进制: /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/candidate/target/docker/brewfs
+[11:58:47] INFO  构建 perf runner 镜像
+time="2026-11-13T11:58:47+08:00" level=warning msg="No services to build"
+[11:58:49] INFO  启动依赖服务: redis rustfs
+ Network hot-guard-87e2227564_default Creating 
+ Network hot-guard-87e2227564_default Creating 
+ Volume hot-guard-87e2227564_disk0 Creating 
+ Volume hot-guard-87e2227564_disk0 Creating 
+ Volume hot-guard-87e2227564_disk1 Creating 
+ Volume hot-guard-87e2227564_disk1 Creating 
+ Volume hot-guard-87e2227564_disk2 Creating 
+ Volume hot-guard-87e2227564_disk2 Creating 
+ Volume hot-guard-87e2227564_disk3 Creating 
+ Volume hot-guard-87e2227564_disk3 Creating 
+ Volume hot-guard-87e2227564_disk0 Created 
+ Volume hot-guard-87e2227564_disk0 Created 
+ Volume hot-guard-87e2227564_disk1 Created 
+ Volume hot-guard-87e2227564_disk1 Created 
+ Volume hot-guard-87e2227564_disk2 Created 
+ Volume hot-guard-87e2227564_disk2 Created 
+ Volume hot-guard-87e2227564_disk3 Created 
+ Volume hot-guard-87e2227564_disk3 Created 
+ Network hot-guard-87e2227564_default Created 
+ Network hot-guard-87e2227564_default Created 
+ Container hot-guard-87e2227564-rustfs-1 Creating 
+ Container hot-guard-87e2227564-redis-1 Creating 
+ Container hot-guard-87e2227564-rustfs-1 Created 
+ Container hot-guard-87e2227564-redis-1 Created 
+ Container hot-guard-87e2227564-rustfs-1 Starting 
+ Container hot-guard-87e2227564-redis-1 Starting 
+ Container hot-guard-87e2227564-rustfs-1 Started 
+ Container hot-guard-87e2227564-redis-1 Started 
+[11:58:51] INFO  初始化 rustfs bucket（一次性容器）
+ Container hot-guard-87e2227564-redis-1 Running 
+ Container hot-guard-87e2227564-rustfs-1 Running 
+ Container hot-guard-87e2227564-redis-1 Waiting 
+ Container hot-guard-87e2227564-redis-1 Healthy 
+ Container hot-guard-87e2227564-rustfs-init-run-3c06b0e43007 Creating 
+ Container hot-guard-87e2227564-rustfs-init-run-3c06b0e43007 Created 
+[11:58:54] INFO  运行容器内性能测试（退出码由 perf 容器决定）
+ Volume hot-guard-87e2227564_state Creating 
+ Volume hot-guard-87e2227564_state Creating 
+ Volume hot-guard-87e2227564_state Created 
+ Volume hot-guard-87e2227564_state Created 
+ Container hot-guard-87e2227564-perf-run-f0f44eeb27e0 Creating 
+ Container hot-guard-87e2227564-perf-run-f0f44eeb27e0 Created 
+[03:58:55] INFO  nofile limit: 1048576
+[03:58:55] INFO  写入 BrewFS 配置: /run/brewfs/config.yaml
+[03:58:55] INFO  准备产物目录: /artifacts/perf-run-1794542335-17400-brewfs
+[03:58:57] INFO  安装 mount helper: /usr/sbin/mount.fuse.brewfs
+[03:58:57] INFO  挂载 BrewFS: /mnt/brewfs
+[03:58:59] OK    BrewFS 已挂载
+[03:58:59] INFO  执行挂载点预检: /mnt/brewfs
+[03:58:59] OK    预检通过: 写入/读取正常
+[03:58:59] INFO  开始性能测试: tools=fio-randwrite
+[03:58:59] INFO  运行压力工具: fio-randwrite
+[03:58:59] INFO    命令: run_observed_fio fio-randwrite --name=brewfs-randwrite --directory=/mnt/brewfs/.perf-fio-randwrite --rw=randwrite --bs=4m --size=512m --numjobs=4 --ioengine=io_uring --iodepth=1 --direct=0 --runtime=20 --time_based --group_reporting --eta=never --lat_percentiles=1 --clat_percentiles=1 --slat_percentiles=1 --percentile_list=50:95:99:99.9 --randseed=20261112 --randrepeat=1 --output-format=json --output=/artifacts/perf-run-1794542335-17400-brewfs/results/fio-randwrite.json --write_lat_log=/artifacts/perf-run-1794542335-17400-brewfs/results/fio-randwrite_lat --log_avg_msec=1000
+[03:59:20] OK    压力工具完成: fio-randwrite (21s, log=0 bytes)
+[03:59:20] INFO  等待 post-write 写回严格排空: fio-randwrite (threshold=0 bytes, stable=3, timeout=600s)
+[03:59:20] INFO    post-write 写回等待中: pending=3224371200 dirty=3224371200 buffer_dirty=3224371200 put_bytes=2039482300 elapsed=0s
+[03:59:40] INFO    post-write 写回等待中: pending=1644167168 dirty=1644167168 buffer_dirty=1644167168 put_bytes=3602910608 elapsed=20s
+[03:59:59] OK    post-write 写回已严格排空: fio-randwrite (runner=35s extended=39s pending=0 dirty=0 buffer_dirty=0 put_bytes=5238690756 uploaded=0 stable=3s)
+[03:59:59] INFO  测试完成后文件系统统计:
+[03:59:59] INFO    磁盘使用: 2.0G / 1.0P (1%)
+[03:59:59] INFO    残留文件数: 4
+[03:59:59] OK    性能测试全部完成
+[12:00:00] OK    perf compose 运行结束 (container=0, bench=0)
+[12:00:00] OK    产物目录: /mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/candidate/docker/compose-xfstests/artifacts/perf-run-1794542327-24978

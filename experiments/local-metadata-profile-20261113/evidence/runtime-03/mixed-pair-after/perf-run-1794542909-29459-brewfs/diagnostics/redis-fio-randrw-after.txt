@@ -1,0 +1,131 @@
+# Redis diagnostics after fio-randrw
+2026-11-13T04:09:21+00:00
+
+## INFO commandstats
+# Commandstats
+cmdstat_ping:calls=11,usec=22,usec_per_call=2.00,rejected_calls=0,failed_calls=0
+cmdstat_exec:calls=1854,usec=9514,usec_per_call=5.13,rejected_calls=0,failed_calls=0
+cmdstat_lrange:calls=824,usec=2256,usec_per_call=2.74,rejected_calls=0,failed_calls=0
+cmdstat_get:calls=3731,usec=5841,usec_per_call=1.57,rejected_calls=0,failed_calls=0
+cmdstat_hget:calls=1051,usec=1364,usec_per_call=1.30,rejected_calls=0,failed_calls=0
+cmdstat_multi:calls=1854,usec=1788,usec_per_call=0.96,rejected_calls=0,failed_calls=0
+cmdstat_evalsha:calls=898,usec=55196,usec_per_call=61.47,rejected_calls=0,failed_calls=0
+cmdstat_incrby:calls=877,usec=3162,usec_per_call=3.61,rejected_calls=0,failed_calls=0
+cmdstat_latency|reset:calls=1,usec=11,usec_per_call=11.00,rejected_calls=0,failed_calls=0
+cmdstat_rpush:calls=877,usec=6141,usec_per_call=7.00,rejected_calls=0,failed_calls=0
+cmdstat_set:calls=4,usec=8,usec_per_call=2.00,rejected_calls=0,failed_calls=0
+cmdstat_incr:calls=877,usec=732,usec_per_call=0.83,rejected_calls=0,failed_calls=0
+cmdstat_config|resetstat:calls=1,usec=59,usec_per_call=59.00,rejected_calls=0,failed_calls=0
+cmdstat_slowlog|reset:calls=1,usec=1,usec_per_call=1.00,rejected_calls=0,failed_calls=0
+
+## INFO stats
+# Stats
+total_connections_received:15
+total_commands_processed:12862
+instantaneous_ops_per_sec:19
+total_net_input_bytes:556940
+total_net_output_bytes:1138760
+total_net_repl_input_bytes:0
+total_net_repl_output_bytes:0
+instantaneous_input_kbps:1.82
+instantaneous_output_kbps:0.82
+instantaneous_input_repl_kbps:0.00
+instantaneous_output_repl_kbps:0.00
+rejected_connections:0
+sync_full:0
+sync_partial_ok:0
+sync_partial_err:0
+expired_keys:0
+expired_stale_perc:0.00
+expired_time_cap_reached_count:0
+expire_cycle_cpu_milliseconds:0
+evicted_keys:0
+evicted_clients:0
+total_eviction_exceeded_time:0
+current_eviction_exceeded_time:0
+keyspace_hits:4576
+keyspace_misses:1030
+pubsub_channels:0
+pubsub_patterns:0
+pubsubshard_channels:0
+latest_fork_usec:0
+total_forks:0
+migrate_cached_sockets:0
+slave_expires_tracked_keys:0
+active_defrag_hits:0
+active_defrag_misses:0
+active_defrag_key_hits:0
+active_defrag_key_misses:0
+total_active_defrag_time:0
+current_active_defrag_time:0
+tracking_total_keys:0
+tracking_total_items:0
+tracking_total_prefixes:0
+unexpected_error_replies:0
+total_error_replies:0
+dump_payload_sanitizations:0
+total_reads_processed:3286
+total_writes_processed:3271
+io_threaded_reads_processed:0
+io_threaded_writes_processed:0
+reply_buffer_shrinks:4
+reply_buffer_expands:15
+eventloop_cycles:3520
+eventloop_duration_sum:587611
+eventloop_duration_cmd_sum:71298
+instantaneous_eventloop_cycles_per_sec:19
+instantaneous_eventloop_duration_usec:284
+acl_access_denied_auth:0
+acl_access_denied_cmd:0
+acl_access_denied_key:0
+acl_access_denied_channel:0
+
+## SLOWLOG GET 20
+
+
+## LATENCY LATEST
+command
+1794542955
+2
+2
+aof-write-alone
+1794542959
+1
+119
+fast-command
+1794542955
+2
+2
+aof-write
+1794542959
+1
+174
+aof-write-pending-fsync
+1794542948
+174
+174
+
+## LATENCY DOCTOR
+Dave, I have observed latency spikes in this Redis instance. You don't mind talking about it, do you Dave?
+
+1. command: 1 latency spikes (average 2ms, mean deviation 0ms, period 6.00 sec). Worst all time event 2ms.
+2. aof-write-alone: 11 latency spikes (average 13ms, mean deviation 19ms, period 2.09 sec). Worst all time event 119ms.
+3. fast-command: 1 latency spikes (average 2ms, mean deviation 0ms, period 6.00 sec). Worst all time event 2ms.
+4. aof-write: 12 latency spikes (average 26ms, mean deviation 39ms, period 1.92 sec). Worst all time event 174ms.
+5. aof-write-pending-fsync: 1 latency spikes (average 174ms, mean deviation 0ms, period 13.00 sec). Worst all time event 174ms.
+
+I have a few advices for you:
+
+- Your current Slow Log configuration only logs events that are slower than your configured latency monitor threshold. Please use 'CONFIG SET slowlog-log-slower-than 1000'.
+- Check your Slow Log to understand what are the commands you are running which are too slow to execute. Please check https://redis.io/commands/slowlog for more information.
+- The system is slow to execute Redis code paths not containing system calls. This usually means the system does not provide Redis CPU time to run for long periods. You should try to:
+  1) Lower the system load.
+  2) Use a computer / VM just for Redis if you are running other software in the same system.
+  3) Check if you have a "noisy neighbour" problem.
+  4) Check with 'redis-cli --intrinsic-latency 100' what is the intrinsic latency in your system.
+  5) Check if the problem is allocator-related by recompiling Redis with MALLOC=libc, if you are using Jemalloc. However this may create fragmentation problems.
+- It is strongly advised to use local disks for persistence, especially if you are using AOF. Remote disks provided by platform-as-a-service providers are known to be slow.
+- SSD disks are able to reduce fsync latency, and total time needed for snapshotting and AOF log rewriting (resulting in smaller memory usage). With extremely high write load SSD disks can be a good option. However Redis should perform reasonably with high load using normal disks. Use this advice as a last resort.
+- Mounting ext3/4 filesystems with data=writeback can provide a performance boost compared to data=ordered, however this mode of operation provides less guarantees, and sometimes it can happen that after a hard crash the AOF file will have a half-written command at the end and will require to be repaired before Redis restarts.
+- Try to lower the disk contention. This is often caused by other disk intensive processes running in the same computer (including other Redis instances).
+- Deleting, expiring or evicting (because of maxmemory policy) large objects is a blocking operation. If you have very large objects that are often deleted, expired, or evicted, try to fragment those objects into multiple smaller objects.

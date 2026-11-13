@@ -1,5 +1,7 @@
 # Private workspace 本地修改与合并提交
 
+后续的耗时拆分、锁等待优化和前后对照见[合批性能诊断](../local-metadata-profile-20261113/README.zh.md)。本页保留首次实现的测试结果。
+
 代码已提交：[BrewFS 6c42259](https://github.com/brewfs/brewfs/commit/6c422594bbc2fc152f259d2637ca40e7ff0ddb22)。
 同一元数据键反复修改时，只向元数据库提交最终值；提交旧批次的确认不会删除
 新修改。数据文件的区间覆盖继续由 BrewFS 原有逻辑处理。

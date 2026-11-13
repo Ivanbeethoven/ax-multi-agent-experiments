@@ -189,6 +189,8 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--pairs', type=int, default=3)
     parser.add_argument('--passes', type=int, default=128)
+    parser.add_argument('--cache-state', choices=('both', 'on', 'off'), default='both',
+                        help='Use on for version comparisons with the same enabled read cache')
     parser.add_argument('--metadata-sync', choices=('remote', 'local-journal', 'local-buffered'), default='remote',
                         help='Metadata acknowledgement mode; each cell gets an independent local journal')
     parser.add_argument('--metadata-edits', type=int, default=0,
@@ -222,8 +224,10 @@ def main():
                   producer_sha256=sha(args.producer), images=dict(redis=REDIS, rustfs=RUSTFS),
                   argv=list(map(str, __import__('sys').argv)), cells=[], commands=[],
                   runtime_env={key: value for key, value in env.items() if key.startswith('BREWFS_') or key in ('RUST_LOG', 'AWS_EC2_METADATA_DISABLED')},
-                  metadata_sync=args.metadata_sync,
-                  comparison='same optimized binary; new empty-query cache disabled/enabled; writable Overlay in both arms')
+                  metadata_sync=args.metadata_sync, cache_state=args.cache_state,
+                  comparison=('same optimized binary; new empty-query cache disabled/enabled; writable Overlay in both arms'
+                              if args.cache_state == 'both' else
+                              f'optimized binary; empty-query cache fixed {args.cache_state}; writable Overlay'))
     save(args.out / 'ownership.json', dict(owner=owner, temporary_directory=str(work), containers=containers))
     process, logfile, point = None, None, None
 
@@ -332,7 +336,10 @@ def main():
                 data_config = work / ('data-' + scenario + '.json')
                 data_config.write_text(json.dumps({'data': data}))
                 for pair in range(args.pairs):
-                    for enabled in ([False, True] if pair % 2 == 0 else [True, False]):
+                    cache_order = [False, True] if pair % 2 == 0 else [True, False]
+                    if args.cache_state != 'both':
+                        cache_order = [args.cache_state == 'on']
+                    for enabled in cache_order:
                         label = f'{scenario}-pair{pair+1}-' + ('on' if enabled else 'off')
                         assert sha(args.binary) == result['binary_sha256'], 'binary changed during pairing'
                         out = args.out / label
@@ -433,14 +440,19 @@ def main():
                             metadata_before = commandstats(redis_port)
                             metadata_s3_before = s3_counts()
                             samples = []
+                            chmod_samples, stat_samples = [], []
                             started = time.monotonic_ns()
                             try:
                                 for index in range(args.metadata_edits):
                                     permissions = 0o600 if index % 2 == 0 else 0o640
                                     operation_start = time.monotonic_ns()
                                     os.chmod(target, permissions)
+                                    chmod_end = time.monotonic_ns()
                                     assert os.stat(target).st_mode & 0o777 == permissions
-                                    samples.append(time.monotonic_ns() - operation_start)
+                                    operation_end = time.monotonic_ns()
+                                    samples.append(operation_end - operation_start)
+                                    chmod_samples.append(chmod_end - operation_start)
+                                    stat_samples.append(operation_end - chmod_end)
                                 active_ns = time.monotonic_ns() - started
                                 os.fsync(fd)
                             finally:
@@ -449,6 +461,7 @@ def main():
                             metadata_after = commandstats(redis_port)
                             metadata_s3_after = s3_counts()
                             cell['metadata_edits'] = dict(path=name, count=args.metadata_edits,
+                                latency_schema='chmod-stat-v2', chmod_ns=chmod_samples, stat_ns=stat_samples,
                                 final_mode=permissions, operation_ns=samples, active_ns=active_ns,
                                 total_with_drain_ns=total_ns, redis_before=metadata_before,
                                 redis_after=metadata_after,

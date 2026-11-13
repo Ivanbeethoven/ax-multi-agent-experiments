@@ -1,0 +1,27 @@
+ Volume hot-guard-e0ba9fe620_state Creating 
+ Volume hot-guard-e0ba9fe620_state Creating 
+ Volume hot-guard-e0ba9fe620_state Created 
+ Volume hot-guard-e0ba9fe620_state Created 
+ Container hot-guard-e0ba9fe620-perf-run-268e503107f7 Creating 
+ Container hot-guard-e0ba9fe620-perf-run-268e503107f7 Created 
+[03:57:27] INFO  nofile limit: 1048576
+[03:57:27] INFO  写入 BrewFS 配置: /run/brewfs/config.yaml
+[03:57:27] INFO  准备产物目录: /artifacts/perf-run-1794542247-20511-brewfs
+[03:57:28] INFO  安装 mount helper: /usr/sbin/mount.fuse.brewfs
+[03:57:28] INFO  挂载 BrewFS: /mnt/brewfs
+[03:57:30] OK    BrewFS 已挂载
+[03:57:30] INFO  执行挂载点预检: /mnt/brewfs
+[03:57:30] OK    预检通过: 写入/读取正常
+[03:57:30] INFO  开始性能测试: tools=fio-seqwrite
+[03:57:30] INFO  运行压力工具: fio-seqwrite
+[03:57:30] INFO    命令: run_observed_fio fio-seqwrite --name=brewfs-seqwrite --directory=/mnt/brewfs/.perf-fio-seqwrite --rw=write --bs=4m --size=512m --numjobs=1 --ioengine=io_uring --iodepth=1 --direct=0 --runtime=20 --time_based --group_reporting --eta=never --lat_percentiles=1 --clat_percentiles=1 --slat_percentiles=1 --percentile_list=50:95:99:99.9 --randseed=20261112 --randrepeat=1 --output-format=json --output=/artifacts/perf-run-1794542247-20511-brewfs/results/fio-seqwrite.json --write_lat_log=/artifacts/perf-run-1794542247-20511-brewfs/results/fio-seqwrite_lat --log_avg_msec=1000
+[03:57:51] OK    压力工具完成: fio-seqwrite (21s, log=0 bytes)
+[03:57:51] INFO  等待 post-write 写回严格排空: fio-seqwrite (threshold=0 bytes, stable=3, timeout=600s)
+[03:57:51] INFO    post-write 写回等待中: pending=3124756480 dirty=3124756480 buffer_dirty=3124756480 put_bytes=2021656488 elapsed=0s
+[03:58:11] INFO    post-write 写回等待中: pending=1312817152 dirty=1312817152 buffer_dirty=1312817152 put_bytes=3858763392 elapsed=20s
+[03:58:21] INFO    post-write 写回等待中: pending=306184192 dirty=306184192 buffer_dirty=306184192 put_bytes=4861203004 elapsed=30s
+[03:58:30] OK    post-write 写回已严格排空: fio-seqwrite (runner=35s extended=39s pending=0 dirty=0 buffer_dirty=0 put_bytes=5138027332 uploaded=0 stable=3s)
+[03:58:30] INFO  测试完成后文件系统统计:
+[03:58:30] INFO    磁盘使用: 512M / 1.0P (1%)
+[03:58:30] INFO    残留文件数: 1
+[03:58:30] OK    性能测试全部完成

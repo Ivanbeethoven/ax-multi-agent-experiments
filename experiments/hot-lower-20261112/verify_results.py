@@ -26,17 +26,22 @@ def verify(root):
         assert all(run['cleanup'][name] for name in run['containers'])
         assert run['cleanup']['mount_absent']
         cells = [json.loads((root / c['label'] / 'result.json').read_text()) for c in run['cells']]
+        enabled_states = {'both': (False, True), 'on': (True,), 'off': (False,)}[run.get('cache_state', 'both')]
         for scenario in ('two-files', 'modified-upper'):
             group = [c for c in cells if c['scenario'] == scenario]
             pairs = {c['pair'] for c in group}
             assert len(pairs) >= 3 and pairs == set(range(1, len(pairs) + 1))
-            assert len(group) == 2 * len(pairs)
-            assert {(c['pair'], c['cache_enabled']) for c in group} == {(p, enabled) for p in pairs for enabled in (False, True)}
+            assert len(group) == len(enabled_states) * len(pairs)
+            assert {(c['pair'], c['cache_enabled']) for c in group} == {(p, enabled) for p in pairs for enabled in enabled_states}
             assert len({json.dumps(c['expected_sha256'], sort_keys=True) for c in group}) == 1
         for cell in cells:
             if edits := cell.get('metadata_edits'):
                 assert edits['count'] == len(edits['operation_ns'])
                 assert edits['total_with_drain_ns'] >= edits['active_ns'] > 0
+                if edits.get('latency_schema') == 'chmod-stat-v2':
+                    assert len(edits['chmod_ns']) == len(edits['stat_ns']) == edits['count']
+                    assert all(a > 0 and b > 0 and a + b == total for a, b, total in
+                               zip(edits['chmod_ns'], edits['stat_ns'], edits['operation_ns']))
                 assert cell['remote_remount_verified']
             if run.get('metadata_sync', 'remote') != 'remote':
                 assert cell['remote_remount_verified']

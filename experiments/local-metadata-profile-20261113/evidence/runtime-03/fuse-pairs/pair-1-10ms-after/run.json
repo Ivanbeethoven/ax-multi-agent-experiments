@@ -1,0 +1,601 @@
+{
+  "schema": "hot-overlay-local-v1",
+  "passed": true,
+  "source_commit": "6c422594bbc2fc152f259d2637ca40e7ff0ddb22",
+  "owner": "brewfs-hot-5956c78858",
+  "temporary_directory": "/tmp/brewfs-hot-local-r23ka0fc",
+  "containers": [
+    "brewfs-hot-5956c78858-redis",
+    "brewfs-hot-5956c78858-rustfs"
+  ],
+  "started_unix_ns": 1794541925901582781,
+  "host": {
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "machine": "x86_64",
+    "cpu_count": 16,
+    "python": "3.12.3",
+    "swaps": "Filename\t\t\t\tType\t\tSize\t\tUsed\t\tPriority\n",
+    "loadavg": [
+      1.541015625,
+      1.8681640625,
+      1.74267578125
+    ]
+  },
+  "source_patch_sha256": "070013b283be454ec7ef773af1c39f8766adc9e27a81656c6194aa8b12df9cf9",
+  "binary_sha256": "73167baf7aea20d47e75743e3165be8e93f1036c99d58b3b12c7598044cbe7ba",
+  "producer_sha256": "c7063da7b9ba1466ff1da1414f75c5f107c75559a03ef3fc9a3ca6f1e94e96b2",
+  "images": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "argv": [
+    "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/hot-lower-20261112/run_local.py",
+    "--binary",
+    "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+    "--producer",
+    "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/packed_v3_snapshot_fixture",
+    "--source-commit",
+    "6c422594bbc2fc152f259d2637ca40e7ff0ddb22",
+    "--source-patch",
+    "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-source-03.patch",
+    "--pairs",
+    "3",
+    "--passes",
+    "4",
+    "--metadata-edits",
+    "100",
+    "--cache-state",
+    "on",
+    "--metadata-sync",
+    "local-buffered",
+    "--out",
+    "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after"
+  ],
+  "cells": [
+    {
+      "label": "two-files-pair1-on",
+      "scenario": "two-files",
+      "pair": 1,
+      "cache_enabled": true,
+      "elapsed_ns": 13234137
+    },
+    {
+      "label": "two-files-pair2-on",
+      "scenario": "two-files",
+      "pair": 2,
+      "cache_enabled": true,
+      "elapsed_ns": 12985912
+    },
+    {
+      "label": "two-files-pair3-on",
+      "scenario": "two-files",
+      "pair": 3,
+      "cache_enabled": true,
+      "elapsed_ns": 14942648
+    },
+    {
+      "label": "modified-upper-pair1-on",
+      "scenario": "modified-upper",
+      "pair": 1,
+      "cache_enabled": true,
+      "elapsed_ns": 38357210
+    },
+    {
+      "label": "modified-upper-pair2-on",
+      "scenario": "modified-upper",
+      "pair": 2,
+      "cache_enabled": true,
+      "elapsed_ns": 37784119
+    },
+    {
+      "label": "modified-upper-pair3-on",
+      "scenario": "modified-upper",
+      "pair": 3,
+      "cache_enabled": true,
+      "elapsed_ns": 44917795
+    }
+  ],
+  "commands": [
+    [
+      "docker",
+      "image",
+      "inspect",
+      "--format",
+      "{{.Id}}",
+      "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43"
+    ],
+    [
+      "docker",
+      "image",
+      "inspect",
+      "--format",
+      "{{.Id}}",
+      "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+    ],
+    [
+      "git",
+      "ls-remote",
+      "https://github.com/Ivanbeethoven/rustfs.git",
+      "refs/heads/feat/dynamic-block-size-rebased"
+    ],
+    [
+      "docker",
+      "image",
+      "inspect",
+      "--format",
+      "{{json .Config.Labels}}",
+      "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+    ],
+    [
+      "docker",
+      "run",
+      "--pull",
+      "never",
+      "-d",
+      "--label",
+      "brewfs.hot.owner=brewfs-hot-5956c78858",
+      "--name",
+      "brewfs-hot-5956c78858-redis",
+      "-p",
+      "127.0.0.1::6379",
+      "--memory",
+      "256m",
+      "--cpus",
+      "1",
+      "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+      "redis-server",
+      "--appendonly",
+      "no",
+      "--save",
+      ""
+    ],
+    [
+      "docker",
+      "run",
+      "--pull",
+      "never",
+      "-d",
+      "--label",
+      "brewfs.hot.owner=brewfs-hot-5956c78858",
+      "--name",
+      "brewfs-hot-5956c78858-rustfs",
+      "-p",
+      "127.0.0.1::9000",
+      "--memory",
+      "2g",
+      "--cpus",
+      "2",
+      "--env-file",
+      "/tmp/brewfs-hot-local-r23ka0fc/rustfs.env",
+      "-e",
+      "RUSTFS_ADDRESS=0.0.0.0:9000",
+      "-e",
+      "RUSTFS_CONSOLE_ENABLE=false",
+      "-e",
+      "RUSTFS_VOLUMES=/data/rustfs{0...3}",
+      "-e",
+      "RUSTFS_UNSAFE_BYPASS_DISK_CHECK=true",
+      "-e",
+      "RUSTFS_OBS_LOGGER_LEVEL=warn",
+      "-e",
+      "RUSTFS_OBS_LOG_DIRECTORY=/var/log/rustfs",
+      "-e",
+      "RUSTFS_OBS_METRICS_EXPORT_ENABLED=false",
+      "-e",
+      "RUSTFS_OBS_TRACES_EXPORT_ENABLED=false",
+      "-e",
+      "RUSTFS_OBS_LOGS_EXPORT_ENABLED=false",
+      "-e",
+      "RUSTFS_OBS_PROFILING_EXPORT_ENABLED=false",
+      "-e",
+      "RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE=true",
+      "-e",
+      "RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED=true",
+      "-e",
+      "RUSTFS_EC_READ_QUANTUM_ENABLE=true",
+      "-e",
+      "RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED=true",
+      "-v",
+      "/tmp/brewfs-hot-local-r23ka0fc/0:/data/rustfs0",
+      "-v",
+      "/tmp/brewfs-hot-local-r23ka0fc/1:/data/rustfs1",
+      "-v",
+      "/tmp/brewfs-hot-local-r23ka0fc/2:/data/rustfs2",
+      "-v",
+      "/tmp/brewfs-hot-local-r23ka0fc/3:/data/rustfs3",
+      "-v",
+      "/tmp/brewfs-hot-local-r23ka0fc/rustlogs:/var/log/rustfs",
+      "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+    ],
+    [
+      "docker",
+      "port",
+      "brewfs-hot-5956c78858-redis",
+      "6379/tcp"
+    ],
+    [
+      "docker",
+      "port",
+      "brewfs-hot-5956c78858-rustfs",
+      "9000/tcp"
+    ],
+    [
+      "docker",
+      "exec",
+      "brewfs-hot-5956c78858-redis",
+      "redis-cli",
+      "ping"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/packed_v3_snapshot_fixture",
+      "--source-directory",
+      "/tmp/brewfs-hot-local-r23ka0fc/src-two-files",
+      "--source-consistency",
+      "best-effort-detected",
+      "--source-hardlink-policy",
+      "visible-links",
+      "--output-dir",
+      "/tmp/brewfs-hot-local-r23ka0fc/objects-two-files",
+      "--manifest-output",
+      "/tmp/brewfs-hot-local-r23ka0fc/manifest-two-files",
+      "--bucket",
+      "hot-5956c78858-a",
+      "--endpoint",
+      "http://127.0.0.1:44623",
+      "--region",
+      "us-east-1",
+      "--force-path-style",
+      "true",
+      "--prefix",
+      "base",
+      "--metadata-codec",
+      "raw",
+      "--data-codec",
+      "raw",
+      "--inline-data",
+      "off",
+      "--chunk-size",
+      "67108864",
+      "--block-size",
+      "4194304",
+      "--s3-rustfs-ec-block-size-hint",
+      "auto"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:44622/0",
+      "--workspace-namespace",
+      "two-files-pair1-on-000ea541",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/0fe63f1b3fdea4a414bb92dd7ffe47a942d66272a7bb4b7f62cd4f8f0cede1bc",
+      "--data-config",
+      "/tmp/brewfs-hot-local-r23ka0fc/data-two-files.json"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/two-files-pair1-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair1-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair1-on"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/two-files-pair1-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair1-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair1-on"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:44622/0",
+      "--workspace-namespace",
+      "two-files-pair2-on-4a1c64c7",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/0fe63f1b3fdea4a414bb92dd7ffe47a942d66272a7bb4b7f62cd4f8f0cede1bc",
+      "--data-config",
+      "/tmp/brewfs-hot-local-r23ka0fc/data-two-files.json"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/two-files-pair2-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair2-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair2-on"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/two-files-pair2-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair2-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair2-on"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:44622/0",
+      "--workspace-namespace",
+      "two-files-pair3-on-ac6558b5",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/0fe63f1b3fdea4a414bb92dd7ffe47a942d66272a7bb4b7f62cd4f8f0cede1bc",
+      "--data-config",
+      "/tmp/brewfs-hot-local-r23ka0fc/data-two-files.json"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/two-files-pair3-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair3-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair3-on"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/two-files-pair3-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair3-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/two-files-pair3-on"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/packed_v3_snapshot_fixture",
+      "--source-directory",
+      "/tmp/brewfs-hot-local-r23ka0fc/src-modified-upper",
+      "--source-consistency",
+      "best-effort-detected",
+      "--source-hardlink-policy",
+      "visible-links",
+      "--output-dir",
+      "/tmp/brewfs-hot-local-r23ka0fc/objects-modified-upper",
+      "--manifest-output",
+      "/tmp/brewfs-hot-local-r23ka0fc/manifest-modified-upper",
+      "--bucket",
+      "hot-5956c78858-b",
+      "--endpoint",
+      "http://127.0.0.1:44623",
+      "--region",
+      "us-east-1",
+      "--force-path-style",
+      "true",
+      "--prefix",
+      "base",
+      "--metadata-codec",
+      "raw",
+      "--data-codec",
+      "raw",
+      "--inline-data",
+      "off",
+      "--chunk-size",
+      "67108864",
+      "--block-size",
+      "4194304",
+      "--s3-rustfs-ec-block-size-hint",
+      "auto"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:44622/0",
+      "--workspace-namespace",
+      "modified-upper-pair1-on-8889befe",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/8a074c102136750599d38ea13c43a4fcc7a8fc3c97dccf546c874eea85753953",
+      "--data-config",
+      "/tmp/brewfs-hot-local-r23ka0fc/data-modified-upper.json"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/modified-upper-pair1-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair1-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair1-on"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/modified-upper-pair1-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair1-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair1-on"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:44622/0",
+      "--workspace-namespace",
+      "modified-upper-pair2-on-37cee792",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/8a074c102136750599d38ea13c43a4fcc7a8fc3c97dccf546c874eea85753953",
+      "--data-config",
+      "/tmp/brewfs-hot-local-r23ka0fc/data-modified-upper.json"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/modified-upper-pair2-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair2-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair2-on"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/modified-upper-pair2-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair2-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair2-on"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:44622/0",
+      "--workspace-namespace",
+      "modified-upper-pair3-on-2f641fdd",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/8a074c102136750599d38ea13c43a4fcc7a8fc3c97dccf546c874eea85753953",
+      "--data-config",
+      "/tmp/brewfs-hot-local-r23ka0fc/data-modified-upper.json"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/modified-upper-pair3-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair3-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair3-on"
+    ],
+    [
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/batch-build-03/brewfs",
+      "mount",
+      "--config",
+      "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/experiments/experiments/local-metadata-profile-20261113/evidence/runtime-03/fuse-pairs/pair-1-10ms-after/modified-upper-pair3-on/config.json",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair3-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/tmp/brewfs-hot-local-r23ka0fc/modified-upper-pair3-on"
+    ],
+    [
+      "docker",
+      "inspect",
+      "--format",
+      "{{index .Config.Labels \"brewfs.hot.owner\"}}",
+      "brewfs-hot-5956c78858-redis"
+    ],
+    [
+      "docker",
+      "rm",
+      "-f",
+      "-v",
+      "brewfs-hot-5956c78858-redis"
+    ],
+    [
+      "docker",
+      "inspect",
+      "brewfs-hot-5956c78858-redis"
+    ],
+    [
+      "docker",
+      "inspect",
+      "--format",
+      "{{index .Config.Labels \"brewfs.hot.owner\"}}",
+      "brewfs-hot-5956c78858-rustfs"
+    ],
+    [
+      "docker",
+      "rm",
+      "-f",
+      "-v",
+      "brewfs-hot-5956c78858-rustfs"
+    ],
+    [
+      "docker",
+      "inspect",
+      "brewfs-hot-5956c78858-rustfs"
+    ]
+  ],
+  "runtime_env": {
+    "BREWFS_METADATA_FLUSH_MS": "10",
+    "BREWFS_METADATA_SYNC": "local-buffered",
+    "AWS_EC2_METADATA_DISABLED": "true",
+    "RUST_LOG": "warn",
+    "BREWFS_PACKED_VERIFY_MEMO": "0",
+    "BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES": "8388608",
+    "BREWFS_FUSE_READ_DIRECT_IO": "1",
+    "BREWFS_WORKSPACE_ROW_CACHE_TTL_MS": "600000"
+  },
+  "metadata_sync": "local-buffered",
+  "cache_state": "on",
+  "comparison": "optimized binary; empty-query cache fixed on; writable Overlay",
+  "backend_version": {
+    "repository": "https://github.com/Ivanbeethoven/rustfs.git",
+    "branch": "feat/dynamic-block-size-rebased",
+    "revision_policy": "branch-latest",
+    "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "built_from_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "image_digest": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "resolved_at_unix_ns": 1794541931175822842,
+    "resolved_by": "git ls-remote + Docker OCI revision/source labels"
+  },
+  "cleanup": {
+    "brewfs-hot-5956c78858-redis": true,
+    "brewfs-hot-5956c78858-rustfs": true,
+    "mount_absent": true
+  },
+  "finished_unix_ns": 1794541952459214895
+}

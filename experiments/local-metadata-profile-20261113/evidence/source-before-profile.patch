@@ -1,0 +1,412 @@
+diff --git a/src/workspace_overlay/stores/local_metadata.rs b/src/workspace_overlay/stores/local_metadata.rs
+index ef3fefb..4a62570 100644
+--- a/src/workspace_overlay/stores/local_metadata.rs
++++ b/src/workspace_overlay/stores/local_metadata.rs
+@@ -19,6 +19,8 @@ use std::{
+     time::Duration,
+ };
+ use tokio::sync::Mutex;
++mod profile;
++use profile::{Profile, Stage};
+ 
+ type Values = BTreeMap<Vec<u8>, Option<Vec<u8>>>;
+ const MAX_JOURNAL: u64 = 32 << 20;
+@@ -166,6 +168,7 @@ impl JournalState {
+ 
+ struct Journal {
+     directory: PathBuf,
++    profile: Profile,
+     // The separate lock inode survives atomic replacement of state.bin.
+     _lock: File,
+     #[cfg(test)]
+@@ -209,6 +212,7 @@ impl Journal {
+         ));
+         let journal = Self {
+             directory: config.directory.clone(),
++            profile: Profile::default(),
+             _lock: lock,
+             #[cfg(test)]
+             pause: std::sync::Mutex::new(None),
+@@ -256,10 +260,14 @@ impl Journal {
+                 resume.recv().map_err(codec)?;
+             }
+         }
++        let encode = self.profile.span(Stage::JournalEncode);
+         let payload = bincode::serialize(state).map_err(codec)?;
+         if payload.len() as u64 + 40 > MAX_JOURNAL {
+             return Err(invalid("metadata journal capacity exceeded"));
+         }
++        let digest = Sha256::digest(&payload);
++        drop(encode);
++        let write = self.profile.span(Stage::JournalWrite);
+         let path = self.directory.join("state.tmp");
+         let mut file = OpenOptions::new()
+             .write(true)
+@@ -267,9 +275,13 @@ impl Journal {
+             .truncate(true)
+             .open(&path)?;
+         file.write_all(MAGIC)?;
+-        file.write_all(&Sha256::digest(&payload))?;
++        file.write_all(&digest)?;
+         file.write_all(&payload)?;
++        drop(write);
++        let sync = self.profile.span(Stage::JournalFileSync);
+         file.sync_all()?;
++        drop(sync);
++        let _rename = self.profile.span(Stage::JournalRenameSync);
+         std::fs::rename(path, self.directory.join("state.bin"))?;
+         File::open(&self.directory)?.sync_all()?;
+         Ok(())
+@@ -325,10 +337,12 @@ impl Core {
+             return Ok(());
+         }
+         let journal = self.journal.clone();
++        let queued = journal.profile.start();
+         // The blocking job owns the state lock AND its installation. Cancelling
+         // an awaiter cannot let a later edit race a still-running fsync/rename,
+         // or leave a durable snapshot newer than the in-memory view.
+         tokio::task::spawn_blocking(move || {
++            journal.profile.record(Stage::BlockingQueue, queued);
+             journal.persist(&next)?;
+             *state = next;
+             Ok(())
+@@ -340,10 +354,14 @@ impl Core {
+     // Never holds state across remote commit. New edits go into pending while
+     // the immutable in-flight batch is being acknowledged.
+     async fn flush_to(&self, target: u64) -> Result<(), WorkspaceError> {
++        let wait = self.journal.profile.span(Stage::FlushWait);
+         let _driver = self.flush.lock().await;
++        drop(wait);
+         loop {
+             let (batch, confirmed) = {
++                let wait = self.journal.profile.span(Stage::FreezeStateWait);
+                 let state = self.state.clone().lock_owned().await;
++                drop(wait);
+                 if state.in_flight.is_none() {
+                     if state.pending.operations == 0 {
+                         return Ok(());
+@@ -352,6 +370,7 @@ impl Core {
+                     next.in_flight = Some(std::mem::take(&mut next.pending));
+                     let batch = next.in_flight.clone().unwrap();
+                     let confirmed = next.confirmed.clone();
++                    let _install = self.journal.profile.span(Stage::FreezeInstall);
+                     self.install(state, next, true).await?;
+                     (batch, confirmed)
+                 } else {
+@@ -361,8 +380,10 @@ impl Core {
+             let receipt = batch.receipt()?;
+             // A lost commit reply or a crash after remote commit is resolved by
+             // its receipt, written in the SAME CAS as the metadata and head.
+-            if read_receipt(self.remote.as_ref(), &self.receipt_key).await? != Some(receipt.clone())
+-            {
++            let receipt_timer = self.journal.profile.span(Stage::ReceiptRead);
++            let remote_receipt = read_receipt(self.remote.as_ref(), &self.receipt_key).await?;
++            drop(receipt_timer);
++            if remote_receipt != Some(receipt.clone()) {
+                 let mut checks: Vec<_> = batch
+                     .checks
+                     .iter()
+@@ -390,11 +411,13 @@ impl Core {
+                     key: self.receipt_key.clone(),
+                     value: receipt.clone(),
+                 });
+-                match self
++                let commit_timer = self.journal.profile.span(Stage::RemoteCommit);
++                let result = self
+                     .remote
+                     .compare_and_swap_before(&checks, &writes, batch.deadline)
+-                    .await
+-                {
++                    .await;
++                drop(commit_timer);
++                match result {
+                     Ok(true) => {}
+                     result => {
+                         if read_receipt(self.remote.as_ref(), &self.receipt_key).await?
+@@ -405,12 +428,16 @@ impl Core {
+                     }
+                 }
+             }
++            let wait = self.journal.profile.span(Stage::AckStateWait);
+             let state = self.state.clone().lock_owned().await;
++            drop(wait);
+             let mut next = state.clone();
+             // Only this batch is retired. Never clear pending or its new values.
+             next.in_flight = None;
+             next.confirmed = Some(receipt);
++            let install = self.journal.profile.span(Stage::AckInstall);
+             self.install(state, next, true).await?;
++            drop(install);
+             tracing::debug!(
+                 sequence = batch.sequence,
+                 operations = batch.operations,
+@@ -506,10 +533,19 @@ impl LocalMetadataBackend {
+         keys: &[Vec<u8>],
+         limits: Option<KvReadLimits>,
+     ) -> Result<(Vec<Option<Vec<u8>>>, i64), WorkspaceError> {
++        let wait = self
++            .core
++            .as_ref()
++            .map(|c| c.journal.profile.span(Stage::ReadStateWait));
+         let state = match &self.core {
+             Some(core) => Some(core.state.lock().await),
+             None => None,
+         };
++        drop(wait);
++        let read = self
++            .core
++            .as_ref()
++            .map(|c| c.journal.profile.span(Stage::ReadRemote));
+         let (mut values, now) = match limits {
+             Some(limits) => {
+                 self.remote
+@@ -518,6 +554,7 @@ impl LocalMetadataBackend {
+             }
+             None => self.remote.get_many_consistent_with_time(keys).await?,
+         };
++        drop(read);
+         if values.len() != keys.len() {
+             return Err(codec("metadata read cardinality mismatch"));
+         }
+@@ -570,6 +607,9 @@ impl WorkspaceKvBackend for LocalMetadataBackend {
+     }
+     async fn shutdown_metadata_backend(&self) -> Result<(), WorkspaceError> {
+         let _guard = self.barrier().await?;
++        if let Some(core) = &self.core {
++            core.journal.profile.emit();
++        }
+         self.remote.shutdown_metadata_backend().await
+     }
+ 
+@@ -585,7 +625,10 @@ impl WorkspaceKvBackend for LocalMetadataBackend {
+                 .compare_and_swap_before(checks, writes, deadline)
+                 .await;
+         };
++        let _update = core.journal.profile.span(Stage::Update);
++        let wait = core.journal.profile.span(Stage::AdmissionWait);
+         let _admission = core.admission.lock().await;
++        drop(wait);
+         if core.failed.load(Ordering::Acquire) {
+             core.flush().await?;
+         }
+@@ -604,13 +647,17 @@ impl WorkspaceKvBackend for LocalMetadataBackend {
+                 .await;
+         }
+         loop {
++            let wait = core.journal.profile.span(Stage::UpdateStateWait);
+             let state = core.state.clone().lock_owned().await;
++            drop(wait);
++            let merge = core.journal.profile.span(Stage::Merge);
+             let sequence = state
+                 .sequence
+                 .checked_add(1)
+                 .ok_or_else(|| invalid("metadata sequence exhausted"))?;
+             let mut next = state.clone();
+             next.pending.merge(sequence, checks, writes, deadline);
++            drop(merge);
+             if next.pending.operations > core.config.max_operations
+                 || next.pending.bytes() > core.config.max_bytes
+                 || next.pending.checks.len() + next.pending.writes.len() > 8192
+@@ -632,6 +679,7 @@ impl WorkspaceKvBackend for LocalMetadataBackend {
+                 continue;
+             }
+             let keys: Vec<_> = checks.iter().map(|c| c.key.clone()).collect();
++            let validate = core.journal.profile.span(Stage::ValidateRemote);
+             let (values, now) = self
+                 .remote
+                 .get_many_consistent_with_time_bounded(
+@@ -646,6 +694,7 @@ impl WorkspaceKvBackend for LocalMetadataBackend {
+                     },
+                 )
+                 .await?;
++            drop(validate);
+             if now >= deadline {
+                 return Err(WorkspaceError::Fenced);
+             }
+@@ -661,6 +710,7 @@ impl WorkspaceKvBackend for LocalMetadataBackend {
+             next.sequence = sequence;
+             // Journal mode ACKs durable local state; buffered mode ACKs memory.
+             // Both modes persist the immutable batch BEFORE remote dispatch.
++            let _install = core.journal.profile.span(Stage::UpdateInstall);
+             core.install(state, next, core.config.sync_on_update)
+                 .await?;
+             return Ok(true);
+@@ -669,10 +719,13 @@ impl WorkspaceKvBackend for LocalMetadataBackend {
+ 
+     async fn get(&self, key: &[u8]) -> Result<Option<Vec<u8>>, WorkspaceError> {
+         if let Some(core) = &self.core {
++            let wait = core.journal.profile.span(Stage::ReadStateWait);
+             let state = core.state.lock().await;
++            drop(wait);
+             if let Some(value) = state.overlay(key) {
+                 return Ok(value.clone());
+             }
++            let _remote = core.journal.profile.span(Stage::ReadRemote);
+             return self.remote.get(key).await;
+         }
+         self.remote.get(key).await
+@@ -815,7 +868,9 @@ impl WorkspaceKvBackend for LocalMetadataBackend {
+         limits: KvReadLimits,
+     ) -> Result<bool, WorkspaceError> {
+         if let Some(core) = &self.core {
++            let wait = core.journal.profile.span(Stage::AuthStateWait);
+             let state = core.state.lock().await;
++            drop(wait);
+             let mut translated = checks.to_vec();
+             let mut complete = true;
+             for check in &mut translated {
+@@ -842,6 +897,7 @@ impl WorkspaceKvBackend for LocalMetadataBackend {
+             }
+             if complete {
+                 super::kv_backend::validate_bounded_authentication_checks(checks, limits)?;
++                let _remote = core.journal.profile.span(Stage::AuthRemote);
+                 return self
+                     .remote
+                     .authenticate_checks_before_bounded(&translated, deadline, limits)
+diff --git a/src/workspace_overlay/stores/local_metadata/profile.rs b/src/workspace_overlay/stores/local_metadata/profile.rs
+new file mode 100644
+index 0000000..4b43be0
+--- /dev/null
++++ b/src/workspace_overlay/stores/local_metadata/profile.rs
+@@ -0,0 +1,127 @@
++//! Opt-in aggregate wall timings. Nested/concurrent stages are NOT additive.
++use std::{
++    sync::atomic::{AtomicU64, Ordering},
++    time::Instant,
++};
++
++#[derive(Clone, Copy)]
++pub(super) enum Stage {
++    Update,
++    AdmissionWait,
++    UpdateStateWait,
++    Merge,
++    ValidateRemote,
++    UpdateInstall,
++    ReadStateWait,
++    ReadRemote,
++    AuthStateWait,
++    AuthRemote,
++    FlushWait,
++    FreezeStateWait,
++    FreezeInstall,
++    ReceiptRead,
++    RemoteCommit,
++    AckStateWait,
++    AckInstall,
++    BlockingQueue,
++    JournalEncode,
++    JournalWrite,
++    JournalFileSync,
++    JournalRenameSync,
++}
++
++const NAMES: &[&str] = &[
++    "update",
++    "admission_wait",
++    "update_state_wait",
++    "merge",
++    "validate_remote",
++    "update_install",
++    "read_state_wait",
++    "read_remote",
++    "auth_state_wait",
++    "auth_remote",
++    "flush_wait",
++    "freeze_state_wait",
++    "freeze_install",
++    "receipt_read",
++    "remote_commit",
++    "ack_state_wait",
++    "ack_install",
++    "blocking_queue",
++    "journal_encode",
++    "journal_write",
++    "journal_file_sync",
++    "journal_rename_sync",
++];
++
++#[derive(Default)]
++struct Counter {
++    calls: AtomicU64,
++    ns: AtomicU64,
++}
++
++pub(super) struct Profile {
++    enabled: bool,
++    counters: [Counter; NAMES.len()],
++}
++
++impl Default for Profile {
++    fn default() -> Self {
++        Self {
++            enabled: std::env::var("BREWFS_METADATA_PROFILE").as_deref() == Ok("1"),
++            counters: std::array::from_fn(|_| Counter::default()),
++        }
++    }
++}
++
++impl Profile {
++    pub(super) fn start(&self) -> Option<Instant> {
++        self.enabled.then(Instant::now)
++    }
++    pub(super) fn record(&self, stage: Stage, start: Option<Instant>) {
++        if let Some(start) = start {
++            let counter = &self.counters[stage as usize];
++            counter
++                .ns
++                .fetch_add(start.elapsed().as_nanos() as u64, Ordering::Relaxed);
++            counter.calls.fetch_add(1, Ordering::Relaxed);
++        }
++    }
++    pub(super) fn span(&self, stage: Stage) -> Span<'_> {
++        Span {
++            profile: self,
++            stage,
++            start: self.start(),
++        }
++    }
++    pub(super) fn snapshot(&self) -> serde_json::Value {
++        let mut result = serde_json::Map::new();
++        for (name, counter) in NAMES.iter().zip(&self.counters) {
++            result.insert(
++                (*name).into(),
++                serde_json::json!({
++                    "calls": counter.calls.load(Ordering::Relaxed),
++                    "total_ns": counter.ns.load(Ordering::Relaxed),
++                }),
++            );
++        }
++        serde_json::Value::Object(result)
++    }
++    pub(super) fn emit(&self) {
++        if self.enabled {
++            eprintln!("BREWFS_METADATA_PROFILE {}", self.snapshot());
++        }
++    }
++}
++
++pub(super) struct Span<'a> {
++    profile: &'a Profile,
++    stage: Stage,
++    start: Option<Instant>,
++}
++impl Drop for Span<'_> {
++    fn drop(&mut self) {
++        self.profile.record(self.stage, self.start);
++    }
++}
+diff --git a/src/workspace_overlay/stores/local_metadata/tests.rs b/src/workspace_overlay/stores/local_metadata/tests.rs
+index 9acfdb7..f36173f 100644
+--- a/src/workspace_overlay/stores/local_metadata/tests.rs
++++ b/src/workspace_overlay/stores/local_metadata/tests.rs
+@@ -585,7 +585,8 @@ async fn local_metadata_real_redis_pairs() {
+                 .unwrap();
+             println!(
+                 "LOCAL_SYNC_RESULT {}",
+-                serde_json::json!({"pair": pair, "mode": mode, "operations":100, "active_ns":active_ns,"total_with_drain_ns":total_ns,"operation_ns":samples,"redis_before":before,"redis_after":after,"final_value":99})
++                serde_json::json!({"pair": pair, "mode": mode, "operations":100, "active_ns":active_ns,"total_with_drain_ns":total_ns,"operation_ns":samples,"redis_before":before,"redis_after":after,"final_value":99,
++                    "stages": b.core.as_ref().map(|c| c.journal.profile.snapshot())})
+             );
+         }
+     }

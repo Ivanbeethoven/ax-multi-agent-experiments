@@ -1,0 +1,124 @@
+{
+  "services": {
+    "redis": {
+      "image": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+      "pull_policy": "never",
+      "command": [
+        "redis-server",
+        "--save",
+        "",
+        "--appendonly",
+        "yes"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "redis-cli",
+          "ping"
+        ],
+        "interval": "2s",
+        "timeout": "2s",
+        "retries": 30
+      },
+      "mem_limit": "256m",
+      "cpus": 1
+    },
+    "rustfs": {
+      "image": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+      "pull_policy": "never",
+      "user": "0:0",
+      "mem_limit": "2g",
+      "cpus": 2,
+      "environment": {
+        "RUSTFS_ACCESS_KEY": "localguard",
+        "RUSTFS_SECRET_KEY": "localguardsecret",
+        "RUSTFS_ADDRESS": "0.0.0.0:9000",
+        "RUSTFS_CONSOLE_ENABLE": "false",
+        "RUSTFS_VOLUMES": "/data/rustfs{0...3}",
+        "RUSTFS_UNSAFE_BYPASS_DISK_CHECK": "true",
+        "RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE": "true",
+        "RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED": "true",
+        "RUSTFS_EC_READ_QUANTUM_ENABLE": "true",
+        "RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED": "true"
+      },
+      "volumes": [
+        "disk0:/data/rustfs0",
+        "disk1:/data/rustfs1",
+        "disk2:/data/rustfs2",
+        "disk3:/data/rustfs3"
+      ]
+    },
+    "rustfs-init": {
+      "image": "sha256:ad55930568d8f80fc446c4c3d7f9cb0e4fc64d6d94d9e8ee022eebda3f238855",
+      "pull_policy": "never",
+      "environment": {
+        "AWS_ACCESS_KEY_ID": "localguard",
+        "AWS_SECRET_ACCESS_KEY": "localguardsecret",
+        "AWS_DEFAULT_REGION": "us-east-1",
+        "AWS_EC2_METADATA_DISABLED": "true"
+      },
+      "depends_on": {
+        "rustfs": {
+          "condition": "service_started"
+        },
+        "redis": {
+          "condition": "service_healthy"
+        }
+      },
+      "entrypoint": [
+        "/bin/sh",
+        "-ec"
+      ],
+      "command": [
+        "timeout 90 sh -ec 'while true; do aws --cli-connect-timeout 2 --cli-read-timeout 3 --endpoint-url http://rustfs:9000 s3api head-bucket --bucket hot-guard >/dev/null 2>&1 && exit 0; aws --cli-connect-timeout 2 --cli-read-timeout 3 --endpoint-url http://rustfs:9000 s3api create-bucket --bucket hot-guard >/dev/null 2>&1 && exit 0; sleep 1; done'"
+      ]
+    },
+    "perf": {
+      "image": "sha256:1569105ef15e3611e9cd6849d9318798583e39a50b3cc81a39d23e044d74ea15",
+      "pull_policy": "never",
+      "privileged": true,
+      "devices": [
+        "/dev/fuse:/dev/fuse"
+      ],
+      "mem_limit": "16g",
+      "cpus": 4,
+      "entrypoint": [
+        "/usr/bin/tini",
+        "--",
+        "bash",
+        "/usr/local/bin/run_perf_in_container.sh"
+      ],
+      "environment": {
+        "AWS_ACCESS_KEY_ID": "localguard",
+        "AWS_SECRET_ACCESS_KEY": "localguardsecret",
+        "AWS_DEFAULT_REGION": "us-east-1",
+        "AWS_EC2_METADATA_DISABLED": "true",
+        "BREWFS_META_BACKEND": "redis",
+        "BREWFS_META_URL": "redis://redis:6379/0",
+        "BREWFS_DATA_BACKEND": "s3",
+        "BREWFS_S3_BUCKET": "hot-guard",
+        "BREWFS_S3_ENDPOINT": "http://rustfs:9000",
+        "BREWFS_S3_REGION": "us-east-1",
+        "BREWFS_S3_FORCE_PATH_STYLE": "true",
+        "BREWFS_ARTIFACT_ROOT": "/artifacts",
+        "BREWFS_LOG_FILE": "/artifacts/brewfs.log",
+        "RUST_LOG": "warn"
+      },
+      "volumes": [
+        "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/logs/sync-build-07/brewfs:/usr/local/bin/brewfs:ro",
+        "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/candidate/docker/compose-xfstests/run_perf_in_container.sh:/usr/local/bin/run_perf_in_container.sh:ro",
+        "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/candidate/tools/perf/perf_manifest.py:/usr/local/bin/perf_manifest.py:ro",
+        "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/candidate/tools/perf/perf_lines_observe.py:/usr/local/bin/perf_lines_observe.py:ro",
+        "/mnt/c/Users/HXY/.cache/brewfs-hot-lower-20261112/candidate/docker/compose-xfstests/artifacts:/artifacts",
+        "state:/var/lib/brewfs"
+      ]
+    }
+  },
+  "volumes": {
+    "disk0": {},
+    "disk1": {},
+    "disk2": {},
+    "disk3": {},
+    "state": {}
+  }
+}

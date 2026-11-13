@@ -22,7 +22,9 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--tools', nargs='+', choices=('fio-seqwrite', 'fio-randwrite', 'fio-randrw'), default=['fio-randrw'])
     parser.add_argument('--direct', type=int, choices=(0, 1))
+    parser.add_argument('--runtime', type=int, default=20, help='fio active seconds; increase for sufficient mixed-write tail samples')
     args = parser.parse_args()
+    assert 10 <= args.runtime <= 300
     args.repository = args.repository.resolve()
     args.binary = args.binary.resolve()
     args.out = args.out.resolve()
@@ -32,7 +34,7 @@ def main():
                # This Compose file publishes no host ports. Prevent the legacy
                # runner's port cleanup from examining another task's ports.
                REDIS_HOST_PORT='0', RUSTFS_S3_HOST_PORT='0', RUSTFS_CONSOLE_HOST_PORT='0',
-               PERF_LOG_TO_CONSOLE='false', PERF_FIO_SIZE='512m', PERF_FIO_RUNTIME='20',
+               PERF_LOG_TO_CONSOLE='false', PERF_FIO_SIZE='512m', PERF_FIO_RUNTIME=str(args.runtime),
                PERF_FIO_RANDSEED='20261112', PERF_FIO_RANDREPEAT='1',
                PERF_FIO_DROP_CACHES='0', PERF_FIO_COLD_READ_DROP_CACHES='0',
                AWS_ACCESS_KEY_ID='localguard', AWS_SECRET_ACCESS_KEY='localguardsecret',
@@ -98,7 +100,7 @@ def main():
     record = dict(binary_sha256=sha(args.binary), argv=list(map(str, command)), passed=False,
                   backend_version=backend,
                   source_commit=invoke(['git', '-C', args.repository, 'rev-parse', 'HEAD'], capture_output=True).stdout.strip(),
-                  project=project, tools=args.tools, direct=env.get('PERF_FIO_DIRECT', '0'),
+                  project=project, tools=args.tools, direct=env.get('PERF_FIO_DIRECT', '0'), runtime_seconds=args.runtime,
                   images=dict(redis=REDIS, rustfs=RUSTFS, perf=perf_image, aws_cli=aws_image))
     try:
         if source_patch := env.get('BREWFS_SOURCE_PATCH'):
