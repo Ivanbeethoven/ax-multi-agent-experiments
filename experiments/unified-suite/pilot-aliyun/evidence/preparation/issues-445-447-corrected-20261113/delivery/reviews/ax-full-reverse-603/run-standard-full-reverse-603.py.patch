@@ -1,0 +1,26 @@
+--- /home/dev/ax-perf-issues-validation/corrected-runtime-review-05/harness/run-corrected-standard-guard-pair-512.py
++++ run-standard-full-reverse-603.py
+@@ -15,7 +15,7 @@
+ checkpoint = json.loads((ROOT/'correctness-checkpoint-02.json').read_text())
+ assert checkpoint['passed'] is True and checkpoint['stage'] == 'corrected-readwrite-correctness'
+ assert len(checkpoint['accepted_cases']) == 4 and set(checkpoint['trace_proofs']) == {'baseline','candidate'}
+-OUT = ROOT/'matrices/regression-corrected512-01'
++OUT = ROOT/'matrices/regression-corrected512-reverse603'
+ OUT.mkdir(parents=True,exist_ok=False)
+ record = {'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+           'passed':False,'phases':[],
+@@ -32,10 +32,10 @@
+     with Path('/home/dev/.ax-rbm-heavy.lock').open('w') as lock:
+         fcntl.flock(lock,fcntl.LOCK_EX)
+         env = dict(os.environ,AX447_INHERITED_HEAVY_LOCK_FD=str(lock.fileno()))
+-        for arm in ('baseline','candidate'):
+-            identity = f'ax447-corrected-{arm}-regression-601'
+-            command = [sys.executable,str(ROOT/'run-compose-case.py'),arm,'regression','601','--sync','range']
+-            step = {'arm':arm,'case':'regression','trial':601,'command':command,
++        for arm in ('candidate','baseline'):
++            identity = f'ax447-corrected-{arm}-regression-603'
++            command = [sys.executable,str(ROOT/'run-compose-case.py'),arm,'regression','603','--sync','range']
++            step = {'arm':arm,'case':'regression','trial':603,'command':command,
+                     'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                     'receipt':str(ROOT/'trials'/identity/'receipt.json')}
+             space = os.statvfs(ROOT)

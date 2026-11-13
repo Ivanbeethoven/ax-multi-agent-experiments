@@ -1,0 +1,706 @@
+{
+  "archive": {
+    "manifest_sha256": "e11d313ff95645b511d8eb6283c734374ad1f4bd40097b6dc80a172fbdfe525d",
+    "payload_files": 2233,
+    "sha256": "47f7fe3d43efdcf29e2544c71dcf4d53207db5b8bcd13fab0f183f7c2ed7425e",
+    "total_members": 2234
+  },
+  "checks": {
+    "failed": [
+      {
+        "name": "long k128/t1/r0 fixed operation count",
+        "passed": false
+      },
+      {
+        "name": "long k128/t1/r1 fixed operation count",
+        "passed": false
+      },
+      {
+        "name": "long k128/t1/r2 fixed operation count",
+        "passed": false
+      },
+      {
+        "name": "long k128/t1/r3 fixed operation count",
+        "passed": false
+      },
+      {
+        "name": "long k128/t1/r4 fixed operation count",
+        "passed": false
+      },
+      {
+        "name": "long k128/t1/r5 fixed operation count",
+        "passed": false
+      },
+      {
+        "name": "long k128/t8/r0 fixed operation count",
+        "passed": false
+      },
+      {
+        "name": "long k128/t8/r1 fixed operation count",
+        "passed": false
+      },
+      {
+        "name": "long k128/t8/r2 fixed operation count",
+        "passed": false
+      },
+      {
+        "name": "long k128/t8/r3 fixed operation count",
+        "passed": false
+      },
+      {
+        "name": "long k128/t8/r4 fixed operation count",
+        "passed": false
+      },
+      {
+        "name": "long k128/t8/r5 fixed operation count",
+        "passed": false
+      }
+    ],
+    "total": 17700
+  },
+  "decision": "FACTUAL_CHECK_FAILURE",
+  "integrated_pr_qualified": false,
+  "interpretation": [
+    "Corrected 4f/c8 binaries were actually rerun. Publication e2 remains covered only by the separately proven test-only child equivalence; no old 7b timing relabelled.",
+    "445 benefit is six matched 8-group/8-thread cold leaf lookup/open+pread waves with a controlled 50ms per-GroupMeta delay. Exact object/range/206/length and SHA checks plus one request per group and peak1\u21928 establish concurrency. No undelayed general throughput claim.",
+    "446 baseline implements an entry cap only. Passing the same byte-budget environment does not make baseline enforce a byte budget. Candidate large-value samples prove retained-owner bytes<=512KiB; these are not process RSS or a continuous memory peak.",
+    "Row hot comparisons separately use the same resident small-value dataset, request counts, TTL and configured64MiB on both arms. Every response is verified and warm/timed native misses are0. Long128-key results replace no raw short record; both remain separately reported.",
+    "No broad whole-lifecycle or all-default-workload improvement claimed. Existing601/603 historical-state CPU regression observations remain; fixed-work foreground guard610\u2013612 still pending independent review."
+  ],
+  "long_row": {
+    "cases": 24,
+    "fixed_plan": {
+      "keys": 128,
+      "operations_per_thread": 65536,
+      "order": "AB for even repetitions, BA for odd",
+      "repetitions": 6,
+      "row_budget_bytes": 67108864,
+      "row_ttl_ms": 600000,
+      "threads": [
+        1,
+        8
+      ],
+      "value_bytes": 8
+    },
+    "mounts": 24,
+    "pairs": [
+      {
+        "baseline_median_ns": 77868127.0,
+        "candidate_median_ns": 58151810.5,
+        "keys": 128,
+        "median_percent_change": -25.320137082531858,
+        "pairs": [
+          {
+            "baseline_ns": 7568395,
+            "candidate_ns": 7400687,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 0.9778410085625816,
+            "repetition": 0
+          },
+          {
+            "baseline_ns": 59139420,
+            "candidate_ns": 61079061,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 1.032797768392047,
+            "repetition": 1
+          },
+          {
+            "baseline_ns": 81320232,
+            "candidate_ns": 60653314,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 0.7458576114244239,
+            "repetition": 2
+          },
+          {
+            "baseline_ns": 77862328,
+            "candidate_ns": 57124981,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 0.7336664914514244,
+            "repetition": 3
+          },
+          {
+            "baseline_ns": 77873926,
+            "candidate_ns": 57673541,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 0.7406014305738227,
+            "repetition": 4
+          },
+          {
+            "baseline_ns": 83561387,
+            "candidate_ns": 58630080,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 0.7016408188629037,
+            "repetition": 5
+          }
+        ],
+        "threads": 1
+      },
+      {
+        "baseline_median_ns": 214549874.0,
+        "candidate_median_ns": 214395041.5,
+        "keys": 128,
+        "median_percent_change": -0.07216620411532038,
+        "pairs": [
+          {
+            "baseline_ns": 26044452,
+            "candidate_ns": 24577736,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 0.943684128965355,
+            "repetition": 0
+          },
+          {
+            "baseline_ns": 217615493,
+            "candidate_ns": 203023989,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 0.9329482299314047,
+            "repetition": 1
+          },
+          {
+            "baseline_ns": 211484255,
+            "candidate_ns": 245047886,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 1.1587051054935509,
+            "repetition": 2
+          },
+          {
+            "baseline_ns": 198784385,
+            "candidate_ns": 220153170,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 1.107497301661798,
+            "repetition": 3
+          },
+          {
+            "baseline_ns": 267990581,
+            "candidate_ns": 243570547,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 0.9088772675932218,
+            "repetition": 4
+          },
+          {
+            "baseline_ns": 232674947,
+            "candidate_ns": 208636913,
+            "native_misses_baseline": 0,
+            "native_misses_candidate": 0,
+            "ratio": 0.8966883443622317,
+            "repetition": 5
+          }
+        ],
+        "threads": 8
+      }
+    ]
+  },
+  "schema": "independent-corrected-metadata10-review-v1",
+  "workspace": {
+    "binary_pins": {
+      "baseline": {
+        "commit": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+        "sha256": "0b0a2743aa968f497782d823cb068cd421eb840f82d5739a363d3bc3623c8679"
+      },
+      "candidate": {
+        "commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+        "sha256": "905c4e4ca35162ae6a1ab2de03f4fa18194ef64d9afcbe20cff9bbefd570ce90"
+      },
+      "producer": {
+        "commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+        "sha256": "8c4d65dbe8daaeaffb7f6084474a9a839df418c66d2aced6226842a5b8997d72"
+      }
+    },
+    "comparisons": [
+      {
+        "all_pairs_faster": false,
+        "baseline_median_ns": 86954842.5,
+        "candidate_median_ns": 92321174.5,
+        "keys": 1,
+        "kind": "fill",
+        "median_percent_change": 6.171400977467134,
+        "pairs": [
+          {
+            "baseline_ns": 87302509,
+            "baseline_peak": 1,
+            "candidate_ns": 91632755,
+            "candidate_peak": 1,
+            "ratio": 1.0496004759725748,
+            "repetition": 0
+          },
+          {
+            "baseline_ns": 85331061,
+            "baseline_peak": 1,
+            "candidate_ns": 93009594,
+            "candidate_peak": 1,
+            "ratio": 1.0899852048013325,
+            "repetition": 1
+          },
+          {
+            "baseline_ns": 86440325,
+            "baseline_peak": 1,
+            "candidate_ns": 100312361,
+            "candidate_peak": 1,
+            "ratio": 1.1604810717682978,
+            "repetition": 2
+          },
+          {
+            "baseline_ns": 87209439,
+            "baseline_peak": 1,
+            "candidate_ns": 88280975,
+            "candidate_peak": 1,
+            "ratio": 1.0122869268772616,
+            "repetition": 3
+          },
+          {
+            "baseline_ns": 86700246,
+            "baseline_peak": 1,
+            "candidate_ns": 93741482,
+            "candidate_peak": 1,
+            "ratio": 1.0812135642613978,
+            "repetition": 4
+          },
+          {
+            "baseline_ns": 96105208,
+            "baseline_peak": 1,
+            "candidate_ns": 85723415,
+            "candidate_peak": 1,
+            "ratio": 0.8919747096328016,
+            "repetition": 5
+          }
+        ],
+        "threads": 1
+      },
+      {
+        "all_pairs_faster": false,
+        "baseline_median_ns": 85444723.0,
+        "candidate_median_ns": 88064170.0,
+        "keys": 1,
+        "kind": "fill",
+        "median_percent_change": 3.065662697507965,
+        "pairs": [
+          {
+            "baseline_ns": 82857618,
+            "baseline_peak": 1,
+            "candidate_ns": 83134685,
+            "candidate_peak": 1,
+            "ratio": 1.0033438928934695,
+            "repetition": 0
+          },
+          {
+            "baseline_ns": 83811874,
+            "baseline_peak": 1,
+            "candidate_ns": 85889613,
+            "candidate_peak": 1,
+            "ratio": 1.024790508800698,
+            "repetition": 1
+          },
+          {
+            "baseline_ns": 86244955,
+            "baseline_peak": 1,
+            "candidate_ns": 90238727,
+            "candidate_peak": 1,
+            "ratio": 1.0463073115407155,
+            "repetition": 2
+          },
+          {
+            "baseline_ns": 85829534,
+            "baseline_peak": 1,
+            "candidate_ns": 90814296,
+            "candidate_peak": 1,
+            "ratio": 1.0580774678329257,
+            "repetition": 3
+          },
+          {
+            "baseline_ns": 86844361,
+            "baseline_peak": 1,
+            "candidate_ns": 84911438,
+            "candidate_peak": 1,
+            "ratio": 0.977742676925218,
+            "repetition": 4
+          },
+          {
+            "baseline_ns": 85059912,
+            "baseline_peak": 1,
+            "candidate_ns": 91013567,
+            "candidate_peak": 1,
+            "ratio": 1.069993665170968,
+            "repetition": 5
+          }
+        ],
+        "threads": 8
+      },
+      {
+        "all_pairs_faster": false,
+        "baseline_median_ns": 480253641.5,
+        "candidate_median_ns": 479093514.0,
+        "keys": 8,
+        "kind": "fill",
+        "median_percent_change": -0.24156558113260784,
+        "pairs": [
+          {
+            "baseline_ns": 479226519,
+            "baseline_peak": 1,
+            "candidate_ns": 470089644,
+            "candidate_peak": 1,
+            "ratio": 0.9809341206345052,
+            "repetition": 0
+          },
+          {
+            "baseline_ns": 476431565,
+            "baseline_peak": 1,
+            "candidate_ns": 478610651,
+            "candidate_peak": 1,
+            "ratio": 1.0045737649645443,
+            "repetition": 1
+          },
+          {
+            "baseline_ns": 486224371,
+            "baseline_peak": 1,
+            "candidate_ns": 474834280,
+            "candidate_peak": 1,
+            "ratio": 0.9765744136260089,
+            "repetition": 2
+          },
+          {
+            "baseline_ns": 482984630,
+            "baseline_peak": 1,
+            "candidate_ns": 479576377,
+            "candidate_peak": 1,
+            "ratio": 0.992943351013054,
+            "repetition": 3
+          },
+          {
+            "baseline_ns": 480625483,
+            "baseline_peak": 1,
+            "candidate_ns": 481739799,
+            "candidate_peak": 1,
+            "ratio": 1.0023184704919195,
+            "repetition": 4
+          },
+          {
+            "baseline_ns": 479881800,
+            "baseline_peak": 1,
+            "candidate_ns": 482588004,
+            "candidate_peak": 1,
+            "ratio": 1.005639313680994,
+            "repetition": 5
+          }
+        ],
+        "threads": 1
+      },
+      {
+        "all_pairs_faster": true,
+        "baseline_median_ns": 428283760.0,
+        "candidate_median_ns": 74356196.0,
+        "keys": 8,
+        "kind": "fill",
+        "median_percent_change": -82.63856747685226,
+        "pairs": [
+          {
+            "baseline_ns": 425108555,
+            "baseline_peak": 1,
+            "candidate_ns": 73187037,
+            "candidate_peak": 8,
+            "ratio": 0.17216081901715669,
+            "repetition": 0
+          },
+          {
+            "baseline_ns": 428114178,
+            "baseline_peak": 1,
+            "candidate_ns": 74495364,
+            "candidate_peak": 8,
+            "ratio": 0.1740081684470632,
+            "repetition": 1
+          },
+          {
+            "baseline_ns": 430418624,
+            "baseline_peak": 1,
+            "candidate_ns": 73009845,
+            "candidate_peak": 8,
+            "ratio": 0.16962519958244185,
+            "repetition": 2
+          },
+          {
+            "baseline_ns": 425699442,
+            "baseline_peak": 1,
+            "candidate_ns": 82168634,
+            "candidate_peak": 8,
+            "ratio": 0.1930202999890237,
+            "repetition": 3
+          },
+          {
+            "baseline_ns": 428872422,
+            "baseline_peak": 1,
+            "candidate_ns": 74217028,
+            "candidate_peak": 8,
+            "ratio": 0.1730515281302,
+            "repetition": 4
+          },
+          {
+            "baseline_ns": 428453342,
+            "baseline_peak": 1,
+            "candidate_ns": 78493956,
+            "candidate_peak": 8,
+            "ratio": 0.1832030429114963,
+            "repetition": 5
+          }
+        ],
+        "threads": 8
+      },
+      {
+        "all_pairs_faster": false,
+        "baseline_median_ns": 77868127.0,
+        "candidate_median_ns": 58490245.0,
+        "keys": 1,
+        "kind": "row",
+        "median_percent_change": -24.8855118860121,
+        "pairs": [
+          {
+            "baseline_ns": 58802103,
+            "candidate_ns": 58350410,
+            "ratio": 0.9923184209925281,
+            "repetition": 0
+          },
+          {
+            "baseline_ns": 59139420,
+            "candidate_ns": 61079061,
+            "ratio": 1.032797768392047,
+            "repetition": 1
+          },
+          {
+            "baseline_ns": 81320232,
+            "candidate_ns": 60653314,
+            "ratio": 0.7458576114244239,
+            "repetition": 2
+          },
+          {
+            "baseline_ns": 77862328,
+            "candidate_ns": 57124981,
+            "ratio": 0.7336664914514244,
+            "repetition": 3
+          },
+          {
+            "baseline_ns": 77873926,
+            "candidate_ns": 57673541,
+            "ratio": 0.7406014305738227,
+            "repetition": 4
+          },
+          {
+            "baseline_ns": 83561387,
+            "candidate_ns": 58630080,
+            "ratio": 0.7016408188629037,
+            "repetition": 5
+          }
+        ],
+        "threads": 1
+      },
+      {
+        "all_pairs_faster": false,
+        "baseline_median_ns": 214549874.0,
+        "candidate_median_ns": 215049024.5,
+        "keys": 1,
+        "kind": "row",
+        "median_percent_change": 0.23265010167285993,
+        "pairs": [
+          {
+            "baseline_ns": 211394832,
+            "candidate_ns": 209944879,
+            "ratio": 0.9931410196442266,
+            "repetition": 0
+          },
+          {
+            "baseline_ns": 217615493,
+            "candidate_ns": 203023989,
+            "ratio": 0.9329482299314047,
+            "repetition": 1
+          },
+          {
+            "baseline_ns": 211484255,
+            "candidate_ns": 245047886,
+            "ratio": 1.1587051054935509,
+            "repetition": 2
+          },
+          {
+            "baseline_ns": 198784385,
+            "candidate_ns": 220153170,
+            "ratio": 1.107497301661798,
+            "repetition": 3
+          },
+          {
+            "baseline_ns": 267990581,
+            "candidate_ns": 243570547,
+            "ratio": 0.9088772675932218,
+            "repetition": 4
+          },
+          {
+            "baseline_ns": 232674947,
+            "candidate_ns": 208636913,
+            "ratio": 0.8966883443622317,
+            "repetition": 5
+          }
+        ],
+        "threads": 8
+      },
+      {
+        "all_pairs_faster": false,
+        "baseline_median_ns": 71933562.5,
+        "candidate_median_ns": 70641370.0,
+        "keys": 128,
+        "kind": "row",
+        "median_percent_change": -1.796369392938102,
+        "pairs": [
+          {
+            "baseline_ns": 68134411,
+            "candidate_ns": 59075090,
+            "ratio": 0.8670375091376368,
+            "repetition": 0
+          },
+          {
+            "baseline_ns": 75732714,
+            "candidate_ns": 60833606,
+            "ratio": 0.803267211577813,
+            "repetition": 1
+          },
+          {
+            "baseline_ns": 80783444,
+            "candidate_ns": 65851670,
+            "ratio": 0.8151629435358066,
+            "repetition": 2
+          },
+          {
+            "baseline_ns": 89965116,
+            "candidate_ns": 75431070,
+            "ratio": 0.838447982437993,
+            "repetition": 3
+          },
+          {
+            "baseline_ns": 61976906,
+            "candidate_ns": 79710322,
+            "ratio": 1.286129417302632,
+            "repetition": 4
+          },
+          {
+            "baseline_ns": 61210689,
+            "candidate_ns": 81561122,
+            "ratio": 1.3324653476780828,
+            "repetition": 5
+          }
+        ],
+        "threads": 1
+      },
+      {
+        "all_pairs_faster": false,
+        "baseline_median_ns": 212804185.5,
+        "candidate_median_ns": 252185584.5,
+        "keys": 128,
+        "kind": "row",
+        "median_percent_change": 18.505932534865476,
+        "pairs": [
+          {
+            "baseline_ns": 211903359,
+            "candidate_ns": 206009432,
+            "ratio": 0.9721857783292619,
+            "repetition": 0
+          },
+          {
+            "baseline_ns": 213705012,
+            "candidate_ns": 263482192,
+            "ratio": 1.2329247196130337,
+            "repetition": 1
+          },
+          {
+            "baseline_ns": 233109781,
+            "candidate_ns": 243202763,
+            "ratio": 1.0432971193087774,
+            "repetition": 2
+          },
+          {
+            "baseline_ns": 229394008,
+            "candidate_ns": 211172188,
+            "ratio": 0.9205654055270702,
+            "repetition": 3
+          },
+          {
+            "baseline_ns": 210205099,
+            "candidate_ns": 266656842,
+            "ratio": 1.2685555358483478,
+            "repetition": 4
+          },
+          {
+            "baseline_ns": 211380445,
+            "candidate_ns": 261168406,
+            "ratio": 1.2355372134825433,
+            "repetition": 5
+          }
+        ],
+        "threads": 8
+      }
+    ],
+    "counts": {
+      "fill": 56,
+      "memory": 2,
+      "mounts": 114,
+      "row_hot": 56
+    },
+    "memory": [
+      {
+        "arm": "baseline",
+        "baseline_metric_supported": false,
+        "configured_capacity_bytes": 524288,
+        "delta": {
+          "brewfs_workspace_row_cache_hits_total": 672,
+          "brewfs_workspace_row_cache_misses_total": 32
+        },
+        "input_sha256": "8bf1f451ca48d998f7dd10c5f5fe96df4675b111963ad2bbfcec98010aca7b4d",
+        "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-10/home/dev/ax-perf-issues-corrected-validation/compose/workspace/ax447-corrected-workspace-corrected51201/row-memory-baseline/result.json",
+        "sample_count": 65,
+        "sampled_max_retained_bytes": null,
+        "workload_sha256": "3cd6885482bde5368c8a4f3415672266100d995303609c5ecefddee1740bf23d"
+      },
+      {
+        "arm": "candidate",
+        "baseline_metric_supported": true,
+        "configured_capacity_bytes": 524288,
+        "delta": {
+          "brewfs_workspace_row_cache_hits_total": 591,
+          "brewfs_workspace_row_cache_misses_total": 113
+        },
+        "input_sha256": "8bf1f451ca48d998f7dd10c5f5fe96df4675b111963ad2bbfcec98010aca7b4d",
+        "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-10/home/dev/ax-perf-issues-corrected-validation/compose/workspace/ax447-corrected-workspace-corrected51201/row-memory-candidate/result.json",
+        "sample_count": 65,
+        "sampled_max_retained_bytes": 524046,
+        "workload_sha256": "3cd6885482bde5368c8a4f3415672266100d995303609c5ecefddee1740bf23d"
+      }
+    ],
+    "source": {
+      "baseline": {
+        "arm": "baseline",
+        "commit": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+        "dirty": false,
+        "output_directory": "/srv/perf-issues-corrected-20261112/evidence/baseline-release-01",
+        "publication_source": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+        "release_identity_sha256": "584bb3f294c23e292cb100eb24e5b228306c62d6bdb1d4e7372c7942c2f91bd4",
+        "runtime_identity_scope": "Measured runtime commit remains explicit; publication differs only by independently proven test-only code",
+        "tree": "26e00a546990b3852b6d4ef1b12471e0f4a0a4e5",
+        "worktree": "/home/dev/ax-issue447-corrected-baseline"
+      },
+      "candidate": {
+        "arm": "candidate",
+        "commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+        "dirty": false,
+        "output_directory": "/srv/perf-issues-corrected-20261112/evidence/candidate-release-01",
+        "publication_source": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+        "release_identity_sha256": "1a8f983ce8f2ff6cf5bca023ba289759f9e6504a726fbf9111885f971433dd7a",
+        "runtime_identity_scope": "Measured runtime commit remains explicit; publication differs only by independently proven test-only code",
+        "tree": "142c8d384fbb2939f2cde4e3e7497b122b2c0f53",
+        "worktree": "/home/dev/ax-issue447-corrected-candidate"
+      }
+    }
+  }
+}

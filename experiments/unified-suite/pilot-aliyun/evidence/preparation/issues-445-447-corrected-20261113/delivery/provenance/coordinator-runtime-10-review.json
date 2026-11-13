@@ -1,0 +1,95 @@
+{
+  "passed": true,
+  "archive_sha256": "47f7fe3d43efdcf29e2544c71dcf4d53207db5b8bcd13fab0f183f7c2ed7425e",
+  "members": 2234,
+  "payloads_hashed": 2233,
+  "fill_8_by_8": {
+    "milliseconds": {
+      "baseline": [
+        425.108555,
+        428.114178,
+        430.418624,
+        425.699442,
+        428.872422,
+        428.453342
+      ],
+      "candidate": [
+        73.187037,
+        74.495364,
+        73.009845,
+        82.168634,
+        74.217028,
+        78.493956
+      ]
+    },
+    "medians_ms": {
+      "baseline": 428.28376000000003,
+      "candidate": 74.356196
+    },
+    "reduction_percent": 82.63856747685226,
+    "scope": "50 ms injected GroupMeta delay; six pairs of eight independent cold objects, eight threads"
+  },
+  "row_long": [
+    {
+      "threads": 1,
+      "milliseconds": {
+        "baseline": {
+          "0": 3976.585033,
+          "1": 3981.748483,
+          "2": 3901.686441,
+          "3": 3877.42452,
+          "4": 3895.219658,
+          "5": 3912.139069
+        },
+        "candidate": {
+          "0": 3826.981409,
+          "1": 3811.557476,
+          "2": 3797.067329,
+          "3": 3698.545753,
+          "4": 3736.198437,
+          "5": 3777.008055
+        }
+      },
+      "pair_ratios": [
+        0.9623788696184031,
+        0.9572572180973692,
+        0.9731861815186804,
+        0.9538666024116441,
+        0.9591752879267278,
+        0.9654585351858308
+      ],
+      "median_ratio": 0.9693171896796042
+    },
+    {
+      "threads": 8,
+      "milliseconds": {
+        "baseline": {
+          "0": 13563.795039,
+          "1": 13574.07711,
+          "2": 13562.773541,
+          "3": 13712.464469,
+          "4": 13475.093262,
+          "5": 13455.546012
+        },
+        "candidate": {
+          "0": 13355.294817,
+          "1": 13063.87767,
+          "2": 13243.850969,
+          "3": 13372.139686,
+          "4": 13492.434773,
+          "5": 13100.383542
+        }
+      },
+      "pair_ratios": [
+        0.984628179547059,
+        0.9624136922263292,
+        0.9764854459129687,
+        0.9751813553450309,
+        1.0012869306848438,
+        0.9736047522944622
+      ],
+      "median_ratio": 0.9805569660443946
+    }
+  ],
+  "scope": "All 138 mount exits and raw reported paired arithmetic checked. Detailed cache admission/byte/content/path checks remain in the independent review. No inference of process RSS or distributed performance."
+}

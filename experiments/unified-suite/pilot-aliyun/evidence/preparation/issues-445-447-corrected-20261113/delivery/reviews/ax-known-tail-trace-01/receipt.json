@@ -1,0 +1,96 @@
+{
+  "created_utc": "2026-11-12T22:33:24.806443+00:00",
+  "passed": true,
+  "script_sha256": "a2b7ca1acded0094d3d28327d021f325d4ed2ba5614865b144590462df5e1a78",
+  "tests": {
+    "command": "python3 -B -m unittest -v test_verify_known_tail_trace.py",
+    "passed": 19,
+    "failed": 0,
+    "log_sha256": "59037f8026324291c27ff800cf389d2e1ff9fda6848365d50820874ca5fa8e95"
+  },
+  "actual_raw_runs": [
+    {
+      "arm": "baseline",
+      "version": "v3",
+      "exit": 1,
+      "reason": [
+        "ValueError: check-a.value: oracle phase did not pass"
+      ]
+    },
+    {
+      "arm": "candidate",
+      "version": "v3",
+      "exit": 1,
+      "reason": [
+        "ValueError: check-a.value: oracle phase did not pass"
+      ]
+    },
+    {
+      "arm": "baseline",
+      "version": "v4",
+      "exit": 0,
+      "checks": 4,
+      "read_events": [
+        129,
+        129,
+        129,
+        129
+      ],
+      "sha256": "4c49b2fbc066bfdc2d001c98fdf45408f395a473c956f17a05ad0c971a2c9f50"
+    },
+    {
+      "arm": "candidate",
+      "version": "v4",
+      "exit": 0,
+      "checks": 4,
+      "read_events": [
+        129,
+        129,
+        129,
+        129
+      ],
+      "sha256": "9afc1f54256191e4508fd11297b90c6468f5bdaa5b45617727bb736a502f1531"
+    }
+  ],
+  "scope": "Read-only validation of archived non-timed known A/B FUSE oracle. No cloud activity, Rust changes, kernel TTL changes, sleep, fsync, or measurement rerun.",
+  "tolerance": "Only +/-1000ns on syscall-window boundaries for microsecond log timestamps; physical event order, matching PID/inode/fh, attrs, bytes and EOF remain exact.",
+  "interface": "python3 -B verify_known_tail_trace.py ARTIFACT_DIR --output NEW_PROOF_JSON. Refuses overwriting proof path. Exit0 only if all four A/warmB/sameB/freshB read proofs pass.",
+  "files": {
+    "baseline-v3-red.json": {
+      "sha256": "1b1702c142a09cec5ea279d6a75085f02b0669ec960aa382f0b12b236de0f482",
+      "bytes": 1920
+    },
+    "baseline-v4-cli.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "baseline-v4-trace.json": {
+      "sha256": "4c49b2fbc066bfdc2d001c98fdf45408f395a473c956f17a05ad0c971a2c9f50",
+      "bytes": 256600
+    },
+    "candidate-v3-red.json": {
+      "sha256": "385facfa1016f5b254f3e8e16a88dcb4d3f689506d802691d9eadda7a6f057dd",
+      "bytes": 1925
+    },
+    "candidate-v4-cli.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate-v4-trace.json": {
+      "sha256": "9afc1f54256191e4508fd11297b90c6468f5bdaa5b45617727bb736a502f1531",
+      "bytes": 256936
+    },
+    "test_verify_known_tail_trace.py": {
+      "sha256": "e698ccc221188b80c61ed8c541dd555473f71eba295137e5ff5634e48fa97a41",
+      "bytes": 10447
+    },
+    "tests-01.log": {
+      "sha256": "59037f8026324291c27ff800cf389d2e1ff9fda6848365d50820874ca5fa8e95",
+      "bytes": 2584
+    },
+    "verify_known_tail_trace.py": {
+      "sha256": "a2b7ca1acded0094d3d28327d021f325d4ed2ba5614865b144590462df5e1a78",
+      "bytes": 14542
+    }
+  }
+}

@@ -1,0 +1,212 @@
+{
+  "schema": "independent-corrected-compilation-activation-review-v1",
+  "at": "2026-11-12T21:57:02.484918+00:00",
+  "passed": true,
+  "decision": "Compilation, exact-feature and activation prerequisites qualified; proceed to real FUSE validation, not integrated PR approval",
+  "compilation_archive_sha256": "8440750847e4e9ec5926f026b5daef90447af7a88eaff18ffcff95166868ca0d",
+  "compilation_files_rehashed": 45,
+  "compilation_archive_members_verified": 46,
+  "exact_tests": {
+    "baseline": {
+      "commit": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+      "tree": "26e00a546990b3852b6d4ef1b12471e0f4a0a4e5",
+      "host": "iZbp1dqgriutdy4yqies4kZ",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--workspace",
+        "--lib",
+        "--bins",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime,workspace-overlay,observability,rustfs-ec-block-size-hint"
+      ],
+      "passed": 2770,
+      "ignored": 483,
+      "per_executable_passed": [
+        2753,
+        2,
+        15,
+        0
+      ],
+      "executable_identities": [
+        {
+          "path": "/srv/perf-issues-corrected-20261112/target-exact-baseline/debug/deps/brewfs-f532f08a7be6b126",
+          "bytes": 1609531560,
+          "sha256": "ef9c63a4c23aac19ff66d347ebb1accf634faaeccd16c27f1bbfce3e8ff18974"
+        },
+        {
+          "path": "/srv/perf-issues-corrected-20261112/target-exact-baseline/debug/deps/brewfs-a941e9a601734335",
+          "bytes": 33120144,
+          "sha256": "68571c3a5a098e53427dcde42a00d48970f99b2402a37e3375523b5fc5af1b5f"
+        },
+        {
+          "path": "/srv/perf-issues-corrected-20261112/target-exact-baseline/debug/deps/packed_v3_snapshot_fixture-eff7cdc19496c796",
+          "bytes": 55606824,
+          "sha256": "98bcd6cc59fcd9a114b08a308b8af2f9076a915535671389f8d15bf9546323c3"
+        },
+        {
+          "path": "/srv/perf-issues-corrected-20261112/target-exact-baseline/debug/deps/brewfs_stats-a6fa7c497017fdf1",
+          "bytes": 1076456,
+          "sha256": "bac64ed0cb27f573cd16ab1f0f575ff99164e877a5ffd23f907dde8cc7b8e962"
+        }
+      ],
+      "receipt_sha256": "6dc4ad51a4634b4b8fa2af6dd1743d7a07bb84786e95df2c3f7b21a3fb94eb11",
+      "log_sha256": "67c4a03a244eeabe5a16e565b580fefa6bd0a242bc4c96e4ef9825405b404ac5"
+    },
+    "candidate": {
+      "commit": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+      "tree": "0a8f932b621235e967ddba0ac4b8c7ff89eb03e2",
+      "host": "rbm-UrRupheQ",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--workspace",
+        "--lib",
+        "--bins",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime,workspace-overlay,observability,rustfs-ec-block-size-hint"
+      ],
+      "passed": 2792,
+      "ignored": 485,
+      "per_executable_passed": [
+        2775,
+        2,
+        15,
+        0
+      ],
+      "executable_identities": [
+        {
+          "path": "/home/dev/ax-issues-target/debug/deps/brewfs-f532f08a7be6b126",
+          "bytes": 1612689056,
+          "sha256": "2c286946b15cd0ff8a327cfb81f3194ddaa59be764bad9518c170573f69f9510"
+        },
+        {
+          "path": "/home/dev/ax-issues-target/debug/deps/brewfs-a941e9a601734335",
+          "bytes": 33101424,
+          "sha256": "8f268b261003b310d7bd834f8865022833b459f74cc1c4bc6de6be84ac1153f5"
+        },
+        {
+          "path": "/home/dev/ax-issues-target/debug/deps/packed_v3_snapshot_fixture-eff7cdc19496c796",
+          "bytes": 55845888,
+          "sha256": "064751f6f45487ca2fceb2a21bcb9c047dbd230a6c24998ac794999b5eb2b81c"
+        },
+        {
+          "path": "/home/dev/ax-issues-target/debug/deps/brewfs_stats-a6fa7c497017fdf1",
+          "bytes": 1076456,
+          "sha256": "bac64ed0cb27f573cd16ab1f0f575ff99164e877a5ffd23f907dde8cc7b8e962"
+        }
+      ],
+      "receipt_sha256": "0dd5ea18d06449f994830234647945707b20d2c361b86b2678a46f02d57dbfaa",
+      "log_sha256": "4ac691d2e7505f770bdcffd66a5e0639968ba712fee0058fbd1932e4f258db57"
+    }
+  },
+  "release": {
+    "baseline": {
+      "commit": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+      "tree": "26e00a546990b3852b6d4ef1b12471e0f4a0a4e5",
+      "binary_sha256": "0b0a2743aa968f497782d823cb068cd421eb840f82d5739a363d3bc3623c8679",
+      "bytes": 372855200,
+      "identity_sha256": "584bb3f294c23e292cb100eb24e5b228306c62d6bdb1d4e7372c7942c2f91bd4",
+      "actual_rustc": [
+        {
+          "source": "src/lib.rs",
+          "features": [
+            "fuse-io-uring-runtime",
+            "observability",
+            "rustfs-ec-block-size-hint",
+            "workspace-overlay"
+          ],
+          "codegen": [
+            "opt-level=3",
+            "embed-bitcode=no",
+            "metadata=6b233e3803264a5f"
+          ]
+        },
+        {
+          "source": "src/main.rs",
+          "features": [
+            "fuse-io-uring-runtime",
+            "observability",
+            "rustfs-ec-block-size-hint",
+            "workspace-overlay"
+          ],
+          "codegen": [
+            "opt-level=3",
+            "embed-bitcode=no",
+            "metadata=798b668f8ea2311c",
+            "extra-filename=-f5760968f1acdca8"
+          ]
+        }
+      ],
+      "same_profile": true
+    },
+    "candidate": {
+      "commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+      "tree": "142c8d384fbb2939f2cde4e3e7497b122b2c0f53",
+      "binary_sha256": "905c4e4ca35162ae6a1ab2de03f4fa18194ef64d9afcbe20cff9bbefd570ce90",
+      "bytes": 373692592,
+      "identity_sha256": "1a8f983ce8f2ff6cf5bca023ba289759f9e6504a726fbf9111885f971433dd7a",
+      "actual_rustc": [
+        {
+          "source": "src/lib.rs",
+          "features": [
+            "fuse-io-uring-runtime",
+            "observability",
+            "rustfs-ec-block-size-hint",
+            "workspace-overlay"
+          ],
+          "codegen": [
+            "opt-level=3",
+            "embed-bitcode=no",
+            "metadata=6b233e3803264a5f"
+          ]
+        },
+        {
+          "source": "src/main.rs",
+          "features": [
+            "fuse-io-uring-runtime",
+            "observability",
+            "rustfs-ec-block-size-hint",
+            "workspace-overlay"
+          ],
+          "codegen": [
+            "opt-level=3",
+            "embed-bitcode=no",
+            "metadata=798b668f8ea2311c",
+            "extra-filename=-f5760968f1acdca8"
+          ]
+        }
+      ],
+      "same_profile": true
+    }
+  },
+  "release_archive_scope": {
+    "transport_receipt_sha256": "15cad51e70e17ad093c55584b54b2564988e29b7d22ac776dd1cf445f31289c7",
+    "archive_sha256": "bfe160f793dad83f2ae533f5479db20146f49d8d26a5745c15cef4f11f4b762c",
+    "owner_verified_files": 30,
+    "reviewer_rehashed_nonbinary_members": 28,
+    "binary_hash_scope": "Cross-checked source build identity, actual version text, frozen artifact manifest, independent cloud-to-RBM byte-verification receipt, activation actual rehash and file sizes; no redundant read of 746MB binaries or test executables"
+  },
+  "ci_gate_logs_rehashed": 23,
+  "activation_sha256": "b9f0b3ebbfe531a586bcde6100a74c3fdc3bd8347594ae083cb19b1bf46308d7",
+  "activation_script_sha256": "b834d5d96d9c81b80500dfb1d99f25d5b613cd58a479b883a3d20b9b1731a21c",
+  "publication_projection_sha256": "608f17bf1b2130d00b2974733f55b78d94faafcecec7c45c03f565a8c382cdca",
+  "scope_notes": [
+    "Default and superset CI remains exactly as final-ci-review-01; supersets are not relabeled as exact runtime features",
+    "This new stage proves exact no-default four-feature tests on 4f and publication e2; runtime candidate remains c8 under the already independently verified one-line cfg(test) exception",
+    "Test hosts differ; both forthcoming runtime arms must use the same recorded cloud host and budgets",
+    "Original v1 ENOMEM and pre-child strict Clippy failure remain in the prior cleanup archive",
+    "Provisional build pending labels describe status at build start; activation occurred only after successful exact tests and release transport, with all owned compilation units inactive",
+    "No cloud reads, compilation, workloads, or performance measurements were performed by reviewer"
+  ],
+  "runtime_qualified": false,
+  "remaining": [
+    "Known-value A/B and exact randwrite/direct0 correctness",
+    "Full required direct/randrw/drain and workspace/cache guards",
+    "Matched corrected performance evidence before integrated PR approval"
+  ]
+}

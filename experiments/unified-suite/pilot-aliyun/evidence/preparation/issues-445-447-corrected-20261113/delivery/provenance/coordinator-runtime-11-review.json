@@ -1,0 +1,60 @@
+{
+  "passed": true,
+  "archive_sha256": "bef783c9277a6d4a8c232e0b999e5e14882ac4ad456eecd8a54216f14be124ef",
+  "payloads_hashed": 575,
+  "cold_checks": 6,
+  "fixed_work_pairs": [
+    {
+      "trial": 610,
+      "arms": {
+        "baseline": {
+          "cpu_s": 10.84,
+          "active_s": 4.962624766,
+          "tool_and_drain_wall_s": 42.565908786
+        },
+        "candidate": {
+          "cpu_s": 10.78,
+          "active_s": 14.703114593,
+          "tool_and_drain_wall_s": 41.829108944
+        }
+      },
+      "cpu_ratio": 0.9944649446494465,
+      "wall_ratio": 0.9826903768059021
+    },
+    {
+      "trial": 611,
+      "arms": {
+        "candidate": {
+          "cpu_s": 10.93,
+          "active_s": 4.709597832,
+          "tool_and_drain_wall_s": 42.329959308
+        },
+        "baseline": {
+          "cpu_s": 10.77,
+          "active_s": 4.706347481,
+          "tool_and_drain_wall_s": 42.370633381
+        }
+      },
+      "cpu_ratio": 1.0148560817084493,
+      "wall_ratio": 0.9990400409492525
+    },
+    {
+      "trial": 612,
+      "arms": {
+        "baseline": {
+          "cpu_s": 10.88,
+          "active_s": 4.704345493,
+          "tool_and_drain_wall_s": 42.23991826
+        },
+        "candidate": {
+          "cpu_s": 10.86,
+          "active_s": 4.955930403,
+          "tool_and_drain_wall_s": 42.495073442
+        }
+      },
+      "cpu_ratio": 0.9981617647058822,
+      "wall_ratio": 1.006040617323865
+    }
+  ],
+  "scope": "All paths/SHA, cold receipt gates and raw process tick arithmetic. Same fixed total work; CPU/wall include tool and strict drain, not entire mount/compaction lifecycle. Historical601/603, active-stage transfer, metadata short-burst costs and common28Bsanity preflight remain disclosed. Independent full assay covers actual FIO argv and native/cache content."
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "offline-rust-v0-perf-labels-v1",
+  "input_path": "/home/dev/ax-perf-issues-validation/private-profiles/offline-decode-605606-01/baseline/script.mangled.txt",
+  "input_sha256": "3367ca31fa804a201b62bd49be3b3d20667a0b21bdd339b39ce4f4921a460d99",
+  "tool": "/usr/bin/x86_64-linux-gnu-c++filt",
+  "tool_sha256": "2c11b66c0fad24afc649517f890eaa8a6a4d4dceb1d613c5631bb96ff09352b4",
+  "tool_version": "GNU c++filt (GNU Binutils for Ubuntu) 2.42\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis program is free software; you may redistribute it under the terms of\nthe GNU General Public License version 3 or (at your option) any later version.\nThis program has absolutely no warranty.\n",
+  "command": [
+    "/usr/bin/c++filt",
+    "--format=rust",
+    "--no-strip-underscore"
+  ],
+  "script_sha256": "45daa25deba86d435916c09436580a0a79abfb0c3e8cc3dabdff5c8e0d67bb9d",
+  "input_bytes": 3466228,
+  "rust_v0_unique_labels": 426,
+  "rust_v0_label_occurrences": 11919,
+  "changed_unique_labels": 426,
+  "unresolved_unique_labels": [],
+  "brewfs_labels_after": 134,
+  "unknown_mentions_before": 10741,
+  "unknown_mentions_after": 10741,
+  "newline_count_unchanged": true,
+  "transformation": "Only full Rust-v0 label substrings are replaced; sample order, addresses, periods, timestamps, PID/TID and existing callchains unchanged.",
+  "limits": "No inline expansion, unwinding, missing stack recovery, CPU attribution, or performance acceptance. An absent demangled function does not prove it did not execute.",
+  "outputs": {
+    "script.demangled.txt": {
+      "bytes": 3931797,
+      "sha256": "be5ede78989630f4dff9e9b92323968fdf8a1fccfa42d27c584b207be5510002"
+    },
+    "script.mangled.txt": {
+      "bytes": 3466228,
+      "sha256": "3367ca31fa804a201b62bd49be3b3d20667a0b21bdd339b39ce4f4921a460d99"
+    },
+    "symbol-map.json": {
+      "bytes": 233564,
+      "sha256": "e9a37421e12e876024b272eeefb8f3570982a68ef4007a104f431702e6f58b17"
+    },
+    "tool-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "tool-version.txt": {
+      "bytes": 288,
+      "sha256": "aead6cbe99522aa71e8fa0577d9c7cd8e61e7a95a68674f7e334c29baa3a5750"
+    }
+  }
+}

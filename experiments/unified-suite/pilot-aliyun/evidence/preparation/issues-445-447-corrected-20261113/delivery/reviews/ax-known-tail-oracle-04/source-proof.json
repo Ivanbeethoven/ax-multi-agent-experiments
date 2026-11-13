@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "old_helper_sha256": "2c03ab9e22ed3ad413608906597941c773786bb505ee98c384f508afcdbd6b72",
+  "new_helper_sha256": "f916abb1e9560b8dc1341bb17b02093b171155d6dfa2feee276a87ffaeea1384",
+  "patch_sha256": "1c265ec00ca1c88168379a4a78a65fe6df2c57f0257da39aa7bcc9ffd496a56f",
+  "same_ast_functions": [
+    "write_tail",
+    "operation_proof",
+    "expected_sha",
+    "process_env",
+    "main",
+    "drain_evidence"
+  ],
+  "same_bytes_files": [
+    "known-tail-oracle.sh",
+    "verify_remote_durability.py"
+  ],
+  "strict_identity_and_length_condition_unchanged": true,
+  "statx_flags": 12288,
+  "statx_request_mask": 2047,
+  "statx_required_mask": 835,
+  "statx_at_same_open_fd_before_both_original_fstats": true,
+  "no_sleep_ttl_fsync_production_changes": true,
+  "light_tests_passed": 34,
+  "abi_receipt_sha256": "24557f90c7b8f4c152d04d119b03ef7bebe29887dac000e8a9fdcd790a54dc42",
+  "scope": "Protocol revision for explicit fresh attribute baselines. Original content/identity/length assertions retained. Unsupported syscall/symbol/ABI/mask, errno and statx-fstat mismatch reject; no fallback.",
+  "required_actual_fuse_gate": "For each actual check_value read, pair its reader_pid, inode, statx time windows and mount log to successful GETATTR replies before the first READ and after EOF. Verify reply attrs equal statx/fstat, and open precedes the before refresh. Missing evidence must reject even when helper passed. Ordinary tmpfile ABI success is not this FUSE proof."
+}

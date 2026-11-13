@@ -1,0 +1,132 @@
+{
+  "at": "2026-11-12T23:26:31.615356+00:00",
+  "archive_sha256": "51b980a9490cabfee709ed06d982d154e3432ea2c82ac25808b82b6d09214c3f",
+  "members": 1237,
+  "payloads_verified": 1236,
+  "cold_content_checks": [
+    {
+      "path": "artifacts/baseline/perf-run-1794524573-25351/remote-durability/fio-randrw-direct0/receipt.json",
+      "files": 4,
+      "logical_bytes": 2147483648,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    },
+    {
+      "path": "artifacts/baseline/perf-run-1794524573-25351/remote-durability/fio-randrw-direct1/receipt.json",
+      "files": 4,
+      "logical_bytes": 2147483648,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    },
+    {
+      "path": "artifacts/baseline/perf-run-1794524573-25351/remote-durability/fio-randwrite-direct0/receipt.json",
+      "files": 4,
+      "logical_bytes": 2147483648,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    },
+    {
+      "path": "artifacts/baseline/perf-run-1794524573-25351/remote-durability/fio-randwrite-direct1/receipt.json",
+      "files": 4,
+      "logical_bytes": 2147483648,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    },
+    {
+      "path": "artifacts/baseline/perf-run-1794524573-25351/remote-durability/fio-seqwrite-direct0/receipt.json",
+      "files": 1,
+      "logical_bytes": 536870912,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    },
+    {
+      "path": "artifacts/baseline/perf-run-1794524573-25351/remote-durability/fio-seqwrite-direct1/receipt.json",
+      "files": 1,
+      "logical_bytes": 536870912,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525112-12301/remote-durability/fio-randrw-direct0/receipt.json",
+      "files": 4,
+      "logical_bytes": 2147483648,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525112-12301/remote-durability/fio-randrw-direct1/receipt.json",
+      "files": 4,
+      "logical_bytes": 2147483648,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525112-12301/remote-durability/fio-randwrite-direct0/receipt.json",
+      "files": 4,
+      "logical_bytes": 2147483648,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525112-12301/remote-durability/fio-randwrite-direct1/receipt.json",
+      "files": 4,
+      "logical_bytes": 2147483648,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525112-12301/remote-durability/fio-seqwrite-direct0/receipt.json",
+      "files": 1,
+      "logical_bytes": 536870912,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525112-12301/remote-durability/fio-seqwrite-direct1/receipt.json",
+      "files": 1,
+      "logical_bytes": 536870912,
+      "new_cache_was_empty": true,
+      "old_process_terminated": true
+    }
+  ],
+  "performance_qualification": "pending three direct1 reverse checks; no performance admission claimed",
+  "summary_formula_recheck": [
+    {
+      "tool": "fio-seqwrite-direct0",
+      "drained_bw_delta_percent": -2.251210056921782,
+      "cpu_per_logical_GiB_delta_percent": 0.6557991380925499,
+      "write_lat_p99_delta_percent": -2.7210884353741527
+    },
+    {
+      "tool": "fio-seqwrite-direct1",
+      "drained_bw_delta_percent": 1.5837195260721693,
+      "cpu_per_logical_GiB_delta_percent": 0.38302560892924387,
+      "write_lat_p99_delta_percent": 12.030075187969924
+    },
+    {
+      "tool": "fio-randwrite-direct0",
+      "drained_bw_delta_percent": 0.7218693408101995,
+      "cpu_per_logical_GiB_delta_percent": 1.725605561490151,
+      "write_lat_p99_delta_percent": -4.8872180451127845
+    },
+    {
+      "tool": "fio-randwrite-direct1",
+      "drained_bw_delta_percent": -11.621911961161791,
+      "cpu_per_logical_GiB_delta_percent": 28.600439499820276,
+      "write_lat_p99_delta_percent": -25.93984962406015
+    },
+    {
+      "tool": "fio-randrw-direct0",
+      "drained_bw_delta_percent": 1.3271334464493911,
+      "cpu_per_logical_GiB_delta_percent": 4.634546451987442,
+      "write_lat_p99_delta_percent": -24.120603015075382
+    },
+    {
+      "tool": "fio-randrw-direct1",
+      "drained_bw_delta_percent": 1.831219829788977,
+      "cpu_per_logical_GiB_delta_percent": 0.24252188736639813,
+      "write_lat_p99_delta_percent": 28.57142857142858
+    }
+  ],
+  "formula_scope": "Recomputed normalized metrics/ratios from frozen comparison operands; independent agent review checks operands against raw fio/proc/drain."
+}

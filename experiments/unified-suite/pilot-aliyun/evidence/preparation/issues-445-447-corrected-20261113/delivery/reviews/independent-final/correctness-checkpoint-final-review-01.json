@@ -1,0 +1,146 @@
+{
+  "schema": "independent-corrected-correctness-checkpoint-review-v1",
+  "at": "2026-11-12T22:38:34.029735+00:00",
+  "decision": "Corrected exact-randwrite and full known-A/B correctness prerequisites qualified; proceed to standard and matched performance validation",
+  "correctness_prerequisites_passed": true,
+  "integrated_pr_qualified": false,
+  "performance_acceptance": false,
+  "archive_sha256": "ba3fdf77f3968e120cf943407ffb659a10cf61fb79f81e135a96b3f45f0353fa",
+  "archive_files_rehashed": 8,
+  "checkpoint_sha256": "4f5b7e75c3577d561ab0d6ecc90067bd2c24e847061f06c8c551825acaeb9aaa",
+  "accepted_cases": [
+    {
+      "arm": "baseline",
+      "case": "randwrite-gate",
+      "trial": 500,
+      "receipt": "/home/dev/ax-perf-issues-corrected-validation/compose/trials/ax447-corrected-baseline-randwrite-gate-500/receipt.json",
+      "receipt_sha256": "fd2289cbd3d0d5fe09c6a1f1eeaee223846b011c03b3869b618756727684aa12"
+    },
+    {
+      "arm": "baseline",
+      "case": "known-tail-oracle",
+      "trial": 502,
+      "receipt": "/home/dev/ax-perf-issues-corrected-validation/compose/trials/ax447-corrected-baseline-known-tail-oracle-502/receipt.json",
+      "receipt_sha256": "97a8a69abcfb3b54ecd49370809c747bc00d53547c6caa5b99f636ae675cb87c"
+    },
+    {
+      "arm": "candidate",
+      "case": "randwrite-gate",
+      "trial": 500,
+      "receipt": "/home/dev/ax-perf-issues-corrected-validation/compose/trials/ax447-corrected-candidate-randwrite-gate-500/receipt.json",
+      "receipt_sha256": "3c359080f14064b6f88c19d299598ce159f8d4315d08cd94ff05fbfefd90d9f4"
+    },
+    {
+      "arm": "candidate",
+      "case": "known-tail-oracle",
+      "trial": 502,
+      "receipt": "/home/dev/ax-perf-issues-corrected-validation/compose/trials/ax447-corrected-candidate-known-tail-oracle-502/receipt.json",
+      "receipt_sha256": "44fc5cb8c13bb4f754b4df856e292adc3b05dc52f684b23d3e9ae59de367734d"
+    }
+  ],
+  "byte_cache_drain_review_sha256": "b5880140b628ba2a9840acb1bb2f8f9ecaa9415ed23004ae777e1f565a1e225b",
+  "trace_verifier_sha256": "a2b7ca1acded0094d3d28327d021f325d4ed2ba5614865b144590462df5e1a78",
+  "trace_tests_passed": 19,
+  "trace_test_receipt_sha256": "8d0be53e535dedbe6802a869f33768df2f09db70d541dfbb6c7fa9cfa5435cb0",
+  "trace_results": {
+    "baseline": {
+      "proof_sha256": "b93c4647145667c9f09afb702cb5fe6aee5fa9fc6b61fcd52020b0901e1ca4c6",
+      "source": {
+        "commit": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+        "sha256": "0b0a2743aa968f497782d823cb068cd421eb840f82d5739a363d3bc3623c8679"
+      },
+      "oplog_sha256": "3cbf118749b5667de292048bf917e215dc674e2745a0011f6403f57f4f39fe0c",
+      "checks": [
+        {
+          "label": "check-a.value",
+          "read_events": 129,
+          "returned_bytes": 67108864,
+          "eof": true,
+          "pre_getattr_line": 230,
+          "post_getattr_line": 490
+        },
+        {
+          "label": "verify-b.warm_value",
+          "read_events": 129,
+          "returned_bytes": 67108864,
+          "eof": true,
+          "pre_getattr_line": 651,
+          "post_getattr_line": 911
+        },
+        {
+          "label": "verify-b.same_cache_value",
+          "read_events": 129,
+          "returned_bytes": 67108864,
+          "eof": true,
+          "pre_getattr_line": 930,
+          "post_getattr_line": 1190
+        },
+        {
+          "label": "verify-b.fresh_cache_value",
+          "read_events": 129,
+          "returned_bytes": 67108864,
+          "eof": true,
+          "pre_getattr_line": 1759,
+          "post_getattr_line": 2019
+        }
+      ],
+      "matches_independent_rbm_proof": true
+    },
+    "candidate": {
+      "proof_sha256": "92ff0e538b39bb0b47c19133bb96953cb166c41cb611f0922f8d935f786b7d65",
+      "source": {
+        "commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+        "sha256": "905c4e4ca35162ae6a1ab2de03f4fa18194ef64d9afcbe20cff9bbefd570ce90"
+      },
+      "oplog_sha256": "6da9d61db67a4fa05f40b544c39071bfddfd2dc6ec743d13a9edf35fed43f5be",
+      "checks": [
+        {
+          "label": "check-a.value",
+          "read_events": 129,
+          "returned_bytes": 67108864,
+          "eof": true,
+          "pre_getattr_line": 230,
+          "post_getattr_line": 490
+        },
+        {
+          "label": "verify-b.warm_value",
+          "read_events": 129,
+          "returned_bytes": 67108864,
+          "eof": true,
+          "pre_getattr_line": 651,
+          "post_getattr_line": 911
+        },
+        {
+          "label": "verify-b.same_cache_value",
+          "read_events": 129,
+          "returned_bytes": 67108864,
+          "eof": true,
+          "pre_getattr_line": 930,
+          "post_getattr_line": 1190
+        },
+        {
+          "label": "verify-b.fresh_cache_value",
+          "read_events": 129,
+          "returned_bytes": 67108864,
+          "eof": true,
+          "pre_getattr_line": 1759,
+          "post_getattr_line": 2019
+        }
+      ],
+      "matches_independent_rbm_proof": true
+    }
+  },
+  "timestamp_scope": "Only 1000ns allowance for microsecond log timestamp window boundaries; physical ordering, PID/inode/fh, attr values, returned bytes and EOF remain exact.",
+  "identity_scope": "Actual runtime remains baseline4f/candidatec8, publication candidatee2 only under previously proven test-only exception. No old results were rebound.",
+  "preserved_failures": [
+    "known-tail500 incomplete diagnostics",
+    "v3 known-tail501 strict mtime refusals",
+    "prior uncorrected random-write durability failures"
+  ],
+  "pending": [
+    "Full 12 standard scenarios with strict drain and cold persistence",
+    "Corrected workspace/row cache guard results",
+    "Matched corrected target performance evidence"
+  ],
+  "reviewer_rbm_archives_only": true
+}

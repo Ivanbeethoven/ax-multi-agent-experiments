@@ -1,0 +1,35 @@
+# Qualification-only branch: source after wait_for_strict_drain is defined.
+# No fio arguments, measurement boundaries, or performance profiles are changed.
+run_known_tail_oracle() {
+    local dataset="$mount_dir/.perf-known-tail-oracle"
+    local evidence="$artifact_dir/known-tail-oracle"
+    local phase
+    [[ "${BREWFS_FUSE_WRITEBACK:-}" == 0 && "${BREWFS_FUSE_OP_LOG:-}" == 1 ]] || {
+        err "known-tail oracle requires actual kernel writeback disabled and operation logging"
+        return 1
+    }
+    [[ "${RUST_LOG:-}" == 'warn,asyncfuse::raw::logfs=debug' ]] || return 1
+    [[ "${PERF_DRAIN_STABLE_SAMPLES:-3}" == 3 ]] || return 1
+    for phase in write-a check-a write-b verify-b; do
+        if ! timeout --signal=TERM --kill-after=5 300 \
+            python3 /usr/local/bin/known_tail_oracle.py "$phase" \
+                --dataset "$dataset" --mount "$mount_dir" --config "$config_path" \
+                --log "$log_file" --op-log "$BREWFS_FUSE_LOG_FILE" --output "$evidence" \
+                >"$artifact_dir/known-tail-${phase}.log" 2>&1; then
+            touch "$artifact_dir/known-tail-oracle.invalid"
+            return 1
+        fi
+        case "$phase" in
+            write-a|write-b)
+                # Preserve the standard zero-debt, 3 stable samples gate.
+                if ! wait_for_strict_drain "known-tail-${phase}" post-write 180 2 0 known-tail-oracle; then
+                    touch "$artifact_dir/known-tail-oracle.invalid"
+                    return 1
+                fi
+                ;;
+        esac
+    done
+    [[ -f "$evidence/new-cache-root.txt" ]] || return 1
+    export BREWFS_CACHE_ROOT="$(cat "$evidence/new-cache-root.txt")"
+    printf '%s\tpass\tNA\t%s\n' known-tail-oracle "$evidence/verify-b.json" >>"$artifact_dir/perf-summary.tsv"
+}

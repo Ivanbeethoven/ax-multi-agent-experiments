@@ -1,0 +1,854 @@
+{
+  "created_at": "2026-11-12T19:04:44.900988+00:00",
+  "scope": "Read-only independent rbm archive audit; no cloud access or workloads",
+  "candidate": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3",
+  "archives": [
+    {
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-03",
+      "members": 883,
+      "bytes": 19690668,
+      "receipt": {
+        "passed": true,
+        "members": 883,
+        "sha256": "70736b5aa4991919d089aaba63a3c1ab1f01d658429300c04bc7f89e81b47850"
+      }
+    },
+    {
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-04",
+      "members": 982,
+      "bytes": 18082638,
+      "receipt": {
+        "passed": true,
+        "members": 982,
+        "archive_sha256": "0b50d1fbe5cef66a8f58d5f8ef933ee7296b4e7dc38adec749b16e4478fa6b30"
+      }
+    },
+    {
+      "path": "/home/dev/ax-perf-issues-validation/runtime-sealed-01",
+      "members": 6,
+      "bytes": 20979273,
+      "receipt": {
+        "passed": true,
+        "members": 6,
+        "archive_sha256": "20dd5d5b16f33096e8b0ae8e620836a87fcf6fc84971f39c12d897fff1ed9073"
+      }
+    }
+  ],
+  "checks": {
+    "total": 2581,
+    "passed": 2581,
+    "failed": 0
+  },
+  "qualified_cached": {
+    "rows": [
+      {
+        "arm": "baseline",
+        "rep": 0,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-03/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794507802-16094",
+        "cpu_s": 0.54,
+        "active_ns": 951982570,
+        "total_ns": 5260933873,
+        "remote_validation_ns": 1896791231,
+        "put_bytes": 16777264.0
+      },
+      {
+        "arm": "baseline",
+        "rep": 1,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-03/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794507859-26977",
+        "cpu_s": 0.51,
+        "active_ns": 952741917,
+        "total_ns": 5259615969,
+        "remote_validation_ns": 1895185218,
+        "put_bytes": 16777264.0
+      },
+      {
+        "arm": "baseline",
+        "rep": 2,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-03/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794507877-6754",
+        "cpu_s": 0.5,
+        "active_ns": 952113963,
+        "total_ns": 5261090628,
+        "remote_validation_ns": 1907641177,
+        "put_bytes": 16777264.0
+      },
+      {
+        "arm": "candidate",
+        "rep": 0,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-03/home/dev/ax-issue447-perf-candidate/docker/compose-xfstests/artifacts/perf-run-1794507821-31063",
+        "cpu_s": 0.43,
+        "active_ns": 952029641,
+        "total_ns": 5264346477,
+        "remote_validation_ns": 1894940349,
+        "put_bytes": 16777264.0
+      },
+      {
+        "arm": "candidate",
+        "rep": 1,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-03/home/dev/ax-issue447-perf-candidate/docker/compose-xfstests/artifacts/perf-run-1794507840-13228",
+        "cpu_s": 0.43,
+        "active_ns": 953136502,
+        "total_ns": 5260352450,
+        "remote_validation_ns": 1896625709,
+        "put_bytes": 16777264.0
+      },
+      {
+        "arm": "candidate",
+        "rep": 2,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-03/home/dev/ax-issue447-perf-candidate/docker/compose-xfstests/artifacts/perf-run-1794507896-8799",
+        "cpu_s": 0.41,
+        "active_ns": 953958095,
+        "total_ns": 5262069745,
+        "remote_validation_ns": 1898094849,
+        "put_bytes": 16777264.0
+      }
+    ],
+    "pairs": [
+      {
+        "pair": 0,
+        "cpu_s": {
+          "baseline": 0.54,
+          "candidate": 0.43,
+          "ratio": 0.7962962962962963
+        },
+        "active_ns": {
+          "baseline": 951982570,
+          "candidate": 952029641,
+          "ratio": 1.000049445233015
+        },
+        "total_ns": {
+          "baseline": 5260933873,
+          "candidate": 5264346477,
+          "ratio": 1.0006486688641942
+        }
+      },
+      {
+        "pair": 1,
+        "cpu_s": {
+          "baseline": 0.51,
+          "candidate": 0.43,
+          "ratio": 0.8431372549019608
+        },
+        "active_ns": {
+          "baseline": 952741917,
+          "candidate": 953136502,
+          "ratio": 1.0004141572790692
+        },
+        "total_ns": {
+          "baseline": 5259615969,
+          "candidate": 5260352450,
+          "ratio": 1.0001400256224677
+        }
+      },
+      {
+        "pair": 2,
+        "cpu_s": {
+          "baseline": 0.5,
+          "candidate": 0.41,
+          "ratio": 0.82
+        },
+        "active_ns": {
+          "baseline": 952113963,
+          "candidate": 953958095,
+          "ratio": 1.0019368815831555
+        },
+        "total_ns": {
+          "baseline": 5261090628,
+          "candidate": 5262069745,
+          "ratio": 1.0001861053285774
+        }
+      }
+    ],
+    "conclusion": "All3paired BrewFS process CPU totals lower with known-pattern full cold remount gates passed; no wall-time improvement, totals fractionally higher; excludes fio/server CPU and separately reported durability-validation cost."
+  },
+  "long_row": {
+    "rows": [
+      {
+        "arm": "baseline",
+        "threads": 1,
+        "rep": 0,
+        "wall_ns": 3669240600,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t1-r0/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 1,
+        "rep": 0,
+        "wall_ns": 3556229985,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t1-r0/result.json"
+      },
+      {
+        "arm": "baseline",
+        "threads": 8,
+        "rep": 0,
+        "wall_ns": 13349370583,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t8-r0/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 8,
+        "rep": 0,
+        "wall_ns": 12557749779,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t8-r0/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 1,
+        "rep": 1,
+        "wall_ns": 3766660061,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t1-r1/result.json"
+      },
+      {
+        "arm": "baseline",
+        "threads": 1,
+        "rep": 1,
+        "wall_ns": 3763124264,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t1-r1/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 8,
+        "rep": 1,
+        "wall_ns": 12858664812,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t8-r1/result.json"
+      },
+      {
+        "arm": "baseline",
+        "threads": 8,
+        "rep": 1,
+        "wall_ns": 13319271558,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t8-r1/result.json"
+      },
+      {
+        "arm": "baseline",
+        "threads": 1,
+        "rep": 2,
+        "wall_ns": 3714813882,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t1-r2/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 1,
+        "rep": 2,
+        "wall_ns": 3652413696,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t1-r2/result.json"
+      },
+      {
+        "arm": "baseline",
+        "threads": 8,
+        "rep": 2,
+        "wall_ns": 12898561396,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t8-r2/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 8,
+        "rep": 2,
+        "wall_ns": 12703975589,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t8-r2/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 1,
+        "rep": 3,
+        "wall_ns": 3596454448,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t1-r3/result.json"
+      },
+      {
+        "arm": "baseline",
+        "threads": 1,
+        "rep": 3,
+        "wall_ns": 3619143556,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t1-r3/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 8,
+        "rep": 3,
+        "wall_ns": 13025119042,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t8-r3/result.json"
+      },
+      {
+        "arm": "baseline",
+        "threads": 8,
+        "rep": 3,
+        "wall_ns": 13310961864,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t8-r3/result.json"
+      },
+      {
+        "arm": "baseline",
+        "threads": 1,
+        "rep": 4,
+        "wall_ns": 3692207347,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t1-r4/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 1,
+        "rep": 4,
+        "wall_ns": 3633624874,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t1-r4/result.json"
+      },
+      {
+        "arm": "baseline",
+        "threads": 8,
+        "rep": 4,
+        "wall_ns": 13418552321,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t8-r4/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 8,
+        "rep": 4,
+        "wall_ns": 12957199963,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t8-r4/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 1,
+        "rep": 5,
+        "wall_ns": 3690852908,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t1-r5/result.json"
+      },
+      {
+        "arm": "baseline",
+        "threads": 1,
+        "rep": 5,
+        "wall_ns": 3707772649,
+        "successful_calls": 65536,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t1-r5/result.json"
+      },
+      {
+        "arm": "candidate",
+        "threads": 8,
+        "rep": 5,
+        "wall_ns": 12828315411,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-candidate-k128-t8-r5/result.json"
+      },
+      {
+        "arm": "baseline",
+        "threads": 8,
+        "rep": 5,
+        "wall_ns": 13214274401,
+        "successful_calls": 524288,
+        "path": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-perf-issues-validation/compose/workspace/ax447-rowlong-ec4long01/row-compare-baseline-k128-t8-r5/result.json"
+      }
+    ],
+    "cases": [
+      {
+        "threads": 1,
+        "pairs": [
+          {
+            "rep": 0,
+            "baseline_ns": 3669240600,
+            "candidate_ns": 3556229985,
+            "ratio": 0.9692005438400524
+          },
+          {
+            "rep": 1,
+            "baseline_ns": 3763124264,
+            "candidate_ns": 3766660061,
+            "ratio": 1.0009395908165524
+          },
+          {
+            "rep": 2,
+            "baseline_ns": 3714813882,
+            "candidate_ns": 3652413696,
+            "ratio": 0.9832023385337397
+          },
+          {
+            "rep": 3,
+            "baseline_ns": 3619143556,
+            "candidate_ns": 3596454448,
+            "ratio": 0.9937308073998931
+          },
+          {
+            "rep": 4,
+            "baseline_ns": 3692207347,
+            "candidate_ns": 3633624874,
+            "ratio": 0.9841334823604639
+          },
+          {
+            "rep": 5,
+            "baseline_ns": 3707772649,
+            "candidate_ns": 3690852908,
+            "ratio": 0.9954366832592707
+          }
+        ],
+        "baseline_median_ns": 3699989998.0,
+        "candidate_median_ns": 3643019285.0,
+        "median_change_pct": -1.5397531623273286,
+        "max_paired_ratio": 1.0009395908165524,
+        "all_pairs_faster": false
+      },
+      {
+        "threads": 8,
+        "pairs": [
+          {
+            "rep": 0,
+            "baseline_ns": 13349370583,
+            "candidate_ns": 12557749779,
+            "ratio": 0.9406997656497675
+          },
+          {
+            "rep": 1,
+            "baseline_ns": 13319271558,
+            "candidate_ns": 12858664812,
+            "ratio": 0.9654180227504
+          },
+          {
+            "rep": 2,
+            "baseline_ns": 12898561396,
+            "candidate_ns": 12703975589,
+            "ratio": 0.9849141465450292
+          },
+          {
+            "rep": 3,
+            "baseline_ns": 13310961864,
+            "candidate_ns": 13025119042,
+            "ratio": 0.9785257575733071
+          },
+          {
+            "rep": 4,
+            "baseline_ns": 13418552321,
+            "candidate_ns": 12957199963,
+            "ratio": 0.9656183210406398
+          },
+          {
+            "rep": 5,
+            "baseline_ns": 13214274401,
+            "candidate_ns": 12828315411,
+            "ratio": 0.9707922676427249
+          }
+        ],
+        "baseline_median_ns": 13315116711.0,
+        "candidate_median_ns": 12843490111.5,
+        "median_change_pct": -3.5420387949763543,
+        "max_paired_ratio": 0.9849141465450292,
+        "all_pairs_faster": true
+      }
+    ],
+    "conclusion": "24arms correct, warm/timed misses0; longer fixed65536ops/thread gives lower medians and no paired slowdown>5%;1thread not all pairs faster. Prior short+11.66/+7.46% medians remain evidence, not overwritten."
+  },
+  "failed_guards": [
+    {
+      "arm": "baseline",
+      "trial": 300,
+      "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-03/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794507949-2083",
+      "different_files": [
+        {
+          "path": "brewfs-randwrite.0.0",
+          "bytes": 536870912,
+          "warm_sha256": "94aedd65475c89094cb1d64a6cee1d31ce3149818c1b94416ebc9fb9c5cf2ed5",
+          "cold_sha256": "d192fad945e568d05fd4edd568f9d873d0a825de108080156279316d4b416f0d"
+        },
+        {
+          "path": "brewfs-randwrite.1.0",
+          "bytes": 536870912,
+          "warm_sha256": "da859a45180a103f1d554d93aad02b79a3ab16f6035978f22a6f8ce4f06803d8",
+          "cold_sha256": "33427f60cd0c75724a35c09ab11f87c6e7d6b13121867576b0cae89527d4f0a5"
+        }
+      ],
+      "full_file_count": 4,
+      "bytes": 2147483648,
+      "gate_passed": false,
+      "service_errors": 0,
+      "drain_zero": true
+    },
+    {
+      "arm": "candidate",
+      "trial": 402,
+      "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-issue447-perf-candidate/docker/compose-xfstests/artifacts/perf-run-1794508844-3",
+      "different_files": [
+        {
+          "path": "brewfs-randwrite.1.0",
+          "bytes": 536870912,
+          "warm_sha256": "fc04cfac9b73c720aed58b102815a95f1c555c75caa26c295d46e1071ff1c0c0",
+          "cold_sha256": "dd4c51d815268e12b39c7aacf6aff0fb696b7ce4210c3c091a16f502a2600fb8"
+        },
+        {
+          "path": "brewfs-randwrite.3.0",
+          "bytes": 536870912,
+          "warm_sha256": "b91e0c7fe197e57890a562a53c6c631bb49e611c4b84d58fb9a6f1598f382fd0",
+          "cold_sha256": "a7b1ad21f0d53ca9184e40d0e649a083ca304cfb379cf2286326f8cf9c55fefa"
+        }
+      ],
+      "full_file_count": 4,
+      "bytes": 2147483648,
+      "gate_passed": false,
+      "service_errors": 0,
+      "drain_zero": true,
+      "different_segments_1MiB": 12
+    },
+    {
+      "arm": "baseline",
+      "trial": 403,
+      "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-04/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794508978-19048",
+      "different_files": [
+        {
+          "path": "brewfs-randwrite.1.0",
+          "bytes": 536870912,
+          "warm_sha256": "cb583b33a7f5e21ff90283dee057ef0a95f7b8c17db263a75638243a4a743886",
+          "cold_sha256": "1d9f0fd25cc63aa7c57d9cbbfb5096308f078ed0041d32a6f90a2d04c9242d2b"
+        },
+        {
+          "path": "brewfs-randwrite.3.0",
+          "bytes": 536870912,
+          "warm_sha256": "4007209b000c1aba687fbae2e7604c129f8cdd152b0af5a4324d0583ad903fcb",
+          "cold_sha256": "45f9c0299dbace4b36360e00f6ca86e7bba3705c35c807426eb86492acca57ec"
+        }
+      ],
+      "full_file_count": 4,
+      "bytes": 2147483648,
+      "gate_passed": false,
+      "service_errors": 0,
+      "drain_zero": true,
+      "different_segments_1MiB": 8
+    }
+  ],
+  "sealed": {
+    "objects": [
+      {
+        "arm": "candidate",
+        "path": "/home/dev/ax-perf-issues-validation/runtime-sealed-01/var/lib/docker/volumes/ax447-candidate-regression-402_brewfs-state-perf-redis/_data/cache/flat-v1/c4211547a8e235e3226119fe4185b5d46708f599186d54b3399746f96568cfae/writeback/dirty/0/7_7000000005_5_0_62914560_4194304_dc9f122df9fee31340181d85d7ef8a9ece1fe72cb6129088f58453ab42722f0e.sealed",
+        "bytes": 4194304,
+        "inode": 7,
+        "absolute_offset": 398458880,
+        "chunk_offset": 62914560,
+        "matched_warm_segments": 4
+      },
+      {
+        "arm": "candidate",
+        "path": "/home/dev/ax-perf-issues-validation/runtime-sealed-01/var/lib/docker/volumes/ax447-candidate-regression-402_brewfs-state-perf-redis/_data/cache/flat-v1/c4211547a8e235e3226119fe4185b5d46708f599186d54b3399746f96568cfae/writeback/dirty/0/9_9000000000_4_0_62914560_4194304_dc9f122df9fee31340181d85d7ef8a9ece1fe72cb6129088f58453ab42722f0e.sealed",
+        "bytes": 4194304,
+        "inode": 9,
+        "absolute_offset": 62914560,
+        "chunk_offset": 62914560,
+        "matched_warm_segments": 4
+      },
+      {
+        "arm": "candidate",
+        "path": "/home/dev/ax-perf-issues-validation/runtime-sealed-01/var/lib/docker/volumes/ax447-candidate-regression-402_brewfs-state-perf-redis/_data/cache/flat-v1/c4211547a8e235e3226119fe4185b5d46708f599186d54b3399746f96568cfae/writeback/dirty/0/9_9000000006_3_0_62914560_4194304_dc9f122df9fee31340181d85d7ef8a9ece1fe72cb6129088f58453ab42722f0e.sealed",
+        "bytes": 4194304,
+        "inode": 9,
+        "absolute_offset": 465567744,
+        "chunk_offset": 62914560,
+        "matched_warm_segments": 4
+      },
+      {
+        "arm": "baseline",
+        "path": "/home/dev/ax-perf-issues-validation/runtime-sealed-01/var/lib/docker/volumes/ax447-baseline-regression-403_brewfs-state-perf-redis/_data/cache/flat-v1/c4211547a8e235e3226119fe4185b5d46708f599186d54b3399746f96568cfae/writeback/dirty/0/7_7000000005_5_0_62914560_4194304_dc9f122df9fee31340181d85d7ef8a9ece1fe72cb6129088f58453ab42722f0e.sealed",
+        "bytes": 4194304,
+        "inode": 7,
+        "absolute_offset": 398458880,
+        "chunk_offset": 62914560,
+        "matched_warm_segments": 4
+      },
+      {
+        "arm": "baseline",
+        "path": "/home/dev/ax-perf-issues-validation/runtime-sealed-01/var/lib/docker/volumes/ax447-baseline-regression-403_brewfs-state-perf-redis/_data/cache/flat-v1/c4211547a8e235e3226119fe4185b5d46708f599186d54b3399746f96568cfae/writeback/dirty/0/9_9000000006_3_0_62914560_4194304_dc9f122df9fee31340181d85d7ef8a9ece1fe72cb6129088f58453ab42722f0e.sealed",
+        "bytes": 4194304,
+        "inode": 9,
+        "absolute_offset": 465567744,
+        "chunk_offset": 62914560,
+        "matched_warm_segments": 4
+      }
+    ],
+    "exact_covers_all_different_1MiB_segments": true,
+    "candidate_difference_bytes": 12582912,
+    "baseline_difference_bytes": 8388608,
+    "conclusion": "Retained original sealed bytes exactly reproduce all warm differing segments; cold differs. This locates warm overlay contribution, not which generation is correct."
+  },
+  "timestamp_bytes": {
+    "records": [
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 62914560,
+        "warm_pair": [
+          0,
+          124896598
+        ],
+        "cold_pair": [
+          2,
+          10620779
+        ]
+      },
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 63963136,
+        "warm_pair": [
+          0,
+          124896598
+        ],
+        "cold_pair": [
+          2,
+          10620779
+        ]
+      },
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 65011712,
+        "warm_pair": [
+          0,
+          124896598
+        ],
+        "cold_pair": [
+          2,
+          10620779
+        ]
+      },
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 66060288,
+        "warm_pair": [
+          0,
+          124896598
+        ],
+        "cold_pair": [
+          2,
+          10620779
+        ]
+      },
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 465567744,
+        "warm_pair": [
+          0,
+          116126182
+        ],
+        "cold_pair": [
+          2,
+          714084871
+        ]
+      },
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 466616320,
+        "warm_pair": [
+          0,
+          116126182
+        ],
+        "cold_pair": [
+          2,
+          714084871
+        ]
+      },
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 467664896,
+        "warm_pair": [
+          0,
+          116126182
+        ],
+        "cold_pair": [
+          2,
+          714084871
+        ]
+      },
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 468713472,
+        "warm_pair": [
+          0,
+          116126182
+        ],
+        "cold_pair": [
+          2,
+          714084871
+        ]
+      },
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.3.0",
+        "offset": 398458880,
+        "warm_pair": [
+          0,
+          164585703
+        ],
+        "cold_pair": [
+          3,
+          72167954
+        ]
+      },
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.3.0",
+        "offset": 399507456,
+        "warm_pair": [
+          0,
+          164585703
+        ],
+        "cold_pair": [
+          3,
+          72167954
+        ]
+      },
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.3.0",
+        "offset": 400556032,
+        "warm_pair": [
+          0,
+          164585703
+        ],
+        "cold_pair": [
+          3,
+          72167954
+        ]
+      },
+      {
+        "arm": "candidate",
+        "file": "brewfs-randwrite.3.0",
+        "offset": 401604608,
+        "warm_pair": [
+          0,
+          164585703
+        ],
+        "cold_pair": [
+          3,
+          72167954
+        ]
+      },
+      {
+        "arm": "baseline",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 465567744,
+        "warm_pair": [
+          0,
+          114947290
+        ],
+        "cold_pair": [
+          2,
+          646172653
+        ]
+      },
+      {
+        "arm": "baseline",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 466616320,
+        "warm_pair": [
+          0,
+          114947290
+        ],
+        "cold_pair": [
+          2,
+          646172653
+        ]
+      },
+      {
+        "arm": "baseline",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 467664896,
+        "warm_pair": [
+          0,
+          114947290
+        ],
+        "cold_pair": [
+          2,
+          646172653
+        ]
+      },
+      {
+        "arm": "baseline",
+        "file": "brewfs-randwrite.1.0",
+        "offset": 468713472,
+        "warm_pair": [
+          0,
+          114947290
+        ],
+        "cold_pair": [
+          2,
+          646172653
+        ]
+      },
+      {
+        "arm": "baseline",
+        "file": "brewfs-randwrite.3.0",
+        "offset": 398458880,
+        "warm_pair": [
+          0,
+          162256715
+        ],
+        "cold_pair": [
+          2,
+          961335902
+        ]
+      },
+      {
+        "arm": "baseline",
+        "file": "brewfs-randwrite.3.0",
+        "offset": 399507456,
+        "warm_pair": [
+          0,
+          162256715
+        ],
+        "cold_pair": [
+          2,
+          961335902
+        ]
+      },
+      {
+        "arm": "baseline",
+        "file": "brewfs-randwrite.3.0",
+        "offset": 400556032,
+        "warm_pair": [
+          0,
+          162256715
+        ],
+        "cold_pair": [
+          2,
+          961335902
+        ]
+      },
+      {
+        "arm": "baseline",
+        "file": "brewfs-randwrite.3.0",
+        "offset": 401604608,
+        "warm_pair": [
+          0,
+          162256715
+        ],
+        "cold_pair": [
+          2,
+          961335902
+        ]
+      }
+    ],
+    "conclusion": "Independently decoded little-endian64-bit pairs at prefix offsets48/56 match owner timestamp report; cold pairs later for20/20segments. Semantics depend on reported fio3.39 scramble contract; generation ordering supports stale-overlay hypothesis, not independent final-data oracle or proven Rust race."
+  },
+  "decision": {
+    "approve_one_integrated_pr": false,
+    "status": "hold",
+    "reason": "Both baseline and candidate actual512MiB*4 randwrite/direct0 fail full warm/cold SHA consistency despite clean normal remount, fresh local cache, zero dirty counters and no service errors. Remaining standard guards incomplete. Valid target benefits do not waive correctness."
+  },
+  "separation": "Earlier single-path errors/timings remain invalid; Packed7093 campaign separate. No source modified."
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "independent-standard-context-addendum-v1",
+  "review_sha256": "30a91cfb29b7352c52a60c9ffadc1bd46ec3028837246248fb3055724f4bcfd3",
+  "decision": "CORRECTNESS_PASS_NUMERIC_HOLD",
+  "original_context": "Trial601 ran seqwrite/direct0, seqwrite/direct1, randwrite/direct0, randwrite/direct1, randrw/direct0, randrw/direct1 in one baseline project, then the same complete sequence in one candidate project.",
+  "targeted_followup_context": "A follow-up that runs only the three direct1 scenes omits earlier direct0 history. It is a new controlled condition, even when per-scene FIO inputs, budgets, source and binary remain identical.",
+  "interpretation": "Compare each matched baseline/candidate pair within its own protocol and order. Do not average absolute values across original trial601 and the reduced follow-up or use one opposite-order average to cancel a regression. If context interaction remains unresolved, a reverse-order execution of the original full matrix is the relevant confirmation.",
+  "unchanged_boundaries": "Current evidence establishes all twelve original correctness cells, not stable performance nonregression. CPU is measured BrewFS user+system CPU, not total machine CPU; variable completed logical bytes are explicit denominators; p99 remains a per-reporting-group observation.",
+  "row_budget_scope": "Legacy enforces entry count and does not implement the candidate byte-budget environment variable. Candidate pressure tests establish retained-byte accounting bounds, not equal enforced byte budgets or process RSS. Hot-path comparison must separately state identical data, TTL, request sequence and a resident working set on both sides."
+}

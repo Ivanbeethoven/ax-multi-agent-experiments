@@ -1,0 +1,1893 @@
+{
+  "created_at": "2026-11-12T18:25:57.828073+00:00",
+  "scope": "Independent rbm-only archived actual-workspace review; no cloud or new workload",
+  "archive": {
+    "path": "/home/dev/ax-perf-issues-validation/runtime-review-02",
+    "sha256": "a684b22d532ab504e2049841d73bd518eb09c75e972e01c79d8ddd76ebb80e55",
+    "members": 2148,
+    "bytes": 36267989,
+    "all_rehashed": true
+  },
+  "source": {
+    "baseline": {
+      "arm": "baseline",
+      "worktree": "/home/dev/ax-issue447-perf-baseline",
+      "commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+      "tree": "1ee7c97a427156d9c2cfe056f857e2e01efeb714",
+      "dirty": false,
+      "output_directory": "/home/dev/ax-perf-issues-validation/compose/baseline-build-01"
+    },
+    "candidate": {
+      "arm": "candidate",
+      "worktree": "/home/dev/ax-issue447-perf-candidate",
+      "commit": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3",
+      "tree": "e72618af232f23a671cf325b127dd01cc4bacfcb",
+      "dirty": false,
+      "output_directory": "/home/dev/ax-perf-issues-validation/compose/candidate-build-01"
+    }
+  },
+  "binary_pins": {
+    "baseline": {
+      "commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+      "sha256": "448ac21de0aadb5d82e5d00e9c41df8cbf616ee9539964aeb104dd70114ef5de"
+    },
+    "candidate": {
+      "commit": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3",
+      "sha256": "94d1d39d34360cf3cb4d20a9f4e37fe7d25c1062a0eee3f71082fa35e0145ee6"
+    },
+    "producer": {
+      "commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+      "sha256": "8c4d65dbe8daaeaffb7f6084474a9a839df418c66d2aced6226842a5b8997d72"
+    }
+  },
+  "harness_sha256": {
+    "/home/dev/ax-perf-issues-validation/compose/run-workspace-guards.py": "f5a49e7e064b3b1b78b31c105f38c56049631bf08c5525257c3c105cdc709999",
+    "/home/dev/ax-packed-build/issue445_fill_guard.py": "8ecee3d48aaf6d27770f66ab9f459d4c5dc6fcc445b3ed919a61c1587eee9849",
+    "/home/dev/ax-issue-446-workspace-guard/workspace_row_guard.py": "f27bda51f89d9d3cd2240143a3292c80d3f7b5a6c13970bb375243a717501695"
+  },
+  "checks": {
+    "total": 13937,
+    "passed": 13937,
+    "failed": 0
+  },
+  "correctness": {
+    "mounts_clean": 114,
+    "fill_waves": 56,
+    "fill_reads_correct": 448,
+    "row_hot_cases": 56,
+    "row_memory_cases": 2,
+    "row_warm_and_timed_misses_zero": true
+  },
+  "configuration": {
+    "common_normalized_mount": {
+      "volume_format": "workspace-v1",
+      "volume": {
+        "format": "workspace-v1"
+      },
+      "data": {
+        "backend": "s3",
+        "s3": {
+          "bucket": "ax447-workspace-fixture",
+          "region": "us-east-1",
+          "force_path_style": true,
+          "rustfs_ec_block_size_hint": "auto"
+        }
+      },
+      "meta": {
+        "backend": "redis",
+        "redis": {
+          "url": "redis://127.0.0.1:26379/0"
+        },
+        "open_file_cache_ttl_ms": 600000,
+        "open_file_cache_capacity": 65536
+      },
+      "layout": {
+        "chunk_size": 67108864,
+        "block_size": 4194304
+      },
+      "fuse": {
+        "workers": 8,
+        "max_background": 128,
+        "cache_ttl_ms": 0,
+        "keep_cache": false
+      },
+      "cache": {
+        "writeback_mode": "upload_before_commit",
+        "read_memory_bytes": 536870912,
+        "read_ssd_bytes": 0,
+        "compression": "none"
+      }
+    },
+    "packed_pools_configured_only": {
+      "roots": 16777216,
+      "metadata_owned": 268435456,
+      "plans": 33554432,
+      "control": 1048576,
+      "stored": 33554432,
+      "raw": 33554432,
+      "decode_workspace": 8388608,
+      "output": 33554432
+    },
+    "row_hot_and_fill_capacity_bytes": 67108864,
+    "row_memory_capacity_bytes": 524288,
+    "row_ttl_ms": 600000,
+    "packed_native_stats": "unsupported: frozen source registers row extension first",
+    "client_limits": {
+      "cgroup": "/system.slice/ax447-workspace-ec4-v2.service",
+      "cpu_max": "300000 100000",
+      "memory_max_bytes": "17179869184"
+    },
+    "service_limits": {
+      "redis": {
+        "cpus": 1,
+        "memory_bytes": 2147483648
+      },
+      "rustfs": {
+        "cpus": 2,
+        "memory_bytes": 8589934592
+      }
+    },
+    "ec4_topology_scope": "Identity, enabled configuration and four logical data directories on one physical disk; local test bypass, not independent-disk reliability proof."
+  },
+  "comparisons": [
+    {
+      "kind": "fill",
+      "keys": 1,
+      "threads": 1,
+      "pairs": [
+        {
+          "repetition": 0,
+          "baseline_ns": 74978995,
+          "candidate_ns": 74523251,
+          "ratio": 0.9939217110071961,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 1,
+          "baseline_ns": 76838645,
+          "candidate_ns": 78213772,
+          "ratio": 1.0178962942410033,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 2,
+          "baseline_ns": 77387443,
+          "candidate_ns": 82772568,
+          "ratio": 1.0695865477814017,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 3,
+          "baseline_ns": 76267103,
+          "candidate_ns": 79422098,
+          "ratio": 1.0413677047625631,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 4,
+          "baseline_ns": 81267053,
+          "candidate_ns": 80013959,
+          "ratio": 0.9845805408989052,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 5,
+          "baseline_ns": 80374800,
+          "candidate_ns": 77621945,
+          "ratio": 0.9657497748050384,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        }
+      ],
+      "baseline_median_ns": 77113044.0,
+      "candidate_median_ns": 78817935.0,
+      "median_percent_change": 2.210898327395827,
+      "all_pairs_faster": false
+    },
+    {
+      "kind": "fill",
+      "keys": 1,
+      "threads": 8,
+      "pairs": [
+        {
+          "repetition": 0,
+          "baseline_ns": 79112783,
+          "candidate_ns": 76186581,
+          "ratio": 0.9630122732504556,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 1,
+          "baseline_ns": 75845527,
+          "candidate_ns": 77858558,
+          "ratio": 1.0265411960286068,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 2,
+          "baseline_ns": 75828304,
+          "candidate_ns": 77399853,
+          "ratio": 1.0207250975836146,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 3,
+          "baseline_ns": 77812575,
+          "candidate_ns": 77211967,
+          "ratio": 0.9922813504115499,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 4,
+          "baseline_ns": 79266604,
+          "candidate_ns": 81536095,
+          "ratio": 1.0286311117857403,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 5,
+          "baseline_ns": 78133576,
+          "candidate_ns": 76124238,
+          "ratio": 0.9742832965945396,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        }
+      ],
+      "baseline_median_ns": 77973075.5,
+      "candidate_median_ns": 77305910.0,
+      "median_percent_change": -0.8556357380054891,
+      "all_pairs_faster": false
+    },
+    {
+      "kind": "fill",
+      "keys": 8,
+      "threads": 1,
+      "pairs": [
+        {
+          "repetition": 0,
+          "baseline_ns": 447077365,
+          "candidate_ns": 450750737,
+          "ratio": 1.0082164123875965,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 1,
+          "baseline_ns": 448800347,
+          "candidate_ns": 448039463,
+          "ratio": 0.9983046269792657,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 2,
+          "baseline_ns": 455947614,
+          "candidate_ns": 454809682,
+          "ratio": 0.9975042483718316,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 3,
+          "baseline_ns": 453096769,
+          "candidate_ns": 452206184,
+          "ratio": 0.9980344485749356,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 4,
+          "baseline_ns": 462042722,
+          "candidate_ns": 447156433,
+          "ratio": 0.9677815745358715,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        },
+        {
+          "repetition": 5,
+          "baseline_ns": 447220033,
+          "candidate_ns": 463660913,
+          "ratio": 1.0367623961067056,
+          "baseline_peak": 1,
+          "candidate_peak": 1
+        }
+      ],
+      "baseline_median_ns": 450948558.0,
+      "candidate_median_ns": 451478460.5,
+      "median_percent_change": 0.11750841434112758,
+      "all_pairs_faster": false
+    },
+    {
+      "kind": "fill",
+      "keys": 8,
+      "threads": 8,
+      "pairs": [
+        {
+          "repetition": 0,
+          "baseline_ns": 416891464,
+          "candidate_ns": 69792045,
+          "ratio": 0.16741058771114584,
+          "baseline_peak": 1,
+          "candidate_peak": 8
+        },
+        {
+          "repetition": 1,
+          "baseline_ns": 414260463,
+          "candidate_ns": 68543274,
+          "ratio": 0.16545936704560676,
+          "baseline_peak": 1,
+          "candidate_peak": 8
+        },
+        {
+          "repetition": 2,
+          "baseline_ns": 422284559,
+          "candidate_ns": 67601316,
+          "ratio": 0.16008474513035653,
+          "baseline_peak": 1,
+          "candidate_peak": 8
+        },
+        {
+          "repetition": 3,
+          "baseline_ns": 417254019,
+          "candidate_ns": 67397057,
+          "ratio": 0.16152524345127997,
+          "baseline_peak": 1,
+          "candidate_peak": 8
+        },
+        {
+          "repetition": 4,
+          "baseline_ns": 423542797,
+          "candidate_ns": 67764380,
+          "ratio": 0.15999417409523317,
+          "baseline_peak": 1,
+          "candidate_peak": 8
+        },
+        {
+          "repetition": 5,
+          "baseline_ns": 418837986,
+          "candidate_ns": 76243731,
+          "ratio": 0.18203633277904263,
+          "baseline_peak": 1,
+          "candidate_peak": 8
+        }
+      ],
+      "baseline_median_ns": 418046002.5,
+      "candidate_median_ns": 68153827.0,
+      "median_percent_change": -83.69705090051663,
+      "all_pairs_faster": true
+    },
+    {
+      "kind": "row",
+      "keys": 1,
+      "threads": 1,
+      "pairs": [
+        {
+          "repetition": 0,
+          "baseline_ns": 77164406,
+          "candidate_ns": 57836126,
+          "ratio": 0.7495181910685608
+        },
+        {
+          "repetition": 1,
+          "baseline_ns": 55985595,
+          "candidate_ns": 55264712,
+          "ratio": 0.9871237771073077
+        },
+        {
+          "repetition": 2,
+          "baseline_ns": 55327712,
+          "candidate_ns": 55862984,
+          "ratio": 1.0096745732048344
+        },
+        {
+          "repetition": 3,
+          "baseline_ns": 56313961,
+          "candidate_ns": 75669898,
+          "ratio": 1.343714714012037
+        },
+        {
+          "repetition": 4,
+          "baseline_ns": 55551359,
+          "candidate_ns": 74656720,
+          "ratio": 1.343922477216084
+        },
+        {
+          "repetition": 5,
+          "baseline_ns": 75056704,
+          "candidate_ns": 57894466,
+          "ratio": 0.7713430368591725
+        }
+      ],
+      "baseline_median_ns": 56149778.0,
+      "candidate_median_ns": 57865296.0,
+      "median_percent_change": 3.055253397439972,
+      "all_pairs_faster": false
+    },
+    {
+      "kind": "row",
+      "keys": 1,
+      "threads": 8,
+      "pairs": [
+        {
+          "repetition": 0,
+          "baseline_ns": 215553732,
+          "candidate_ns": 210971011,
+          "ratio": 0.9787397742665852
+        },
+        {
+          "repetition": 1,
+          "baseline_ns": 254932759,
+          "candidate_ns": 240868809,
+          "ratio": 0.9448327078278708
+        },
+        {
+          "repetition": 2,
+          "baseline_ns": 235601279,
+          "candidate_ns": 242633275,
+          "ratio": 1.0298470196335394
+        },
+        {
+          "repetition": 3,
+          "baseline_ns": 221385116,
+          "candidate_ns": 203609930,
+          "ratio": 0.9197092093580491
+        },
+        {
+          "repetition": 4,
+          "baseline_ns": 202539448,
+          "candidate_ns": 245378842,
+          "ratio": 1.2115113595056308
+        },
+        {
+          "repetition": 5,
+          "baseline_ns": 250393789,
+          "candidate_ns": 198463511,
+          "ratio": 0.7926055665861584
+        }
+      ],
+      "baseline_median_ns": 228493197.5,
+      "candidate_median_ns": 225919910.0,
+      "median_percent_change": -1.1261987350848823,
+      "all_pairs_faster": false
+    },
+    {
+      "kind": "row",
+      "keys": 128,
+      "threads": 1,
+      "pairs": [
+        {
+          "repetition": 0,
+          "baseline_ns": 57020448,
+          "candidate_ns": 59238172,
+          "ratio": 1.03889348607012
+        },
+        {
+          "repetition": 1,
+          "baseline_ns": 59723027,
+          "candidate_ns": 56082804,
+          "ratio": 0.9390482501833003
+        },
+        {
+          "repetition": 2,
+          "baseline_ns": 57714064,
+          "candidate_ns": 57151701,
+          "ratio": 0.9902560492014564
+        },
+        {
+          "repetition": 3,
+          "baseline_ns": 56280437,
+          "candidate_ns": 73193820,
+          "ratio": 1.3005197525385241
+        },
+        {
+          "repetition": 4,
+          "baseline_ns": 57105876,
+          "candidate_ns": 75055607,
+          "ratio": 1.3143237133775865
+        },
+        {
+          "repetition": 5,
+          "baseline_ns": 72495939,
+          "candidate_ns": 68973552,
+          "ratio": 0.9514126301612563
+        }
+      ],
+      "baseline_median_ns": 57409970.0,
+      "candidate_median_ns": 64105862.0,
+      "median_percent_change": 11.663291236696338,
+      "all_pairs_faster": false
+    },
+    {
+      "kind": "row",
+      "keys": 128,
+      "threads": 8,
+      "pairs": [
+        {
+          "repetition": 0,
+          "baseline_ns": 228723773,
+          "candidate_ns": 232965268,
+          "ratio": 1.018544180801005
+        },
+        {
+          "repetition": 1,
+          "baseline_ns": 249404777,
+          "candidate_ns": 209544374,
+          "ratio": 0.8401778687663228
+        },
+        {
+          "repetition": 2,
+          "baseline_ns": 267565345,
+          "candidate_ns": 226081155,
+          "ratio": 0.8449567899011735
+        },
+        {
+          "repetition": 3,
+          "baseline_ns": 209639321,
+          "candidate_ns": 247180492,
+          "ratio": 1.1790750457544175
+        },
+        {
+          "repetition": 4,
+          "baseline_ns": 205538104,
+          "candidate_ns": 238117395,
+          "ratio": 1.1585073052926478
+        },
+        {
+          "repetition": 5,
+          "baseline_ns": 195605745,
+          "candidate_ns": 244156010,
+          "ratio": 1.2482046986912374
+        }
+      ],
+      "baseline_median_ns": 219181547.0,
+      "candidate_median_ns": 235541331.5,
+      "median_percent_change": 7.464033685280991,
+      "all_pairs_faster": false
+    }
+  ],
+  "memory": [
+    {
+      "arm": "baseline",
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-memory-baseline/result.json",
+      "sample_count": 65,
+      "sampled_max_retained_bytes": null,
+      "configured_capacity_bytes": 524288,
+      "baseline_metric_supported": false,
+      "delta": {
+        "brewfs_workspace_row_cache_hits_total": 672,
+        "brewfs_workspace_row_cache_misses_total": 32
+      },
+      "input_sha256": "8bf1f451ca48d998f7dd10c5f5fe96df4675b111963ad2bbfcec98010aca7b4d",
+      "workload_sha256": "3cd6885482bde5368c8a4f3415672266100d995303609c5ecefddee1740bf23d"
+    },
+    {
+      "arm": "candidate",
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-memory-candidate/result.json",
+      "sample_count": 65,
+      "sampled_max_retained_bytes": 524046,
+      "configured_capacity_bytes": 524288,
+      "baseline_metric_supported": true,
+      "delta": {
+        "brewfs_workspace_row_cache_hits_total": 591,
+        "brewfs_workspace_row_cache_misses_total": 113
+      },
+      "input_sha256": "8bf1f451ca48d998f7dd10c5f5fe96df4675b111963ad2bbfcec98010aca7b4d",
+      "workload_sha256": "3cd6885482bde5368c8a4f3415672266100d995303609c5ecefddee1740bf23d"
+    }
+  ],
+  "fill_rows": [
+    {
+      "arm": "baseline",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 74741590,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-smoke-baseline-k1-t1-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 75272553,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-smoke-baseline-k1-t8-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 445555201,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-smoke-baseline-k8-t1-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 414932745,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-smoke-baseline-k8-t8-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 78646470,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-smoke-candidate-k1-t1-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 75207615,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-smoke-candidate-k1-t8-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 448034101,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-smoke-candidate-k8-t1-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 66797946,
+      "peak": 8,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-smoke-candidate-k8-t8-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 74978995,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t1-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 74523251,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t1-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 79112783,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t8-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 76186581,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t8-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 447077365,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t1-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 450750737,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t1-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 416891464,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t8-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 69792045,
+      "peak": 8,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t8-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 78213772,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t1-r1/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 76838645,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t1-r1/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 77858558,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t8-r1/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 75845527,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t8-r1/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 448039463,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t1-r1/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 448800347,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t1-r1/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 68543274,
+      "peak": 8,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t8-r1/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 414260463,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t8-r1/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 77387443,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t1-r2/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 82772568,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t1-r2/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 75828304,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t8-r2/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 77399853,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t8-r2/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 455947614,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t1-r2/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 454809682,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t1-r2/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 422284559,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t8-r2/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 67601316,
+      "peak": 8,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t8-r2/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 79422098,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t1-r3/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 76267103,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t1-r3/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 77211967,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t8-r3/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 77812575,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t8-r3/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 452206184,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t1-r3/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 453096769,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t1-r3/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 67397057,
+      "peak": 8,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t8-r3/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 417254019,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t8-r3/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 81267053,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t1-r4/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 80013959,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t1-r4/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 79266604,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t8-r4/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 81536095,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t8-r4/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 462042722,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t1-r4/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 447156433,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t1-r4/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 423542797,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t8-r4/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 67764380,
+      "peak": 8,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t8-r4/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 77621945,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t1-r5/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 1,
+      "threads": 1,
+      "wall_ns": 80374800,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t1-r5/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 76124238,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k1-t8-r5/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 1,
+      "threads": 8,
+      "wall_ns": 78133576,
+      "peak": 1,
+      "target_fetches": 1,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k1-t8-r5/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 463660913,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t1-r5/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 8,
+      "threads": 1,
+      "wall_ns": 447220033,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t1-r5/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 76243731,
+      "peak": 8,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-candidate-k8-t8-r5/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 8,
+      "threads": 8,
+      "wall_ns": 418837986,
+      "peak": 1,
+      "target_fetches": 8,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/fill-compare-baseline-k8-t8-r5/result.json"
+    }
+  ],
+  "row_rows": [
+    {
+      "arm": "baseline",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 128,
+      "wall_ns": 7067059,
+      "native_hits": 515,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-smoke-baseline-k1-t1-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 128,
+      "wall_ns": 28016901,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-smoke-baseline-k1-t8-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 128,
+      "wall_ns": 7600990,
+      "native_hits": 515,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-smoke-baseline-k128-t1-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 128,
+      "wall_ns": 32112223,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-smoke-baseline-k128-t8-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 128,
+      "wall_ns": 7063023,
+      "native_hits": 515,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-smoke-candidate-k1-t1-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 128,
+      "wall_ns": 25411146,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-smoke-candidate-k1-t8-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 128,
+      "wall_ns": 7073895,
+      "native_hits": 515,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-smoke-candidate-k128-t1-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "smoke",
+      "repetition": 0,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 128,
+      "wall_ns": 26661569,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-smoke-candidate-k128-t8-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 77164406,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t1-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 57836126,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t1-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 215553732,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t8-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 210971011,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t8-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 57020448,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t1-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 59238172,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t1-r0/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 228723773,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t8-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 0,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 232965268,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t8-r0/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 55264712,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t1-r1/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 55985595,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t1-r1/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 240868809,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t8-r1/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 254932759,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t8-r1/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 56082804,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t1-r1/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 59723027,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t1-r1/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 209544374,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t8-r1/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 1,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 249404777,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t8-r1/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 55327712,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t1-r2/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 55862984,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t1-r2/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 235601279,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t8-r2/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 242633275,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t8-r2/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 57714064,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t1-r2/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 57151701,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t1-r2/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 267565345,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t8-r2/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 2,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 226081155,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t8-r2/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 75669898,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t1-r3/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 56313961,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t1-r3/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 203609930,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t8-r3/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 221385116,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t8-r3/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 73193820,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t1-r3/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 56280437,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t1-r3/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 247180492,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t8-r3/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 3,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 209639321,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t8-r3/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 55551359,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t1-r4/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 74656720,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t1-r4/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 202539448,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t8-r4/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 245378842,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t8-r4/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 57105876,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t1-r4/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 75055607,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t1-r4/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 205538104,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t8-r4/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 4,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 238117395,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t8-r4/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 57894466,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t1-r5/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 1,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 75056704,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t1-r5/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 198463511,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k1-t8-r5/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 1,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 250393789,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k1-t8-r5/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 68973552,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t1-r5/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 128,
+      "threads": 1,
+      "ops_per_thread": 1024,
+      "wall_ns": 72495939,
+      "native_hits": 4099,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t1-r5/result.json"
+    },
+    {
+      "arm": "candidate",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 244156010,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-candidate-k128-t8-r5/result.json"
+    },
+    {
+      "arm": "baseline",
+      "stage": "compare",
+      "repetition": 5,
+      "keys": 128,
+      "threads": 8,
+      "ops_per_thread": 1024,
+      "wall_ns": 195605745,
+      "native_hits": 32771,
+      "native_misses": 0,
+      "path": "/home/dev/ax-perf-issues-validation/runtime-review-02/home/dev/ax-perf-issues-validation/compose/workspace/ax447-workspace-ec4v2/row-compare-baseline-k128-t8-r5/result.json"
+    }
+  ],
+  "decision": {
+    "approve_integrated_pr": false,
+    "issue445_actual_evidence_supports": "Six paired 8-group/8-thread cold leaf lookup/open+pread waves improve consistently under same controlled50ms per-GroupMeta delay; exact fetch count and peak1to8 prove corrected concurrency. No general undelayed throughput claim.",
+    "issue446_capacity": "All65 candidate large-xattr samples retained<=524288; maximum524046. Samples are retained cache owners, not continuous peak/RSS. Baseline new metrics unsupported, not0.",
+    "issue446_latency": "128-key short runs have higher candidate medians for1/8threads; preserve as unresolved regression pending requested fixed-op long paired runs.",
+    "issue447": "Earlier single-path cached timing remains invalid; new EC4 durable cached pairs and512MiB/20s standard guards not contained in this archive."
+  },
+  "scope_boundary": [
+    "Parent setup excluded; measured operation includes leaf lookup/open+pread+close.",
+    "Proxy all-phase audit confirms measured GroupMeta was not fetched during setup, target responses206/exact length, each key one fetch.",
+    "EC4 uses four logical directories on one physical disk with disk-check bypass; supports controlled A/B, not independent-disk reliability.",
+    "No Packed7093 evidence mixed."
+  ]
+}

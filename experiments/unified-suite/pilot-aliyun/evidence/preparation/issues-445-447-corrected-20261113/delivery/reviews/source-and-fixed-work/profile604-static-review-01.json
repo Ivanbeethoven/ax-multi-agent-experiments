@@ -1,0 +1,131 @@
+{
+  "scope": "Independent static review of profile604 proposal, no runtime approval or new measurements",
+  "inputs": [
+    {
+      "file": "case.patch",
+      "sha256": "6daa8c9a2e030c1030f8cf0856c94bda667becd997666712ab6afaad1888bebb",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "check_and_send.py",
+      "sha256": "450dd428adac4b29993720b52e19de99a4c7339731efe3d8a35620bd38f7e00a",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "compose-original.json",
+      "sha256": "06dbb41d0b419c0b6fee08dfd125643629ed17869e92896981168d30d5d7bad1",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "compose.json",
+      "sha256": "3dfc19cf3bbf54d90f944743bb5c0e0bcef7467f4cd8439788a1165c28aec59b",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "container.patch",
+      "sha256": "796f1c60d8b5c81d0417147aa7eaa7cc34ee4f7f649fa7d7ff47737c5277579a",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "durability-log-filter.patch",
+      "sha256": "c26b7e952cd6a050a58f27681af728f5b3c1c7cf570dbde50a0b2f3c434ee669",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "durability-original.py",
+      "sha256": "9125dfbda5af413004a691fad27748c1909f692998935d779dbba7493b7c654e",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "plan.json",
+      "sha256": "69aa59d25f45e8077e4d8564fff9cde5b01f59072de84bf60e1339703bb31fe3",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "prepare.py",
+      "sha256": "9e4d3a372cef40d45c5ad61d2c7855d5bd31747472e25a40fd0ae1723ec608c2",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "profile_hook.py",
+      "sha256": "bfa355d09cc306e3ca0c64865483bd7896915e067d4fb8871290fe114eaa4dee",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "run-profile-case.py",
+      "sha256": "3306c1734c24b5a3aa2a09a5198128f923beabe08e2da530f8a01be127f52029",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "run-profile-container.sh",
+      "sha256": "0bfd2d5a82eae4eb2578f6f9a6e0db3dc3c57d8b146264fac91dca6a03739923",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "run-profile-pair.py",
+      "sha256": "4d44dcef48b9b40f6d0f4a0816a0f996b98c985daa8bb229864687d50e933f22",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "static-checks.json",
+      "sha256": "4f8e39da92871d0471fe805f37cbc406ee3ad2844dbba6c2a7e0ac3c314d0c88",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "file": "verify_remote_durability.py",
+      "sha256": "fa8915c0affbb08772749a74b6bdb47138640ab73543d852345cb6e364f764f8",
+      "matches": true,
+      "bytes_match": true
+    }
+  ],
+  "manifest_sha256": "7c7aa962aa1cae2ea2d9036b0a03198b771f21060469d5724c517b2737403477",
+  "compose_delta": [
+    {
+      "path": "/services/perf/volumes",
+      "before": [
+        "${AX447_FROZEN_SOURCE:?}/docker/compose-xfstests/artifacts:/artifacts",
+        "/home/dev/ax-perf-issues-corrected-validation/compose/run-measured-perf-in-container.sh:/usr/local/bin/run_perf_in_container.sh:ro",
+        "${AX447_FROZEN_SOURCE:?}/tools/perf/perf_lines_observe.py:/usr/local/bin/perf_lines_observe.py:ro",
+        "${BREWFS_PERF_STATE_MOUNT:-brewfs-state-perf-redis}:/var/lib/brewfs",
+        "/home/dev/ax-perf-issues-corrected-validation/compose/verify_remote_durability.py:/usr/local/bin/verify_remote_durability.py:ro",
+        "/home/dev/ax-perf-issues-corrected-validation/compose/known_tail_oracle.py:/usr/local/bin/known_tail_oracle.py:ro"
+      ],
+      "after": [
+        "${AX447_FROZEN_SOURCE:?}/docker/compose-xfstests/artifacts:/artifacts",
+        "/home/dev/ax-perf-issues-corrected-validation/compose/profiling-prefix-604/run-profile-container.sh:/usr/local/bin/run_perf_in_container.sh:ro",
+        "${AX447_FROZEN_SOURCE:?}/tools/perf/perf_lines_observe.py:/usr/local/bin/perf_lines_observe.py:ro",
+        "${BREWFS_PERF_STATE_MOUNT:-brewfs-state-perf-redis}:/var/lib/brewfs",
+        "/home/dev/ax-perf-issues-corrected-validation/compose/profiling-prefix-604/verify_remote_durability.py:/usr/local/bin/verify_remote_durability.py:ro",
+        "/home/dev/ax-perf-issues-corrected-validation/compose/known_tail_oracle.py:/usr/local/bin/known_tail_oracle.py:ro",
+        "/home/dev/ax-perf-issues-corrected-validation/compose/profiling-prefix-604/profile_hook.py:/usr/local/bin/profile604_hook.py:ro"
+      ]
+    }
+  ],
+  "source_changes": false,
+  "original_four_scene_prefix_preserved": true,
+  "default_compaction_preserved": true,
+  "frozen_budgets_and_binaries_preserved": true,
+  "all_four_durability_receipts_required": true,
+  "global_warn_visibility_preserved": true,
+  "pid_namespace_starttime_binary_identity_checks_present": true,
+  "perf_enable_ack_and_stop_ack_present": true,
+  "remaining_observations": [
+    "Lost/throttle are recorded but only any BrewFS symbol currently gates quality; attribution usability must be distinct from workload correctness.",
+    "Native before snapshot precedes symbol-copy/perf-enable handshake but CPU start follows it; retain preparation cost and a profile-effective native boundary for attribution."
+  ],
+  "status": "No blocking workload/protocol issue found; owner notified of two measurement-quality points, runtime tinyprobe pending."
+}

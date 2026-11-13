@@ -1,0 +1,37 @@
+{
+  "schema": "independent-corrected-runtime-activation-static-review-v1",
+  "at": "2026-11-12T21:31:06.406555+00:00",
+  "script": "/home/dev/ax-perf-issues-validation/activate-corrected-runtime.py",
+  "script_sha256": "b834d5d96d9c81b80500dfb1d99f25d5b613cd58a479b883a3d20b9b1731a21c",
+  "decision": "No remaining static activation blocker in the reviewed version; actual activation and runtime qualification remain pending",
+  "runtime_sources": {
+    "baseline": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+    "candidate": "c8f5f16aefe811540782b952481982179a1bfd6f"
+  },
+  "publication_candidate": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+  "checks": [
+    "Exact no-default feature command and requested arm/commit/tree bind to baseline4f and publicatione2 tests; runtime identity remains c8",
+    "Unfinished or failed exact receipts cannot pass; source cleanliness, zero exit, test environment and resource settings are required",
+    "Each completed exact log is SHA checked; executed unit-test path set exactly equals unique receipt executable entries with positive size and 64hex SHA",
+    "Actual binary hashes originate in the separately reviewed exact runner; activation consumes recorded identities without transferring test binaries",
+    "Local CI-final source/runtime identities, strict default command and all successful gate-log hashes are checked",
+    "Publication projection checks constrain c8-to-e2 to the exact cfg(test) iterator replacement",
+    "All 43 runtime harness files and actual image IDs match the pinned reviewed manifest",
+    "Actual release binaries are rehashed, --version commit/clean checked, and copied byte-identically only after release and compilation prerequisites",
+    "Process, Docker, service completion and host lock checks precede activation; new campaign files cannot overwrite existing pins",
+    "Only original ca producer SHA is accepted; the old fixture is not mislabeled as a corrected source build",
+    "Activation receipt explicitly runtime_qualified=false and discloses differing test hosts but one host for both measured arms"
+  ],
+  "review_feedback_resolved": [
+    "Pinned manifest SHA and exact 43-entry cardinality",
+    "Bound exact log unit-test paths and executable receipt identities plus expected arm/tree"
+  ],
+  "limitations": [
+    "Static review is not evidence that either still-running exact-feature gate has finished",
+    "No executable activation, FUSE, cloud access, builds or workload performed by this reviewer",
+    "Runtime known-value durability, random-write/direct/drain and matched performance remain required before integrated PR admission"
+  ],
+  "ci_final_sha256": "2102568589d8a2608648c6342fb40f936f286e5c1eb5a78aa8a384ddc169755a",
+  "harness_manifest_sha256": "0234e3402c344a1457a8ee929836ba9296a1564d4153398909dce227680c1c98",
+  "runner_sha256": "2c8db1ab316bf53113e9e003826c828f4be25686c94ba10462a0f9f8faf56442"
+}

@@ -1,0 +1,1 @@
+Known-tail oracle v2: additive selected-environment recording/checking for BREWFS_FUSE_READ_DIRECT_IO and BREWFS_CONFIG_PATH. All prior logic/strict drain/wiring unchanged; source v1 remains immutable at /home/dev/ax-known-tail-oracle-01. No real FUSE/cloud execution.

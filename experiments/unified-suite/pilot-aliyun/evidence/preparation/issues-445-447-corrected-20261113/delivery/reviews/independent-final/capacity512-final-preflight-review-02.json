@@ -1,0 +1,52 @@
+{
+  "schema": "independent-capacity-preflight-review-v2",
+  "decision": "PASS_PREPARATION_ONLY",
+  "runtime_or_pr_qualified": false,
+  "scope": "Read only immutable RBM review-05. No cloud access, workload, or compilation. Supersedes pending preparation items in review-01 without changing that receipt.",
+  "archive": {
+    "directory": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-05",
+    "tar_bytes": 1557663,
+    "tar_sha256": "28523146c66aea607121e7d0d76f859bc1527972c0901b3aee08b928ed94d314",
+    "manifest_sha256": "7fed33c9a6b31b1d812aa66f8d794a9b8616625928777af25a3e8eaee44b5b64",
+    "independently_rehashed_members": 572
+  },
+  "final_protocol": {
+    "manifest07_sha256": "43c11f245efde04839df539ab1f341990ccdd42815caa426961a16418e0d2b06",
+    "manifest_members_independently_resolved_and_rehashed": 43,
+    "new_wrapper_sha256": "d2ca7f25aa30bfc3011344d36bfa02b3f7abbbd030b3b95c920a39c320ddd05a",
+    "container_sha256": "4d605c4848fa8a163d631d248a19e8019416b3b644501830749e746aa6799025",
+    "shell_host_runner_sha256": "d19c33a123a752a6c1e501a934dd0718eb49409a1e38e88cee852e7080337c81",
+    "python_host_case_sha256": "a6621e4987ca488487ea45e455d7fd473ba3620ea518475c898e227941584085",
+    "net_changes_from_manifest04": "Previously reviewed known-tail v4 plus three runtime scripts for scene capacity checks and failed-project retention. The other 39 manifest members are unchanged. New standard wrapper is separately hashed.",
+    "light_checks": "Both Python AST parses and both bash -n checks passed; no runtime script was executed.",
+    "workload_preservation": "Container diff only adds capacity sampling and rejection. Host diffs only change cleanup/preservation and associated receipt fields. No FIO inputs, byte counts, resource/cache budgets, strict drain, or durability oracle changes.",
+    "failure_preservation": "Shell workload failures and service error-gate failures stop owned services and retain named volumes; success still down -v. Python requires no running owned container on failure and keeps qualified false. Archived three stub cases show success/down-v, failed workload/stop, and failed service-gate/stop.",
+    "preservation_scope_limit": "Python post-run assertions execute after shell cleanup. A failure detected only in those post-run assertions can occur after a successful shell down-v; the new mechanism does not promise retained volumes for every possible later rejection. This does not turn a failed case into a pass.",
+    "capacity": "256GiB empirical reserve before each arm, at least max(32GiB,20 percent total) remaining, 100000 inode reserve, 20 percent byte/inode scene checks, approximately 2-second host samples. All six scenes require both boundary rows and no invalid marker. Sampling is not a continuous peak measurement."
+  },
+  "hardware": {
+    "instance": "i-bp1dqgriutdy4yqies4k",
+    "disk": "d-bp1dqgriutdy4yqiq8vn",
+    "api_receipt_sha256": "67e259692d170f1c4976cc962c731f1f28fe4fed192aa993ec4502fefa3d0aa9",
+    "size_gib_before_after": [160, 512],
+    "api_iops_before_after": [9800, 27400],
+    "api_throughput_before_after": [200, 350],
+    "guest_disk_bytes": 549755813888,
+    "guest_filesystem_total_bytes": 540729581568,
+    "guest_available_bytes_after": 439991136256,
+    "verification": "Same /dev/vda3 ext4 root filesystem; growpart and resize2fs succeeded. Post-expansion snapshot has no active Docker containers, FUSE mounts, or cargo/rustc/fio matches.",
+    "scope": "All subsequent performance pairs use the expanded disk and advertised performance. Earlier 160GiB correctness and invalid trial600 retain their original identities."
+  },
+  "independent_trial600_findings": {
+    "matrix_passed": false,
+    "case_qualified": false,
+    "baseline_source": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+    "successful_durability_scenes": ["fio-seqwrite-direct0", "fio-seqwrite-direct1", "fio-randwrite-direct0", "fio-randwrite-direct1"],
+    "rejected_scene": "fio-randrw-direct0",
+    "rejected_scene_warm_cold": "All four 512MiB file names, sizes and SHA256 values match in expected.json and observed.json. This is not sufficient to qualify the failed run.",
+    "rejection": "The unchanged helper rejects upload_or_recovery_failure. Raw RustFS records contain four-shard DiskFull quorum failures, drive path full, HTTP503, and scanner Disk full; service error gate reports 14 ERROR records.",
+    "retention": "Raw evidence is preserved. The original cleanup log confirms automatic down-v removed this trial's three named volumes; do not claim they were retained.",
+    "performance_usage": "Invalid diagnostic only; no partial completed scene is accepted as the new full standard campaign."
+  },
+  "next": "Independently review the completed new trial601 twelve-scene archive, then newly measured corrected cached/workspace/long-row pairs. No integrated PR decision until those facts are complete."
+}

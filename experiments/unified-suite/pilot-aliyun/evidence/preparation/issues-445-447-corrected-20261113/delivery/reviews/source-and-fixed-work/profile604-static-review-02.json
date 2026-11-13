@@ -1,0 +1,93 @@
+{
+  "scope": "Static follow-up only; actual perf recording/attribution not yet reviewed",
+  "manifest_sha256": "0d34c186c98d6a05ba5ec20d4cba28529c68c542853adcbf003e7526a9b4218c",
+  "checks": [
+    {
+      "file": "case.patch",
+      "sha256": "6daa8c9a2e030c1030f8cf0856c94bda667becd997666712ab6afaad1888bebb",
+      "pass": true
+    },
+    {
+      "file": "check_and_send.py",
+      "sha256": "450dd428adac4b29993720b52e19de99a4c7339731efe3d8a35620bd38f7e00a",
+      "pass": true
+    },
+    {
+      "file": "compose-original.json",
+      "sha256": "06dbb41d0b419c0b6fee08dfd125643629ed17869e92896981168d30d5d7bad1",
+      "pass": true
+    },
+    {
+      "file": "compose.json",
+      "sha256": "3dfc19cf3bbf54d90f944743bb5c0e0bcef7467f4cd8439788a1165c28aec59b",
+      "pass": true
+    },
+    {
+      "file": "container.patch",
+      "sha256": "796f1c60d8b5c81d0417147aa7eaa7cc34ee4f7f649fa7d7ff47737c5277579a",
+      "pass": true
+    },
+    {
+      "file": "durability-log-filter.patch",
+      "sha256": "c26b7e952cd6a050a58f27681af728f5b3c1c7cf570dbde50a0b2f3c434ee669",
+      "pass": true
+    },
+    {
+      "file": "durability-original.py",
+      "sha256": "9125dfbda5af413004a691fad27748c1909f692998935d779dbba7493b7c654e",
+      "pass": true
+    },
+    {
+      "file": "plan.json",
+      "sha256": "69aa59d25f45e8077e4d8564fff9cde5b01f59072de84bf60e1339703bb31fe3",
+      "pass": true
+    },
+    {
+      "file": "prepare.py",
+      "sha256": "9e4d3a372cef40d45c5ad61d2c7855d5bd31747472e25a40fd0ae1723ec608c2",
+      "pass": true
+    },
+    {
+      "file": "profile_hook.py",
+      "sha256": "65d5ad452cf7cbf4f99c04c11c74ac0a3024ee52c777ba80a94078d4aab19ae5",
+      "pass": true
+    },
+    {
+      "file": "run-profile-case.py",
+      "sha256": "3306c1734c24b5a3aa2a09a5198128f923beabe08e2da530f8a01be127f52029",
+      "pass": true
+    },
+    {
+      "file": "run-profile-container.sh",
+      "sha256": "0bfd2d5a82eae4eb2578f6f9a6e0db3dc3c57d8b146264fac91dca6a03739923",
+      "pass": true
+    },
+    {
+      "file": "run-profile-pair.py",
+      "sha256": "93485b81e116efed0c169a14226a67cacae29c94e21694f51e028f97b224a531",
+      "pass": true
+    },
+    {
+      "file": "static-checks.json",
+      "sha256": "4f8e39da92871d0471fe805f37cbc406ee3ad2844dbba6c2a7e0ac3c314d0c88",
+      "pass": true
+    },
+    {
+      "file": "verify_remote_durability.py",
+      "sha256": "fa8915c0affbb08772749a74b6bdb47138640ab73543d852345cb6e364f764f8",
+      "pass": true
+    }
+  ],
+  "previous_review_sha256": "f0f70891da3229fd05811a1b72cb7eb80dac70485431f351eaa3d7794a5e5249",
+  "accepted_changes": [
+    "After positive enable ACK, hook records a separate native stats snapshot with realtime/monotonic boundaries before the original CPU start.",
+    "Top-level and quality records keep attribution_usable=false until independent coverage/loss/stack review.",
+    "Only explicitly requested SIGINT completion may return 0 or -SIGINT; capture completion text, successful subsequent script decode and raw identity are required."
+  ],
+  "retained_limits": [
+    "The tinyprobe SIGINT behavior was reported by the owner, not independently rerun here.",
+    "Additional pre-tool instrumentation costs and background progress are diagnostic context, not 601/603 acceptance timings.",
+    "No successful attribution from a checksum/hash leaf or an arbitrary resolved BrewFS frame alone."
+  ],
+  "status": "No blocking static issue found; proceed with already authorized diagnostic run, retain all failure artifacts."
+}

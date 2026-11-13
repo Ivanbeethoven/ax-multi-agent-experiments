@@ -1,0 +1,147 @@
+{
+  "passed": true,
+  "compiler_command": [
+    "cc",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "statx-abi.c",
+    "-o",
+    "statx-abi"
+  ],
+  "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "host": [
+    "Linux",
+    "rbm-UrRupheQ",
+    "6.8.0-147-generic",
+    "#147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:33:16 UTC 2026",
+    "x86_64"
+  ],
+  "libc": "glibc 2.39",
+  "headers": {
+    "/usr/include/linux/stat.h": "c20889137b96f2a0a3ff3a250842fe226426cb67dce84a2354b50cab2ab348e2",
+    "/usr/include/linux/fcntl.h": "ae5234007eb7755459bcd1c44846e9b1b4a3a2cea65afa4442aaf48fd8987c6f",
+    "/usr/include/fcntl.h": "0a8ec5ef69559544b9da26b7d5ebee07f4ee43baa3cc9e9f35f8a33d4f157676",
+    "/usr/include/x86_64-linux-gnu/bits/statx.h": "aa197c11709c0ab300b5c9feb8ea06d173725fa45cf4fcb7a93080f3496c5314"
+  },
+  "c_abi": {
+    "size": 256,
+    "timestamp_size": 16,
+    "flags": 12288,
+    "mask": 2047,
+    "offsets": {
+      "stx_mask": 0,
+      "stx_blksize": 4,
+      "stx_attributes": 8,
+      "stx_nlink": 16,
+      "stx_uid": 20,
+      "stx_gid": 24,
+      "stx_mode": 28,
+      "stx_ino": 32,
+      "stx_size": 40,
+      "stx_blocks": 48,
+      "stx_attributes_mask": 56,
+      "stx_atime": 64,
+      "stx_btime": 80,
+      "stx_ctime": 96,
+      "stx_mtime": 112,
+      "stx_rdev_major": 128,
+      "stx_rdev_minor": 132,
+      "stx_dev_major": 136,
+      "stx_dev_minor": 140,
+      "stx_mnt_id": 144,
+      "stx_dio_mem_align": 152,
+      "stx_dio_offset_align": 156
+    }
+  },
+  "ctypes_all_offsets_match": true,
+  "tmpfile_statx": {
+    "passed": true,
+    "fd": 3,
+    "path": "",
+    "flags": 12288,
+    "requested_mask": 2047,
+    "required_mask": 835,
+    "started_unix_ns": 1794522197787982925,
+    "return_code": 0,
+    "errno": 0,
+    "values": {
+      "stx_mask": 6143,
+      "stx_blksize": 4096,
+      "stx_attributes": 0,
+      "stx_nlink": 0,
+      "stx_uid": 1000,
+      "stx_gid": 1000,
+      "stx_mode": 33152,
+      "spare0": 0,
+      "stx_ino": 1069,
+      "stx_size": 20,
+      "stx_blocks": 8,
+      "stx_attributes_mask": 3160180,
+      "stx_atime": {
+        "tv_sec": 1794522197,
+        "tv_nsec": 786454773,
+        "reserved": 0
+      },
+      "stx_btime": {
+        "tv_sec": 0,
+        "tv_nsec": 0,
+        "reserved": 0
+      },
+      "stx_ctime": {
+        "tv_sec": 1794522197,
+        "tv_nsec": 786454773,
+        "reserved": 0
+      },
+      "stx_mtime": {
+        "tv_sec": 1794522197,
+        "tv_nsec": 786454773,
+        "reserved": 0
+      },
+      "stx_rdev_major": 0,
+      "stx_rdev_minor": 0,
+      "stx_dev_major": 8,
+      "stx_dev_minor": 1,
+      "stx_mnt_id": 31,
+      "stx_dio_mem_align": 0,
+      "stx_dio_offset_align": 0,
+      "spare3": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "raw_struct_hex": "ff17000000100000000000000000000000000000e8030000e8030000808100002d04000000000000140000000000000008000000000000007438300000000000553cf66a00000000f558e02e0000000000000000000000000000000000000000553cf66a00000000f558e02e00000000553cf66a00000000f558e02e00000000000000000000000008000000010000001f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "missing_required_mask": 0,
+    "stat": {
+      "ino": 1069,
+      "size": 20,
+      "mode": 33152,
+      "dev": 2049,
+      "mtime_ns": 1794522197786454773,
+      "ctime_ns": 1794522197786454773,
+      "atime_ns": 1794522197786454773
+    },
+    "finished_unix_ns": 1794522197788331887
+  },
+  "tmpfile_fstat": {
+    "ino": 1069,
+    "size": 20,
+    "mode": 33152,
+    "dev": 2049,
+    "mtime_ns": 1794522197786454773,
+    "ctime_ns": 1794522197786454773,
+    "atime_ns": 1794522197786454773
+  },
+  "scope": "Real Linux x86_64 headers, libc statx ABI and ordinary tmpfile; actual FUSE FORCE_SYNC must still be proved from operation trace on the qualification host"
+}

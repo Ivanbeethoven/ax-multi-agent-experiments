@@ -1,0 +1,156 @@
+{
+  "kind": "fixed11-six-arm-frozen-assessor-readback",
+  "passed": true,
+  "archive_payload_files_checked": 575,
+  "archive_manifest_sha256": "4fc7df9ea67d589317e4d5cd5cc8927ce6a89b646843fc000838f47181ad4371",
+  "frozen_harness_manifest_sha256": "251a0d591bbed01a88ef48bda8a745a93fa2ef0bd55e03640223c5bcb9d52999",
+  "pairs": [
+    {
+      "trial": 610,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "arms": {
+        "baseline": {
+          "write_bytes": 4294967296,
+          "write_ios": 1024,
+          "active_s": 4.962624766,
+          "active_plus_strict_drain_s": 42.565908786,
+          "cpu_per_gib_s": 2.71,
+          "active_mib_s": 825.3696769625963,
+          "active_plus_drain_mib_s": 96.22724186608184,
+          "full_cpu_s": 10.84,
+          "active_cpu_s": 7.75,
+          "drain_wall_s": 37.603284020000004
+        },
+        "candidate": {
+          "write_bytes": 4294967296,
+          "write_ios": 1024,
+          "active_s": 14.703114593,
+          "active_plus_strict_drain_s": 41.829108944,
+          "cpu_per_gib_s": 2.6950000000000003,
+          "active_mib_s": 278.58043097549296,
+          "active_plus_drain_mib_s": 97.92223892418185,
+          "full_cpu_s": 10.780000000000001,
+          "active_cpu_s": 8.44,
+          "drain_wall_s": 27.125994350999996
+        }
+      },
+      "candidate_over_baseline": {
+        "cpu_per_gib_s": 0.9944649446494466,
+        "active_s": 2.962769761222765,
+        "active_plus_strict_drain_s": 0.9826903768059021,
+        "active_mib_s": 0.3375220083207849,
+        "active_plus_drain_mib_s": 1.017614523966705
+      }
+    },
+    {
+      "trial": 611,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "arms": {
+        "candidate": {
+          "write_bytes": 4294967296,
+          "write_ios": 1024,
+          "active_s": 4.709597832,
+          "active_plus_strict_drain_s": 42.329959308,
+          "cpu_per_gib_s": 2.7325,
+          "active_mib_s": 869.7133271484826,
+          "active_plus_drain_mib_s": 96.76361770623983,
+          "full_cpu_s": 10.93,
+          "active_cpu_s": 7.59,
+          "drain_wall_s": 37.620361476
+        },
+        "baseline": {
+          "write_bytes": 4294967296,
+          "write_ios": 1024,
+          "active_s": 4.706347481,
+          "active_plus_strict_drain_s": 42.370633381,
+          "cpu_per_gib_s": 2.6925,
+          "active_mib_s": 870.3139784165886,
+          "active_plus_drain_mib_s": 96.67072859563964,
+          "full_cpu_s": 10.77,
+          "active_cpu_s": 7.43,
+          "drain_wall_s": 37.664285899999996
+        }
+      },
+      "candidate_over_baseline": {
+        "cpu_per_gib_s": 1.0148560817084493,
+        "active_s": 1.0006906313256985,
+        "active_plus_strict_drain_s": 0.9990400409492525,
+        "active_mib_s": 0.9993098453167455,
+        "active_plus_drain_mib_s": 1.0009608814575994
+      }
+    },
+    {
+      "trial": 612,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "arms": {
+        "baseline": {
+          "write_bytes": 4294967296,
+          "write_ios": 1024,
+          "active_s": 4.704345493,
+          "active_plus_strict_drain_s": 42.23991826,
+          "cpu_per_gib_s": 2.7199999999999998,
+          "active_mib_s": 870.6843504786777,
+          "active_plus_drain_mib_s": 96.96988461927955,
+          "full_cpu_s": 10.879999999999999,
+          "active_cpu_s": 7.789999999999999,
+          "drain_wall_s": 37.535572767000005
+        },
+        "candidate": {
+          "write_bytes": 4294967296,
+          "write_ios": 1024,
+          "active_s": 4.955930403,
+          "active_plus_strict_drain_s": 42.495073442,
+          "cpu_per_gib_s": 2.715,
+          "active_mib_s": 826.4845683709655,
+          "active_plus_drain_mib_s": 96.38764374864496,
+          "full_cpu_s": 10.86,
+          "active_cpu_s": 7.71,
+          "drain_wall_s": 37.539143038999995
+        }
+      },
+      "candidate_over_baseline": {
+        "cpu_per_gib_s": 0.9981617647058824,
+        "active_s": 1.053479258777731,
+        "active_plus_strict_drain_s": 1.006040617323865,
+        "active_mib_s": 0.9492355845336918,
+        "active_plus_drain_mib_s": 0.9939956526408115
+      }
+    }
+  ],
+  "absolute_medians": {
+    "baseline": {
+      "active_s": 4.706347481,
+      "active_plus_strict_drain_s": 42.370633381,
+      "full_cpu_s": 10.84,
+      "cpu_per_gib_s": 2.71,
+      "drain_wall_s": 37.603284020000004
+    },
+    "candidate": {
+      "active_s": 4.955930403,
+      "active_plus_strict_drain_s": 42.329959308,
+      "full_cpu_s": 10.86,
+      "cpu_per_gib_s": 2.715,
+      "drain_wall_s": 37.539143038999995
+    }
+  },
+  "candidate_over_baseline_ratio_of_medians": {
+    "active_s": 1.0530311293434222,
+    "active_plus_strict_drain_s": 0.9990400409492525,
+    "full_cpu_s": 1.0018450184501844,
+    "cpu_per_gib_s": 1.0018450184501844,
+    "drain_wall_s": 0.9982942718256763
+  },
+  "scope": "Fresh namespace, identical 4 GiB logical write count; whole tool plus strict writeback drain. Later compaction lifecycle is not included.",
+  "historical_601_603_replaced": false,
+  "fixed_guard_alone_proves_performance_gain": false,
+  "qualification_note": "This proof validates archived facts, not an automatic universal performance claim."
+}

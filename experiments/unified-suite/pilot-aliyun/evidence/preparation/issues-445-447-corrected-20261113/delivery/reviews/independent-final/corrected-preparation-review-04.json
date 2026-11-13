@@ -1,0 +1,40 @@
+{
+  "reviewed_at": "2026-11-12T20:01:47.494997+00:00",
+  "reviewer": "independent issue446 agent",
+  "scope": "RBM-only static review of corrected runtime preparation snapshot04; no cloud, builds, FUSE or workload executed",
+  "snapshot": "/home/dev/ax-perf-issues-validation/corrected-runtime-preparation-review-04",
+  "manifest_sha256": "0234e3402c344a1457a8ee929836ba9296a1564d4153398909dce227680c1c98",
+  "file_hash_checks": {
+    "total": 43,
+    "passed": 43,
+    "failed": []
+  },
+  "decision": "Prepared harness has no remaining blocking finding in reviewed delta; this is not runtime qualification or PR approval.",
+  "resolved_review_finding": {
+    "problem": "Prior smoke runner status0 alone could survive a later failed post-gate and be treated as qualified.",
+    "fix": "Matrix now requires qualified true and equal current binary/source/image objects and case/container/durability/compose SHA; shape proof also requires qualified true."
+  },
+  "verified_static_contracts": [
+    "Corrected case/matrix/workspace roots and project identities are isolated from original frozen runs; no source/bin pins were fabricated in preparation.",
+    "Case qualified starts false and becomes true only after runner success, required durability/known-value receipts, error gates, mounted budgets and RustFS identity checks, and owned-container cleanup.",
+    "Known-tail helper remains frozen v2 deba006c; four phase receipts required, with known A then B full-value checks, same-cache remount and empty-cache remount; actual env includes READ_DIRECT_IO and CONFIG_PATH. Its costs are explicitly excluded from performance comparison.",
+    "Known-tail OPLOG and write_flags0 oracle are only correctness work; cached formal trials disable OPLOG. Regression and randwrite gate retain 512MiB/20s/seed/direct settings and strict drain.",
+    "Compose helper binds are read-only; source/binary/image and fixed cache budgets are checked at execution.",
+    "Workspace producer is accurately pinned to original ca07159 commit and SHA8c4d65dbe8daaeaffb7f6084474a9a839df418c66d2aced6226842a5b8997d72, not relabeled to corrected baseline.",
+    "New service-smoke includes full original build context with corrected isolated project/source/tag only."
+  ],
+  "critical_script_sha256": {
+    "run-compose-case.py": "fcef7bb635d5f016b6b8f04196b884a54297985be84b99fdabc9873011bbefe3",
+    "run-cached-ec4-matrix.py": "5772aa19a190b9601a7a64a465e3d32ebc047ddabc662e6510269446052b97f5",
+    "run-cached-shape4096-ec4-proof.py": "3d6a951817defc0c038fda1c18fea0faac2b00fc4d2557786a227ca5b3dac1c5",
+    "known_tail_oracle.py": "deba006c70c89f415329aebc2393b2eb540ba1647865f69b801399be6602b152",
+    "run-measured-perf-in-container.sh": "df8ae9848ed4215663d34ec33afb6919f317662479e7f8a9907e31645414113e",
+    "verify_remote_durability.py": "9125dfbda5af413004a691fad27748c1909f692998935d779dbba7493b7c654e",
+    "compose.json": "06dbb41d0b419c0b6fee08dfd125643629ed17869e92896981168d30d5d7bad1"
+  },
+  "pending": [
+    "Clean corrected baseline/candidate source and binary identity plus exact-feature validation",
+    "Actual known-value tail, randwrite/direct, complete required guards and remote durability on both corrected binaries",
+    "New measured CPU/wall and workspace/row results from corrected binaries; original issue7b hold remains until those gates pass"
+  ]
+}

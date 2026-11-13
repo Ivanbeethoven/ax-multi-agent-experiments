@@ -1,0 +1,128 @@
+{
+  "schema": "independent-known-tail-v4-byte-identity-review-v1",
+  "at": "2026-11-12T22:32:12.972685+00:00",
+  "archive_sha256": "98b7f9a5a2cddf56b2650957d5171e9013a53b0ea6dd53510a3a43df1eb7e96d",
+  "members_rehashed": 183,
+  "protocol_sha256": "f916abb1e9560b8dc1341bb17b02093b171155d6dfa2feee276a87ffaeea1384",
+  "other_42_frozen_harness_entries_unchanged": true,
+  "known_A_sha_independently_recomputed": "54bf223a5f34886048817c98a70533c2654ee521e4550fcac29c5acf35e1a7f1",
+  "known_B_sha_independently_recomputed": "26068194c0cfd5083d7dd40c0cc52c577e9f9085f9c892df51dcd8d166941c2a",
+  "arms": {
+    "baseline": {
+      "binary": {
+        "commit": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+        "sha256": "0b0a2743aa968f497782d823cb068cd421eb840f82d5739a363d3bc3623c8679"
+      },
+      "helper_phases_passed": 4,
+      "full_known_value_checks": {
+        "a": {
+          "sha256": "54bf223a5f34886048817c98a70533c2654ee521e4550fcac29c5acf35e1a7f1",
+          "bytes": 67108864,
+          "read_calls": 65,
+          "statx_fstat_and_identity_aligned": true
+        },
+        "b_warm": {
+          "sha256": "26068194c0cfd5083d7dd40c0cc52c577e9f9085f9c892df51dcd8d166941c2a",
+          "bytes": 67108864,
+          "read_calls": 65,
+          "statx_fstat_and_identity_aligned": true
+        },
+        "b_same_cache": {
+          "sha256": "26068194c0cfd5083d7dd40c0cc52c577e9f9085f9c892df51dcd8d166941c2a",
+          "bytes": 67108864,
+          "read_calls": 65,
+          "statx_fstat_and_identity_aligned": true
+        },
+        "b_fresh_cache": {
+          "sha256": "26068194c0cfd5083d7dd40c0cc52c577e9f9085f9c892df51dcd8d166941c2a",
+          "bytes": 67108864,
+          "read_calls": 65,
+          "statx_fstat_and_identity_aligned": true
+        }
+      },
+      "mount_pids": [
+        52,
+        608,
+        648
+      ],
+      "old_cache_preserved": true,
+      "fresh_cache_empty_before_mount": true,
+      "only_cache_root_changed": true,
+      "write_requests_all_flags_zero": true,
+      "strict_drain": {
+        "a": {
+          "sample_count": 3,
+          "last_three_nine_debt_fields_zero": true,
+          "last_three_put_ops_stable": true
+        },
+        "b": {
+          "sample_count": 3,
+          "last_three_nine_debt_fields_zero": true,
+          "last_three_put_ops_stable": true
+        }
+      },
+      "verify_b_sha256": "962c83e07d2a40b51bdf3ceed4240a5888f32e0413b11b3f78c937ddb3019261"
+    },
+    "candidate": {
+      "binary": {
+        "commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+        "sha256": "905c4e4ca35162ae6a1ab2de03f4fa18194ef64d9afcbe20cff9bbefd570ce90"
+      },
+      "helper_phases_passed": 4,
+      "full_known_value_checks": {
+        "a": {
+          "sha256": "54bf223a5f34886048817c98a70533c2654ee521e4550fcac29c5acf35e1a7f1",
+          "bytes": 67108864,
+          "read_calls": 65,
+          "statx_fstat_and_identity_aligned": true
+        },
+        "b_warm": {
+          "sha256": "26068194c0cfd5083d7dd40c0cc52c577e9f9085f9c892df51dcd8d166941c2a",
+          "bytes": 67108864,
+          "read_calls": 65,
+          "statx_fstat_and_identity_aligned": true
+        },
+        "b_same_cache": {
+          "sha256": "26068194c0cfd5083d7dd40c0cc52c577e9f9085f9c892df51dcd8d166941c2a",
+          "bytes": 67108864,
+          "read_calls": 65,
+          "statx_fstat_and_identity_aligned": true
+        },
+        "b_fresh_cache": {
+          "sha256": "26068194c0cfd5083d7dd40c0cc52c577e9f9085f9c892df51dcd8d166941c2a",
+          "bytes": 67108864,
+          "read_calls": 65,
+          "statx_fstat_and_identity_aligned": true
+        }
+      },
+      "mount_pids": [
+        52,
+        609,
+        649
+      ],
+      "old_cache_preserved": true,
+      "fresh_cache_empty_before_mount": true,
+      "only_cache_root_changed": true,
+      "write_requests_all_flags_zero": true,
+      "strict_drain": {
+        "a": {
+          "sample_count": 3,
+          "last_three_nine_debt_fields_zero": true,
+          "last_three_put_ops_stable": true
+        },
+        "b": {
+          "sample_count": 3,
+          "last_three_nine_debt_fields_zero": true,
+          "last_three_put_ops_stable": true
+        }
+      },
+      "verify_b_sha256": "1f9f2e576a4bdc355e281afa13724e929cd597303c097115ffcec4238497a8e2"
+    }
+  },
+  "decision": "Byte, cache, PID, source and strict-drain portions of the v4 known-value protocol pass; actual FUSE force-sync request/response trace gate remains pending independent445 review",
+  "actual_fuse_trace_proof_passed": false,
+  "pending_is_not_a_trace_failure": true,
+  "performance_acceptance": false,
+  "integrated_pr_qualified": false,
+  "scope": "v3/501 failures remain immutable. This non-timed phase establishes known A/B values under the authorized fresh-attribute protocol; it is not the remaining standard/workspace/performance qualification."
+}

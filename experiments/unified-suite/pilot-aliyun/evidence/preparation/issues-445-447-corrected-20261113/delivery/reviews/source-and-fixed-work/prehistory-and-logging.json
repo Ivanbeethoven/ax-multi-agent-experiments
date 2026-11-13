@@ -1,0 +1,72 @@
+{
+  "scope": "Supplementary read-only prehistory and available diagnostic logging facts; not causal proof",
+  "rows": [
+    {
+      "trial": 601,
+      "arm": "baseline",
+      "previous_scene": "fio-randwrite-direct0",
+      "logical_write_bytes": 5133828096,
+      "staged_bytes": 5133828096,
+      "created_slices": 682,
+      "uploaded_blocks": 1232,
+      "partial_tail_ops": 16
+    },
+    {
+      "trial": 601,
+      "arm": "candidate",
+      "previous_scene": "fio-randwrite-direct0",
+      "logical_write_bytes": 5226102784,
+      "staged_bytes": 5226102784,
+      "created_slices": 695,
+      "uploaded_blocks": 1249,
+      "partial_tail_ops": 6
+    },
+    {
+      "trial": 603,
+      "arm": "baseline",
+      "previous_scene": "fio-randwrite-direct0",
+      "logical_write_bytes": 5045747712,
+      "staged_bytes": 5045747712,
+      "created_slices": 654,
+      "uploaded_blocks": 1207,
+      "partial_tail_ops": 8
+    },
+    {
+      "trial": 603,
+      "arm": "candidate",
+      "previous_scene": "fio-randwrite-direct0",
+      "logical_write_bytes": 5339348992,
+      "staged_bytes": 5339348992,
+      "created_slices": 700,
+      "uploaded_blocks": 1281,
+      "partial_tail_ops": 16
+    }
+  ],
+  "diagnostic_filter": "warn,brewfs::chunk::compact::worker=debug,brewfs::cadapter::s3=debug",
+  "logging_available": {
+    "chunk_lock_start": "worker.rs158-160: chunk_id,ttl_secs,slice_count,is_sync",
+    "chunk_completion": "worker.rs362,368: chunk_id,Light/Heavy",
+    "s3_simple_put_close": "s3.rs760-765 + cli.rs374: key,total_size,close,busy,idle",
+    "inode_decode": "redis/mod.rs604,2158-2160: chunk_id//1000000000; index=chunk_id%1000000000"
+  },
+  "missing_old_evidence": [
+    "successful compaction INFO logs",
+    "old dataset path-to-inode map",
+    "per-object provenance",
+    "within-drain CPU samples"
+  ],
+  "inputs_sha256": {
+    "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randwrite-direct0-post-write-drained-after.txt": "74a031ba8123b38bf935429fdbfe7d02a7b9c59d52c272b7d78cb89ac71d749c",
+    "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/results/fio-randwrite-direct0.json": "f7e13be14af5314bc2713f5e9390e5ba6c64061deeb6dca25045b09b19b4e40d",
+    "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randwrite-direct0-post-write-drained-after.txt": "2bc10d3d4b6bd68429e3b6a34f5a3f6f8819d8fe0bc1195fba275e003cf20071",
+    "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/results/fio-randwrite-direct0.json": "06a61d8ba7f8abb968b37d74af3593f2d81f53ab30d167e61a1dca29e9bfb7e8",
+    "/home/dev/ax-perf-issues-validation/corrected-runtime-review-08/artifacts/baseline/perf-run-1794526882-13086/diagnostics/stats-fio-randwrite-direct0-post-write-drained-after.txt": "d860cae527a3b03a8798a0f0cee3fc5a053464ed74975e57b63f8dec89e6f1b0",
+    "/home/dev/ax-perf-issues-validation/corrected-runtime-review-08/artifacts/baseline/perf-run-1794526882-13086/results/fio-randwrite-direct0.json": "12e34fc8c339586d006d00a6395cb3bcb899568972ef00b7d8fab30811ed0a9f",
+    "/home/dev/ax-perf-issues-validation/corrected-runtime-review-08/artifacts/candidate/perf-run-1794526353-8062/diagnostics/stats-fio-randwrite-direct0-post-write-drained-after.txt": "da60fd2bfbd165f31be0624b3b0d7b5e19e8923e26b7e93ad6df01e2979c30c5",
+    "/home/dev/ax-perf-issues-validation/corrected-runtime-review-08/artifacts/candidate/perf-run-1794526353-8062/results/fio-randwrite-direct0.json": "0ab7da3a511ee620438d3dc000cef8fb10ef3015bd9e5bb12cd48bd7b6c98b7b",
+    "/home/dev/ax-issue447-corrected-candidate/src/chunk/compact/worker.rs": "d5161b0391059b20d98835933113adff966f5d7511860ebbe840e22c2b42a327",
+    "/home/dev/ax-issue447-corrected-candidate/src/cadapter/s3.rs": "052cf436feffd71ed194f19d97567e7b00e63c49421a455178395363959bbb65",
+    "/home/dev/ax-issue447-corrected-candidate/src/cli.rs": "ae778681b153df2b57da402b8555a2d8ea450135364adf39d0a587fd2bca0775",
+    "/home/dev/ax-issue447-corrected-candidate/src/meta/stores/redis/mod.rs": "ee457f68cc752e70a75fa7bdd6e4a317bb7d12b015fff521bad028fa8dd942ff"
+  }
+}

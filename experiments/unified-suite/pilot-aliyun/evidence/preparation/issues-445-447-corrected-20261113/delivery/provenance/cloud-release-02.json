@@ -1,0 +1,61 @@
+{
+  "started_at": "2026-11-13T02:13:34.305650+00:00",
+  "previous_receipt": "C:\\Users\\HXY\\.cache\\ax-issues-corrected\\cloud-release-01.json",
+  "previous_sha256": "80be9e0abc2fa58a55ea41d3fed0a1f5aeb20d007b1f3cc3ccd4077e3fd67025",
+  "reason": "Instance deletion succeeded; dedicated security group initially still had an asynchronously retiring instance dependency. Retry only that same group; never delete another resource to clear its dependency.",
+  "attempts": [
+    {
+      "exit_code": 0,
+      "response": {
+        "RequestId": "01A1D2AE-841F-5939-A7E2-EF5AE3D04604"
+      }
+    }
+  ],
+  "passed": true,
+  "after_instance": {
+    "Instances": {
+      "Instance": []
+    },
+    "TotalCount": 0,
+    "NextToken": "",
+    "PageSize": 10,
+    "RequestId": "01A1D2AE-824F-5F46-9D95-0C057ED0F0B1",
+    "PageNumber": 1
+  },
+  "after_disk": {
+    "TotalCount": 0,
+    "NextToken": "",
+    "PageSize": 10,
+    "RequestId": "01A1D2AE-8335-51E9-9977-57618EC3E427",
+    "PageNumber": 1,
+    "Disks": {
+      "Disk": []
+    }
+  },
+  "after_security_group": {
+    "SecurityGroups": {
+      "SecurityGroup": []
+    },
+    "TotalCount": 0,
+    "RequestId": "01A1D2AE-85D6-5060-85DD-8B251752AFCF",
+    "PageSize": 10,
+    "PageNumber": 1,
+    "RegionId": "cn-hangzhou"
+  },
+  "owned_key_copies": {
+    "only_owned_copies_removed": [
+      {
+        "path": "/home/dev/ax-packed-build/cloud-key",
+        "previously_existed": true,
+        "absent_after": true
+      },
+      {
+        "path": "/home/dev/ax-packed-build/cloud-key.pub",
+        "previously_existed": true,
+        "absent_after": true
+      }
+    ],
+    "provider_keypair": "ax-c1-20261106 retained"
+  },
+  "finished_at": "2026-11-13T02:13:43.004513+00:00"
+}

@@ -1,0 +1,98 @@
+{
+  "created_utc": "2026-11-12T22:19:57.434838+00:00",
+  "original_phase_remains_failed": true,
+  "known_A_bytes_match_in_both_arms": true,
+  "B_not_executed": true,
+  "shared_attr_transition_consistent_with_source_review": "review.json",
+  "runs": [
+    {
+      "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-02/artifacts/baseline/perf-run-1794521627-5775/known-tail-oracle/check-a.json",
+      "sha256": "d7f805236e99b2fefd2fb91df48d08ecc1f77efeebde7a1221cec1b015f91874",
+      "phase_passed": false,
+      "read_failure": {
+        "after": {
+          "atime_ns": 1794521637977900032,
+          "ctime_ns": 1794521637992399872,
+          "dev": 53,
+          "ino": 6,
+          "mode": 33152,
+          "mtime_ns": 1794521637992399872,
+          "size": 67108864
+        },
+        "before": {
+          "atime_ns": 1794521637977898807,
+          "ctime_ns": 1794521637977898807,
+          "dev": 53,
+          "ino": 6,
+          "mode": 33152,
+          "mtime_ns": 1794521637977898807,
+          "size": 67108864
+        },
+        "bytes": 67108864,
+        "changed_identity_fields": [
+          "mtime_ns"
+        ],
+        "elapsed_ns": 132391945,
+        "eof_observed": true,
+        "expected_bytes": 67108864,
+        "expected_sha256": "54bf223a5f34886048817c98a70533c2654ee521e4550fcac29c5acf35e1a7f1",
+        "failure_conditions": [
+          "identity_changed"
+        ],
+        "first_mismatch": null,
+        "inode": 6,
+        "mismatches": [],
+        "passed": false,
+        "read_calls": 65,
+        "sha256": "54bf223a5f34886048817c98a70533c2654ee521e4550fcac29c5acf35e1a7f1",
+        "tail_byte": 65
+      },
+      "mtime_delta_ns": 14501065
+    },
+    {
+      "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-02/artifacts/candidate/perf-run-1794521644-1362/known-tail-oracle/check-a.json",
+      "sha256": "fccafe3e092d6f02329d52ef0d7556294e4926eda93543c24cbf062ef3635a59",
+      "phase_passed": false,
+      "read_failure": {
+        "after": {
+          "atime_ns": 1794521655267000064,
+          "ctime_ns": 1794521655280000000,
+          "dev": 52,
+          "ino": 6,
+          "mode": 33152,
+          "mtime_ns": 1794521655280000000,
+          "size": 67108864
+        },
+        "before": {
+          "atime_ns": 1794521655266993724,
+          "ctime_ns": 1794521655266993724,
+          "dev": 52,
+          "ino": 6,
+          "mode": 33152,
+          "mtime_ns": 1794521655266993724,
+          "size": 67108864
+        },
+        "bytes": 67108864,
+        "changed_identity_fields": [
+          "mtime_ns"
+        ],
+        "elapsed_ns": 132177091,
+        "eof_observed": true,
+        "expected_bytes": 67108864,
+        "expected_sha256": "54bf223a5f34886048817c98a70533c2654ee521e4550fcac29c5acf35e1a7f1",
+        "failure_conditions": [
+          "identity_changed"
+        ],
+        "first_mismatch": null,
+        "inode": 6,
+        "mismatches": [],
+        "passed": false,
+        "read_calls": 65,
+        "sha256": "54bf223a5f34886048817c98a70533c2654ee521e4550fcac29c5acf35e1a7f1",
+        "tail_byte": 65
+      },
+      "mtime_delta_ns": 13006276
+    }
+  ],
+  "next_protocol": "Root authorized separate non-timed statx FORCE_SYNC refresh before/after the read; existing mtime/identity/full-content/EOF checks stay required. Original v3 failures are not relabeled passed."
+}

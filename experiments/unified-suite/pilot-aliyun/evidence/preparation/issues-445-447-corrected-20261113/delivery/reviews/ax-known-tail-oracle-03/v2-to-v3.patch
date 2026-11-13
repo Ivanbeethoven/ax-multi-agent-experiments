@@ -1,0 +1,261 @@
+--- a/known_tail_oracle.py
++++ b/known_tail_oracle.py
+@@ -30,33 +30,95 @@
+     return digest.hexdigest()
+ 
+ 
++class OracleReadError(ValueError):
++    def __init__(self, message, details):
++        super().__init__(message)
++        self.details = details
++
++
++def stat_details(value):
++    return {name: getattr(value, 'st_' + name) for name in
++            ('ino', 'size', 'mode', 'dev', 'mtime_ns', 'ctime_ns', 'atime_ns')}
++
++
+ def check_value(path, value):
+     """Check every byte against an independent oracle, not another read."""
+-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
++    started = time.monotonic_ns()
++    digest, offset, calls = hashlib.sha256(), 0, 0
++    details = {'passed': False, 'before': None, 'after': None,
++               'expected_bytes': FILE_BYTES, 'expected_sha256': expected_sha(value),
++               'tail_byte': value, 'mismatches': [], 'first_mismatch': None,
++               'failure_conditions': [], 'eof_observed': False}
++    fd = None
+     try:
++        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+         before = os.fstat(fd)
++        details['before'] = stat_details(before)
++        details['inode'] = before.st_ino
+         if not stat.S_ISREG(before.st_mode) or before.st_size != FILE_BYTES:
+-            raise ValueError('oracle file is not a regular full-size file')
+-        digest, offset = hashlib.sha256(), 0
+-        mismatches = []
+-        while data := os.read(fd, 1024 * 1024):
++            details['failure_conditions'].append('initial_mode_or_size')
++            raise OracleReadError('oracle file is not a regular full-size file', details)
++        while True:
++            calls += 1
++            data = os.read(fd, 1024 * 1024)
++            if not data:
++                details['eof_observed'] = True
++                break
+             zeros = min(len(data), max(0, TAIL_OFFSET - offset))
+             expected = bytes(zeros) + bytes([value]) * (len(data) - zeros)
+             if data != expected:
+-                mismatches.append({'offset': offset, 'bytes': len(data),
+-                                   'sha256': durability.sha(data),
+-                                   'expected_sha256': durability.sha(expected)})
++                details['mismatches'].append({'offset': offset, 'bytes': len(data),
++                                             'sha256': durability.sha(data),
++                                             'expected_sha256': durability.sha(expected)})
++                if details['first_mismatch'] is None:
++                    index = next(i for i, pair in enumerate(zip(data, expected))
++                                 if pair[0] != pair[1])
++                    details['first_mismatch'] = {
++                        'offset': offset + index, 'actual_byte': data[index],
++                        'expected_byte': expected[index],
++                        'actual_next_32_bytes_hex': data[index:index + 32].hex(),
++                        'expected_next_32_bytes_hex': expected[index:index + 32].hex()}
+             digest.update(data)
+             offset += len(data)
+         after = os.fstat(fd)
++        details['after'] = stat_details(after)
++        details['changed_identity_fields'] = [name for name in ('ino', 'size', 'mtime_ns')
++                                              if details['before'][name] != details['after'][name]]
++        if details['changed_identity_fields']:
++            details['failure_conditions'].append('identity_changed')
++        if offset != FILE_BYTES:
++            details['failure_conditions'].append('read_length')
+         if (before.st_ino, before.st_size, before.st_mtime_ns) != (after.st_ino, after.st_size, after.st_mtime_ns) or offset != FILE_BYTES:
+-            raise ValueError('oracle file changed during its full read')
+-        return {'passed': not mismatches and digest.hexdigest() == expected_sha(value),
+-                'inode': before.st_ino, 'bytes': offset, 'sha256': digest.hexdigest(),
+-                'expected_sha256': expected_sha(value), 'tail_byte': value,
+-                'mismatches': mismatches}
++            raise OracleReadError('oracle file changed during its full read', details)
++        details['passed'] = not details['mismatches'] and digest.hexdigest() == details['expected_sha256']
++        if not details['passed']:
++            details['failure_conditions'].append('content')
++        return details
++    except OSError as error:
++        details['io_error'] = {'type': type(error).__name__, 'errno': error.errno,
++                               'message': str(error)}
++        details['failure_conditions'].append('io_error')
++        raise OracleReadError('oracle full read failed', details) from error
+     finally:
+-        os.close(fd)
++        details.update(bytes=offset, sha256=digest.hexdigest(), read_calls=calls,
++                       elapsed_ns=time.monotonic_ns() - started)
++        if fd is not None:
++            os.close(fd)
++
++
++def drain_evidence(output, phase):
++    """Reference existing native samples; do not perform extra FUSE reads."""
++    tool = 'known-tail-write-a' if phase == 'check-a' else 'known-tail-write-b'
++    snapshots = []
++    for path in sorted((output.parent / 'diagnostics').glob('stats-' + tool + '-post-write-*.txt')):
++        raw = path.read_bytes()
++        counters = {key: int(value) for key, value in
++                    re.findall(r'^(brewfs_(?:writeback_|buffer_dirty_|s3_put_)[a-z0-9_]*) (\d+)$',
++                               raw.decode(errors='replace'), re.M)}
++        snapshots.append({'path': str(path), 'sha256': durability.sha(raw),
++                          'bytes': len(raw), 'native_counters': counters})
++    return {'scope': 'Existing shell strict-drain snapshots; diagnostic references only',
++            'snapshots_present': bool(snapshots), 'snapshots': snapshots}
+ 
+ 
+ def write_tail(path, value, create=False):
+@@ -173,6 +235,8 @@
+         try:
+             result['log_failures_before'] = self.no_failures()
+             result['mount_before'] = self.identity()
++            if phase in ('check-a', 'verify-b'):
++                result['drain_evidence'] = drain_evidence(self.output, phase)
+             if phase in ('write-a', 'write-b'):
+                 if phase == 'write-a':
+                     self.dataset.mkdir(exist_ok=False)
+@@ -232,6 +296,8 @@
+             result['passed'] = True
+         except Exception as error:
+             result['reasons'].append(type(error).__name__ + ': ' + str(error))
++            if isinstance(error, OracleReadError):
++                result['read_failure'] = error.details
+         finally:
+             result['finished_unix_ns'] = time.time_ns()
+             durability.write_json(destination, result)
+--- a/test_known_tail_oracle.py
++++ b/test_known_tail_oracle.py
+@@ -3,6 +3,7 @@
+ from pathlib import Path
+ import tempfile
+ import subprocess
++from types import SimpleNamespace
+ import unittest
+ from unittest.mock import patch
+ 
+@@ -188,6 +189,120 @@
+         self.op_log.write_text(self.op_log.read_text() * 2)
+         result = self.subject.run('check-a')
+         self.assertFalse(result['passed'])
++
++    def changed_second_stat(self, fields):
++        real = os.fstat
++        calls = 0
++        def capture(fd):
++            nonlocal calls
++            calls += 1
++            value = real(fd)
++            values = {'st_' + name: number for name, number in oracle.stat_details(value).items()}
++            if calls == 2:
++                for name in fields:
++                    values['st_' + name] += 1
++            return SimpleNamespace(**values)
++        return capture
++
++    def test_each_original_identity_field_still_rejects_with_detail(self):
++        self.write('a')
++        for name in ('ino', 'size', 'mtime_ns'):
++            with self.subTest(name=name), patch.object(os, 'fstat', side_effect=self.changed_second_stat([name])):
++                with self.assertRaises(oracle.OracleReadError) as raised:
++                    oracle.check_value(self.subject.path, 0x41)
++            detail = raised.exception.details
++            self.assertEqual(detail['changed_identity_fields'], [name])
++            self.assertEqual(detail['bytes'], 64)
++            self.assertEqual(detail['sha256'], oracle.expected_sha(0x41))
++            self.assertEqual(detail['mismatches'], [])
++            self.assertEqual(detail['read_calls'], 2)
++            self.assertTrue(detail['eof_observed'])
++            self.assertGreater(detail['elapsed_ns'], 0)
++
++    def test_ctime_atime_are_diagnostic_and_do_not_add_new_rejections(self):
++        self.write('a')
++        with patch.object(os, 'fstat', side_effect=self.changed_second_stat(['ctime_ns', 'atime_ns'])):
++            detail = oracle.check_value(self.subject.path, 0x41)
++        self.assertTrue(detail['passed'])
++        self.assertNotEqual(detail['before']['ctime_ns'], detail['after']['ctime_ns'])
++        self.assertNotEqual(detail['before']['atime_ns'], detail['after']['atime_ns'])
++        self.assertEqual(detail['changed_identity_fields'], [])
++
++    def test_failed_stat_read_details_survive_phase_json(self):
++        self.write('a')
++        with patch.object(os, 'fstat', side_effect=self.changed_second_stat(['mtime_ns'])):
++            result = self.subject.run('check-a')
++        saved = json.loads((self.output / 'check-a.json').read_text())
++        self.assertFalse(saved['passed'])
++        self.assertEqual(saved['read_failure'], result['read_failure'])
++        self.assertEqual(saved['read_failure']['changed_identity_fields'], ['mtime_ns'])
++        self.assertEqual(saved['read_failure']['bytes'], 64)
++        self.assertFalse(saved['drain_evidence']['snapshots_present'])
++
++    def test_short_read_keeps_stable_stats_and_actual_length(self):
++        self.write('a')
++        with patch.object(os, 'read', side_effect=[bytes(48) + b'A' * 15, b'']):
++            with self.assertRaises(oracle.OracleReadError) as raised:
++                oracle.check_value(self.subject.path, 0x41)
++        detail = raised.exception.details
++        self.assertEqual(detail['changed_identity_fields'], [])
++        self.assertEqual(detail['failure_conditions'], ['read_length'])
++        self.assertEqual(detail['bytes'], 63)
++        self.assertEqual(detail['read_calls'], 2)
++        self.assertTrue(detail['eof_observed'])
++
++    def test_first_mismatch_is_absolute_and_survives_identity_failure(self):
++        self.write('a')
++        with self.subject.path.open('r+b') as stream:
++            stream.seek(51)
++            stream.write(b'Z')
++        with patch.object(os, 'fstat', side_effect=self.changed_second_stat(['mtime_ns'])):
++            result = self.subject.run('check-a')
++        detail = result['read_failure']
++        self.assertEqual(detail['first_mismatch']['offset'], 51)
++        self.assertEqual(detail['first_mismatch']['actual_byte'], ord('Z'))
++        self.assertEqual(detail['first_mismatch']['expected_byte'], ord('A'))
++        self.assertTrue(detail['mismatches'])
++        self.assertNotEqual(detail['sha256'], detail['expected_sha256'])
++
++    def test_read_io_failure_preserves_partial_hash_and_count(self):
++        self.write('a')
++        with patch.object(os, 'read', side_effect=[bytes(16), OSError(5, 'injected read error')]):
++            result = self.subject.run('check-a')
++        detail = result['read_failure']
++        self.assertFalse(result['passed'])
++        self.assertEqual(detail['bytes'], 16)
++        self.assertEqual(detail['read_calls'], 2)
++        self.assertEqual(detail['io_error']['errno'], 5)
++        self.assertEqual(detail['sha256'], oracle.durability.sha(bytes(16)))
++        self.assertIsNone(detail['after'])
++
++    def test_invalid_initial_size_preserves_before_without_reading(self):
++        self.write('a')
++        os.truncate(self.subject.path, 63)
++        result = self.subject.run('check-a')
++        detail = result['read_failure']
++        self.assertFalse(result['passed'])
++        self.assertEqual(detail['before']['size'], 63)
++        self.assertEqual(detail['read_calls'], 0)
++        self.assertEqual(detail['failure_conditions'], ['initial_mode_or_size'])
++
++    def test_native_drain_snapshots_are_referenced_without_new_fuse_reads(self):
++        self.write('a')
++        directory = self.output.parent / 'diagnostics'
++        directory.mkdir()
++        for phase in ('before', 'after'):
++            (directory / ('stats-known-tail-write-a-post-write-drained-' + phase + '.txt')).write_text(
++                '2026-11-12T21:59:23+00:00\n\nbrewfs_buffer_dirty_bytes 0\n'
++                'brewfs_writeback_dirty_bytes 0\nbrewfs_s3_put_ops_total 2\n')
++        result = self.subject.run('check-a')
++        self.assertTrue(result['passed'])
++        snapshots = result['drain_evidence']['snapshots']
++        self.assertEqual(len(snapshots), 2)
++        for item in snapshots:
++            self.assertEqual(item['sha256'], oracle.durability.sha(Path(item['path']).read_bytes()))
++            self.assertEqual(item['native_counters']['brewfs_buffer_dirty_bytes'], 0)
++            self.assertEqual(item['native_counters']['brewfs_s3_put_ops_total'], 2)
+ 
+ 
+ class ShellOrderTests(unittest.TestCase):

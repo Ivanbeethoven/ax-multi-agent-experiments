@@ -1,0 +1,233 @@
+{
+  "created_at": "2026-11-12T20:46:26.442261+00:00",
+  "status": "Heads frozen, net-tree proof passed, parent-authorized provisional cloud release running; all CI/exact-feature/runtime gates still bind before measurement",
+  "old_heads": {
+    "baseline": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+    "candidate": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3"
+  },
+  "new_heads": {
+    "baseline": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+    "candidate": "c8f5f16aefe811540782b952481982179a1bfd6f",
+    "shared_cleanup_commit": "c8f5f16aefe811540782b952481982179a1bfd6f"
+  },
+  "source_plan": "Separate immutable corrected source checkouts; original ca/7b trees and artifacts remain unchanged. Same correctness patch on both arms. Parent confirms new exact commits after CI.",
+  "net_diff_proof": "Use temporary GIT_INDEX_FILE to read corrected baseline, apply exact original ca\u21927b patch, write tree and require exact corrected candidate tree; plus same production path list and stable patch-id. If apply conflicts, fail and inspect, do not silently relax.",
+  "build": {
+    "host": "8.136.137.130 existing r7.2xlarge,8CPU64GiB",
+    "free_disk_GiB_observed": 82,
+    "toolchain": "Rust1.99.1",
+    "command": "cargo build --release --locked --no-default-features --features fuse-io-uring-runtime,workspace-overlay,observability,rustfs-ec-block-size-hint --bin brewfs -vv",
+    "environment": {
+      "CARGO_HOME": "/root/.cargo",
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_PROFILE_RELEASE_DEBUG": "0",
+      "GIT_OPTIONAL_LOCKS": "0"
+    },
+    "forbid_overrides": [
+      "RUSTFLAGS",
+      "CARGO_ENCODED_RUSTFLAGS",
+      "RUSTC_WRAPPER",
+      "CARGO_PROFILE_RELEASE_OPT_LEVEL",
+      "CARGO_PROFILE_RELEASE_CODEGEN_UNITS",
+      "CARGO_PROFILE_RELEASE_LTO"
+    ],
+    "profile": "standard release opt3, debug0, defaultCGU16/defaultLTOfalse; no changes for build speed",
+    "suggested_two_parallel_units": {
+      "each_CPUQuota_percent": 300,
+      "each_MemoryMax_GiB": 24,
+      "each_TasksMax": 2048,
+      "each_RuntimeMaxSec": 7200,
+      "combined_CPUQuota_percent": 600,
+      "combined_MemoryMax_GiB": 48,
+      "parent_approval_required_before_start": true
+    },
+    "targets": {
+      "baseline": "/srv/perf-issues-445-447/target",
+      "candidate": "/srv/perf-issues-445-447/target-candidate"
+    },
+    "targets_note": "Reuse existing distinct release dependency caches3.9/3.6GiB; immutable copied old artifact binaries stay intact. Do not hardlink target trees or change profile.",
+    "new_source_root_proposed": "/home/dev/ax-issue447-corrected-{baseline,candidate}",
+    "required_receipts": [
+      "source commit/tree/clean",
+      "toolchain exact",
+      "actual rustc -vv argv",
+      "build script SHA",
+      "unit actual CPU/memory/runtime",
+      "artifact bytes/SHA/version dirty=false",
+      "identity recheck after build"
+    ],
+    "producer": "Reuse exact original baseline producer8c4d65dbe8daaeaffb7f6084474a9a839df418c66d2aced6226842a5b8997d72 unchanged for both arms; no second producer build needed",
+    "new_build_evidence_root_proposed": "/srv/perf-issues-corrected-20261112",
+    "units": {
+      "controller": "ax447-corrected-release-pair-01",
+      "baseline": "ax447-corrected-baseline-release-01",
+      "candidate": "ax447-corrected-candidate-release-01"
+    },
+    "started_at": "2026-11-12T20:27:49Z",
+    "qualification_at_start": "CI pending; runtime_qualified false"
+  },
+  "runtime": {
+    "new_evidence_root_proposed": "/home/dev/ax-perf-issues-corrected-validation/compose",
+    "isolation": "New owned project IDs/volumes and fresh inputs; preserved old candidate402/baseline403 state not reused or modified; same host/image/config/budgets/harness across new arms",
+    "service": "fixed RustFS9750/f4ed2025,EC4 logical dirs on one physical drive+bypass,4dynamic flags true,clientauto; same tools/Redis/AWSCLI IDs",
+    "sequence": [
+      "Parent confirms exact new heads and net-diff proof",
+      "Both corrected arms run exact prior randwrite/direct0,4x512MiB/20s/seed20261031/4MiB io_uring depth1,normal close+strictdrain+freshcache fullSHA,service/client error gates; fail closed",
+      "Each arm standalone known A\u2192B overwrite at60MiB tail4MiB with kernelWB0: strictdrain+knownB original-cache read, normal old-cache remount knownB, fresh-empty-cache remount knownB; no performance timing or injected fdatasync",
+      "Remaining full standard six-case512MiB/20s guards, one pair, repeat only unresolved",
+      "Actually rerun cached4096x4KiB CPU+wall3pairs and realworkspace#445/#446 target/guards using the corrected binaries, derive results from their new raw observations, and complete final independent audit; no reuse or relabeling of old performance numbers"
+    ],
+    "known_tail_oracle": "A0x41 then B0x42 at[60MiB,64MiB), all reads compare independent knownB; retain prior randomwrite failure. Probe complements deterministic two-latch FileWriter regression and exercises cfg(not(test)) SSD overlay.; record read-direct/config environment as well as nonzero unique and actual write_flags0 from its non-performance operation log; original formal randomwrite op log was disabled, so do not claim raw flags were observed there",
+    "prepared_harness_root": "/home/dev/ax-perf-issues-corrected-validation/compose",
+    "known_tail_helper_sha256": "deba006c70c89f415329aebc2393b2eb540ba1647865f69b801399be6602b152",
+    "result_semantics": "raw case status means runner exit; qualified defaultsfalse and becomestrue only after all artifact/config/durability/service/owned-container gates. No source/binary pins are populated until frozen qualified new artifacts exist.",
+    "prepared_independent_review": "independent-review-7b844/corrected-preparation-review-04.json SHA452652cbf938935a9f86472c02f44507524d7cbaa965566de135919d4b13cdaf"
+  },
+  "resources": "Root verified existing cloud auto-release22:55UTC; owns cleanup and deadline. RBM heavylock held by445 GREEN/requiredCI. No new cloud instance.",
+  "supersedes_plan": "corrected-qualification-plan-03.json (retained)",
+  "clarification": "Every target benefit and runtime guard will be actually executed with both corrected binaries and recomputed from new raw evidence. Rebind never means attaching a new source/binary identity to old measurements. Original ca/7b results remain a distinct cohort.",
+  "exact_feature_test_gate": {
+    "arms": [
+      "corrected-baseline",
+      "corrected-candidate"
+    ],
+    "command": "cargo test --locked --workspace --lib --bins --no-default-features --features fuse-io-uring-runtime,workspace-overlay,observability,rustfs-ec-block-size-hint",
+    "host": "baseline on old cloud after both release units exit; candidate on RBM after445 releases shared heavy lock",
+    "shared_target": "/home/dev/ax-issues-target",
+    "environment": {
+      "CARGO_HOME": "/root/.cargo",
+      "CARGO_BUILD_JOBS": "3",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "RUST_TEST_THREADS": "3"
+    },
+    "cpu_quota_percent": 300,
+    "memory_limit_GiB": 38,
+    "distinction": "445 required CI/defaults+workspace-feature suite includes gateways; it does not replace this exact no-default feature set. Both commands and logs stay distinct.",
+    "parallel_schedule": "Cloud baseline exact tests and RBM candidate exact tests can overlap; host differences and actual debug executable/source/env identities are explicit. All performance remains same old cloud, after every heavy job exits.",
+    "hosts_by_arm": {
+      "baseline": "8.136.137.130; source4f982; new independent target-exact-baseline",
+      "candidate": "RBM; sourcec8f5; shared /home/dev/ax-issues-target"
+    },
+    "cache_copy_policy": "Only after successful releases and inactive units; no hardlinks or original-target writes. Pre/post copy enforce at least32GiB remaining after source copy plus20GiB conservative build reserve, and20%inode reserve. Otherwise fallback to prior RBM sequential plan."
+  },
+  "qualification_commit_policy": "Parent explicitly authorized independent local qualification commits while full CI runs; no push/PR or timing until all gates pass. Any source revision invalidates affected build and retains original logs.",
+  "recorded_at": "2026-11-12T22:17:59.759249+00:00",
+  "plan_revision": 6,
+  "supersedes_preparation_plan": "corrected-qualification-plan-05.json; prior phases preserved",
+  "publication_test_only_exception": {
+    "runtime_candidate": "c8f5f16aefe811540782b952481982179a1bfd6f",
+    "publication_and_exact_test_candidate": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+    "baseline": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+    "parent_authorized": true,
+    "only_path": "src/vfs/io/writer/cached_write_watermarks_bench.rs",
+    "only_change": "After-timing cfg(test,linux) ignored benchmark verification uses as_chunks instead of chunks_exact",
+    "runtime_relabel_forbidden": true,
+    "projection_proof": "corrected-publication-proof-01/receipt.json",
+    "projection_proof_sha256": "608f17bf1b2130d00b2974733f55b78d94faafcecec7c45c03f565a8c382cdca",
+    "original_runtime_net_tree_proof_unchanged": true
+  },
+  "required_ci_update": {
+    "passed": true,
+    "source": "/home/dev/ax-writeback-commit-cleanup-validation/ci-final.json",
+    "sha256": "2102568589d8a2608648c6342fb40f936f286e5c1eb5a78aa8a384ddc169755a",
+    "exact_feature_tests": "still pending; RBM e2 started at21:21:45 UTC, cloud4f starts only after release units finish"
+  },
+  "cloud_auto_release_parent_reported": "2026-11-13T00:55:00Z",
+  "runtime_revalidation_required": "Actual new4f/c8 binaries will execute all listed workloads; oldca/7b measurements cannot be rebound by changing identity metadata.",
+  "production_known_oracle": "Both arms: exact4x512MiB/20s direct0 randomwrite previousfailure gate first; known64MiB file withA-to-B overwrite at60MiB, originalcache and emptycache both must equal knownB. Separate diagnostics outside timing.",
+  "stage_order": [
+    "Complete two-arm known A-to-B oracle with original/fresh-cache remount; the original randwrite/direct0 trial500 success remains distinct evidence",
+    "Run the complete standard six-scene matrix once per arm (12 scenes) before target timing",
+    "Run cached4096 touch smoke and three AB/BA/AB target pairs",
+    "Run real Shared-workspace fill/row/byte-budget and fixed longer128-key row comparisons"
+  ],
+  "capacity_rule": {
+    "per_standard_arm_peak_reserve_bytes": 47244640256,
+    "minimum_remaining_fraction": 0.2,
+    "minimum_remaining_bytes": 34359738368,
+    "reserved_inodes": 100000,
+    "new_independent_exact_debug_copy_removed_after_static_archive": true,
+    "cleanup_receipt": "corrected-runtime-review-02/cleanup/exact-debug-01.json"
+  },
+  "known_oracle_protocol_revision": {
+    "v2_trial500": "failed on combined file-changed assertion; preserved",
+    "v3_trial501": "both arms read exact known A64MiB successfully; strictmtime guard rejected old lookup attrs refreshed by open; B not executed",
+    "v3_archived": "corrected-runtime-review-02",
+    "v4_status": "parent-authorized and agent446 preparing; not yet deployed or tested",
+    "v4_requirements": [
+      "statx AT_EMPTY_PATH|AT_STATX_FORCE_SYNC before initialfstat and afterread before finalfstat",
+      "All inode,size,mtime,EOF,fullSHA,known-byte gates remain strict",
+      "Unsupported/missingcriticalmask fails",
+      "RealFUSE trace must prove refreshedgetattr before firstfile read",
+      "No TTL/sleep/fsync orproductionchanges"
+    ],
+    "formal_admission": "HOLD until both A/B/same-cache/fresh-cache arms pass; diagnosticexit must never meanqualified"
+  },
+  "previous_plan_sha256": "e68d800cab2a6cb5b8bb2cd3e2f7139cfc85c67686879d53de03a77d2cb1e0cb",
+  "revision_at": "2026-11-12T23:25:27.252385+00:00",
+  "revision": "Standard601 correctness passed; preserve numeric regression questions and prioritize three direct1 reverse comparisons after small cached target before114workspace",
+  "expanded_hardware": {
+    "instance": "i-bp1dqgriutdy4yqies4k",
+    "disk": "d-bp1dqgriutdy4yqiq8vn",
+    "capacity_gib": 512,
+    "iops": 27400,
+    "throughput": 350,
+    "prior_capacity_gib": 160,
+    "prior_iops": 9800,
+    "prior_throughput": 200,
+    "comparison_scope": "All new submitted performance on512GiB botharms;160GiB correctness separate"
+  },
+  "standard600": {
+    "qualified": false,
+    "candidate_started": false,
+    "root_cause_evidence": "RustFS DiskFull drive path full with4faileddisks andPUT503; four warm/cold hashes equal; refused by client upload_or_recovery_failure",
+    "retention": "Originalrunner auto down-v removed600ownvolumes; raw frozen review05, old402/403 retained"
+  },
+  "new_standard": {
+    "trial": 601,
+    "unit": "ax447-corrected-standard-512-01",
+    "started_at": "2026-11-12T23:02:52.455596+00:00",
+    "full_scenes_each_arm": 6,
+    "scope": "Complete seqwrite/randwrite/randrw direct0/1 unchanged exactprofiles,512MiB/20s; strictdrain/error/coldSHA allrequired"
+  },
+  "capacity_protocol": {
+    "reserve_bytes": 274877906944,
+    "per_scene_floor": 0.2,
+    "host_sample_seconds": 2,
+    "claim": "empirical safeguard,not provenupperbound orcontinuouspeak",
+    "failure_cleanup": "stop onlyownedservices andpreserve namedvolumes; workload perf--rm containermaydisappear; successfulcases normaldown-v",
+    "manifest_sha256": "43c11f245efde04839df539ab1f341990ccdd42815caa426961a16418e0d2b06"
+  },
+  "remaining": [
+    "12fullstandardexecution+numericregressionassessment",
+    "correctedcached4096smoke and3pairedtargetCPU",
+    "corrected114workspace+24longrow",
+    "independentreview andarchive andparentpublication"
+  ],
+  "standard601": {
+    "execution_correctness_passed": true,
+    "numeric_performance_acceptance": "pending",
+    "complete_scenes": 12,
+    "unresolved_direct1": {
+      "seqwrite": "writep99lat1.12030075x",
+      "randwrite": "drainedBW0.88378088x CPUperGiB1.28600439x",
+      "randrw": "writep99lat1.28571429x"
+    },
+    "preserve_all_original_pairs": true,
+    "repeat_scope": "exactthree direct1 scenes candidate->baseline;512MiB/20s unchanged; no direct0repeat unless newevidence"
+  },
+  "next_stage_order": [
+    "cached-smoke300 botharms plus cached600..602 AB/BA/AB started23:24:33UTC",
+    "three-direct1 reverse targeted reproduction",
+    "114workspace plus24longrow onlyafter above boundary"
+  ],
+  "unused_controller": {
+    "path": "/srv/perf-issues-corrected-preparation-01/run-corrected-targets512.py",
+    "sha256": "f5cb7f8f6106171dac4b5cd516c608715971267126c98122980509c3ebc7b795",
+    "executed": false,
+    "reason": "parent prioritizeddirect1recheck beforelargeworkspacephase"
+  }
+}

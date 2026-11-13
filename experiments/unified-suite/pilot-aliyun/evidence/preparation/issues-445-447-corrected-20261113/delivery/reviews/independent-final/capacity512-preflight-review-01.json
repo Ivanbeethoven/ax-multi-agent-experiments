@@ -1,0 +1,43 @@
+{
+  "schema": "independent-capacity-preflight-review-v1",
+  "scope": "Static review of completed RBM preparation snapshots; no cloud access or workload execution.",
+  "decision": "CAPACITY_GUARD_ACCEPTED_PENDING_FINAL_FAILURE_PRESERVATION_AND_IDENTITY_DELTA",
+  "runtime_or_pr_qualification": false,
+  "disk_api_receipt": {
+    "path": "/home/dev/ax-perf-issues-validation/corrected-disk-resize-512-01.json",
+    "sha256": "67e259692d170f1c4976cc962c731f1f28fe4fed192aa993ec4502fefa3d0aa9",
+    "same_instance": "i-bp1dqgriutdy4yqies4k",
+    "same_disk": "d-bp1dqgriutdy4yqiq8vn",
+    "category_and_level": "cloud_essd PL1 unchanged",
+    "size_gib_before_after": [160, 512],
+    "api_iops_before_after": [9800, 27400],
+    "api_throughput_before_after": [200, 350],
+    "interpretation": "Capacity and advertised performance changed. All new paired performance must use the expanded disk; do not combine absolute timings with the old 160GiB campaign. Old correctness evidence retains its original hardware identity."
+  },
+  "preparation_snapshot": {
+    "directory": "/home/dev/ax-perf-issues-validation/corrected-capacity512-preparation-01",
+    "wrapper": "run-corrected-standard-guard-pair-512.py",
+    "wrapper_sha256": "d2ca7f25aa30bfc3011344d36bfa02b3f7abbbd030b3b95c920a39c320ddd05a",
+    "container": "run-measured-perf-in-container.sh",
+    "container_sha256": "4d605c4848fa8a163d631d248a19e8019416b3b644501830749e746aa6799025",
+    "light_checks": {"python_ast_parse": "passed", "bash_n": "passed"},
+    "container_net_diff": "Compared to corrected-runtime-preparation-review-04: only record_scene_capacity, the invalid marker admission check, and calls before and after each scene. FIO workload, strict drain, and remote durability logic are unchanged."
+  },
+  "guard_review": {
+    "matrix": "regression-corrected512-01",
+    "new_trial": 601,
+    "each_arm_planning_reserve_bytes": 274877906944,
+    "remaining_after_reserve_minimum": "max(32GiB, filesystem total_bytes / 5)",
+    "inode_preflight": "100000 reserved, then at least total_inodes / 5 remain",
+    "scene_boundaries": "Both before_scene and after_scene require at least 20 percent free bytes and inodes; persist JSONL and an invalid marker on failure.",
+    "monitor": "Host statvfs sampled every approximately 2 seconds; a low sample invalidates the arm and stops only the current Compose project's perf service.",
+    "final_validation": "Requires all twelve distinct scene/phase rows for six scenes, all passed, no invalid marker, qualified host receipt, and no owned remaining containers.",
+    "limits": "256GiB is an empirical planning reserve, not a demonstrated upper bound. Sampling and boundary checks do not establish an exact continuous minimum or peak."
+  },
+  "pending_final_small_delta": [
+    "Failure cleanup must preserve this trial's volumes rather than applying the existing automatic down -v path.",
+    "Refresh protocol and harness identities for the changed wrapper/container/host runner; keep strict prior-smoke and artifact identity matching.",
+    "Archive final guest filesystem identity and actual capacity samples with the full run."
+  ],
+  "historical_record": "Trial600 is retained as invalid capacity diagnostic. Owner reports four complete warm/cold files matched but server DiskFull/drivepathfull/PUT503 triggered upload_or_recovery_failure. This review has not yet independently read that raw failure archive and does not classify it as qualified performance."
+}

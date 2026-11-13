@@ -1,0 +1,3734 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+log()  { echo "[$(date '+%H:%M:%S')] $*"; }
+info() { log "INFO  $*"; }
+ok()   { log "OK    $*"; }
+err()  { log "ERROR $*" >&2; }
+
+if [[ "${BREWFS_VOLUME_FORMAT:-}" == "workspace-native-v2" ]]; then
+    export BREWFS_WRITEBACK_MODE=upload_before_commit
+fi
+
+config_path="${BREWFS_CONFIG_PATH:-/run/brewfs/config.yaml}"
+mount_dir="${BREWFS_MOUNT_POINT:-/mnt/brewfs}"
+data_backend="${BREWFS_DATA_BACKEND:-local-fs}"
+data_dir="${BREWFS_DATA_DIR:-${BREWFS_HOME:-/var/lib/brewfs}/data}"
+meta_backend="${BREWFS_META_BACKEND:-redis}"
+meta_url="${BREWFS_META_URL:-}"
+meta_etcd_urls="${BREWFS_META_ETCD_URLS:-http://etcd:2379}"
+meta_tikv_pd_endpoints="${BREWFS_META_TIKV_PD_ENDPOINTS:-pd:2379}"
+meta_tikv_namespace="${BREWFS_META_TIKV_NAMESPACE:-brewfs}"
+sqlite_path="${BREWFS_SQLITE_PATH:-${BREWFS_HOME:-/var/lib/brewfs}/metadata.db}"
+log_file="${BREWFS_LOG_FILE:-/artifacts/brewfs.log}"
+xfstests_dir="${XFSTESTS_DIR:-/opt/xfstests-dev}"
+artifact_root="${BREWFS_ARTIFACT_ROOT:-/artifacts}"
+artifact_dir="${BREWFS_ARTIFACT_DIR:-}"
+if [[ "${BREWFS_VOLUME_FORMAT:-}" == "packed-metadata-v3" ]]; then
+    perf_tools="${PERF_TOOLS:-packed-tree packed-smallfiles}"
+else
+    perf_tools="${PERF_TOOLS:-fio-bigwrite fio-bigread fio-seqread fio-seqwrite fio-randread fio-randwrite fio-randrw dirstress dirperf metaperf looptest}"
+fi
+nofile_limit="${BREWFS_NOFILE_LIMIT:-1048576}"
+
+env_or_default() {
+    local specific_var="$1"
+    local common_var="$2"
+    local default_value="$3"
+    local value="${!specific_var:-}"
+    if [[ -n "$value" ]]; then
+        printf '%s' "$value"
+    else
+        printf '%s' "${!common_var:-$default_value}"
+    fi
+}
+
+truthy_env() {
+    local value
+    value="$(printf '%s' "${1:-}" | tr '[:upper:]' '[:lower:]')"
+    case "$value" in
+        1|true|yes|on) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+force_cold_read_profile() {
+    if truthy_env "${PERF_FIO_COLD_READ:-false}" \
+        || truthy_env "${PERF_FIO_COLD_READ_CLEAR_CACHE:-false}"; then
+        # A cold-read result is invalid if any BrewFS data tier or the FUSE
+        # kernel page cache can satisfy the measured read. Keep this profile
+        # deterministic even when the caller inherited production defaults.
+        export BREWFS_READ_MEMORY_BYTES=0
+        export BREWFS_READ_SSD_BYTES=0
+        export BREWFS_PREFETCH_ENABLED=false
+        export BREWFS_RANGE_BACKGROUND_PREFETCH=false
+        export BREWFS_FUSE_READ_DIRECT_IO=1
+        export BREWFS_FUSE_KEEP_CACHE=0
+        export PERF_FIO_DIRECT=1
+        export PERF_FIO_REQUIRE_DROP_CACHES="${PERF_FIO_REQUIRE_DROP_CACHES:-true}"
+        info "冷读 profile: 数据缓存预算=0、prefetch=off、FUSE read direct-io=on"
+    fi
+}
+
+write_perf_profile() {
+    local path="$artifact_dir/perf-profile.env"
+    cat >"$path" <<EOF
+PERF_TOOLS=${perf_tools}
+PERF_FIO_DIRECT=${PERF_FIO_DIRECT:-0}
+PERF_FIO_IOENGINE=${PERF_FIO_IOENGINE:-io_uring}
+PERF_FIO_IODEPTH=${PERF_FIO_IODEPTH:-1}
+PERF_FIO_PREFILL_DRAIN=${PERF_FIO_PREFILL_DRAIN:-false}
+PERF_FIO_PREFILL_REMOUNT=${PERF_FIO_PREFILL_REMOUNT:-false}
+PERF_FIO_COLD_READ_CLEAR_CACHE=${PERF_FIO_COLD_READ_CLEAR_CACHE:-false}
+PERF_FIO_DROP_CACHES=${PERF_FIO_DROP_CACHES:-false}
+PERF_FIO_COLD_READ=${PERF_FIO_COLD_READ:-false}
+PERF_FIO_COLD_READ_DROP_CACHES=${PERF_FIO_COLD_READ_DROP_CACHES:-true}
+PERF_FIO_REQUIRE_DROP_CACHES=${PERF_FIO_REQUIRE_DROP_CACHES:-false}
+PERF_FIO_POST_WRITE_DRAIN=${PERF_FIO_POST_WRITE_DRAIN:-false}
+PERF_FIO_LAT_PERCENTILES=${PERF_FIO_LAT_PERCENTILES:-1}
+PERF_FIO_CLAT_PERCENTILES=${PERF_FIO_CLAT_PERCENTILES:-1}
+PERF_FIO_PERCENTILE_LIST=${PERF_FIO_PERCENTILE_LIST:-50:95:99:99.9}
+PERF_FIO_RANDSEED=${PERF_FIO_RANDSEED:-20261031}
+PERF_FIO_RANDREPEAT=${PERF_FIO_RANDREPEAT:-1}
+PERF_FIO_DIRECT_MATRIX=${PERF_FIO_DIRECT_MATRIX:-}
+PERF_FIO_BIGREAD_REPEATS=${PERF_FIO_BIGREAD_REPEATS:-3}
+PERF_FIO_BIGREAD_COOLDOWN_SECS=${PERF_FIO_BIGREAD_COOLDOWN_SECS:-10}
+PERF_FIO_BIGREAD_EVICT_LOCAL_CACHE_PAGES=${PERF_FIO_BIGREAD_EVICT_LOCAL_CACHE_PAGES:-true}
+PERF_FIO_BIGREAD_WARMUP_PASSES=${PERF_FIO_BIGREAD_WARMUP_PASSES:-1}
+PERF_FIO_BIGREAD_REMOUNT_BETWEEN_REPEATS=${PERF_FIO_BIGREAD_REMOUNT_BETWEEN_REPEATS:-true}
+BREWFS_DATA_BACKEND=${data_backend}
+BREWFS_META_BACKEND=${meta_backend}
+BREWFS_CHUNK_SIZE=${BREWFS_CHUNK_SIZE:-67108864}
+BREWFS_BLOCK_SIZE=${BREWFS_BLOCK_SIZE:-4194304}
+BREWFS_COMPRESSION=${BREWFS_COMPRESSION:-none}
+BREWFS_S3_PART_SIZE=${BREWFS_S3_PART_SIZE:-}
+BREWFS_S3_DISABLE_PAYLOAD_CHECKSUM=${BREWFS_S3_DISABLE_PAYLOAD_CHECKSUM:-}
+BREWFS_FUSE_WORKERS=${BREWFS_FUSE_WORKERS:-}
+BREWFS_FUSE_MAX_BACKGROUND=${BREWFS_FUSE_MAX_BACKGROUND:-}
+BREWFS_FUSE_DIRECT_IO=${BREWFS_FUSE_DIRECT_IO:-}
+BREWFS_FUSE_READ_DIRECT_IO=${BREWFS_FUSE_READ_DIRECT_IO:-}
+BREWFS_FUSE_WRITE_DIRECT_IO=${BREWFS_FUSE_WRITE_DIRECT_IO:-}
+BREWFS_FUSE_KEEP_CACHE=${BREWFS_FUSE_KEEP_CACHE:-}
+BREWFS_FUSE_WRITEBACK=${BREWFS_FUSE_WRITEBACK:-}
+BREWFS_WRITEBACK_MODE=${BREWFS_WRITEBACK_MODE:-}
+BREWFS_WRITE_COALESCE_BYTES=${BREWFS_WRITE_COALESCE_BYTES:-}
+BREWFS_WRITE_COALESCE_MS=${BREWFS_WRITE_COALESCE_MS:-}
+BREWFS_WRITEBACK_UPLOAD_CONCURRENCY=${BREWFS_WRITEBACK_UPLOAD_CONCURRENCY:-}
+BREWFS_S3_MAX_CONCURRENCY=${BREWFS_S3_MAX_CONCURRENCY:-}
+BREWFS_UPLOAD_CONCURRENCY=${BREWFS_UPLOAD_CONCURRENCY:-}
+BREWFS_CACHE_ROOT=${BREWFS_CACHE_ROOT:-}
+BREWFS_DIRTY_SLICE_TARGET_SIZE=${BREWFS_DIRTY_SLICE_TARGET_SIZE:-}
+BREWFS_DIRTY_SLICE_MAX_AGE_MS=${BREWFS_DIRTY_SLICE_MAX_AGE_MS:-}
+BREWFS_PREFETCH_ENABLED=${BREWFS_PREFETCH_ENABLED:-}
+BREWFS_PREFETCH_MAX_BYTES=${BREWFS_PREFETCH_MAX_BYTES:-}
+BREWFS_PREFETCH_CONCURRENCY=${BREWFS_PREFETCH_CONCURRENCY:-}
+BREWFS_RANGE_BACKGROUND_PREFETCH=${BREWFS_RANGE_BACKGROUND_PREFETCH:-}
+BREWFS_RANGE_PREFETCH_WORKING_SET_FACTOR=${BREWFS_RANGE_PREFETCH_WORKING_SET_FACTOR:-}
+BREWFS_METADATA_OPEN_CACHE_TTL_MS=${BREWFS_METADATA_OPEN_CACHE_TTL_MS:-}
+BREWFS_METADATA_OPEN_CACHE_CAPACITY=${BREWFS_METADATA_OPEN_CACHE_CAPACITY:-}
+BREWFS_METADATA_ALLOW_WRITE_OPEN_CACHE=${BREWFS_METADATA_ALLOW_WRITE_OPEN_CACHE:-}
+BREWFS_READ_MEMORY_BYTES=${BREWFS_READ_MEMORY_BYTES:-}
+BREWFS_READ_SSD_BYTES=${BREWFS_READ_SSD_BYTES:-}
+BREWFS_WRITE_MEMORY_BYTES=${BREWFS_WRITE_MEMORY_BYTES:-}
+BREWFS_WRITE_SSD_BYTES=${BREWFS_WRITE_SSD_BYTES:-}
+BREWFS_MEMORY_BUDGET_BYTES=${BREWFS_MEMORY_BUDGET_BYTES:-}
+BREWFS_VERIFY_CACHE_CHECKSUM=${BREWFS_VERIFY_CACHE_CHECKSUM:-}
+BREWFS_POPULATE_WRITE_CACHE_AFTER_UPLOAD=${BREWFS_POPULATE_WRITE_CACHE_AFTER_UPLOAD:-}
+BREWFS_WRITEBACK_RECENT_PENDING_SOFT_BYTES=${BREWFS_WRITEBACK_RECENT_PENDING_SOFT_BYTES:-}
+BREWFS_WRITEBACK_RECENT_PENDING_HARD_BYTES=${BREWFS_WRITEBACK_RECENT_PENDING_HARD_BYTES:-}
+BREWFS_WRITEBACK_PERSIST_SYNC=${BREWFS_WRITEBACK_PERSIST_SYNC:-}
+BREWFS_WRITEBACK_REQUIRE_STAGE_BEFORE_COMMIT=${BREWFS_WRITEBACK_REQUIRE_STAGE_BEFORE_COMMIT:-}
+BREWFS_REQUEST_TRACE=${BREWFS_REQUEST_TRACE:-}
+BREWFS_REQUEST_TRACE_SAMPLE_RATE=${BREWFS_REQUEST_TRACE_SAMPLE_RATE:-}
+TOKIO_WORKER_THREADS=${TOKIO_WORKER_THREADS:-}
+BREWFS_CACHED_BLOCK_ASSEMBLER=${BREWFS_CACHED_BLOCK_ASSEMBLER:-}
+BREWFS_PERSIST_WRITE_CACHE_AFTER_UPLOAD=${BREWFS_PERSIST_WRITE_CACHE_AFTER_UPLOAD:-}
+BREWFS_CACHED_SUB_BLOCK_IDLE_GRACE_MS=${BREWFS_CACHED_SUB_BLOCK_IDLE_GRACE_MS:-}
+BREWFS_CACHED_SUB_BLOCK_TOO_MANY_MIN_AGE_MS=${BREWFS_CACHED_SUB_BLOCK_TOO_MANY_MIN_AGE_MS:-}
+BREWFS_UPLOAD_LIMIT_MIBPS=${BREWFS_UPLOAD_LIMIT_MIBPS:-}
+BREWFS_DOWNLOAD_LIMIT_MIBPS=${BREWFS_DOWNLOAD_LIMIT_MIBPS:-}
+PERF_OBJECT_PUT_DURATION_SECS=${PERF_OBJECT_PUT_DURATION_SECS:-60}
+PERF_OBJECT_PUT_OBJECTS=${PERF_OBJECT_PUT_OBJECTS:-0}
+PERF_OBJECT_PUT_OBJECT_SIZE=${PERF_OBJECT_PUT_OBJECT_SIZE:-${BREWFS_BLOCK_SIZE:-4194304}}
+PERF_OBJECT_PUT_WORKERS=${PERF_OBJECT_PUT_WORKERS:-${BREWFS_UPLOAD_CONCURRENCY:-32}}
+PERF_OBJECT_PUT_PREFIX=${PERF_OBJECT_PUT_PREFIX:-bench/direct-put}
+PERF_PACKED_SMALLFILE_COUNT=${PERF_PACKED_SMALLFILE_COUNT:-36000}
+PERF_PACKED_DIRS=${PERF_PACKED_DIRS:-8}
+PERF_PACKED_DIR_LEVELS=${PERF_PACKED_DIR_LEVELS:-0}
+PERF_PACKED_DIRS_PER_LEVEL=${PERF_PACKED_DIRS_PER_LEVEL:-10}
+PERF_PACKED_FILES_PER_DIR=${PERF_PACKED_FILES_PER_DIR:-4500}
+PERF_PACKED_SMALLFILE_SIZE=${PERF_PACKED_SMALLFILE_SIZE:-4096}
+PERF_PACKED_SMALLFILE_READ_BYTES=${PERF_PACKED_SMALLFILE_READ_BYTES:-1}
+PERF_PACKED_FIO_FILE_SIZE=${PERF_PACKED_FIO_FILE_SIZE:-67108864}
+PERF_FIO_BIGREAD_REPEATS=${PERF_FIO_BIGREAD_REPEATS:-1}
+PERF_FIO_BIGREAD_COOLDOWN_SECS=${PERF_FIO_BIGREAD_COOLDOWN_SECS:-10}
+PERF_FIO_BIGREAD_EVICT_LOCAL_CACHE_PAGES=${PERF_FIO_BIGREAD_EVICT_LOCAL_CACHE_PAGES:-true}
+PERF_FIO_BIGREAD_WARMUP_PASSES=${PERF_FIO_BIGREAD_WARMUP_PASSES:-1}
+PERF_FIO_BIGREAD_REMOUNT_BETWEEN_REPEATS=${PERF_FIO_BIGREAD_REMOUNT_BETWEEN_REPEATS:-true}
+EOF
+
+    {
+        echo
+        echo "# Raw PERF_FIO environment"
+        env | sort | grep '^PERF_FIO_' || true
+    } >>"$path"
+}
+
+raise_nofile_limit() {
+    if ulimit -n "$nofile_limit" >/dev/null 2>&1; then
+        info "nofile limit: $(ulimit -n)"
+    else
+        err "无法提升 nofile limit 到 $nofile_limit，当前: $(ulimit -n)"
+    fi
+}
+
+write_config() {
+    mkdir -p "$(dirname "$config_path")" "$mount_dir"
+    if [[ "$data_backend" == "local-fs" ]]; then
+        mkdir -p "$data_dir"
+    fi
+
+    {
+        echo "mount_point: $mount_dir"
+        echo
+        if [[ -n "${BREWFS_VOLUME_FORMAT:-}" ]]; then
+            echo "volume_format: ${BREWFS_VOLUME_FORMAT}"
+            if [[ "$BREWFS_VOLUME_FORMAT" == "packed-metadata-v3" ]]; then
+                if [[ -z "${BREWFS_PACKED_MANIFEST_KEY:-}" ]]; then
+                    err "BREWFS_PACKED_MANIFEST_KEY 不能为空 (packed-metadata-v3)"
+                    exit 1
+                fi
+                echo "packed_manifest_key: ${BREWFS_PACKED_MANIFEST_KEY}"
+            elif [[ "$BREWFS_VOLUME_FORMAT" == "workspace-native-v2" ]]; then
+                echo
+                echo "volume:"
+                echo "  format: workspace-native-v2"
+                echo "  schema_version: 2"
+                echo "  native_control_version: 2"
+                echo "  chunk_size: ${BREWFS_CHUNK_SIZE:-67108864}"
+                echo "  block_size: ${BREWFS_BLOCK_SIZE:-4194304}"
+                echo
+                echo "native_base:"
+                echo "  release_profile: p1-retained-trial"
+                echo "  format_version: 3"
+                echo "  namespace_mode: kv"
+                echo "  packing:"
+                echo "    payload_format: native-block-v1"
+                echo "    pack_target_bytes: 67108864"
+                echo "    codec: none"
+                echo "    multipart_part_target_bytes: 16777216"
+                echo "    retention_grouping: required"
+                echo "  reader:"
+                echo "    capture_protocol: single-writer-bounded-capture"
+                echo "    ordered_inode_commits: true"
+                echo "    capture_deadline_ms: 2000"
+                echo "    capture_max_retries: 4"
+                echo "    max_read_capture_bytes: 67108864"
+                echo "    max_plan_segments: 64"
+                echo "    max_plan_bytes: 134217728"
+                echo "    demand_get_concurrency: 8"
+                echo "    request_deadline_ms: 30000"
+                echo "    inflight_encoded_bytes: 268435456"
+                echo "    inflight_decoded_bytes: 536870912"
+                echo "    physical_coalescing: false"
+                echo "    exact_range_response_required: true"
+                echo "  cache:"
+                echo "    scope: per-mount"
+                echo "    shared_service: false"
+                echo "    metadata_ram_bytes: 536870912"
+                echo "    decoded_data_bytes: 2147483648"
+                echo "    encoded_disk_bytes: 8589934592"
+                echo "    trust_domain_isolation: true"
+                echo "  prefetch:"
+                echo "    enabled: false"
+                echo "    get_concurrency: 0"
+                echo "    metadata_only_ops_fetch_data: false"
+                echo "  commit:"
+                echo "    max_receipts: 1024"
+                echo "    max_payload_bytes: 67108864"
+                echo "  durability:"
+                echo "    write_mode: upload-before-commit"
+                echo "    remote_verification: exact-readback"
+                echo "    require_atomic_create_only: true"
+                echo "    coordinator_profile: perf-harness"
+                echo "  retention:"
+                echo "    published: forever"
+                echo "    published_gc: false"
+                echo "    read_retention_leases: false"
+                echo "    promotion: exact-object-retain-batches"
+                echo "    private_write_domain: workspace-lifetime"
+                echo "  cleanup:"
+                echo "    mode: disabled"
+                echo "    closed_private_domains_only: true"
+                echo "    require_close_certificate: true"
+                echo "    backend_mode: unversioned-only"
+                echo "    allow_legacy_slice_gc: false"
+                echo "    unknown_upload_policy: quarantine"
+                echo "    count_delete_markers_as_freed_bytes: false"
+                echo "  repack:"
+                echo "    automatic: false"
+                echo "    reclaim_published: false"
+                echo "    require_explicit_extra_bytes_budget: true"
+                echo "  limits:"
+                echo "    namespace_hard_bytes: 1099511627776"
+                echo "    private_domain_soft_bytes: 536870912"
+                echo "    private_domain_hard_bytes: 1073741824"
+                echo "    completion_reserve_bytes: 134217728"
+                echo "    on_hard_limit: reject-new-admissions-not-accepted-drain"
+            fi
+        fi
+        if [[ -n "${BREWFS_WORKSPACE_ID:-}" ]]; then
+            echo "workspace: ${BREWFS_WORKSPACE_ID}"
+        fi
+        if [[ -n "${BREWFS_WORKSPACE_NAMESPACE:-}" ]]; then
+            echo "workspace_namespace: ${BREWFS_WORKSPACE_NAMESPACE}"
+        fi
+        if [[ -n "${BREWFS_VOLUME_FORMAT:-}" || -n "${BREWFS_WORKSPACE_ID:-}" ]]; then
+            echo
+        fi
+        case "$data_backend" in
+            local-fs)
+                cat <<EOF
+data:
+  backend: local-fs
+  localfs:
+    data_dir: ${data_dir}
+EOF
+                ;;
+            s3)
+                bucket="${BREWFS_S3_BUCKET:-brewfs-data}"
+                region="${BREWFS_S3_REGION:-us-east-1}"
+                endpoint="${BREWFS_S3_ENDPOINT:-http://rustfs:9000}"
+                force_path="${BREWFS_S3_FORCE_PATH_STYLE:-true}"
+                part_size="${BREWFS_S3_PART_SIZE:-16777216}"
+                max_conc="${BREWFS_S3_MAX_CONCURRENCY:-8}"
+                disable_payload_checksum="${BREWFS_S3_DISABLE_PAYLOAD_CHECKSUM:-true}"
+                cat <<EOF
+data:
+  backend: s3
+  s3:
+    bucket: ${bucket}
+    region: ${region}
+    part_size: ${part_size}
+    max_concurrency: ${max_conc}
+    force_path_style: ${force_path}
+    disable_payload_checksum: ${disable_payload_checksum}
+    rustfs_ec_block_size_hint: auto
+    endpoint: ${endpoint}
+EOF
+                ;;
+            *)
+                err "不支持的 BREWFS_DATA_BACKEND: $data_backend"
+                exit 1
+                ;;
+        esac
+        echo
+
+        if [[ "${BREWFS_VOLUME_FORMAT:-}" != "packed-metadata-v3" ]]; then
+        case "$meta_backend" in
+            sqlite)
+                mkdir -p "$(dirname "$sqlite_path")"
+                local url="${meta_url:-sqlite://${sqlite_path}?mode=rwc}"
+                cat <<EOF
+meta:
+  backend: sqlx
+  sqlx:
+    url: "$url"
+EOF
+                ;;
+            redis)
+                if [[ -z "$meta_url" ]]; then
+                    err "BREWFS_META_URL 不能为空 (redis)"
+                    exit 1
+                fi
+                cat <<EOF
+meta:
+  backend: redis
+  redis:
+    url: "$meta_url"
+EOF
+                ;;
+            etcd)
+                cat <<EOF
+meta:
+  backend: etcd
+  etcd:
+    urls:
+EOF
+                local old_ifs="$IFS"
+                IFS=','
+                for url in $meta_etcd_urls; do
+                    echo "      - \"${url}\""
+                done
+                IFS="$old_ifs"
+                ;;
+            tikv)
+                cat <<EOF
+meta:
+  backend: tikv
+  tikv:
+    pd_endpoints:
+EOF
+                local old_ifs="$IFS"
+                IFS=','
+                for endpoint in $meta_tikv_pd_endpoints; do
+                    echo "      - \"${endpoint}\""
+                done
+                IFS="$old_ifs"
+                echo "    namespace: \"${meta_tikv_namespace}\""
+                ;;
+            *)
+                err "不支持的 BREWFS_META_BACKEND: $meta_backend"
+                exit 1
+                ;;
+        esac
+        if [[ -n "${BREWFS_METADATA_OPEN_CACHE_TTL_MS:-}" ]]; then
+            echo "  open_file_cache_ttl_ms: ${BREWFS_METADATA_OPEN_CACHE_TTL_MS}"
+        fi
+        if [[ -n "${BREWFS_METADATA_OPEN_CACHE_CAPACITY:-}" ]]; then
+            echo "  open_file_cache_capacity: ${BREWFS_METADATA_OPEN_CACHE_CAPACITY}"
+        fi
+        if [[ -n "${BREWFS_METADATA_ALLOW_WRITE_OPEN_CACHE:-}" ]]; then
+            echo "  allow_write_open_cache: ${BREWFS_METADATA_ALLOW_WRITE_OPEN_CACHE}"
+        fi
+        fi
+
+        if [[ -n "${BREWFS_COMPACT_INTERVAL_SECS:-}" \
+            || -n "${BREWFS_COMPACT_MIN_SLICE_COUNT:-}" \
+            || -n "${BREWFS_COMPACT_MIN_FRAGMENT_RATIO:-}" \
+            || -n "${BREWFS_COMPACT_ASYNC_THRESHOLD:-}" \
+            || -n "${BREWFS_COMPACT_SYNC_THRESHOLD:-}" \
+            || -n "${BREWFS_COMPACT_MAX_CHUNKS_PER_RUN:-}" \
+            || -n "${BREWFS_COMPACT_MAX_CONCURRENT_TASKS:-}" \
+            || -n "${BREWFS_COMPACT_LIGHT_ENABLED:-}" \
+            || -n "${BREWFS_COMPACT_LIGHT_THRESHOLD:-}" \
+            || -n "${BREWFS_COMPACT_HEAVY_ENABLED:-}" \
+            || -n "${BREWFS_COMPACT_HEAVY_FRAGMENT_THRESHOLD:-}" \
+            || -n "${BREWFS_COMPACT_HEAVY_SLICE_THRESHOLD:-}" \
+            || -n "${BREWFS_COMPACT_HEAVY_FORCE_FRAGMENT_THRESHOLD:-}" \
+            || -n "${BREWFS_COMPACT_LOCK_ASYNC_TTL_SECS:-}" \
+            || -n "${BREWFS_COMPACT_LOCK_SYNC_TTL_SECS:-}" \
+            || -n "${BREWFS_COMPACT_LOCK_TTL_PER_SLICE_MS:-}" \
+            || -n "${BREWFS_COMPACT_LOCK_MIN_TTL_SECS:-}" \
+            || -n "${BREWFS_COMPACT_LOCK_MAX_TTL_SECS:-}" ]]; then
+            echo
+            echo "compact:"
+            [[ -n "${BREWFS_COMPACT_MIN_SLICE_COUNT:-}" ]] && echo "  min_slice_count: ${BREWFS_COMPACT_MIN_SLICE_COUNT}"
+            [[ -n "${BREWFS_COMPACT_MIN_FRAGMENT_RATIO:-}" ]] && echo "  min_fragment_ratio: ${BREWFS_COMPACT_MIN_FRAGMENT_RATIO}"
+            [[ -n "${BREWFS_COMPACT_ASYNC_THRESHOLD:-}" ]] && echo "  async_threshold: ${BREWFS_COMPACT_ASYNC_THRESHOLD}"
+            [[ -n "${BREWFS_COMPACT_SYNC_THRESHOLD:-}" ]] && echo "  sync_threshold: ${BREWFS_COMPACT_SYNC_THRESHOLD}"
+            if [[ -n "${BREWFS_COMPACT_INTERVAL_SECS:-}" ]]; then
+                echo "  interval:"
+                echo "    secs: ${BREWFS_COMPACT_INTERVAL_SECS}"
+                echo "    nanos: 0"
+            fi
+            [[ -n "${BREWFS_COMPACT_MAX_CHUNKS_PER_RUN:-}" ]] && echo "  max_chunks_per_run: ${BREWFS_COMPACT_MAX_CHUNKS_PER_RUN}"
+            [[ -n "${BREWFS_COMPACT_MAX_CONCURRENT_TASKS:-}" ]] && echo "  max_concurrent_tasks: ${BREWFS_COMPACT_MAX_CONCURRENT_TASKS}"
+            [[ -n "${BREWFS_COMPACT_LIGHT_ENABLED:-}" ]] && echo "  light_enabled: ${BREWFS_COMPACT_LIGHT_ENABLED}"
+            [[ -n "${BREWFS_COMPACT_LIGHT_THRESHOLD:-}" ]] && echo "  light_threshold: ${BREWFS_COMPACT_LIGHT_THRESHOLD}"
+            [[ -n "${BREWFS_COMPACT_HEAVY_ENABLED:-}" ]] && echo "  heavy_enabled: ${BREWFS_COMPACT_HEAVY_ENABLED}"
+            [[ -n "${BREWFS_COMPACT_HEAVY_FRAGMENT_THRESHOLD:-}" ]] && echo "  heavy_fragment_threshold: ${BREWFS_COMPACT_HEAVY_FRAGMENT_THRESHOLD}"
+            [[ -n "${BREWFS_COMPACT_HEAVY_SLICE_THRESHOLD:-}" ]] && echo "  heavy_slice_threshold: ${BREWFS_COMPACT_HEAVY_SLICE_THRESHOLD}"
+            [[ -n "${BREWFS_COMPACT_HEAVY_FORCE_FRAGMENT_THRESHOLD:-}" ]] && echo "  heavy_force_fragment_threshold: ${BREWFS_COMPACT_HEAVY_FORCE_FRAGMENT_THRESHOLD}"
+            if [[ -n "${BREWFS_COMPACT_LOCK_ASYNC_TTL_SECS:-}" \
+                || -n "${BREWFS_COMPACT_LOCK_SYNC_TTL_SECS:-}" \
+                || -n "${BREWFS_COMPACT_LOCK_TTL_PER_SLICE_MS:-}" \
+                || -n "${BREWFS_COMPACT_LOCK_MIN_TTL_SECS:-}" \
+                || -n "${BREWFS_COMPACT_LOCK_MAX_TTL_SECS:-}" ]]; then
+                echo "  lock_ttl:"
+                [[ -n "${BREWFS_COMPACT_LOCK_ASYNC_TTL_SECS:-}" ]] && echo "    async_ttl_secs: ${BREWFS_COMPACT_LOCK_ASYNC_TTL_SECS}"
+                [[ -n "${BREWFS_COMPACT_LOCK_SYNC_TTL_SECS:-}" ]] && echo "    sync_ttl_secs: ${BREWFS_COMPACT_LOCK_SYNC_TTL_SECS}"
+                [[ -n "${BREWFS_COMPACT_LOCK_TTL_PER_SLICE_MS:-}" ]] && echo "    ttl_per_slice_ms: ${BREWFS_COMPACT_LOCK_TTL_PER_SLICE_MS}"
+                [[ -n "${BREWFS_COMPACT_LOCK_MIN_TTL_SECS:-}" ]] && echo "    min_ttl_secs: ${BREWFS_COMPACT_LOCK_MIN_TTL_SECS}"
+                [[ -n "${BREWFS_COMPACT_LOCK_MAX_TTL_SECS:-}" ]] && echo "    max_ttl_secs: ${BREWFS_COMPACT_LOCK_MAX_TTL_SECS}"
+            fi
+        fi
+
+        echo
+        cat <<EOF
+layout:
+  chunk_size: ${BREWFS_CHUNK_SIZE:-67108864}
+  block_size: ${BREWFS_BLOCK_SIZE:-4194304}
+EOF
+
+        if [[ -n "${BREWFS_FUSE_WORKERS:-}" || -n "${BREWFS_FUSE_MAX_BACKGROUND:-}" ]]; then
+            echo
+            echo "fuse:"
+            if [[ "${BREWFS_VOLUME_FORMAT:-}" == workspace-v1 ]]; then
+                echo "  cache_ttl_ms: 1000"
+            else
+                echo "  cache_ttl_ms: 0"
+            fi
+            if [[ -n "${BREWFS_FUSE_WORKERS:-}" ]]; then
+                echo "  workers: ${BREWFS_FUSE_WORKERS}"
+            fi
+            if [[ -n "${BREWFS_FUSE_MAX_BACKGROUND:-}" ]]; then
+                echo "  max_background: ${BREWFS_FUSE_MAX_BACKGROUND}"
+            fi
+        fi
+
+        # Cache section (compression, writeback mode, memory/cache budgets, etc.)
+        local comp="${BREWFS_COMPRESSION:-none}"
+        local writeback_mode="${BREWFS_WRITEBACK_MODE:-}"
+        if [[ -n "${BREWFS_CACHE_ROOT:-}" \
+            || -n "${BREWFS_READ_MEMORY_BYTES:-}" \
+            || -n "${BREWFS_READ_SSD_BYTES:-}" \
+            || -n "${BREWFS_WRITE_MEMORY_BYTES:-}" \
+            || -n "${BREWFS_WRITE_SSD_BYTES:-}" \
+            || -n "${BREWFS_DIRTY_SLICE_TARGET_SIZE:-}" \
+            || -n "${BREWFS_DIRTY_SLICE_MAX_AGE_MS:-}" \
+            || -n "${BREWFS_UPLOAD_CONCURRENCY:-}" \
+            || -n "${BREWFS_PREFETCH_ENABLED:-}" \
+            || -n "${BREWFS_PREFETCH_MAX_BYTES:-}" \
+            || -n "${BREWFS_PREFETCH_CONCURRENCY:-}" \
+            || -n "${BREWFS_RANGE_BACKGROUND_PREFETCH:-}" \
+            || -n "${BREWFS_RANGE_PREFETCH_WORKING_SET_FACTOR:-}" \
+            || -n "${BREWFS_MEMORY_BUDGET_BYTES:-}" \
+            || -n "${BREWFS_COMPRESSION:-}" \
+            || -n "${BREWFS_VERIFY_CACHE_CHECKSUM:-}" \
+            || -n "${BREWFS_WRITEBACK_PERSIST_SYNC:-}" \
+            || -n "${BREWFS_WRITEBACK_REQUIRE_STAGE_BEFORE_COMMIT:-}" \
+            || -n "${BREWFS_PERSIST_WRITE_CACHE_AFTER_UPLOAD:-}" \
+            || -n "${BREWFS_UPLOAD_LIMIT_MIBPS:-}" \
+            || -n "${BREWFS_DOWNLOAD_LIMIT_MIBPS:-}" \
+            || -n "$comp" \
+            || -n "$writeback_mode" ]]; then
+            echo
+            echo "cache:"
+            [[ -n "${BREWFS_CACHE_ROOT:-}" ]] && echo "  root: ${BREWFS_CACHE_ROOT}"
+            [[ -n "${BREWFS_READ_MEMORY_BYTES:-}" ]] && echo "  read_memory_bytes: ${BREWFS_READ_MEMORY_BYTES}"
+            [[ -n "${BREWFS_READ_SSD_BYTES:-}" ]] && echo "  read_ssd_bytes: ${BREWFS_READ_SSD_BYTES}"
+            [[ -n "${BREWFS_WRITE_MEMORY_BYTES:-}" ]] && echo "  write_memory_bytes: ${BREWFS_WRITE_MEMORY_BYTES}"
+            [[ -n "${BREWFS_WRITE_SSD_BYTES:-}" ]] && echo "  write_ssd_bytes: ${BREWFS_WRITE_SSD_BYTES}"
+            [[ -n "${BREWFS_DIRTY_SLICE_TARGET_SIZE:-}" ]] && echo "  dirty_slice_target_size: ${BREWFS_DIRTY_SLICE_TARGET_SIZE}"
+            [[ -n "${BREWFS_DIRTY_SLICE_MAX_AGE_MS:-}" ]] && echo "  dirty_slice_max_age_ms: ${BREWFS_DIRTY_SLICE_MAX_AGE_MS}"
+            [[ -n "${BREWFS_UPLOAD_CONCURRENCY:-}" ]] && echo "  upload_concurrency: ${BREWFS_UPLOAD_CONCURRENCY}"
+            [[ -n "${BREWFS_PREFETCH_ENABLED:-}" ]] && echo "  prefetch_enabled: ${BREWFS_PREFETCH_ENABLED}"
+            [[ -n "${BREWFS_PREFETCH_MAX_BYTES:-}" ]] && echo "  prefetch_max_bytes: ${BREWFS_PREFETCH_MAX_BYTES}"
+            [[ -n "${BREWFS_PREFETCH_CONCURRENCY:-}" ]] && echo "  prefetch_concurrency: ${BREWFS_PREFETCH_CONCURRENCY}"
+            [[ -n "${BREWFS_RANGE_BACKGROUND_PREFETCH:-}" ]] && echo "  range_background_prefetch: ${BREWFS_RANGE_BACKGROUND_PREFETCH}"
+            [[ -n "${BREWFS_RANGE_PREFETCH_WORKING_SET_FACTOR:-}" ]] && echo "  range_prefetch_working_set_factor: ${BREWFS_RANGE_PREFETCH_WORKING_SET_FACTOR}"
+            [[ -n "${BREWFS_POPULATE_WRITE_CACHE_AFTER_UPLOAD:-}" ]] && echo "  populate_write_cache_after_upload: ${BREWFS_POPULATE_WRITE_CACHE_AFTER_UPLOAD}"
+            [[ -n "${BREWFS_PERSIST_WRITE_CACHE_AFTER_UPLOAD:-}" ]] && echo "  persist_write_cache_after_upload: ${BREWFS_PERSIST_WRITE_CACHE_AFTER_UPLOAD}"
+            [[ -n "${BREWFS_MEMORY_BUDGET_BYTES:-}" ]] && echo "  memory_budget_bytes: ${BREWFS_MEMORY_BUDGET_BYTES}"
+            echo "  compression: ${comp}"
+            [[ -n "${BREWFS_VERIFY_CACHE_CHECKSUM:-}" ]] && echo "  verify_cache_checksum: ${BREWFS_VERIFY_CACHE_CHECKSUM}"
+            [[ -n "${BREWFS_WRITEBACK_PERSIST_SYNC:-}" ]] && echo "  writeback_persist_sync: ${BREWFS_WRITEBACK_PERSIST_SYNC}"
+            [[ -n "${BREWFS_WRITEBACK_REQUIRE_STAGE_BEFORE_COMMIT:-}" ]] && echo "  writeback_require_stage_before_commit: ${BREWFS_WRITEBACK_REQUIRE_STAGE_BEFORE_COMMIT}"
+            [[ -n "${BREWFS_WRITEBACK_RECENT_PENDING_SOFT_BYTES:-}" ]] && echo "  writeback_recent_pending_soft_bytes: ${BREWFS_WRITEBACK_RECENT_PENDING_SOFT_BYTES}"
+            [[ -n "${BREWFS_WRITEBACK_RECENT_PENDING_HARD_BYTES:-}" ]] && echo "  writeback_recent_pending_hard_bytes: ${BREWFS_WRITEBACK_RECENT_PENDING_HARD_BYTES}"
+            if [[ -n "$writeback_mode" ]]; then
+                echo "  writeback_mode: ${writeback_mode}"
+            fi
+            if [[ -n "${BREWFS_UPLOAD_LIMIT_MIBPS:-}" || -n "${BREWFS_DOWNLOAD_LIMIT_MIBPS:-}" ]]; then
+                echo "  bandwidth:"
+                if [[ -n "${BREWFS_UPLOAD_LIMIT_MIBPS:-}" ]]; then
+                    echo "    upload_limit_mibps: ${BREWFS_UPLOAD_LIMIT_MIBPS}"
+                fi
+                if [[ -n "${BREWFS_DOWNLOAD_LIMIT_MIBPS:-}" ]]; then
+                    echo "    download_limit_mibps: ${BREWFS_DOWNLOAD_LIMIT_MIBPS}"
+                fi
+            fi
+        fi
+    } >"$config_path"
+}
+
+install_mount_helper() {
+    local helper="/usr/sbin/mount.fuse.brewfs"
+    cat >"$helper" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+
+src="${1:-}"
+target="${2:-}"
+shift 2 || true
+
+config_path="${BREWFS_CONFIG_PATH:-/run/brewfs/config.yaml}"
+log_file="${BREWFS_LOG_FILE:-/artifacts/brewfs.log}"
+
+mkdir -p "$target" "$(dirname "$log_file")"
+
+is_brewfs_mounted() {
+    findmnt -rn --target "$target" --output FSTYPE 2>/dev/null | grep -Eq '^fuse(\.|$)'
+}
+
+pre_wait_secs="${BREWFS_PRE_MOUNT_WAIT_SECS:-10}"
+pre_deadline=$((SECONDS + pre_wait_secs))
+while is_brewfs_mounted; do
+    if (( SECONDS >= pre_deadline )); then
+        echo "target $target is still mounted before starting BrewFS after ${pre_wait_secs}s" >&2
+        exit 1
+    fi
+    sleep 0.1
+done
+
+EOF
+
+    append_env_export() {
+        local name="$1"
+        local default="${2-}"
+        local value="${!name:-$default}"
+        if [[ -n "$value" || $# -ge 2 ]]; then
+            printf 'export %s=%q\n' "$name" "$value" >>"$helper"
+        fi
+    }
+    append_env_export AWS_ACCESS_KEY_ID "rustfsadmin"
+    append_env_export AWS_SECRET_ACCESS_KEY "rustfsadmin"
+    append_env_export AWS_DEFAULT_REGION "us-east-1"
+    append_env_export AWS_EC2_METADATA_DISABLED "true"
+    append_env_export AWS_SESSION_TOKEN
+    append_env_export BREWFS_MOUNT_WAIT_SECS "60"
+    append_env_export BREWFS_PRE_MOUNT_WAIT_SECS "10"
+    append_env_export BREWFS_MOUNT_READY_DELAY_SECS "1"
+    append_env_export BREWFS_NOFILE_LIMIT "1048576"
+    append_env_export BREWFS_METRICS
+    append_env_export BREWFS_METRICS_ADDR
+    append_env_export BREWFS_FUSE_DIRECT_IO
+    append_env_export BREWFS_FUSE_WRITEBACK
+    append_env_export BREWFS_FUSE_READ_DIRECT_IO
+    append_env_export BREWFS_FUSE_WRITE_DIRECT_IO
+    append_env_export BREWFS_FUSE_KEEP_CACHE
+    append_env_export BREWFS_REQUEST_TRACE
+    append_env_export BREWFS_REQUEST_TRACE_SAMPLE_RATE
+    append_env_export TOKIO_WORKER_THREADS
+    append_env_export BREWFS_WRITEBACK_UPLOAD_CONCURRENCY
+    append_env_export BREWFS_WRITE_COALESCE_BYTES
+    append_env_export BREWFS_WRITE_COALESCE_MS
+    append_env_export BREWFS_WRITEBACK_RECENT_PENDING_SOFT_BYTES
+    append_env_export BREWFS_WRITEBACK_RECENT_PENDING_HARD_BYTES
+    append_env_export BREWFS_CACHED_SUB_BLOCK_IDLE_GRACE_MS
+    append_env_export BREWFS_CACHED_SUB_BLOCK_TOO_MANY_MIN_AGE_MS
+    append_env_export PERF_FUSE_OPS_LOG "0"
+    append_env_export BREWFS_FUSE_OP_LOG "0"
+    append_env_export BREWFS_FUSE_LOG_FILE
+    append_env_export BREWFS_VFS_TIMING "0"
+    append_env_export RUST_LOG
+
+    cat >>"$helper" <<'EOF'
+if [[ -n "${BREWFS_NOFILE_LIMIT:-}" ]]; then
+    ulimit -n "$BREWFS_NOFILE_LIMIT" >/dev/null 2>&1 \
+        || echo "failed to raise nofile limit to $BREWFS_NOFILE_LIMIT; current=$(ulimit -n)" >&2
+fi
+
+# Enable FUSE op tracing when requested for detailed profiling.
+if [[ "${PERF_FUSE_OPS_LOG:-0}" == "1" || "${BREWFS_FUSE_OP_LOG:-0}" == "1" ]]; then
+    export RUST_LOG="${RUST_LOG:-brewfs=info,asyncfuse::raw::logfs=debug}"
+else
+    export RUST_LOG="${RUST_LOG:-error}"
+fi
+
+/usr/local/bin/brewfs mount --privileged --config "$config_path" "$target" >>"$log_file" 2>&1 &
+brewfs_pid=$!
+printf '%s\n' "$brewfs_pid" >/run/brewfs/perf-mount.pid
+
+wait_secs="${BREWFS_MOUNT_WAIT_SECS:-60}"
+deadline=$((SECONDS + wait_secs))
+while (( SECONDS < deadline )); do
+    if is_brewfs_mounted; then
+        sleep "${BREWFS_MOUNT_READY_DELAY_SECS:-1}"
+        exit 0
+    fi
+    if ! kill -0 "$brewfs_pid" 2>/dev/null; then
+        status=0
+        wait "$brewfs_pid" || status=$?
+        if (( status == 0 )); then
+            status=1
+        fi
+        echo "brewfs mount process exited before $target became a mountpoint (status=$status)" >&2
+        exit "$status"
+    fi
+    sleep 0.1
+done
+
+echo "timed out after ${wait_secs}s waiting for BrewFS mount at $target" >&2
+echo "brewfs_pid=$brewfs_pid running=$(kill -0 "$brewfs_pid" 2>/dev/null && echo yes || echo no)" >&2
+echo "findmnt: $(findmnt -rn --target "$target" --output TARGET,FSTYPE,SOURCE 2>/dev/null || true)" >&2
+ps -o pid,ppid,stat,etime,comm,args -p "$brewfs_pid" >&2 || true
+exit 1
+EOF
+
+    chmod +x "$helper"
+}
+
+prepare_artifacts() {
+    mkdir -p "$artifact_dir/results" "$artifact_dir/tools" "$artifact_dir/diagnostics"
+    touch "$artifact_dir/perf.log" "$artifact_dir/perf-summary.tsv" "$artifact_dir/report.md" >/dev/null 2>&1 || true
+    printf 'tool\tstatus\tseconds\tlog\n' >"$artifact_dir/perf-summary.tsv"
+    printf 'tool\trunner_drain_s\textended_strict_drain_s\tpending_bytes\tdirty_bytes\tbuffer_dirty_bytes\n' \
+        >"$artifact_dir/post-write-drain.tsv"
+    printf 'ts\ttool\telapsed_s\tstats_valid\tbuffer_dirty_bytes\tlive_dirty_bytes\tlive_slices\trecent_pending_upload_bytes\trecent_pending_upload_slices\trecent_uploaded_bytes\tstage_inflight_bytes\tremote_upload_inflight_bytes\tmetadata_inflight\ts3_put_ops\ts3_put_bytes\trequest_active\trequest_fuse_queue_depth\trequest_fuse_queue_oldest_age_ns\trequest_file_lock_queue_depth\trequest_file_lock_queue_oldest_age_ns\trequest_chunk_lock_queue_depth\trequest_chunk_lock_queue_oldest_age_ns\trequest_flush_queue_depth\trequest_flush_queue_oldest_age_ns\trequest_metadata_rpc_queue_depth\trequest_metadata_rpc_queue_oldest_age_ns\trequest_object_put_queue_depth\trequest_object_put_queue_oldest_age_ns\trequest_dropped\tbuffer_soft_sleep_ops\tbuffer_moderate_sleep_ops\tbuffer_hard_sleep_ops\tfuse_write_bytes\tupload_batch_ops\n' \
+        >"$artifact_dir/writeback-samples.tsv"
+    write_perf_profile
+    if [[ -x /usr/local/bin/perf_manifest.py ]]; then
+        /usr/local/bin/perf_manifest.py \
+            --output "$artifact_dir/manifest.json" \
+            --binary /usr/local/bin/brewfs \
+            --profile "$artifact_dir/perf-profile.env"
+    else
+        err "perf_manifest.py 不存在，基线 manifest 缺少 binary/source 校验"
+        touch "$artifact_dir/manifest.invalid"
+        return 1
+    fi
+    if [[ "${BREWFS_VOLUME_FORMAT:-}" == "packed-metadata-v3" ]]; then
+        cat >"$artifact_dir/packed-runtime-proof.env" <<EOF
+volume_format=packed-metadata-v3
+metadata_store=immutable-object-snapshot
+metadata_client=none
+metadata_config=omitted
+redis_endpoint=${meta_url:-<unset>}
+redis_diagnostics=disabled
+EOF
+    fi
+    if truthy_env "${PERF_FUSE_OPS_LOG:-0}" || truthy_env "${BREWFS_FUSE_OP_LOG:-0}"; then
+        export BREWFS_FUSE_OP_LOG=1
+        export BREWFS_FUSE_LOG_FILE="$artifact_dir/brewfs_fuse_ops.log"
+    else
+        export BREWFS_FUSE_OP_LOG=0
+        unset BREWFS_FUSE_LOG_FILE || true
+    fi
+}
+
+copy_artifacts() {
+    mkdir -p "$artifact_dir"
+    if [[ -f "$log_file" && "$log_file" != "$artifact_dir/brewfs.log" ]]; then
+        cp -f "$log_file" "$artifact_dir/brewfs.log" || true
+    fi
+    if [[ -n "${BREWFS_FUSE_LOG_FILE:-}" && -f "${BREWFS_FUSE_LOG_FILE}" && "${BREWFS_FUSE_LOG_FILE}" != "$artifact_dir/brewfs_fuse_ops.log" ]]; then
+        cp -f "${BREWFS_FUSE_LOG_FILE}" "$artifact_dir/brewfs_fuse_ops.log" || true
+    fi
+    if [[ -f "$config_path" ]]; then
+        cp -f "$config_path" "$artifact_dir/backend.yml" || true
+        if [[ -f "$artifact_dir/backend.yml" ]]; then
+            sed -E -i 's#(redis(s)?://)[^@[:space:]]+@#\1***@#g' "$artifact_dir/backend.yml"
+        fi
+    fi
+    chmod -R a+rwX "$artifact_dir" >/dev/null 2>&1 || true
+}
+
+cleanup() {
+    while findmnt -rn --target "$mount_dir" --output FSTYPE 2>/dev/null | grep -Eq '^fuse(\.|$)'; do
+        fusermount3 -u "$mount_dir" >/dev/null 2>&1 \
+            || umount -f "$mount_dir" >/dev/null 2>&1 \
+            || umount -l "$mount_dir" >/dev/null 2>&1 \
+            || sleep 1
+    done
+    local pids
+    pids="$(ps -eo pid=,args= | awk '$0 ~ /\/usr\/local\/bin\/brewfs mount/ && $0 !~ /awk/ {print $1}')" || true
+    if [[ -n "$pids" ]]; then
+        while read -r pid; do
+            [[ -n "$pid" ]] && kill "$pid" >/dev/null 2>&1 || true
+        done <<<"$pids"
+    fi
+}
+
+on_exit() {
+    local status=$?
+    copy_artifacts || true
+    cleanup || true
+    trap - EXIT
+    exit "$status"
+}
+
+require_tool_bin() {
+    local bin="$1"
+    if [[ ! -x "$bin" ]]; then
+        err "找不到可执行工具: $bin"
+        exit 1
+    fi
+}
+
+run_metadata_fallback() {
+    local tool="$1"
+    local work_dir="$2"
+    local fallback="${PERF_METADATA_FALLBACK_BIN:-/usr/local/bin/perf_metadata_fallback.py}"
+
+    printf '%s\tpython-fallback\t%s\n' "$tool" "$fallback" >>"$artifact_dir/metadata-implementations.tsv"
+    if [[ "${PERF_LINES_PROTOCOL:-}" == ws0 ]]; then
+        err "WS-0 requires the real xfstests $tool binary; Python fallback is unavailable as baseline evidence"
+        touch "$artifact_dir/metadata-implementation.invalid"
+        return 1
+    fi
+
+    require_tool_bin "$fallback"
+    rm -rf "$work_dir"
+    mkdir -p "$work_dir"
+    info "使用 metadata fallback: $tool ($fallback)"
+    run_logged_tool "$tool" python3 "$fallback" "$tool" "$work_dir"
+}
+
+append_fio_observation_args() {
+    local -n fio_args_ref=$1
+    local arg
+    local has_lat=false has_clat=false has_slat=false has_list=false has_seed=false has_repeat=false
+    for arg in "${fio_args_ref[@]}"; do
+        [[ "$arg" == --lat_percentiles || "$arg" == --lat_percentiles=* ]] && has_lat=true
+        [[ "$arg" == --clat_percentiles || "$arg" == --clat_percentiles=* ]] && has_clat=true
+        [[ "$arg" == --slat_percentiles || "$arg" == --slat_percentiles=* ]] && has_slat=true
+        [[ "$arg" == --percentile_list || "$arg" == --percentile_list=* ]] && has_list=true
+        [[ "$arg" == --randseed || "$arg" == --randseed=* ]] && has_seed=true
+        [[ "$arg" == --randrepeat || "$arg" == --randrepeat=* ]] && has_repeat=true
+    done
+    [[ "$has_lat" == true ]] || fio_args_ref+=("--lat_percentiles=${PERF_FIO_LAT_PERCENTILES:-1}")
+    [[ "$has_clat" == true ]] || fio_args_ref+=("--clat_percentiles=${PERF_FIO_CLAT_PERCENTILES:-1}")
+    [[ "$has_slat" == true ]] || fio_args_ref+=(--slat_percentiles=1)
+    [[ "$has_list" == true ]] || fio_args_ref+=("--percentile_list=${PERF_FIO_PERCENTILE_LIST:-50:95:99:99.9}")
+    [[ "$has_seed" == true ]] || fio_args_ref+=("--randseed=${PERF_FIO_RANDSEED:-20261031}")
+    [[ "$has_repeat" == true ]] || fio_args_ref+=("--randrepeat=${PERF_FIO_RANDREPEAT:-1}")
+}
+
+run_observed_fio() {
+    local observation_tool="$1"
+    shift
+    local -a command=(fio "$@")
+    if truthy_env "${PERF_FIO_SYSCALL_TAIL:-false}"; then
+        local strace_bin
+        strace_bin="$(command -v strace)" || { err "找不到可执行工具: strace"; return 1; }
+        require_tool_bin "$strace_bin"
+        mkdir -p "$artifact_dir/syscall-tail"
+        command=("$strace_bin" -ff -ttt -T -yy --seccomp-bpf -e trace=close,fsync,fdatasync \
+            -o "$artifact_dir/syscall-tail/${observation_tool}" "${command[@]}")
+    fi
+    python3 - "$artifact_dir/tools/${observation_tool}.effective-argv.json" "${command[@]}" <<'PY'
+import json, pathlib, sys
+pathlib.Path(sys.argv[1]).write_text(json.dumps(sys.argv[2:]) + "\n")
+PY
+    "${command[@]}"
+}
+
+redis_diag_enabled() {
+    [[ "$meta_backend" == "redis" ]] || return 1
+    [[ -n "$meta_url" ]] || return 1
+    command -v redis-cli >/dev/null 2>&1 || return 1
+}
+
+redis_diag_cli() {
+    redis-cli -u "$meta_url" "$@"
+}
+
+redis_diag_before_tool() {
+    local tool="$1"
+    redis_diag_enabled || return 0
+
+    {
+        echo "# Redis diagnostic reset before $tool"
+        date -Iseconds
+        redis_diag_cli CONFIG SET latency-monitor-threshold "${PERF_REDIS_LATENCY_THRESHOLD_MS:-1}" || true
+        redis_diag_cli CONFIG RESETSTAT || true
+        redis_diag_cli SLOWLOG RESET || true
+        redis_diag_cli LATENCY RESET || true
+    } >"$artifact_dir/diagnostics/redis-${tool}-before.txt" 2>&1 || true
+}
+
+redis_diag_after_tool() {
+    local tool="$1"
+    redis_diag_enabled || return 0
+
+    {
+        echo "# Redis diagnostics after $tool"
+        date -Iseconds
+        echo
+        echo "## INFO commandstats"
+        redis_diag_cli INFO commandstats || true
+        echo
+        echo "## INFO stats"
+        redis_diag_cli INFO stats || true
+        echo
+        echo "## SLOWLOG GET 20"
+        redis_diag_cli SLOWLOG GET 20 || true
+        echo
+        echo "## LATENCY LATEST"
+        redis_diag_cli LATENCY LATEST || true
+        echo
+        echo "## LATENCY DOCTOR"
+        redis_diag_cli LATENCY DOCTOR || true
+    } >"$artifact_dir/diagnostics/redis-${tool}-after.txt" 2>&1 || true
+}
+
+stats_snapshot_tool() {
+    local tool="$1"
+    local phase="$2"
+    local stats_path="$mount_dir/.stats"
+    {
+        date -Iseconds
+        echo
+        if ! brewfs_stats_dump; then
+            echo "missing_or_unavailable $stats_path timeout=${PERF_STATS_READ_TIMEOUT_SECS:-5s}"
+        fi
+    } >"$artifact_dir/diagnostics/stats-${tool}-${phase}.txt" 2>&1 || true
+}
+
+stats_snapshot_before_tool() {
+    stats_snapshot_tool "$1" before
+}
+
+stats_snapshot_after_tool() {
+    stats_snapshot_tool "$1" after
+}
+
+brewfs_stat_value() {
+    local metric="$1"
+    brewfs_stats_dump | awk -v metric="$metric" '
+        $1 == metric {
+            print $2
+            found = 1
+            exit
+        }
+        END {
+            if (!found) {
+                exit 1
+            }
+        }
+    '
+}
+
+brewfs_stats_dump() {
+    local stats_path="$mount_dir/.stats"
+    local timeout_value="${PERF_STATS_READ_TIMEOUT_SECS:-5s}"
+    timeout --foreground "$timeout_value" cat "$stats_path" | tr -d '\000'
+}
+
+numeric_stat_required() {
+    local metric="$1"
+    local value
+    if (( $# > 1 )); then
+        value="$(awk -v metric="$metric" '$1 == metric { print $2; found=1; exit } END { if (!found) exit 1 }' <<<"$2")" || return 1
+    else
+        value="$(brewfs_stat_value "$metric" 2>/dev/null)" || return 1
+    fi
+    if [[ "$value" =~ ^[0-9]+$ ]]; then
+        printf '%s' "$value"
+    else
+        return 1
+    fi
+}
+
+numeric_stat_or_zero() {
+    # Kept as a compatibility name for callers outside this runner.  A
+    # missing counter is an invalid observation and must never be represented
+    # by a fabricated zero.
+    numeric_stat_required "$@"
+}
+
+capture_backend_phase() {
+    local phase="$1"
+    [[ -n "${PERF_BACKEND_METRICS_URL:-}" ]] || return 0
+    python3 /usr/local/bin/perf_lines_observe.py backend-snapshot \
+        --url "$PERF_BACKEND_METRICS_URL" --output "$artifact_dir/diagnostics/backend-${phase}.json" \
+        --after-ns "$(date +%s%N)" --wait-secs 5 >/dev/null || {
+        touch "$artifact_dir/backend-samples.invalid"
+        return 1
+    }
+}
+
+required_drain_snapshot() {
+    local dump metric value
+    if (( $# > 0 )); then
+        dump="$1"
+    else
+        dump="$(brewfs_stats_dump)" || return 1
+    fi
+    for metric in \
+        brewfs_writeback_dirty_bytes \
+        brewfs_writeback_live_dirty_bytes \
+        brewfs_writeback_live_slices \
+        brewfs_writeback_recent_pending_upload_bytes \
+        brewfs_writeback_recent_pending_upload_slices \
+        brewfs_writeback_stage_inflight_bytes \
+        brewfs_writeback_remote_upload_inflight_bytes \
+        brewfs_writeback_metadata_inflight \
+        brewfs_buffer_dirty_bytes \
+        brewfs_s3_put_ops_total \
+        brewfs_s3_put_bytes_total; do
+        value="$(awk -v metric="$metric" '$1 == metric { print $2; found=1; exit } END { if (!found) exit 1 }' <<<"$dump")" || return 1
+        [[ "$value" =~ ^[0-9]+$ ]] || return 1
+        printf '%s=%s\n' "$metric" "$value"
+    done
+}
+
+drain_value() {
+    local name="$1"
+    awk -F= -v name="$name" '$1 == name { print $2; found=1; exit } END { if (!found) exit 1 }'
+}
+
+drain_is_clear() {
+    local snapshot="$1" threshold="$2" value
+    for metric in \
+        brewfs_writeback_dirty_bytes \
+        brewfs_writeback_live_dirty_bytes \
+        brewfs_writeback_recent_pending_upload_bytes \
+        brewfs_buffer_dirty_bytes; do
+        value="$(drain_value "$metric" <<<"$snapshot")" || return 1
+        (( value <= threshold )) || return 1
+    done
+    for metric in \
+        brewfs_writeback_live_slices \
+        brewfs_writeback_recent_pending_upload_slices \
+        brewfs_writeback_stage_inflight_bytes \
+        brewfs_writeback_remote_upload_inflight_bytes \
+        brewfs_writeback_metadata_inflight; do
+        value="$(drain_value "$metric" <<<"$snapshot")" || return 1
+        (( value == 0 )) || return 1
+    done
+}
+
+start_writeback_sampler() {
+    local tool="$1"
+    local interval="${PERF_WRITEBACK_SAMPLE_INTERVAL_SECS:-1}"
+    local sample_path="$artifact_dir/writeback-samples.tsv"
+    local start_ts
+
+    WRITEBACK_SAMPLER_PID=""
+    truthy_env "${PERF_WRITEBACK_SAMPLER:-true}" || return 0
+
+    mkdir -p "$artifact_dir/stats-timeseries/$tool"
+    start_ts="$(date +%s)"
+    (
+        while true; do
+            local now elapsed snapshot raw_dump
+            local recent_uploaded request_active request_queue_depth request_queue_age request_dropped
+            local file_lock_queue_depth file_lock_queue_age chunk_lock_queue_depth chunk_lock_queue_age
+            local flush_queue_depth flush_queue_age metadata_queue_depth metadata_queue_age
+            local object_put_queue_depth object_put_queue_age
+            local buffer_soft_ops buffer_moderate_ops buffer_hard_ops fuse_write_bytes upload_batch_ops
+            now="$(date +%s)"
+            elapsed="$((now - start_ts))"
+            local read_status=0
+            raw_dump="$(brewfs_stats_dump)" || read_status=$?
+            printf '%s\n' "$raw_dump" >"$artifact_dir/stats-timeseries/$tool/$(date +%s%N).txt"
+            if (( read_status != 0 )) || ! snapshot="$(required_drain_snapshot "$raw_dump")"; then
+                printf '%s\t%s\t%s\tfalse\t%s\n' \
+                    "$(date -Iseconds)" "$tool" "$elapsed" "missing_required_stat" \
+                    >>"$sample_path"
+                touch "$artifact_dir/writeback-samples.invalid"
+                break
+            fi
+            if [[ -n "${PERF_BACKEND_METRICS_URL:-}" ]]; then
+                mkdir -p "$artifact_dir/backend-timeseries/$tool"
+                python3 /usr/local/bin/perf_lines_observe.py backend-snapshot \
+                    --url "$PERF_BACKEND_METRICS_URL" --output "$artifact_dir/backend-timeseries/$tool/$(date +%s%N).json" >/dev/null \
+                    || touch "$artifact_dir/backend-samples.invalid"
+            fi
+            if [[ -f /usr/local/bin/perf_lines_observe.py && -r /run/brewfs/perf-mount.pid ]]; then
+                mkdir -p "$artifact_dir/system-timeseries/$tool"
+                python3 /usr/local/bin/perf_lines_observe.py system-sample \
+                    --pid "$(cat /run/brewfs/perf-mount.pid)" \
+                    --output "$artifact_dir/system-timeseries/$tool/$(date +%s%N).json" \
+                    || touch "$artifact_dir/system-samples.invalid"
+            fi
+            if ! recent_uploaded="$(numeric_stat_required brewfs_writeback_recent_uploaded_bytes "$raw_dump")" \
+                || ! request_active="$(numeric_stat_required brewfs_request_observation_active "$raw_dump")" \
+                || ! request_queue_depth="$(numeric_stat_required brewfs_request_fuse_queue_depth "$raw_dump")" \
+                || ! request_queue_age="$(numeric_stat_required brewfs_request_fuse_queue_oldest_age_ns "$raw_dump")" \
+                || ! file_lock_queue_depth="$(numeric_stat_required brewfs_request_file_lock_wait_queue_depth "$raw_dump")" \
+                || ! file_lock_queue_age="$(numeric_stat_required brewfs_request_file_lock_wait_queue_oldest_age_ns "$raw_dump")" \
+                || ! chunk_lock_queue_depth="$(numeric_stat_required brewfs_request_chunk_lock_wait_queue_depth "$raw_dump")" \
+                || ! chunk_lock_queue_age="$(numeric_stat_required brewfs_request_chunk_lock_wait_queue_oldest_age_ns "$raw_dump")" \
+                || ! flush_queue_depth="$(numeric_stat_required brewfs_request_flush_wait_queue_depth "$raw_dump")" \
+                || ! flush_queue_age="$(numeric_stat_required brewfs_request_flush_wait_queue_oldest_age_ns "$raw_dump")" \
+                || ! metadata_queue_depth="$(numeric_stat_required brewfs_request_metadata_rpc_wait_queue_depth "$raw_dump")" \
+                || ! metadata_queue_age="$(numeric_stat_required brewfs_request_metadata_rpc_wait_queue_oldest_age_ns "$raw_dump")" \
+                || ! object_put_queue_depth="$(numeric_stat_required brewfs_request_object_put_queue_wait_queue_depth "$raw_dump")" \
+                || ! object_put_queue_age="$(numeric_stat_required brewfs_request_object_put_queue_wait_queue_oldest_age_ns "$raw_dump")" \
+                || ! request_dropped="$(numeric_stat_required brewfs_request_observation_dropped_total "$raw_dump")" \
+                || ! buffer_soft_ops="$(numeric_stat_required brewfs_writeback_buffer_soft_sleep_ops "$raw_dump")" \
+                || ! buffer_moderate_ops="$(numeric_stat_required brewfs_writeback_buffer_moderate_sleep_ops "$raw_dump")" \
+                || ! buffer_hard_ops="$(numeric_stat_required brewfs_writeback_buffer_hard_sleep_ops "$raw_dump")" \
+                || ! fuse_write_bytes="$(numeric_stat_required brewfs_fuse_write_bytes_total "$raw_dump")" \
+                || ! upload_batch_ops="$(numeric_stat_required brewfs_writeback_upload_batch_ops_total "$raw_dump")"; then
+                printf '%s\t%s\t%s\tfalse\tmissing_required_stat\n' \
+                    "$(date -Iseconds)" "$tool" "$elapsed" >>"$sample_path"
+                touch "$artifact_dir/writeback-samples.invalid"
+                break
+            fi
+            printf '%s\t%s\t%s\ttrue\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+                "$(date -Iseconds)" \
+                "$tool" \
+                "$elapsed" \
+                "$(drain_value brewfs_buffer_dirty_bytes <<<"$snapshot")" \
+                "$(drain_value brewfs_writeback_live_dirty_bytes <<<"$snapshot")" \
+                "$(drain_value brewfs_writeback_live_slices <<<"$snapshot")" \
+                "$(drain_value brewfs_writeback_recent_pending_upload_bytes <<<"$snapshot")" \
+                "$(drain_value brewfs_writeback_recent_pending_upload_slices <<<"$snapshot")" \
+                "$recent_uploaded" \
+                "$(drain_value brewfs_writeback_stage_inflight_bytes <<<"$snapshot")" \
+                "$(drain_value brewfs_writeback_remote_upload_inflight_bytes <<<"$snapshot")" \
+                "$(drain_value brewfs_writeback_metadata_inflight <<<"$snapshot")" \
+                "$(drain_value brewfs_s3_put_ops_total <<<"$snapshot")" \
+                "$(drain_value brewfs_s3_put_bytes_total <<<"$snapshot")" \
+                "$request_active" \
+                "$request_queue_depth" \
+                "$request_queue_age" \
+                "$file_lock_queue_depth" \
+                "$file_lock_queue_age" \
+                "$chunk_lock_queue_depth" \
+                "$chunk_lock_queue_age" \
+                "$flush_queue_depth" \
+                "$flush_queue_age" \
+                "$metadata_queue_depth" \
+                "$metadata_queue_age" \
+                "$object_put_queue_depth" \
+                "$object_put_queue_age" \
+                "$request_dropped" \
+                "$buffer_soft_ops" \
+                "$buffer_moderate_ops" \
+                "$buffer_hard_ops" \
+                "$fuse_write_bytes" \
+                "$upload_batch_ops" \
+                >>"$sample_path"
+            sleep "$interval"
+        done
+    ) &
+    WRITEBACK_SAMPLER_PID="$!"
+}
+
+stop_writeback_sampler() {
+    local pid="${1:-}"
+    [[ -n "$pid" ]] || return 0
+    kill "$pid" >/dev/null 2>&1 || true
+    wait "$pid" >/dev/null 2>&1 || true
+    if [[ -e "$artifact_dir/writeback-samples.invalid" || -e "$artifact_dir/backend-samples.invalid" || -e "$artifact_dir/system-samples.invalid" ]]; then
+        err "写回时序采样缺少必需指标"
+        return 1
+    fi
+}
+
+wait_for_strict_drain() {
+    local tool="$1"
+    local phase="$2"
+    local timeout="$3"
+    local interval="$4"
+    local threshold="$5"
+    local kind="$6"
+    local stable_required="${PERF_DRAIN_STABLE_SAMPLES:-3}"
+    local start now elapsed snapshot raw_dump previous_signature="" signature previous_put=-1 stable=0
+    local runner_drain_elapsed=""
+    local pending dirty buffer_dirty put_ops put_bytes uploaded
+    local backend_values backend_sequence="" backend_start="" backend_success="" backend_attempts=""
+    local previous_backend_sequence="" previous_backend_start="" previous_backend_counts="" backend_counts=""
+    local previous_backend_success="" previous_backend_attempts=""
+    local backend_url="${PERF_BACKEND_METRICS_URL:-}"
+
+    if [[ "${PERF_LINES_PROTOCOL:-}" == ws0 && -z "$backend_url" ]]; then
+        err "WS-0 strict drain requires actual backend PUT evidence (PERF_BACKEND_METRICS_URL)"
+        touch "$artifact_dir/backend-drain.invalid"
+        return 1
+    fi
+
+    info "等待 ${kind} 写回严格排空: $tool (threshold=${threshold} bytes, stable=${stable_required}, timeout=${timeout}s)"
+    [[ "$phase" == prefill ]] && stats_snapshot_before_tool "${tool}-prefill-drained"
+    [[ "$phase" == prefill ]] && stats_snapshot_before_tool "${tool}-prefill-drain-timeout"
+    [[ "$phase" == post-write ]] && stats_snapshot_before_tool "${tool}-post-write-drained"
+    [[ "$phase" == post-write ]] && stats_snapshot_before_tool "${tool}-post-write-drain-timeout"
+    start="$(date +%s)"
+    printf '%s\t%s_drain_start\t%s\n' "$tool" "$phase" "$(date +%s%N)" >>"$artifact_dir/phase-boundaries.tsv"
+    mkdir -p "$artifact_dir/stats-timeseries/${tool}-${phase}"
+    mkdir -p "$artifact_dir/backend-timeseries/${tool}-${phase}"
+
+    while true; do
+        local read_status=0
+        raw_dump="$(brewfs_stats_dump)" || read_status=$?
+        printf '%s\n' "$raw_dump" >"$artifact_dir/stats-timeseries/${tool}-${phase}/$(date +%s%N).txt"
+        if (( read_status != 0 )) || ! snapshot="$(required_drain_snapshot "$raw_dump")"; then
+            err "${kind} 写回观测缺字段: $tool"
+            touch "$artifact_dir/writeback-samples.invalid"
+            printf '%s\tNA\tinvalid:missing_required_stat\tNA\tNA\tNA\n' "$tool" >>"$artifact_dir/post-write-drain.tsv"
+            [[ "$phase" == prefill ]] && stats_snapshot_after_tool "${tool}-prefill-drain-missing-stat"
+            [[ "$phase" == post-write ]] && stats_snapshot_after_tool "${tool}-post-write-drain-missing-stat"
+            return 1
+        fi
+        if [[ -n "$backend_url" ]]; then
+            backend_values="$(python3 /usr/local/bin/perf_lines_observe.py backend-snapshot \
+                --url "$backend_url" --output "$artifact_dir/backend-timeseries/${tool}-${phase}/$(date +%s%N).json")" || {
+                touch "$artifact_dir/backend-drain.invalid"
+                return 1
+            }
+            read -r backend_sequence backend_start backend_success backend_attempts <<<"$backend_values"
+            if [[ -n "$previous_backend_start" ]] && {
+                [[ "$backend_start" != "$previous_backend_start" ]] \
+                    || (( backend_sequence < previous_backend_sequence \
+                        || backend_success < previous_backend_success \
+                        || backend_attempts < previous_backend_attempts ));
+            }; then
+                err "backend PUT counter reset/decreased or sample time regressed during drain"
+                touch "$artifact_dir/backend-drain.invalid"
+                return 1
+            fi
+            backend_counts="$backend_success:$backend_attempts"
+        fi
+        pending="$(drain_value brewfs_writeback_recent_pending_upload_bytes <<<"$snapshot")"
+        dirty="$(drain_value brewfs_writeback_dirty_bytes <<<"$snapshot")"
+        buffer_dirty="$(drain_value brewfs_buffer_dirty_bytes <<<"$snapshot")"
+        put_ops="$(drain_value brewfs_s3_put_ops_total <<<"$snapshot")"
+        put_bytes="$(drain_value brewfs_s3_put_bytes_total <<<"$snapshot")"
+        uploaded="$(numeric_stat_required brewfs_writeback_recent_uploaded_bytes "$raw_dump")" || {
+            touch "$artifact_dir/writeback-samples.invalid"
+            return 1
+        }
+        now="$(date +%s)"
+        elapsed="$((now - start))"
+        if [[ -z "$runner_drain_elapsed" ]] \
+            && (( pending <= threshold && dirty <= threshold && buffer_dirty <= threshold )); then
+            runner_drain_elapsed="$elapsed"
+            printf '%s\t%s_runner_drained\t%s\n' "$tool" "$phase" "$(date +%s%N)" >>"$artifact_dir/phase-boundaries.tsv"
+            [[ "$phase" == prefill ]] && stats_snapshot_after_tool "${tool}-prefill-runner-drained"
+            [[ "$phase" == post-write ]] && stats_snapshot_after_tool "${tool}-post-write-runner-drained"
+        fi
+        signature="$pending/$dirty/$buffer_dirty/$(drain_value brewfs_writeback_live_dirty_bytes <<<"$snapshot")/$(drain_value brewfs_writeback_live_slices <<<"$snapshot")/$(drain_value brewfs_writeback_recent_pending_upload_slices <<<"$snapshot")/$(drain_value brewfs_writeback_stage_inflight_bytes <<<"$snapshot")/$(drain_value brewfs_writeback_remote_upload_inflight_bytes <<<"$snapshot")/$(drain_value brewfs_writeback_metadata_inflight <<<"$snapshot")"
+        if drain_is_clear "$snapshot" "$threshold"; then
+            if [[ "$signature" == "$previous_signature" && "$put_ops" == "$previous_put" \
+                && "$backend_counts" == "$previous_backend_counts" ]]; then
+                if [[ -z "$backend_url" || "$backend_sequence" != "$previous_backend_sequence" ]]; then
+                    stable=$((stable + 1))
+                fi
+            else
+                stable=1
+            fi
+        else
+            stable=0
+        fi
+        previous_signature="$signature"
+        previous_put="$put_ops"
+        previous_backend_sequence="$backend_sequence"
+        previous_backend_start="$backend_start"
+        previous_backend_success="$backend_success"
+        previous_backend_attempts="$backend_attempts"
+        previous_backend_counts="$backend_counts"
+        if (( stable >= stable_required )); then
+            printf '%s\t%s_extended_drained\t%s\n' "$tool" "$phase" "$(date +%s%N)" >>"$artifact_dir/phase-boundaries.tsv"
+            record_client_cpu "$tool" "${phase}_extended_drained" || return 1
+            if [[ -z "$runner_drain_elapsed" ]]; then
+                runner_drain_elapsed="$elapsed"
+            fi
+            ok "${kind} 写回已严格排空: $tool (runner=${runner_drain_elapsed}s extended=${elapsed}s pending=$pending dirty=$dirty buffer_dirty=$buffer_dirty put_bytes=$put_bytes uploaded=$uploaded stable=${stable}s)"
+            if [[ "$phase" == post-write || "$phase" == metadata ]]; then
+                printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$tool" "$runner_drain_elapsed" "$elapsed" "$pending" "$dirty" "$buffer_dirty" \
+                    >>"$artifact_dir/post-write-drain.tsv"
+            fi
+            [[ "$phase" == prefill ]] && stats_snapshot_after_tool "${tool}-prefill-drained"
+            [[ "$phase" == post-write ]] && stats_snapshot_after_tool "${tool}-post-write-drained"
+            return 0
+        fi
+        if (( elapsed >= timeout )); then
+            touch "$artifact_dir/strict-drain.invalid"
+            err "${kind} 写回严格排空超时: $tool (pending=$pending dirty=$dirty buffer_dirty=$buffer_dirty elapsed=${elapsed}s)"
+            printf '%s\t%s\ttimeout:%s\t%s\t%s\t%s\n' "$tool" "${runner_drain_elapsed:-NA}" "$elapsed" "$pending" "$dirty" "$buffer_dirty" \
+                >>"$artifact_dir/post-write-drain.tsv"
+            [[ "$phase" == prefill ]] && stats_snapshot_after_tool "${tool}-prefill-drain-timeout"
+            [[ "$phase" == post-write ]] && stats_snapshot_after_tool "${tool}-post-write-drain-timeout"
+            return 1
+        fi
+        if (( elapsed % 10 == 0 )); then
+            info "  ${kind} 写回等待中: pending=$pending dirty=$dirty buffer_dirty=$buffer_dirty put_bytes=$put_bytes elapsed=${elapsed}s"
+        fi
+        sleep "$interval"
+    done
+}
+
+wait_for_fio_prefill_drain() {
+    wait_for_strict_drain "$1" prefill \
+        "${PERF_FIO_PREFILL_DRAIN_TIMEOUT_SECS:-600}" \
+        "${PERF_FIO_PREFILL_DRAIN_INTERVAL_SECS:-2}" \
+        "${PERF_FIO_PREFILL_DRAIN_PENDING_BYTES:-0}" prefill
+    return $?
+}
+
+wait_for_fio_post_write_drain() {
+    truthy_env "${PERF_FIO_POST_WRITE_DRAIN:-false}" || return 0
+    case "$1" in
+        fio-seqwrite*|fio-randwrite*|fio-randrw*|fio-bigwrite*) ;;
+        *) return 0 ;;
+    esac
+    wait_for_strict_drain "$1" post-write \
+        "${PERF_FIO_POST_WRITE_DRAIN_TIMEOUT_SECS:-600}" \
+        "${PERF_FIO_POST_WRITE_DRAIN_INTERVAL_SECS:-2}" \
+        "${PERF_FIO_POST_WRITE_DRAIN_PENDING_BYTES:-0}" post-write || return $?
+    capture_backend_phase "$1-post-write-drained-after" || return $?
+    observe_maintenance "$1"
+}
+
+wait_for_metadata_post_tool_drain() {
+    truthy_env "${PERF_METADATA_POST_TOOL_DRAIN:-false}" || return 0
+    case "$1" in
+        dirstress|dirperf|metaperf|looptest|stress-ng) ;;
+        *) return 0 ;;
+    esac
+    wait_for_strict_drain "$1" metadata \
+        "${PERF_METADATA_POST_TOOL_DRAIN_TIMEOUT_SECS:-600}" \
+        "${PERF_METADATA_POST_TOOL_DRAIN_INTERVAL_SECS:-1}" \
+        "${PERF_METADATA_POST_TOOL_DRAIN_PENDING_BYTES:-0}" metadata || return $?
+    observe_maintenance "$1"
+
+}
+
+observe_maintenance() {
+    local tool="$1" seconds="${PERF_MAINTENANCE_OBSERVE_SECS:-0}"
+    [[ "$seconds" =~ ^[0-9]+$ ]] || return 1
+    (( seconds > 0 )) || return 0
+    local started ended sampler_pid status=0 i
+    stats_snapshot_before_tool "${tool}-maintenance"
+    capture_backend_phase "${tool}-maintenance-before" || return $?
+    started="$(date +%s%N)"
+    printf '%s\tmaintenance_start\t%s\n' "$tool" "$started" >>"$artifact_dir/phase-boundaries.tsv"
+    start_writeback_sampler "${tool}-maintenance"
+    sampler_pid="$WRITEBACK_SAMPLER_PID"
+    info "观察停写后维护: $tool (${seconds}s)"
+    for ((i = 0; i < seconds; i++)); do sleep 1; done
+    stop_writeback_sampler "$sampler_pid" || status=1
+    wait_for_strict_drain "${tool}-maintenance" maintenance 600 1 0 maintenance || status=1
+    stats_snapshot_after_tool "${tool}-maintenance"
+    capture_backend_phase "${tool}-maintenance-after" || status=1
+    ended="$(date +%s%N)"
+    printf '%s\tmaintenance_end\t%s\n' "$tool" "$ended" >>"$artifact_dir/phase-boundaries.tsv"
+    if [[ ! -e "$artifact_dir/maintenance.tsv" ]]; then
+        printf 'tool\tstarted_ns\tended_ns\trequested_observation_s\n' >"$artifact_dir/maintenance.tsv"
+    fi
+    printf '%s\t%s\t%s\t%s\n' "$tool" "$started" "$ended" "$seconds" >>"$artifact_dir/maintenance.tsv"
+    return "$status"
+}
+
+drop_kernel_page_cache_if_requested() {
+    if truthy_env "${PERF_FIO_DROP_CACHES:-false}" || truthy_env "${PERF_FIO_COLD_READ_DROP_CACHES:-false}"; then
+        info "请求 drop_caches 以降低页缓存影响"
+        sync || true
+        if ! sh -c 'echo 3 > /proc/sys/vm/drop_caches' >/dev/null 2>&1; then
+            err "drop_caches 失败；拒绝继续冷读测试，避免产出含缓存命中的无效结果"
+            if truthy_env "${PERF_FIO_REQUIRE_DROP_CACHES:-false}"; then
+                return 1
+            fi
+        fi
+    fi
+}
+
+assert_cold_read_no_hits() {
+    local tool="$1"
+    if ! truthy_env "${PERF_FIO_COLD_READ:-false}" \
+        && ! truthy_env "${PERF_FIO_COLD_READ_CLEAR_CACHE:-false}"; then
+        return 0
+    fi
+
+    local before_path="$artifact_dir/diagnostics/stats-${tool}-before.txt"
+    local after_path="$artifact_dir/diagnostics/stats-${tool}-after.txt"
+    if [[ ! -s "$before_path" || ! -s "$after_path" ]]; then
+        err "冷读校验失败: 缺少 $tool 的前后 stats 快照"
+        return 1
+    fi
+
+    local metric before after
+    for metric in \
+        brewfs_cache_hits_total \
+        brewfs_read_block_cache_hits_total \
+        brewfs_read_page_cache_hits_total \
+        brewfs_read_background_prefetch_total; do
+        before="$(awk -v metric="$metric" '$1 == metric { print $2; found=1; exit } END { if (!found) exit 2 }' "$before_path" 2>/dev/null || true)"
+        after="$(awk -v metric="$metric" '$1 == metric { print $2; found=1; exit } END { if (!found) exit 2 }' "$after_path" 2>/dev/null || true)"
+        if [[ ! "$before" =~ ^[0-9]+$ || ! "$after" =~ ^[0-9]+$ ]]; then
+            err "冷读校验失败: $tool 缺少计数器 $metric"
+            return 1
+        fi
+        if (( after > before )); then
+            err "冷读校验失败: $tool 命中 $metric (before=$before after=$after)"
+            return 1
+        fi
+    done
+    ok "冷读校验通过: $tool 数据缓存命中=0"
+}
+
+clear_brewfs_cache_root_if_requested() {
+    if truthy_env "${PERF_FIO_COLD_READ:-false}" || truthy_env "${PERF_FIO_COLD_READ_CLEAR_CACHE:-false}"; then
+        # Keep this fallback aligned with CacheConfig::default().  The perf
+        # container does not set XDG_CACHE_HOME, so the runtime default is
+        # /root/.cache/brewfs rather than the BrewFS state volume path.
+        local root="${BREWFS_CACHE_ROOT:-${XDG_CACHE_HOME:-/root/.cache}/brewfs}"
+        if [[ -n "$root" && "$root" == /* && "$root" != "/" ]]; then
+            info "清理 BrewFS 本地 cache root: $root"
+            rm -rf -- "$root"
+        else
+            err "跳过 BrewFS cache root 清理，路径不安全: ${root:-<empty>}"
+        fi
+    fi
+}
+
+remount_brewfs_for_fio_profile() {
+    local tool="$1"
+
+    info "为 fio cold-read 重挂载 BrewFS: $tool"
+    printf '%s\tremount_start\t%s\n' "$tool" "$(date +%s%N)" >>"$artifact_dir/phase-boundaries.tsv"
+    cleanup
+    clear_brewfs_cache_root_if_requested
+    drop_kernel_page_cache_if_requested
+    mount_brewfs || return $?
+    printf '%s\tremount_end\t%s\n' "$tool" "$(date +%s%N)" >>"$artifact_dir/phase-boundaries.tsv"
+}
+
+mount_brewfs() {
+    mkdir -p "$mount_dir"
+    if findmnt -rn --target "$mount_dir" --output FSTYPE 2>/dev/null | grep -Eq '^fuse(\.|$)'; then
+        cleanup
+    fi
+
+    info "挂载 BrewFS: $mount_dir"
+    mount -t fuse.brewfs brewfs "$mount_dir"
+
+    local i=0
+    for ((i = 0; i < 15; i++)); do
+        if findmnt -rn --target "$mount_dir" --output FSTYPE 2>/dev/null | grep -Eq '^fuse(\.|$)'; then
+            if [[ -f /usr/local/bin/perf_lines_observe.py ]]; then
+                local -a capture_args=()
+                [[ "${PERF_LINES_PROTOCOL:-}" == ws0 ]] && capture_args+=(--require-protocol)
+                python3 /usr/local/bin/perf_lines_observe.py capture-mount \
+                    --pid "$(cat /run/brewfs/perf-mount.pid)" --config "$config_path" \
+                    --output "$artifact_dir/diagnostics/mount-$(date +%s%N).json" "${capture_args[@]}" || {
+                    touch "$artifact_dir/mount-environment.invalid"
+                    return 1
+                }
+            fi
+            ok "BrewFS 已挂载"
+            return 0
+        fi
+        sleep 1
+    done
+
+    err "BrewFS 挂载失败: $mount_dir"
+    exit 1
+}
+
+# Sample BrewFS process CPU outside the high-resolution timing boundaries.
+# /proc/PID/stat sums the thread group's user/system ticks; preserve the raw row.
+record_client_cpu() {
+    local tool="$1" phase="$2" client_pid client_stat ticks
+    client_pid=$(cat /run/brewfs/perf-mount.pid)
+    [[ "$client_pid" =~ ^[0-9]+$ ]] || return 1
+    client_stat=$(cat "/proc/$client_pid/stat") || return 1
+    ticks=$(getconf CLK_TCK) || return 1
+    printf '%s\n' "$ticks" >"$artifact_dir/client-cpu-clock-ticks.txt"
+    printf '%s\t%s\t%s\t%s\n' "$tool" "$phase" "$(date +%s%N)" "$client_stat" >>"$artifact_dir/client-cpu-raw.tsv"
+}
+
+run_logged_tool() {
+    local tool="$1"
+    shift
+    local log_path="$artifact_dir/tools/${tool}.log"
+    local start end elapsed status sampler_pid
+
+    # Keep the exact argument vector alongside the human log. This is the
+    # reviewable command envelope used to reproduce a baseline; shell quoting
+    # is emitted with printf %q so spaces and empty values remain unambiguous.
+    local argv_path="$artifact_dir/tools/${tool}.argv"
+    {
+        printf '%q ' "$@"
+        printf '\n'
+    } >"$argv_path"
+
+    # Cold-read validation compares the counters immediately around each
+    # measured tool.  Fio prefill paths have their own snapshots, while
+    # metadata and packed scans previously had no canonical before snapshot,
+    # which made an otherwise valid zero-hit run fail closed.
+    stats_snapshot_before_tool "$tool"
+    capture_backend_phase "$tool-before" || return $?
+
+    start="$(date +%s)"
+    record_client_cpu "$tool" tool_start || return 1
+    printf '%s\ttool_start\t%s\n' "$tool" "$(date +%s%N)" >>"$artifact_dir/phase-boundaries.tsv"
+    info "运行压力工具: $tool"
+    info "  命令: $*"
+    redis_diag_before_tool "$tool"
+    start_writeback_sampler "$tool" || true
+    sampler_pid="${WRITEBACK_SAMPLER_PID:-}"
+    # Run the tool without changing the caller's errexit mode.  Several
+    # profiles intentionally continue after a failed tool so that the
+    # remaining matrix and the artifact report are still produced.
+    local errexit_was_enabled=false
+    case "$-" in
+        *e*) errexit_was_enabled=true ;;
+    esac
+    set +e
+    if [[ "${PERF_LOG_TO_CONSOLE:-false}" == "true" ]]; then
+        "$@" 2>&1 | tee "$log_path"
+        status="${PIPESTATUS[0]}"
+    else
+        "$@" >"$log_path" 2>&1
+        status=$?
+    fi
+    if [[ "$errexit_was_enabled" == "true" ]]; then
+        set -e
+    else
+        set +e
+    fi
+    printf '%s\ttool_return\t%s\n' "$tool" "$(date +%s%N)" >>"$artifact_dir/phase-boundaries.tsv"
+    record_client_cpu "$tool" tool_return || status=1
+    stop_writeback_sampler "$sampler_pid" || status=1
+    end="$(date +%s)"
+    elapsed="$((end - start))"
+    wait_for_metadata_post_tool_drain "$tool" || status=1
+    stats_snapshot_after_tool "$tool"
+    redis_diag_after_tool "$tool"
+    assert_cold_read_no_hits "$tool" || status=1
+
+    local log_size
+    log_size=$(wc -c < "$log_path" 2>/dev/null || echo 0)
+
+    if [[ "$status" -eq 0 ]]; then
+        ok "压力工具完成: $tool (${elapsed}s, log=${log_size} bytes)"
+        printf '%s\tpass\t%s\t%s\n' "$tool" "$elapsed" "$log_path" >>"$artifact_dir/perf-summary.tsv"
+    else
+        err "压力工具失败: $tool (exit=$status, ${elapsed}s, log=${log_size} bytes)"
+        printf '%s\tfail(%s)\t%s\t%s\n' "$tool" "$status" "$elapsed" "$log_path" >>"$artifact_dir/perf-summary.tsv"
+        # Show last 5 non-empty lines of the log to help diagnose failures
+        if [[ -s "$log_path" ]]; then
+            err "  最后几行日志:"
+            grep -v '^$' "$log_path" | tail -5 | while read -r line; do
+                err "    $line"
+            done
+        fi
+    fi
+
+    return "$status"
+}
+
+run_dirstress() {
+    local bin="$xfstests_dir/src/dirstress"
+    local work_dir="$mount_dir/.perf-dirstress"
+    local -a args=()
+
+    if [[ ! -x "$bin" ]]; then
+        run_metadata_fallback dirstress "$work_dir"
+        return
+    fi
+    rm -rf "$work_dir"
+    mkdir -p "$work_dir"
+
+    if [[ -n "${PERF_DIRSTRESS_ARGS:-}" ]]; then
+        read -r -a args <<<"${PERF_DIRSTRESS_ARGS}"
+    else
+        args=(
+            -d "$work_dir"
+            -p "${PERF_DIRSTRESS_PROCS:-4}"
+            -f "${PERF_DIRSTRESS_FILES:-200}"
+            -n "${PERF_DIRSTRESS_PROCS_PER_DIR:-2}"
+            -s "${PERF_DIRSTRESS_SEED:-1}"
+        )
+    fi
+
+    run_logged_tool dirstress "$bin" "${args[@]}"
+
+    # Summarize dirstress errors (File exists errors are expected under concurrency)
+    local dirstress_log="$artifact_dir/tools/dirstress.log"
+    if [[ -f "$dirstress_log" ]]; then
+        local total_errs mkdir_errs symlink_errs mknod_errs
+        total_errs=$(grep -c '!!' "$dirstress_log" 2>/dev/null || echo 0)
+        mkdir_errs=$(grep -c 'mkdir.*File exists' "$dirstress_log" 2>/dev/null || echo 0)
+        symlink_errs=$(grep -c 'symlink.*File exists' "$dirstress_log" 2>/dev/null || echo 0)
+        mknod_errs=$(grep -c "mknod.*Function not implemented" "$dirstress_log" 2>/dev/null || echo 0)
+        info "dirstress 错误汇总: total=$total_errs mkdir_EEXIST=$mkdir_errs symlink_EEXIST=$symlink_errs mknod_ENOSYS=$mknod_errs"
+    fi
+}
+
+run_dirperf() {
+    local bin="$xfstests_dir/src/dirperf"
+    local work_dir="$mount_dir/.perf-dirperf"
+    local -a args=()
+
+    if [[ ! -x "$bin" ]]; then
+        run_metadata_fallback dirperf "$work_dir"
+        return
+    fi
+    rm -rf "$work_dir"
+    mkdir -p "$work_dir"
+
+    if [[ -n "${PERF_DIRPERF_ARGS:-}" ]]; then
+        read -r -a args <<<"${PERF_DIRPERF_ARGS}"
+    else
+        args=(
+            -d "$work_dir"
+            -a "${PERF_DIRPERF_ADDSTEP:-100}"
+            -f "${PERF_DIRPERF_FIRST:-100}"
+            -l "${PERF_DIRPERF_LAST:-1000}"
+            -c "${PERF_DIRPERF_NAME_LEN:-16}"
+            -n "${PERF_DIRPERF_DIRS:-2}"
+            -s "${PERF_DIRPERF_STATS:-5}"
+        )
+    fi
+
+    run_logged_tool dirperf "$bin" "${args[@]}"
+}
+
+run_packed_smallfiles() {
+    local scan_mode="${1:-full}"
+    local tool=packed-smallfiles
+    if [[ "$scan_mode" == tree ]]; then tool=packed-tree; fi
+    if [[ "${BREWFS_VOLUME_FORMAT:-}" != "packed-metadata-v3" ]]; then
+        err "packed-smallfiles requires BREWFS_VOLUME_FORMAT=packed-metadata-v3"
+        return 1
+    fi
+    local root="$mount_dir"
+    local expected="${PERF_PACKED_SMALLFILE_COUNT:-36000}"
+    local file_size="${PERF_PACKED_SMALLFILE_SIZE:-4096}"
+    local read_bytes="${PERF_PACKED_SMALLFILE_READ_BYTES:-1}"
+    local dir_levels="${PERF_PACKED_DIR_LEVELS:-1}"
+    local dirs_per_level="${PERF_PACKED_DIRS_PER_LEVEL:-8}"
+    local files_per_dir="${PERF_PACKED_FILES_PER_DIR:-4500}"
+    if truthy_env "${PERF_FIO_COLD_READ:-false}" \
+        || truthy_env "${PERF_FIO_COLD_READ_CLEAR_CACHE:-false}"; then
+        remount_brewfs_for_fio_profile "$tool" || return $?
+    fi
+    info "扫描 packed metadata 小文件: root=$root expected=$expected"
+    packed_smallfiles_scan() {
+        python3 - "$root" "$expected" "$file_size" "$read_bytes" "$dir_levels" "$dirs_per_level" "$files_per_dir" "$scan_mode" <<'PY'
+import os
+import pathlib
+import sys
+import time
+
+root = pathlib.Path(sys.argv[1])
+expected = int(sys.argv[2])
+file_size = int(sys.argv[3])
+read_bytes = int(sys.argv[4])
+dir_levels = int(sys.argv[5])
+dirs_per_level = int(sys.argv[6])
+files_per_dir = int(sys.argv[7])
+scan_mode = sys.argv[8]
+expected_leaf_dirs = dirs_per_level ** dir_levels
+if expected % expected_leaf_dirs:
+    raise SystemExit(f"file count {expected} is not divisible by leaf directory count {expected_leaf_dirs}")
+expected_files_per_leaf = expected // expected_leaf_dirs
+if expected_files_per_leaf != files_per_dir:
+    raise SystemExit(f"fixture layout mismatch files_per_leaf={expected_files_per_leaf} configured={files_per_dir}")
+expected_tree_dirs = sum(dirs_per_level ** level for level in range(1, dir_levels + 1))
+started = time.monotonic()
+files = 0
+tree_dirs = 0
+leaf_dirs = 0
+logical_bytes = 0
+payload_bytes = 0
+checksum = 0
+errors = 0
+for directory, dirs, names in os.walk(root):
+    dirs.sort()
+    relative = pathlib.Path(directory).relative_to(root)
+    depth = len(relative.parts)
+    child_dirs = dirs
+    names = [name for name in names if not name.startswith(".")]
+    if depth:
+        tree_dirs += 1
+    expected_children = dirs_per_level if depth < dir_levels else 0
+    if len(child_dirs) != expected_children:
+        raise SystemExit(f"directory fanout mismatch path={directory} depth={depth} actual={len(child_dirs)} expected={expected_children}")
+    if depth < dir_levels:
+        if names:
+            raise SystemExit(f"unexpected files above leaf level path={directory} files={len(names)}")
+        continue
+    if depth != dir_levels:
+        raise SystemExit(f"directory tree is deeper than configured levels path={directory} depth={depth} expected={dir_levels}")
+    leaf_dirs += 1
+    if len(names) != files_per_dir:
+        raise SystemExit(f"leaf file count mismatch path={directory} actual={len(names)} expected={files_per_dir}")
+    if scan_mode == "tree":
+        files += len(names)
+        continue
+    for name in sorted(names):
+        path = pathlib.Path(directory) / name
+        try:
+            st = path.stat()
+            if st.st_size != file_size:
+                raise OSError(f"unexpected size {st.st_size}, expected {file_size}")
+            with path.open("rb") as handle:
+                payload = handle.read() if read_bytes <= 0 else handle.read(read_bytes)
+            if read_bytes <= 0 and len(payload) != file_size:
+                raise OSError(f"short read {len(payload)}, expected {file_size}")
+            files += 1
+            logical_bytes += st.st_size
+            payload_bytes += len(payload)
+            checksum = (checksum + (payload[0] if payload else 0)) & 0xffffffff
+        except OSError as error:
+            errors += 1
+            print(f"error path={path} error={error}")
+elapsed = time.monotonic() - started
+mode = "tree" if scan_mode == "tree" else "full" if read_bytes <= 0 else f"prefix:{read_bytes}"
+print(f"packed_smallfiles_summary files={files} expected={expected} directories={tree_dirs} expected_directories={expected_tree_dirs} leaf_directories={leaf_dirs} expected_leaf_directories={expected_leaf_dirs} levels={dir_levels} dirs_per_level={dirs_per_level} files_per_leaf={files_per_dir} file_size={file_size} read_mode={mode} logical_bytes={logical_bytes} payload_bytes={payload_bytes} errors={errors} checksum={checksum} seconds={elapsed:.6f} files_per_sec={files / elapsed if elapsed else 0:.2f}")
+if files != expected or tree_dirs != expected_tree_dirs or leaf_dirs != expected_leaf_dirs or errors:
+    raise SystemExit(1)
+PY
+    }
+    run_logged_tool "$tool" packed_smallfiles_scan
+}
+
+run_packed_posix() {
+    err "packed POSIX fixture layout remains OPEN for packed-v3; use the dedicated SPEC correctness gates"
+    return 1
+}
+
+run_metaperf() {
+    local bin="$xfstests_dir/src/metaperf"
+    local work_dir="$mount_dir/.perf-metaperf"
+    local -a args=()
+
+    if [[ ! -x "$bin" ]]; then
+        run_metadata_fallback metaperf "$work_dir"
+        return
+    fi
+    rm -rf "$work_dir"
+    mkdir -p "$work_dir"
+
+    if [[ -n "${PERF_METAPERF_ARGS:-}" ]]; then
+        read -r -a args <<<"${PERF_METAPERF_ARGS}"
+    else
+        args=(
+            -d "$work_dir"
+            -t "${PERF_METAPERF_SECONDS:-30}"
+            -s "${PERF_METAPERF_FILE_SIZE:-4096}"
+            -l "${PERF_METAPERF_NAME_LEN:-16}"
+            -L "${PERF_METAPERF_BG_NAME_LEN:-16}"
+            -n "${PERF_METAPERF_OP_FILES:-200}"
+            -N "${PERF_METAPERF_BG_FILES:-2000}"
+            create
+            open
+            stat
+            readdir
+            rename
+        )
+    fi
+
+    run_logged_tool metaperf "$bin" "${args[@]}"
+}
+
+run_looptest() {
+    local bin="$xfstests_dir/src/looptest"
+    local work_dir="$mount_dir/.perf-looptest"
+    local loop_file="$work_dir/looptest.dat"
+    local -a args=()
+
+    if [[ ! -x "$bin" ]]; then
+        run_metadata_fallback looptest "$work_dir"
+        return
+    fi
+    rm -rf "$work_dir"
+    mkdir -p "$work_dir"
+
+    if [[ -n "${PERF_LOOPTEST_ARGS:-}" ]]; then
+        read -r -a args <<<"${PERF_LOOPTEST_ARGS}"
+    else
+        args=(
+            -i "${PERF_LOOPTEST_ITERS:-200}"
+            -o
+            -r
+            -w
+            -t
+            -f
+            -s
+            -v
+            -b "${PERF_LOOPTEST_BUF_SIZE:-1048576}"
+            "$loop_file"
+        )
+    fi
+
+    run_logged_tool looptest "$bin" "${args[@]}"
+
+    # Post-validation: verify the test file was created and modified
+    if [[ -f "$loop_file" ]]; then
+        local looptest_size
+        looptest_size=$(stat -c%s "$loop_file" 2>/dev/null || echo 0)
+        info "looptest 测试文件: $loop_file (size=$looptest_size)"
+    else
+        err "looptest 未能创建测试文件: $loop_file"
+    fi
+}
+
+append_fio_log_summary() {
+    local json_path="$1"
+    local log_path="$2"
+    local label="${3:-fio}"
+
+    if [[ -f "$json_path" ]] && command -v python3 >/dev/null 2>&1; then
+        python3 -c "
+import json, sys
+with open('$json_path') as f:
+    data = json.load(f)
+jobs = data.get('jobs', [])
+if not jobs:
+    sys.exit(1)
+read = jobs[0].get('read', {})
+write = jobs[0].get('write', {})
+opts = jobs[0].get('job options', {})
+print(f\"${label}: {opts.get('rw','?')} bs={opts.get('bs','?')} size={opts.get('size','?')} numjobs={opts.get('numjobs','?')} runtime={opts.get('runtime','?')}s\")
+print(f\"  read:  bw={read.get('bw','?')} KiB/s  iops={read.get('iops','?'):.1f}  lat_avg={read.get('clat_ns',{}).get('mean',0)/1e6:.2f}ms  lat_p99={read.get('clat_ns',{}).get('percentile',{}).get('99.000000',0)/1e6:.2f}ms\")
+print(f\"  write: bw={write.get('bw','?')} KiB/s  iops={write.get('iops','?'):.1f}  lat_avg={write.get('clat_ns',{}).get('mean',0)/1e6:.2f}ms  lat_p99={write.get('clat_ns',{}).get('percentile',{}).get('99.000000',0)/1e6:.2f}ms\")
+print(f\"  total: {read.get('io_bytes',0)+write.get('io_bytes',0)} bytes, {read.get('total_ios',0)+write.get('total_ios',0)} IOs\")
+" >> "$log_path" 2>/dev/null || true
+    fi
+}
+
+summarize_stress_ng_log() {
+    local log_path="$artifact_dir/tools/stress-ng.log"
+    local summary_path="$artifact_dir/tools/stress-ng-summary.tsv"
+
+    [[ -f "$log_path" ]] || return 0
+
+    awk '
+        BEGIN {
+            print "stressor\tbogo_ops\treal_secs\tusr_secs\tsys_secs\treal_ops_per_sec\tcpu_ops_per_sec"
+        }
+        $1 == "stress-ng:" && $2 == "metrc:" && $4 != "stressor" && $5 ~ /^[0-9]+$/ {
+            printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\n", $4, $5, $6, $7, $8, $9, $10
+        }
+    ' "$log_path" >"$summary_path"
+
+    if [[ "$(wc -l <"$summary_path" 2>/dev/null || echo 0)" -gt 1 ]]; then
+        info "stress-ng 摘要: $summary_path"
+    fi
+}
+
+run_stress_ng() {
+    local work_dir="$mount_dir/.perf-stress-ng"
+    local -a args=()
+    local status=0
+
+    if ! command -v stress-ng >/dev/null 2>&1; then
+        err "缺少 stress-ng"
+        return 1
+    fi
+
+    rm -rf "$work_dir"
+    mkdir -p "$work_dir"
+
+    if [[ -n "${PERF_STRESS_NG_ARGS:-}" ]]; then
+        read -r -a args <<<"${PERF_STRESS_NG_ARGS}"
+    else
+        args=(
+            --temp-path "$work_dir"
+            --timeout "${PERF_STRESS_NG_TIMEOUT:-10s}"
+            --metrics-brief
+            --verify
+            --dir "${PERF_STRESS_NG_DIR_WORKERS:-1}"
+            --dir-ops "${PERF_STRESS_NG_DIR_OPS:-1000}"
+            --dentry "${PERF_STRESS_NG_DENTRY_WORKERS:-1}"
+            --dentry-ops "${PERF_STRESS_NG_DENTRY_OPS:-100}"
+            --rename "${PERF_STRESS_NG_RENAME_WORKERS:-1}"
+            --rename-ops "${PERF_STRESS_NG_RENAME_OPS:-1000}"
+            --unlink "${PERF_STRESS_NG_UNLINK_WORKERS:-1}"
+            --unlink-ops "${PERF_STRESS_NG_UNLINK_OPS:-500}"
+            --hdd "${PERF_STRESS_NG_HDD_WORKERS:-1}"
+            --hdd-bytes "${PERF_STRESS_NG_HDD_BYTES:-8M}"
+            --hdd-write-size "${PERF_STRESS_NG_HDD_WRITE_SIZE:-128K}"
+        )
+    fi
+
+    run_logged_tool stress-ng stress-ng "${args[@]}" || status=$?
+    summarize_stress_ng_log
+    return "$status"
+}
+
+prepare_fio_dataset() {
+    local tool="$1"
+    local work_dir="$2"
+    local job_name="$3"
+    local dataset_size="$4"
+    local direct_mode="$5"
+    local numjobs="$6"
+    local bs="$7"
+    local ioengine="$8"
+    local iodepth="$9"
+    local prep_log="$artifact_dir/tools/${tool}-prepare.log"
+    local -a prep_args=(
+        --name="$job_name"
+        --directory="$work_dir"
+        --rw=write
+        --bs="${PERF_FIO_PREP_BS:-$bs}"
+        --size="$dataset_size"
+        --numjobs="${PERF_FIO_PREP_NUMJOBS:-$numjobs}"
+        --ioengine="${PERF_FIO_PREP_IOENGINE:-$ioengine}"
+        --iodepth="${PERF_FIO_PREP_IODEPTH:-$iodepth}"
+        --direct="$direct_mode"
+        --end_fsync=1
+        --group_reporting
+        --eta=never
+    )
+
+    info "预填充 fio 数据集: $tool"
+    if [[ -n "${PERF_FIO_PREP_BUFFER_PATTERN:-}" ]]; then
+        prep_args+=(--buffer_pattern="$PERF_FIO_PREP_BUFFER_PATTERN")
+    fi
+    local sampler_pid status=0
+    append_fio_observation_args prep_args
+    prep_args+=("--output-format=${PERF_FIO_OUTPUT_FORMAT:-json}" "--output=$artifact_dir/results/${tool}-prefill.json")
+    capture_backend_phase "$tool-prefill-before" || return $?
+    printf '%s\tprefill_start\t%s\n' "$tool" "$(date +%s%N)" >>"$artifact_dir/phase-boundaries.tsv"
+    start_writeback_sampler "${tool}-prefill"
+    sampler_pid="$WRITEBACK_SAMPLER_PID"
+    if [[ "${PERF_LOG_TO_CONSOLE:-false}" == "true" ]]; then
+        run_observed_fio "${tool}-prefill" "${prep_args[@]}" 2>&1 | tee "$prep_log" || status="${PIPESTATUS[0]}"
+    else
+        run_observed_fio "${tool}-prefill" "${prep_args[@]}" >"$prep_log" 2>&1 || status=$?
+    fi
+    printf '%s\tprefill_end\t%s\n' "$tool" "$(date +%s%N)" >>"$artifact_dir/phase-boundaries.tsv"
+    stop_writeback_sampler "$sampler_pid" || status=1
+    return "$status"
+}
+
+run_fio_custom() {
+    if [[ "${BREWFS_VOLUME_FORMAT:-}" == "packed-metadata-v3" ]]; then
+        err "packed-v3 fio fixture/trace layout remains OPEN"
+        return 1
+    fi
+    local work_dir="$mount_dir/.perf-fio"
+    local json_path="$artifact_dir/results/fio.json"
+    local -a args=()
+
+    if ! command -v fio >/dev/null 2>&1; then
+        err "找不到 fio"
+        exit 1
+    fi
+
+    rm -rf "$work_dir"
+    mkdir -p "$work_dir"
+
+    if [[ -n "${PERF_FIO_ARGS:-}" ]]; then
+        read -r -a args <<<"${PERF_FIO_ARGS}"
+    else
+        args=(
+            --name="${PERF_FIO_NAME:-brewfs-randrw}"
+            --directory="$work_dir"
+            --rw="${PERF_FIO_RW:-randrw}"
+            --rwmixread="${PERF_FIO_RWMIXREAD:-70}"
+            --bs="${PERF_FIO_BS:-4m}"
+            --size="${PERF_FIO_SIZE:-256m}"
+            --numjobs="${PERF_FIO_NUMJOBS:-4}"
+            --ioengine="${PERF_FIO_IOENGINE:-io_uring}"
+            --iodepth="${PERF_FIO_IODEPTH:-1}"
+            --direct="${PERF_FIO_DIRECT:-0}"
+            --runtime="${PERF_FIO_RUNTIME:-60}"
+            --time_based
+            --group_reporting
+            --eta=never
+        )
+    fi
+
+    append_fio_observation_args args
+    args+=("--output-format=${PERF_FIO_OUTPUT_FORMAT:-json}" --output="$json_path")
+    local fio_status=0
+    run_logged_tool fio run_observed_fio fio "${args[@]}" || fio_status=$?
+    append_fio_log_summary "$json_path" "$artifact_dir/tools/fio.log" "fio" || fio_status=1
+    return "$fio_status"
+}
+
+evict_brewfs_local_cache_pages() {
+    local root="${BREWFS_CACHE_ROOT:-/var/lib/brewfs/cache}"
+    if [[ "$root" != /* || "$root" == "/" || ! -d "$root" ]]; then
+        err "无法定向驱逐 BrewFS cache page cache，路径无效: $root"
+        return 1
+    fi
+
+    sync
+    python3 - "$root" <<'PY'
+import os
+import pathlib
+import stat
+import sys
+
+root = pathlib.Path(sys.argv[1])
+files = 0
+bytes_advised = 0
+for directory, _, names in os.walk(root):
+    for name in names:
+        path = pathlib.Path(directory) / name
+        try:
+            metadata = path.stat()
+            if not stat.S_ISREG(metadata.st_mode):
+                continue
+            fd = os.open(path, os.O_RDONLY | os.O_CLOEXEC)
+            try:
+                os.posix_fadvise(fd, 0, 0, os.POSIX_FADV_DONTNEED)
+            finally:
+                os.close(fd)
+            files += 1
+            bytes_advised += metadata.st_size
+        except FileNotFoundError:
+            continue
+print(
+    f"evicted local cache pages: root={root} files={files} "
+    f"bytes={bytes_advised}"
+)
+PY
+}
+
+run_repeated_bigread() {
+    local tool="$1"
+    local canonical_path="$2"
+    local warmup_count="$3"
+    local repeats="$4"
+    local cooldown_secs="$5"
+    shift 5
+    local -a fio_args=("$@")
+    local repeat_dir="$artifact_dir/results/${tool}-repeats"
+    local summary_path="$artifact_dir/${tool}-repeat-summary.json"
+    local -a repeat_paths=()
+    local i repeat_path lat_prefix
+
+    mkdir -p "$repeat_dir"
+    for ((i = 1; i <= warmup_count; i++)); do
+        info "热身 Large read: $tool 第 ${i}/${warmup_count} 轮（不计入结果）"
+        run_observed_fio "${tool}-warmup-${i}" "${fio_args[@]}" \
+            "--output-format=${PERF_FIO_OUTPUT_FORMAT:-json}" \
+            --output="$repeat_dir/warmup-${i}.json" \
+            --write_lat_log="$repeat_dir/warmup-${i}_lat" \
+            --log_avg_msec=1000 || return $?
+    done
+
+    for ((i = 1; i <= repeats; i++)); do
+        repeat_path="$repeat_dir/run-${i}.json"
+        lat_prefix="$repeat_dir/run-${i}_lat"
+        repeat_paths+=("$repeat_path")
+        if truthy_env "${PERF_FIO_BIGREAD_EVICT_LOCAL_CACHE_PAGES:-true}"; then
+            evict_brewfs_local_cache_pages || return $?
+        fi
+        info "运行稳定 Large read: $tool 第 ${i}/${repeats} 轮"
+        run_observed_fio "${tool}-repeat-${i}" "${fio_args[@]}" \
+            "--output-format=${PERF_FIO_OUTPUT_FORMAT:-json}" \
+            --output="$repeat_path" \
+            --write_lat_log="$lat_prefix" \
+            --log_avg_msec=1000 || return $?
+
+        if ((i < repeats)); then
+            info "Large read 轮间冷却 ${cooldown_secs}s"
+            sleep "$cooldown_secs"
+            if truthy_env "${PERF_FIO_BIGREAD_REMOUNT_BETWEEN_REPEATS:-true}"; then
+                info "重挂载以清空进程内热缓存"
+                remount_brewfs_for_fio_profile "${tool}-repeat-$((i + 1))" || return $?
+            else
+                info "保持挂载，保留热本地缓存供下一轮测量"
+            fi
+        fi
+    done
+
+    python3 - "$canonical_path" "$summary_path" "$warmup_count" "${repeat_paths[@]}" <<'PY'
+import json
+import pathlib
+import shutil
+import sys
+
+canonical = pathlib.Path(sys.argv[1])
+summary_path = pathlib.Path(sys.argv[2])
+warmup_count = int(sys.argv[3])
+paths = [pathlib.Path(raw) for raw in sys.argv[4:]]
+runs = []
+for index, path in enumerate(paths, 1):
+    data = json.loads(path.read_text())
+    jobs = data.get("jobs", [])
+    if not jobs:
+        raise SystemExit(f"missing fio jobs in {path}")
+    read_bw = sum(float(job.get("read", {}).get("bw_bytes", 0)) for job in jobs)
+    write_bw = sum(float(job.get("write", {}).get("bw_bytes", 0)) for job in jobs)
+    runs.append({
+        "run": index,
+        "path": str(path),
+        "read_bw_bytes_per_sec": read_bw,
+        "write_bw_bytes_per_sec": write_bw,
+        "total_bw_bytes_per_sec": read_bw + write_bw,
+        "total_bw_mib_per_sec": (read_bw + write_bw) / (1024 * 1024),
+    })
+
+ordered = sorted(runs, key=lambda item: (item["total_bw_bytes_per_sec"], item["run"]))
+median = ordered[len(ordered) // 2]
+shutil.copyfile(median["path"], canonical)
+median_bw = median["total_bw_bytes_per_sec"]
+spread_pct = (
+    (ordered[-1]["total_bw_bytes_per_sec"] - ordered[0]["total_bw_bytes_per_sec"])
+    / median_bw
+    * 100
+    if median_bw
+    else 0
+)
+summary = {
+    "schema_version": 1,
+    "warmup_count": warmup_count,
+    "repeat_count": len(runs),
+    "selection": "median_total_bw_bytes_per_sec",
+    "median_run": median["run"],
+    "median_bw_mib_per_sec": median["total_bw_mib_per_sec"],
+    "min_bw_mib_per_sec": ordered[0]["total_bw_mib_per_sec"],
+    "max_bw_mib_per_sec": ordered[-1]["total_bw_mib_per_sec"],
+    "spread_percent_of_median": spread_pct,
+    "canonical_result": str(canonical),
+    "runs": runs,
+}
+summary_path.write_text(json.dumps(summary, indent=2) + "\n")
+print(
+    f"stable bigread median: run={median['run']} "
+    f"bw={median['total_bw_mib_per_sec']:.2f} MiB/s "
+    f"spread={spread_pct:.2f}%"
+)
+PY
+}
+
+# Qualification hard gate: all measured CPU/phase boundaries already ended.
+# Keep old staging and SSD cache untouched; the next mount must fetch independently.
+verify_fio_remote_durability() {
+    local tool="$1" work_dir="$2" status=0
+    case "$tool" in
+        fio-seqwrite*|fio-randwrite*|fio-randrw*|fio-bigwrite*) ;;
+        *) return 0 ;;
+    esac
+    local evidence="$artifact_dir/remote-durability/$tool"
+    mkdir -p "$artifact_dir/remote-durability"
+    if ! truthy_env "${PERF_FIO_POST_WRITE_DRAIN:-false}"; then
+        err "remote durability requires strict post-write drain: $tool"
+        touch "$artifact_dir/remote-durability.invalid"
+        return 1
+    fi
+    info "验证远端持久化（测量边界之外）: $tool"
+    timeout --signal=TERM --kill-after=5 300 python3 /usr/local/bin/verify_remote_durability.py \
+        --dataset "$work_dir" --mount "$mount_dir" --config "$config_path" \
+        --log "$log_file" --output "$evidence" \
+        >"$artifact_dir/remote-durability/${tool}.log" 2>&1 || status=$?
+    # The helper checks this exact root against the new mount's real environment.
+    # Retain it for subsequent tools and their remounts; never restore old staging.
+    if [[ -f "$evidence/new-cache-root.txt" ]]; then
+        export BREWFS_CACHE_ROOT="$(cat "$evidence/new-cache-root.txt")"
+    fi
+    if (( status != 0 )); then
+        err "远端持久化验证失败: $tool (exit=$status)"
+        touch "$artifact_dir/remote-durability.invalid"
+        printf '%s\tfail(%s)\t0\t%s\n' "${tool}-remote-durability" "$status" "$evidence/receipt.json" >>"$artifact_dir/perf-summary.tsv"
+        return 1
+    fi
+    ok "远端持久化验证通过: $tool (成本单列在 $evidence/receipt.json)"
+}
+
+run_fio_profile() {
+    [[ ! -e "$artifact_dir/remote-durability.invalid" ]] || return 1
+    if [[ "${BREWFS_VOLUME_FORMAT:-}" == "packed-metadata-v3" ]]; then
+        err "packed-v3 fio fixture/trace layout remains OPEN"
+        return 1
+    fi
+    local tool="$1"
+    local mode="$2"
+    local direct_override="${3:-}"
+    local profile_key_override="${4:-}"
+    local work_dir="$mount_dir/.perf-${tool}"
+    local json_path="$artifact_dir/results/${tool}.json"
+    local profile_suffix="${tool#fio-}"
+    local profile_key
+    local profile_args_var
+    local name_var
+    local rw_var
+    local rwmixread_var
+    local bs_var
+    local size_var
+    local numjobs_var
+    local ioengine_var
+    local iodepth_var
+    local direct_var
+    local runtime_var
+    local name rw rwmixread bs size numjobs ioengine iodepth direct runtime
+    local needs_prefill=false
+    local use_time_based=true
+    local use_end_fsync=false
+    local use_refill_buffers=false
+    local repeat_count=1
+    local repeat_cooldown_secs=10
+    local warmup_count=0
+    local -a args=()
+
+    if [[ -n "$profile_key_override" ]]; then
+        profile_key="$profile_key_override"
+    else
+        profile_key="$(printf '%s' "$profile_suffix" | tr '[:lower:]-' '[:upper:]_')"
+    fi
+    profile_args_var="PERF_FIO_${profile_key}_ARGS"
+    name_var="PERF_FIO_${profile_key}_NAME"
+    rw_var="PERF_FIO_${profile_key}_RW"
+    rwmixread_var="PERF_FIO_${profile_key}_RWMIXREAD"
+    bs_var="PERF_FIO_${profile_key}_BS"
+    size_var="PERF_FIO_${profile_key}_SIZE"
+    numjobs_var="PERF_FIO_${profile_key}_NUMJOBS"
+    ioengine_var="PERF_FIO_${profile_key}_IOENGINE"
+    iodepth_var="PERF_FIO_${profile_key}_IODEPTH"
+    direct_var="PERF_FIO_${profile_key}_DIRECT"
+    runtime_var="PERF_FIO_${profile_key}_RUNTIME"
+
+    local direct_matrix_var="PERF_FIO_${profile_key}_DIRECT_MATRIX"
+    local direct_matrix="${!direct_matrix_var:-${PERF_FIO_DIRECT_MATRIX:-}}"
+    if [[ -z "$direct_override" && -z "${!profile_args_var:-}" && -n "$direct_matrix" ]]; then
+        local direct_value matrix_status=0
+        for direct_value in $direct_matrix; do
+            case "$direct_value" in
+                0|1) ;;
+                *)
+                    err "无效的 fio direct matrix 值: $direct_value (只支持 0 或 1)"
+                    return 1
+                    ;;
+            esac
+            run_fio_profile "${tool}-direct${direct_value}" "$mode" "$direct_value" "$profile_key" || matrix_status=1
+        done
+        return "$matrix_status"
+    fi
+
+    rm -rf "$work_dir"
+    mkdir -p "$work_dir"
+
+    # Always resolve the mode defaults first. Named profile arguments are
+    # additive so the selected profile keeps its prefill, fsync/close and
+    # drain lifecycle.
+    case "$mode" in
+            seqread)
+                name="$(env_or_default "$name_var" PERF_FIO_NAME brewfs-seqread)"
+                rw="$(env_or_default "$rw_var" PERF_FIO_RW read)"
+                bs="$(env_or_default "$bs_var" PERF_FIO_BS 4m)"
+                size="$(env_or_default "$size_var" PERF_FIO_SIZE 1g)"
+                numjobs="$(env_or_default "$numjobs_var" PERF_FIO_NUMJOBS 1)"
+                ioengine="$(env_or_default "$ioengine_var" PERF_FIO_IOENGINE io_uring)"
+                iodepth="$(env_or_default "$iodepth_var" PERF_FIO_IODEPTH 1)"
+                direct="${direct_override:-$(env_or_default "$direct_var" PERF_FIO_DIRECT 0)}"
+                runtime="$(env_or_default "$runtime_var" PERF_FIO_RUNTIME 60)"
+                use_time_based=true
+                use_end_fsync=false
+                use_refill_buffers=false
+                needs_prefill=true
+                ;;
+            seqwrite)
+                name="$(env_or_default "$name_var" PERF_FIO_NAME brewfs-seqwrite)"
+                rw="$(env_or_default "$rw_var" PERF_FIO_RW write)"
+                bs="$(env_or_default "$bs_var" PERF_FIO_BS 4m)"
+                size="$(env_or_default "$size_var" PERF_FIO_SIZE 1g)"
+                numjobs="$(env_or_default "$numjobs_var" PERF_FIO_NUMJOBS 1)"
+                ioengine="$(env_or_default "$ioengine_var" PERF_FIO_IOENGINE io_uring)"
+                iodepth="$(env_or_default "$iodepth_var" PERF_FIO_IODEPTH 1)"
+                direct="${direct_override:-$(env_or_default "$direct_var" PERF_FIO_DIRECT 0)}"
+                runtime="$(env_or_default "$runtime_var" PERF_FIO_RUNTIME 60)"
+                use_time_based=true
+                use_end_fsync=false
+                use_refill_buffers=false
+                ;;
+            randread)
+                name="$(env_or_default "$name_var" PERF_FIO_NAME brewfs-randread)"
+                rw="$(env_or_default "$rw_var" PERF_FIO_RW randread)"
+                bs="$(env_or_default "$bs_var" PERF_FIO_BS 4m)"
+                size="$(env_or_default "$size_var" PERF_FIO_SIZE 512m)"
+                numjobs="$(env_or_default "$numjobs_var" PERF_FIO_NUMJOBS 4)"
+                ioengine="$(env_or_default "$ioengine_var" PERF_FIO_IOENGINE io_uring)"
+                iodepth="$(env_or_default "$iodepth_var" PERF_FIO_IODEPTH 1)"
+                direct="${direct_override:-$(env_or_default "$direct_var" PERF_FIO_DIRECT 0)}"
+                runtime="$(env_or_default "$runtime_var" PERF_FIO_RUNTIME 60)"
+                use_time_based=true
+                use_end_fsync=false
+                use_refill_buffers=false
+                needs_prefill=true
+                ;;
+            randwrite)
+                name="$(env_or_default "$name_var" PERF_FIO_NAME brewfs-randwrite)"
+                rw="$(env_or_default "$rw_var" PERF_FIO_RW randwrite)"
+                bs="$(env_or_default "$bs_var" PERF_FIO_BS 4m)"
+                size="$(env_or_default "$size_var" PERF_FIO_SIZE 512m)"
+                numjobs="$(env_or_default "$numjobs_var" PERF_FIO_NUMJOBS 4)"
+                ioengine="$(env_or_default "$ioengine_var" PERF_FIO_IOENGINE io_uring)"
+                iodepth="$(env_or_default "$iodepth_var" PERF_FIO_IODEPTH 1)"
+                direct="${direct_override:-$(env_or_default "$direct_var" PERF_FIO_DIRECT 0)}"
+                runtime="$(env_or_default "$runtime_var" PERF_FIO_RUNTIME 60)"
+                use_time_based=true
+                use_end_fsync=false
+                use_refill_buffers=false
+                ;;
+            randrw)
+                name="$(env_or_default "$name_var" PERF_FIO_NAME brewfs-randrw)"
+                rw="$(env_or_default "$rw_var" PERF_FIO_RW randrw)"
+                rwmixread="$(env_or_default "$rwmixread_var" PERF_FIO_RWMIXREAD 70)"
+                bs="$(env_or_default "$bs_var" PERF_FIO_BS 4m)"
+                size="$(env_or_default "$size_var" PERF_FIO_SIZE 512m)"
+                numjobs="$(env_or_default "$numjobs_var" PERF_FIO_NUMJOBS 4)"
+                ioengine="$(env_or_default "$ioengine_var" PERF_FIO_IOENGINE io_uring)"
+                iodepth="$(env_or_default "$iodepth_var" PERF_FIO_IODEPTH 1)"
+                direct="${direct_override:-$(env_or_default "$direct_var" PERF_FIO_DIRECT 0)}"
+                runtime="$(env_or_default "$runtime_var" PERF_FIO_RUNTIME 60)"
+                use_time_based=true
+                use_end_fsync=false
+                use_refill_buffers=false
+                needs_prefill=true
+                ;;
+            bigwrite)
+                name="$(env_or_default "$name_var" PERF_FIO_NAME brewfs-bigwrite)"
+                rw="$(env_or_default "$rw_var" PERF_FIO_RW write)"
+                bs="$(env_or_default "$bs_var" PERF_FIO_BS 4m)"
+                size="$(env_or_default "$size_var" PERF_FIO_SIZE 128m)"
+                numjobs="$(env_or_default "$numjobs_var" PERF_FIO_NUMJOBS 8)"
+                ioengine="$(env_or_default "$ioengine_var" PERF_FIO_IOENGINE io_uring)"
+                iodepth="$(env_or_default "$iodepth_var" PERF_FIO_IODEPTH 1)"
+                direct="${direct_override:-$(env_or_default "$direct_var" PERF_FIO_DIRECT 0)}"
+                runtime="0"
+                use_time_based=false
+                use_end_fsync=true
+                use_refill_buffers=true
+                needs_prefill=false
+                ;;
+            bigread)
+                name="$(env_or_default "$name_var" PERF_FIO_NAME brewfs-bigread)"
+                rw="$(env_or_default "$rw_var" PERF_FIO_RW read)"
+                bs="$(env_or_default "$bs_var" PERF_FIO_BS 4m)"
+                size="$(env_or_default "$size_var" PERF_FIO_SIZE 128m)"
+                numjobs="$(env_or_default "$numjobs_var" PERF_FIO_NUMJOBS 8)"
+                ioengine="$(env_or_default "$ioengine_var" PERF_FIO_IOENGINE io_uring)"
+                iodepth="$(env_or_default "$iodepth_var" PERF_FIO_IODEPTH 1)"
+                direct="${direct_override:-$(env_or_default "$direct_var" PERF_FIO_DIRECT 0)}"
+                runtime="0"
+                use_time_based=false
+                use_refill_buffers=true
+                needs_prefill=true
+                ;;
+            *)
+                err "未知的 fio profile: $mode"
+                return 1
+                ;;
+        esac
+
+        args=(
+            --name="$name"
+            --directory="$work_dir"
+            --rw="$rw"
+            --bs="$bs"
+            --size="$size"
+            --numjobs="$numjobs"
+            --ioengine="$ioengine"
+            --iodepth="$iodepth"
+            --direct="$direct"
+        )
+
+        if [[ "${use_time_based:-true}" == true ]]; then
+            args+=(--runtime="$runtime" --time_based)
+        fi
+        if [[ "${use_end_fsync:-false}" == true ]]; then
+            args+=(--end_fsync=1)
+        fi
+        if [[ "${use_refill_buffers:-false}" == true ]]; then
+            args+=(--refill_buffers)
+        fi
+
+        args+=(--group_reporting --eta=never)
+
+    if [[ -n "${rwmixread:-}" ]]; then
+        args+=(--rwmixread="$rwmixread")
+    fi
+
+    # A named profile may add fio-specific switches, but its lifecycle and
+    # dataset identity are restored last so a complete argv override cannot
+    # silently skip prefill or end_fsync.
+    if [[ -n "${!profile_args_var:-}" ]]; then
+        local -a profile_args=()
+        read -r -a profile_args <<<"${!profile_args_var}"
+        # --name starts a new fio job, so never append it as an override.
+        local profile_arg
+        for profile_arg in "${profile_args[@]}"; do
+            case "$profile_arg" in --name|--name=*) err "profile arguments cannot create a second fio job"; return 1 ;; esac
+        done
+        args+=("${profile_args[@]}")
+        args+=("--directory=$work_dir" "--rw=$rw" "--size=$size"
+            "--bs=$bs" "--numjobs=$numjobs" "--ioengine=$ioengine" "--iodepth=$iodepth" "--direct=$direct")
+        if [[ "${use_time_based:-true}" == true ]]; then
+            args+=("--runtime=$runtime" "--time_based")
+        fi
+        if [[ "${use_end_fsync:-false}" == true ]]; then
+            args+=(--end_fsync=1)
+        fi
+        if [[ "${use_refill_buffers:-false}" == true ]]; then
+            args+=(--refill_buffers)
+        fi
+        if [[ -n "${rwmixread:-}" ]]; then
+            args+=(--rwmixread="$rwmixread")
+        fi
+    fi
+    append_fio_observation_args args
+
+    if [[ "$needs_prefill" == true ]]; then
+        stats_snapshot_before_tool "${tool}-prefill"
+        prepare_fio_dataset "$tool" "$work_dir" "$name" "$size" "$direct" "$numjobs" "$bs" "$ioengine" "$iodepth" || return $?
+        if truthy_env "${PERF_FIO_PREP_VERIFY_SHA256:-false}"; then
+            find "$work_dir" -type f -print0 | sort -z | xargs -0 -r sha256sum \
+                >"$artifact_dir/tools/${tool}-prepare.sha256" || return $?
+        fi
+        stats_snapshot_after_tool "${tool}-prefill"
+        if truthy_env "${PERF_FIO_COLD_READ:-false}" || truthy_env "${PERF_FIO_PREFILL_DRAIN:-false}"; then
+            wait_for_fio_prefill_drain "$tool" || return $?
+        fi
+        if truthy_env "${PERF_FIO_COLD_READ:-false}" || truthy_env "${PERF_FIO_PREFILL_REMOUNT:-false}"; then
+            remount_brewfs_for_fio_profile "$tool" || return $?
+        fi
+    fi
+
+    if [[ "$mode" == "bigread" ]]; then
+        repeat_count="${PERF_FIO_BIGREAD_REPEATS:-3}"
+        repeat_cooldown_secs="${PERF_FIO_BIGREAD_COOLDOWN_SECS:-10}"
+        warmup_count="${PERF_FIO_BIGREAD_WARMUP_PASSES:-1}"
+        if [[ ! "$repeat_count" =~ ^(1|3|5)$ ]]; then
+            err "PERF_FIO_BIGREAD_REPEATS 只支持 1、3 或 5，当前值: $repeat_count"
+            return 1
+        fi
+        if [[ ! "$repeat_cooldown_secs" =~ ^[0-9]+$ ]] || ((repeat_cooldown_secs > 300)); then
+            err "PERF_FIO_BIGREAD_COOLDOWN_SECS 必须是 0..300 的整数，当前值: $repeat_cooldown_secs"
+            return 1
+        fi
+        if [[ ! "$warmup_count" =~ ^[0-9]+$ ]] || ((warmup_count > 10)); then
+            err "PERF_FIO_BIGREAD_WARMUP_PASSES 必须是 0..10 的整数，当前值: $warmup_count"
+            return 1
+        fi
+    fi
+
+    # Collect per-second latency logs for time-series analysis
+    local lat_log_prefix="$artifact_dir/results/${tool}_lat"
+    local fio_status=0
+    if ((repeat_count > 1)); then
+        run_logged_tool "$tool" run_repeated_bigread \
+            "$tool" "$json_path" "$warmup_count" "$repeat_count" "$repeat_cooldown_secs" "${args[@]}" || fio_status=$?
+    else
+        args+=("--output-format=${PERF_FIO_OUTPUT_FORMAT:-json}" --output="$json_path")
+        args+=(--write_lat_log="$lat_log_prefix" --log_avg_msec=1000)
+        run_logged_tool "$tool" run_observed_fio "$tool" "${args[@]}" || fio_status=$?
+    fi
+    append_fio_log_summary "$json_path" "$artifact_dir/tools/${tool}.log" "$tool" || fio_status=1
+    wait_for_fio_post_write_drain "$tool" || fio_status=1
+    if (( fio_status == 0 )); then
+        verify_fio_remote_durability "$tool" "$work_dir" || fio_status=1
+    fi
+    return "$fio_status"
+}
+
+run_object_put_bench() {
+    if [[ "$data_backend" != "s3" ]]; then
+        err "object-put-bench requires BREWFS_DATA_BACKEND=s3"
+        return 1
+    fi
+
+    local bucket="${BREWFS_S3_BUCKET:-brewfs-data}"
+    local endpoint="${BREWFS_S3_ENDPOINT:-http://rustfs:9000}"
+    local region="${BREWFS_S3_REGION:-us-east-1}"
+    local force_path="${BREWFS_S3_FORCE_PATH_STYLE:-true}"
+    local part_size="${BREWFS_S3_PART_SIZE:-16777216}"
+    local s3_max_conc="${BREWFS_S3_MAX_CONCURRENCY:-8}"
+    local checksum_disabled="${BREWFS_S3_DISABLE_PAYLOAD_CHECKSUM:-true}"
+    local object_size="${PERF_OBJECT_PUT_OBJECT_SIZE:-${BREWFS_BLOCK_SIZE:-4194304}}"
+    local workers="${PERF_OBJECT_PUT_WORKERS:-${BREWFS_UPLOAD_CONCURRENCY:-32}}"
+    local duration="${PERF_OBJECT_PUT_DURATION_SECS:-60}"
+    local objects="${PERF_OBJECT_PUT_OBJECTS:-0}"
+    local prefix="${PERF_OBJECT_PUT_PREFIX:-bench/direct-put}"
+
+    export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-rustfsadmin}"
+    export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-rustfsadmin}"
+    export AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-$region}"
+    export AWS_EC2_METADATA_DISABLED="${AWS_EC2_METADATA_DISABLED:-true}"
+
+    run_logged_tool object-put-bench /usr/local/bin/brewfs object-put-bench \
+        --s3-bucket "$bucket" \
+        --s3-endpoint "$endpoint" \
+        --s3-region "$region" \
+        --s3-part-size "$part_size" \
+        --s3-max-concurrency "$s3_max_conc" \
+        --s3-force-path-style "$force_path" \
+        --s3-disable-payload-checksum "$checksum_disabled" \
+        --object-size "$object_size" \
+        --workers "$workers" \
+        --duration-secs "$duration" \
+        --objects "$objects" \
+        --prefix "$prefix"
+}
+
+generate_perf_report() {
+    python3 - "$artifact_dir" "$meta_backend" <<'PY'
+import csv
+import datetime as dt
+import json
+import pathlib
+import sys
+
+artifact_dir = pathlib.Path(sys.argv[1])
+meta_backend = sys.argv[2]
+summary_path = artifact_dir / "perf-summary.tsv"
+report_path = artifact_dir / "report.md"
+fio_json_paths = sorted((artifact_dir / "results").glob("fio*.json"))
+
+rows = []
+if summary_path.exists():
+    with summary_path.open(newline="") as f:
+        rows = list(csv.DictReader(f, delimiter="\t"))
+summary_by_tool = {row.get("tool", ""): row for row in rows}
+
+lines = [
+    "# BrewFS Perf Report",
+    "",
+    f"Meta backend: {meta_backend}",
+    "",
+    "## Summary",
+    "",
+    "| Tool | Status | Seconds | Log |",
+    "| --- | --- | ---: | --- |",
+]
+
+for row in rows:
+    log = pathlib.Path(row.get("log", "")).name
+    lines.append(
+        f"| {row.get('tool', '')} | {row.get('status', '')} | "
+        f"{row.get('seconds', '')} | tools/{log} |"
+    )
+
+post_write_drain_path = artifact_dir / "post-write-drain.tsv"
+drain_rows = []
+if post_write_drain_path.exists():
+    with post_write_drain_path.open(newline="") as f:
+        drain_rows = [
+            row
+            for row in csv.DictReader(f, delimiter="\t")
+            if row.get("tool")
+        ]
+    if drain_rows:
+        lines.extend([
+            "",
+            "## Post-Write Drain",
+            "",
+            "| Tool | Drain seconds | Pending bytes | Dirty bytes | Buffer dirty bytes |",
+            "| --- | ---: | ---: | ---: | ---: |",
+        ])
+        for row in drain_rows:
+            lines.append(
+                f"| {row.get('tool', '')} | {row.get('extended_strict_drain_s') or row.get('post_write_drain_s') or row.get('post_fio_drain_s', '')} | "
+                f"{row.get('pending_bytes', '')} | {row.get('dirty_bytes', '')} | "
+                f"{row.get('buffer_dirty_bytes', '')} |"
+            )
+drain_by_tool = {
+    row.get("tool", ""): value
+    for row in drain_rows
+    if (value := row.get("extended_strict_drain_s") or row.get("post_write_drain_s") or row.get("post_fio_drain_s", ""))
+}
+
+if fio_json_paths:
+    try:
+        def num(value, default=0):
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return default
+
+        def fmt_bytes(value):
+            value = num(value)
+            units = ["B", "KiB", "MiB", "GiB", "TiB"]
+            for unit in units:
+                if abs(value) < 1024 or unit == units[-1]:
+                    return f"{value:.2f} {unit}"
+                value /= 1024
+            return f"{value:.2f} TiB"
+
+        def fmt_rate(value):
+            return f"{fmt_bytes(value)}/s"
+
+        def fmt_iops(value):
+            return f"{num(value):,.2f}"
+
+        def fmt_ms_from_ns(value):
+            return f"{num(value) / 1_000_000:.3f} ms"
+
+        def fmt_seconds_from_ms(value):
+            value = num(value)
+            if value <= 0:
+                return "-"
+            return f"{value / 1000.0:.3f} s"
+
+        def fmt_delta_ms(value):
+            value = num(value)
+            sign = "+" if value >= 0 else "-"
+            return f"{sign}{abs(value) / 1000.0:.3f} s"
+
+        def fmt_ratio(value):
+            value = num(value)
+            if value <= 0:
+                return "-"
+            return f"{value:.2f}x"
+
+        def latency_percentile(op, pct):
+            percentiles = op.get("clat_ns", {}).get("percentile", {})
+            return percentiles.get(f"{pct:.6f}") or percentiles.get(str(pct))
+
+        def op_totals(op_name):
+            ops = [job.get(op_name, {}) for job in jobs]
+            io_bytes = sum(num(op.get("io_bytes")) for op in ops)
+            bw_bytes = sum(num(op.get("bw_bytes")) for op in ops)
+            iops = sum(num(op.get("iops")) for op in ops)
+            total_ios = sum(num(op.get("total_ios")) for op in ops)
+            runtimes = [num(op.get("runtime")) for op in ops if num(op.get("runtime")) > 0]
+            runtime_ms = max(runtimes) if runtimes else 0
+            means = [
+                (num(op.get("clat_ns", {}).get("mean")), num(op.get("clat_ns", {}).get("N")))
+                for op in ops
+                if num(op.get("clat_ns", {}).get("N")) > 0
+            ]
+            total_n = sum(n for _, n in means)
+            mean_ns = sum(mean * n for mean, n in means) / total_n if total_n else 0
+            p95 = max((num(latency_percentile(op, 95)) for op in ops), default=0)
+            p99 = max((num(latency_percentile(op, 99)) for op in ops), default=0)
+            return {
+                "io_bytes": io_bytes,
+                "bw_bytes": bw_bytes,
+                "iops": iops,
+                "total_ios": total_ios,
+                "runtime_ms": runtime_ms,
+                "mean_ns": mean_ns,
+                "p95_ns": p95,
+                "p99_ns": p99,
+            }
+
+        def first_job_options():
+            for job in jobs:
+                options = job.get("job options", {})
+                if options:
+                    return options
+            return {}
+
+        def fio_runtime_accounting(data, tool_name, read, write):
+            jobs = data.get("jobs", [])
+            raw_job_runtime_ms = max((num(job.get("job_runtime")) for job in jobs), default=0)
+            active_runtime_ms = max(read["runtime_ms"], write["runtime_ms"])
+            wall_seconds = num(summary_by_tool.get(tool_name, {}).get("seconds"))
+            wall_ms = wall_seconds * 1000.0 if wall_seconds > 0 else 0
+            wall_vs_job_ms = wall_ms - raw_job_runtime_ms if raw_job_runtime_ms > 0 and wall_ms > 0 else 0
+            wall_vs_active_ms = wall_ms - active_runtime_ms if active_runtime_ms > 0 and wall_ms > 0 else 0
+            wall_job_ratio = wall_ms / raw_job_runtime_ms if raw_job_runtime_ms > 0 and wall_ms > 0 else 0
+            wall_active_ratio = wall_ms / active_runtime_ms if active_runtime_ms > 0 and wall_ms > 0 else 0
+            tail = "-"
+            if wall_vs_active_ms > 5000 or wall_active_ratio > 1.15:
+                tail = "close/flush tail"
+            elif raw_job_runtime_ms > wall_ms > 0:
+                tail = "fio job_runtime aggregates jobs"
+            return {
+                "raw_job_runtime_ms": raw_job_runtime_ms,
+                "active_runtime_ms": active_runtime_ms,
+                "wall_seconds": wall_seconds,
+                "wall_vs_job_ms": wall_vs_job_ms,
+                "wall_vs_active_ms": wall_vs_active_ms,
+                "wall_job_ratio": wall_job_ratio,
+                "wall_active_ratio": wall_active_ratio,
+                "tail": tail,
+            }
+
+        lines.extend([
+            "",
+            "## Fio",
+            "",
+            "| Tool | Workload | Direct | BS | Jobs | Read BW | Read IOPS | Write BW | Write IOPS | Read P99 | Write P99 | Raw |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |---: | ---: | ---: |",
+        ])
+
+        runtime_rows = []
+        fully_drained_rows = []
+        for fio_json_path in fio_json_paths:
+            data = json.loads(fio_json_path.read_text())
+            jobs = data.get("jobs", [])
+            if not jobs:
+                continue
+            options = first_job_options()
+            read = op_totals("read")
+            write = op_totals("write")
+            tool_name = fio_json_path.stem
+            runtime = fio_runtime_accounting(data, tool_name, read, write)
+            runtime_rows.append((tool_name, options, runtime))
+            drain_seconds = num(drain_by_tool.get(tool_name))
+            active_seconds = runtime["active_runtime_ms"] / 1000.0
+            if write["io_bytes"] > 0 and active_seconds > 0 and tool_name in drain_by_tool:
+                complete_seconds = active_seconds + drain_seconds
+                fully_drained_rows.append({
+                    "tool": tool_name,
+                    "active_seconds": active_seconds,
+                    "drain_seconds": drain_seconds,
+                    "complete_seconds": complete_seconds,
+                    "read_bytes": read["io_bytes"],
+                    "write_bytes": write["io_bytes"],
+                    "read_mib_s": read["io_bytes"] / complete_seconds / (1024 * 1024),
+                    "write_mib_s": write["io_bytes"] / complete_seconds / (1024 * 1024),
+                    "total_mib_s": (read["io_bytes"] + write["io_bytes"]) / complete_seconds / (1024 * 1024),
+                })
+            lines.append(
+                f"| {tool_name} | {options.get('rw', 'unknown')} | {options.get('direct', 'unknown')} | "
+                f"{options.get('bs', 'unknown')} | "
+                f"{options.get('numjobs', 'unknown')} | {fmt_rate(read['bw_bytes'])} | "
+                f"{fmt_iops(read['iops'])} | {fmt_rate(write['bw_bytes'])} | "
+                f"{fmt_iops(write['iops'])} | {fmt_ms_from_ns(read['p99_ns'])} | "
+                f"{fmt_ms_from_ns(write['p99_ns'])} | results/{fio_json_path.name} |"
+            )
+
+        if runtime_rows:
+            lines.extend([
+                "",
+                "## Fio Runtime Accounting",
+                "",
+                "Use `active_io_runtime` for close/flush tail detection; fio `job_runtime_ms` can aggregate multiple jobs under group reporting.",
+                "",
+                "| Tool | Direct | Script wall | fio job_runtime | wall-job_runtime | wall/job_runtime | active_io_runtime | wall-active_io | wall/active_io | Tail marker |",
+                "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+            ])
+            for tool_name, options, runtime in runtime_rows:
+                lines.append(
+                    f"| {tool_name} | {options.get('direct', 'unknown')} | "
+                    f"{runtime['wall_seconds']:.0f} s | {fmt_seconds_from_ms(runtime['raw_job_runtime_ms'])} | "
+                    f"{fmt_delta_ms(runtime['wall_vs_job_ms'])} | {fmt_ratio(runtime['wall_job_ratio'])} | "
+                    f"{fmt_seconds_from_ms(runtime['active_runtime_ms'])} | {fmt_delta_ms(runtime['wall_vs_active_ms'])} | "
+                    f"{fmt_ratio(runtime['wall_active_ratio'])} | {runtime['tail']} |"
+                )
+
+        if fully_drained_rows:
+            complete_path = artifact_dir / "fully-drained-throughput.tsv"
+            with complete_path.open("w", newline="") as f:
+                fieldnames = [
+                    "tool", "active_seconds", "drain_seconds", "complete_seconds",
+                    "read_bytes", "write_bytes", "read_mib_s", "write_mib_s", "total_mib_s",
+                ]
+                writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter="\t")
+                writer.writeheader()
+                for row in fully_drained_rows:
+                    writer.writerow({
+                        **row,
+                        "active_seconds": f"{row['active_seconds']:.6f}",
+                        "drain_seconds": f"{row['drain_seconds']:.6f}",
+                        "complete_seconds": f"{row['complete_seconds']:.6f}",
+                        "read_bytes": f"{row['read_bytes']:.0f}",
+                        "write_bytes": f"{row['write_bytes']:.0f}",
+                        "read_mib_s": f"{row['read_mib_s']:.6f}",
+                        "write_mib_s": f"{row['write_mib_s']:.6f}",
+                        "total_mib_s": f"{row['total_mib_s']:.6f}",
+                    })
+            lines.extend([
+                "",
+                "## Fully Drained Write Throughput",
+                "",
+                "Actual fio bytes divided by `active_io_runtime + post_write_drain`; unlike foreground bandwidth, this includes the time required to empty the filesystem writeback queue.",
+                "",
+                "| Tool | Active I/O | Drain | Complete | Read | Write | Total | Raw |",
+                "| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+            ])
+            for row in fully_drained_rows:
+                lines.append(
+                    f"| {row['tool']} | {row['active_seconds']:.3f} s | "
+                    f"{row['drain_seconds']:.3f} s | {row['complete_seconds']:.3f} s | "
+                    f"{row['read_mib_s']:.2f} MiB/s | {row['write_mib_s']:.2f} MiB/s | "
+                    f"{row['total_mib_s']:.2f} MiB/s | fully-drained-throughput.tsv |"
+                )
+    except Exception as exc:
+        lines.extend(["", "## Fio", "", f"Failed to parse fio JSON: {exc}"])
+
+# --- Detailed Latency Percentiles ---
+if fio_json_paths:
+    try:
+        pct_keys = ["1.000000", "5.000000", "25.000000", "50.000000",
+                    "75.000000", "90.000000", "95.000000", "99.000000", "99.900000"]
+        pct_labels = ["p1", "p5", "p25", "p50", "p75", "p90", "p95", "p99", "p99.9"]
+
+        lines.extend([
+            "",
+            "## Latency Percentiles",
+            "",
+            "### Read",
+            "",
+            "| Workload | " + " | ".join(pct_labels) + " |",
+            "| --- |" + " ---: |" * len(pct_labels),
+        ])
+        for fio_json_path in fio_json_paths:
+            data = json.loads(fio_json_path.read_text())
+            jobs = data.get("jobs", [])
+            if not jobs:
+                continue
+            read_op = jobs[0].get("read", {})
+            percs = read_op.get("clat_ns", {}).get("percentile", {})
+            if not percs or num(read_op.get("bw_bytes")) == 0:
+                continue
+            cols = [fio_json_path.stem]
+            for k in pct_keys:
+                cols.append(fmt_ms_from_ns(percs.get(k, 0)))
+            lines.append("| " + " | ".join(cols) + " |")
+
+        lines.extend([
+            "",
+            "### Write",
+            "",
+            "| Workload | " + " | ".join(pct_labels) + " |",
+            "| --- |" + " ---: |" * len(pct_labels),
+        ])
+        for fio_json_path in fio_json_paths:
+            data = json.loads(fio_json_path.read_text())
+            jobs = data.get("jobs", [])
+            if not jobs:
+                continue
+            write_op = jobs[0].get("write", {})
+            percs = write_op.get("clat_ns", {}).get("percentile", {})
+            if not percs or num(write_op.get("bw_bytes")) == 0:
+                continue
+            cols = [fio_json_path.stem]
+            for k in pct_keys:
+                cols.append(fmt_ms_from_ns(percs.get(k, 0)))
+            lines.append("| " + " | ".join(cols) + " |")
+    except Exception:
+        pass
+
+# --- Direct Object PUT Benchmark ---
+object_put_logs = sorted((artifact_dir / "tools").glob("object-put-bench*.log"))
+object_put_rows = []
+for path in object_put_logs:
+    try:
+        for raw in path.read_text(errors="replace").splitlines():
+            if not raw.startswith("object_put_bench_summary "):
+                continue
+            fields = {}
+            for item in raw.split()[1:]:
+                if "=" in item:
+                    key, value = item.split("=", 1)
+                    fields[key] = value
+            fields["log"] = str(path.relative_to(artifact_dir))
+            object_put_rows.append(fields)
+            break
+    except Exception:
+        pass
+
+if object_put_rows:
+    lines.extend([
+        "",
+        "## Direct Object PUT",
+        "",
+        "| Tool | Objects | Bytes | Seconds | MiB/s | Workers | Object size | Avg | P50 | P90 | P95 | P99 | Max | Log |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+    ])
+    for row in object_put_rows:
+        lines.append(
+            f"| object-put-bench | {row.get('objects', '')} | {row.get('bytes', '')} | "
+            f"{row.get('seconds', '')} | {row.get('throughput_mib_s', '')} | "
+            f"{row.get('workers', '')} | {row.get('object_size', '')} | "
+            f"{row.get('avg_ms', '')} ms | {row.get('p50_ms', '')} ms | "
+            f"{row.get('p90_ms', '')} ms | {row.get('p95_ms', '')} ms | "
+            f"{row.get('p99_ms', '')} ms | {row.get('max_ms', '')} ms | {row.get('log', '')} |"
+        )
+
+# --- Metadata Performance ---
+metadata_rows = []
+for meta_log in sorted((artifact_dir / "tools").glob("*.log")):
+    try:
+        for mline in meta_log.read_text(errors="replace").splitlines():
+            if mline.startswith("metadata_summary "):
+                row = {"log": str(meta_log.relative_to(artifact_dir))}
+                for item in mline.split()[1:]:
+                    if "=" in item:
+                        key, value = item.split("=", 1)
+                        row[key] = value
+                metadata_rows.append(row)
+            elif "ops/sec=" in mline and "usec/op" in mline:
+                op = mline.split(":")[0].strip()
+                ops_sec = mline.split("ops/sec=")[1].split(",")[0]
+                usec_op = mline.split("usec/op")[1].strip().lstrip("= ")
+                metadata_rows.append(
+                    {
+                        "tool": meta_log.stem,
+                        "op": op,
+                        "ops_per_sec": ops_sec,
+                        "usec_per_op": usec_op,
+                        "log": str(meta_log.relative_to(artifact_dir)),
+                    }
+                )
+    except Exception:
+        pass
+
+if metadata_rows:
+    lines.extend([
+        "",
+        "## Metadata Performance",
+        "",
+        "| Tool | Operation | Ops | Errors | Ops/sec | Latency (µs/op) | Log |",
+        "| --- | --- | ---: | ---: | ---: | ---: | --- |",
+    ])
+    for row in metadata_rows:
+        lines.append(
+            f"| {row.get('tool', '')} | {row.get('op', '')} | "
+            f"{row.get('ops', '')} | {row.get('errors', '')} | "
+            f"{float(row.get('ops_per_sec', 0.0)):.1f} | "
+            f"{float(row.get('usec_per_op', 0.0)):.0f} | {row.get('log', '')} |"
+        )
+
+# --- Diagnostics ---
+diag_dir = artifact_dir / "diagnostics"
+redis_diag_paths = sorted(diag_dir.glob("redis-*-after.txt")) if diag_dir.exists() else []
+if redis_diag_paths:
+    lines.extend([
+        "",
+        "## Redis Diagnostics",
+        "",
+        "| Tool | Top commandstats | Details |",
+        "| --- | --- | --- |",
+    ])
+
+    def parse_commandstats(path):
+        commands = []
+        for raw in path.read_text(errors="replace").splitlines():
+            if not raw.startswith("cmdstat_") or ":" not in raw:
+                continue
+            name, payload = raw.split(":", 1)
+            fields = {}
+            for item in payload.split(","):
+                if "=" in item:
+                    key, value = item.split("=", 1)
+                    fields[key] = value
+            try:
+                calls = int(float(fields.get("calls", "0")))
+                usec_per_call = float(fields.get("usec_per_call", "0"))
+            except ValueError:
+                continue
+            if calls > 0:
+                commands.append((name.removeprefix("cmdstat_"), calls, usec_per_call))
+        return sorted(commands, key=lambda item: item[1] * item[2], reverse=True)[:5]
+
+    for path in redis_diag_paths:
+        tool = path.name.removeprefix("redis-").removesuffix("-after.txt")
+        top = parse_commandstats(path)
+        if top:
+            summary = "<br>".join(
+                f"{cmd}: calls={calls}, usec/call={usec_per_call:.2f}"
+                for cmd, calls, usec_per_call in top
+            )
+        else:
+            summary = "n/a"
+        rel = path.relative_to(artifact_dir)
+        lines.append(f"| {tool} | {summary} | {rel} |")
+
+brewfs_stats_paths = sorted(diag_dir.glob("stats-*-after.txt")) if diag_dir.exists() else []
+if brewfs_stats_paths:
+    sample_summaries = {}
+    sample_path = artifact_dir / "writeback-samples.tsv"
+    if sample_path.exists():
+        try:
+            import csv
+
+            def as_float(value):
+                try:
+                    return float(value)
+                except Exception:
+                    return 0.0
+
+            with sample_path.open(newline="") as fh:
+                for row in csv.DictReader(fh, delimiter="\t"):
+                    tool = row.get("tool", "")
+                    if not tool:
+                        continue
+                    summary = sample_summaries.setdefault(
+                        tool,
+                        {
+                            "count": 0,
+                            "max_buffer_dirty": 0.0,
+                            "max_live_dirty": 0.0,
+                            "max_live_slices": 0.0,
+                            "max_recent_pending": 0.0,
+                            "max_recent_uploaded": 0.0,
+                            "max_stage_inflight": 0.0,
+                            "max_remote_inflight": 0.0,
+                            "last_buffer_dirty": 0.0,
+                            "last_live_dirty": 0.0,
+                            "last_recent_pending": 0.0,
+                            "last_recent_uploaded": 0.0,
+                        },
+                    )
+                    summary["count"] += 1
+                    buffer_dirty = as_float(row.get("buffer_dirty_bytes"))
+                    live_dirty = as_float(row.get("live_dirty_bytes"))
+                    live_slices = as_float(row.get("live_slices"))
+                    recent_pending = as_float(row.get("recent_pending_upload_bytes"))
+                    recent_uploaded = as_float(row.get("recent_uploaded_bytes"))
+                    stage_inflight = as_float(row.get("stage_inflight_bytes"))
+                    remote_inflight = as_float(row.get("remote_upload_inflight_bytes"))
+                    summary["max_buffer_dirty"] = max(summary["max_buffer_dirty"], buffer_dirty)
+                    summary["max_live_dirty"] = max(summary["max_live_dirty"], live_dirty)
+                    summary["max_live_slices"] = max(summary["max_live_slices"], live_slices)
+                    summary["max_recent_pending"] = max(summary["max_recent_pending"], recent_pending)
+                    summary["max_recent_uploaded"] = max(summary["max_recent_uploaded"], recent_uploaded)
+                    summary["max_stage_inflight"] = max(summary["max_stage_inflight"], stage_inflight)
+                    summary["max_remote_inflight"] = max(summary["max_remote_inflight"], remote_inflight)
+                    summary["last_buffer_dirty"] = buffer_dirty
+                    summary["last_live_dirty"] = live_dirty
+                    summary["last_recent_pending"] = recent_pending
+                    summary["last_recent_uploaded"] = recent_uploaded
+        except Exception:
+            sample_summaries = {}
+
+    lines.extend([
+        "",
+        "## BrewFS Stats",
+        "",
+        "Counters are per-tool deltas when matching before/after snapshots exist; dirty, live, and inflight values are after-tool gauges.",
+        "",
+        "| Tool | Cache hit | FUSE read | FUSE write | Dirty | Live dirty | Recent pending | Recent uploaded | Read buffer | S3 ops | S3 avg latency | Details |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+    ])
+
+    def parse_brewfs_stats(path):
+        metrics = {}
+        for raw in path.read_text(errors="replace").splitlines():
+            raw = raw.strip()
+            if not raw.startswith("brewfs_"):
+                continue
+            parts = raw.split()
+            if len(parts) < 2:
+                continue
+            try:
+                metrics[parts[0]] = float(parts[1])
+            except ValueError:
+                continue
+        return metrics
+
+    def fmt_mib(value):
+        return f"{value / 1048576.0:.1f} MiB"
+
+    def fmt_avg_mib(bytes_value, count):
+        return fmt_mib(bytes_value / count) if count else "n/a"
+
+    for path in brewfs_stats_paths:
+        tool = path.name.removeprefix("stats-").removesuffix("-after.txt")
+        metrics = parse_brewfs_stats(path)
+        before_path = path.with_name(path.name.replace("-after.txt", "-before.txt"))
+        before_metrics = parse_brewfs_stats(before_path) if before_path.exists() else {}
+
+        def value(name, default=0.0):
+            return metrics.get(name, default)
+
+        def delta(name, default=0.0):
+            current = metrics.get(name, default)
+            if not before_metrics:
+                return current
+            previous = before_metrics.get(name, default)
+            return max(0.0, current - previous)
+
+        def delta_avg_us(lat_total_name, ops_name, avg_name):
+            ops = delta(ops_name)
+            if ops:
+                return delta(lat_total_name) / ops
+            return value(avg_name, 0.0)
+
+        hits = delta("brewfs_cache_hits_total")
+        misses = delta("brewfs_cache_misses_total")
+        requests = delta("brewfs_cache_requests_total", hits + misses)
+        if before_metrics and requests == 0:
+            requests = hits + misses
+        hit_ratio = metrics.get(
+            "brewfs_cache_hit_ratio",
+            hits / requests if requests else 0.0,
+        )
+        if before_metrics:
+            hit_ratio = hits / requests if requests else 0.0
+        fuse_read = delta("brewfs_fuse_read_bytes_total")
+        fuse_write = delta("brewfs_fuse_write_bytes_total")
+        dirty = value(
+            "brewfs_writeback_dirty_bytes",
+            value("brewfs_buffer_dirty_bytes", 0.0),
+        )
+        live_dirty = value("brewfs_writeback_live_dirty_bytes", 0.0)
+        recent_pending = value("brewfs_writeback_recent_pending_upload_bytes", 0.0)
+        recent_uploaded = value("brewfs_writeback_recent_uploaded_bytes", 0.0)
+        read_buffer = value(
+            "brewfs_reader_buffer_bytes",
+            value("brewfs_buffer_read_bytes", 0.0),
+        )
+        s3_get = delta("brewfs_s3_get_ops_total")
+        s3_put = delta("brewfs_s3_put_ops_total")
+        s3_get_avg_ms = delta_avg_us(
+            "brewfs_s3_get_lat_us_total",
+            "brewfs_s3_get_ops_total",
+            "brewfs_s3_get_avg_lat_us",
+        ) / 1000.0
+        s3_put_avg_ms = delta_avg_us(
+            "brewfs_s3_put_lat_us_total",
+            "brewfs_s3_put_ops_total",
+            "brewfs_s3_put_avg_lat_us",
+        ) / 1000.0
+        range_gets = delta("brewfs_read_range_gets_total")
+        full_gets = delta("brewfs_read_full_gets_total")
+        bg_prefetch = delta("brewfs_read_background_prefetch_total")
+        persistent_slice_read_ops = delta("brewfs_persistent_slice_read_ops_total")
+        persistent_slice_read_bytes = delta("brewfs_persistent_slice_read_bytes_total")
+        stage_ops = delta("brewfs_writeback_stage_ops_total")
+        stage_bytes = delta("brewfs_writeback_stage_bytes_total")
+        stage_ms = delta("brewfs_writeback_stage_lat_us_total") / 1000.0
+        stage_s = delta("brewfs_writeback_stage_lat_us_total") / 1_000_000.0
+        commit_wait_s = delta("brewfs_writeback_commit_wait_upload_us_total") / 1_000_000.0
+        flush_wait_ops = delta("brewfs_writeback_flush_wait_ops_total")
+        flush_wait_s = delta("brewfs_writeback_flush_wait_us_total") / 1_000_000.0
+        flush_wait_slices = delta("brewfs_writeback_flush_wait_slices_total")
+        stage_failures = delta("brewfs_writeback_stage_failures_total")
+        commit_before_stage = delta(
+            "brewfs_writeback_commit_before_stage_ops_total",
+        )
+        remote_inflight = metrics.get("brewfs_writeback_remote_upload_inflight_bytes", 0.0)
+        buffer_soft_ops = metrics.get("brewfs_writeback_buffer_soft_sleep_ops", 0.0)
+        buffer_soft_ms = metrics.get("brewfs_writeback_buffer_soft_sleep_us", 0.0) / 1000.0
+        buffer_moderate_ops = metrics.get("brewfs_writeback_buffer_moderate_sleep_ops", 0.0)
+        buffer_moderate_ms = (
+            metrics.get("brewfs_writeback_buffer_moderate_sleep_us", 0.0) / 1000.0
+        )
+        buffer_hard_ops = metrics.get("brewfs_writeback_buffer_hard_sleep_ops", 0.0)
+        buffer_hard_ms = metrics.get("brewfs_writeback_buffer_hard_sleep_us", 0.0) / 1000.0
+        live_slices = metrics.get("brewfs_writeback_live_slices", 0.0)
+        live_normal_only_slices = metrics.get("brewfs_writeback_live_normal_only_slices", 0.0)
+        live_cached_only_slices = metrics.get("brewfs_writeback_live_cached_only_slices", 0.0)
+        live_mixed_origin_slices = metrics.get("brewfs_writeback_live_mixed_origin_slices", 0.0)
+        live_unknown_origin_slices = metrics.get("brewfs_writeback_live_unknown_origin_slices", 0.0)
+        slice_create = metrics.get("brewfs_writeback_slice_create_ops_total", 0.0)
+        slice_reuse = metrics.get("brewfs_writeback_slice_reuse_ops_total", 0.0)
+        reject_older = metrics.get("brewfs_writeback_slice_reject_older_unique_ops_total", 0.0)
+        reject_prefix = metrics.get(
+            "brewfs_writeback_slice_reject_dispatched_prefix_ops_total",
+            0.0,
+        )
+        batch_ops = delta("brewfs_writeback_upload_batch_ops_total")
+        batch_bytes = delta("brewfs_writeback_upload_batch_bytes_total")
+        batch_blocks = delta("brewfs_writeback_upload_batch_blocks_total")
+        partial_tail = delta("brewfs_writeback_upload_partial_tail_ops_total")
+        partial_tail_size = delta("brewfs_writeback_upload_partial_tail_size_ops_total")
+        partial_tail_max = delta(
+            "brewfs_writeback_upload_partial_tail_max_unflushed_ops_total",
+        )
+        partial_tail_flush = delta(
+            "brewfs_writeback_upload_partial_tail_explicit_flush_ops_total",
+        )
+        partial_tail_auto = delta("brewfs_writeback_upload_partial_tail_auto_ops_total")
+        partial_tail_normal = delta(
+            "brewfs_writeback_upload_partial_tail_normal_only_ops_total",
+        )
+        partial_tail_cached = delta(
+            "brewfs_writeback_upload_partial_tail_cached_only_ops_total",
+        )
+        partial_tail_mixed = delta(
+            "brewfs_writeback_upload_partial_tail_mixed_origin_ops_total",
+        )
+        partial_tail_unknown_origin = delta(
+            "brewfs_writeback_upload_partial_tail_unknown_origin_ops_total",
+        )
+        partial_tail_auto_age = delta(
+            "brewfs_writeback_upload_partial_tail_auto_age_ops_total",
+        )
+        partial_tail_auto_idle = delta(
+            "brewfs_writeback_upload_partial_tail_auto_idle_ops_total",
+        )
+        partial_tail_auto_pressure = delta(
+            "brewfs_writeback_upload_partial_tail_auto_pressure_ops_total",
+        )
+        partial_tail_auto_too_many = delta(
+            "brewfs_writeback_upload_partial_tail_auto_too_many_ops_total",
+        )
+        partial_tail_auto_buffer_high = delta(
+            "brewfs_writeback_upload_partial_tail_auto_buffer_high_ops_total",
+        )
+        partial_tail_auto_flush_duration = delta(
+            "brewfs_writeback_upload_partial_tail_auto_flush_duration_ops_total",
+        )
+        partial_tail_auto_unknown = delta(
+            "brewfs_writeback_upload_partial_tail_auto_unknown_ops_total",
+        )
+        partial_tail_auto_normal = delta(
+            "brewfs_writeback_upload_partial_tail_auto_normal_only_ops_total",
+        )
+        partial_tail_auto_cached = delta(
+            "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total",
+        )
+        partial_tail_auto_mixed = delta(
+            "brewfs_writeback_upload_partial_tail_auto_mixed_origin_ops_total",
+        )
+        partial_tail_auto_unknown_origin = delta(
+            "brewfs_writeback_upload_partial_tail_auto_unknown_origin_ops_total",
+        )
+        partial_tail_age = delta(
+            "brewfs_writeback_upload_partial_tail_commit_age_ops_total",
+        )
+        sample = sample_summaries.get(tool, {})
+        sample_detail = "samples=n/a"
+        if sample:
+            sample_detail = (
+                f"samples={int(sample.get('count', 0))}, "
+                f"max_buffer_dirty={fmt_mib(sample.get('max_buffer_dirty', 0.0))}, "
+                f"max_live_dirty={fmt_mib(sample.get('max_live_dirty', 0.0))}, "
+                f"max_live_slices={int(sample.get('max_live_slices', 0.0))}, "
+                f"max_recent_pending={fmt_mib(sample.get('max_recent_pending', 0.0))}, "
+                f"max_recent_uploaded={fmt_mib(sample.get('max_recent_uploaded', 0.0))}, "
+                f"max_stage_inflight={fmt_mib(sample.get('max_stage_inflight', 0.0))}, "
+                f"max_remote_inflight={fmt_mib(sample.get('max_remote_inflight', 0.0))}, "
+                f"last_buffer_dirty={fmt_mib(sample.get('last_buffer_dirty', 0.0))}"
+            )
+        freeze_size = metrics.get("brewfs_writeback_freeze_size_ops_total", 0.0)
+        freeze_flush = metrics.get("brewfs_writeback_freeze_explicit_flush_ops_total", 0.0)
+        freeze_auto = metrics.get("brewfs_writeback_freeze_auto_ops_total", 0.0)
+        freeze_max = metrics.get("brewfs_writeback_freeze_max_unflushed_ops_total", 0.0)
+        freeze_age = metrics.get("brewfs_writeback_freeze_commit_age_ops_total", 0.0)
+        avg_batch_blocks = batch_blocks / batch_ops if batch_ops else 0.0
+        partial_tail_ratio = partial_tail / batch_ops if batch_ops else 0.0
+        rel = path.relative_to(artifact_dir)
+        lines.append(
+            f"| {tool} | {hit_ratio * 100.0:.1f}% ({int(hits)}/{int(requests)}) | "
+            f"{fmt_mib(fuse_read)} | {fmt_mib(fuse_write)} | {fmt_mib(dirty)} | "
+            f"{fmt_mib(live_dirty)} | {fmt_mib(recent_pending)} | {fmt_mib(recent_uploaded)} | "
+            f"{fmt_mib(read_buffer)} | GET={int(s3_get)}, PUT={int(s3_put)} | "
+            f"GET={s3_get_avg_ms:.2f} ms, PUT={s3_put_avg_ms:.2f} ms | "
+            f"{rel}; range={int(range_gets)}, full={int(full_gets)}, bg_prefetch={int(bg_prefetch)}, "
+            f"persistent_slice={int(persistent_slice_read_ops)} ops/"
+            f"{fmt_mib(persistent_slice_read_bytes)}, "
+            f"stage={int(stage_ops)} ops/{fmt_mib(stage_bytes)}/{stage_ms:.1f} ms, "
+            f"foreground=stage {stage_s:.2f}s/commit_wait {commit_wait_s:.2f}s, "
+            f"flush_wait={int(flush_wait_ops)} ops/{flush_wait_s:.2f}s/{int(flush_wait_slices)} slices, "
+            f"stage_fail={int(stage_failures)}, commit_before_stage={int(commit_before_stage)}, "
+            f"remote_inflight={fmt_mib(remote_inflight)}, "
+            f"buffer_sleep=soft {int(buffer_soft_ops)}/{buffer_soft_ms:.1f}ms "
+            f"moderate {int(buffer_moderate_ops)}/{buffer_moderate_ms:.1f}ms "
+            f"hard {int(buffer_hard_ops)}/{buffer_hard_ms:.1f}ms, "
+            f"{sample_detail}, "
+            f"slices=create {int(slice_create)}/reuse {int(slice_reuse)}/"
+            f"reject_unique {int(reject_older)}/reject_prefix {int(reject_prefix)}, "
+            f"live_slices={int(live_slices)} avg={fmt_avg_mib(live_dirty, live_slices)}, "
+            f"origin=normal {int(live_normal_only_slices)}/cached {int(live_cached_only_slices)}/"
+            f"mixed {int(live_mixed_origin_slices)}/unknown {int(live_unknown_origin_slices)}, "
+            f"upload_batch={int(batch_ops)} avg={fmt_avg_mib(batch_bytes, batch_ops)} "
+            f"blocks={avg_batch_blocks:.2f}/batch partial_tail={partial_tail_ratio:.2f} "
+            f"(size {int(partial_tail_size)}/max {int(partial_tail_max)}/"
+            f"flush {int(partial_tail_flush)}/auto {int(partial_tail_auto)}/"
+            f"age {int(partial_tail_age)}), "
+            f"partial_origin=normal {int(partial_tail_normal)}/cached {int(partial_tail_cached)}/"
+            f"mixed {int(partial_tail_mixed)}/unknown {int(partial_tail_unknown_origin)}, "
+            f"auto_detail=age {int(partial_tail_auto_age)}/idle {int(partial_tail_auto_idle)}/"
+            f"pressure {int(partial_tail_auto_pressure)}/too_many {int(partial_tail_auto_too_many)}/"
+            f"buffer_high {int(partial_tail_auto_buffer_high)}/"
+            f"flush_duration {int(partial_tail_auto_flush_duration)}/"
+            f"unknown {int(partial_tail_auto_unknown)}, "
+            f"auto_origin=normal {int(partial_tail_auto_normal)}/"
+            f"cached {int(partial_tail_auto_cached)}/mixed {int(partial_tail_auto_mixed)}/"
+            f"unknown {int(partial_tail_auto_unknown_origin)}, "
+            f"freeze=size {int(freeze_size)}/flush {int(freeze_flush)}/auto {int(freeze_auto)}/"
+            f"max {int(freeze_max)}/age {int(freeze_age)} |"
+        )
+
+fuse_log = artifact_dir / "brewfs_fuse_ops.log"
+if fuse_log.exists() and fuse_log.stat().st_size > 0:
+    try:
+        line_count = sum(1 for _ in fuse_log.open("rb"))
+        lines.extend([
+            "",
+            "## FUSE Op Trace",
+            "",
+            f"- brewfs_fuse_ops.log: {line_count:,} lines",
+        ])
+    except Exception:
+        pass
+
+# --- Bottleneck Analysis ---
+if fio_json_paths:
+    try:
+        findings = []
+        for fio_json_path in fio_json_paths:
+            data = json.loads(fio_json_path.read_text())
+            jobs = data.get("jobs", [])
+            if not jobs:
+                continue
+            job = jobs[0]
+            options = job.get("job options", {})
+            name = fio_json_path.stem
+            numjobs = int(options.get("numjobs", 1))
+
+            read_op = job.get("read", {})
+            write_op = job.get("write", {})
+
+            rpercs = read_op.get("clat_ns", {}).get("percentile", {})
+            wpercs = write_op.get("clat_ns", {}).get("percentile", {})
+
+            if rpercs and num(read_op.get("bw_bytes")) > 0:
+                p50 = num(rpercs.get("50.000000")) / 1e6
+                p99 = num(rpercs.get("99.000000")) / 1e6
+                if p50 > 100:
+                    findings.append(f"- **{name}**: Read p50={p50:.0f}ms — network RTT dominates. Consider local SSD cache or prefetch tuning.")
+                elif p99 > p50 * 5 and p99 > 50:
+                    findings.append(f"- **{name}**: Read tail latency p99/p50={p99/p50:.1f}x ({p50:.1f}ms→{p99:.0f}ms). Likely S3 retry or cache miss.")
+
+            if wpercs and num(write_op.get("bw_bytes")) > 0:
+                p50 = num(wpercs.get("50.000000")) / 1e6
+                p99 = num(wpercs.get("99.000000")) / 1e6
+                if p50 < 10 and p99 > 200:
+                    findings.append(f"- **{name}**: Write stall p50={p50:.1f}ms p99={p99:.0f}ms — auto_flush/buffer-limit triggers S3 upload backpressure.")
+                elif p99 > 500:
+                    findings.append(f"- **{name}**: Write P99={p99:.0f}ms > 500ms — inspect writeback samples and tune upload queue depth, slice age, or write buffer.")
+
+        if findings:
+            lines.extend(["", "## Bottleneck Analysis", ""])
+            lines.extend(findings)
+    except Exception:
+        pass
+
+report_path.write_text("\n".join(lines) + "\n")
+PY
+}
+
+# Qualification-only branch: source after wait_for_strict_drain is defined.
+# No fio arguments, measurement boundaries, or performance profiles are changed.
+run_known_tail_oracle() {
+    local dataset="$mount_dir/.perf-known-tail-oracle"
+    local evidence="$artifact_dir/known-tail-oracle"
+    local phase
+    [[ "${BREWFS_FUSE_WRITEBACK:-}" == 0 && "${BREWFS_FUSE_OP_LOG:-}" == 1 ]] || {
+        err "known-tail oracle requires actual kernel writeback disabled and operation logging"
+        return 1
+    }
+    [[ "${RUST_LOG:-}" == 'warn,asyncfuse::raw::logfs=debug' ]] || return 1
+    [[ "${PERF_DRAIN_STABLE_SAMPLES:-3}" == 3 ]] || return 1
+    for phase in write-a check-a write-b verify-b; do
+        if ! timeout --signal=TERM --kill-after=5 300 \
+            python3 /usr/local/bin/known_tail_oracle.py "$phase" \
+                --dataset "$dataset" --mount "$mount_dir" --config "$config_path" \
+                --log "$log_file" --op-log "$BREWFS_FUSE_LOG_FILE" --output "$evidence" \
+                >"$artifact_dir/known-tail-${phase}.log" 2>&1; then
+            touch "$artifact_dir/known-tail-oracle.invalid"
+            return 1
+        fi
+        case "$phase" in
+            write-a|write-b)
+                # Preserve the standard zero-debt, 3 stable samples gate.
+                if ! wait_for_strict_drain "known-tail-${phase}" post-write 180 2 0 known-tail-oracle; then
+                    touch "$artifact_dir/known-tail-oracle.invalid"
+                    return 1
+                fi
+                ;;
+        esac
+    done
+    [[ -f "$evidence/new-cache-root.txt" ]] || return 1
+    export BREWFS_CACHE_ROOT="$(cat "$evidence/new-cache-root.txt")"
+    printf '%s\tpass\tNA\t%s\n' known-tail-oracle "$evidence/verify-b.json" >>"$artifact_dir/perf-summary.tsv"
+}
+
+run_perf_suite() {
+    local -a tools=()
+    local status=0
+    local tool=""
+
+    read -r -a tools <<<"$perf_tools"
+    if [[ "${#tools[@]}" -eq 0 ]]; then
+        err "PERF_TOOLS 不能为空"
+        exit 1
+    fi
+
+    for tool in "${tools[@]}"; do
+        case "$tool" in
+            known-tail-oracle)
+                run_known_tail_oracle || { touch "$artifact_dir/known-tail-oracle.invalid"; status=1; }
+                ;;
+            dirstress)
+                run_dirstress || status=1
+                ;;
+            dirperf)
+                run_dirperf || status=1
+                ;;
+            packed-tree)
+                run_packed_smallfiles tree || status=1
+                ;;
+            packed-smallfiles)
+                run_packed_smallfiles || status=1
+                ;;
+            packed-posix)
+                run_packed_posix || status=1
+                ;;
+            metaperf)
+                run_metaperf || status=1
+                ;;
+            ws0-io)
+                for every in 1 256; do
+                    local probe_name="ws0-io-fsync-${every}"
+                    run_logged_tool "$probe_name" python3 /usr/local/bin/perf_lines_observe.py probe "$mount_dir" \
+                        --kind io --fsync-every "$every" --output "$artifact_dir/results/${probe_name}.json" || status=1
+                    wait_for_strict_drain "$probe_name" metadata 600 1 0 client-probe || status=1
+                done
+                ;;
+            ws0-metadata)
+                for depth in 1 8; do
+                    for jobs in 1 4 16; do
+                        local probe_name="ws0-metadata-depth${depth}-jobs${jobs}"
+                        run_logged_tool "$probe_name" python3 /usr/local/bin/perf_lines_observe.py probe "$mount_dir" \
+                            --kind metadata --depth "$depth" --jobs "$jobs" --output "$artifact_dir/results/${probe_name}.json" || status=1
+                        wait_for_strict_drain "$probe_name" metadata 600 1 0 client-probe || status=1
+                    done
+                done
+                ;;
+            looptest)
+                run_looptest || status=1
+                ;;
+            stress-ng)
+                run_stress_ng || status=1
+                ;;
+            fio)
+                run_fio_custom || status=1
+                ;;
+            fio-seqread)
+                run_fio_profile "$tool" seqread || status=1
+                ;;
+            fio-seqwrite)
+                run_fio_profile "$tool" seqwrite || status=1
+                ;;
+            fio-randread)
+                run_fio_profile "$tool" randread || status=1
+                ;;
+            fio-randwrite)
+                run_fio_profile "$tool" randwrite || status=1
+                ;;
+            fio-randrw)
+                run_fio_profile "$tool" randrw || status=1
+                ;;
+            fio-bigwrite)
+                run_fio_profile "$tool" bigwrite || status=1
+                ;;
+            fio-bigread)
+                run_fio_profile "$tool" bigread || status=1
+                ;;
+            object-put-bench)
+                run_object_put_bench || status=1
+                ;;
+            *)
+                err "不支持的 PERF_TOOLS 项: $tool"
+                status=1
+                ;;
+        esac
+    done
+
+    return "$status"
+}
+
+validate_packed_request() {
+    case "${BREWFS_VOLUME_FORMAT:-}" in
+        packed-metadata-v3) ;;
+        packed-*) err "unsupported packed volume format: $BREWFS_VOLUME_FORMAT (only packed-metadata-v3)"; return 1 ;;
+        *) return 0 ;;
+    esac
+    local -a tools=()
+    local tool
+    read -r -a tools <<<"$perf_tools"
+    [[ "${#tools[@]}" -gt 0 ]] || { err "packed-v3 PERF_TOOLS cannot be empty"; return 1; }
+    for tool in "${tools[@]}"; do
+        case "$tool" in
+            packed-tree|packed-smallfiles) ;;
+            *) err "unsupported packed-v3 tool: $tool; tree/smallfiles are supported, fio/POSIX fixture layout remains OPEN"; return 1 ;;
+        esac
+    done
+    if [[ -n "${PERF_PACKED_DIRS:-}" || -n "${PERF_PACKED_FIO_FILE_SIZE:-}" ]]; then
+        err "packed-v3 fixture does not support PERF_PACKED_DIRS or PERF_PACKED_FIO_FILE_SIZE; use directory levels/fanout/files-per-leaf"
+        return 1
+    fi
+    export PERF_PACKED_DIR_LEVELS="${PERF_PACKED_DIR_LEVELS:-1}"
+    export PERF_PACKED_DIRS_PER_LEVEL="${PERF_PACKED_DIRS_PER_LEVEL:-8}"
+    export PERF_PACKED_FILES_PER_DIR="${PERF_PACKED_FILES_PER_DIR:-4500}"
+    export PERF_PACKED_SMALLFILE_SIZE="${PERF_PACKED_SMALLFILE_SIZE:-4096}"
+    local expected
+    expected="$(python3 - "$PERF_PACKED_DIR_LEVELS" "$PERF_PACKED_DIRS_PER_LEVEL" "$PERF_PACKED_FILES_PER_DIR" "$PERF_PACKED_SMALLFILE_SIZE" "${PERF_PACKED_SMALLFILE_COUNT:-}" <<'PY'
+import re
+import sys
+
+values = sys.argv[1:]
+if any(not re.fullmatch(r"[0-9]+", value) for value in values[:4]):
+    raise SystemExit("packed-v3 fixture dimensions and size must be unsigned integers")
+levels, fanout, per_leaf, size = map(int, values[:4])
+maximum = (1 << 64) - 1
+if levels > 8 or not 0 < fanout <= maximum or not 0 < per_leaf <= maximum or not 0 < size <= 4 * 1024 * 1024:
+    raise SystemExit("packed-v3 requires levels 0..8, nonzero u64 fanout/files-per-leaf and file size 1..4 MiB")
+count = fanout ** levels * per_leaf
+if count > maximum:
+    raise SystemExit("packed-v3 fixture file count overflows u64")
+if values[4] and (not re.fullmatch(r"[0-9]+", values[4]) or int(values[4]) != count):
+    raise SystemExit(f"packed-v3 fixture count mismatch: expected={count} configured={values[4]}")
+print(count)
+PY
+)" || return 1
+    export PERF_PACKED_SMALLFILE_COUNT="$expected"
+}
+
+workspace_cli() {
+    case "$meta_backend" in
+        redis)
+            /usr/local/bin/brewfs workspace \
+                --meta-backend redis \
+                --meta-url "$meta_url" \
+                --workspace-namespace "${BREWFS_WORKSPACE_NAMESPACE}" \
+                "$@"
+            ;;
+        tikv)
+            /usr/local/bin/brewfs workspace \
+                --meta-backend tikv \
+                --meta-tikv-pd-endpoints "$meta_tikv_pd_endpoints" \
+                --workspace-namespace "${BREWFS_WORKSPACE_NAMESPACE}" \
+                "$@"
+            ;;
+        *)
+            err "workspace-v1 requires the same Redis/TiKV metadata topology as the mount; backend=$meta_backend"
+            return 1
+            ;;
+    esac
+}
+
+workspace_json_body() {
+    python3 - "$1" <<'PY'
+import json
+import sys
+
+text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+decoder = json.JSONDecoder()
+for index, char in enumerate(text):
+    if char not in "[{":
+        continue
+    try:
+        value, _ = decoder.raw_decode(text[index:])
+    except json.JSONDecodeError:
+        continue
+    print(json.dumps(value, indent=2, sort_keys=True))
+    break
+else:
+    raise SystemExit("workspace command did not emit JSON")
+PY
+}
+
+workspace_id_from_json() {
+    python3 - "$1" <<'PY'
+import json
+import sys
+
+value = json.load(open(sys.argv[1], encoding="utf-8"))
+items = value if isinstance(value, list) else [value]
+for item in items:
+    state = item.get("state")
+    if state in (None, "Active", "active", 0):
+        print(item["workspace_id"])
+        break
+PY
+}
+
+write_workspace_lower_identity() {
+    python3 - "$1" "$2" "$3" <<'PY'
+import hashlib
+import json
+import sys
+
+records = json.load(open(sys.argv[1], encoding="utf-8"))
+workspace_id = sys.argv[2]
+output = sys.argv[3]
+items = records if isinstance(records, list) else [records]
+record = next((item for item in items if item.get("workspace_id") == workspace_id), None)
+if record is None:
+    raise SystemExit(f"workspace {workspace_id} is absent from workspace list")
+lower = record.get("fork_base")
+canonical = json.dumps(lower, sort_keys=True, separators=(",", ":")).encode()
+identity = {
+    "workspace_id": workspace_id,
+    "volume_format": "workspace-v1",
+    "lower": lower,
+    "lower_manifest_hash": None,
+    "lower_manifest_status": "unavailable",
+    "fork_base_identity_sha256": hashlib.sha256(canonical).hexdigest(),
+    "hash_input": "canonical fork_base JSON",
+}
+with open(output, "w", encoding="utf-8") as stream:
+    json.dump(identity, stream, indent=2, sort_keys=True)
+    stream.write("\n")
+with open(output + ".fork-base.sha256", "w", encoding="utf-8") as stream:
+    stream.write(identity["fork_base_identity_sha256"] + "\n")
+PY
+}
+
+initialize_workspace_volume() {
+    case "${BREWFS_VOLUME_FORMAT:-}" in
+        workspace-v1|workspace-native-v2) ;;
+        *) return 0 ;;
+    esac
+    if [[ -z "${BREWFS_WORKSPACE_NAMESPACE:-}" ]]; then
+        BREWFS_WORKSPACE_NAMESPACE="brewfs-perf-$(date +%s)-$RANDOM"
+        export BREWFS_WORKSPACE_NAMESPACE
+    fi
+    case "$meta_backend" in
+        redis|tikv) ;;
+        *) err "workspace-v1 requires BREWFS_META_BACKEND=redis or tikv"; return 1 ;;
+    esac
+
+    local init_raw="$artifact_dir/workspace-init.raw"
+    local init_json="$artifact_dir/workspace-init.json"
+    local list_raw="$artifact_dir/workspace-list.raw"
+    local list_json="$artifact_dir/workspace-list.json"
+    local inspect_raw="$artifact_dir/workspace-inspect-pre-mount.raw"
+    local inspect_json="$artifact_dir/workspace-inspect-pre-mount.json"
+    local command_status=0
+
+    if [[ -z "${BREWFS_WORKSPACE_ID:-}" ]]; then
+        set +e
+        workspace_cli init-volume --owner brewfs-perf >"$init_raw" 2>&1
+        command_status=$?
+        set -e
+        if (( command_status == 0 )); then
+            workspace_json_body "$init_raw" >"$init_json"
+            BREWFS_WORKSPACE_ID="$(workspace_id_from_json "$init_json")"
+        else
+            info "workspace catalog already initialized; resolving an existing workspace"
+        fi
+    else
+        printf 'workspace id supplied by caller: %s\n' "$BREWFS_WORKSPACE_ID" >"$init_raw"
+    fi
+
+    set +e
+    workspace_cli list >"$list_raw" 2>&1
+    command_status=$?
+    set -e
+    (( command_status == 0 )) || {
+        cat "$list_raw" >&2 || true
+        err "workspace list failed"
+        return 1
+    }
+    workspace_json_body "$list_raw" >"$list_json"
+    if [[ -z "${BREWFS_WORKSPACE_ID:-}" ]]; then
+        BREWFS_WORKSPACE_ID="$(workspace_id_from_json "$list_json")"
+    fi
+    [[ -n "${BREWFS_WORKSPACE_ID:-}" ]] || {
+        err "workspace catalog has no active workspace"
+        return 1
+    }
+    write_workspace_lower_identity "$list_json" "$BREWFS_WORKSPACE_ID" \
+        "$artifact_dir/workspace-lower-identity.json"
+
+    set +e
+    workspace_cli inspect "$BREWFS_WORKSPACE_ID" >"$inspect_raw" 2>&1
+    command_status=$?
+    set -e
+    (( command_status == 0 )) || {
+        cat "$inspect_raw" >&2 || true
+        err "workspace inspect failed for $BREWFS_WORKSPACE_ID"
+        return 1
+    }
+    workspace_json_body "$inspect_raw" >"$inspect_json"
+
+    if [[ "${BREWFS_VOLUME_FORMAT:-}" == "workspace-native-v2" ]]; then
+        workspace_cli init-native \
+            >"$artifact_dir/native-init.raw" 2>&1 \
+            || info "native control header already exists"
+        if [[ -f "$artifact_dir/native-init.raw" ]]; then
+            workspace_json_body "$artifact_dir/native-init.raw" \
+                >"$artifact_dir/native-init.json" 2>/dev/null || true
+        fi
+    fi
+
+    export BREWFS_WORKSPACE_ID
+    info "workspace-v1 catalog: id=$BREWFS_WORKSPACE_ID namespace=$BREWFS_WORKSPACE_NAMESPACE"
+}
+
+verify_workspace_lease() {
+    [[ "${BREWFS_VOLUME_FORMAT:-}" == "workspace-v1" \
+        || "${BREWFS_VOLUME_FORMAT:-}" == "workspace-native-v2" ]] || return 0
+    local raw="$artifact_dir/workspace-inspect-post-mount.raw"
+    local json="$artifact_dir/workspace-inspect-post-mount.json"
+    workspace_cli inspect "$BREWFS_WORKSPACE_ID" >"$raw" 2>&1
+    workspace_json_body "$raw" >"$json"
+    python3 - "$json" <<'PY'
+import json
+import sys
+
+value = json.load(open(sys.argv[1], encoding="utf-8"))
+if not value.get("lease_id"):
+    raise SystemExit("workspace mount did not acquire an active lease")
+PY
+    cp -f "$json" "$artifact_dir/workspace-lease.json"
+}
+
+main() {
+    validate_packed_request || return 1
+    if [[ -z "$artifact_dir" ]]; then
+        local ts
+        ts="$(date +%s)-$RANDOM"
+        # Keep the "perf-run-" prefix (host wrappers glob for it) and append the
+        # workload so the Result Vault run list shows BrewFS vs JuiceFS directly.
+        artifact_dir="${artifact_root%/}/perf-run-${ts}-brewfs"
+    fi
+
+    mkdir -p "$artifact_dir"
+    chmod a+rwx "$artifact_dir" >/dev/null 2>&1 || true
+    log_file="$artifact_dir/brewfs.log"
+    export BREWFS_LOG_FILE="$log_file"
+
+    force_cold_read_profile
+
+    trap on_exit EXIT INT TERM
+    raise_nofile_limit
+
+    info "写入 BrewFS 配置: $config_path"
+    write_config
+
+    if [[ "${BREWFS_VOLUME_FORMAT:-}" == "workspace-v1" \
+        || "${BREWFS_VOLUME_FORMAT:-}" == "workspace-native-v2" ]]; then
+        initialize_workspace_volume
+        write_config
+    fi
+
+    info "准备产物目录: $artifact_dir"
+    prepare_artifacts
+
+    info "安装 mount helper: /usr/sbin/mount.fuse.brewfs"
+    install_mount_helper
+
+    mount_brewfs
+    verify_workspace_lease
+
+    if [[ "${BREWFS_VOLUME_FORMAT:-}" == "packed-metadata-v3" ]]; then
+        info "跳过写入型预检: packed-metadata-v3 是只读挂载"
+    else
+        # Pre-flight sanity check: verify the filesystem can create, write, and read files.
+        info "执行挂载点预检: $mount_dir"
+        local preflight_dir="$mount_dir/.perf-preflight"
+        local preflight_file="$preflight_dir/test.bin"
+        rm -rf "$preflight_dir"
+        mkdir -p "$preflight_dir"
+        if ! echo "brewfs-preflight-$(date +%s)" > "$preflight_file"; then
+            err "预检失败: 无法写入 $preflight_file"
+            exit 1
+        fi
+        local preflight_read
+        preflight_read=$(cat "$preflight_file" 2>/dev/null)
+        if [[ -z "$preflight_read" ]]; then
+            err "预检失败: 无法读取 $preflight_file"
+            exit 1
+        fi
+        rm -rf "$preflight_dir"
+        ok "预检通过: 写入/读取正常"
+    fi
+
+    if [[ "${PERF_LINES_PROTOCOL:-}" == ws0 ]]; then
+        # commit-before-upload can leave preflight debt after close/unlink.
+        # Finish it before taking the first measured numerator's baseline.
+        wait_for_strict_drain preflight preflight 600 1 0 preflight || return $?
+    fi
+
+    info "开始性能测试: tools=$perf_tools"
+    set +e
+    run_perf_suite
+    status=$?
+    set -e
+
+    # Post-test filesystem statistics
+    info "测试完成后文件系统统计:"
+    if command -v df >/dev/null 2>&1; then
+        df -h "$mount_dir" 2>/dev/null | tail -1 | while read -r fs size used avail pct mnt; do
+            info "  磁盘使用: $used / $size ($pct)"
+        done
+    fi
+    if [[ -d "$mount_dir" ]]; then
+        local total_files
+        total_files=$(find "$mount_dir" -type f 2>/dev/null | wc -l)
+        info "  残留文件数: $total_files"
+    fi
+
+    generate_perf_report || true
+    touch "$artifact_dir/perf.complete"
+
+    if [[ "$status" -eq 0 ]]; then
+        ok "性能测试全部完成"
+    else
+        err "性能测试存在失败项 (exit=$status)"
+    fi
+
+    # Keep the pod alive briefly so Kubernetes clients can copy artifacts before
+    # the completed container becomes non-executable.
+    local hold_seconds="${BREWFS_ARTIFACT_HOLD_SECONDS:-0}"
+    if [[ "$hold_seconds" =~ ^[0-9]+$ ]] && (( hold_seconds > 0 )); then
+        info "保留产物窗口: ${hold_seconds}s"
+        sleep "$hold_seconds"
+    fi
+
+    return "$status"
+}
+
+main "$@"

@@ -1,0 +1,114 @@
+{
+  "passed": true,
+  "archive_sha256": "6149cfea62a2cf4851c14997ba3445ef0a76990d7059cf8559b417fafc2f37f7",
+  "members": 485,
+  "payloads_hashed": 484,
+  "cold_receipts_checked": [
+    {
+      "path": "artifacts/baseline/perf-run-1794525874-20656/remote-durability/fio-bigwrite/receipt.json",
+      "bytes": 16777216,
+      "files": 1
+    },
+    {
+      "path": "artifacts/baseline/perf-run-1794525913-24164/remote-durability/fio-bigwrite/receipt.json",
+      "bytes": 16777216,
+      "files": 1
+    },
+    {
+      "path": "artifacts/baseline/perf-run-1794525970-21262/remote-durability/fio-bigwrite/receipt.json",
+      "bytes": 16777216,
+      "files": 1
+    },
+    {
+      "path": "artifacts/baseline/perf-run-1794525990-1927/remote-durability/fio-bigwrite/receipt.json",
+      "bytes": 16777216,
+      "files": 1
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525894-5390/remote-durability/fio-bigwrite/receipt.json",
+      "bytes": 16777216,
+      "files": 1
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525932-8017/remote-durability/fio-bigwrite/receipt.json",
+      "bytes": 16777216,
+      "files": 1
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525951-5639/remote-durability/fio-bigwrite/receipt.json",
+      "bytes": 16777216,
+      "files": 1
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794526009-8732/remote-durability/fio-bigwrite/receipt.json",
+      "bytes": 16777216,
+      "files": 1
+    }
+  ],
+  "cpu_ticks_recomputed": [
+    {
+      "path": "artifacts/baseline/perf-run-1794525874-20656/client-cpu-summary.json",
+      "tool": "fio-bigwrite",
+      "cpu_s": 0.67
+    },
+    {
+      "path": "artifacts/baseline/perf-run-1794525913-24164/client-cpu-summary.json",
+      "tool": "fio-bigwrite",
+      "cpu_s": 0.53
+    },
+    {
+      "path": "artifacts/baseline/perf-run-1794525970-21262/client-cpu-summary.json",
+      "tool": "fio-bigwrite",
+      "cpu_s": 0.54
+    },
+    {
+      "path": "artifacts/baseline/perf-run-1794525990-1927/client-cpu-summary.json",
+      "tool": "fio-bigwrite",
+      "cpu_s": 0.53
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525894-5390/client-cpu-summary.json",
+      "tool": "fio-bigwrite",
+      "cpu_s": 0.57
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525932-8017/client-cpu-summary.json",
+      "tool": "fio-bigwrite",
+      "cpu_s": 0.45
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794525951-5639/client-cpu-summary.json",
+      "tool": "fio-bigwrite",
+      "cpu_s": 0.41
+    },
+    {
+      "path": "artifacts/candidate/perf-run-1794526009-8732/client-cpu-summary.json",
+      "tool": "fio-bigwrite",
+      "cpu_s": 0.43
+    }
+  ],
+  "cached_pairs_recomputed": [
+    {
+      "cpu_s": {
+        "baseline": 0.53,
+        "candidate": 0.45
+      },
+      "reduction_percent": 15.094339622641506
+    },
+    {
+      "cpu_s": {
+        "baseline": 0.54,
+        "candidate": 0.41000000000000003
+      },
+      "reduction_percent": 24.07407407407407
+    },
+    {
+      "cpu_s": {
+        "baseline": 0.53,
+        "candidate": 0.43
+      },
+      "reduction_percent": 18.867924528301895
+    }
+  ],
+  "scope": "Coordinator checks all archive paths, exact payload hashes, cold receipt identity/error gates and process CPU arithmetic. Cached reductions include internal FIO readback and strict drain; no whole-lifecycle or throughput claim. Independent detailed content/syscall/profile reviews remain separate. Standard CPU regression HOLD remains unchanged."
+}

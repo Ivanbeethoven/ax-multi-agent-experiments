@@ -1,0 +1,932 @@
+{
+  "recorded_utc": "2026-11-12T22:10:49.673723+00:00",
+  "scope": "Read-only archived FUSE log and frozen source analysis. No live cloud access, source change, helper change, test execution, or acceptance decision.",
+  "source_file_blobs_by_commit": {
+    "ca07159f3da4b670e4aeb878faef928e69bc1634": [
+      "100644 blob dd919c5cf522f1d8124350976aa9452ed4f80c8b\tsrc/fuse/mod.rs",
+      "100644 blob 79ad2c6af0658c3badcff5551867aee91cc3762f\tsrc/meta/client/mod.rs",
+      "100644 blob ea5c5d562ccc8b04d50dce57b9818a1f09c6591b\tsrc/meta/stores/redis/mod.rs",
+      "100644 blob 5d0340759f91848679796d6009250cd50487dc0c\tsrc/vfs/fs/mod.rs"
+    ],
+    "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd": [
+      "100644 blob dd919c5cf522f1d8124350976aa9452ed4f80c8b\tsrc/fuse/mod.rs",
+      "100644 blob 79ad2c6af0658c3badcff5551867aee91cc3762f\tsrc/meta/client/mod.rs",
+      "100644 blob ea5c5d562ccc8b04d50dce57b9818a1f09c6591b\tsrc/meta/stores/redis/mod.rs",
+      "100644 blob 5d0340759f91848679796d6009250cd50487dc0c\tsrc/vfs/fs/mod.rs"
+    ],
+    "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3": [
+      "100644 blob dd919c5cf522f1d8124350976aa9452ed4f80c8b\tsrc/fuse/mod.rs",
+      "100644 blob 79ad2c6af0658c3badcff5551867aee91cc3762f\tsrc/meta/client/mod.rs",
+      "100644 blob ea5c5d562ccc8b04d50dce57b9818a1f09c6591b\tsrc/meta/stores/redis/mod.rs",
+      "100644 blob 5d0340759f91848679796d6009250cd50487dc0c\tsrc/vfs/fs/mod.rs"
+    ],
+    "c8f5f16aefe811540782b952481982179a1bfd6f": [
+      "100644 blob dd919c5cf522f1d8124350976aa9452ed4f80c8b\tsrc/fuse/mod.rs",
+      "100644 blob 79ad2c6af0658c3badcff5551867aee91cc3762f\tsrc/meta/client/mod.rs",
+      "100644 blob ea5c5d562ccc8b04d50dce57b9818a1f09c6591b\tsrc/meta/stores/redis/mod.rs",
+      "100644 blob 5d0340759f91848679796d6009250cd50487dc0c\tsrc/vfs/fs/mod.rs"
+    ]
+  },
+  "all_four_files_unchanged_across_ca_baseline_candidate_cleanup": true,
+  "raw_log": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-01/artifacts/baseline/perf-run-1794520748-537/brewfs_fuse_ops.log",
+  "raw_log_sha256": "f197f98013db65a83960d442ac9d6f91898fdede2ff90ec5e6f1ece4e5d3cf2b",
+  "read_wave": {
+    "inode": 6,
+    "fh": 12,
+    "requests_including_eof": 129,
+    "returned_total_bytes": 67108864,
+    "contiguous_to_eof": true,
+    "requests": [
+      {
+        "id": 108,
+        "offset": 0,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 109,
+        "offset": 1046976,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 110,
+        "offset": 1048576,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 111,
+        "offset": 2095456,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 112,
+        "offset": 2097152,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 113,
+        "offset": 3144080,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 114,
+        "offset": 3145728,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 115,
+        "offset": 4192704,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 116,
+        "offset": 4194304,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 117,
+        "offset": 5241184,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 118,
+        "offset": 5242880,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 119,
+        "offset": 6289808,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 120,
+        "offset": 6291456,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 121,
+        "offset": 7338432,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 122,
+        "offset": 7340032,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 123,
+        "offset": 8386912,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 124,
+        "offset": 8388608,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 125,
+        "offset": 9435536,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 126,
+        "offset": 9437184,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 127,
+        "offset": 10484160,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 128,
+        "offset": 10485760,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 129,
+        "offset": 11532640,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 130,
+        "offset": 11534336,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 131,
+        "offset": 12581264,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 132,
+        "offset": 12582912,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 133,
+        "offset": 13629888,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 134,
+        "offset": 13631488,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 135,
+        "offset": 14678368,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 136,
+        "offset": 14680064,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 137,
+        "offset": 15726992,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 138,
+        "offset": 15728640,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 139,
+        "offset": 16775616,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 140,
+        "offset": 16777216,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 141,
+        "offset": 17824096,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 142,
+        "offset": 17825792,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 143,
+        "offset": 18872720,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 144,
+        "offset": 18874368,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 145,
+        "offset": 19921344,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 146,
+        "offset": 19922944,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 147,
+        "offset": 20969824,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 148,
+        "offset": 20971520,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 149,
+        "offset": 22018448,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 150,
+        "offset": 22020096,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 151,
+        "offset": 23067072,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 152,
+        "offset": 23068672,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 153,
+        "offset": 24115552,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 154,
+        "offset": 24117248,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 155,
+        "offset": 25164176,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 156,
+        "offset": 25165824,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 157,
+        "offset": 26212800,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 158,
+        "offset": 26214400,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 159,
+        "offset": 27261280,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 160,
+        "offset": 27262976,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 161,
+        "offset": 28309904,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 162,
+        "offset": 28311552,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 163,
+        "offset": 29358528,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 164,
+        "offset": 29360128,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 165,
+        "offset": 30407008,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 166,
+        "offset": 30408704,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 167,
+        "offset": 31455632,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 168,
+        "offset": 31457280,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 169,
+        "offset": 32504256,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 170,
+        "offset": 32505856,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 171,
+        "offset": 33552736,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 172,
+        "offset": 33554432,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 173,
+        "offset": 34601360,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 174,
+        "offset": 34603008,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 175,
+        "offset": 35649984,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 176,
+        "offset": 35651584,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 177,
+        "offset": 36698464,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 178,
+        "offset": 36700160,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 179,
+        "offset": 37747088,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 180,
+        "offset": 37748736,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 181,
+        "offset": 38795712,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 182,
+        "offset": 38797312,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 183,
+        "offset": 39844192,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 184,
+        "offset": 39845888,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 185,
+        "offset": 40892816,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 186,
+        "offset": 40894464,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 187,
+        "offset": 41941440,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 188,
+        "offset": 41943040,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 189,
+        "offset": 42989920,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 190,
+        "offset": 42991616,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 191,
+        "offset": 44038544,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 192,
+        "offset": 44040192,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 193,
+        "offset": 45087168,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 194,
+        "offset": 45088768,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 195,
+        "offset": 46135648,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 196,
+        "offset": 46137344,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 197,
+        "offset": 47184272,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 198,
+        "offset": 47185920,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 199,
+        "offset": 48232896,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 200,
+        "offset": 48234496,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 201,
+        "offset": 49281376,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 202,
+        "offset": 49283072,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 203,
+        "offset": 50330000,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 204,
+        "offset": 50331648,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 205,
+        "offset": 51378624,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 206,
+        "offset": 51380224,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 207,
+        "offset": 52427104,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 208,
+        "offset": 52428800,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 209,
+        "offset": 53475728,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 210,
+        "offset": 53477376,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 211,
+        "offset": 54524352,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 212,
+        "offset": 54525952,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 213,
+        "offset": 55572832,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 214,
+        "offset": 55574528,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 215,
+        "offset": 56621456,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 216,
+        "offset": 56623104,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 217,
+        "offset": 57670080,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 218,
+        "offset": 57671680,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 219,
+        "offset": 58718560,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 220,
+        "offset": 58720256,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 221,
+        "offset": 59767184,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 222,
+        "offset": 59768832,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 223,
+        "offset": 60815808,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 224,
+        "offset": 60817408,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 225,
+        "offset": 61864288,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 226,
+        "offset": 61865984,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 227,
+        "offset": 62912912,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 228,
+        "offset": 62914560,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 229,
+        "offset": 63961536,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 230,
+        "offset": 63963136,
+        "requested": 1046880,
+        "returned": 1046880
+      },
+      {
+        "id": 231,
+        "offset": 65010016,
+        "requested": 1696,
+        "returned": 1696
+      },
+      {
+        "id": 232,
+        "offset": 65011712,
+        "requested": 1046928,
+        "returned": 1046928
+      },
+      {
+        "id": 233,
+        "offset": 66058640,
+        "requested": 1648,
+        "returned": 1648
+      },
+      {
+        "id": 234,
+        "offset": 66060288,
+        "requested": 1046976,
+        "returned": 1046976
+      },
+      {
+        "id": 235,
+        "offset": 67107264,
+        "requested": 1600,
+        "returned": 1600
+      },
+      {
+        "id": 236,
+        "offset": 67108864,
+        "requested": 1046880,
+        "returned": 0
+      }
+    ]
+  },
+  "attribute_anchors": [
+    {
+      "line": 78,
+      "text": "2026-11-12T21:59:18.779916Z DEBUG asyncfuse::raw::logfs: ID: 38 | [getattr] REQ Request { unique: 76, uid: 0, gid: 0, pid: 99 } - Call_arg: inode=6, fh=, flags=0"
+    },
+    {
+      "line": 79,
+      "text": "2026-11-12T21:59:18.779921Z DEBUG asyncfuse::raw::logfs: ID: 38 | [getattr] - Success: ReplyAttr { ttl: 1s, attr: FileAttr { ino: 6, size: 0, blocks: 0, atime: Timestamp { sec: 1794520758, nsec: 779667233 }, mtime: Timestamp { sec: 1794520758, nsec: 779667233 }, ctime: Timestamp { sec: 1794520758, nsec: 779667233 }, kind: RegularFile, perm: 384, nlink: 1, uid: 0, gid: 0, rdev: 0, blksize: 4096 } }"
+    },
+    {
+      "line": 94,
+      "text": "2026-11-12T21:59:18.786099Z DEBUG asyncfuse::raw::logfs: ID: 44 | [getattr] REQ Request { unique: 88, uid: 0, gid: 0, pid: 99 } - Call_arg: inode=6, fh=, flags=0"
+    },
+    {
+      "line": 95,
+      "text": "2026-11-12T21:59:18.786112Z DEBUG asyncfuse::raw::logfs: ID: 44 | [getattr] - Success: ReplyAttr { ttl: 1s, attr: FileAttr { ino: 6, size: 67108864, blocks: 0, atime: Timestamp { sec: 1794520758, nsec: 779667233 }, mtime: Timestamp { sec: 1794520758, nsec: 779667233 }, ctime: Timestamp { sec: 1794520758, nsec: 779667233 }, kind: RegularFile, perm: 384, nlink: 1, uid: 0, gid: 0, rdev: 0, blksize: 4096 } }"
+    },
+    {
+      "line": 96,
+      "text": "2026-11-12T21:59:18.840469Z DEBUG asyncfuse::raw::logfs: ID: 45 | [flush] REQ Request { unique: 90, uid: 0, gid: 0, pid: 99 } - Call_arg: inode=6, fh=4, lock_owner=12889458665491694986"
+    },
+    {
+      "line": 97,
+      "text": "2026-11-12T21:59:18.840491Z DEBUG asyncfuse::raw::logfs: ID: 45 | [flush] - Success: ()"
+    },
+    {
+      "line": 98,
+      "text": "2026-11-12T21:59:18.840539Z DEBUG asyncfuse::raw::logfs: ID: 46 | [release] REQ Request { unique: 92, uid: 0, gid: 0, pid: 0 } - Call_arg: inode=6, fh=4, flags=163841, lock_owner=0, flush=false"
+    },
+    {
+      "line": 99,
+      "text": "2026-11-12T21:59:18.840583Z DEBUG asyncfuse::raw::logfs: ID: 46 | [release] - Success: ()"
+    },
+    {
+      "line": 225,
+      "text": "2026-11-12T21:59:23.825503Z DEBUG asyncfuse::raw::logfs: ID: 106 | [lookup] REQ Request { unique: 212, uid: 0, gid: 0, pid: 348 } - Call_arg: parent=5, name=known-tail.bin"
+    },
+    {
+      "line": 226,
+      "text": "2026-11-12T21:59:23.825511Z DEBUG asyncfuse::raw::logfs: ID: 106 | [lookup] - Success: ReplyEntry { ttl: 1s, attr: FileAttr { ino: 6, size: 67108864, blocks: 0, atime: Timestamp { sec: 1794520758, nsec: 779667233 }, mtime: Timestamp { sec: 1794520758, nsec: 779667233 }, ctime: Timestamp { sec: 1794520758, nsec: 779667233 }, kind: RegularFile, perm: 384, nlink: 1, uid: 0, gid: 0, rdev: 0, blksize: 4096 }, generation: 0 }"
+    },
+    {
+      "line": 227,
+      "text": "2026-11-12T21:59:23.825549Z DEBUG asyncfuse::raw::logfs: ID: 107 | [open] REQ Request { unique: 214, uid: 0, gid: 0, pid: 348 } - Call_arg: inode=6, flags=163840"
+    },
+    {
+      "line": 228,
+      "text": "2026-11-12T21:59:23.825756Z DEBUG asyncfuse::raw::logfs: ID: 107 [brewfs::observability::fuse::ObservedFilesystem<brewfs::vfs::fs::VFS<brewfs::chunk::store::ObjectBlockStore<brewfs::cadapter::s3::S3Backend>, brewfs::meta::client::MetaClient<dyn brewfs::meta::store::MetaStore>>>] open - Obtained fh: 12"
+    },
+    {
+      "line": 229,
+      "text": "2026-11-12T21:59:23.825777Z DEBUG asyncfuse::raw::logfs: ID: 107 | [open] - Success: ReplyOpen { fh: 12, flags: 1 }"
+    },
+    {
+      "line": 488,
+      "text": "2026-11-12T21:59:23.905583Z DEBUG asyncfuse::raw::logfs: ID: 237 | [getattr] REQ Request { unique: 474, uid: 0, gid: 0, pid: 348 } - Call_arg: inode=6, fh=, flags=0"
+    },
+    {
+      "line": 489,
+      "text": "2026-11-12T21:59:23.905596Z DEBUG asyncfuse::raw::logfs: ID: 237 | [getattr] - Success: ReplyAttr { ttl: 1s, attr: FileAttr { ino: 6, size: 67108864, blocks: 8192, atime: Timestamp { sec: 1794520758, nsec: 779699968 }, mtime: Timestamp { sec: 1794520758, nsec: 793100032 }, ctime: Timestamp { sec: 1794520758, nsec: 793100032 }, kind: RegularFile, perm: 384, nlink: 1, uid: 0, gid: 0, rdev: 0, blksize: 4096 } }"
+    }
+  ],
+  "source_chain": [
+    {
+      "path": "src/meta/client/mod.rs",
+      "lines": "3099-3115",
+      "fact": "After store write, cached inode attribute update only extends size; it does not refresh mtime or blocks."
+    },
+    {
+      "path": "src/meta/stores/redis/mod.rs",
+      "lines": "745-758",
+      "fact": "Store write Lua updates allocated blocks and mtime/ctime in persisted node."
+    },
+    {
+      "path": "src/meta/client/mod.rs",
+      "lines": "1618-1624",
+      "fact": "Lookup-with-attr returns cached inode attribute if available."
+    },
+    {
+      "path": "src/fuse/mod.rs",
+      "lines": "2818-2827",
+      "fact": "Regular FUSE open calls open_fresh_ino and returns only fh/flags."
+    },
+    {
+      "path": "src/vfs/fs/mod.rs",
+      "lines": "6458-6471",
+      "fact": "Fresh-ino open requests meta_stat_for_open."
+    },
+    {
+      "path": "src/meta/client/mod.rs",
+      "lines": "2148-2163,2174-2192",
+      "fact": "On open-cache miss, store stat refreshes inode-cache attribute."
+    },
+    {
+      "path": "src/fuse/mod.rs",
+      "lines": "3882-3894",
+      "fact": "getattr calls stat_ino_checked."
+    },
+    {
+      "path": "src/vfs/fs/mod.rs",
+      "lines": "2388-2395",
+      "fact": "stat_ino_checked reads meta_stat then adjusts local size."
+    },
+    {
+      "path": "src/meta/client/mod.rs",
+      "lines": "1463-1466,2143-2144",
+      "fact": "meta stat may return refreshed inode-cache attribute."
+    }
+  ],
+  "inference": "Observed creation-time mtime and blocks0 in lookup, followed by write-time mtime and blocks8192 in post-read getattr, is consistent with lookup using stale cached attr and open refreshing the userspace cache while kernel before-fstat still uses lookup attrs. The exact first-fstat values were not captured, so that last kernel step is not proven.",
+  "not_established": [
+    "The original helper exception does not identify which tuple component or read length caused failure.",
+    "The 64MiB log read sum is not a saved content SHA or mismatch oracle.",
+    "No evidence here establishes read-induced data corruption, read-induced mtime mutation, or causation by the cleanup patch."
+  ],
+  "next_required_evidence": "Capture actual before/after stat fields, returned byte count, full SHA, expected SHA and mismatch list without weakening the original strict assertion."
+}

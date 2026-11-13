@@ -1,0 +1,913 @@
+{
+  "schema": "ax.standard-write-path-review.v1",
+  "captured_at_utc": "2026-11-12T23:38:04.609695+00:00",
+  "baseline": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+  "candidate": "c8f5f16aefe811540782b952481982179a1bfd6f",
+  "runtime_archive": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06",
+  "source_inference_not_runtime_branch_trace": true,
+  "runtime_creation_unique_value": "unobserved: no per-request WRITE_CACHE/creation_unique trace in601",
+  "unchanged_source_spans": [
+    {
+      "label": "ordinary_and_cached_entry_methods",
+      "file": "src/vfs/io/writer.rs",
+      "start": "pub(crate) async fn write_at_with_unique(",
+      "end_exclusive": "fn overlay_slices_for_chunk(",
+      "sha256": "58e75804dd440532d4c0758d63d4972bf472cc68f9e3f453a9b805a6c903873c",
+      "bytes": 15829
+    },
+    {
+      "label": "strict_flush_wait",
+      "file": "src/vfs/io/writer.rs",
+      "start": "async fn flush_with_deadline_inner(",
+      "end_exclusive": "pub(crate) async fn clear(",
+      "sha256": "936f5257ac1c9b97736927711c7ae08b672264cec56fae994ce75ebb76900c73",
+      "bytes": 8030
+    },
+    {
+      "label": "stage_and_upload_task",
+      "file": "src/vfs/io/writer.rs",
+      "start": "fn spawn_flush_slice(",
+      "end_exclusive": "async fn pop_front_slice(",
+      "sha256": "5a65f0eced5cecb159516d8abd43bbbda704fa4547bf9b40fde0ec67e12ee4e5",
+      "bytes": 19853
+    },
+    {
+      "label": "cleanup_helpers",
+      "file": "src/vfs/io/writer.rs",
+      "start": "async fn remove_writeback_record_if_uploaded_committed(",
+      "end_exclusive": "fn keep_recently_committed_if_overlay_needed(",
+      "sha256": "0c5e0536aa51ea06c565d8e83402a93df21a9a8f499182d24bc98a5e35619ddf",
+      "bytes": 1419
+    },
+    {
+      "label": "cbu_handoff",
+      "file": "src/vfs/io/writer.rs",
+      "start": "async fn try_commit_before_upload_front(",
+      "end_exclusive": "async fn try_commit_before_upload_if_front(",
+      "sha256": "b4868be8af86f0ec963c70a66fc4703d23cbd74e52bae3c71aa1b8e997c14c14",
+      "bytes": 6103
+    },
+    {
+      "label": "commit_task",
+      "file": "src/vfs/io/writer.rs",
+      "start": "async fn commit_chunk(",
+      "end_exclusive": "async fn auto_flush(",
+      "sha256": "d08e63d13e53c3c5dc569a2b50c933f50ce19cc5b2303949c9311cb5c1fed0d4",
+      "bytes": 22329
+    }
+  ],
+  "whole_file_identity": [
+    {
+      "file": "src/fuse/mod.rs",
+      "sha256": "a34e852b18a6502e820c190513c3258b339d37d463f71db416774f6bb208afd7",
+      "bytes": 275893
+    },
+    {
+      "file": "src/fuse/mount.rs",
+      "sha256": "7013976f6eedd0291564952144eb189962ea0eda113efd91faafa2e2496782ac",
+      "bytes": 10634
+    },
+    {
+      "file": "src/vfs/handles.rs",
+      "sha256": "afcbba117689e8177d818e2413467ee8f60dc31b1591f74ea15fdae5d609698d",
+      "bytes": 25594
+    },
+    {
+      "file": "src/vfs/fs/mod.rs",
+      "sha256": "dbee1e583110315bab956a6596bc922faba7b091882166d9fcde16a407953f72",
+      "bytes": 283307
+    }
+  ],
+  "arms": {
+    "baseline": {
+      "artifact": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351",
+      "actual_manifest_filesystem": {
+        "BREWFS_BLOCK_SIZE": "4194304",
+        "BREWFS_CHUNK_SIZE": "67108864",
+        "BREWFS_COMPRESSION": "none",
+        "BREWFS_FUSE_DIRECT_IO": "",
+        "BREWFS_FUSE_KEEP_CACHE": "",
+        "BREWFS_FUSE_MAX_BACKGROUND": "512",
+        "BREWFS_FUSE_READ_DIRECT_IO": "1",
+        "BREWFS_FUSE_WORKERS": "16",
+        "BREWFS_FUSE_WRITEBACK": "0",
+        "BREWFS_FUSE_WRITE_DIRECT_IO": "",
+        "BREWFS_MEMORY_BUDGET_BYTES": "12884901888",
+        "BREWFS_METADATA_ALLOW_WRITE_OPEN_CACHE": "",
+        "BREWFS_METADATA_OPEN_CACHE_TTL_MS": "1000",
+        "BREWFS_PREFETCH_CONCURRENCY": "",
+        "BREWFS_PREFETCH_ENABLED": "",
+        "BREWFS_PREFETCH_MAX_BYTES": "1073741824",
+        "BREWFS_READ_MEMORY_BYTES": "4294967296",
+        "BREWFS_READ_SSD_BYTES": "8589934592",
+        "BREWFS_REQUEST_TRACE": "",
+        "BREWFS_REQUEST_TRACE_SAMPLE_RATE": "",
+        "BREWFS_S3_MAX_CONCURRENCY": "16",
+        "BREWFS_UPLOAD_CONCURRENCY": "32",
+        "BREWFS_VOLUME_FORMAT": "",
+        "BREWFS_WORKSPACE_ID": "",
+        "BREWFS_WORKSPACE_NAMESPACE": "",
+        "BREWFS_WRITEBACK_MODE": "commit_before_upload",
+        "BREWFS_WRITEBACK_PERSIST_SYNC": "false",
+        "BREWFS_WRITEBACK_REQUIRE_STAGE_BEFORE_COMMIT": "false",
+        "BREWFS_WRITEBACK_UPLOAD_CONCURRENCY": "6",
+        "BREWFS_WRITE_MEMORY_BYTES": "4294967296",
+        "BREWFS_WRITE_SSD_BYTES": "4294967296",
+        "TOKIO_WORKER_THREADS": ""
+      },
+      "manifest_sha256": "4726c468a8af6935e8806ecaf7ad9243f477775e075b3f70f1161dee21606aa0",
+      "trial_sha256": "c462f9833bfea5494fee1daa08e9ff9c450c95be92aed0c479606ad6e8a6a4ee",
+      "fuse_op_log": "0",
+      "sampled_cached_specific_metrics": {
+        "diagnostics/stats-fio-randrw-direct1-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-post-write-drain-timeout-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-post-write-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-post-write-drained-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-post-write-runner-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-drain-timeout-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-drained-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-runner-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-post-write-drain-timeout-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-post-write-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-post-write-drained-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-post-write-runner-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-post-write-drain-timeout-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-post-write-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-post-write-drained-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-post-write-runner-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        }
+      },
+      "stats_inputs": [
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-after.txt",
+          "sha256": "e688d60592e476947721cff747d475d66db50af99266f225fa3e3aa305fd4e3e"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-before.txt",
+          "sha256": "72782fef26adb096e0489e5292be3dc0ee25c1e9ebf04ef64ade6d20d3654334"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-post-write-drain-timeout-before.txt",
+          "sha256": "ab1aab21e2e00b3d54dec80de519b679c9f03f9f77601e87b8cfb8d5b88e339d"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-post-write-drained-after.txt",
+          "sha256": "8a41e038905d4dfbfc7ee35c4ba91a9f1b3f286e5393e39ca11537b32d9e72b3"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-post-write-drained-before.txt",
+          "sha256": "eea8e865b7044427094269a6ed6c88619ea19a52ca568eac82c5ea45a2ca4342"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-post-write-runner-drained-after.txt",
+          "sha256": "f52d0038029eca1c0f7164b18b9543f8b141e529e164e944609b87fcd4db22cc"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-prefill-after.txt",
+          "sha256": "fa73f841e78e3ed22f7ad8e39afc917916b4b6dd09fac6e43016012ea80ac6af"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-prefill-before.txt",
+          "sha256": "6d71ad392c23060e8d2d0e92b9eb70cc5652bb57a28d4dc60b29447c9f048e44"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-prefill-drain-timeout-before.txt",
+          "sha256": "458d86f78e092e480dc48d0e8162fc0d1f50809011bcc9c8ac9f86b1dbed141b"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-prefill-drained-after.txt",
+          "sha256": "f36d4d218a04c75ac535105b6086be66c3f2310388bf1e6da4f9f1c633785785"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-prefill-drained-before.txt",
+          "sha256": "b4cb85061954359bad3248f3d1948237a3b7653ea8626fa56927a2ac8c73847c"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randrw-direct1-prefill-runner-drained-after.txt",
+          "sha256": "0ef3d0035fda1eb7d84eb443625f26aaaffee5d19e588e90b9138af43b03984f"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randwrite-direct1-after.txt",
+          "sha256": "728722995e5628b5dcecb1adcf64fa65b59d02a682407cafb8bd47776cb094bf"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randwrite-direct1-before.txt",
+          "sha256": "e42bbb718dfcd2a67ffe746ad32316a2d32a071e82d4543977a9b35d944caad0"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randwrite-direct1-post-write-drain-timeout-before.txt",
+          "sha256": "ad4f665fa836447da9236feaa8f482b3d37d6e52e4e414359c639fed8df1a626"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randwrite-direct1-post-write-drained-after.txt",
+          "sha256": "865633f52776b5d0ff267d9ed8525b75beac04d48f77efbc2d355e4194455066"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randwrite-direct1-post-write-drained-before.txt",
+          "sha256": "69edda16dfc6c346a92b6da988a075b2c7447ead9874e0438c58a1dd50f1d0c1"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-randwrite-direct1-post-write-runner-drained-after.txt",
+          "sha256": "d0f075546ce5b2dec08472b993eabe9bc81de31d67c47add64a1b4aa24816106"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-seqwrite-direct1-after.txt",
+          "sha256": "ca5663857f6d2944c88282e4a303fea3a920e515990c16bc399919a8e1001d00"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-seqwrite-direct1-before.txt",
+          "sha256": "22234af20fd143b1c4b0ab8d2b68e3bad8c27a1ed232f6f8f65441e0d8f418eb"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-seqwrite-direct1-post-write-drain-timeout-before.txt",
+          "sha256": "1b49576630326f8941b242008dcdcba3bf0382ed084fbea785e44033e34534c2"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-seqwrite-direct1-post-write-drained-after.txt",
+          "sha256": "f96acc03443853f0c418196b18eedeb8f7874de6a0946c905bbd8788e88f8aa7"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-seqwrite-direct1-post-write-drained-before.txt",
+          "sha256": "83a0b739fd20fd37db89a1223e41d04dc223822bc9b76c69bd33a4e86d036c05"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/baseline/perf-run-1794524573-25351/diagnostics/stats-fio-seqwrite-direct1-post-write-runner-drained-after.txt",
+          "sha256": "5f26dfdbf7d8eb0488324879a618eed5684d24eedc8220f7ec19a02a3005ba4f"
+        }
+      ],
+      "metric_limit": "These counters cover specific events or current gauges, not every WRITE opcode. Their zero values do not prove absence of all cached writes."
+    },
+    "candidate": {
+      "artifact": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301",
+      "actual_manifest_filesystem": {
+        "BREWFS_BLOCK_SIZE": "4194304",
+        "BREWFS_CHUNK_SIZE": "67108864",
+        "BREWFS_COMPRESSION": "none",
+        "BREWFS_FUSE_DIRECT_IO": "",
+        "BREWFS_FUSE_KEEP_CACHE": "",
+        "BREWFS_FUSE_MAX_BACKGROUND": "512",
+        "BREWFS_FUSE_READ_DIRECT_IO": "1",
+        "BREWFS_FUSE_WORKERS": "16",
+        "BREWFS_FUSE_WRITEBACK": "0",
+        "BREWFS_FUSE_WRITE_DIRECT_IO": "",
+        "BREWFS_MEMORY_BUDGET_BYTES": "12884901888",
+        "BREWFS_METADATA_ALLOW_WRITE_OPEN_CACHE": "",
+        "BREWFS_METADATA_OPEN_CACHE_TTL_MS": "1000",
+        "BREWFS_PREFETCH_CONCURRENCY": "",
+        "BREWFS_PREFETCH_ENABLED": "",
+        "BREWFS_PREFETCH_MAX_BYTES": "1073741824",
+        "BREWFS_READ_MEMORY_BYTES": "4294967296",
+        "BREWFS_READ_SSD_BYTES": "8589934592",
+        "BREWFS_REQUEST_TRACE": "",
+        "BREWFS_REQUEST_TRACE_SAMPLE_RATE": "",
+        "BREWFS_S3_MAX_CONCURRENCY": "16",
+        "BREWFS_UPLOAD_CONCURRENCY": "32",
+        "BREWFS_VOLUME_FORMAT": "",
+        "BREWFS_WORKSPACE_ID": "",
+        "BREWFS_WORKSPACE_NAMESPACE": "",
+        "BREWFS_WRITEBACK_MODE": "commit_before_upload",
+        "BREWFS_WRITEBACK_PERSIST_SYNC": "false",
+        "BREWFS_WRITEBACK_REQUIRE_STAGE_BEFORE_COMMIT": "false",
+        "BREWFS_WRITEBACK_UPLOAD_CONCURRENCY": "6",
+        "BREWFS_WRITE_MEMORY_BYTES": "4294967296",
+        "BREWFS_WRITE_SSD_BYTES": "4294967296",
+        "TOKIO_WORKER_THREADS": ""
+      },
+      "manifest_sha256": "fff413896c8d117947ed97dd49c3749efa224f17760ea684cbd06c37bb604c86",
+      "trial_sha256": "4f985c12bf46351dabf09a3f84932adece0f6ae33a71677b5b30aef44cbbe885",
+      "fuse_op_log": "0",
+      "sampled_cached_specific_metrics": {
+        "diagnostics/stats-fio-randrw-direct1-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-post-write-drain-timeout-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-post-write-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-post-write-drained-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-post-write-runner-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-drain-timeout-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-drained-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randrw-direct1-prefill-runner-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-post-write-drain-timeout-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-post-write-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-post-write-drained-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-randwrite-direct1-post-write-runner-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-post-write-drain-timeout-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-post-write-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-post-write-drained-before.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        },
+        "diagnostics/stats-fio-seqwrite-direct1-post-write-runner-drained-after.txt": {
+          "brewfs_writeback_live_cached_only_bytes": 0,
+          "brewfs_writeback_live_cached_only_slices": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_ops_total": 0,
+          "brewfs_writeback_commit_wait_upload_cached_only_us_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_slices_total": 0,
+          "brewfs_writeback_flush_fragmentation_cached_sub_block_bytes_total": 0,
+          "brewfs_writeback_slice_reject_older_unique_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_cached_only_ops_total": 0,
+          "brewfs_writeback_upload_partial_tail_auto_cached_only_ops_total": 0
+        }
+      },
+      "stats_inputs": [
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-after.txt",
+          "sha256": "72112f3f47e14ba95f8511e582bc4794c587d3aeb9a8089b10da87adf640e53c"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-before.txt",
+          "sha256": "d2492722b5940bdf67b270780ec0ce199f32be15b1e98179e14265e47553f7ad"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-post-write-drain-timeout-before.txt",
+          "sha256": "9a74a7d8bddce85bcb0d9d65647c2d47e21e80cbc036d13ecf4c8055cd625a18"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-post-write-drained-after.txt",
+          "sha256": "dba5c69d6377668cb4785454a17be557d0028c8d86233cb68c09a8f75e0d8b5a"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-post-write-drained-before.txt",
+          "sha256": "89386809c5f9effabc066365a2190faf07b8e8c11af0f7db518eefd3faf70b49"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-post-write-runner-drained-after.txt",
+          "sha256": "d78a4f119d8b656c267b861e7c2351d4283d2182056652e372dbedb07cb6b734"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-prefill-after.txt",
+          "sha256": "1a03ea0217951d8545e089ffb036be4c38437949aa523987045055f59bcf5dc1"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-prefill-before.txt",
+          "sha256": "dca9a4508d2006f6a45c67bc605a1c46bad0d6347ecbc65b2b44241646733b52"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-prefill-drain-timeout-before.txt",
+          "sha256": "f091c3f5fbbc2f87b56022f8a06622d8423d86b4b1c982b0f24e53a338ccf559"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-prefill-drained-after.txt",
+          "sha256": "280feb9569dafab77fba566c059e218de208619eb1c620ede126ddc0fb66a158"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-prefill-drained-before.txt",
+          "sha256": "db09afef25157ffb7c7378d8a94f418150251c849a8b1112fb85d4051b711bc5"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randrw-direct1-prefill-runner-drained-after.txt",
+          "sha256": "a85df455977a986f8631ccc95255a994f3149ec4c70de4e9c6f044f7e569b1b9"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randwrite-direct1-after.txt",
+          "sha256": "cecf7b20d7f1f49ef62fa85bdd5c49bb9e5e6aa4266d396599864e03b7bdaf47"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randwrite-direct1-before.txt",
+          "sha256": "4a6645c661430e000508a4530264f55d74e637ae12945a868b904b7d21e0392e"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randwrite-direct1-post-write-drain-timeout-before.txt",
+          "sha256": "f646b12bf6a634aa89901cafaece26b49d7eea08d5f2f89f24f250fdc9172065"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randwrite-direct1-post-write-drained-after.txt",
+          "sha256": "7775b01281084ad81c6dcdb97fe1e43b472fc023afbdb639a6f2c19465903513"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randwrite-direct1-post-write-drained-before.txt",
+          "sha256": "95887cd3f99afabdf17511f068104de31f8e404d0b7374a1be3189931646073b"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-randwrite-direct1-post-write-runner-drained-after.txt",
+          "sha256": "6cf05eec19757aafac567326338c72203ba07fb7925c501757c20353c110bd87"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-seqwrite-direct1-after.txt",
+          "sha256": "1139552290864a3095fe3b871e4902cb01389ed15bfa5ce1a6c4534118cec48b"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-seqwrite-direct1-before.txt",
+          "sha256": "015cf15669c7c2704c124b38944fa0ed004edb0bbcdd7daf416ad69aff4bb163"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-seqwrite-direct1-post-write-drain-timeout-before.txt",
+          "sha256": "db79765a8bb05135ccdd152f26914a4a61b65211ab4cb584e2f63ff4030fd032"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-seqwrite-direct1-post-write-drained-after.txt",
+          "sha256": "b671690e8ab82087b28c2e85ff2fb8c42e596097eeee8c78055c2b57ec04b80a"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-seqwrite-direct1-post-write-drained-before.txt",
+          "sha256": "29d89024f10db0b3b13710948c3d66c786b5ea51bf7cf68762d175c597de7614"
+        },
+        {
+          "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06/artifacts/candidate/perf-run-1794525112-12301/diagnostics/stats-fio-seqwrite-direct1-post-write-runner-drained-after.txt",
+          "sha256": "1a6ff4629a666e544a3d9ccde222a9b338a7077f0a2bce4bb06d01678feee88e"
+        }
+      ],
+      "metric_limit": "These counters cover specific events or current gauges, not every WRITE opcode. Their zero values do not prove absence of all cached writes."
+    }
+  },
+  "finding": "No source-level explanation of the observed regression has been established. This does not dismiss the measured regression or waive603.",
+  "randwrite_direct1_cpu_and_bytes": {
+    "baseline": {
+      "active_cpu_s": 12.559999999999999,
+      "drain_cpu_s": 22.2,
+      "total_cpu_s": 34.76,
+      "write_bytes": 4940890112,
+      "active_plus_drain_write_MiB_s": 59.86271530944713,
+      "total_cpu_s_per_GiB": 7.553955857385398
+    },
+    "candidate": {
+      "active_cpu_s": 10.200000000000001,
+      "drain_cpu_s": 28.43,
+      "total_cpu_s": 38.63,
+      "write_bytes": 4269801472,
+      "active_plus_drain_write_MiB_s": 52.905523238622266,
+      "total_cpu_s_per_GiB": 9.71442043222004
+    }
+  },
+  "original601_comparison_sha256": "b9a81cc1bbe3f2144e3bbb865a22c75c681adb3de303301448d7c608b6ecdb79"
+}

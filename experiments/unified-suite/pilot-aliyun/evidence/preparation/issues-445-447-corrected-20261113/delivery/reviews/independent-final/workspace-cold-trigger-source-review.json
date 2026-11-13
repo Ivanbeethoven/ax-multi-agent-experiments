@@ -1,0 +1,121 @@
+{
+  "created_at": "2026-11-12T18:06:38.382879+00:00",
+  "kind": "source-only endpoint and cold metadata trigger review; no cloud access or workload run",
+  "source_root": "/home/dev/ax-perf-issues-integration",
+  "candidate": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3",
+  "observed_zero_wave_events": "Owner-reported new EC4 smoke; raw new phase audit not independently archived yet",
+  "endpoint_chain": [
+    {
+      "file": "src/cli.rs",
+      "lines": [
+        1507,
+        1516,
+        2030,
+        2034,
+        2347,
+        2353,
+        2359,
+        2360
+      ],
+      "finding": "S3 lower receives create_s3_client(args), endpoint args.s3_endpoint; same client opens manifest and builds PackedReadonly."
+    },
+    {
+      "file": "src/workspace_overlay/catalog.rs",
+      "lines": [
+        59,
+        63
+      ],
+      "finding": "PackedLowerBinding has version, base_layer_id, manifest only; no endpoint override."
+    }
+  ],
+  "prewarm_chain": [
+    {
+      "file": "src/workspace_overlay/meta_layer/mod.rs",
+      "lines": [
+        1019,
+        1056
+      ],
+      "finding": "Absent upper dentry resolves through lower.metadata.lookup_with_attr_bytes."
+    },
+    {
+      "file": "src/workspace_overlay/packed_v3/readonly.rs",
+      "lines": [
+        982,
+        990,
+        1223,
+        1241
+      ],
+      "finding": "Cold leaf lookup calls authenticated snapshot.lookup_dentry."
+    },
+    {
+      "file": "src/workspace_overlay/packed_v3/wire005/manifest.rs",
+      "lines": [
+        803,
+        815,
+        817
+      ],
+      "finding": "lookup_dentry immediately requests reader.group_metadata, before pread."
+    },
+    {
+      "file": "runtime-review-01/home/dev/ax-packed-build/issue445_fill_guard.py",
+      "lines": [
+        230,
+        252,
+        160,
+        166
+      ],
+      "finding": "Old helper opens all leaf FDs serially before begin_wave; target events are only recorded while enabled. It therefore misses metadata fills caused by preopens."
+    }
+  ],
+  "parent_directory_open_chain": [
+    {
+      "file": "src/workspace_overlay/meta_layer/mod.rs",
+      "lines": [
+        2604,
+        2606
+      ],
+      "finding": "Packed workspace opendir delegates to packed_opendir."
+    },
+    {
+      "file": "src/workspace_overlay/meta_layer/packed_enumeration.rs",
+      "lines": [
+        374,
+        401,
+        405,
+        418,
+        435
+      ],
+      "finding": "Validates parent attrs/fences, opens lower paged handle and probes upper dentry pages; no lower child read_page."
+    },
+    {
+      "file": "src/workspace_overlay/packed_v3/readonly.rs",
+      "lines": [
+        1312,
+        1317,
+        1325,
+        1332
+      ],
+      "finding": "Only II05 directory type and paged source construction; no child GroupMeta decode."
+    },
+    {
+      "file": "src/vfs/fs/mod.rs",
+      "lines": [
+        6982,
+        6984,
+        6992,
+        6996
+      ],
+      "finding": "Generic pre-load comment is not what Packed paged implementation does; no additional VFS prefetch is executed here."
+    }
+  ],
+  "minimal_guard_protocol": [
+    "Keep fresh mount and exact same baseline/candidate config/data.",
+    "Record proxy method/key-hash/Range/status/bytes and phase for setup and measured requests; no credentials/Authorization/query. Retain totals to distinguish endpoint bypass from prewarming.",
+    "Preopen only unique parent directories dNN with O_DIRECTORY and no readdir/scandir/leaf stat; wait proxy idle. Root/parent metadata may be warm and must be disclosed.",
+    "Do not preopen leaf files. Release all workers from a barrier, then openat f00 relative to prepared parentFD, pread4096 and close within measured interval. Scope is cold leaf lookup/open plus payload read, not pread-only.",
+    "Assert exactly1/8 unique exact GroupMeta ranges during measured wave, each206/exact length, no errors; same-key must fetch once; all8 payload SHA checks must pass.",
+    "Compare setup and wave target identities; if expected leaf group was consumed before barrier or no exact targets are seen, fail closed.",
+    "Use all-phase proxy audit to confirm actual endpoint and phase; frozen ca issue binaries do not expose Packed native counters because existing extension wiring is unsupported, so do not invent zero counters."
+  ],
+  "decision": "Source supports revised parent-open plus concurrent leaf-open/read protocol; actual new EC4 source cause and timing still require archived runtime audit."
+}

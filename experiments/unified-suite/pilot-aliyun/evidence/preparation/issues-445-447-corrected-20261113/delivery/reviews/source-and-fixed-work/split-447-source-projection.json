@@ -1,0 +1,72 @@
+{
+  "scope": "Read-only hypothetical source projection; no git object, branch, worktree, commit or binary created",
+  "source": {
+    "base": {
+      "commit": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+      "tree": "1ee7c97a427156d9c2cfe056f857e2e01efeb714",
+      "pure_python_tree_hash_verified": true,
+      "entry_count": 1999
+    },
+    "two": {
+      "commit": "482cc36075455cfebc01fa0bc1f11f58d780a329",
+      "tree": "280a0782815893c9246922a412dcb838c6e90d1b",
+      "pure_python_tree_hash_verified": true,
+      "entry_count": 1999
+    },
+    "fixed_base": {
+      "commit": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+      "tree": "26e00a546990b3852b6d4ef1b12471e0f4a0a4e5",
+      "pure_python_tree_hash_verified": true,
+      "entry_count": 2000
+    },
+    "fixed_three": {
+      "commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+      "tree": "142c8d384fbb2939f2cde4e3e7497b122b2c0f53",
+      "pure_python_tree_hash_verified": true,
+      "entry_count": 2002
+    }
+  },
+  "common_cleanup_files": [
+    "src/vfs/io/writer.rs",
+    "src/vfs/io/writer/commit_cleanup_tests.rs"
+  ],
+  "issue_445_446_files": [
+    "src/cli.rs",
+    "src/workspace_overlay/meta_layer/mod.rs",
+    "src/workspace_overlay/meta_layer/packed_paths.rs",
+    "src/workspace_overlay/meta_layer/row_cache.rs",
+    "src/workspace_overlay/meta_layer/row_cache_cancellation_tests.rs",
+    "src/workspace_overlay/meta_layer/tests/packed_lower_tests.rs",
+    "src/workspace_overlay/packed_v3/wire005/budget.rs",
+    "src/workspace_overlay/packed_v3/wire005/index.rs",
+    "src/workspace_overlay/packed_v3/wire005/read_cache.rs"
+  ],
+  "disjoint": true,
+  "hypothetical_corrected_445_446_tree": "527f7facb30c12d16ffbde1c006ce47b835d4b8c",
+  "exact_equivalence": "482cc360 tree + ca\u21924f cleanup blobs == c8 runtime tree with writer.rs replaced by 4f and both #447-only files removed",
+  "runtime_candidate_files_removed_or_replaced": [
+    "src/vfs/io/writer.rs",
+    "src/vfs/io/writer/cached_write_watermarks.rs",
+    "src/vfs/io/writer/cached_write_watermarks_bench.rs"
+  ],
+  "new_candidate_vs_corrected_baseline_exact_files": [
+    "src/cli.rs",
+    "src/workspace_overlay/meta_layer/mod.rs",
+    "src/workspace_overlay/meta_layer/packed_paths.rs",
+    "src/workspace_overlay/meta_layer/row_cache.rs",
+    "src/workspace_overlay/meta_layer/row_cache_cancellation_tests.rs",
+    "src/workspace_overlay/meta_layer/tests/packed_lower_tests.rs",
+    "src/workspace_overlay/packed_v3/wire005/budget.rs",
+    "src/workspace_overlay/packed_v3/wire005/index.rs",
+    "src/workspace_overlay/packed_v3/wire005/read_cache.rs"
+  ],
+  "existing_perf_transferable": false,
+  "required_before_acceptance": [
+    "Explicit parent authorization to construct/review reduced source candidate",
+    "Relevant exact-feature and repository CI on new source head",
+    "New frozen release binary identity and backend/source binding",
+    "Fresh matched real workspace guards for #445/#446; retain component concurrency/budget tests",
+    "Matched ordinary standard non-regression with protocol scope explicit; c8 601/603 figures do not prove a new binary"
+  ],
+  "bench_child_e2": "Only patches #447 benchmark; removing #447 also removes that benchmark, so e2 is not required for this hypothetical subset."
+}

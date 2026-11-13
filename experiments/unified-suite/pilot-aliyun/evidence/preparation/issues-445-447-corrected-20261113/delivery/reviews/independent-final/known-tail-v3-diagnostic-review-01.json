@@ -1,0 +1,92 @@
+{
+  "schema": "independent-known-tail-v3-diagnostic-review-v1",
+  "at": "2026-11-12T22:18:17.489738+00:00",
+  "archive_sha256": "9ca294d4d948bc04e281afc9c03dc00d3746c7c4a385a64e228ec4d2e295a10f",
+  "members_rehashed": 140,
+  "results": {
+    "baseline": {
+      "binary": {
+        "commit": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+        "sha256": "0b0a2743aa968f497782d823cb068cd421eb840f82d5739a363d3bc3623c8679"
+      },
+      "before": {
+        "atime_ns": 1794521637977898807,
+        "ctime_ns": 1794521637977898807,
+        "dev": 53,
+        "ino": 6,
+        "mode": 33152,
+        "mtime_ns": 1794521637977898807,
+        "size": 67108864
+      },
+      "after": {
+        "atime_ns": 1794521637977900032,
+        "ctime_ns": 1794521637992399872,
+        "dev": 53,
+        "ino": 6,
+        "mode": 33152,
+        "mtime_ns": 1794521637992399872,
+        "size": 67108864
+      },
+      "mtime_delta_ns": 14501065,
+      "full_A_content_matches": true,
+      "bytes": 67108864,
+      "sha256": "54bf223a5f34886048817c98a70533c2654ee521e4550fcac29c5acf35e1a7f1",
+      "eof": true,
+      "syscall_read_count": 65,
+      "mismatches": [],
+      "strict_rejected_fields": [
+        "mtime_ns"
+      ],
+      "strict_drain_samples": 3,
+      "all_nine_debt_fields_zero": true,
+      "stable_put_counter": true,
+      "b_phase_executed": false,
+      "check_receipt_sha256": "d7f805236e99b2fefd2fb91df48d08ecc1f77efeebde7a1221cec1b015f91874"
+    },
+    "candidate": {
+      "binary": {
+        "commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+        "sha256": "905c4e4ca35162ae6a1ab2de03f4fa18194ef64d9afcbe20cff9bbefd570ce90"
+      },
+      "before": {
+        "atime_ns": 1794521655266993724,
+        "ctime_ns": 1794521655266993724,
+        "dev": 52,
+        "ino": 6,
+        "mode": 33152,
+        "mtime_ns": 1794521655266993724,
+        "size": 67108864
+      },
+      "after": {
+        "atime_ns": 1794521655267000064,
+        "ctime_ns": 1794521655280000000,
+        "dev": 52,
+        "ino": 6,
+        "mode": 33152,
+        "mtime_ns": 1794521655280000000,
+        "size": 67108864
+      },
+      "mtime_delta_ns": 13006276,
+      "full_A_content_matches": true,
+      "bytes": 67108864,
+      "sha256": "54bf223a5f34886048817c98a70533c2654ee521e4550fcac29c5acf35e1a7f1",
+      "eof": true,
+      "syscall_read_count": 65,
+      "mismatches": [],
+      "strict_rejected_fields": [
+        "mtime_ns"
+      ],
+      "strict_drain_samples": 3,
+      "all_nine_debt_fields_zero": true,
+      "stable_put_counter": true,
+      "b_phase_executed": false,
+      "check_receipt_sha256": "fccafe3e092d6f02329d52ef0d7556294e4926eda93543c24cbf062ef3635a59"
+    }
+  },
+  "conclusion": "Both arms have exact known-A content and full length/EOF; the unchanged strict check rejects only changed mtime_ns. B and remount oracle phases have not run. This diagnoses the attribute snapshot boundary; it does not qualify the full A/B protocol or performance.",
+  "known_A_sha_independently_recomputed": true,
+  "policy_unchanged": true,
+  "source_cross_reference": "/home/dev/ax-writeback-known-tail-attr-review-01/review.json",
+  "next": "Parent-authorized separate v4 will force Linux statx synchronization before both fstats, retain all original checks, reject unsupported/missing fields and require actual FUSE getattr trace; v3 failures remain immutable.",
+  "runtime_qualified": false
+}

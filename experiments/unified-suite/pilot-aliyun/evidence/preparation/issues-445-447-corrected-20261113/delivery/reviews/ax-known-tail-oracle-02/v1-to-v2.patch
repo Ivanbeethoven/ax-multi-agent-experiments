@@ -1,0 +1,24 @@
+--- a/known_tail_oracle.py
++++ b/known_tail_oracle.py
+@@ -17,7 +17,8 @@
+ FILE_NAME = 'known-tail.bin'
+ ENV_KEYS = ('RUST_LOG', 'BREWFS_CACHE_ROOT', 'BREWFS_FUSE_WRITEBACK',
+             'BREWFS_FUSE_OP_LOG', 'BREWFS_FUSE_LOG_FILE',
+-            'BREWFS_FUSE_DIRECT_IO', 'BREWFS_FUSE_WRITE_DIRECT_IO')
++            'BREWFS_FUSE_DIRECT_IO', 'BREWFS_FUSE_WRITE_DIRECT_IO',
++            'BREWFS_FUSE_READ_DIRECT_IO', 'BREWFS_CONFIG_PATH')
+ 
+ 
+ def expected_sha(value):
+--- a/test_known_tail_oracle.py
++++ b/test_known_tail_oracle.py
+@@ -51,7 +51,8 @@
+         self.env = {'RUST_LOG': 'warn,asyncfuse::raw::logfs=debug',
+                     'BREWFS_FUSE_WRITEBACK': '0', 'BREWFS_FUSE_OP_LOG': '1',
+                     'BREWFS_FUSE_LOG_FILE': str(self.op_log),
+-                    'BREWFS_FUSE_DIRECT_IO': '', 'BREWFS_FUSE_WRITE_DIRECT_IO': ''}
++                    'BREWFS_FUSE_DIRECT_IO': '', 'BREWFS_FUSE_WRITE_DIRECT_IO': '',
++                    'BREWFS_FUSE_READ_DIRECT_IO': '1', 'BREWFS_CONFIG_PATH': str(self.config)}
+         def env_reader(pid):
+             return dict(self.env, BREWFS_CACHE_ROOT=str(self.driver.root))
+         self.subject = oracle.Oracle(self.dataset, self.config, self.log, self.op_log,

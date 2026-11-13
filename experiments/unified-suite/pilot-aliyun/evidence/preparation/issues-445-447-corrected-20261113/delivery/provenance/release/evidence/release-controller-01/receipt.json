@@ -1,0 +1,78 @@
+{
+  "started_at": "2026-11-12T20:27:49.097525+00:00",
+  "passed": true,
+  "units": {
+    "baseline": {
+      "unit": "ax447-corrected-baseline-release-01",
+      "command": [
+        "systemd-run",
+        "--unit=ax447-corrected-baseline-release-01",
+        "--wait",
+        "--pipe",
+        "--property=CPUQuota=300%",
+        "--property=MemoryMax=24G",
+        "--property=TasksMax=2048",
+        "--property=RuntimeMaxSec=7200",
+        "--property=TimeoutStopSec=45",
+        "python3",
+        "/srv/perf-issues-corrected-preparation-01/build-corrected-arm.py",
+        "baseline",
+        "--spec",
+        "/srv/perf-issues-corrected-20261112/source-freeze/build-spec.json",
+        "--unit",
+        "ax447-corrected-baseline-release-01"
+      ],
+      "launcher_pid": 320911,
+      "exit_code": 0,
+      "binary": {
+        "path": "/srv/perf-issues-corrected-20261112/artifacts/baseline/brewfs",
+        "bytes": 372855200,
+        "sha256": "0b0a2743aa968f497782d823cb068cd421eb840f82d5739a363d3bc3623c8679"
+      }
+    },
+    "candidate": {
+      "unit": "ax447-corrected-candidate-release-01",
+      "command": [
+        "systemd-run",
+        "--unit=ax447-corrected-candidate-release-01",
+        "--wait",
+        "--pipe",
+        "--property=CPUQuota=300%",
+        "--property=MemoryMax=24G",
+        "--property=TasksMax=2048",
+        "--property=RuntimeMaxSec=7200",
+        "--property=TimeoutStopSec=45",
+        "python3",
+        "/srv/perf-issues-corrected-preparation-01/build-corrected-arm.py",
+        "candidate",
+        "--spec",
+        "/srv/perf-issues-corrected-20261112/source-freeze/build-spec.json",
+        "--unit",
+        "ax447-corrected-candidate-release-01"
+      ],
+      "launcher_pid": 320913,
+      "exit_code": 0,
+      "binary": {
+        "path": "/srv/perf-issues-corrected-20261112/artifacts/candidate/brewfs",
+        "bytes": 373692592,
+        "sha256": "905c4e4ca35162ae6a1ab2de03f4fa18194ef64d9afcbe20cff9bbefd570ce90"
+      }
+    }
+  },
+  "parallel_cpu_max_percent": 600,
+  "parallel_memory_max_bytes": 51539607552,
+  "scope": "Compilation only; no actual FUSE workload may overlap either unit",
+  "qualification_at_build": {
+    "required_ci_status": "pending",
+    "required_ci_owner": "/root/fix_issue_445",
+    "required_ci_tree": "test-v2,green-02 running",
+    "exact_feature_tests_status": "pending for both frozen arms",
+    "actual_runtime_status": "not started; source/bin pins absent",
+    "provisional_build_is_not_acceptance": true
+  },
+  "runtime_qualified": false,
+  "script_sha256": "c6b6eb54f64e04fbc6cc9a4d9274b6f3bfcdacf55051793532d5b97721bd43f4",
+  "spec_sha256": "3554293bc8c5af0c66fd4b9f97aaa7cdb6fc15c6df1683e7c1acd1b3f6bdf7f2",
+  "lock_acquired_at": "2026-11-12T20:27:49.181182+00:00",
+  "finished_at": "2026-11-12T21:39:09.410106+00:00"
+}

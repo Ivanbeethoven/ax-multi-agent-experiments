@@ -1,0 +1,65 @@
+{
+  "schema": "independent-fio-shortio-proof-review-v1",
+  "decision": "UPSTREAM_FIO339_ACCOUNTING_CAUSE_CONFIRMED_LOCAL_REPRODUCTION",
+  "cloud_tools_same_binary_confirmed": false,
+  "integrated_pr_qualified": false,
+  "evidence": {
+    "archive": "/home/dev/ax-perf-issues-validation/fio-shortio-proof-02.tar.gz",
+    "sha256": "16a4e4d93e1f2d47c55a30b650fa5b67d65b393caf75c57b39aa32d56a9c9dca",
+    "manifest_sha256": "46a76d1b315f62999eaaaf01981e0f55aad757c482f9d689150a737da8af1212",
+    "payload_members": 41,
+    "total_members": 42
+  },
+  "checks_passed": 93,
+  "results": [
+    {
+      "case": "no-sync",
+      "pwrite_count": 4096,
+      "pread_count": 4096,
+      "requested_and_returned_bytes_each": 4096,
+      "exact_offsets_complete": true,
+      "sync_file_range_success_count": 0,
+      "fsync_success_count": 1,
+      "json_write_short_ios": 0,
+      "json_read_short_ios": 0,
+      "recorded_data_hash_matches_independent_known_hash": true
+    },
+    {
+      "case": "sync",
+      "pwrite_count": 4096,
+      "pread_count": 4096,
+      "requested_and_returned_bytes_each": 4096,
+      "exact_offsets_complete": true,
+      "sync_file_range_success_count": 4095,
+      "fsync_success_count": 1,
+      "json_write_short_ios": 4095,
+      "json_read_short_ios": 0,
+      "recorded_data_hash_matches_independent_known_hash": true
+    }
+  ],
+  "known16MiB_5a_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+  "local_binary_sha256": "270595e76d44c84a04f05349858771a06fe6c5551133d4df82ed79cf823c0356",
+  "abi": {
+    "sizeof_thread_stat": 183896,
+    "sizeof_uint64_t": 8,
+    "total_io_u_offset": 150736,
+    "total_io_u_bytes": 32,
+    "short_io_u_offset": 150768,
+    "short_io_u_bytes": 24,
+    "range_sync_index_address_offset": 150776,
+    "write_short_address_offset": 150776,
+    "ddir_write": 1,
+    "ddir_sync_file_range": 5,
+    "ddir_sync_predicate": 1
+  },
+  "source_anchors": {
+    "ioengines.c": "433-438 (synchronous completion), 444-446 (queued completion)",
+    "io_ddir.h": "4-17 enum and 59-62 sync predicate",
+    "stat.h": "216-218 arrays",
+    "stat.c": "1498-1500 JSON output",
+    "backend.c": "478-479 actual short count guarded by ddir_rw"
+  },
+  "conclusion": "In the archived unmodified fio3.39 local build, all4096 actual pwrite and all4096 verification pread calls return the requested4096 bytes. Exactly4095 successful range-sync calls yield write.short_ios4095, while the otherwise equivalent no-range-sync run yields0. Real-header ABI and source identify the raw direction5 increment beyond total_io_u[4] at the address of short_io_u[WRITE1]. This establishes an accounting defect for this source/build, not file short writes.",
+  "limits": "The payload data file and executable are not included in this small archive. The saved data hash equals an independently computed known pattern; syscall results and fio verification are directly rechecked. Upstream source/ABI and this local executable are not the cloud tools-image executable. The same-image regular-file diagnostic remains the final identity binding; no cloud performance run was touched by this review.",
+  "preservation": "Original eight formal short_ios4095 values remain unchanged. Original unarchived run01 is explicitly not used for acceptance. Do not rewrite the count to zero, use diagnostic timings as performance, or claim pure write-only CPU for the write+verification+strict-drain target."
+}

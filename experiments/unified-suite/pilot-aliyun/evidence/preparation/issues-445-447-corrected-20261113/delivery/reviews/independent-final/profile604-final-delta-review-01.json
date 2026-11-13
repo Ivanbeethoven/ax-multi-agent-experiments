@@ -1,0 +1,15 @@
+{
+  "schema": "profile604-final-delta-review-v1",
+  "decision": "PASS_STATIC_DIAGNOSTIC_ONLY",
+  "performance_accepted": false,
+  "profile_executed": false,
+  "manifest_sha256": "0d34c186c98d6a05ba5ec20d4cba28529c68c542853adcbf003e7526a9b4218c",
+  "prior_review_sha256": "9944dc15d0196b0df8f566eb212bc0fc555158d192bf03307ec003d553d4d765",
+  "clarification": "The 101-check review executed after the final snapshot refresh and already binds this manifest. Its suggested post-ACK native snapshot is now present; this addendum explicitly reviews the three final changes.",
+  "checks": [
+    "Separate native stats and monotonic/realtime bracket after enable ACK and before CPU/tool start; original before stats retained.",
+    "attribution_usable=false remains until phase/clock/sample/meaningful-stack review; no automatic attribution or performance acceptance.",
+    "Controller itself sends SIGINT, accepts only 0 or -SIGINT, requires Captured and wrote and later decode success; no arbitrary failure acceptance."
+  ],
+  "remaining": "Actual profile coverage/clock/unknown-truncated stacks and diagnostic interpretation require completed raw. Original integrated PR HOLD unchanged."
+}

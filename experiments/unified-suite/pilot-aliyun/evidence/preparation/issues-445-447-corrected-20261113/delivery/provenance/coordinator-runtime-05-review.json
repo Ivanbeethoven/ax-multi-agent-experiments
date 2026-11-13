@@ -1,0 +1,27 @@
+{
+  "at": "2026-11-12T23:04:46.878231+00:00",
+  "archive_sha256": "28523146c66aea607121e7d0d76f859bc1527972c0901b3aee08b928ed94d314",
+  "members": 573,
+  "payloads_verified": 572,
+  "paths_unique_and_safe": true,
+  "credential_pattern_matches": 0,
+  "diskfull_sources": [
+    {
+      "path": "trials/ax447-corrected-baseline-regression-600/services/rustfs.log",
+      "matches": 9,
+      "sample": [
+        "{\"timestamp\":\"2026-11-12T22:44:45.317909613Z\",\"level\":\"ERROR\",\"message\":\"Erasure encode write quorum unavailable: erasure write quorum (required=3, achieved=0, failed=4, total=4, offline-disks=0/4, retryable-failures=0, dominant-error=other_error)\",\"required\":3,\"achieved\":0,\"failed\":4,\"total\":4,\"offline_disks\":0,\"retryable_failures\":0,\"dominant_error\":\"other_error\",\"returned_error\":\"drive path full\",\"errs\":\"[Some(DiskFull), Some(DiskFull), Some(DiskFull), Some(DiskFull)]\",\"target\":\"rustfs_ecstore::erasure::coding::encode\",\"filename\":\"crates/ecstore/src/erasure/coding/encode.rs\",\"line_number\":541,\"threadName\":\"rustfs-worker\",\"threadId\":\"ThreadId(6)\"}",
+        "{\"timestamp\":\"2026-11-12T22:44:45.324296924Z\",\"level\":\"ERROR\",\"message\":\"Erasure encode shutdown quorum unavailable: erasure write quorum (required=3, achieved=0, failed=4, total=4, offline-disks=0/4, retryable-failures=0, dominant-error=other_error)\",\"required\":3,\"achieved\":0,\"failed\":4,\"total\":4,\"offline_disks\":0,\"retryable_failures\":0,\"dominant_error\":\"other_error\",\"returned_error\":\"drive path full\",\"errs\":\"[Some(DiskFull), Some(DiskFull), Some(DiskFull), Some(DiskFull)]\",\"target\":\"rustfs_ecstore::erasure::coding::encode\",\"filename\":\"crates/ecstore/src/erasure/coding/encode.rs\",\"line_number\":621,\"threadName\":\"rustfs-worker\",\"threadId\":\"ThreadId(5)\"}"
+      ]
+    }
+  ],
+  "scope": "artifact integrity and direct disk-full log confirmation; runtime qualification is separate and trial600 remains invalid",
+  "raw_randrw_content": {
+    "all_four_512MiB_warm_cold_equal": true,
+    "receipt_passed": false,
+    "failure_reasons": [
+      "ValueError: client log reports failed upload/recovery"
+    ],
+    "no_content_mismatch_claim": true
+  }
+}

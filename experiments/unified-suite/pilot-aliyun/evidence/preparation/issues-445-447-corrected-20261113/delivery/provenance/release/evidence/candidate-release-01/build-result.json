@@ -1,0 +1,56 @@
+{
+  "arm": "candidate",
+  "source": {
+    "commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+    "tree": "142c8d384fbb2939f2cde4e3e7497b122b2c0f53",
+    "dirty": false
+  },
+  "started_at": "2026-11-12T20:27:49.492780+00:00",
+  "command": [
+    "cargo",
+    "build",
+    "--release",
+    "--locked",
+    "--no-default-features",
+    "--features",
+    "fuse-io-uring-runtime,workspace-overlay,observability,rustfs-ec-block-size-hint",
+    "--bin",
+    "brewfs",
+    "-vv"
+  ],
+  "script_sha256": "6d52e66217eddb4aa59acec00b93c8a4d1309a46e96ffb2a456aaa0e1d2eb24c",
+  "spec_sha256": "3554293bc8c5af0c66fd4b9f97aaa7cdb6fc15c6df1683e7c1acd1b3f6bdf7f2",
+  "source_path": "/home/dev/ax-issue447-corrected-candidate",
+  "target_path": "/srv/perf-issues-445-447/target-candidate",
+  "environment": {
+    "CARGO_HOME": "/root/.cargo",
+    "CARGO_TARGET_DIR": "/srv/perf-issues-445-447/target-candidate",
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_RELEASE_DEBUG": "0",
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  "actual_unit": {
+    "RuntimeMaxUSec": "2h",
+    "ControlGroup": "/system.slice/ax447-corrected-candidate-release-01.service",
+    "CPUQuotaPerSecUSec": "3s",
+    "MemoryMax": "25769803776",
+    "TasksMax": "2048"
+  },
+  "reused_dependency_cache": true,
+  "qualification_at_build": {
+    "required_ci_status": "pending",
+    "required_ci_owner": "/root/fix_issue_445",
+    "required_ci_tree": "test-v2,green-02 running",
+    "exact_feature_tests_status": "pending for both frozen arms",
+    "actual_runtime_status": "not started; source/bin pins absent",
+    "provisional_build_is_not_acceptance": true
+  },
+  "runtime_qualified": false,
+  "passed_scope": "Release build and source/binary identity only; CI and real workload gates bind separately",
+  "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+  "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+  "exit_code": 0,
+  "elapsed_seconds": 4272.954117488,
+  "finished_at": "2026-11-12T21:39:02.457012+00:00"
+}

@@ -1,0 +1,78 @@
+{
+  "schema": "independent-profile-predecessor-join-v1",
+  "decision": "OLD_PREDECESSOR_COMPACTION_OVERLAP_SOURCE_LOG_AND_SAMPLES_CONCORDANT",
+  "checks_passed": 458,
+  "events_sha256": "fbde2a9ae148569693019a84a7489f7ab12444e4421a3ccfaddfc8085b58f644",
+  "sample_review_sha256": "83398d529d2a8f6eadc904c81eeb7623fdfd0179399b148795d489e67fbb9647",
+  "rows": [
+    {
+      "arm": "baseline",
+      "trial": 605,
+      "old_file_inodes": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "completed_chunks": 32,
+      "kind_counts": {
+        "Heavy": 31,
+        "Light": 1
+      },
+      "sample_event_window_crosscheck": {
+        "active": {
+          "explicit_compaction_samples": 40,
+          "within_prior_task_window": 40,
+          "outside_prior_task_window": 0
+        },
+        "drain": {
+          "explicit_compaction_samples": 926,
+          "within_prior_task_window": 925,
+          "outside_prior_task_window": 1
+        }
+      },
+      "all_snapshot_slice_entries": 705,
+      "heavy_snapshot_slice_entries": 677,
+      "last_prior_completion_before_strict_end_s": 5.1838011,
+      "s3_key_available": false
+    },
+    {
+      "arm": "candidate",
+      "trial": 606,
+      "old_file_inodes": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "completed_chunks": 32,
+      "kind_counts": {
+        "Heavy": 31,
+        "Light": 1
+      },
+      "sample_event_window_crosscheck": {
+        "active": {
+          "explicit_compaction_samples": 39,
+          "within_prior_task_window": 39,
+          "outside_prior_task_window": 0
+        },
+        "drain": {
+          "explicit_compaction_samples": 1124,
+          "within_prior_task_window": 1124,
+          "outside_prior_task_window": 0
+        }
+      },
+      "all_snapshot_slice_entries": 743,
+      "heavy_snapshot_slice_entries": 714,
+      "last_prior_completion_before_strict_end_s": 5.110168211,
+      "s3_key_available": false
+    }
+  ],
+  "performance_accepted": false,
+  "integrated_pr_qualified": false,
+  "limits": [
+    "A sample in a logged task window plus explicit compaction frame supports real overlap; time matching does not identify each anonymous S3 request or account exact CPU.",
+    "Old inode mapping proves previous-scene work is present. Different snapshot entry counts are not byte or CPU ratios.",
+    "Original601/603 numbers and limitations remain. A separately matched fixed-work foreground guard may support a narrower conclusion; no universal maintenance claim follows."
+  ]
+}

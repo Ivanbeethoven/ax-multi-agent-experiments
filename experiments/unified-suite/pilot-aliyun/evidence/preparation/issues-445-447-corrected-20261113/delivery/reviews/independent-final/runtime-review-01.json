@@ -1,0 +1,693 @@
+{
+  "created_at": "2026-11-12T17:54:04.949262+00:00",
+  "scope": "Independent read-only review of immutable rbm archive; no cloud access or workloads",
+  "candidate": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3",
+  "baseline": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+  "decision": {
+    "approve_one_integrated_pr": false,
+    "status": "not_ready",
+    "reason": "Actual runtime acceptance incomplete and write persistence failures invalidate cached timing qualification; no attribution to candidate code established."
+  },
+  "archive": {
+    "root": "/home/dev/ax-perf-issues-validation/runtime-review-01",
+    "archive_sha256": "cf6cded457a83995e7a9224bebf002dc86c3a0c0ace406875221a49ac6c1d05d",
+    "members": 1336,
+    "member_bytes": 31628940,
+    "all_members_independently_rehashed": true
+  },
+  "audit_checks": {
+    "total": 1472,
+    "passed": 1472,
+    "failed": 0
+  },
+  "source_ci_component_review": "preflight.json",
+  "proxy_protocol_review": "proxy-protocol-review.json",
+  "same_configuration": {
+    "cache_preparation": {
+      "PERF_FIO_COLD_READ": "false",
+      "PERF_FIO_COLD_READ_CLEAR_CACHE": "false",
+      "PERF_FIO_COLD_READ_DROP_CACHES": "false",
+      "PERF_FIO_DROP_CACHES": "false",
+      "PERF_FIO_PREFILL_DRAIN": "true",
+      "PERF_FIO_PREFILL_REMOUNT": "true"
+    },
+    "completion": {
+      "PERF_FIO_POST_WRITE_DRAIN": "true",
+      "PERF_FIO_POST_WRITE_DRAIN_TIMEOUT_SECS": "180",
+      "PERF_METADATA_POST_TOOL_DRAIN": "true"
+    },
+    "dataset": {
+      "PERF_FIO_BIGWRITE_SIZE": "16m"
+    },
+    "filesystem": {
+      "BREWFS_BLOCK_SIZE": "4194304",
+      "BREWFS_CHUNK_SIZE": "67108864",
+      "BREWFS_COMPRESSION": "none",
+      "BREWFS_FUSE_DIRECT_IO": "",
+      "BREWFS_FUSE_KEEP_CACHE": "",
+      "BREWFS_FUSE_MAX_BACKGROUND": "512",
+      "BREWFS_FUSE_READ_DIRECT_IO": "1",
+      "BREWFS_FUSE_WORKERS": "16",
+      "BREWFS_FUSE_WRITEBACK": "1",
+      "BREWFS_FUSE_WRITE_DIRECT_IO": "",
+      "BREWFS_MEMORY_BUDGET_BYTES": "12884901888",
+      "BREWFS_METADATA_ALLOW_WRITE_OPEN_CACHE": "",
+      "BREWFS_METADATA_OPEN_CACHE_TTL_MS": "1000",
+      "BREWFS_PREFETCH_CONCURRENCY": "",
+      "BREWFS_PREFETCH_ENABLED": "",
+      "BREWFS_PREFETCH_MAX_BYTES": "1073741824",
+      "BREWFS_READ_MEMORY_BYTES": "4294967296",
+      "BREWFS_READ_SSD_BYTES": "8589934592",
+      "BREWFS_REQUEST_TRACE": "",
+      "BREWFS_REQUEST_TRACE_SAMPLE_RATE": "",
+      "BREWFS_S3_MAX_CONCURRENCY": "16",
+      "BREWFS_UPLOAD_CONCURRENCY": "32",
+      "BREWFS_VOLUME_FORMAT": "",
+      "BREWFS_WORKSPACE_ID": "",
+      "BREWFS_WORKSPACE_NAMESPACE": "",
+      "BREWFS_WRITEBACK_MODE": "commit_before_upload",
+      "BREWFS_WRITEBACK_PERSIST_SYNC": "false",
+      "BREWFS_WRITEBACK_REQUIRE_STAGE_BEFORE_COMMIT": "false",
+      "BREWFS_WRITEBACK_UPLOAD_CONCURRENCY": "6",
+      "BREWFS_WRITE_MEMORY_BYTES": "4294967296",
+      "BREWFS_WRITE_SSD_BYTES": "4294967296",
+      "TOKIO_WORKER_THREADS": ""
+    },
+    "observation": {
+      "BREWFS_REQUEST_TRACE": "",
+      "BREWFS_REQUEST_TRACE_SAMPLE_RATE": "",
+      "TOKIO_WORKER_THREADS": ""
+    },
+    "resources": {
+      "cpu_limit": "300000 100000",
+      "memory_limit_bytes": "17179869184"
+    },
+    "topology": {
+      "metadata": "redis",
+      "metadata_endpoint": "redis://redis:6379/0",
+      "object": "s3",
+      "object_endpoint": "http://rustfs:9000",
+      "runner": "compose"
+    },
+    "workload": {
+      "PERF_FIO_CLAT_PERCENTILES": "1",
+      "PERF_FIO_DIRECT": "0",
+      "PERF_FIO_DIRECT_MATRIX": "",
+      "PERF_FIO_IODEPTH": "1",
+      "PERF_FIO_IOENGINE": "io_uring",
+      "PERF_FIO_LAT_PERCENTILES": "1",
+      "PERF_FIO_PERCENTILE_LIST": "50:95:99:99.9",
+      "PERF_FIO_RANDREPEAT": "1",
+      "PERF_FIO_RANDSEED": "20261031",
+      "PERF_TOOLS": "fio-bigwrite"
+    }
+  },
+  "cached": {
+    "classification": "unqualified_diagnostic_not_publishable_performance_gain",
+    "paired_order": [
+      "AB",
+      "BA",
+      "AB"
+    ],
+    "cpu_scope": "BrewFS process user+system ticks, all threads; excludes fio/RustFS",
+    "rows": [
+      {
+        "arm": "baseline",
+        "repetition": 0,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-01/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794504011-24612",
+        "classification": "unqualified_diagnostic",
+        "user_hz": 100,
+        "cpu_tool_s": 0.53,
+        "cpu_total_s": 0.7,
+        "wall_tool_s": 0.953288582,
+        "wall_total_s": 17.643411155,
+        "fio_raw_write_short_ios": 4095,
+        "fio_raw_sync_n": 4095,
+        "stats": {
+          "brewfs_s3_put_ops_total": {
+            "before": 0.0,
+            "after": 1.0,
+            "delta": 1.0
+          },
+          "brewfs_s3_put_bytes_total": {
+            "before": 0.0,
+            "after": 32.0,
+            "delta": 32.0
+          },
+          "brewfs_buffer_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_recent_pending_upload_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          }
+        }
+      },
+      {
+        "arm": "candidate",
+        "repetition": 0,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-01/home/dev/ax-issue447-perf-candidate/docker/compose-xfstests/artifacts/perf-run-1794504040-18483",
+        "classification": "unqualified_diagnostic",
+        "user_hz": 100,
+        "cpu_tool_s": 0.4,
+        "cpu_total_s": 0.58,
+        "wall_tool_s": 0.955019867,
+        "wall_total_s": 17.633973547,
+        "fio_raw_write_short_ios": 4095,
+        "fio_raw_sync_n": 4095,
+        "stats": {
+          "brewfs_s3_put_ops_total": {
+            "before": 0.0,
+            "after": 1.0,
+            "delta": 1.0
+          },
+          "brewfs_s3_put_bytes_total": {
+            "before": 0.0,
+            "after": 32.0,
+            "delta": 32.0
+          },
+          "brewfs_buffer_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_recent_pending_upload_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          }
+        }
+      },
+      {
+        "arm": "candidate",
+        "repetition": 1,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-01/home/dev/ax-issue447-perf-candidate/docker/compose-xfstests/artifacts/perf-run-1794504070-26308",
+        "classification": "unqualified_diagnostic",
+        "user_hz": 100,
+        "cpu_tool_s": 0.39,
+        "cpu_total_s": 0.55,
+        "wall_tool_s": 0.813452622,
+        "wall_total_s": 17.494946519,
+        "fio_raw_write_short_ios": 4095,
+        "fio_raw_sync_n": 4095,
+        "stats": {
+          "brewfs_s3_put_ops_total": {
+            "before": 0.0,
+            "after": 1.0,
+            "delta": 1.0
+          },
+          "brewfs_s3_put_bytes_total": {
+            "before": 0.0,
+            "after": 32.0,
+            "delta": 32.0
+          },
+          "brewfs_buffer_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_recent_pending_upload_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          }
+        }
+      },
+      {
+        "arm": "baseline",
+        "repetition": 1,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-01/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794504099-31564",
+        "classification": "unqualified_diagnostic",
+        "user_hz": 100,
+        "cpu_tool_s": 0.51,
+        "cpu_total_s": 0.68,
+        "wall_tool_s": 0.953458163,
+        "wall_total_s": 15.577215827,
+        "fio_raw_write_short_ios": 4095,
+        "fio_raw_sync_n": 4095,
+        "stats": {
+          "brewfs_s3_put_ops_total": {
+            "before": 0.0,
+            "after": 1.0,
+            "delta": 1.0
+          },
+          "brewfs_s3_put_bytes_total": {
+            "before": 0.0,
+            "after": 32.0,
+            "delta": 32.0
+          },
+          "brewfs_buffer_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_recent_pending_upload_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          }
+        }
+      },
+      {
+        "arm": "baseline",
+        "repetition": 2,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-01/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794504125-4846",
+        "classification": "unqualified_diagnostic",
+        "user_hz": 100,
+        "cpu_tool_s": 0.51,
+        "cpu_total_s": 0.67,
+        "wall_tool_s": 0.953558517,
+        "wall_total_s": 19.704746942,
+        "fio_raw_write_short_ios": 4095,
+        "fio_raw_sync_n": 4095,
+        "stats": {
+          "brewfs_s3_put_ops_total": {
+            "before": 0.0,
+            "after": 1.0,
+            "delta": 1.0
+          },
+          "brewfs_s3_put_bytes_total": {
+            "before": 0.0,
+            "after": 32.0,
+            "delta": 32.0
+          },
+          "brewfs_buffer_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_recent_pending_upload_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          }
+        }
+      },
+      {
+        "arm": "candidate",
+        "repetition": 2,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-01/home/dev/ax-issue447-perf-candidate/docker/compose-xfstests/artifacts/perf-run-1794504156-7647",
+        "classification": "unqualified_diagnostic",
+        "user_hz": 100,
+        "cpu_tool_s": 0.39,
+        "cpu_total_s": 0.56,
+        "wall_tool_s": 0.810606694,
+        "wall_total_s": 19.551247542,
+        "fio_raw_write_short_ios": 4095,
+        "fio_raw_sync_n": 4095,
+        "stats": {
+          "brewfs_s3_put_ops_total": {
+            "before": 0.0,
+            "after": 1.0,
+            "delta": 1.0
+          },
+          "brewfs_s3_put_bytes_total": {
+            "before": 0.0,
+            "after": 32.0,
+            "delta": 32.0
+          },
+          "brewfs_buffer_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_dirty_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          },
+          "brewfs_writeback_recent_pending_upload_bytes": {
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0
+          }
+        }
+      }
+    ],
+    "ratios": [
+      {
+        "repetition": 0,
+        "cpu_tool_s": 0.7547169811320755,
+        "cpu_total_s": 0.8285714285714285,
+        "wall_tool_s": 1.0018161184689403,
+        "wall_total_s": 0.999465091647126
+      },
+      {
+        "repetition": 1,
+        "cpu_tool_s": 0.7647058823529412,
+        "cpu_total_s": 0.8088235294117647,
+        "wall_tool_s": 0.853160268134387,
+        "wall_total_s": 1.1231112615565098
+      },
+      {
+        "repetition": 2,
+        "cpu_tool_s": 0.7647058823529412,
+        "cpu_total_s": 0.8358208955223881,
+        "wall_tool_s": 0.8500859460101702,
+        "wall_total_s": 0.9922100293674504
+      }
+    ],
+    "actual_path_proof": [
+      {
+        "arm": "baseline",
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-01/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794504229-1760",
+        "cached_inode": [
+          6
+        ],
+        "request_count": 4096,
+        "request_bytes": 4096,
+        "nonzero_distinct_request_ids": true,
+        "timing_excluded": true,
+        "harness_status": 0,
+        "upload_error_evidence": [
+          {
+            "line": 280,
+            "text": "  2026-11-12T17:24:02.716356Z  WARN brewfs::vfs::io::writer: pipeline upload failed, retrying, chunk_id: 6000000000, slice_id: 3, offset: 0, len: 16777216, error: object store put failed: chunks-v2/3/0, service error"
+          },
+          {
+            "line": 283,
+            "text": "    0: unhandled error (InternalError)"
+          },
+          {
+            "line": 284,
+            "text": "    1: Error { code: \"InternalError\", message: \"We encountered an internal error, please try again.\", aws_request_id: \"59d8c71d-4a58-4a78-84d5-d29a985f8fff\" }"
+          },
+          {
+            "line": 323,
+            "text": "  2026-11-12T17:24:03.994027Z  WARN brewfs::vfs::io::writer: pipeline upload failed, retrying, chunk_id: 6000000000, slice_id: 3, offset: 0, len: 16777216, error: object store put failed: chunks-v2/3/0, service error"
+          },
+          {
+            "line": 326,
+            "text": "    0: unhandled error (InternalError)"
+          },
+          {
+            "line": 327,
+            "text": "    1: Error { code: \"InternalError\", message: \"We encountered an internal error, please try again.\", aws_request_id: \"d98172a4-51e3-4a5d-8588-2dd0faf727c3\" }"
+          },
+          {
+            "line": 402,
+            "text": "  2026-11-12T17:24:06.382816Z  WARN brewfs::vfs::io::writer: pipeline upload failed, retrying, chunk_id: 6000000000, slice_id: 3, offset: 0, len: 16777216, error: object store put failed: chunks-v2/3/0, service error"
+          },
+          {
+            "line": 405,
+            "text": "    0: unhandled error (InternalError)"
+          },
+          {
+            "line": 406,
+            "text": "    1: Error { code: \"InternalError\", message: \"We encountered an internal error, please try again.\", aws_request_id: \"5e9f7a58-60d7-471b-87fe-baa1793c434f\" }"
+          },
+          {
+            "line": 496,
+            "text": "  2026-11-12T17:24:09.227546Z  WARN brewfs::vfs::io::writer: pipeline upload failed, retrying, chunk_id: 6000000000, slice_id: 3, offset: 0, len: 16777216, error: object store put failed: chunks-v2/3/0, service error"
+          },
+          {
+            "line": 499,
+            "text": "    0: unhandled error (InternalError)"
+          },
+          {
+            "line": 500,
+            "text": "    1: Error { code: \"InternalError\", message: \"We encountered an internal error, please try again.\", aws_request_id: \"c154ce33-0da8-4d80-9f90-2c6f005af272\" }"
+          },
+          {
+            "line": 557,
+            "text": "  2026-11-12T17:24:11.087586Z  WARN brewfs::vfs::io::writer: pipeline upload failed, retrying, chunk_id: 6000000000, slice_id: 3, offset: 0, len: 16777216, error: object store put failed: chunks-v2/3/0, service error"
+          },
+          {
+            "line": 560,
+            "text": "    0: unhandled error (InternalError)"
+          },
+          {
+            "line": 561,
+            "text": "    1: Error { code: \"InternalError\", message: \"We encountered an internal error, please try again.\", aws_request_id: \"b7efbe02-2931-4952-b950-12ffe3ae9649\" }"
+          }
+        ],
+        "after_put_bytes": 32.0,
+        "after_dirty_bytes": 0.0
+      },
+      {
+        "arm": "candidate",
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-01/home/dev/ax-issue447-perf-candidate/docker/compose-xfstests/artifacts/perf-run-1794504258-28916",
+        "cached_inode": [
+          6
+        ],
+        "request_count": 4096,
+        "request_bytes": 4096,
+        "nonzero_distinct_request_ids": true,
+        "timing_excluded": true,
+        "harness_status": 0,
+        "upload_error_evidence": [
+          {
+            "line": 274,
+            "text": "  2026-11-12T17:24:31.988207Z  WARN brewfs::vfs::io::writer: pipeline upload failed, retrying, chunk_id: 6000000000, slice_id: 3, offset: 0, len: 16777216, error: object store put failed: chunks-v2/3/0, service error"
+          },
+          {
+            "line": 277,
+            "text": "    0: unhandled error (InternalError)"
+          },
+          {
+            "line": 278,
+            "text": "    1: Error { code: \"InternalError\", message: \"We encountered an internal error, please try again.\", aws_request_id: \"281522de-dd2d-412c-b91b-711e652171f6\" }"
+          },
+          {
+            "line": 353,
+            "text": "  2026-11-12T17:24:34.411825Z  WARN brewfs::vfs::io::writer: pipeline upload failed, retrying, chunk_id: 6000000000, slice_id: 3, offset: 0, len: 16777216, error: object store put failed: chunks-v2/3/0, service error"
+          },
+          {
+            "line": 356,
+            "text": "    0: unhandled error (InternalError)"
+          },
+          {
+            "line": 357,
+            "text": "    1: Error { code: \"InternalError\", message: \"We encountered an internal error, please try again.\", aws_request_id: \"ba6461a4-3711-42f6-bc2d-3634be45cc98\" }"
+          },
+          {
+            "line": 435,
+            "text": "  2026-11-12T17:24:36.859644Z  WARN brewfs::vfs::io::writer: pipeline upload failed, retrying, chunk_id: 6000000000, slice_id: 3, offset: 0, len: 16777216, error: object store put failed: chunks-v2/3/0, service error"
+          },
+          {
+            "line": 438,
+            "text": "    0: unhandled error (InternalError)"
+          },
+          {
+            "line": 439,
+            "text": "    1: Error { code: \"InternalError\", message: \"We encountered an internal error, please try again.\", aws_request_id: \"a174d23c-8d95-4d5a-9c81-530c64321ca8\" }"
+          },
+          {
+            "line": 520,
+            "text": "  2026-11-12T17:24:39.447598Z  WARN brewfs::vfs::io::writer: pipeline upload failed, retrying, chunk_id: 6000000000, slice_id: 3, offset: 0, len: 16777216, error: object store put failed: chunks-v2/3/0, service error"
+          },
+          {
+            "line": 523,
+            "text": "    0: unhandled error (InternalError)"
+          },
+          {
+            "line": 524,
+            "text": "    1: Error { code: \"InternalError\", message: \"We encountered an internal error, please try again.\", aws_request_id: \"476f2a85-4f4f-4fcf-ae13-d86d1e6380f3\" }"
+          },
+          {
+            "line": 608,
+            "text": "  2026-11-12T17:24:42.124908Z  WARN brewfs::vfs::io::writer: pipeline upload failed, retrying, chunk_id: 6000000000, slice_id: 3, offset: 0, len: 16777216, error: object store put failed: chunks-v2/3/0, service error"
+          },
+          {
+            "line": 611,
+            "text": "    0: unhandled error (InternalError)"
+          },
+          {
+            "line": 612,
+            "text": "    1: Error { code: \"InternalError\", message: \"We encountered an internal error, please try again.\", aws_request_id: \"6324d6d5-55a1-4af0-a635-cf7a8b38151b\" }"
+          }
+        ],
+        "after_put_bytes": 32.0,
+        "after_dirty_bytes": 0.0
+      }
+    ],
+    "limitations": [
+      "FIO verification precedes post-write drain and can read local data.",
+      "All six final counters have only 32 PUT bytes for 16MiB workload; this does not prove remote durability.",
+      "Both logged shape runs contain object-store InternalError/upload failures while harness exits zero and dirty returns zero.",
+      "CPU arithmetic is reproducible; performance acceptance is not. Pair1 total wall also regresses12.31%.",
+      "FIO write.short_ios4095 with sync latency N4095 preserved raw; not asserted to mean lost writes or ignored."
+    ]
+  },
+  "baseline_regression_smoke": {
+    "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-01/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794504480-5327",
+    "scope": "32MiB per file,3s,4jobs; not formal512MiB/20s",
+    "overall_passed": false,
+    "failures": [
+      {
+        "direct": 0,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-01/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794504480-5327",
+        "fio_error": 5,
+        "file_errors": [
+          {
+            "file": "/mnt/brewfs/.perf-fio-randrw-direct0/brewfs-randrw.0.0",
+            "offset": 0,
+            "bytes": 4194304
+          },
+          {
+            "file": "/mnt/brewfs/.perf-fio-randrw-direct0/brewfs-randrw.3.0",
+            "offset": 20971520,
+            "bytes": 4194304
+          },
+          {
+            "file": "/mnt/brewfs/.perf-fio-randrw-direct0/brewfs-randrw.2.0",
+            "offset": 0,
+            "bytes": 4194304
+          },
+          {
+            "file": "/mnt/brewfs/.perf-fio-randrw-direct0/brewfs-randrw.1.0",
+            "offset": 29360128,
+            "bytes": 4194304
+          }
+        ],
+        "prefill_bytes": 134217728,
+        "completed_read_bytes": 37748736,
+        "write_bytes": 41943040,
+        "read_ios_including_failures": 13,
+        "write_ios": 10,
+        "fio_tool_runtime_ms": 542,
+        "remote_persistence_proven": false
+      },
+      {
+        "direct": 1,
+        "artifact": "/home/dev/ax-perf-issues-validation/runtime-review-01/home/dev/ax-issue447-perf-baseline/docker/compose-xfstests/artifacts/perf-run-1794504480-5327",
+        "fio_error": 5,
+        "file_errors": [
+          {
+            "file": "/mnt/brewfs/.perf-fio-randrw-direct1/brewfs-randrw.0.0",
+            "offset": 0,
+            "bytes": 4194304
+          },
+          {
+            "file": "/mnt/brewfs/.perf-fio-randrw-direct1/brewfs-randrw.3.0",
+            "offset": 20971520,
+            "bytes": 4194304
+          },
+          {
+            "file": "/mnt/brewfs/.perf-fio-randrw-direct1/brewfs-randrw.2.0",
+            "offset": 0,
+            "bytes": 4194304
+          },
+          {
+            "file": "/mnt/brewfs/.perf-fio-randrw-direct1/brewfs-randrw.1.0",
+            "offset": 29360128,
+            "bytes": 4194304
+          }
+        ],
+        "prefill_bytes": 134217728,
+        "completed_read_bytes": 37748736,
+        "write_bytes": 41943040,
+        "read_ios_including_failures": 13,
+        "write_ios": 10,
+        "fio_tool_runtime_ms": 155,
+        "remote_persistence_proven": false
+      }
+    ],
+    "post_write_drains": [
+      {
+        "tool": "fio-seqwrite-direct0",
+        "runner_drain_s": "68",
+        "extended_strict_drain_s": "72",
+        "pending_bytes": "0",
+        "dirty_bytes": "0",
+        "buffer_dirty_bytes": "0"
+      },
+      {
+        "tool": "fio-seqwrite-direct1",
+        "runner_drain_s": "87",
+        "extended_strict_drain_s": "91",
+        "pending_bytes": "0",
+        "dirty_bytes": "0",
+        "buffer_dirty_bytes": "0"
+      },
+      {
+        "tool": "fio-randwrite-direct0",
+        "runner_drain_s": "89",
+        "extended_strict_drain_s": "93",
+        "pending_bytes": "0",
+        "dirty_bytes": "0",
+        "buffer_dirty_bytes": "0"
+      },
+      {
+        "tool": "fio-randwrite-direct1",
+        "runner_drain_s": "50",
+        "extended_strict_drain_s": "54",
+        "pending_bytes": "0",
+        "dirty_bytes": "0",
+        "buffer_dirty_bytes": "0"
+      },
+      {
+        "tool": "fio-randrw-direct0",
+        "runner_drain_s": "7",
+        "extended_strict_drain_s": "11",
+        "pending_bytes": "0",
+        "dirty_bytes": "0",
+        "buffer_dirty_bytes": "0"
+      },
+      {
+        "tool": "fio-randrw-direct1",
+        "runner_drain_s": "4",
+        "extended_strict_drain_s": "8",
+        "pending_bytes": "0",
+        "dirty_bytes": "0",
+        "buffer_dirty_bytes": "0"
+      }
+    ],
+    "interpretation": "Prefill names and one-job protocol match; error follows strict drain/remount. Baseline failure does not qualify candidate."
+  },
+  "workspace_actual_guards": {
+    "passed": false,
+    "phase": "smoke",
+    "waves_completed": 0,
+    "row_cases_completed": 0,
+    "reason": "Old proxy rejects init PUT; common proxy fix has local RED/GREEN tests, actual runs pending.",
+    "configured_packed_budgets": {
+      "roots": 16777216,
+      "metadata_owned": 268435456,
+      "plans": 33554432,
+      "control": 1048576,
+      "stored": 33554432,
+      "raw": 33554432,
+      "decode_workspace": 8388608,
+      "output": 33554432
+    },
+    "budget_scope": "ca07159 wire005/budget.rs V3BudgetLimits::default and V3MountBudget::from_env; explicit equal env limits, native counters unavailable",
+    "packed_native_metrics": "unsupported: frozen source registers row extension first"
+  },
+  "remaining_acceptance": [
+    "Diagnose and fix backend/harness protocol for both unchanged release arms; preserve failures.",
+    "Fresh cached pairs must show full remote persistence and error-free cache-independent/remount readback, plus actual cached path and timing through drain.",
+    "Complete unchanged512MiB/20s six standard scenes per arm with randrw/direct guards and strict drain; reverse-order repeat only unresolved cases.",
+    "Complete actual Shared workspace different-group fill and xattr hot/capacity checks; native row hits and zero timed misses; baseline unsupported capacity fields missing, not zero."
+  ],
+  "owner_report_not_yet_independently_archived": "New candidate randrw EIO/InternalError reported by parent; this report relies on earlier independently archived failures, not that report.",
+  "separation": "Packed7093 separate worker campaign acceptance remains separate; no results mixed."
+}

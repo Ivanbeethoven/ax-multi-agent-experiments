@@ -1,0 +1,55 @@
+{
+  "root": "/srv/perf-issues-corrected-20261112",
+  "created_at": "2026-11-12T21:13:25.227110+00:00",
+  "parent_confirmed_frozen_heads": true,
+  "build_authorization": "not-a-release-build-spec",
+  "net_tree_proof_passed": true,
+  "net_tree_proof_sha256": "b5bac25b253749cb2ce48f28d749d80f72e1cf80cf567fc308c4b48b84e22743",
+  "features": "fuse-io-uring-runtime,workspace-overlay,observability,rustfs-ec-block-size-hint",
+  "arms": {
+    "baseline": {
+      "commit": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+      "tree": "26e00a546990b3852b6d4ef1b12471e0f4a0a4e5",
+      "rbm_source": "/home/dev/ax-issue447-corrected-baseline",
+      "source": "/home/dev/ax-issue447-corrected-baseline",
+      "target": "/srv/perf-issues-445-447/target"
+    },
+    "candidate": {
+      "commit": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+      "tree": "0a8f932b621235e967ddba0ac4b8c7ff89eb03e2",
+      "rbm_source": "/home/dev/ax-issue447-publication-candidate",
+      "source": "/home/dev/ax-issue447-publication-candidate",
+      "target": "/srv/perf-issues-445-447/target-candidate"
+    }
+  },
+  "shared_cleanup_candidate_commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+  "qualification": {
+    "required_ci_status": "pending stricttestfix completion; v2 defaults/superset tests passed, original strict failure retained",
+    "required_ci_owner": "/root/fix_issue_445",
+    "required_ci_tree": "test-v2,green-02 running",
+    "exact_feature_tests_status": "pending for both frozen arms",
+    "actual_runtime_status": "not started; source/bin pins absent",
+    "provisional_build_is_not_acceptance": true
+  },
+  "source_scope": "Candidate exact tests use publication e2c964; runtime remains c8f5. Original4f-to-c8 net-tree proof does not rebind to publication. A separate strict test-only production projection binds c8-to-e2.",
+  "runtime_source_heads": {
+    "baseline": {
+      "commit": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+      "tree": "26e00a546990b3852b6d4ef1b12471e0f4a0a4e5",
+      "source": "/home/dev/ax-issue447-corrected-baseline"
+    },
+    "candidate": {
+      "commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+      "tree": "142c8d384fbb2939f2cde4e3e7497b122b2c0f53",
+      "source": "/home/dev/ax-issue447-corrected-candidate"
+    }
+  },
+  "publication_projection": {
+    "passed": true,
+    "receipt": "/home/dev/ax-perf-issues-validation/corrected-publication-proof-01/receipt.json",
+    "receipt_sha256": "608f17bf1b2130d00b2974733f55b78d94faafcecec7c45c03f565a8c382cdca",
+    "runtime_head": "c8f5f16aefe811540782b952481982179a1bfd6f",
+    "publication_head": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+    "projected_tree_sha256": "c2368cd73bbf1a2a2bf48d054b7fddf1414b99e65ae8ef0874adcb70df3c6fae"
+  }
+}

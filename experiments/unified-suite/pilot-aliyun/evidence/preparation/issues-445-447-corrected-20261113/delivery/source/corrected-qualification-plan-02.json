@@ -1,0 +1,78 @@
+{
+  "created_at": "2026-11-12T19:27:46.050761+00:00",
+  "status": "prepared only; waiting for parent-confirmed frozen heads before clone/build/run",
+  "old_heads": {
+    "baseline": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+    "candidate": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3"
+  },
+  "new_heads": {
+    "baseline": null,
+    "candidate": null,
+    "shared_cleanup_commit": null
+  },
+  "source_plan": "Separate immutable corrected source checkouts; original ca/7b trees and artifacts remain unchanged. Same correctness patch on both arms. Parent confirms new exact commits after CI.",
+  "net_diff_proof": "Use temporary GIT_INDEX_FILE to read corrected baseline, apply exact original ca\u21927b patch, write tree and require exact corrected candidate tree; plus same production path list and stable patch-id. If apply conflicts, fail and inspect, do not silently relax.",
+  "build": {
+    "host": "8.136.137.130 existing r7.2xlarge,8CPU64GiB",
+    "free_disk_GiB_observed": 82,
+    "toolchain": "Rust1.99.1",
+    "command": "cargo build --release --locked --no-default-features --features fuse-io-uring-runtime,workspace-overlay,observability,rustfs-ec-block-size-hint --bin brewfs -vv",
+    "environment": {
+      "CARGO_HOME": "/root/.cargo",
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_PROFILE_RELEASE_DEBUG": "0",
+      "GIT_OPTIONAL_LOCKS": "0"
+    },
+    "forbid_overrides": [
+      "RUSTFLAGS",
+      "CARGO_ENCODED_RUSTFLAGS",
+      "RUSTC_WRAPPER",
+      "CARGO_PROFILE_RELEASE_OPT_LEVEL",
+      "CARGO_PROFILE_RELEASE_CODEGEN_UNITS",
+      "CARGO_PROFILE_RELEASE_LTO"
+    ],
+    "profile": "standard release opt3, debug0, defaultCGU16/defaultLTOfalse; no changes for build speed",
+    "suggested_two_parallel_units": {
+      "each_CPUQuota_percent": 300,
+      "each_MemoryMax_GiB": 24,
+      "each_TasksMax": 2048,
+      "each_RuntimeMaxSec": 7200,
+      "combined_CPUQuota_percent": 600,
+      "combined_MemoryMax_GiB": 48,
+      "parent_approval_required_before_start": true
+    },
+    "targets": {
+      "baseline": "/srv/perf-issues-445-447/target",
+      "candidate": "/srv/perf-issues-445-447/target-candidate"
+    },
+    "targets_note": "Reuse existing distinct release dependency caches3.9/3.6GiB; immutable copied old artifact binaries stay intact. Do not hardlink target trees or change profile.",
+    "new_source_root_proposed": "/srv/perf-issues-corrected-20261112",
+    "required_receipts": [
+      "source commit/tree/clean",
+      "toolchain exact",
+      "actual rustc -vv argv",
+      "build script SHA",
+      "unit actual CPU/memory/runtime",
+      "artifact bytes/SHA/version dirty=false",
+      "identity recheck after build"
+    ],
+    "producer": "Reuse exact original baseline producer8c4d65dbe8daaeaffb7f6084474a9a839df418c66d2aced6226842a5b8997d72 unchanged for both arms; no second producer build needed"
+  },
+  "runtime": {
+    "new_evidence_root_proposed": "/home/dev/ax-perf-issues-corrected-validation/compose",
+    "isolation": "New owned project IDs/volumes and fresh inputs; preserved old candidate402/baseline403 state not reused or modified; same host/image/config/budgets/harness across new arms",
+    "service": "fixed RustFS9750/f4ed2025,EC4 logical dirs on one physical drive+bypass,4dynamic flags true,clientauto; same tools/Redis/AWSCLI IDs",
+    "sequence": [
+      "Parent confirms exact new heads and net-diff proof",
+      "Both corrected arms run exact prior randwrite/direct0,4x512MiB/20s/seed20261031/4MiB io_uring depth1,normal close+strictdrain+freshcache fullSHA,service/client error gates; fail closed",
+      "Each arm standalone known A\u2192B overwrite at60MiB tail4MiB with kernelWB0: strictdrain+knownB original-cache read, normal old-cache remount knownB, fresh-empty-cache remount knownB; no performance timing or injected fdatasync",
+      "Remaining full standard six-case512MiB/20s guards, one pair, repeat only unresolved",
+      "Actually rerun cached4096x4KiB CPU+wall3pairs and realworkspace#445/#446 target/guards using the corrected binaries, derive results from their new raw observations, and complete final independent audit; no reuse or relabeling of old performance numbers"
+    ],
+    "known_tail_oracle": "A0x41 then B0x42 at[60MiB,64MiB), all reads compare independent knownB; retain prior randomwrite failure. Probe complements deterministic two-latch FileWriter regression and exercises cfg(not(test)) SSD overlay.; record read-direct/config environment as well as nonzero unique and actual write_flags0 from its non-performance operation log; original formal randomwrite op log was disabled, so do not claim raw flags were observed there"
+  },
+  "resources": "Parent owns AutoRelease20:55UTC extension/cleanup; no new cloud instance needed. RBM shared heavy lock belongs to445 CI when acquired; no concurrent benchmarks/transfers during formal timing.",
+  "supersedes_plan": "corrected-qualification-plan-01.json (retained unchanged in delivery package)",
+  "clarification": "Every target benefit and runtime guard will be actually executed with both corrected binaries and recomputed from new raw evidence. Rebind never means attaching a new source/binary identity to old measurements. Original ca/7b results remain a distinct cohort."
+}

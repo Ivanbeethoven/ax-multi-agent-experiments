@@ -1,0 +1,67 @@
+{
+  "schema": "corrected-issues-independent-final-review-plan-v1",
+  "status": "plan_only_no_performance_decision",
+  "review_scope": "Read only completed immutable RBM archives; no cloud access, new workload, compilation, or changes to frozen inputs.",
+  "reviewer": "fix_issue_446",
+  "identities": {
+    "baseline_runtime_source": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+    "baseline_binary_sha256": "0b0a2743aa968f497782d823cb068cd421eb840f82d5739a363d3bc3623c8679",
+    "candidate_runtime_source": "c8f5f16aefe811540782b952481982179a1bfd6f",
+    "candidate_binary_sha256": "905c4e4ca35162ae6a1ab2de03f4fa18194ef64d9afcbe20cff9bbefd570ce90",
+    "candidate_publication_source": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+    "publication_exception": "c8 to e2 is the previously reviewed single test-only ignored-benchmark iterator change; runtime observations remain attributed to c8.",
+    "producer_source": "ca07159f3da4b670e4aeb878faef928e69bc1634",
+    "producer_binary_sha256": "8c4d65dbe8daaeaffb7f6084474a9a839df418c66d2aced6226842a5b8997d72"
+  },
+  "completed_prerequisites": [
+    {
+      "path": "/home/dev/ax-perf-issues-validation/independent-review-7b844/corrected-compilation-activation-review-01.json",
+      "sha256": "0a866e3d20f1156a4ff4c4c2044dc11f63837334e5d3b16b04a92325f1ae4b9e",
+      "scope": "Exact feature tests, release identity, activation, and test-only publication projection; not runtime qualification."
+    },
+    {
+      "path": "/home/dev/ax-perf-issues-validation/independent-review-7b844/correctness-checkpoint-final-review-01.json",
+      "sha256": "c138624500f1e143bd3fbbd3a6ccac2e2220af7032ad3ebeb72731885e0849f1",
+      "scope": "Both corrected randwrite500 cold SHA gates and known-tail502 A/B warm, same-cache, fresh-cache byte oracle plus actual FUSE fresh-attribute trace."
+    }
+  ],
+  "expected_stages_owner_confirmed_not_yet_reviewed": [
+    {
+      "name": "standard_12",
+      "matrix": "regression-corrected01",
+      "trial": 600,
+      "order": ["baseline", "candidate"],
+      "shape": "Each arm: seqwrite/randwrite/randrw x direct0/direct1; 4 jobs x 512MiB, 20s, seed20261031, 4MiB blocks, io_uring, depth1.",
+      "expected_archive": "corrected-runtime-review-05",
+      "checks": ["frozen actual argv and inputs", "binary/version/source/image identities", "identical configured budgets and resources", "all job errors and exit status", "native debt and strict drain samples", "normal unmount and old PID exit", "empty-cache remount with unchanged binary and effective configuration", "full warm/cold file SHA and sizes", "backend/client error evidence", "per-tool CPU and wall direction", "all twelve cells present", "owned project cleanup and capacity receipts"]
+    },
+    {
+      "name": "cached_write_target",
+      "prerequisite": "Both corrected cached-smoke300 arms newly pass exact4096 actual write_flags1 requests and known0x5a cold durability oracle.",
+      "trial_pairs": [600, 601, 602],
+      "orders": [["baseline", "candidate"], ["candidate", "baseline"], ["baseline", "candidate"]],
+      "checks": ["prior smoke qualified and identity-matched", "actual operation count and bytes", "full /proc CPU at all three boundaries with unchanged PID/starttime", "active and full-drain CPU reported separately", "wall/active/drain elapsed reported separately", "new cold SHA durability and error gates", "raw per-pair directions plus paired aggregate", "no historical ca/7b values rebound to corrected binaries"]
+    },
+    {
+      "name": "workspace",
+      "matrix": "corrected01",
+      "expected_counts": {"mounts": 114, "fill": 56, "row": 56, "capacity": 2},
+      "checks": ["shared workspace route and proven lease", "original frozen producer identity and matching generated data", "barrier leaf open plus pread on parent directory FDs", "exact target GroupMeta object/range events, one fetch per object, and request concurrency", "per-read SHA", "row cache native hits and zero timed misses", "same budgets, TTLs and operation counts", "capacity held bytes and reader pin accounting", "per-pair latency, concurrency and byte-bound benefit separately"]
+    },
+    {
+      "name": "long_row_hot_guard",
+      "matrix": "correctedlong01",
+      "shape": "128 keys, 8-byte value, 65536 operations per thread; 1/8 threads x 6 pairs = 24 arms.",
+      "checks": ["same corrected binaries, data and budgets", "zero timed misses and verified values", "actual cache path evidence", "TTL covers complete run", "all paired directions and medians", "compare with preregistered guard policy without changing thresholds", "retain any short-run regression evidence as historical evidence"]
+    }
+  ],
+  "final_result_fields": ["archive_paths_and_sha256", "immutable_member_hash_checks", "runtime_and_publication_identity", "effective_configuration_comparison", "correctness_and_durability", "standard_cells", "paired_target_improvements", "hot_path_nonregression", "capacity_bound", "raw_failures_and_protocol_transitions", "limitations", "decision_and_remaining_items"],
+  "decision_rules": {
+    "current_decision": "PENDING_ACTUAL_COMPLETED_EVIDENCE",
+    "pr_qualified": false,
+    "required": "All required correctness and runtime guards pass, with reproducible measured target benefit on the corrected binaries. Benefits and nonregression are separate conclusions.",
+    "failed_or_unresolved": "Hold integrated PR; retain exact failed raw input and output. No threshold relaxation, omitted scenario, old-number rebinding, or absence-of-error proxy for benefit.",
+    "policy": "Apply existing authorized and frozen protocol; this review plan introduces no new approval threshold."
+  },
+  "preservation": "Original ca/7b failures, invalid S3-single-drive measurements, v2/v3 known-tail attribute failures, and prior CI failures remain unchanged. Packed PR449 and its read-focused performance evidence are separate."
+}

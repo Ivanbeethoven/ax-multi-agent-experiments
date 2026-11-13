@@ -1,0 +1,2674 @@
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/workspace_overlay/packed_v3/wire005/read_cache.rs:1-266
+1: //! Retained authenticated metadata with exact LRU ownership and view fencing.
+2: 
+3: use std::collections::BTreeMap;
+4: use std::sync::{Arc, Mutex};
+5: 
+6: use super::{V3BudgetPool, V3MountBudget, V3OwnedPermit};
+7: use crate::chunk::read_plan::ReadGeneration;
+8: use crate::workspace_overlay::packed_v3::wire::{PackedResult, PackedWireError};
+9: 
+10: // Covers the fixed digest key, BTree node, Arc and entry bookkeeping. The
+11: // decoded value independently retains its original mount budget permit.
+12: const ENTRY_BYTES: u64 = 512;
+13: const MAX_FILLS: usize = 8;
+14: // Covers even the first BTree leaf's spare key/value slots, plus the Fill,
+15: // Arc, mutex and permit. The decoded value retains its own payload permit.
+16: const FILL_BYTES: u64 = 1024;
+17: 
+18: struct Fill<T> {
+19:     value: tokio::sync::Mutex<Option<Arc<T>>>,
+20:     _permit: V3OwnedPermit,
+21: }
+22: 
+23: struct FillGuard<'a, T> {
+24:     cache: &'a RetainedMetadata<T>,
+25:     key: (u64, [u8; 32]),
+26:     fill: Option<Arc<Fill<T>>>,
+27: }
+28: 
+29: impl<T> Drop for FillGuard<'_, T> {
+30:     fn drop(&mut self) {
+31:         let mut fills = self.cache.fills.lock().unwrap();
+32:         // The map and this guard are the final owners. Waiting followers also
+33:         // own guards, so a non-retained result survives until they consume it.
+34:         let fill = self.fill.take().unwrap();
+35:         if Arc::strong_count(&fill) == 2 {
+36:             fills.remove(&self.key);
+37:             // Release the final allocation/permit before waking a contender
+38:             // whose Control budget may have room for exactly one fill.
+39:             drop(fill);
+40:             self.cache.fill_changed.notify_waiters();
+41:         }
+42:     }
+43: }
+44: 
+45: struct Entry<T> {
+46:     value: Arc<T>,
+47:     bytes: u64,
+48:     accessed: u64,
+49:     _permit: V3OwnedPermit,
+50: }
+51: 
+52: struct State<T> {
+53:     generation: Option<ReadGeneration>,
+54:     epoch: u64,
+55:     clock: u64,
+56:     bytes: u64,
+57:     entries: BTreeMap<[u8; 32], Entry<T>>,
+58: }
+59: 
+60: /// Eviction drops only the cache reference. A caller holding the value keeps
+61: /// its original decoded allocation charged until the last consumer leaves.
+62: pub(super) struct RetainedMetadata<T> {
+63:     capacity: u64,
+64:     budget: Arc<V3MountBudget>,
+65:     state: Mutex<State<T>>,
+66:     fills: Mutex<BTreeMap<(u64, [u8; 32]), Arc<Fill<T>>>>,
+67:     fill_changed: tokio::sync::Notify,
+68: }
+69: 
+70: impl<T> RetainedMetadata<T> {
+71:     pub(super) fn new(capacity: u64, budget: Arc<V3MountBudget>) -> Self {
+72:         Self {
+73:             capacity,
+74:             state: Mutex::new(State {
+75:                 generation: None,
+76:                 epoch: budget.read_cache_epoch(),
+77:                 clock: 0,
+78:                 bytes: 0,
+79:                 entries: BTreeMap::new(),
+80:             }),
+81:             budget,
+82:             fills: Mutex::new(BTreeMap::new()),
+83:             fill_changed: tokio::sync::Notify::new(),
+84:         }
+85:     }
+86: 
+87:     async fn fill(&self, epoch: u64, key: [u8; 32]) -> PackedResult<FillGuard<'_, T>> {
+88:         loop {
+89:             let changed = self.fill_changed.notified();
+90:             tokio::pin!(changed);
+91:             changed.as_mut().enable();
+92:             self.check_epoch(epoch)?;
+93:             {
+94:                 let mut fills = self.fills.lock().unwrap();
+95:                 let key = (epoch, key);
+96:                 if let Some(fill) = fills.get(&key) {
+97:                     return Ok(FillGuard {
+98:                         cache: self,
+99:                         key,
+100:                         fill: Some(fill.clone()),
+101:                     });
+102:                 }
+103:                 if fills.len() < MAX_FILLS {
+104:                     let permit = self.budget.admit(&[(V3BudgetPool::Control, FILL_BYTES)])?;
+105:                     let fill = Arc::new(Fill {
+106:                         value: tokio::sync::Mutex::new(None),
+107:                         _permit: permit,
+108:                     });
+109:                     fills.insert(key, fill.clone());
+110:                     return Ok(FillGuard {
+111:                         cache: self,
+112:                         key,
+113:                         fill: Some(fill),
+114:                     });
+115:                 }
+116:             }
+117:             tokio::select! {
+118:                 () = changed => {},
+119:                 () = self.budget.wait_read_cache_epoch_changed(epoch) => {
+120:                     return Err(PackedWireError::ReadViewChanged);
+121:                 }
+122:             }
+123:         }
+124:     }
+125: 
+126:     pub(super) fn cached(
+127:         &self,
+128:         generation: ReadGeneration,
+129:         key: &[u8; 32],
+130:     ) -> PackedResult<Option<Arc<T>>> {
+131:         let epoch = self.prepare(generation)?;
+132:         let value = self.get(key, epoch);
+133:         self.check_epoch(epoch)?;
+134:         Ok(value)
+135:     }
+136: 
+137:     fn prepare(&self, generation: ReadGeneration) -> PackedResult<u64> {
+138:         if self.budget.state().closed {
+139:             self.clear();
+140:             return Err(PackedWireError::ReadViewChanged);
+141:         }
+142:         let mut state = self.state.lock().unwrap();
+143:         if state.generation.is_some_and(|old| old != generation) {
+144:             // A changed view fences all retained metadata sharing this mount,
+145:             // including a fetch that is still awaiting the old backend body.
+146:             self.budget.invalidate_read_caches();
+147:         }
+148:         let epoch = self.budget.read_cache_epoch();
+149:         if state.generation != Some(generation) || state.epoch != epoch {
+150:             state.entries.clear();
+151:             state.bytes = 0;
+152:             state.generation = Some(generation);
+153:             state.epoch = epoch;
+154:         }
+155:         Ok(epoch)
+156:     }
+157: 
+158:     fn get(&self, key: &[u8; 32], epoch: u64) -> Option<Arc<T>> {
+159:         let mut state = self.state.lock().unwrap();
+160:         let current_epoch = self.budget.read_cache_epoch();
+161:         if state.epoch != current_epoch {
+162:             state.entries.clear();
+163:             state.bytes = 0;
+164:         }
+165:         if state.epoch != epoch || current_epoch != epoch {
+166:             return None;
+167:         }
+168:         state.clock = state.clock.wrapping_add(1);
+169:         let clock = state.clock;
+170:         let entry = state.entries.get_mut(key)?;
+171:         entry.accessed = clock;
+172:         Some(entry.value.clone())
+173:     }
+174: 
+175:     pub(super) async fn read(
+176:         &self,
+177:         generation: ReadGeneration,
+178:         key: [u8; 32],
+179:         weight: impl FnOnce(&T) -> u64,
+180:         fetch: impl std::future::Future<Output = PackedResult<Arc<T>>>,
+181:     ) -> PackedResult<Arc<T>> {
+182:         let epoch = self.prepare(generation)?;
+183:         if self.capacity == 0 {
+184:             let value = fetch.await?;
+185:             self.check_epoch(epoch)?;
+186:             return Ok(value);
+187:         }
+188:         if let Some(value) = self.get(&key, epoch) {
+189:             self.check_epoch(epoch)?;
+190:             return Ok(value);
+191:         }
+192:         // Only identical epoch/digest pairs wait on each other. The map is
+193:         // bounded, its owners are charged, and no registry lock spans I/O.
+194:         let fill = self.fill(epoch, key).await?;
+195:         let mut completed = tokio::select! {
+196:             completed = fill.fill.as_ref().unwrap().value.lock() => completed,
+197:             () = self.budget.wait_read_cache_epoch_changed(epoch) => {
+198:                 return Err(PackedWireError::ReadViewChanged);
+199:             }
+200:         };
+201:         self.check_epoch(epoch)?;
+202:         if let Some(value) = completed.as_ref() {
+203:             return Ok(value.clone());
+204:         }
+205:         if let Some(value) = self.get(&key, epoch) {
+206:             self.check_epoch(epoch)?;
+207:             return Ok(value);
+208:         }
+209:         let value = tokio::select! {
+210:             value = fetch => value?,
+211:             () = self.budget.wait_read_cache_epoch_changed(epoch) => {
+212:                 return Err(PackedWireError::ReadViewChanged);
+213:             }
+214:         };
+215:         let bytes = weight(&value).saturating_add(ENTRY_BYTES);
+216:         let mut state = self.state.lock().unwrap();
+217:         if state.epoch != epoch || self.budget.read_cache_epoch() != epoch {
+218:             return Err(PackedWireError::ReadViewChanged);
+219:         }
+220:         if bytes <= self.capacity {
+221:             while state.bytes.saturating_add(bytes) > self.capacity {
+222:                 let Some(oldest) = state
+223:                     .entries
+224:                     .iter()
+225:                     .min_by_key(|(_, entry)| entry.accessed)
+226:                     .map(|(key, _)| *key)
+227:                 else {
+228:                     break;
+229:                 };
+230:                 let removed = state.entries.remove(&oldest).unwrap();
+231:                 state.bytes -= removed.bytes;
+232:             }
+233:             // Ordinary retention pressure must not fail a valid read. All
+234:             // actual allocations remain covered by the decoded value owner.
+235:             if let Ok(permit) = self.budget.admit(&[(V3BudgetPool::Metadata, ENTRY_BYTES)]) {
+236:                 state.clock = state.clock.wrapping_add(1);
+237:                 let accessed = state.clock;
+238:                 state.entries.insert(
+239:                     key,
+240:                     Entry {
+241:                         value: value.clone(),
+242:                         bytes,
+243:                         accessed,
+244:                         _permit: permit,
+245:                     },
+246:                 );
+247:                 state.bytes += bytes;
+248:             }
+249:         }
+250:         *completed = Some(value.clone());
+251:         Ok(value)
+252:     }
+253: 
+254:     fn check_epoch(&self, epoch: u64) -> PackedResult<()> {
+255:         if self.budget.read_cache_epoch() != epoch || self.budget.state().closed {
+256:             return Err(PackedWireError::ReadViewChanged);
+257:         }
+258:         Ok(())
+259:     }
+260: 
+261:     pub(super) fn clear(&self) {
+262:         let mut state = self.state.lock().unwrap();
+263:         state.entries.clear();
+264:         state.bytes = 0;
+265:     }
+266: }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/workspace_overlay/packed_v3/wire005/read_cache.rs:274-440
+274:     async fn unrelated_digest_fills_do_not_wait_for_each_other() {
+275:         let budget = V3MountBudget::defaults();
+276:         let cache = RetainedMetadata::new(8192, budget);
+277:         let generation = ReadGeneration::readonly([1; 32]);
+278:         let mut other_key = [0; 32];
+279:         other_key[31] = 1; // Deliberately collide in the old striped lock scheme.
+280:         let first = cache.read(generation, [0; 32], |_| 100, async {
+281:             std::future::pending::<PackedResult<Arc<u64>>>().await
+282:         });
+283:         tokio::pin!(first);
+284:         assert!(futures::poll!(first.as_mut()).is_pending());
+285:         let second = cache.read(generation, other_key, |_| 100, async { Ok(Arc::new(2)) });
+286:         tokio::pin!(second);
+287:         assert!(
+288:             matches!(futures::poll!(second.as_mut()), std::task::Poll::Ready(Ok(value)) if *value == 2)
+289:         );
+290:     }
+291: 
+292:     #[tokio::test]
+293:     async fn same_key_followers_share_even_when_value_is_too_large_to_retain() {
+294:         let budget = V3MountBudget::defaults();
+295:         let cache = RetainedMetadata::new(1, budget);
+296:         let generation = ReadGeneration::readonly([1; 32]);
+297:         let calls = AtomicUsize::new(0);
+298:         let (release, wait) = tokio::sync::oneshot::channel();
+299:         let first = cache.read(generation, [1; 32], |_| 100, async {
+300:             calls.fetch_add(1, Ordering::SeqCst);
+301:             wait.await.unwrap();
+302:             Ok(Arc::new(1))
+303:         });
+304:         let second = cache.read(generation, [1; 32], |_| 100, async {
+305:             calls.fetch_add(1, Ordering::SeqCst);
+306:             Ok(Arc::new(2))
+307:         });
+308:         tokio::pin!(first, second);
+309:         assert!(futures::poll!(first.as_mut()).is_pending());
+310:         assert!(futures::poll!(second.as_mut()).is_pending());
+311:         release.send(()).unwrap();
+312:         let first = first.await.unwrap();
+313:         let second = second.await.unwrap();
+314:         assert!(Arc::ptr_eq(&first, &second));
+315:         assert_eq!(calls.load(Ordering::SeqCst), 1);
+316:         assert!(cache.state.lock().unwrap().entries.is_empty());
+317:     }
+318: 
+319:     #[tokio::test]
+320:     async fn fill_limit_and_cancellation_release_registry_and_permits() {
+321:         let budget = V3MountBudget::defaults();
+322:         let cache = RetainedMetadata::new(8192, budget.clone());
+323:         let generation = ReadGeneration::readonly([1; 32]);
+324:         let calls = AtomicUsize::new(0);
+325:         let mut fills: Vec<_> = (0..=MAX_FILLS)
+326:             .map(|key| {
+327:                 Box::pin(cache.read(generation, [key as u8; 32], |_| 100, async {
+328:                     calls.fetch_add(1, Ordering::SeqCst);
+329:                     std::future::pending::<PackedResult<Arc<u64>>>().await
+330:                 }))
+331:             })
+332:             .collect();
+333:         for fill in &mut fills {
+334:             assert!(futures::poll!(fill.as_mut()).is_pending());
+335:         }
+336:         assert_eq!(calls.load(Ordering::SeqCst), MAX_FILLS);
+337:         assert_eq!(cache.fills.lock().unwrap().len(), MAX_FILLS);
+338:         assert_eq!(
+339:             budget.state().used[V3BudgetPool::Control as usize],
+340:             MAX_FILLS as u64 * FILL_BYTES
+341:         );
+342:         drop(fills.remove(0));
+343:         assert!(futures::poll!(fills.last_mut().unwrap().as_mut()).is_pending());
+344:         assert_eq!(calls.load(Ordering::SeqCst), MAX_FILLS + 1);
+345:         drop(fills);
+346:         assert!(cache.fills.lock().unwrap().is_empty());
+347:         assert_eq!(budget.state().used[V3BudgetPool::Control as usize], 0);
+348:     }
+349: 
+350:     #[tokio::test]
+351:     async fn cancelled_leader_and_failed_leader_allow_followers_to_retry() {
+352:         for cancel in [true, false] {
+353:             let budget = V3MountBudget::defaults();
+354:             let cache = RetainedMetadata::new(8192, budget.clone());
+355:             let generation = ReadGeneration::readonly([1; 32]);
+356:             let (release, wait) = tokio::sync::oneshot::channel();
+357:             let mut first = Box::pin(cache.read(generation, [1; 32], |_| 100, async {
+358:                 let _ = wait.await;
+359:                 Err::<Arc<u64>, _>(PackedWireError::Invalid("failed fill".into()))
+360:             }));
+361:             let mut second =
+362:                 Box::pin(cache.read(generation, [1; 32], |_| 100, async { Ok(Arc::new(2)) }));
+363:             assert!(futures::poll!(first.as_mut()).is_pending());
+364:             assert!(futures::poll!(second.as_mut()).is_pending());
+365:             if cancel {
+366:                 drop(first);
+367:                 drop(release);
+368:             } else {
+369:                 release.send(()).unwrap();
+370:                 assert!(first.await.is_err());
+371:             }
+372:             assert_eq!(*second.await.unwrap(), 2);
+373:             assert!(cache.fills.lock().unwrap().is_empty());
+374:             assert_eq!(budget.state().used[V3BudgetPool::Control as usize], 0);
+375:         }
+376:     }
+377: 
+378:     #[tokio::test]
+379:     async fn close_or_generation_fence_wakes_leaders_and_all_queued_fill_waiters() {
+380:         for close in [true, false] {
+381:             let budget = V3MountBudget::defaults();
+382:             let cache = RetainedMetadata::new(8192, budget.clone());
+383:             let generation = ReadGeneration::readonly([1; 32]);
+384:             // Eight leaders, one new-key slot waiter, and one same-key waiter.
+385:             let mut fills: Vec<_> = (0..=MAX_FILLS)
+386:                 .chain(std::iter::once(0))
+387:                 .map(|key| {
+388:                     Box::pin(cache.read(generation, [key as u8; 32], |_| 100, async {
+389:                         std::future::pending::<PackedResult<Arc<u64>>>().await
+390:                     }))
+391:                 })
+392:                 .collect();
+393:             for fill in &mut fills {
+394:                 assert!(futures::poll!(fill.as_mut()).is_pending());
+395:             }
+396:             if close {
+397:                 budget.close();
+398:             } else {
+399:                 let mut next = generation;
+400:                 next.workspace_head_epoch += 1;
+401:                 assert!(cache.cached(next, &[0; 32]).unwrap().is_none());
+402:             }
+403:             for mut fill in fills {
+404:                 assert!(matches!(
+405:                     futures::poll!(fill.as_mut()),
+406:                     std::task::Poll::Ready(Err(PackedWireError::ReadViewChanged))
+407:                 ));
+408:             }
+409:             assert!(cache.fills.lock().unwrap().is_empty());
+410:             assert_eq!(budget.state().used[V3BudgetPool::Control as usize], 0);
+411:             assert!(cache.state.lock().unwrap().entries.is_empty());
+412:         }
+413:     }
+414: 
+415:     #[tokio::test]
+416:     async fn exhausted_control_budget_rejects_fill_before_backend_and_leaks_nothing() {
+417:         let budget = V3MountBudget::defaults();
+418:         let held = budget
+419:             .admit(&[(
+420:                 V3BudgetPool::Control,
+421:                 budget.capacity(V3BudgetPool::Control),
+422:             )])
+423:             .unwrap();
+424:         let cache = RetainedMetadata::new(8192, budget.clone());
+425:         let generation = ReadGeneration::readonly([1; 32]);
+426:         let result = cache
+427:             .read(generation, [1; 32], |_| 100, async {
+428:                 panic!("an unadmitted fill must not start backend I/O");
+429:                 #[allow(unreachable_code)]
+430:                 Ok(Arc::new(1u64))
+431:             })
+432:             .await;
+433:         assert!(matches!(result, Err(PackedWireError::LimitExceeded(_))));
+434:         assert!(cache.fills.lock().unwrap().is_empty());
+435:         drop(held);
+436:         assert_eq!(budget.state().used[V3BudgetPool::Control as usize], 0);
+437:         let calls = AtomicUsize::new(0);
+438:         assert_eq!(*read(&cache, generation, 1, &calls).await, 1);
+439:         assert_eq!(calls.load(Ordering::SeqCst), 1);
+440:     }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/workspace_overlay/packed_v3/wire005/budget.rs:202-244
+202:     pub fn state(&self) -> V3BudgetState {
+203:         self.state.lock().unwrap().clone()
+204:     }
+205:     pub fn close(&self) {
+206:         self.state.lock().unwrap().closed = true;
+207:         self.invalidate_read_caches();
+208:         self.changed.notify_waiters();
+209:     }
+210:     /// A lease or view fence invalidates the entire mount's retained read
+211:     /// cache at once. Owners are reclaimed lazily on the next access/close;
+212:     /// old in-flight fills can never publish into the new epoch.
+213:     pub(crate) fn invalidate_read_caches(&self) {
+214:         self.read_cache_epoch.fetch_add(1, Ordering::SeqCst);
+215:         self.changed.notify_waiters();
+216:     }
+217:     pub(crate) fn read_cache_epoch(&self) -> u64 {
+218:         self.read_cache_epoch.load(Ordering::SeqCst)
+219:     }
+220:     /// Wake queued metadata fills and cancel stale fetch futures at a view fence.
+221:     pub(super) async fn wait_read_cache_epoch_changed(&self, epoch: u64) {
+222:         loop {
+223:             let changed = self.changed.notified();
+224:             tokio::pin!(changed);
+225:             changed.as_mut().enable();
+226:             if self.read_cache_epoch() != epoch {
+227:                 return;
+228:             }
+229:             changed.await;
+230:         }
+231:     }
+232:     /// Observe shutdown without retaining a memory permit while waiting.
+233:     /// Register before inspecting state so a concurrent close cannot be lost.
+234:     pub(crate) async fn wait_closed(&self) {
+235:         loop {
+236:             let changed = self.changed.notified();
+237:             tokio::pin!(changed);
+238:             changed.as_mut().enable();
+239:             if self.state().closed {
+240:                 return;
+241:             }
+242:             changed.await;
+243:         }
+244:     }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/workspace_overlay/packed_v3/wire005/budget.rs:304-355
+304:     pub fn admit(self: &Arc<Self>, charges: &[(V3BudgetPool, u64)]) -> PackedResult<V3OwnedPermit> {
+305:         let mut totals = [0u64; 8];
+306:         for (pool, bytes) in charges {
+307:             totals[*pool as usize] = totals[*pool as usize]
+308:                 .checked_add(*bytes)
+309:                 .ok_or_else(|| PackedWireError::LimitExceeded("mount admission overflow".into()))?;
+310:         }
+311:         let mut state = self.state.lock().unwrap();
+312:         if state.closed
+313:             || totals.iter().enumerate().any(|(i, bytes)| {
+314:                 state.used[i]
+315:                     .checked_add(*bytes)
+316:                     .is_none_or(|n| n > self.limits.bytes[i])
+317:             })
+318:         {
+319:             state.rejections += 1;
+320:             return Err(PackedWireError::LimitExceeded(if state.closed {
+321:                 "mount budget closed".into()
+322:             } else {
+323:                 let (index, bytes) = totals
+324:                     .iter()
+325:                     .enumerate()
+326:                     .find(|(i, bytes)| {
+327:                         state.used[*i]
+328:                             .checked_add(**bytes)
+329:                             .is_none_or(|n| n > self.limits.bytes[*i])
+330:                     })
+331:                     .expect("failed admission has an exhausted pool");
+332:                 let reason = format!(
+333:                     "mount {} budget temporarily exhausted: used={}, requested={}, limit={}",
+334:                     V3BudgetPool::ALL[index].name(),
+335:                     state.used[index],
+336:                     bytes,
+337:                     self.limits.bytes[index]
+338:                 );
+339:                 // ENOMEM at the FUSE boundary carries no pool; record it here.
+340:                 tracing::debug!(target: "brewfs::packed_v3_budget", %reason, "admission rejected");
+341:                 reason
+342:             }));
+343:         }
+344:         for (i, bytes) in totals.iter().enumerate() {
+345:             state.used[i] += bytes;
+346:             state.peak[i] = state.peak[i].max(state.used[i]);
+347:         }
+348:         drop(state);
+349:         Ok(V3OwnedPermit {
+350:             budget: self.clone(),
+351:             charges: totals,
+352:         })
+353:     }
+354:     /// Wait without holding any partially acquired stored/raw/workspace bundle.
+355:     /// A bundle that exceeds capacity is a permanent error, never a wait.
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/workspace_overlay/packed_v3/wire005/index.rs:1455-1495
+1455:         Ok(found)
+1456:     }
+1457: 
+1458:     pub fn resident_bytes(&self) -> u64 {
+1459:         // Managed cache-owner charge; process RSS is measured separately.
+1460:         self.cache_ownership.owned.load(Ordering::Acquire)
+1461:     }
+1462:     pub(crate) async fn close(&self) {
+1463:         let mut runtime = self.demand_pipeline.lock().await;
+1464:         runtime.closed = true;
+1465:         if let Some(pipeline) = &runtime.coordinator {
+1466:             pipeline.shutdown().await;
+1467:         }
+1468:         drop(runtime.coordinator.take());
+1469:         self.budget.invalidate_read_caches();
+1470:         self.group_metadata.clear();
+1471:         self.group_directories.clear();
+1472:         self.frame_directories.clear();
+1473:         self.pages.invalidate_all();
+1474:         self.pages.run_pending_tasks().await;
+1475:     }
+1476: }
+1477: 
+1478: #[cfg(test)]
+1479: #[path = "index_retention_tests.rs"]
+1480: mod cache_retention_tests;
+1481: 
+1482: #[cfg(test)]
+1483: #[path = "index_request_admission_tests.rs"]
+1484: mod request_admission_tests;
+1485: 
+1486: #[cfg(test)]
+1487: #[path = "index_result_contract_tests.rs"]
+1488: mod result_contract_tests;
+1489: 
+1490: #[cfg(test)]
+1491: #[path = "index_owned_lifecycle_tests.rs"]
+1492: mod owned_lifecycle_tests;
+1493: 
+1494: #[cfg(test)]
+1495: #[path = "index_runtime_close_tests.rs"]
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/workspace_overlay/meta_layer/row_cache.rs:1-690
+1: //! Short-lived cache of writable-layer (upper) rows for read-only paths.
+2: //!
+3: //! Opt-in per mount (`WorkspaceMetaLayer::with_upper_row_cache`). The
+4: //! workspace lease is exclusive, so while it is held the mounted layer is
+5: //! the only writer of upper rows; every local commit invalidates the keys of
+6: //! the rows it writes, every view change invalidates the whole cache, and a
+7: //! generation counter keeps a read that raced any invalidation from leaving
+8: //! pre-commit rows behind. Under a proven lease TTL bounds reuse, while a byte
+9: //! budget bounds retention. Canceled or uncertain commits permanently disable cached
+10: //! authority. Conditional mutations still authenticate their committed view.
+11: 
+12: use std::ops::{Deref, DerefMut};
+13: use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+14: use std::sync::{Arc, Mutex, Weak};
+15: use std::time::{Duration, Instant};
+16: 
+17: use lru::LruCache;
+18: use parking_lot::RwLock;
+19: 
+20: use crate::workspace_overlay::catalog::PermissionSnapshot;
+21: use crate::workspace_overlay::model::{DentryDelta, InodeDelta, XattrDelta};
+22: 
+23: const CAPACITY: u64 = 65_536;
+24: const RECENCY_PROBES: usize = 8;
+25: pub(crate) const DEFAULT_ROW_CACHE_BYTES: u64 = 64 << 20;
+26: 
+27: /// Shared by both row caches of a mount, including values pinned by readers.
+28: pub(super) struct RowBudget {
+29:     limit: u64,
+30:     used: Arc<AtomicU64>,
+31:     caches: Mutex<Vec<Weak<RwLock<Rows>>>>,
+32:     #[cfg(test)]
+33:     reclaim_steps: AtomicU64,
+34: }
+35: 
+36: impl RowBudget {
+37:     pub(super) fn new(limit: u64, counters: &RowCacheCounters) -> Arc<Self> {
+38:         counters.capacity_bytes.store(limit, Ordering::Relaxed);
+39:         Arc::new(Self {
+40:             limit,
+41:             used: counters.retained_bytes.clone(),
+42:             caches: Mutex::new(Vec::new()),
+43:             #[cfg(test)]
+44:             reclaim_steps: AtomicU64::new(0),
+45:         })
+46:     }
+47: 
+48:     fn register(&self, rows: &Arc<RwLock<Rows>>) {
+49:         let mut caches = self.caches.lock().unwrap();
+50:         caches.retain(|rows| rows.strong_count() != 0);
+51:         caches.push(Arc::downgrade(rows));
+52:     }
+53: 
+54:     fn reclaim_step(&self) {
+55:         #[cfg(test)]
+56:         self.reclaim_steps.fetch_add(1, Ordering::Relaxed);
+57:     }
+58: 
+59:     /// Reclaim one peer entry under admission pressure. This also releases
+60:     /// expired rows from an idle peer, without a timer or a full-cache scan.
+61:     /// Each successful step removes an entry; aggregate work is amortized over
+62:     /// prior inserts. try_write prevents cross-cache lock inversion. Each
+63:     /// removal makes at most RECENCY_PROBES second-chance checks.
+64:     fn reclaim_peer(&self, current: &Arc<RwLock<Rows>>) -> bool {
+65:         let mut caches = self.caches.lock().unwrap();
+66:         caches.retain(|rows| rows.strong_count() != 0);
+67:         for rows in caches.iter().filter_map(Weak::upgrade) {
+68:             if Arc::ptr_eq(&rows, current) {
+69:                 continue;
+70:             }
+71:             self.reclaim_step();
+72:             if let Some(mut rows) = rows.try_write() {
+73:                 let before = self.used.load(Ordering::Acquire);
+74:                 let removed = rows.evict_entry();
+75:                 rows.release_empty_index();
+76:                 if removed || self.used.load(Ordering::Acquire) < before {
+77:                     return true;
+78:                 }
+79:             }
+80:         }
+81:         false
+82:     }
+83: 
+84:     fn admit(self: &Arc<Self>, bytes: u64) -> Option<Charge> {
+85:         self.used
+86:             .fetch_update(Ordering::AcqRel, Ordering::Acquire, |used| {
+87:                 used.checked_add(bytes).filter(|next| *next <= self.limit)
+88:             })
+89:             .ok()?;
+90:         Some(Charge {
+91:             budget: self.clone(),
+92:             bytes,
+93:         })
+94:     }
+95: }
+96: 
+97: struct Charge {
+98:     budget: Arc<RowBudget>,
+99:     bytes: u64,
+100: }
+101: impl Drop for Charge {
+102:     fn drop(&mut self) {
+103:         self.budget.used.fetch_sub(self.bytes, Ordering::AcqRel);
+104:     }
+105: }
+106: 
+107: /// All clones share one payload charge, including readers after eviction.
+108: /// The data drops before its charge. No raw Arc escapes this wrapper.
+109: pub(super) struct Retained<T>(Arc<RetainedInner<T>>);
+110: struct RetainedInner<T> {
+111:     value: T,
+112:     charge: Mutex<Option<Charge>>,
+113: }
+114: impl<T> Retained<T> {
+115:     pub(super) fn new(value: T) -> Self {
+116:         Self(Arc::new(RetainedInner {
+117:             value,
+118:             charge: Mutex::new(None),
+119:         }))
+120:     }
+121:     fn retain(&self, budget: &Arc<RowBudget>, bytes: u64) -> bool {
+122:         let mut charge = self.0.charge.lock().unwrap();
+123:         if let Some(charge) = charge.as_ref() {
+124:             return Arc::ptr_eq(&charge.budget, budget);
+125:         }
+126:         *charge = budget.admit(bytes);
+127:         charge.is_some()
+128:     }
+129: }
+130: impl<T> Clone for Retained<T> {
+131:     fn clone(&self) -> Self {
+132:         Self(self.0.clone())
+133:     }
+134: }
+135: impl<T> Deref for Retained<T> {
+136:     type Target = T;
+137:     fn deref(&self) -> &T {
+138:         &self.0.value
+139:     }
+140: }
+141: impl<T> AsRef<T> for Retained<T> {
+142:     fn as_ref(&self) -> &T {
+143:         self
+144:     }
+145: }
+146: 
+147: #[derive(Clone, Debug, Eq, Hash, PartialEq)]
+148: pub(super) enum RowKey {
+149:     Inode(i64),
+150:     Dentry(i64, Vec<u8>),
+151:     Xattr(i64, Vec<u8>),
+152:     Permission(i64),
+153:     Paths(i64),
+154:     Aliases(i64),
+155: }
+156: 
+157: #[derive(Clone)]
+158: pub(super) enum RowValue {
+159:     Inode(Retained<Vec<InodeDelta>>),
+160:     Dentry(Retained<Vec<DentryDelta>>),
+161:     Xattr(Retained<Vec<XattrDelta>>),
+162:     Permission(Retained<PermissionSnapshot>),
+163:     /// Complete effective paths of one inode. Only successful, complete
+164:     /// walks are cached; quota/cycle/view errors never are.
+165:     Paths(Retained<Vec<Vec<u8>>>),
+166:     /// Verified effective (parent, name) aliases of one inode. Lives in the
+167:     /// namespace cache: only commits that write dentries or delete an inode
+168:     /// can change it, so data-only commits keep it.
+169:     Aliases(Retained<Vec<(i64, Vec<u8>)>>),
+170: }
+171: 
+172: fn vector_bytes<T>(rows: &Vec<T>, extra: impl Fn(&T) -> usize) -> u64 {
+173:     rows.iter().fold(
+174:         rows.capacity().saturating_mul(size_of::<T>()),
+175:         |total, row| total.saturating_add(extra(row)),
+176:     ) as u64
+177: }
+178: fn inode_bytes(rows: &Vec<InodeDelta>) -> u64 {
+179:     vector_bytes(rows, |row| {
+180:         row.symlink_target.as_ref().map_or(0, Vec::capacity)
+181:     })
+182: }
+183: fn dentry_bytes(rows: &Vec<DentryDelta>) -> u64 {
+184:     vector_bytes(rows, |row| row.name.capacity())
+185: }
+186: fn xattr_bytes(rows: &Vec<XattrDelta>) -> u64 {
+187:     vector_bytes(rows, |row| {
+188:         row.name
+189:             .capacity()
+190:             .saturating_add(row.value.as_ref().map_or(0, Vec::capacity))
+191:     })
+192: }
+193: impl RowValue {
+194:     fn payload_bytes(&self) -> u64 {
+195:         fn bytes<T>(_: &Retained<T>, heap: u64) -> u64 {
+196:             heap.saturating_add(
+197:                 size_of::<RetainedInner<T>>() as u64 + 2 * size_of::<usize>() as u64,
+198:             )
+199:         }
+200:         match self {
+201:             Self::Inode(v) => bytes(v, inode_bytes(v)),
+202:             Self::Dentry(v) => bytes(v, dentry_bytes(v)),
+203:             Self::Xattr(v) => bytes(v, xattr_bytes(v)),
+204:             Self::Permission(v) => bytes(
+205:                 v,
+206:                 inode_bytes(&v.inodes)
+207:                     .saturating_add(xattr_bytes(&v.xattrs))
+208:                     .saturating_add(dentry_bytes(&v.dentries)),
+209:             ),
+210:             Self::Paths(v) => bytes(v, vector_bytes(v, Vec::capacity)),
+211:             Self::Aliases(v) => bytes(v, vector_bytes(v, |(_, name)| name.capacity())),
+212:         }
+213:     }
+214:     fn retain(&self, budget: &Arc<RowBudget>) -> bool {
+215:         let bytes = self.payload_bytes();
+216:         match self {
+217:             Self::Inode(v) => v.retain(budget, bytes),
+218:             Self::Dentry(v) => v.retain(budget, bytes),
+219:             Self::Xattr(v) => v.retain(budget, bytes),
+220:             Self::Permission(v) => v.retain(budget, bytes),
+221:             Self::Paths(v) => v.retain(budget, bytes),
+222:             Self::Aliases(v) => v.retain(budget, bytes),
+223:         }
+224:     }
+225: }
+226: 
+227: struct Entry {
+228:     value: RowValue,
+229:     inserted: Instant,
+230:     referenced: AtomicBool,
+231:     _key_charge: Charge,
+232: }
+233: 
+234: struct Rows {
+235:     entries: LruCache<RowKey, Entry>,
+236:     index_charge: Option<Charge>,
+237:     peak_entries: usize,
+238:     #[cfg(test)]
+239:     recency_probes: usize,
+240: }
+241: impl Rows {
+242:     fn new() -> Self {
+243:         // Do not preallocate 65,536 buckets for a tiny byte budget.
+244:         Self {
+245:             entries: LruCache::unbounded(),
+246:             index_charge: None,
+247:             peak_entries: 0,
+248:             #[cfg(test)]
+249:             recency_probes: 0,
+250:         }
+251:     }
+252:     fn reserve_slot(&mut self, budget: &Arc<RowBudget>) -> bool {
+253:         let count = self.entries.len() + 1;
+254:         if count <= self.peak_entries {
+255:             return true;
+256:         }
+257:         // Reserve the hash index at its high-water mark until it is freed.
+258:         // Evicting entries does not shrink the backing table.
+259:         let bytes = 512 + 128 * count as u64;
+260:         let previous = self.index_charge.as_ref().map_or(0, |charge| charge.bytes);
+261:         let Some(mut extra) = budget.admit(bytes - previous) else {
+262:             return false;
+263:         };
+264:         if let Some(charge) = &mut self.index_charge {
+265:             charge.bytes += extra.bytes;
+266:             extra.bytes = 0;
+267:         } else {
+268:             self.index_charge = Some(extra);
+269:         }
+270:         self.peak_entries = count;
+271:         true
+272:     }
+273:     fn release_empty_index(&mut self) {
+274:         if self.entries.is_empty() {
+275:             *self = Self::new();
+276:         }
+277:     }
+278: 
+279:     /// Bounded second chance, not exact LRU. Hits set a reference bit under a
+280:     /// shared read lock; only admission moves nodes. Limit the scan even when
+281:     /// every entry is hot, so pressure cannot turn into a full-cache sweep.
+282:     fn evict_entry(&mut self) -> bool {
+283:         for probe in 0..RECENCY_PROBES {
+284:             let Some((key, entry)) = self.entries.pop_lru() else {
+285:                 return false;
+286:             };
+287:             #[cfg(test)]
+288:             {
+289:                 self.recency_probes += 1;
+290:             }
+291:             if probe + 1 < RECENCY_PROBES && entry.referenced.swap(false, Ordering::Relaxed) {
+292:                 self.entries.put(key, entry);
+293:             } else {
+294:                 return true;
+295:             }
+296:         }
+297:         unreachable!("the last probe always evicts")
+298:     }
+299: }
+300: impl Deref for Rows {
+301:     type Target = LruCache<RowKey, Entry>;
+302:     fn deref(&self) -> &Self::Target {
+303:         &self.entries
+304:     }
+305: }
+306: impl DerefMut for Rows {
+307:     fn deref_mut(&mut self) -> &mut Self::Target {
+308:         &mut self.entries
+309:     }
+310: }
+311: 
+312: /// Re-checks a lease-proven read fence: the exclusive lease is still proven
+313: /// held and this inode's cached rows still equal the rows the read used. Any
+314: /// local commit to the inode removes its cached rows (before and after the
+315: /// commit), so equality means the store's rows are unchanged.
+316: pub(crate) struct LeaseLocalFence {
+317:     pub(super) cache: Arc<UpperRowCache>,
+318:     pub(super) validity: Arc<crate::workspace_overlay::lifecycle::LeaseValidity>,
+319: }
+320: 
+321: impl LeaseLocalFence {
+322:     pub(crate) fn unchanged(
+323:         &self,
+324:         ino: i64,
+325:         expected: &[crate::workspace_overlay::model::InodeDelta],
+326:     ) -> bool {
+327:         let same = matches!(
+328:             self.cache.get(&RowKey::Inode(ino)),
+329:             Some(RowValue::Inode(rows)) if rows.as_slice() == expected
+330:         );
+331:         same && self.validity.authoritative()
+332:     }
+333: }
+334: 
+335: pub(super) struct UpperRowCache {
+336:     rows: Arc<RwLock<Rows>>,
+337:     ttl: Duration,
+338:     budget: Arc<RowBudget>,
+339:     generation: AtomicU64,
+340:     /// A canceled/uncertain backend write can still complete after the caller
+341:     /// drops. No later refill may claim local authority in that mount.
+342:     disabled: AtomicBool,
+343:     counters: Arc<RowCacheCounters>,
+344: }
+345: 
+346: #[derive(Debug, Default)]
+347: pub(super) struct RowCacheCounters {
+348:     pub hits: AtomicU64,
+349:     pub misses: AtomicU64,
+350:     pub retained_bytes: Arc<AtomicU64>,
+351:     pub capacity_bytes: AtomicU64,
+352: }
+353: 
+354: #[derive(Debug)]
+355: pub(super) struct RowCacheStatsExtension {
+356:     pub counters: Arc<RowCacheCounters>,
+357: }
+358: 
+359: impl crate::vfs::stats::FsStatsExtension for RowCacheStatsExtension {
+360:     fn render_max_bytes(&self) -> usize {
+361:         512
+362:     }
+363: 
+364:     fn render_into(&self, output: &mut dyn std::fmt::Write) {
+365:         let hits = self.counters.hits.load(Ordering::Relaxed);
+366:         let misses = self.counters.misses.load(Ordering::Relaxed);
+367:         let total = hits.saturating_add(misses);
+368:         let ratio = if total == 0 {
+369:             0.0
+370:         } else {
+371:             hits as f64 / total as f64
+372:         };
+373:         let _ = writeln!(output, "brewfs_workspace_row_cache_hits_total {hits}");
+374:         let _ = writeln!(output, "brewfs_workspace_row_cache_misses_total {misses}");
+375:         let _ = writeln!(output, "brewfs_workspace_row_cache_hit_ratio {ratio:.6}");
+376:         let _ = writeln!(
+377:             output,
+378:             "brewfs_workspace_row_cache_retained_bytes {}",
+379:             self.counters.retained_bytes.load(Ordering::Relaxed)
+380:         );
+381:         let _ = writeln!(
+382:             output,
+383:             "brewfs_workspace_row_cache_capacity_bytes {}",
+384:             self.counters.capacity_bytes.load(Ordering::Relaxed)
+385:         );
+386:     }
+387: }
+388: 
+389: /// Retain across the complete backend commit and both invalidations. An
+390: /// unresolved drop cannot be repaired by clearing once: the server may write
+391: /// after that clear. Disable cached authority until this mount is replaced.
+392: pub(super) struct CacheCommitGuard<'a> {
+393:     upper: Option<&'a UpperRowCache>,
+394:     namespace: Option<&'a UpperRowCache>,
+395:     resolved: bool,
+396: }
+397: 
+398: impl<'a> CacheCommitGuard<'a> {
+399:     pub(super) fn new(
+400:         upper: Option<&'a UpperRowCache>,
+401:         namespace: Option<&'a UpperRowCache>,
+402:     ) -> Self {
+403:         Self {
+404:             upper,
+405:             namespace,
+406:             resolved: false,
+407:         }
+408:     }
+409: 
+410:     /// Call only after a confirmed commit or a definite no-write rejection,
+411:     /// and after invalidating the affected rows for the second time.
+412:     pub(super) fn resolved(mut self) {
+413:         self.resolved = true;
+414:     }
+415: }
+416: 
+417: impl Drop for CacheCommitGuard<'_> {
+418:     fn drop(&mut self) {
+419:         if !self.resolved {
+420:             for cache in [self.upper, self.namespace].into_iter().flatten() {
+421:                 cache.disable();
+422:             }
+423:         }
+424:     }
+425: }
+426: 
+427: /// Captured before a backend read; the insert is dropped if any
+428: /// invalidation happened in between.
+429: #[derive(Clone, Copy)]
+430: pub(super) struct RowTicket(u64);
+431: 
+432: impl UpperRowCache {
+433:     pub(super) fn new(ttl: Duration) -> Self {
+434:         Self::new_with_counters(ttl, Arc::new(RowCacheCounters::default()))
+435:     }
+436: 
+437:     pub(super) fn new_with_counters(ttl: Duration, counters: Arc<RowCacheCounters>) -> Self {
+438:         let budget = RowBudget::new(DEFAULT_ROW_CACHE_BYTES, &counters);
+439:         Self::with_budget(ttl, counters, budget)
+440:     }
+441: 
+442:     pub(super) fn with_budget(
+443:         ttl: Duration,
+444:         counters: Arc<RowCacheCounters>,
+445:         budget: Arc<RowBudget>,
+446:     ) -> Self {
+447:         let rows = Arc::new(RwLock::new(Rows::new()));
+448:         budget.register(&rows);
+449:         Self {
+450:             rows,
+451:             ttl,
+452:             budget,
+453:             generation: AtomicU64::new(0),
+454:             disabled: AtomicBool::new(false),
+455:             counters,
+456:         }
+457:     }
+458: 
+459:     pub(super) fn ticket(&self) -> RowTicket {
+460:         RowTicket(self.generation.load(Ordering::Acquire))
+461:     }
+462: 
+463:     fn evict_for_admission(&self, rows: &mut Rows) -> bool {
+464:         // Prefer the idle peer over repeatedly churning the active cache's
+465:         // only usable slot when that peer holds the shared budget.
+466:         if self.budget.reclaim_peer(&self.rows) {
+467:             return true;
+468:         }
+469:         self.budget.reclaim_step();
+470:         let removed = rows.evict_entry();
+471:         rows.release_empty_index();
+472:         removed
+473:     }
+474: 
+475:     pub(super) fn get(&self, key: &RowKey) -> Option<RowValue> {
+476:         if self.disabled.load(Ordering::Acquire) {
+477:             self.counters.misses.fetch_add(1, Ordering::Relaxed);
+478:             return None;
+479:         }
+480:         let (value, expired) = {
+481:             let rows = self.rows.read();
+482:             match rows.peek(key) {
+483:                 Some(entry) if entry.inserted.elapsed() < self.ttl => {
+484:                     // Repeated hits, including concurrent hits on the same
+485:                     // key, do not acquire an exclusive lock or rewrite an
+486:                     // already-set reference bit.
+487:                     if !entry.referenced.load(Ordering::Relaxed) {
+488:                         entry.referenced.store(true, Ordering::Relaxed);
+489:                     }
+490:                     (Some(entry.value.clone()), false)
+491:                 }
+492:                 Some(_) => (None, true),
+493:                 None => (None, false),
+494:             }
+495:         };
+496:         if expired {
+497:             self.remove_expired(key);
+498:         }
+499:         if self.disabled.load(Ordering::Acquire) {
+500:             self.counters.misses.fetch_add(1, Ordering::Relaxed);
+501:             None
+502:         } else {
+503:             if value.is_some() {
+504:                 self.counters.hits.fetch_add(1, Ordering::Relaxed);
+505:             } else {
+506:                 self.counters.misses.fetch_add(1, Ordering::Relaxed);
+507:             }
+508:             value
+509:         }
+510:     }
+511: 
+512:     fn remove_expired(&self, key: &RowKey) {
+513:         let mut rows = self.rows.write();
+514:         // A replacement may have won while the reader released its guard.
+515:         // Re-check the current entry instead of deleting by the stale read.
+516:         if rows
+517:             .peek(key)
+518:             .is_some_and(|entry| entry.inserted.elapsed() >= self.ttl)
+519:         {
+520:             rows.pop(key);
+521:             rows.release_empty_index();
+522:         }
+523:     }
+524: 
+525:     pub(super) fn insert(&self, ticket: RowTicket, key: RowKey, value: RowValue) {
+526:         if self.disabled.load(Ordering::Acquire)
+527:             || self.generation.load(Ordering::SeqCst) != ticket.0
+528:         {
+529:             return;
+530:         }
+531:         let key_bytes = match &key {
+532:             RowKey::Dentry(_, name) | RowKey::Xattr(_, name) => name.capacity() as u64,
+533:             _ => 0,
+534:         };
+535:         // Includes the LRU node, hash-table slot and allocator bookkeeping.
+536:         let key_bytes =
+537:             key_bytes.saturating_add((size_of::<RowKey>() + size_of::<Entry>() + 128) as u64);
+538:         if key_bytes > self.budget.limit {
+539:             return;
+540:         }
+541:         let mut rows = self.rows.write();
+542:         rows.pop(&key);
+543:         if key_bytes
+544:             .saturating_add(value.payload_bytes())
+545:             .saturating_add(640)
+546:             > self.budget.limit
+547:         {
+548:             return;
+549:         }
+550:         if rows.len() == CAPACITY as usize {
+551:             rows.evict_entry();
+552:         }
+553:         loop {
+554:             rows.release_empty_index();
+555:             if !rows.reserve_slot(&self.budget) {
+556:                 if !self.evict_for_admission(&mut rows) {
+557:                     return;
+558:                 }
+559:                 continue;
+560:             }
+561:             if let Some(key_charge) = self.budget.admit(key_bytes) {
+562:                 if value.retain(&self.budget) {
+563:                     // Invalidators bump generation before taking this lock.
+564:                     // If the bump comes later, their removal follows our put.
+565:                     if !self.disabled.load(Ordering::Acquire)
+566:                         && self.generation.load(Ordering::SeqCst) == ticket.0
+567:                     {
+568:                         rows.put(
+569:                             key,
+570:                             Entry {
+571:                                 value,
+572:                                 inserted: Instant::now(),
+573:                                 referenced: AtomicBool::new(false),
+574:                                 _key_charge: key_charge,
+575:                             },
+576:                         );
+577:                     }
+578:                     return;
+579:                 }
+580:             }
+581:             if !self.evict_for_admission(&mut rows) {
+582:                 return;
+583:             }
+584:         }
+585:     }
+586: 
+587:     /// Reserve the cache's separate path copy before allocating it. The walk's
+588:     /// Output guard belongs to the returned result and cannot cover this copy.
+589:     pub(super) fn insert_paths(&self, ticket: RowTicket, key: RowKey, paths: &[Vec<u8>]) {
+590:         let bytes = paths.iter().fold(
+591:             (size_of::<RetainedInner<Vec<Vec<u8>>>>()
+592:                 + 2 * size_of::<usize>()
+593:                 + paths.len() * size_of::<Vec<u8>>()) as u64,
+594:             |total, path| total.saturating_add(path.len() as u64),
+595:         );
+596:         self.insert_paths_with(ticket, key, bytes, || paths.to_vec());
+597:     }
+598: 
+599:     pub(super) fn insert_child_paths(
+600:         &self,
+601:         ticket: RowTicket,
+602:         key: RowKey,
+603:         parents: &[Vec<u8>],
+604:         name: &[u8],
+605:     ) {
+606:         let bytes = parents.iter().fold(
+607:             (size_of::<RetainedInner<Vec<Vec<u8>>>>()
+608:                 + 2 * size_of::<usize>()
+609:                 + parents.len() * size_of::<Vec<u8>>()) as u64,
+610:             |total, path| {
+611:                 total
+612:                     .saturating_add(path.len() as u64)
+613:                     .saturating_add(name.len() as u64)
+614:                     .saturating_add(u64::from(path.last() != Some(&b'/')))
+615:             },
+616:         );
+617:         self.insert_paths_with(ticket, key, bytes, || {
+618:             parents
+619:                 .iter()
+620:                 .map(|path| {
+621:                     let separator = usize::from(path.last() != Some(&b'/'));
+622:                     let mut child = Vec::with_capacity(path.len() + separator + name.len());
+623:                     child.extend_from_slice(path);
+624:                     if separator != 0 {
+625:                         child.push(b'/');
+626:                     }
+627:                     child.extend_from_slice(name);
+628:                     child
+629:                 })
+630:                 .collect()
+631:         });
+632:     }
+633: 
+634:     fn insert_paths_with(
+635:         &self,
+636:         ticket: RowTicket,
+637:         key: RowKey,
+638:         bytes: u64,
+639:         build: impl FnOnce() -> Vec<Vec<u8>>,
+640:     ) {
+641:         if bytes.saturating_add((size_of::<RowKey>() + size_of::<Entry>() + 128 + 640) as u64)
+642:             > self.budget.limit
+643:         {
+644:             return;
+645:         }
+646:         let value = {
+647:             let mut rows = self.rows.write();
+648:             if self.disabled.load(Ordering::Acquire)
+649:                 || self.generation.load(Ordering::SeqCst) != ticket.0
+650:             {
+651:                 return;
+652:             }
+653:             rows.pop(&key);
+654:             let charge = loop {
+655:                 if let Some(charge) = self.budget.admit(bytes) {
+656:                     break charge;
+657:                 }
+658:                 if !self.evict_for_admission(&mut rows) {
+659:                     return;
+660:                 }
+661:             };
+662:             Retained(Arc::new(RetainedInner {
+663:                 value: build(),
+664:                 charge: Mutex::new(Some(charge)),
+665:             }))
+666:         };
+667:         self.insert(ticket, key, RowValue::Paths(value));
+668:     }
+669: 
+670:     fn disable(&self) {
+671:         self.disabled.store(true, Ordering::Release);
+672:         self.invalidate_all();
+673:     }
+674: 
+675:     pub(super) fn invalidate_all(&self) {
+676:         self.generation.fetch_add(1, Ordering::SeqCst);
+677:         *self.rows.write() = Rows::new();
+678:     }
+679: 
+680:     /// Only these keys; unrelated cached rows stay. Still bumps the
+681:     /// generation so any read in flight drops its insert.
+682:     pub(super) fn invalidate_keys(&self, keys: &[RowKey]) {
+683:         self.generation.fetch_add(1, Ordering::SeqCst);
+684:         let mut rows = self.rows.write();
+685:         for key in keys {
+686:             rows.pop(key);
+687:         }
+688:         rows.release_empty_index();
+689:     }
+690: }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/workspace_overlay/meta_layer/row_cache_cancellation_tests.rs:1-100
+1: use super::*;
+2: 
+3: fn warm(cache: &UpperRowCache, ino: i64) {
+4:     cache.insert(
+5:         cache.ticket(),
+6:         RowKey::Inode(ino),
+7:         RowValue::Inode(Retained::new(Vec::new())),
+8:     );
+9:     assert!(cache.get(&RowKey::Inode(ino)).is_some());
+10: }
+11: 
+12: #[test]
+13: fn unresolved_commit_disables_both_caches_and_later_refills() {
+14:     let upper = UpperRowCache::new(Duration::from_secs(60));
+15:     let namespace = UpperRowCache::new(Duration::from_secs(60));
+16:     warm(&upper, 1);
+17:     warm(&namespace, 1);
+18:     let in_flight = upper.ticket();
+19:     drop(CacheCommitGuard::new(Some(&upper), Some(&namespace)));
+20:     for cache in [&upper, &namespace] {
+21:         assert!(cache.get(&RowKey::Inode(1)).is_none());
+22:         // A later backend read can observe the old server state while an
+23:         // uncertain request is still executing. It must never become cached.
+24:         for ticket in [in_flight, cache.ticket()] {
+25:             cache.insert(
+26:                 ticket,
+27:                 RowKey::Inode(1),
+28:                 RowValue::Inode(Retained::new(Vec::new())),
+29:             );
+30:             assert!(cache.get(&RowKey::Inode(1)).is_none());
+31:         }
+32:         cache.invalidate_all();
+33:         assert!(cache.get(&RowKey::Inode(1)).is_none());
+34:     }
+35: }
+36: 
+37: #[test]
+38: fn confirmed_commit_does_not_disable_unrelated_cached_rows() {
+39:     let cache = UpperRowCache::new(Duration::from_secs(60));
+40:     warm(&cache, 1);
+41:     warm(&cache, 2);
+42:     let commit = CacheCommitGuard::new(Some(&cache), None);
+43:     cache.invalidate_keys(&[RowKey::Inode(1)]);
+44:     cache.invalidate_keys(&[RowKey::Inode(1)]);
+45:     commit.resolved();
+46:     assert!(cache.get(&RowKey::Inode(2)).is_some());
+47:     warm(&cache, 1);
+48: }
+49: 
+50: #[tokio::test]
+51: async fn canceling_the_await_disables_authority_even_with_a_live_lease() {
+52:     use futures::FutureExt;
+53:     let cache = Arc::new(UpperRowCache::new(Duration::from_secs(60)));
+54:     let validity = Arc::new(crate::workspace_overlay::lifecycle::LeaseValidity::new(
+55:         std::time::Instant::now(),
+56:         Duration::from_secs(60),
+57:     ));
+58:     let fence = LeaseLocalFence {
+59:         cache: cache.clone(),
+60:         validity: validity.clone(),
+61:     };
+62:     warm(&cache, 1);
+63:     assert!(fence.unchanged(1, &[]));
+64:     let mut pending = Box::pin(async {
+65:         let _guard = CacheCommitGuard::new(Some(&cache), None);
+66:         std::future::pending::<()>().await;
+67:     });
+68:     assert!(pending.as_mut().now_or_never().is_none());
+69:     drop(pending);
+70:     assert!(
+71:         validity.authoritative(),
+72:         "cache cancellation must not revoke the actual lease"
+73:     );
+74:     assert!(!fence.unchanged(1, &[]));
+75:     cache.insert(
+76:         cache.ticket(),
+77:         RowKey::Inode(1),
+78:         RowValue::Inode(Retained::new(Vec::new())),
+79:     );
+80:     assert!(
+81:         !fence.unchanged(1, &[]),
+82:         "refill cannot revive local read authority"
+83:     );
+84: }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/workspace_overlay/model.rs:252-278
+252: pub struct LayerRecord {
+253:     pub layer_id: LayerId,
+254:     pub parent_layer_id: Option<LayerId>,
+255:     pub state: LayerState,
+256:     pub schema_version: u32,
+257:     pub sealed_version: Option<u64>,
+258:     pub delta_digest: Option<[u8; 32]>,
+259:     pub root_hash: Option<[u8; 32]>,
+260:     pub depth: u32,
+261:     pub owner_workspace_id: Option<WorkspaceId>,
+262:     pub next_sequence: u64,
+263:     pub owned_slice_count: u64,
+264:     pub owned_bytes: u64,
+265:     pub created_at_ns: i64,
+266:     pub sealed_at_ns: Option<i64>,
+267: }
+268: 
+269: #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+270: pub struct DentryDelta {
+271:     pub layer_id: LayerId,
+272:     pub parent_ino: i64,
+273:     pub name: Vec<u8>,
+274:     pub op: DentryOp,
+275:     pub ino: Option<i64>,
+276:     pub entry_type: Option<u8>,
+277:     pub sequence: u64,
+278: }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/workspace_overlay/model.rs:329-357
+329: pub struct InodeDelta {
+330:     pub layer_id: LayerId,
+331:     pub ino: i64,
+332:     pub state: InodeState,
+333:     pub kind: u8,
+334:     pub size: u64,
+335:     pub mode: u32,
+336:     pub uid: u32,
+337:     pub gid: u32,
+338:     pub rdev: u32,
+339:     pub nlink: u32,
+340:     pub atime_ns: i64,
+341:     pub mtime_ns: i64,
+342:     pub ctime_ns: i64,
+343:     pub symlink_target: Option<Vec<u8>>,
+344:     pub parent_hint: Option<i64>,
+345:     pub data_version: u64,
+346:     pub sequence: u64,
+347: }
+348: 
+349: #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+350: pub struct XattrDelta {
+351:     pub layer_id: LayerId,
+352:     pub ino: i64,
+353:     pub name: Vec<u8>,
+354:     pub op: ValueOp,
+355:     pub value: Option<Vec<u8>>,
+356:     pub sequence: u64,
+357: }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/workspace_overlay/catalog.rs:245-260
+245: pub struct PermissionSnapshotQuery {
+246:     pub layer_ids: [LayerId; 2],
+247:     /// Target plus optional parent; at most two positive inode numbers.
+248:     pub inodes: Vec<i64>,
+249:     /// Optional prospective child identity, including its absence.
+250:     pub dentry: Option<(i64, Vec<u8>)>,
+251: }
+252: 
+253: #[derive(Clone, Debug, Eq, PartialEq)]
+254: pub struct PermissionSnapshot {
+255:     /// These exact layer versions must still match when committing a mutation.
+256:     pub layers: [LayerRecord; 2],
+257:     pub inodes: Vec<InodeDelta>,
+258:     pub xattrs: Vec<XattrDelta>,
+259:     pub dentries: Vec<DentryDelta>,
+260: }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/vfs/io/writer.rs:4592-4601
+4592:                         handle.advance_upload_range(start_idx, end_idx, data_len);
+4593:                         Self::split_uploaded_prefix_tail(
+4594:                             &shared,
+4595:                             handle.with_ref(|s| s.chunk_id),
+4596:                             &slice,
+4597:                         )
+4598:                         .await;
+4599:                         Self::remove_writeback_record_if_uploaded_committed(&shared, &slice).await;
+4600:                         handle.try_commit().await;
+4601:                     }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/vfs/io/writer.rs:4677-4718
+4677:     async fn remove_writeback_record_if_uploaded_committed(
+4678:         shared: &Arc<Shared<B, M>>,
+4679:         slice: &Arc<ParkingMutex<SliceState>>,
+4680:     ) {
+4681:         let key = {
+4682:             let state = slice.lock();
+4683:             if !matches!(state.state, SliceStatus::Committed)
+4684:                 || !state.upload_complete()
+4685:                 || state.writeback_cleaned_before_commit
+4686:             {
+4687:                 return;
+4688:             }
+4689:             let Some(slice_id) = state.slice_id else {
+4690:                 return;
+4691:             };
+4692:             dirty_slice_key(
+4693:                 shared.inode.ino(),
+4694:                 state.chunk_id,
+4695:                 slice_id,
+4696:                 shared.writeback_epoch,
+4697:             )
+4698:         };
+4699: 
+4700:         Self::remove_uploaded_writeback_record(shared, &key).await;
+4701:     }
+4702: 
+4703:     async fn remove_uploaded_writeback_record(shared: &Arc<Shared<B, M>>, key: &DirtySliceKey) {
+4704:         #[cfg(test)]
+4705:         if let Some(probe) = shared.writeback_cleanup_probe.get() {
+4706:             probe.enter().await;
+4707:         }
+4708:         if let Some(wb) = &shared.write_back {
+4709:             if let Err(err) = wb.promote_to_read_cache(key, key.local_seq).await {
+4710:                 warn!(
+4711:                     slice_id = key.local_seq,
+4712:                     error = ?err,
+4713:                     "failed to promote writeback stage into persistent read cache"
+4714:                 );
+4715:             }
+4716:             let _ = wb.remove(key).await;
+4717:         }
+4718:     }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/vfs/io/writer.rs:4926-4973
+4926:         let slice_epoch = slice.lock().frozen_epoch;
+4927:         if slice_epoch != 0 && shared.inode.data_epoch() != slice_epoch {
+4928:             tracing::warn!(
+4929:                 ino = shared.inode.ino(),
+4930:                 slice_epoch,
+4931:                 current_epoch = shared.inode.data_epoch(),
+4932:                 "skipping stale commit-before-upload after inode epoch change"
+4933:             );
+4934:             handle.mark_committed();
+4935:             return true;
+4936:         }
+4937: 
+4938:         if let Err(err) = Self::seal_writeback_record_if_ready(shared, slice).await {
+4939:             warn!(
+4940:                 chunk_id = desc.chunk_id,
+4941:                 slice_id = desc.slice_id,
+4942:                 error = ?err,
+4943:                 "writeback record seal failed before commit-before-upload"
+4944:             );
+4945:             return false;
+4946:         }
+4947: 
+4948:         let stage_ready = {
+4949:             let s = slice.lock();
+4950:             shared.write_back.is_none()
+4951:                 || !shared.config.writeback_require_stage_before_commit
+4952:                 || s.writeback_fully_persisted()
+4953:         };
+4954:         if !stage_ready {
+4955:             return false;
+4956:         }
+4957: 
+4958:         let (claimed, commit_before_stage) = {
+4959:             let mut s = slice.lock();
+4960:             if s.meta_write_started {
+4961:                 (false, false)
+4962:             } else {
+4963:                 s.meta_write_started = true;
+4964:                 (
+4965:                     true,
+4966:                     shared.write_back.is_some() && !s.writeback_fully_persisted(),
+4967:                 )
+4968:             }
+4969:         };
+4970: 
+4971:         if !claimed {
+4972:             return false;
+4973:         }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/vfs/io/writer.rs:5012-5069
+5012:         match result {
+5013:             Ok(()) => {
+5014:                 shared.inode.set_committed_size(new_size);
+5015:                 shared
+5016:                     .inode
+5017:                     .add_estimated_allocated_bytes(desc.length.as_usize() as u64);
+5018:                 let _ = shared
+5019:                     .reader
+5020:                     .invalidate(ino as u64, file_offset, desc.length.as_usize())
+5021:                     .await;
+5022:                 // Hand off stage retirement under the same lock that publishes
+5023:                 // Committed. Otherwise upload can finish and skip cleanup in
+5024:                 // the gap between the completion check and publication.
+5025:                 let retire_before_commit = {
+5026:                     let mut state = slice.lock();
+5027:                     if state.upload_complete() {
+5028:                         true
+5029:                     } else {
+5030:                         state.state = SliceStatus::Committed;
+5031:                         state.notify.notify_waiters();
+5032:                         false
+5033:                     }
+5034:                 };
+5035:                 if retire_before_commit {
+5036:                     // Keep Uploaded visible until the retirement attempt ends,
+5037:                     // so successful cleanup precedes flush and writer eviction.
+5038:                     // The upload-side helper sees non-Committed and skips us.
+5039:                     let key = dirty_slice_key(
+5040:                         shared.inode.ino(),
+5041:                         desc.chunk_id,
+5042:                         desc.slice_id,
+5043:                         shared.writeback_epoch,
+5044:                     );
+5045:                     Self::remove_uploaded_writeback_record(shared, &key).await;
+5046:                     let mut state = slice.lock();
+5047:                     state.writeback_cleaned_before_commit = true;
+5048:                     state.state = SliceStatus::Committed;
+5049:                     state.notify.notify_waiters();
+5050:                 }
+5051:                 shared.flush_notify.notify_waiters();
+5052:                 true
+5053:             }
+5054:             Err(err) => {
+5055:                 slice.lock().meta_write_started = false;
+5056:                 warn!(
+5057:                     ino,
+5058:                     chunk_id = desc.chunk_id,
+5059:                     slice_id = desc.slice_id,
+5060:                     offset = desc.offset,
+5061:                     len = desc.length,
+5062:                     new_size,
+5063:                     error = ?err,
+5064:                     "commit-before-upload metadata write failed; falling back to upload-before-commit wait"
+5065:                 );
+5066:                 false
+5067:             }
+5068:         }
+5069:     }
+
+c8f5f16aefe811540782b952481982179a1bfd6f src/vfs/io/writer/commit_cleanup_tests.rs:327-557
+327: fn commit_before_upload_cleans_stage_and_preserves_newer_value() {
+328:     metadata_finishes_last(false);
+329: }
+330: 
+331: #[test]
+332: fn commit_before_upload_waits_for_stage_retirement_before_publication() {
+333:     metadata_finishes_last(true);
+334: }
+335: 
+336: fn metadata_finishes_last(pause_cleanup: bool) {
+337:     // Holding this runtime's sole blocking worker pauses actual tokio::fs stage
+338:     // I/O without changing SliceState or replacing FsWriteBackCache. SQLite's
+339:     // connection is initialized before this gate and runs on its own worker.
+340:     let runtime = tokio::runtime::Builder::new_multi_thread()
+341:         .worker_threads(2)
+342:         .max_blocking_threads(1)
+343:         .enable_all()
+344:         .build()
+345:         .unwrap();
+346:     runtime.block_on(async {
+347:         let layout = ChunkLayout {
+348:             chunk_size: 8192,
+349:             block_size: 4096,
+350:         };
+351:         let inner = create_meta_store_from_url("sqlite::memory:")
+352:             .await
+353:             .unwrap()
+354:             .layer();
+355:         let ino = inner
+356:             .create_file(1, "metadata-last-stage".to_string())
+357:             .await
+358:             .unwrap();
+359:         let meta = Arc::new(GatedMeta {
+360:             inner,
+361:             entered: Notify::new(),
+362:             release: Notify::new(),
+363:             first_write: AtomicBool::new(true),
+364:         });
+365:         let store = Arc::new(InMemoryBlockStore::new());
+366:         let backend = Arc::new(Backend::new(store.clone(), meta.clone()));
+367:         let reader = Arc::new(DataReader::new(
+368:             Arc::new(ReadConfig::new(layout)),
+369:             backend.clone(),
+370:         ));
+371:         let temp = tempfile::tempdir().unwrap();
+372:         let read_cache = temp.path().join("read");
+373:         let cache = Arc::new(FsWriteBackCache::new_with_sync_and_read_cache(
+374:             temp.path().join("writeback"),
+375:             false,
+376:             read_cache.clone(),
+377:             0,
+378:         ));
+379:         let observed = Arc::new(CleanupProbe {
+380:             pause_first: AtomicBool::new(pause_cleanup),
+381:             calls: AtomicUsize::new(0),
+382:             entered: Notify::new(),
+383:             release: Notify::new(),
+384:         });
+385:         let config = Arc::new(
+386:             WriteConfig::new(layout)
+387:                 .page_size(4096)
+388:                 .freeze_min_bytes(4096)
+389:                 .auto_flush_max_age(Duration::from_secs(3600))
+390:                 .writeback_require_stage_before_commit(false)
+391:                 .writeback_mode(WriteBackMode::CommitBeforeUpload),
+392:         );
+393:         let writer = Arc::new(DataWriter::new(
+394:             config,
+395:             backend,
+396:             reader,
+397:             Some(cache.clone()),
+398:         ));
+399:         let file = writer.ensure_file(Inode::new(ino, 0));
+400:         assert!(
+401:             file.shared
+402:                 .writeback_cleanup_probe
+403:                 .set(observed.clone())
+404:                 .is_ok()
+405:         );
+406:         let (release_stage, stage_gate) = std::sync::mpsc::channel::<()>();
+407:         let (blocking_entered, blocking_ready) = tokio::sync::oneshot::channel();
+408:         let blocking = tokio::task::spawn_blocking(move || {
+409:             let _ = blocking_entered.send(());
+410:             // Dropping the sender on assertion failure also releases this gate.
+411:             let _ = stage_gate.recv();
+412:         });
+413:         blocking_ready.await.unwrap();
+414:         file.write_at(4096, &vec![0x5a; 4096]).await.unwrap();
+415:         tokio::time::timeout(Duration::from_secs(5), meta.entered.notified())
+416:             .await
+417:             .expect("commit_chunk must claim metadata before stage can finish");
+418:         let cid = chunk_id_for(ino, 0).unwrap();
+419:         let slice = file.shared.inner.lock().await.chunks[&cid]
+420:             .slices
+421:             .front()
+422:             .unwrap()
+423:             .clone();
+424:         assert!(slice.lock().meta_write_started);
+425:         release_stage.send(()).unwrap();
+426:         blocking.await.unwrap();
+427:         tokio::time::timeout(Duration::from_secs(5), async {
+428:             loop {
+429:                 {
+430:                     let state = slice.lock();
+431:                     if matches!(state.state, SliceStatus::Uploaded) && !state.upload_task_active {
+432:                         break;
+433:                     }
+434:                 }
+435:                 tokio::task::yield_now().await;
+436:             }
+437:         })
+438:         .await
+439:         .expect("upload must finish its cleanup attempt while metadata is blocked");
+440:         assert_eq!(cache.recover().await.unwrap().len(), 1);
+441:         let a_slice_id = slice.lock().slice_id.unwrap();
+442:         meta.release.notify_one();
+443:         let flush = file.flush();
+444:         tokio::pin!(flush);
+445:         if pause_cleanup {
+446:             tokio::time::timeout(Duration::from_secs(5), observed.entered.notified())
+447:                 .await
+448:                 .expect("metadata owner must enter stage retirement");
+449:             assert!(matches!(slice.lock().state, SliceStatus::Uploaded));
+450:             assert!(
+451:                 writer.buffer_usage.load(Ordering::Acquire) > 0,
+452:                 "writer payload must remain charged while stage retirement is pending"
+453:             );
+454:             assert!(
+455:                 flush.as_mut().now_or_never().is_none(),
+456:                 "flush must not publish Committed before stage retirement"
+457:             );
+458:             file.mark_released();
+459:             assert!(
+460:                 !file.released_cleanup_ready().await,
+461:                 "writer must remain owned during retirement"
+462:             );
+463:             file.mark_active();
+464:             FileWriter::remove_writeback_record_if_uploaded_committed(&file.shared, &slice).await;
+465:             assert_eq!(observed.calls.load(Ordering::SeqCst), 1);
+466:             observed.release.notify_one();
+467:         }
+468:         tokio::time::timeout(Duration::from_secs(5), flush)
+469:             .await
+470:             .unwrap()
+471:             .unwrap();
+472:         assert!(matches!(slice.lock().state, SliceStatus::Committed));
+473:         assert!(slice.lock().upload_complete());
+474:         let remaining = cache.recover().await.unwrap();
+475:         // The uploader can arrive after metadata cleaned and published. It must
+476:         // not try to promote the now-removed source or race the same temp link.
+477:         FileWriter::remove_writeback_record_if_uploaded_committed(&file.shared, &slice).await;
+478:         FileWriter::remove_writeback_record_if_uploaded_committed(&file.shared, &slice).await;
+479:         assert_eq!(observed.calls.load(Ordering::SeqCst), 1);
+480:         assert_eq!(
+481:             tokio::fs::read(crate::chunk::store::persistent_slice_cache_path(
+482:                 &read_cache,
+483:                 a_slice_id
+484:             ))
+485:             .await
+486:             .unwrap(),
+487:             vec![0x5a; 4096]
+488:         );
+489: 
+490:         // Write a known newer value through the real writer, then invoke exactly
+491:         // the SSD overlay used by the production cfg(not(test)) fallback. Tests
+492:         // deliberately do not pretend DataWriter's test-only read path calls it.
+493:         // Hold this second metadata write only to retain its real SliceState
+494:         // until we can observe the upload owner exiting. Pending-byte counters
+495:         // alone become zero before that owner's stage removal finishes.
+496:         meta.first_write.store(true, Ordering::Release);
+497:         file.write_at(4096, &vec![0xa5; 4096]).await.unwrap();
+498:         tokio::time::timeout(Duration::from_secs(5), meta.entered.notified())
+499:             .await
+500:             .expect("newer value must reach the metadata gate");
+501:         let b_slice = file.shared.inner.lock().await.chunks[&cid]
+502:             .slices
+503:             .back()
+504:             .unwrap()
+505:             .clone();
+506:         assert!(b_slice.lock().meta_write_started);
+507:         meta.release.notify_one();
+508:         tokio::time::timeout(Duration::from_secs(5), file.flush())
+509:             .await
+510:             .unwrap()
+511:             .unwrap();
+512:         tokio::time::timeout(Duration::from_secs(5), async {
+513:             loop {
+514:                 {
+515:                     let state = b_slice.lock();
+516:                     if matches!(state.state, SliceStatus::Committed)
+517:                         && state.upload_complete()
+518:                         && !state.upload_task_active
+519:                     {
+520:                         break;
+521:                     }
+522:                 }
+523:                 tokio::task::yield_now().await;
+524:             }
+525:         })
+526:         .await
+527:         .expect("newer value's upload and cleanup owner must finish");
+528:         assert!(!file.has_overlay_state().await);
+529:         assert_eq!(writer.recent_pending_upload_bytes(), 0);
+530:         let remote = meta.get_slices(cid).await.unwrap();
+531:         let b_slice_id = remote.iter().map(|desc| desc.slice_id).max().unwrap();
+532:         assert_ne!(a_slice_id, b_slice_id);
+533:         let mut actual = vec![0; 4096];
+534:         store
+535:             .read_range((b_slice_id, 0), 0, &mut actual)
+536:             .await
+537:             .unwrap();
+538:         assert_eq!(actual, vec![0xa5; 4096], "remote newer value");
+539:         cache
+540:             .overlay_dirty_range(ino, cid, 4096, &mut actual)
+541:             .await
+542:             .unwrap();
+543:         assert_eq!(
+544:             actual,
+545:             vec![0xa5; 4096],
+546:             "stale stage must not cover newer remote data"
+547:         );
+548:         assert!(
+549:             remaining.is_empty(),
+550:             "uploaded and metadata-committed slice left stale recoverable stage: {remaining:?}"
+551:         );
+552:         assert!(cache.recover().await.unwrap().is_empty());
+553:         assert!(!cache.has_recoverable_data());
+554:     });
+555: }
+556: 
+557: #[test]
+
+53c725f36db5bcd060ec2483a0abecb943bed4ea src/cli.rs:2296-2341
+2296:         let stored = binding
+2297:             .manifest
+2298:             .object_len
+2299:             .checked_mul(2)
+2300:             .ok_or_else(|| anyhow::anyhow!("packed binding manifest allocation overflows"))?;
+2301:         let startup = budget.admit(&[
+2302:             (SnapshotBudgetPool::Roots, 128 << 10),
+2303:             (SnapshotBudgetPool::Stored, stored),
+2304:         ])?;
+2305:         let observer =
+2306:             Arc::new(crate::cadapter::read_observer::ReadObserver::with_mount_budget(&budget)?);
+2307:         let client = client.with_read_observer(
+2308:             observer,
+2309:             crate::cadapter::read_observer::Engine::Packed,
+2310:             crate::cadapter::read_observer::Phase::Startup,
+2311:             crate::cadapter::read_observer::Origin::Demand,
+2312:         );
+2313:         let snapshot = AuthenticatedSnapshot::open(&client, &binding.manifest).await?;
+2314:         drop(startup);
+2315:         let metadata_bytes = std::env::var("BREWFS_PACKED_METADATA_CACHE_BYTES")
+2316:             .ok()
+2317:             .and_then(|value| value.parse::<u64>().ok())
+2318:             .unwrap_or(256 << 20);
+2319:         let lower = Arc::new(PackedReadonlyMeta::from_snapshot_budget(
+2320:             client,
+2321:             snapshot,
+2322:             layout.chunk_size,
+2323:             metadata_bytes,
+2324:             budget,
+2325:         )?);
+2326:         if cache.packed_cache_enabled {
+2327:             lower.enable_pack_cache(
+2328:                 cache.packed_cache_bytes,
+2329:                 cache
+2330:                     .cache_root
+2331:                     .join("packed")
+2332:                     .join(hex::encode(binding.manifest.digest)),
+2333:             )?;
+2334:         }
+2335:         workspace::meta_layer::WorkspacePackedBindingAuthority::validate(
+2336:             authority.as_ref(),
+2337:             &reader_guard,
+2338:             &binding,
+2339:         )
+2340:         .await?;
+2341:         Ok(meta.with_packed_lower(binding, lower, authority, upper, layout)?)
+
+53c725f36db5bcd060ec2483a0abecb943bed4ea src/workspace/packed/readonly/pack_cache.rs:1-496
+1: //! Mount-local immutable-object cache. Downloads publish only written prefixes;
+2: //! callers still authenticate every metadata block/frame above this boundary.
+3: use super::super::snapshot::{SnapshotBudgetPool, SnapshotMountBudget, SnapshotOwnedPermit};
+4: use super::backend_io::BackendIoCounters;
+5: use super::transport::ReadonlyTransport;
+6: use crate::cadapter::client::ObjectBackend;
+7: use crate::cadapter::read_observer::{ReadContext, ReadObserver};
+8: type Observation = Option<(ReadContext, Arc<ReadObserver>)>;
+9: use crate::cadapter::client::ObjectClient;
+10: use anyhow::{Result, ensure};
+11: use futures_util::StreamExt;
+12: use sha2::{Digest, Sha256};
+13: use std::collections::HashMap;
+14: use std::path::PathBuf;
+15: use std::sync::atomic::{AtomicU64, Ordering};
+16: use std::sync::{Arc, Mutex};
+17: use tokio::io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt};
+18: use tokio::sync::Notify;
+19: 
+20: #[derive(Default)]
+21: struct Progress {
+22:     available: u64,
+23:     done: bool,
+24:     error: Option<String>,
+25: }
+26: struct Entry {
+27:     file: PathBuf,
+28:     _temporary: Option<tempfile::NamedTempFile>,
+29:     persisted: Option<PathBuf>,
+30:     progress: Mutex<Progress>,
+31:     changed: Notify,
+32:     size: u64,
+33:     _owner: SnapshotOwnedPermit,
+34: }
+35: #[derive(Default)]
+36: struct Registry {
+37:     entries: HashMap<String, Arc<Entry>>,
+38:     reserved: u64,
+39:     closed: bool,
+40: }
+41: pub(super) struct PackCache {
+42:     registry: tokio::sync::Mutex<Registry>,
+43:     capacity: u64,
+44:     directory: Option<PathBuf>,
+45:     _lock: Option<std::fs::File>,
+46:     pub hits: AtomicU64,
+47:     pub ready_hits: AtomicU64,
+48:     pub inflight_hits: AtomicU64,
+49:     pub local_bytes: AtomicU64,
+50:     pub misses: AtomicU64,
+51:     pub downloaded: AtomicU64,
+52:     budget: Arc<SnapshotMountBudget>,
+53:     transport: Arc<ReadonlyTransport>,
+54:     io: Arc<BackendIoCounters>,
+55:     slots: Arc<tokio::sync::Semaphore>,
+56:     workers: Mutex<Vec<tokio::task::JoinHandle<()>>>,
+57: }
+58: impl PackCache {
+59:     pub fn new(
+60:         capacity: u64,
+61:         budget: Arc<SnapshotMountBudget>,
+62:         transport: Arc<ReadonlyTransport>,
+63:         io: Arc<BackendIoCounters>,
+64:     ) -> Arc<Self> {
+65:         Arc::new(Self {
+66:             registry: Default::default(),
+67:             capacity,
+68:             directory: None,
+69:             _lock: None,
+70:             budget,
+71:             transport,
+72:             io,
+73:             slots: Arc::new(tokio::sync::Semaphore::new(4)),
+74:             hits: AtomicU64::new(0),
+75:             ready_hits: AtomicU64::new(0),
+76:             inflight_hits: AtomicU64::new(0),
+77:             local_bytes: AtomicU64::new(0),
+78:             misses: AtomicU64::new(0),
+79:             downloaded: AtomicU64::new(0),
+80:             workers: Default::default(),
+81:         })
+82:     }
+83:     pub fn persistent(
+84:         capacity: u64,
+85:         budget: Arc<SnapshotMountBudget>,
+86:         transport: Arc<ReadonlyTransport>,
+87:         io: Arc<BackendIoCounters>,
+88:         directory: PathBuf,
+89:     ) -> Result<Arc<Self>> {
+90:         std::fs::create_dir_all(&directory)?;
+91:         let lock = std::fs::OpenOptions::new()
+92:             .create(true)
+93:             .truncate(false)
+94:             .read(true)
+95:             .write(true)
+96:             .open(directory.join(".lock"))?;
+97:         if lock.try_lock().is_err() {
+98:             return Ok(Self::new(capacity, budget, transport, io));
+99:         }
+100:         let mut cache = Self::new(capacity, budget, transport, io);
+101:         let inner = Arc::get_mut(&mut cache).unwrap();
+102:         let registry = inner.registry.get_mut();
+103:         for row in std::fs::read_dir(&directory)? {
+104:             let row = row?;
+105:             let name = row.file_name().to_string_lossy().into_owned();
+106:             if name.starts_with(".partial-") {
+107:                 if row.file_type()?.is_file() {
+108:                     std::fs::remove_file(row.path())?;
+109:                 }
+110:                 continue;
+111:             }
+112:             let Some(key) = name.strip_suffix(".pack") else {
+113:                 continue;
+114:             };
+115:             if key.len() != 64
+116:                 || !key.bytes().all(|c| c.is_ascii_hexdigit())
+117:                 || !row.file_type()?.is_file()
+118:             {
+119:                 continue;
+120:             }
+121:             let size = row.metadata()?.len();
+122:             let owner = inner
+123:                 .budget
+124:                 .admit(&[(SnapshotBudgetPool::Control, 4096 + 64)]);
+125:             if registry.reserved.saturating_add(size) > capacity
+126:                 || registry.entries.len() >= 1024
+127:                 || owner.is_err()
+128:             {
+129:                 std::fs::remove_file(row.path())?;
+130:                 continue;
+131:             }
+132:             registry.reserved += size;
+133:             registry.entries.insert(
+134:                 key.to_owned(),
+135:                 Arc::new(Entry {
+136:                     file: row.path(),
+137:                     _temporary: None,
+138:                     persisted: Some(row.path()),
+139:                     size,
+140:                     _owner: owner.unwrap(),
+141:                     changed: Notify::new(),
+142:                     progress: Mutex::new(Progress {
+143:                         available: size,
+144:                         done: true,
+145:                         error: None,
+146:                     }),
+147:                 }),
+148:             );
+149:         }
+150:         inner.directory = Some(directory);
+151:         inner._lock = Some(lock);
+152:         Ok(cache)
+153:     }
+154:     async fn prepare<B: ObjectBackend + Clone + 'static>(
+155:         self: &Arc<Self>,
+156:         client: &ObjectClient<B>,
+157:         key: &str,
+158:         offset: u64,
+159:         length: usize,
+160:         observation: Observation,
+161:     ) -> Result<Option<Arc<Entry>>> {
+162:         ensure!(!self.budget.state().closed, "pack cache budget closed");
+163:         let cache_key = hex::encode(Sha256::digest(key.as_bytes()));
+164:         let entry = {
+165:             let mut registry = self.registry.lock().await;
+166:             ensure!(!registry.closed, "pack cache closed");
+167:             if let Some(entry) = registry.entries.get(&cache_key)
+168:                 && entry.progress.lock().unwrap().error.is_some()
+169:             {
+170:                 // A body error is terminal for its existing readers, not for
+171:                 // the immutable object. Keep the partial file charged while
+172:                 // any old reader or worker still owns it; new requests can
+173:                 // use the ordinary range path until that ownership ends.
+174:                 if Arc::strong_count(entry) > 1 {
+175:                     self.misses.fetch_add(1, Ordering::Relaxed);
+176:                     drop(registry);
+177:                     return Ok(None);
+178:                 }
+179:                 let failed = registry.entries.remove(&cache_key).unwrap();
+180:                 let size = failed.size;
+181:                 drop(failed);
+182:                 registry.reserved -= size;
+183:             }
+184:             if let Some(entry) = registry.entries.get(&cache_key) {
+185:                 self.hits.fetch_add(1, Ordering::Relaxed);
+186:                 if offset
+187:                     .checked_add(length as u64)
+188:                     .is_some_and(|end| entry.progress.lock().unwrap().available >= end)
+189:                 {
+190:                     self.ready_hits.fetch_add(1, Ordering::Relaxed);
+191:                 } else {
+192:                     self.inflight_hits.fetch_add(1, Ordering::Relaxed);
+193:                 }
+194:                 entry.clone()
+195:             } else {
+196:                 self.misses.fetch_add(1, Ordering::Relaxed);
+197:                 let head_client = match &observation {
+198:                     Some((context, observer)) => client.clone().with_read_observer(
+199:                         observer.clone(),
+200:                         context.engine,
+201:                         context.phase,
+202:                         context.origin,
+203:                     ),
+204:                     None => client.clone(),
+205:                 };
+206:                 let head_context = observation.as_ref().map(|(context, _)| *context);
+207:                 let head_key = key.to_owned();
+208:                 let io = self.io.clone();
+209:                 let head = self
+210:                     .transport
+211:                     .run(&self.budget, key.len(), 0, || async move {
+212:                         io.head_started();
+213:                         let result = match head_context {
+214:                             Some(context) => {
+215:                                 head_client
+216:                                     .typed_object_size(context.class, &head_key)
+217:                                     .await
+218:                             }
+219:                             None => head_client.get_object_size(&head_key).await,
+220:                         }
+221:                         .and_then(|size| size.ok_or_else(|| anyhow::anyhow!("missing pack")));
+222:                         io.finish_open(result)
+223:                     })
+224:                     .await?;
+225:                 let size = head.value;
+226:                 if size > self.capacity {
+227:                     drop(registry);
+228:                     return Ok(None);
+229:                 }
+230:                 while registry.reserved + size > self.capacity || registry.entries.len() >= 1024 {
+231:                     let victim = registry
+232:                         .entries
+233:                         .iter()
+234:                         .find(|(_, entry)| {
+235:                             Arc::strong_count(entry) == 1 && entry.progress.lock().unwrap().done
+236:                         })
+237:                         .map(|(key, _)| key.clone());
+238:                     let Some(victim) = victim else {
+239:                         drop(registry);
+240:                         return Ok(None);
+241:                     };
+242:                     let removed = registry.entries.remove(&victim).unwrap();
+243:                     registry.reserved -= removed.size;
+244:                     if let Some(path) = &removed.persisted {
+245:                         if path.exists() {
+246:                             std::fs::remove_file(path)?;
+247:                         }
+248:                     }
+249:                 }
+250:                 let Ok(slot) = self.slots.clone().try_acquire_owned() else {
+251:                     drop(registry);
+252:                     return Ok(None);
+253:                 };
+254:                 let Ok(buffer) = self.budget.admit(&[(SnapshotBudgetPool::Stored, 1 << 20)]) else {
+255:                     drop(registry);
+256:                     return Ok(None);
+257:                 };
+258:                 let Ok(owner) = self
+259:                     .budget
+260:                     .admit(&[(SnapshotBudgetPool::Control, 4096 + key.len() as u64)])
+261:                 else {
+262:                     drop(registry);
+263:                     return Ok(None);
+264:                 };
+265:                 let temporary = match &self.directory {
+266:                     Some(directory) => tempfile::Builder::new()
+267:                         .prefix(".partial-")
+268:                         .tempfile_in(directory)?,
+269:                     None => tempfile::NamedTempFile::new()?,
+270:                 };
+271:                 let entry = Arc::new(Entry {
+272:                     file: temporary.path().to_owned(),
+273:                     _temporary: Some(temporary),
+274:                     persisted: self
+275:                         .directory
+276:                         .as_ref()
+277:                         .map(|directory| directory.join(format!("{cache_key}.pack"))),
+278:                     _owner: owner,
+279:                     progress: Default::default(),
+280:                     changed: Notify::new(),
+281:                     size,
+282:                 });
+283:                 registry.reserved += size;
+284:                 registry.entries.insert(cache_key, entry.clone());
+285:                 let cache = self.clone();
+286:                 let task_entry = entry.clone();
+287:                 let (client, context) = match observation {
+288:                     Some((context, observer)) => (
+289:                         client.clone().with_read_observer(
+290:                             observer,
+291:                             context.engine,
+292:                             context.phase,
+293:                             context.origin,
+294:                         ),
+295:                         Some(context),
+296:                     ),
+297:                     None => (client.clone(), None),
+298:                 };
+299:                 let key = key.to_owned();
+300:                 let worker = tokio::spawn(async move {
+301:                     let result: Result<()> = async {
+302:                         let _slot = slot;
+303:                         let _buffer = buffer;
+304:                         let key_len = key.len();
+305:                         let io = cache.io.clone();
+306:                         let mut stream = cache
+307:                             .transport
+308:                             .open_body(&cache.budget, key_len, || async move {
+309:                                 io.full_started(size);
+310:                                 let result = client
+311:                                     .backend_object_stream(&key, Some(size), context)
+312:                                     .await
+313:                                     .and_then(|stream| {
+314:                                         stream.ok_or_else(|| anyhow::anyhow!("missing pack body"))
+315:                                     });
+316:                                 io.observe_stream(result)
+317:                             })
+318:                             .await?;
+319:                         let mut file = tokio::fs::OpenOptions::new()
+320:                             .write(true)
+321:                             .open(&task_entry.file)
+322:                             .await?;
+323:                         let mut written = 0u64;
+324:                         while let Some(chunk) = stream.next().await {
+325:                             let chunk = chunk?;
+326:                             if written + chunk.len() as u64 > size {
+327:                                 cache.io.failures.fetch_add(1, Ordering::Relaxed);
+328:                                 anyhow::bail!("pack body overflow");
+329:                             }
+330:                             file.write_all(&chunk).await?;
+331:                             file.flush().await?;
+332:                             written += chunk.len() as u64;
+333:                             cache
+334:                                 .downloaded
+335:                                 .fetch_add(chunk.len() as u64, Ordering::Relaxed);
+336:                             task_entry.progress.lock().unwrap().available = written;
+337:                             task_entry.changed.notify_waiters();
+338:                         }
+339:                         if written != size {
+340:                             cache.io.failures.fetch_add(1, Ordering::Relaxed);
+341:                             anyhow::bail!("short pack body");
+342:                         }
+343:                         if let Some(path) = &task_entry.persisted {
+344:                             file.sync_data().await?;
+345:                             tokio::fs::hard_link(&task_entry.file, path).await?;
+346:                         }
+347:                         Ok(())
+348:                     }
+349:                     .await;
+350:                     let mut progress = task_entry.progress.lock().unwrap();
+351:                     progress.error = result.err().map(|error| error.to_string());
+352:                     progress.done = true;
+353:                     drop(progress);
+354:                     task_entry.changed.notify_waiters();
+355:                 });
+356:                 let mut workers = self.workers.lock().unwrap();
+357:                 workers.retain(|worker| !worker.is_finished());
+358:                 workers.push(worker);
+359:                 entry
+360:             }
+361:         };
+362:         Ok(Some(entry))
+363:     }
+364:     pub async fn read<B: ObjectBackend + Clone + 'static>(
+365:         self: &Arc<Self>,
+366:         client: &ObjectClient<B>,
+367:         key: &str,
+368:         offset: u64,
+369:         length: usize,
+370:     ) -> Result<Vec<u8>> {
+371:         match self.prepare(client, key, offset, length, None).await? {
+372:             Some(entry) => self.read_entry(&entry, offset, length).await,
+373:             None => self.range_fallback(client, key, offset, length).await,
+374:         }
+375:     }
+376: 
+377:     pub async fn stream<B: ObjectBackend + Clone + 'static>(
+378:         self: &Arc<Self>,
+379:         client: ObjectClient<B>,
+380:         key: String,
+381:         offset: u64,
+382:         length: u64,
+383:         observation: Observation,
+384:     ) -> Result<crate::cadapter::client::ObjectByteStream> {
+385:         let count = usize::try_from(length)?;
+386:         let Some(entry) = self
+387:             .prepare(&client, &key, offset, count, observation.clone())
+388:             .await?
+389:         else {
+390:             let io = self.io.clone();
+391:             return self
+392:                 .transport
+393:                 .open_body(&self.budget, key.len(), || async move {
+394:                     io.range_started(length);
+395:                     let result = match observation {
+396:                         Some((context, observer)) => {
+397:                             client
+398:                                 .backend_range_stream_observed(
+399:                                     &key, offset, length, context, observer,
+400:                                 )
+401:                                 .await
+402:                         }
+403:                         None => client.get_object_range_stream(&key, offset, length).await,
+404:                     };
+405:                     io.observe_stream(result)
+406:                 })
+407:                 .await;
+408:         };
+409:         Ok(Box::pin(futures_util::stream::try_unfold(
+410:             (self.clone(), entry, offset, length),
+411:             |(cache, entry, offset, remaining)| async move {
+412:                 if remaining == 0 {
+413:                     return Ok(None);
+414:                 }
+415:                 let length = remaining.min(64 << 10) as usize;
+416:                 let bytes = cache.read_entry(&entry, offset, length).await?;
+417:                 Ok(Some((
+418:                     bytes::Bytes::from(bytes),
+419:                     (
+420:                         cache,
+421:                         entry,
+422:                         offset + length as u64,
+423:                         remaining - length as u64,
+424:                     ),
+425:                 )))
+426:             },
+427:         )))
+428:     }
+429:     async fn read_entry(&self, entry: &Entry, offset: u64, length: usize) -> Result<Vec<u8>> {
+430:         let end = offset
+431:             .checked_add(length as u64)
+432:             .ok_or_else(|| anyhow::anyhow!("pack range overflow"))?;
+433:         ensure!(end <= entry.size, "pack range exceeds object");
+434:         loop {
+435:             let changed = entry.changed.notified();
+436:             tokio::pin!(changed);
+437:             changed.as_mut().enable();
+438:             {
+439:                 let progress = entry.progress.lock().unwrap();
+440:                 if let Some(error) = &progress.error {
+441:                     anyhow::bail!("{error}");
+442:                 }
+443:                 if progress.available >= end {
+444:                     break;
+445:                 }
+446:             }
+447:             changed.await;
+448:         }
+449:         let mut file = tokio::fs::File::open(&entry.file).await?;
+450:         file.seek(std::io::SeekFrom::Start(offset)).await?;
+451:         let mut output = vec![0; length];
+452:         file.read_exact(&mut output).await?;
+453:         self.local_bytes.fetch_add(length as u64, Ordering::Relaxed);
+454:         Ok(output)
+455:     }
+456:     async fn range_fallback<B: ObjectBackend + Clone + 'static>(
+457:         &self,
+458:         client: &ObjectClient<B>,
+459:         key: &str,
+460:         offset: u64,
+461:         length: usize,
+462:     ) -> Result<Vec<u8>> {
+463:         let client = client.clone();
+464:         let owned_key = key.to_owned();
+465:         let io = self.io.clone();
+466:         let output = self
+467:             .transport
+468:             .run(&self.budget, key.len(), length as u64, || async move {
+469:                 io.range_started(length as u64);
+470:                 let result = async {
+471:                     let mut bytes = vec![0; length];
+472:                     let actual = client
+473:                         .get_object_range(&owned_key, offset, &mut bytes)
+474:                         .await?;
+475:                     ensure!(actual <= bytes.len(), "pack fallback range overflow");
+476:                     io.received_bytes
+477:                         .fetch_add(actual as u64, Ordering::Relaxed);
+478:                     bytes.truncate(actual);
+479:                     Ok(bytes)
+480:                 }
+481:                 .await;
+482:                 io.finish_open(result)
+483:             })
+484:             .await?;
+485:         Ok(output.value.clone())
+486:     }
+487:     pub async fn drain(&self) -> Result<()> {
+488:         self.registry.lock().await.closed = true;
+489:         let workers = std::mem::take(&mut *self.workers.lock().unwrap());
+490:         for worker in workers {
+491:             worker.await?;
+492:         }
+493:         self.registry.lock().await.entries.clear();
+494:         Ok(())
+495:     }
+496: }
+
+53c725f36db5bcd060ec2483a0abecb943bed4ea src/workspace/packed/readonly/transport.rs:1-255
+1: //! Owned backend drivers retain real pre-response work after caller cancellation.
+2: //! The body owner retires only after actual EOF or userspace body destruction.
+3: 
+4: use std::future::Future;
+5: use std::pin::Pin;
+6: use std::sync::{Arc, Mutex};
+7: use std::task::{Context, Poll};
+8: 
+9: use futures_util::Stream;
+10: use tokio::sync::Notify;
+11: 
+12: use crate::cadapter::client::ObjectByteStream;
+13: use crate::workspace::packed::snapshot::{
+14:     SnapshotBudgetPool, SnapshotMountBudget, SnapshotOwnedPermit,
+15: };
+16: 
+17: const MAX_DRIVERS: usize = 128;
+18: const DRIVER_STATE_BYTES: u64 = 4096;
+19: 
+20: #[derive(Debug, Default)]
+21: struct State {
+22:     closed: bool,
+23:     owners: usize,
+24:     poisoned: bool,
+25: }
+26: 
+27: #[derive(Default)]
+28: pub(crate) struct ReadonlyTransport {
+29:     state: Mutex<State>,
+30:     changed: Notify,
+31:     reader: Mutex<Option<Arc<dyn crate::workspace::packed_reader_lifecycle::PackedReaderSession>>>,
+32: }
+33: 
+34: impl std::fmt::Debug for ReadonlyTransport {
+35:     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+36:         formatter
+37:             .debug_struct("ReadonlyTransport")
+38:             .field("state", &self.state)
+39:             .finish_non_exhaustive()
+40:     }
+41: }
+42: 
+43: struct Owner {
+44:     transport: Arc<ReadonlyTransport>,
+45:     terminal: bool,
+46:     _permit: SnapshotOwnedPermit,
+47:     _reader: Option<Arc<dyn crate::workspace::packed_reader_lifecycle::PackedReaderSession>>,
+48:     _generation: Option<crate::workspace::packed_reader_lifecycle::PackedReaderRequestOwner>,
+49: }
+50: 
+51: pub(super) struct OwnedTransportResult<T> {
+52:     pub(super) value: T,
+53:     _owner: Owner,
+54: }
+55: 
+56: impl Drop for Owner {
+57:     fn drop(&mut self) {
+58:         let mut state = self.transport.state.lock().unwrap();
+59:         assert!(state.owners > 0, "readonly transport owner underflow");
+60:         state.owners -= 1;
+61:         state.poisoned |= !self.terminal;
+62:         drop(state);
+63:         self.transport.changed.notify_waiters();
+64:     }
+65: }
+66: 
+67: impl ReadonlyTransport {
+68:     pub(crate) fn bind_reader(
+69:         &self,
+70:         reader: Arc<dyn crate::workspace::packed_reader_lifecycle::PackedReaderSession>,
+71:     ) -> anyhow::Result<()> {
+72:         let state = self.state.lock().unwrap();
+73:         anyhow::ensure!(
+74:             !state.closed && state.owners == 0,
+75:             "readonly transport already in use"
+76:         );
+77:         let mut slot = self.reader.lock().unwrap();
+78:         if let Some(existing) = slot.as_ref() {
+79:             anyhow::ensure!(
+80:                 Arc::ptr_eq(existing, &reader),
+81:                 "readonly transport belongs to another reader"
+82:             );
+83:         } else {
+84:             *slot = Some(reader);
+85:         }
+86:         Ok(())
+87:     }
+88: 
+89:     fn admit(
+90:         self: &Arc<Self>,
+91:         budget: &Arc<SnapshotMountBudget>,
+92:         key_len: usize,
+93:         stored_bytes: u64,
+94:     ) -> anyhow::Result<Owner> {
+95:         anyhow::ensure!(
+96:             key_len > 0 && key_len <= 4096,
+97:             "readonly transport key bound"
+98:         );
+99:         let mut state = self.state.lock().unwrap();
+100:         anyhow::ensure!(
+101:             !state.closed && !state.poisoned,
+102:             "readonly transport is closed"
+103:         );
+104:         anyhow::ensure!(
+105:             state.owners < MAX_DRIVERS,
+106:             "readonly transport driver limit"
+107:         );
+108:         let bytes = DRIVER_STATE_BYTES + 2 * key_len as u64;
+109:         let permit = budget.admit(&[
+110:             (SnapshotBudgetPool::Plans, bytes),
+111:             (SnapshotBudgetPool::Stored, stored_bytes),
+112:         ])?;
+113:         // The actual detached driver owns both its pinned generation and
+114:         // heartbeat session, independently of the cancelled metadata caller.
+115:         let reader = self.reader.lock().unwrap().clone();
+116:         let generation = reader
+117:             .as_ref()
+118:             .map(|reader| reader.retain_request())
+119:             .transpose()?;
+120:         state.owners += 1;
+121:         Ok(Owner {
+122:             transport: self.clone(),
+123:             terminal: false,
+124:             _permit: permit,
+125:             _reader: reader,
+126:             _generation: generation,
+127:         })
+128:     }
+129: 
+130:     pub(crate) fn stop_admission(&self) {
+131:         self.state.lock().unwrap().closed = true;
+132:         self.changed.notify_waiters();
+133:     }
+134: 
+135:     pub(crate) async fn drain(&self) -> anyhow::Result<()> {
+136:         self.stop_admission();
+137:         loop {
+138:             let changed = self.changed.notified();
+139:             tokio::pin!(changed);
+140:             changed.as_mut().enable();
+141:             let terminal = {
+142:                 let state = self.state.lock().unwrap();
+143:                 (state.owners == 0).then_some(state.poisoned)
+144:             };
+145:             if let Some(poisoned) = terminal {
+146:                 anyhow::ensure!(
+147:                     !poisoned,
+148:                     "readonly transport driver failed to reach terminal state"
+149:                 );
+150:                 return Ok(());
+151:             }
+152:             changed.await;
+153:         }
+154:     }
+155: 
+156:     /// The factory is invoked after admission, before cloning keys/buffers.
+157:     pub(super) async fn run<T, F>(
+158:         self: &Arc<Self>,
+159:         budget: &Arc<SnapshotMountBudget>,
+160:         key_len: usize,
+161:         stored_bytes: u64,
+162:         make: impl FnOnce() -> F,
+163:     ) -> anyhow::Result<OwnedTransportResult<T>>
+164:     where
+165:         T: Send + 'static,
+166:         F: Future<Output = anyhow::Result<T>> + Send + 'static,
+167:     {
+168:         let mut owner = self.admit(budget, key_len, stored_bytes)?;
+169:         let future = make();
+170:         let (send, receive) = tokio::sync::oneshot::channel();
+171:         tokio::spawn(async move {
+172:             let result = future.await;
+173:             owner.terminal = true;
+174:             // The channel/result retains bytes and its admitted owner until
+175:             // the receiver copies them, or a cancelled receiver drops them.
+176:             let result = result.map(|value| OwnedTransportResult {
+177:                 value,
+178:                 _owner: owner,
+179:             });
+180:             drop(send.send(result));
+181:         });
+182:         receive
+183:             .await
+184:             .map_err(|_| anyhow::anyhow!("readonly transport driver terminated"))?
+185:     }
+186: 
+187:     pub(crate) async fn open_body<F>(
+188:         self: &Arc<Self>,
+189:         budget: &Arc<SnapshotMountBudget>,
+190:         key_len: usize,
+191:         make: impl FnOnce() -> F,
+192:     ) -> anyhow::Result<ObjectByteStream>
+193:     where
+194:         F: Future<Output = anyhow::Result<ObjectByteStream>> + Send + 'static,
+195:     {
+196:         let mut owner = self.admit(budget, key_len, 0)?;
+197:         let future = make();
+198:         let (send, receive) = tokio::sync::oneshot::channel();
+199:         tokio::spawn(async move {
+200:             let result = match future.await {
+201:                 Ok(stream) => Ok(Box::pin(OwnedBody {
+202:                     // Field order and Drop guarantee the actual response is
+203:                     // destroyed before its transport owner announces drain.
+204:                     inner: Some(stream),
+205:                     owner: Some(owner),
+206:                 }) as ObjectByteStream),
+207:                 Err(error) => {
+208:                     owner.terminal = true;
+209:                     drop(owner);
+210:                     Err(error)
+211:                 }
+212:             };
+213:             drop(send.send(result));
+214:         });
+215:         receive
+216:             .await
+217:             .map_err(|_| anyhow::anyhow!("readonly transport body driver terminated"))?
+218:     }
+219: }
+220: 
+221: struct OwnedBody {
+222:     inner: Option<ObjectByteStream>,
+223:     owner: Option<Owner>,
+224: }
+225: 
+226: impl Stream for OwnedBody {
+227:     type Item = anyhow::Result<bytes::Bytes>;
+228: 
+229:     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+230:         let next = match self.inner.as_mut() {
+231:             Some(inner) => inner.as_mut().poll_next(cx),
+232:             None => return Poll::Ready(None),
+233:         };
+234:         if matches!(next, Poll::Ready(None)) {
+235:             drop(self.inner.take());
+236:             if let Some(mut owner) = self.owner.take() {
+237:                 owner.terminal = true;
+238:                 drop(owner);
+239:             }
+240:         }
+241:         next
+242:     }
+243: }
+244: 
+245: impl Drop for OwnedBody {
+246:     fn drop(&mut self) {
+247:         drop(self.inner.take());
+248:         if let Some(mut owner) = self.owner.take() {
+249:             // Dropping a response body is an actual userspace cancellation
+250:             // boundary; a panic while polling/destroying it fails closed.
+251:             owner.terminal = !std::thread::panicking();
+252:             drop(owner);
+253:         }
+254:     }
+255: }
+
+53c725f36db5bcd060ec2483a0abecb943bed4ea src/workspace/packed/readonly.rs:896-930
+896:     pub(crate) async fn drain_packed_transport(&self) -> Result<(), MetaError> {
+897:         self.attrs_closed.store(true, Ordering::Release);
+898:         if let Some(attrs) = &self.attrs {
+899:             attrs.invalidate_all();
+900:         }
+901:         if let Some(dentries) = &self.dentries {
+902:             dentries.invalidate_all();
+903:         }
+904:         if let Some(cache) = self.context.metrics.pack_cache.get() {
+905:             cache.drain().await.map_err(MetaError::Anyhow)?;
+906:             tracing::info!(
+907:                 hits = cache.hits.load(Ordering::Relaxed),
+908:                 misses = cache.misses.load(Ordering::Relaxed),
+909:                 ready_hits = cache.ready_hits.load(Ordering::Relaxed),
+910:                 inflight_hits = cache.inflight_hits.load(Ordering::Relaxed),
+911:                 local_bytes = cache.local_bytes.load(Ordering::Relaxed),
+912:                 downloaded = cache.downloaded.load(Ordering::Relaxed),
+913:                 "packed whole object cache drained"
+914:             );
+915:         }
+916:         self.context.metrics.transport.stop_admission();
+917:         self.context.reader.close().await;
+918:         self.context
+919:             .metrics
+920:             .transport
+921:             .drain()
+922:             .await
+923:             .map_err(MetaError::Anyhow)
+924:     }
+925: 
+926:     pub fn chunk_size(&self) -> u64 {
+927:         self.chunk_size
+928:     }
+929: 
+930:     pub(crate) fn bind_reader_session(

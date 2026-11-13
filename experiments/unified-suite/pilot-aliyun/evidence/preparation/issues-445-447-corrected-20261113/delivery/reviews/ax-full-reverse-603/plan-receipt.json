@@ -1,0 +1,37 @@
+{
+  "schema": "ax.full-matrix-reverse-plan.v1",
+  "executed": false,
+  "source": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-05/harness/run-corrected-standard-guard-pair-512.py",
+  "source_sha256": "d2ca7f25aa30bfc3011344d36bfa02b3f7abbbd030b3b95c920a39c320ddd05a",
+  "script_sha256": "7d90c1ba80e97aa4c54f4960a460a951bb75298644a987d5745924ceef784445",
+  "only_changed_fields": [
+    "arm order",
+    "trial number",
+    "unique output directory"
+  ],
+  "inverse_derivation_byte_identical": true,
+  "syntax_passed": true,
+  "invariant_checks": 9,
+  "arm_order": [
+    "candidate",
+    "baseline"
+  ],
+  "trial": 603,
+  "case": "regression",
+  "scenario_order": [
+    "fio-seqwrite-direct0",
+    "fio-seqwrite-direct1",
+    "fio-randwrite-direct0",
+    "fio-randwrite-direct1",
+    "fio-randrw-direct0",
+    "fio-randrw-direct1"
+  ],
+  "matrix": "0 1",
+  "profile": "512m/20s, inherited unchanged from original case",
+  "output": "/home/dev/ax-perf-issues-corrected-validation/compose/matrices/regression-corrected512-reverse603",
+  "case_script_sha256": "a6621e4987ca488487ea45e455d7fd473ba3620ea518475c898e227941584085",
+  "full_comparator_sha256": "14fd7c9745ece9b489bbab9065e1fee146a8f8d0501eb7542dbaf4002bcbe698",
+  "original601_comparison_sha256": "b9a81cc1bbe3f2144e3bbb865a22c75c681adb3de303301448d7c608b6ecdb79",
+  "prior_preparation_602": "prepared only; not deployed or executed; superseded by full603 at root instruction",
+  "limits": "This is a preparation receipt, not proof that workload/qualification/performance passed. Original601 remains immutable; full603 is an independent matched pair."
+}

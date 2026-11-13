@@ -1,0 +1,1046 @@
+{
+  "schema": "independent-standard-601-review-v1",
+  "decision": "CORRECTNESS_PASS_NUMERIC_HOLD",
+  "pr_qualified": false,
+  "archive": {
+    "path": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-06",
+    "tar_sha256": "51b980a9490cabfee709ed06d982d154e3432ea2c82ac25808b82b6d09214c3f",
+    "manifest_sha256": "6479753e820fe5d2f018f1eff7e6314d61df6271d03ee3415251b7c9aff7bd99",
+    "payload_files": 1236,
+    "total_tar_members": 1237
+  },
+  "checks_passed": 2235,
+  "runtime_sources": {
+    "baseline": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+    "candidate": "c8f5f16aefe811540782b952481982179a1bfd6f"
+  },
+  "publication_source": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+  "actual_workload": "Original seqwrite has one 512MiB job; randwrite/randrw have four. Each uses 4MiB blocks, depth1, io_uring, time_based20s, same seed and direct matrix. Time-based completed bytes differ; ratios use actual logical bytes.",
+  "correctness": "All 12 actual cells pass fio, strict drain, same-binary empty-cache normal-remount full SHA, client/service gates, and owned cleanup. No performance pass inferred.",
+  "resources": {
+    "baseline": {
+      "perf": {
+        "cpus": 3,
+        "mem_limit": "17179869184"
+      },
+      "redis": {
+        "cpus": 1,
+        "mem_limit": "2147483648"
+      },
+      "rustfs": {
+        "cpus": 2,
+        "mem_limit": "8589934592"
+      }
+    },
+    "candidate": {
+      "perf": {
+        "cpus": 3,
+        "mem_limit": "17179869184"
+      },
+      "redis": {
+        "cpus": 1,
+        "mem_limit": "2147483648"
+      },
+      "rustfs": {
+        "cpus": 2,
+        "mem_limit": "8589934592"
+      }
+    }
+  },
+  "cache_config_bytes": {
+    "read_memory_bytes": 4294967296,
+    "write_memory_bytes": 4294967296,
+    "read_ssd_bytes": 8589934592,
+    "write_ssd_bytes": 4294967296,
+    "memory_budget_bytes": 12884901888
+  },
+  "capacity": {
+    "baseline": {
+      "scene_samples": 12,
+      "host_samples": 269,
+      "min_sampled_available_bytes": 306096398336,
+      "total_bytes": 540729581568
+    },
+    "candidate": {
+      "scene_samples": 12,
+      "host_samples": 263,
+      "min_sampled_available_bytes": 309263568896,
+      "total_bytes": 540729581568
+    }
+  },
+  "pairs": [
+    {
+      "tool": "fio-seqwrite-direct0",
+      "baseline": {
+        "job_options": {
+          "name": "brewfs-seqwrite",
+          "directory": "/mnt/brewfs/.perf-fio-seqwrite-direct0",
+          "rw": "write",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "1",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "0",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 0,
+        "write_bytes": 4970250240,
+        "logical_bytes": 4970250240,
+        "active_s": 21.715043804,
+        "drained_s": 46.761549341,
+        "post_return_s": 25.046505537,
+        "active_cpu_s": 8.89,
+        "drain_cpu_s": 1.91,
+        "full_cpu_s": 10.8,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794524583739718859,
+            "pid": 52,
+            "starttime": 5084728,
+            "user": 1,
+            "system": 1
+          },
+          {
+            "observed_ns": 1794524605475912737,
+            "pid": 52,
+            "starttime": 5084728,
+            "user": 230,
+            "system": 661
+          },
+          {
+            "observed_ns": 1794524630506476276,
+            "pid": 52,
+            "starttime": 5084728,
+            "user": 316,
+            "system": 766
+          }
+        ],
+        "read_p99_ns": null,
+        "write_p99_ns": 38535168,
+        "write_clat_p99_ns": 38535168,
+        "full_cpu_s_per_GiB": 2.3331645569620254,
+        "drained_MiB_s": 101.36533256061345,
+        "active_MiB_s": 218.28185302241354,
+        "drain_cpu_share": 0.17685185185185184,
+        "cold_validation_s": 4.633037193,
+        "final_unique_file_bytes": 536870912,
+        "drain_sample_count": 13,
+        "drain_last_three_sha256": [
+          "36879038d523581ece22ee7c22f3d2c207bd944b43b3802c5d9bee276562d752",
+          "b69688c18d8fba74259c05490261533fa90396e538a86fe586315d63d25d249c",
+          "c5cebdd66b38819ce50edce68a8172f3590665fbfe12dd54d00034656db4b974"
+        ]
+      },
+      "candidate": {
+        "job_options": {
+          "name": "brewfs-seqwrite",
+          "directory": "/mnt/brewfs/.perf-fio-seqwrite-direct0",
+          "rw": "write",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "1",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "0",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 0,
+        "write_bytes": 4974444544,
+        "logical_bytes": 4974444544,
+        "active_s": 20.701074474,
+        "drained_s": 47.878864374,
+        "post_return_s": 27.1777899,
+        "active_cpu_s": 8.94,
+        "drain_cpu_s": 1.94,
+        "full_cpu_s": 10.88,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794525122155506003,
+            "pid": 52,
+            "starttime": 5138569,
+            "user": 0,
+            "system": 2
+          },
+          {
+            "observed_ns": 1794525142869140097,
+            "pid": 52,
+            "starttime": 5138569,
+            "user": 236,
+            "system": 660
+          },
+          {
+            "observed_ns": 1794525170039666923,
+            "pid": 52,
+            "starttime": 5138569,
+            "user": 322,
+            "system": 768
+          }
+        ],
+        "read_p99_ns": null,
+        "write_p99_ns": 37486592,
+        "write_clat_p99_ns": 37486592,
+        "full_cpu_s_per_GiB": 2.3484654300168635,
+        "drained_MiB_s": 99.08338599977671,
+        "active_MiB_s": 229.16684860770576,
+        "drain_cpu_share": 0.17830882352941174,
+        "cold_validation_s": 4.615640796,
+        "final_unique_file_bytes": 536870912,
+        "drain_sample_count": 14,
+        "drain_last_three_sha256": [
+          "bb919fa06ba92492a5d649be530043a9e6266ed07001f08c7de8b876a839ae42",
+          "0d6042c65a3422c154c42a87249c8ec5b21622613e9db9c45356243e44ba849b",
+          "738c36a5db541715835f3e1292e164a40ebea5240ebd96253bf943ba6a5c157e"
+        ]
+      },
+      "candidate_over_baseline": {
+        "read_bytes": null,
+        "write_bytes": 1.0008438818565402,
+        "logical_bytes": 1.0008438818565402,
+        "active_s": 0.9533056742066887,
+        "drained_s": 1.0238938839440967,
+        "post_return_s": 1.0850930825400595,
+        "active_cpu_s": 1.0056242969628795,
+        "drain_cpu_s": 1.0157068062827226,
+        "full_cpu_s": 1.0074074074074073,
+        "full_cpu_s_per_GiB": 1.0065579913809255,
+        "drained_MiB_s": 0.9774878994307822,
+        "active_MiB_s": 1.049866699565605,
+        "read_p99_ns": null,
+        "write_p99_ns": 0.9727891156462585
+      }
+    },
+    {
+      "tool": "fio-seqwrite-direct1",
+      "baseline": {
+        "job_options": {
+          "name": "brewfs-seqwrite",
+          "directory": "/mnt/brewfs/.perf-fio-seqwrite-direct1",
+          "rw": "write",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "1",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "1",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 0,
+        "write_bytes": 4915724288,
+        "logical_bytes": 4915724288,
+        "active_s": 21.823460844,
+        "drained_s": 49.095406578,
+        "post_return_s": 27.271945734,
+        "active_cpu_s": 8.61,
+        "drain_cpu_s": 1.95,
+        "full_cpu_s": 10.56,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794524635252697770,
+            "pid": 3102,
+            "starttime": 5089705,
+            "user": 104,
+            "system": 92
+          },
+          {
+            "observed_ns": 1794524657093863817,
+            "pid": 3102,
+            "starttime": 5089705,
+            "user": 339,
+            "system": 718
+          },
+          {
+            "observed_ns": 1794524684353405258,
+            "pid": 3102,
+            "starttime": 5089705,
+            "user": 425,
+            "system": 827
+          }
+        ],
+        "read_p99_ns": null,
+        "write_p99_ns": 34865152,
+        "write_clat_p99_ns": 10560,
+        "full_cpu_s_per_GiB": 2.3066211604095566,
+        "drained_MiB_s": 95.48754815894988,
+        "active_MiB_s": 214.81469110289572,
+        "drain_cpu_share": 0.18465909090909088,
+        "cold_validation_s": 4.508781393,
+        "final_unique_file_bytes": 536870912,
+        "drain_sample_count": 14,
+        "drain_last_three_sha256": [
+          "49884c0c776f389fe4695a3e87954d9487827015c2552df924feb3629aa33c66",
+          "1bdfead3d41c77d55da9af4ffbf9433ecf37015f74a0a06d3b596efe66c5ccf7",
+          "a0797ef6bbd56fa69db61fee0c77f8f4e4405c3cdf839f9cf24620e6b4cf8546"
+        ]
+      },
+      "candidate": {
+        "job_options": {
+          "name": "brewfs-seqwrite",
+          "directory": "/mnt/brewfs/.perf-fio-seqwrite-direct1",
+          "rw": "write",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "1",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "1",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 0,
+        "write_bytes": 4873781248,
+        "logical_bytes": 4873781248,
+        "active_s": 20.706501738,
+        "drained_s": 47.917623039,
+        "post_return_s": 27.211121301,
+        "active_cpu_s": 8.56,
+        "drain_cpu_s": 1.95,
+        "full_cpu_s": 10.51,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794525174769697374,
+            "pid": 3043,
+            "starttime": 5143665,
+            "user": 105,
+            "system": 91
+          },
+          {
+            "observed_ns": 1794525195528086918,
+            "pid": 3043,
+            "starttime": 5143665,
+            "user": 327,
+            "system": 725
+          },
+          {
+            "observed_ns": 1794525222692709444,
+            "pid": 3043,
+            "starttime": 5143665,
+            "user": 411,
+            "system": 836
+          }
+        ],
+        "read_p99_ns": null,
+        "write_p99_ns": 39059456,
+        "write_clat_p99_ns": 5792,
+        "full_cpu_s_per_GiB": 2.3154561101549054,
+        "drained_MiB_s": 96.99980310411073,
+        "active_MiB_s": 224.47055803106127,
+        "drain_cpu_share": 0.18553758325404376,
+        "cold_validation_s": 4.489132894,
+        "final_unique_file_bytes": 536870912,
+        "drain_sample_count": 14,
+        "drain_last_three_sha256": [
+          "eed25a33aa97d45d45bc07f8fa6830a055d4aaf82f17c4ddcce140c86b04e2a6",
+          "fd129c27363e21af71564281580797a0b06cad7faab2ef992c8674db40c3c784",
+          "e378e5b4d9bcd2106bfd9b1468f4122bb97618312445a3c5cc6115f778445604"
+        ]
+      },
+      "candidate_over_baseline": {
+        "read_bytes": null,
+        "write_bytes": 0.9914675767918089,
+        "logical_bytes": 0.9914675767918089,
+        "active_s": 0.948818424630982,
+        "drained_s": 0.9760103109212711,
+        "post_return_s": 0.9977697068777835,
+        "active_cpu_s": 0.994192799070848,
+        "drain_cpu_s": 1.0,
+        "full_cpu_s": 0.9952651515151515,
+        "full_cpu_s_per_GiB": 1.0038302560892922,
+        "drained_MiB_s": 1.0158371952607217,
+        "active_MiB_s": 1.0449497512418293,
+        "read_p99_ns": null,
+        "write_p99_ns": 1.1203007518796992
+      }
+    },
+    {
+      "tool": "fio-randwrite-direct0",
+      "baseline": {
+        "job_options": {
+          "name": "brewfs-randwrite",
+          "directory": "/mnt/brewfs/.perf-fio-randwrite-direct0",
+          "rw": "randwrite",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "4",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "0",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 0,
+        "write_bytes": 5133828096,
+        "logical_bytes": 5133828096,
+        "active_s": 24.454390743,
+        "drained_s": 49.532689591,
+        "post_return_s": 25.078298848,
+        "active_cpu_s": 11.69,
+        "drain_cpu_s": 2.66,
+        "full_cpu_s": 14.35,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794524688975752817,
+            "pid": 6194,
+            "starttime": 5095096,
+            "user": 100,
+            "system": 91
+          },
+          {
+            "observed_ns": 1794524713436855573,
+            "pid": 6194,
+            "starttime": 5095096,
+            "user": 364,
+            "system": 996
+          },
+          {
+            "observed_ns": 1794524738514025929,
+            "pid": 6194,
+            "starttime": 5095096,
+            "user": 476,
+            "system": 1150
+          }
+        ],
+        "read_p99_ns": null,
+        "write_p99_ns": 69730304,
+        "write_clat_p99_ns": 69730304,
+        "full_cpu_s_per_GiB": 3.0013071895424837,
+        "drained_MiB_s": 98.84381487109059,
+        "active_MiB_s": 200.20944506259949,
+        "drain_cpu_share": 0.1853658536585366,
+        "cold_validation_s": 13.72759343,
+        "final_unique_file_bytes": 2147483648,
+        "drain_sample_count": 13,
+        "drain_last_three_sha256": [
+          "14826f4d6a3a76f9dcae9ca4984f7e834f986097d8ffe178c59b857e47129d51",
+          "b3d12bf98d3172809a451c334fa1ac41041476c8a6634e2255f9ef771d2e0c1e",
+          "14e5de67ccdcda481625201de6f835b1a29cacbed17952cdaed259b066be5dc3"
+        ]
+      },
+      "candidate": {
+        "job_options": {
+          "name": "brewfs-randwrite",
+          "directory": "/mnt/brewfs/.perf-fio-randwrite-direct0",
+          "rw": "randwrite",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "4",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "0",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 0,
+        "write_bytes": 5226102784,
+        "logical_bytes": 5226102784,
+        "active_s": 24.952778304,
+        "drained_s": 50.061603663,
+        "post_return_s": 25.108825359,
+        "active_cpu_s": 12.14,
+        "drain_cpu_s": 2.72,
+        "full_cpu_s": 14.86,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794525227297726788,
+            "pid": 6024,
+            "starttime": 5148933,
+            "user": 99,
+            "system": 112
+          },
+          {
+            "observed_ns": 1794525252268591619,
+            "pid": 6024,
+            "starttime": 5148933,
+            "user": 373,
+            "system": 1052
+          },
+          {
+            "observed_ns": 1794525277364942886,
+            "pid": 6024,
+            "starttime": 5148933,
+            "user": 489,
+            "system": 1208
+          }
+        ],
+        "read_p99_ns": null,
+        "write_p99_ns": 66322432,
+        "write_clat_p99_ns": 66322432,
+        "full_cpu_s_per_GiB": 3.0530979133226324,
+        "drained_MiB_s": 99.55733806593219,
+        "active_MiB_s": 199.7372773195781,
+        "drain_cpu_share": 0.18304172274562586,
+        "cold_validation_s": 13.119068763,
+        "final_unique_file_bytes": 2147483648,
+        "drain_sample_count": 13,
+        "drain_last_three_sha256": [
+          "101cfde90562725f53f147a431009a3d6ec338a0bcd0ad722df685ddf9ad5a6f",
+          "c292714ec99cf46d76c6f9884fcdd7056b6908fef446daec5689e775c2522edc",
+          "98430f0efeee5c4b5d42ae7d949c52110cb60809fc8e11920f638d04f50456c1"
+        ]
+      },
+      "candidate_over_baseline": {
+        "read_bytes": null,
+        "write_bytes": 1.0179738562091503,
+        "logical_bytes": 1.0179738562091503,
+        "active_s": 1.020380289422776,
+        "drained_s": 1.0106780810080642,
+        "post_return_s": 1.0012172480751196,
+        "active_cpu_s": 1.0384944396920446,
+        "drain_cpu_s": 1.0225563909774436,
+        "full_cpu_s": 1.0355400696864112,
+        "full_cpu_s_per_GiB": 1.0172560556149015,
+        "drained_MiB_s": 1.007218693408102,
+        "active_MiB_s": 0.9976416310285774,
+        "read_p99_ns": null,
+        "write_p99_ns": 0.9511278195488722
+      }
+    },
+    {
+      "tool": "fio-randwrite-direct1",
+      "baseline": {
+        "job_options": {
+          "name": "brewfs-randwrite",
+          "directory": "/mnt/brewfs/.perf-fio-randwrite-direct1",
+          "rw": "randwrite",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "4",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "1",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 0,
+        "write_bytes": 4940890112,
+        "logical_bytes": 4940890112,
+        "active_s": 28.250456069,
+        "drained_s": 78.713435828,
+        "post_return_s": 50.462979759,
+        "active_cpu_s": 12.56,
+        "drain_cpu_s": 22.2,
+        "full_cpu_s": 34.76,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794524752386946753,
+            "pid": 9573,
+            "starttime": 5100678,
+            "user": 634,
+            "system": 420
+          },
+          {
+            "observed_ns": 1794524780650160802,
+            "pid": 9573,
+            "starttime": 5100678,
+            "user": 921,
+            "system": 1389
+          },
+          {
+            "observed_ns": 1794524831112539533,
+            "pid": 9573,
+            "starttime": 5100678,
+            "user": 2784,
+            "system": 1746
+          }
+        ],
+        "read_p99_ns": null,
+        "write_p99_ns": 69730304,
+        "write_clat_p99_ns": 12992,
+        "full_cpu_s_per_GiB": 7.553955857385398,
+        "drained_MiB_s": 59.86271530944713,
+        "active_MiB_s": 166.7937674525052,
+        "drain_cpu_share": 0.6386651323360184,
+        "cold_validation_s": 14.277037662,
+        "final_unique_file_bytes": 2147483648,
+        "drain_sample_count": 25,
+        "drain_last_three_sha256": [
+          "d86283511a276fe1e5d5691c905d15a63c883f3f95a6fbece84898ca8478e5ff",
+          "c6b13ab25dd0d8da5c360d246fe268e4206fad868e7722f3b833bf56d2aa32e6",
+          "accaff19416ebf2fde66b33429739f7c18bb2b5b0607654fb613d5d6e5d2afda"
+        ]
+      },
+      "candidate": {
+        "job_options": {
+          "name": "brewfs-randwrite",
+          "directory": "/mnt/brewfs/.perf-fio-randwrite-direct1",
+          "rw": "randwrite",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "4",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "1",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 0,
+        "write_bytes": 4269801472,
+        "logical_bytes": 4269801472,
+        "active_s": 21.728099531,
+        "drained_s": 76.967389239,
+        "post_return_s": 55.239289708,
+        "active_cpu_s": 10.2,
+        "drain_cpu_s": 28.43,
+        "full_cpu_s": 38.63,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794525290647491959,
+            "pid": 9522,
+            "starttime": 5154591,
+            "user": 552,
+            "system": 382
+          },
+          {
+            "observed_ns": 1794525312387037182,
+            "pid": 9522,
+            "starttime": 5154591,
+            "user": 774,
+            "system": 1180
+          },
+          {
+            "observed_ns": 1794525367621595216,
+            "pid": 9522,
+            "starttime": 5154591,
+            "user": 3216,
+            "system": 1581
+          }
+        ],
+        "read_p99_ns": null,
+        "write_p99_ns": 51642368,
+        "write_clat_p99_ns": 11584,
+        "full_cpu_s_per_GiB": 9.71442043222004,
+        "drained_MiB_s": 52.905523238622266,
+        "active_MiB_s": 187.40709440282063,
+        "drain_cpu_share": 0.7359565104840797,
+        "cold_validation_s": 13.689050592,
+        "final_unique_file_bytes": 2147483648,
+        "drain_sample_count": 27,
+        "drain_last_three_sha256": [
+          "afd7ad01a9a241dbf23e7fbf721be91014a88c48462ea31525b0fb047b51b164",
+          "fb1cfa24bb4eb88d790a0b0766cca7ff36b35680b75e12d9f25cfdfea0887de7",
+          "44559a4b83a5f43778c1785d89f559299a546c8936507111b820cba22551afd8"
+        ]
+      },
+      "candidate_over_baseline": {
+        "read_bytes": null,
+        "write_bytes": 0.8641765704584041,
+        "logical_bytes": 0.8641765704584041,
+        "active_s": 0.7691238498214138,
+        "drained_s": 0.9778176804171608,
+        "post_return_s": 1.094649780330266,
+        "active_cpu_s": 0.8121019108280254,
+        "drain_cpu_s": 1.2806306306306308,
+        "full_cpu_s": 1.1113348676639818,
+        "full_cpu_s_per_GiB": 1.2860043949982027,
+        "drained_MiB_s": 0.8837808803883821,
+        "active_MiB_s": 1.1235857146531876,
+        "read_p99_ns": null,
+        "write_p99_ns": 0.7406015037593985
+      }
+    },
+    {
+      "tool": "fio-randrw-direct0",
+      "baseline": {
+        "job_options": {
+          "name": "brewfs-randrw",
+          "directory": "/mnt/brewfs/.perf-fio-randrw-direct0",
+          "rw": "randrw",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "4",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "0",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "rwmixread": "70",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 11286872064,
+        "write_bytes": 4630511616,
+        "logical_bytes": 15917383680,
+        "active_s": 25.217899809,
+        "drained_s": 52.403387731,
+        "post_return_s": 27.185487922,
+        "active_cpu_s": 26.89,
+        "drain_cpu_s": 2.6,
+        "full_cpu_s": 29.49,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794524901948004209,
+            "pid": 16182,
+            "starttime": 5116554,
+            "user": 1,
+            "system": 1
+          },
+          {
+            "observed_ns": 1794524927188220674,
+            "pid": 16182,
+            "starttime": 5116554,
+            "user": 1227,
+            "system": 1464
+          },
+          {
+            "observed_ns": 1794524954357106732,
+            "pid": 16182,
+            "starttime": 5116554,
+            "user": 1352,
+            "system": 1599
+          }
+        ],
+        "read_p99_ns": 160432128,
+        "write_p99_ns": 104333312,
+        "write_clat_p99_ns": 104333312,
+        "full_cpu_s_per_GiB": 1.9893122529644267,
+        "drained_MiB_s": 289.6759285472692,
+        "active_MiB_s": 601.953378948013,
+        "drain_cpu_share": 0.08816547982366905,
+        "cold_validation_s": 15.283272082,
+        "final_unique_file_bytes": 2147483648,
+        "drain_sample_count": 14,
+        "drain_last_three_sha256": [
+          "96d9a6d7a1e6f4681f54ca3219cc5234c0c5a3c2e7ff76abd6c52f902a77d796",
+          "0ed293feb0c5f08a176cd4b86aa3072c79fc6bbb9dc0243372958d98b2317c0d",
+          "60b353eeb19dc9a4900df865131a6c40470ec52f0888151260417c13f4777b36"
+        ]
+      },
+      "candidate": {
+        "job_options": {
+          "name": "brewfs-randrw",
+          "directory": "/mnt/brewfs/.perf-fio-randrw-direct0",
+          "rw": "randrw",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "4",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "0",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "rwmixread": "70",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 11353980928,
+        "write_bytes": 4668260352,
+        "logical_bytes": 16022241280,
+        "active_s": 20.705007125,
+        "drained_s": 52.057725601,
+        "post_return_s": 31.352718476,
+        "active_cpu_s": 28.37,
+        "drain_cpu_s": 2.69,
+        "full_cpu_s": 31.06,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794525429656725283,
+            "pid": 15416,
+            "starttime": 5169324,
+            "user": 1,
+            "system": 2
+          },
+          {
+            "observed_ns": 1794525450372327804,
+            "pid": 15416,
+            "starttime": 5169324,
+            "user": 1333,
+            "system": 1507
+          },
+          {
+            "observed_ns": 1794525481720127341,
+            "pid": 15416,
+            "starttime": 5169324,
+            "user": 1462,
+            "system": 1647
+          }
+        ],
+        "read_p99_ns": 162529280,
+        "write_p99_ns": 79167488,
+        "write_clat_p99_ns": 79167488,
+        "full_cpu_s_per_GiB": 2.0815078534031413,
+        "drained_MiB_s": 293.5203146813329,
+        "active_MiB_s": 737.9857397658345,
+        "drain_cpu_share": 0.08660656793303284,
+        "cold_validation_s": 14.662990845,
+        "final_unique_file_bytes": 2147483648,
+        "drain_sample_count": 16,
+        "drain_last_three_sha256": [
+          "595391e265d8ef1429b28fb72de7a55336cbfc70d63d463b810a33808b44c94a",
+          "726382c9760af96a320df6418569e1f0701d0a07986de1afa9ad50020350a13c",
+          "4cc47652cd3e12d030b4434b6da3a6fb6290040bb1f5650ea3d863ceb17d1de1"
+        ]
+      },
+      "candidate_over_baseline": {
+        "read_bytes": 1.00594574507618,
+        "write_bytes": 1.0081521739130435,
+        "logical_bytes": 1.0065876152832676,
+        "active_s": 0.8210440711486452,
+        "drained_s": 0.9934038209175641,
+        "post_return_s": 1.1532887901793973,
+        "active_cpu_s": 1.0550390479732243,
+        "drain_cpu_s": 1.0346153846153845,
+        "full_cpu_s": 1.0532383858935233,
+        "full_cpu_s_per_GiB": 1.0463454645198746,
+        "drained_MiB_s": 1.013271334464494,
+        "active_MiB_s": 1.2259848778580738,
+        "read_p99_ns": 1.0130718954248366,
+        "write_p99_ns": 0.7587939698492462
+      }
+    },
+    {
+      "tool": "fio-randrw-direct1",
+      "baseline": {
+        "job_options": {
+          "name": "brewfs-randrw",
+          "directory": "/mnt/brewfs/.perf-fio-randrw-direct1",
+          "rw": "randrw",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "4",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "1",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "rwmixread": "70",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 11517558784,
+        "write_bytes": 4714397696,
+        "logical_bytes": 16231956480,
+        "active_s": 25.318158754,
+        "drained_s": 52.512974777,
+        "post_return_s": 27.194816023,
+        "active_cpu_s": 21.84,
+        "drain_cpu_s": 2.6,
+        "full_cpu_s": 24.44,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794525032998030739,
+            "pid": 21828,
+            "starttime": 5129658,
+            "user": 0,
+            "system": 2
+          },
+          {
+            "observed_ns": 1794525058330616614,
+            "pid": 21828,
+            "starttime": 5129658,
+            "user": 817,
+            "system": 1369
+          },
+          {
+            "observed_ns": 1794525085516660582,
+            "pid": 21828,
+            "starttime": 5129658,
+            "user": 942,
+            "system": 1504
+          }
+        ],
+        "read_p99_ns": 70778880,
+        "write_p99_ns": 69730304,
+        "write_clat_p99_ns": 9152,
+        "full_cpu_s_per_GiB": 1.6167028423772611,
+        "drained_MiB_s": 294.78429027753424,
+        "active_MiB_s": 611.4188693739163,
+        "drain_cpu_share": 0.10638297872340426,
+        "cold_validation_s": 15.143623953,
+        "final_unique_file_bytes": 2147483648,
+        "drain_sample_count": 14,
+        "drain_last_three_sha256": [
+          "d7cbc3fdea42c4b8aaf96adc8707ceff2d77ac51b2971d4fadb493d921604aec",
+          "feb0a084caf96c690acc7de710e4eab455283e2f96fbf733cde8ab3bf74ada9e",
+          "f922e58e781aab31761a6382bb4f8d14fbc98641375464aef7a4353c60f56aa6"
+        ]
+      },
+      "candidate": {
+        "job_options": {
+          "name": "brewfs-randrw",
+          "directory": "/mnt/brewfs/.perf-fio-randrw-direct1",
+          "rw": "randrw",
+          "bs": "4m",
+          "size": "512m",
+          "numjobs": "4",
+          "ioengine": "io_uring",
+          "iodepth": "1",
+          "direct": "1",
+          "runtime": "20",
+          "time_based": "",
+          "group_reporting": "",
+          "rwmixread": "70",
+          "lat_percentiles": "1",
+          "clat_percentiles": "1",
+          "slat_percentiles": "1",
+          "percentile_list": "50:95:99:99.9",
+          "randseed": "20261031",
+          "randrepeat": "1",
+          "log_avg_msec": "1000"
+        },
+        "read_bytes": 11458838528,
+        "write_bytes": 4680843264,
+        "logical_bytes": 16139681792,
+        "active_s": 26.204612293,
+        "drained_s": 51.275484565,
+        "post_return_s": 25.070872272,
+        "active_cpu_s": 21.81,
+        "drain_cpu_s": 2.55,
+        "full_cpu_s": 24.36,
+        "cpu_observations": [
+          {
+            "observed_ns": 1794525559278102349,
+            "pid": 20712,
+            "starttime": 5182287,
+            "user": 1,
+            "system": 2
+          },
+          {
+            "observed_ns": 1794525585492358483,
+            "pid": 20712,
+            "starttime": 5182287,
+            "user": 814,
+            "system": 1370
+          },
+          {
+            "observed_ns": 1794525610559112397,
+            "pid": 20712,
+            "starttime": 5182287,
+            "user": 933,
+            "system": 1506
+          }
+        ],
+        "read_p99_ns": 69730304,
+        "write_p99_ns": 89653248,
+        "write_clat_p99_ns": 10176,
+        "full_cpu_s_per_GiB": 1.6206237006237005,
+        "drained_MiB_s": 300.18243865619917,
+        "active_MiB_s": 587.3775130842765,
+        "drain_cpu_share": 0.10467980295566502,
+        "cold_validation_s": 14.237838086,
+        "final_unique_file_bytes": 2147483648,
+        "drain_sample_count": 13,
+        "drain_last_three_sha256": [
+          "e723a30543fc2c2756ccaf278b9bb5a2bdcff8a310e30e8a792a72bc95da5aaa",
+          "b4f5fa0446cc1c7acec61da8bce40e0bc1aa3616427a1089229cfeef3a1096c0",
+          "8034fac398b7a7b0d100b178c8c012336545639ea1f5b78fefdbbc6fa2df9e54"
+        ]
+      },
+      "candidate_over_baseline": {
+        "read_bytes": 0.9949016751638747,
+        "write_bytes": 0.9928825622775801,
+        "logical_bytes": 0.9943152454780362,
+        "active_s": 1.0350125594682098,
+        "drained_s": 0.9764345817913557,
+        "post_return_s": 0.9218989476081147,
+        "active_cpu_s": 0.9986263736263735,
+        "drain_cpu_s": 0.9807692307692306,
+        "full_cpu_s": 0.9967266775777414,
+        "full_cpu_s_per_GiB": 1.002425218873664,
+        "drained_MiB_s": 1.0183121982978898,
+        "active_MiB_s": 0.9606794008267069,
+        "read_p99_ns": 0.9851851851851852,
+        "write_p99_ns": 1.2857142857142858
+      }
+    }
+  ],
+  "interpretation": {
+    "randwrite_direct1": "Full CPU 34.76 to 38.63 seconds is +3.87 seconds, not a few 10ms ticks. Logical writes fall 13.58 percent; full CPU/GiB rises 28.60 percent and drained throughput falls 11.62 percent. Active CPU falls 12.56 to 10.20s while drain CPU rises 22.20 to 28.43s. Total wall alone hides this. No causal attribution established.",
+    "seqwrite_direct1": "Write total-latency p99 rises 34.865152 to 39.059456ms (+12.03 percent) despite nearly unchanged CPU/GiB and higher drained throughput. clat is separately retained and is not total latency.",
+    "randrw_direct1": "Write total-latency p99 rises 69.730304 to 89.653248ms (+28.57 percent); full CPU/GiB is +0.24 percent, drained throughput +1.83 percent. Keep each metric separately.",
+    "order_and_repeats": "One baseline-then-candidate pair per scene cannot establish stable nonregression. Preserve this pair and evaluate authorized reverse-order repeats without averaging away a regression.",
+    "denominators": "Logical FIO bytes include repeated overwrites and mixed read+write operations. Full CPU is BrewFS process CPU only, not system/server CPU. Cold verification is outside timed boundaries. p99 is the actual single reporting group, not pooled or averaged.",
+    "row_scope_future": "The legacy row cache enforces entry count, not the new byte env budget. Future row pressure evidence must say candidate retained-byte bound, not equal enforced byte caps or process RSS. Hot guards use identical resident working sets/data/TTL/operations and separately assess regressions."
+  },
+  "workspace_cleanup_delta": "Only top-level failure cleanup changes; all workload function ASTs unchanged. No workspace data has yet been qualified on this revision.",
+  "remaining": [
+    "Reverse-order review of the three direct1 concerns",
+    "New corrected cached target repeated gain",
+    "Corrected workspace actual-path and byte-bound checks",
+    "Corrected long-row hot guard"
+  ]
+}

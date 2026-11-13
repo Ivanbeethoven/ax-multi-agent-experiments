@@ -1,0 +1,196 @@
+{
+  "schema": "ax.next-source-review.v1",
+  "captured_at_utc": "2026-11-12T22:52:47.331892+00:00",
+  "method": "read-only source review; no new Rust build or runtime benchmark",
+  "new_confirmed_findings": [],
+  "targets": {
+    "issues": {
+      "path": "/home/dev/ax-issue447-corrected-candidate",
+      "head": "c8f5f16aefe811540782b952481982179a1bfd6f",
+      "tree": "142c8d384fbb2939f2cde4e3e7497b122b2c0f53",
+      "clean": true,
+      "files": {
+        "src/workspace_overlay/packed_v3/wire005/read_cache.rs": {
+          "sha256": "9ea8037fd55ef47b2276a12ddc49a27da8f47b149bae61ff1965584eda09fe4a",
+          "bytes": 24458,
+          "excerpts": [
+            [
+              1,
+              266
+            ],
+            [
+              274,
+              440
+            ]
+          ]
+        },
+        "src/workspace_overlay/packed_v3/wire005/budget.rs": {
+          "sha256": "fc82d9b78bd110ba7735ad00f47bfdfe624273465f73d1e6beb3febf9eafebc5",
+          "bytes": 34754,
+          "excerpts": [
+            [
+              202,
+              244
+            ],
+            [
+              304,
+              355
+            ]
+          ]
+        },
+        "src/workspace_overlay/packed_v3/wire005/index.rs": {
+          "sha256": "758dd9ca080c959d35ee5bd2615ff0cd944d6dc2bedaef54279b2d643ad957e7",
+          "bytes": 71463,
+          "excerpts": [
+            [
+              1455,
+              1495
+            ]
+          ]
+        },
+        "src/workspace_overlay/meta_layer/row_cache.rs": {
+          "sha256": "0b58cd976b1f9484efea5a64a01acda066e9d42d9fb8d957f90127450d7cfdc9",
+          "bytes": 39765,
+          "excerpts": [
+            [
+              1,
+              690
+            ]
+          ]
+        },
+        "src/workspace_overlay/meta_layer/row_cache_cancellation_tests.rs": {
+          "sha256": "80e7927382f2e80bebb5cd991b316c6753c2effd630bf4d7f11cc93af455b237",
+          "bytes": 2785,
+          "excerpts": [
+            [
+              1,
+              100
+            ]
+          ]
+        },
+        "src/workspace_overlay/model.rs": {
+          "sha256": "4f0c5e975fd1b1442a10ad42ba3c4ae731f396229a3ee1fe476a22809f219c02",
+          "bytes": 12927,
+          "excerpts": [
+            [
+              252,
+              278
+            ],
+            [
+              329,
+              357
+            ]
+          ]
+        },
+        "src/workspace_overlay/catalog.rs": {
+          "sha256": "97cbce7d9d547b60ab65c2693ab384cb9272e7a475df852001ba283dbd8e0a13",
+          "bytes": 33999,
+          "excerpts": [
+            [
+              245,
+              260
+            ]
+          ]
+        },
+        "src/vfs/io/writer.rs": {
+          "sha256": "a18a7ebc352008ca04aace44f68bf0b340bba83a6927cfd0b510b69c239059c0",
+          "bytes": 418637,
+          "excerpts": [
+            [
+              4592,
+              4601
+            ],
+            [
+              4677,
+              4718
+            ],
+            [
+              4926,
+              4973
+            ],
+            [
+              5012,
+              5069
+            ]
+          ]
+        },
+        "src/vfs/io/writer/commit_cleanup_tests.rs": {
+          "sha256": "bc8eef0aeb13e064909b2d291417378b9ab6a717d1a5a44e44bbaba51c26e21f",
+          "bytes": 22676,
+          "excerpts": [
+            [
+              327,
+              557
+            ]
+          ]
+        }
+      }
+    },
+    "packed": {
+      "path": "/home/dev/ax-packed-prefetch-test-drain",
+      "head": "53c725f36db5bcd060ec2483a0abecb943bed4ea",
+      "tree": "57b1e56db3918e5e2082a17f7f0f72d1aedada2d",
+      "clean": true,
+      "files": {
+        "src/cli.rs": {
+          "sha256": "fe59da276cda6837a24dea9f33ff383d87052cba97bde67236af016329268341",
+          "bytes": 125675,
+          "excerpts": [
+            [
+              2296,
+              2341
+            ]
+          ]
+        },
+        "src/workspace/packed/readonly/pack_cache.rs": {
+          "sha256": "7c6d23a8a500035c3ce97a84e1edfe580e67fa23b338a4cd5a339a37dd7abb70",
+          "bytes": 31739,
+          "excerpts": [
+            [
+              1,
+              496
+            ]
+          ]
+        },
+        "src/workspace/packed/readonly/transport.rs": {
+          "sha256": "2af023318caad2a41a791daf59485fc87ca5bd96978d6b66871f706c55bd27b8",
+          "bytes": 8192,
+          "excerpts": [
+            [
+              1,
+              255
+            ]
+          ]
+        },
+        "src/workspace/packed/readonly.rs": {
+          "sha256": "6c73d0c91e30735aa4d70a9f0c993c2dbcb2f61d1a6f59d7a983c3e5eb0f057f",
+          "bytes": 70655,
+          "excerpts": [
+            [
+              896,
+              930
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "prior_behavioral_evidence": [
+    {
+      "path": "/home/dev/ax-writeback-commit-cleanup-validation/ci-final.json",
+      "sha256": "2102568589d8a2608648c6342fb40f936f286e5c1eb5a78aa8a384ddc169755a",
+      "rerun_in_this_review": false
+    },
+    {
+      "path": "/home/dev/ax-known-tail-trace-01/receipt.json",
+      "sha256": "8d0be53e535dedbe6802a869f33768df2f09db70d541dfbb6c7fa9cfa5435cb0",
+      "rerun_in_this_review": false
+    }
+  ],
+  "packed_vs_measured_changed_paths": [
+    "src/chunk/store/read_amplification_tests.rs"
+  ],
+  "publication_vs_runtime_changed_paths": [
+    "src/vfs/io/writer/cached_write_watermarks_bench.rs"
+  ]
+}

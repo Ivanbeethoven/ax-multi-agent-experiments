@@ -1,0 +1,268 @@
+{
+  "schema": "independent-corrected-cached-review-v1",
+  "decision": "CPU_REDUCTION_RECOMPUTED_FIO_SHORT_IOS_INTERPRETATION_PENDING",
+  "integrated_pr_qualified": false,
+  "evidence": {
+    "directory": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-07",
+    "tar_sha256": "6149cfea62a2cf4851c14997ba3445ef0a76990d7059cf8559b417fafc2f37f7",
+    "manifest_sha256": "f1bfb39ca7d32f12715939918b237829fbe73073fe22065c9957a5a20c472e29",
+    "payload_files": 484,
+    "total_tar_members": 485
+  },
+  "checks_passed": 698,
+  "runtime_source": {
+    "baseline": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+    "candidate": "c8f5f16aefe811540782b952481982179a1bfd6f"
+  },
+  "publication_source": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+  "known16MiB_5a_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+  "pairs": [
+    {
+      "trial": 600,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "source": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+        "binary_sha256": "0b0a2743aa968f497782d823cb068cd421eb840f82d5739a363d3bc3623c8679",
+        "receipt_sha256": "96567d3090190d80abbfc407b650157bd01af12a65467f5c16596ff8c5a5f023",
+        "started_at": "2026-11-12T23:25:12.913469+00:00",
+        "finished_at": "2026-11-12T23:25:31.304530+00:00",
+        "cpu_s": 0.53,
+        "active_cpu_s": 0.52,
+        "wall_ns": 5261750524,
+        "active_wall_ns": 952047207,
+        "cpu_observations": {
+          "tool_start": {
+            "ns": 1794525923380474770,
+            "pid": 52,
+            "start": 5218692,
+            "ticks": 3
+          },
+          "tool_return": {
+            "ns": 1794525924338287832,
+            "pid": 52,
+            "start": 5218692,
+            "ticks": 55
+          },
+          "post-write_extended_drained": {
+            "ns": 1794525928647338719,
+            "pid": 52,
+            "start": 5218692,
+            "ticks": 56
+          }
+        },
+        "cold_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+        "final_put_bytes": 16777264,
+        "fio_write_short_ios": 4095,
+        "fio_read_short_ios": 0
+      },
+      "candidate": {
+        "source": "c8f5f16aefe811540782b952481982179a1bfd6f",
+        "binary_sha256": "905c4e4ca35162ae6a1ab2de03f4fa18194ef64d9afcbe20cff9bbefd570ce90",
+        "receipt_sha256": "c2ede0260a2a65a76f6a3484cf287c29825a8472fd4a39209a8972647a5c04b2",
+        "started_at": "2026-11-12T23:25:32.117896+00:00",
+        "finished_at": "2026-11-12T23:25:50.399671+00:00",
+        "cpu_s": 0.45,
+        "active_cpu_s": 0.43,
+        "wall_ns": 5121834849,
+        "active_wall_ns": 808400720,
+        "cpu_observations": {
+          "tool_start": {
+            "ns": 1794525942621147569,
+            "pid": 52,
+            "start": 5220617,
+            "ticks": 2
+          },
+          "tool_return": {
+            "ns": 1794525943435189882,
+            "pid": 52,
+            "start": 5220617,
+            "ticks": 45
+          },
+          "post-write_extended_drained": {
+            "ns": 1794525947748343187,
+            "pid": 52,
+            "start": 5220617,
+            "ticks": 47
+          }
+        },
+        "cold_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+        "final_put_bytes": 16777264,
+        "fio_write_short_ios": 4095,
+        "fio_read_short_ios": 0
+      },
+      "cpu_reduction_percent": 15.094339622641506,
+      "cpu_difference_ticks": 8,
+      "wall_change_percent": -2.659108871882354
+    },
+    {
+      "trial": 601,
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "baseline": {
+        "source": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+        "binary_sha256": "0b0a2743aa968f497782d823cb068cd421eb840f82d5739a363d3bc3623c8679",
+        "receipt_sha256": "b6b53ea86ef245ef2d77b6df251e724dd7dd1e02d000f122ced3e86a4b60f7c0",
+        "started_at": "2026-11-12T23:26:10.463146+00:00",
+        "finished_at": "2026-11-12T23:26:28.885687+00:00",
+        "cpu_s": 0.54,
+        "active_cpu_s": 0.52,
+        "wall_ns": 5261312928,
+        "active_wall_ns": 950818915,
+        "cpu_observations": {
+          "tool_start": {
+            "ns": 1794525980987374783,
+            "pid": 52,
+            "start": 5224453,
+            "ticks": 2
+          },
+          "tool_return": {
+            "ns": 1794525981944303941,
+            "pid": 52,
+            "start": 5224453,
+            "ticks": 54
+          },
+          "post-write_extended_drained": {
+            "ns": 1794525986253944561,
+            "pid": 52,
+            "start": 5224453,
+            "ticks": 56
+          }
+        },
+        "cold_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+        "final_put_bytes": 16777264,
+        "fio_write_short_ios": 4095,
+        "fio_read_short_ios": 0
+      },
+      "candidate": {
+        "source": "c8f5f16aefe811540782b952481982179a1bfd6f",
+        "binary_sha256": "905c4e4ca35162ae6a1ab2de03f4fa18194ef64d9afcbe20cff9bbefd570ce90",
+        "receipt_sha256": "d3910e73a85610223739e773ca49681e43f56d719a6b7ab498738611134f655a",
+        "started_at": "2026-11-12T23:25:51.224327+00:00",
+        "finished_at": "2026-11-12T23:26:09.648882+00:00",
+        "cpu_s": 0.41,
+        "active_cpu_s": 0.4,
+        "wall_ns": 5256908801,
+        "active_wall_ns": 950727497,
+        "cpu_observations": {
+          "tool_start": {
+            "ns": 1794525961733161850,
+            "pid": 52,
+            "start": 5222528,
+            "ticks": 2
+          },
+          "tool_return": {
+            "ns": 1794525962689099157,
+            "pid": 52,
+            "start": 5222528,
+            "ticks": 42
+          },
+          "post-write_extended_drained": {
+            "ns": 1794525966995254169,
+            "pid": 52,
+            "start": 5222528,
+            "ticks": 43
+          }
+        },
+        "cold_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+        "final_put_bytes": 16777264,
+        "fio_write_short_ios": 4095,
+        "fio_read_short_ios": 0
+      },
+      "cpu_reduction_percent": 24.07407407407408,
+      "cpu_difference_ticks": 13,
+      "wall_change_percent": -0.08370775622491555
+    },
+    {
+      "trial": 602,
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline": {
+        "source": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+        "binary_sha256": "0b0a2743aa968f497782d823cb068cd421eb840f82d5739a363d3bc3623c8679",
+        "receipt_sha256": "44d54adeda82d5286223e7d088eeb933be18bc158df5c7f1455ce5e3755d88fa",
+        "started_at": "2026-11-12T23:26:29.698226+00:00",
+        "finished_at": "2026-11-12T23:26:48.129796+00:00",
+        "cpu_s": 0.53,
+        "active_cpu_s": 0.52,
+        "wall_ns": 5262035907,
+        "active_wall_ns": 951028975,
+        "cpu_observations": {
+          "tool_start": {
+            "ns": 1794526000194941495,
+            "pid": 52,
+            "start": 5226373,
+            "ticks": 2
+          },
+          "tool_return": {
+            "ns": 1794526001151526538,
+            "pid": 52,
+            "start": 5226373,
+            "ticks": 54
+          },
+          "post-write_extended_drained": {
+            "ns": 1794526005462260075,
+            "pid": 52,
+            "start": 5226373,
+            "ticks": 55
+          }
+        },
+        "cold_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+        "final_put_bytes": 16777264,
+        "fio_write_short_ios": 4095,
+        "fio_read_short_ios": 0
+      },
+      "candidate": {
+        "source": "c8f5f16aefe811540782b952481982179a1bfd6f",
+        "binary_sha256": "905c4e4ca35162ae6a1ab2de03f4fa18194ef64d9afcbe20cff9bbefd570ce90",
+        "receipt_sha256": "60f8dbf9cf7fc762fcb7e87483dc7b6b4f8a811af8385ed4e419f1b0f06591ca",
+        "started_at": "2026-11-12T23:26:48.937147+00:00",
+        "finished_at": "2026-11-12T23:27:07.298688+00:00",
+        "cpu_s": 0.43,
+        "active_cpu_s": 0.42,
+        "wall_ns": 5255239235,
+        "active_wall_ns": 949164754,
+        "cpu_observations": {
+          "tool_start": {
+            "ns": 1794526019392901628,
+            "pid": 52,
+            "start": 5228293,
+            "ticks": 2
+          },
+          "tool_return": {
+            "ns": 1794526020347441816,
+            "pid": 52,
+            "start": 5228293,
+            "ticks": 44
+          },
+          "post-write_extended_drained": {
+            "ns": 1794526024653260286,
+            "pid": 52,
+            "start": 5228293,
+            "ticks": 45
+          }
+        },
+        "cold_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+        "final_put_bytes": 16777264,
+        "fio_write_short_ios": 4095,
+        "fio_read_short_ios": 0
+      },
+      "cpu_reduction_percent": 18.867924528301895,
+      "cpu_difference_ticks": 10,
+      "wall_change_percent": -0.12916430294515058
+    }
+  ],
+  "median_cpu_reduction_percent": 18.867924528301895,
+  "measurement_scope": "4096 sequential cached 4KiB writes with sync_file_range and final fsync/pattern verification, 16MiB known 0x5a, same binary per arm and same explicit configuration on expanded512GiB host. Smoke operation logging is excluded from timing; timed arms disable it.",
+  "benefit": "All three AB/BA/AB pairs use fewer BrewFS process CPU ticks through strict drain: reductions 8,13,10 ticks at100HZ, or15.09,24.07,18.87 percent. This is repeated measured client CPU benefit for this workload, not a universal guarantee or statistical confidence interval.",
+  "wall_boundary": "No wall-throughput improvement claim. Full walls include about4.3 seconds of fixed quiet-observation overhead; two pairs are nearly equal and one shorter. CPU excludes FIO and RustFS. Cold verification is outside timed boundaries.",
+  "correctness": "All eight smoke/timed arms have known-content full cold SHA after normal old-process exit and empty-cache remount, three zero-debt stable PUT samples, no server/client failure and matching resource/cache identities.",
+  "raw_short_io_boundary": "All eight arms report write.short_ios=4095, read.short_ios=0. Preserve this raw field. Full known content and exact logged cached requests pass, but precise fio3.39 psync/sync_file_range accounting interpretation is pending independent source review; do not call it zero or infer data loss without that evidence.",
+  "pending": "Integrated PR remains HOLD for short_ios interpretation, standard direct1 nonregression resolution and corrected workspace/long-row gates; do not use this target gain to cancel another path regression."
+}

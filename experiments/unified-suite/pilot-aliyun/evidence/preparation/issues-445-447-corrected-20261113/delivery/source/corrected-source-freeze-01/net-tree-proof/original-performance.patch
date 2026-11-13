@@ -1,0 +1,2557 @@
+diff --git a/src/cli.rs b/src/cli.rs
+index 98a4845..60f86af 100644
+--- a/src/cli.rs
++++ b/src/cli.rs
+@@ -27,6 +27,8 @@ mod workspace_bucket;
+ #[cfg(feature = "workspace-overlay")]
+ use crate::workspace_overlay;
+ 
++#[cfg(feature = "workspace-overlay")]
++use anyhow::Context as _;
+ use bytes::Bytes;
+ use clap::Parser;
+ #[cfg(not(feature = "profiling"))]
+@@ -2055,7 +2057,11 @@ where
+             .expect("mount session acquired")
+             .lease_validity();
+         meta_layer = meta_layer
+-            .with_upper_row_cache(row_cache_ttl)
++            .with_upper_row_cache_bytes(row_cache_ttl, match std::env::var("BREWFS_WORKSPACE_ROW_CACHE_BYTES") {
++                Ok(value) => value.parse::<u64>().context("BREWFS_WORKSPACE_ROW_CACHE_BYTES must be an unsigned byte count")?,
++                Err(std::env::VarError::NotPresent) => 64 << 20,
++                Err(error) => return Err(error.into()),
++            })
+             .with_lease_bound_row_cache(lease_validity);
+         let meta_layer = Arc::new(meta_layer);
+         let packed = meta_layer.packed_reader_session().is_some();
+diff --git a/src/vfs/io/writer.rs b/src/vfs/io/writer.rs
+index 78f777e..1956aa7 100644
+--- a/src/vfs/io/writer.rs
++++ b/src/vfs/io/writer.rs
+@@ -9,7 +9,11 @@
+ // - FileWriter::flush() freezes all slices and waits until commit threads drain the chunks.
+ //   While flushing, new writes are blocked via flush_waiting/write_waiting gates.
+ 
++mod cached_write_watermarks;
++#[cfg(all(test, target_os = "linux"))]
++mod cached_write_watermarks_bench;
+ mod packed_publication_drain;
++use cached_write_watermarks::CachedWriteWatermarks;
+ use packed_publication_drain::{PackedWriterTasks, spawn_writer_owned};
+ 
+ use super::reader::DataReader;
+@@ -2276,6 +2280,8 @@ where
+                 write_waiting: 0,
+                 chunks: BTreeMap::default(),
+                 cached_write_watermarks: BTreeMap::default(),
++                #[cfg(all(test, target_os = "linux"))]
++                legacy_cached_write_watermarks: None,
+                 sparse_fallocate_ranges: BTreeMap::default(),
+             }),
+             write_notify: Notify::new(),
+@@ -2343,7 +2349,10 @@ struct Inner {
+     flush_waiting: u16,
+     write_waiting: u16,
+     chunks: BTreeMap<u64, ChunkState>,
+-    cached_write_watermarks: BTreeMap<u64, Vec<CachedWriteRange>>,
++    cached_write_watermarks: BTreeMap<u64, CachedWriteWatermarks>,
++    #[cfg(all(test, target_os = "linux"))]
++    legacy_cached_write_watermarks:
++        Option<BTreeMap<u64, Vec<cached_write_watermarks_bench::LegacyRange>>>,
+     sparse_fallocate_ranges: BTreeMap<u64, Vec<(u64, u64)>>,
+ }
+ 
+@@ -2445,21 +2454,22 @@ impl Inner {
+         }
+ 
+         let end = offset + len as u64;
+-        let ranges = self.cached_write_watermarks.entry(chunk_id).or_default();
+-        let mut allowed = crate::utils::Intervals::new(offset, end);
+-        for range in ranges.iter() {
+-            if range.max_unique > creation_unique {
+-                allowed.cut(range.start.max(offset), range.end.min(end));
+-            }
++        #[cfg(all(test, target_os = "linux"))]
++        if let Some(legacy) = &mut self.legacy_cached_write_watermarks {
++            return cached_write_watermarks_bench::legacy_allow_and_record(
++                legacy.entry(chunk_id).or_default(),
++                offset,
++                end,
++                creation_unique,
++            );
+         }
+-        let allowed = allowed
+-            .collect()
++        self.cached_write_watermarks
++            .entry(chunk_id)
++            .or_default()
++            .record_and_allow(offset, end, creation_unique)
+             .into_iter()
+             .map(|(start, end)| (start, (end - start).as_usize()))
+-            .collect();
+-
+-        record_cached_write_watermark(ranges, offset, end, creation_unique);
+-        allowed
++            .collect()
+     }
+ 
+     fn record_sparse_fallocate_range(&mut self, chunk_id: u64, start: u64, end: u64) {
+@@ -2512,13 +2522,6 @@ impl Inner {
+     }
+ }
+ 
+-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+-struct CachedWriteRange {
+-    start: u64,
+-    end: u64,
+-    max_unique: u64,
+-}
+-
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+ struct CachedWriteSegment {
+     file_offset: u64,
+@@ -2582,86 +2585,6 @@ fn push_sparse_cached_segment_if_materialized(
+     }
+ }
+ 
+-fn record_cached_write_watermark(
+-    ranges: &mut Vec<CachedWriteRange>,
+-    start: u64,
+-    end: u64,
+-    unique: u64,
+-) {
+-    if unique == 0 || start >= end {
+-        return;
+-    }
+-
+-    let mut boundaries = vec![start, end];
+-    for range in ranges.iter() {
+-        if range.end <= start || range.start >= end {
+-            continue;
+-        }
+-        boundaries.push(range.start.max(start));
+-        boundaries.push(range.end.min(end));
+-    }
+-    boundaries.sort_unstable();
+-    boundaries.dedup();
+-
+-    let mut next = Vec::with_capacity(ranges.len() + boundaries.len());
+-    for range in ranges.iter().copied() {
+-        if range.end <= start || range.start >= end {
+-            next.push(range);
+-            continue;
+-        }
+-        if range.start < start {
+-            next.push(CachedWriteRange {
+-                start: range.start,
+-                end: start,
+-                max_unique: range.max_unique,
+-            });
+-        }
+-        if range.end > end {
+-            next.push(CachedWriteRange {
+-                start: end,
+-                end: range.end,
+-                max_unique: range.max_unique,
+-            });
+-        }
+-    }
+-
+-    for window in boundaries.windows(2) {
+-        let seg_start = window[0];
+-        let seg_end = window[1];
+-        if seg_start >= seg_end {
+-            continue;
+-        }
+-        let mut max_unique = unique;
+-        for range in ranges.iter() {
+-            if range.start < seg_end && seg_start < range.end {
+-                max_unique = max_unique.max(range.max_unique);
+-            }
+-        }
+-        next.push(CachedWriteRange {
+-            start: seg_start,
+-            end: seg_end,
+-            max_unique,
+-        });
+-    }
+-
+-    next.sort_by_key(|range| (range.start, range.end));
+-    let mut merged: Vec<CachedWriteRange> = Vec::with_capacity(next.len());
+-    for range in next {
+-        if range.start >= range.end {
+-            continue;
+-        }
+-        if let Some(last) = merged.last_mut()
+-            && last.end == range.start
+-            && last.max_unique == range.max_unique
+-        {
+-            last.end = range.end;
+-            continue;
+-        }
+-        merged.push(range);
+-    }
+-    *ranges = merged;
+-}
+-
+ pub(crate) struct FileWriter<B, M> {
+     shared: Arc<Shared<B, M>>,
+ }
+@@ -4229,6 +4152,10 @@ where
+         let mut guard = self.shared.inner.lock().await;
+         guard.chunks.clear();
+         guard.cached_write_watermarks.clear();
++        #[cfg(all(test, target_os = "linux"))]
++        if let Some(legacy) = &mut guard.legacy_cached_write_watermarks {
++            legacy.clear();
++        }
+         guard.sparse_fallocate_ranges.clear();
+ 
+         if guard.flush_waiting > 0 {
+@@ -9545,6 +9472,64 @@ mod tests {
+         assert_eq!(out, newer);
+     }
+ 
++    #[tokio::test]
++    async fn test_cached_watermark_append_work_stays_local_across_flush() {
++        let layout = ChunkLayout {
++            chunk_size: 16 * 1024,
++            block_size: 4 * 1024,
++        };
++        let store = Arc::new(InMemoryBlockStore::new());
++        let meta_handle = create_meta_store_from_url("sqlite::memory:").await.unwrap();
++        let meta = meta_handle.layer();
++        let backend = Arc::new(Backend::new(store, meta.clone()));
++        let ino = meta
++            .create_file(1, "cached_watermark_growth".into())
++            .await
++            .unwrap();
++        let inode = Inode::new(ino, 0);
++        let reader = Arc::new(DataReader::new(
++            Arc::new(ReadConfig::new(layout)),
++            backend.clone(),
++        ));
++        let writer = DataWriter::new(
++            test_config_without_auto_flush(layout),
++            backend,
++            reader.clone(),
++            None,
++        );
++        let file = writer.ensure_file(inode.clone());
++        inode.set_size(8192);
++        let mut expected = Vec::new();
++        let mut previous_visits = 0;
++        for batch in 0..2u64 {
++            for i in batch * 64..(batch + 1) * 64 {
++                let bytes = [i as u8; 64];
++                file.write_at_cached(i * 64, &bytes, i + 1).await.unwrap();
++                expected.extend_from_slice(&bytes);
++            }
++            file.flush().await.unwrap();
++            let inner = file.shared.inner.lock().await;
++            let visits: usize = inner
++                .cached_write_watermarks
++                .values()
++                .map(CachedWriteWatermarks::examined_ranges)
++                .sum();
++            assert!(visits - previous_visits <= 3 * 64);
++            previous_visits = visits;
++        }
++        // Flush must retain the ordering history protecting the committed page.
++        file.write_at_cached(4096, &[0xff; 4096], 1).await.unwrap();
++        file.flush().await.unwrap();
++        assert_eq!(
++            reader
++                .open_for_handle(inode, 42)
++                .read(0, 8192)
++                .await
++                .unwrap(),
++            expected
++        );
++    }
++
+     #[tokio::test]
+     async fn observation_id_does_not_enter_normal_write_ordering() {
+         let layout = ChunkLayout {
+diff --git a/src/vfs/io/writer/cached_write_watermarks.rs b/src/vfs/io/writer/cached_write_watermarks.rs
+new file mode 100644
+index 0000000..8a151eb
+--- /dev/null
++++ b/src/vfs/io/writer/cached_write_watermarks.rs
+@@ -0,0 +1,263 @@
++//! Per-byte cached-write ordering. Retained across flush: a late FUSE cache
++//! write must not replace a newer page that has already been committed.
++use std::collections::BTreeMap;
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++struct Watermark {
++    end: u64,
++    unique: u64,
++}
++
++/// Disjoint, nonempty ranges keyed by start. Adjacent equal watermarks coalesce.
++/// Updating K intersecting ranges costs O((K + 1) log N); disjoint small writes
++/// do not copy or scan the accumulated history.
++#[derive(Default)]
++pub(super) struct CachedWriteWatermarks {
++    ranges: BTreeMap<u64, Watermark>,
++    #[cfg(test)]
++    examined: usize,
++}
++
++impl CachedWriteWatermarks {
++    pub(super) fn record_and_allow(
++        &mut self,
++        start: u64,
++        end: u64,
++        unique: u64,
++    ) -> Vec<(u64, u64)> {
++        if start >= end {
++            return Vec::new();
++        }
++        if unique == 0 {
++            return vec![(start, end)];
++        }
++
++        // Only the predecessor can overlap start from the left. All other
++        // intersecting ranges start inside [start, end).
++        let predecessor = self.ranges.range(..=start).next_back();
++        #[cfg(test)]
++        {
++            self.examined += usize::from(predecessor.is_some());
++        }
++        let first = predecessor
++            .filter(|(_, range)| range.end > start)
++            .map_or(start, |(&offset, _)| offset);
++        let overlapping: Vec<_> = self
++            .ranges
++            .range(first..end)
++            .map(|(&offset, &range)| (offset, range))
++            .collect();
++        #[cfg(test)]
++        {
++            self.examined += overlapping.len();
++        }
++
++        let mut allowed = Vec::new();
++        let mut replacement = Vec::new();
++        let mut cursor = start;
++        for &(offset, old) in &overlapping {
++            if offset < start {
++                push_watermark(&mut replacement, offset, start, old.unique);
++            }
++            let overlap_start = offset.max(start);
++            let overlap_end = old.end.min(end);
++            if cursor < overlap_start {
++                push_allowed(&mut allowed, cursor, overlap_start);
++                push_watermark(&mut replacement, cursor, overlap_start, unique);
++            }
++            if old.unique <= unique {
++                push_allowed(&mut allowed, overlap_start, overlap_end);
++            }
++            push_watermark(
++                &mut replacement,
++                overlap_start,
++                overlap_end,
++                unique.max(old.unique),
++            );
++            if old.end > end {
++                push_watermark(&mut replacement, end, old.end, old.unique);
++            }
++            cursor = overlap_end;
++        }
++        if cursor < end {
++            push_allowed(&mut allowed, cursor, end);
++            push_watermark(&mut replacement, cursor, end, unique);
++        }
++
++        for (offset, _) in overlapping {
++            self.ranges.remove(&offset);
++        }
++        for (offset, range) in replacement {
++            self.insert_coalesced(offset, range);
++        }
++        allowed
++    }
++
++    fn insert_coalesced(&mut self, mut start: u64, mut range: Watermark) {
++        let left = self.ranges.range(..start).next_back();
++        #[cfg(test)]
++        {
++            self.examined += usize::from(left.is_some());
++        }
++        if let Some((&offset, &old)) = left {
++            debug_assert!(old.end <= start);
++            if old.end == start && old.unique == range.unique {
++                self.ranges.remove(&offset);
++                start = offset;
++            }
++        }
++        let right = self.ranges.get(&range.end).copied();
++        #[cfg(test)]
++        {
++            self.examined += usize::from(right.is_some());
++        }
++        if let Some(old) = right
++            && old.unique == range.unique
++        {
++            self.ranges.remove(&range.end);
++            range.end = old.end;
++        }
++        self.ranges.insert(start, range);
++    }
++
++    #[cfg(test)]
++    pub(super) fn examined_ranges(&self) -> usize {
++        self.examined
++    }
++}
++
++fn push_allowed(allowed: &mut Vec<(u64, u64)>, start: u64, end: u64) {
++    if let Some(last) = allowed.last_mut()
++        && last.1 == start
++    {
++        last.1 = end;
++    } else {
++        allowed.push((start, end));
++    }
++}
++
++fn push_watermark(ranges: &mut Vec<(u64, Watermark)>, start: u64, end: u64, unique: u64) {
++    if let Some((_, last)) = ranges.last_mut()
++        && last.end == start
++        && last.unique == unique
++    {
++        last.end = end;
++    } else {
++        ranges.push((start, Watermark { end, unique }));
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    fn check_oracle(
++        index: &mut CachedWriteWatermarks,
++        bytes: &mut [u64],
++        start: usize,
++        end: usize,
++        unique: u64,
++    ) {
++        let actual = index.record_and_allow(start as u64, end as u64, unique);
++        let mut expected = Vec::new();
++        for (offset, old) in bytes.iter_mut().enumerate().take(end).skip(start) {
++            if unique == 0 || unique >= *old {
++                push_allowed(&mut expected, offset as u64, offset as u64 + 1);
++            }
++            if unique != 0 {
++                *old = (*old).max(unique);
++            }
++        }
++        assert_eq!(actual, expected);
++        let mut observed = vec![0; bytes.len()];
++        let mut previous: Option<(u64, Watermark)> = None;
++        for (&offset, &range) in &index.ranges {
++            assert!(offset < range.end);
++            if let Some((_, old)) = previous {
++                assert!(old.end <= offset);
++                assert!(old.end != offset || old.unique != range.unique);
++            }
++            observed[offset as usize..range.end as usize].fill(range.unique);
++            previous = Some((offset, range));
++        }
++        assert_eq!(observed, bytes);
++    }
++
++    #[test]
++    fn cached_watermarks_match_byte_oracle_for_overlaps_gaps_and_zero_unique() {
++        let mut index = CachedWriteWatermarks::default();
++        let mut bytes = [0; 128];
++        for (start, end, unique) in [
++            (16, 32, 4),
++            (48, 64, 8),
++            (0, 80, 6),
++            (20, 60, 2),
++            (24, 56, 9),
++            (0, 128, 0),
++            (0, 128, 9),
++            (8, 100, 10),
++            (100, 128, 10),
++            (0, 8, 10),
++            (32, 32, 99),
++        ] {
++            check_oracle(&mut index, &mut bytes, start, end, unique);
++        }
++        assert_eq!(index.ranges.len(), 1);
++        let mut seed = 0x7e579aa7d1u64;
++        for step in 0..5000u64 {
++            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
++            let start = (seed % 128) as usize;
++            let len = ((seed >> 16) % (129 - start) as u64) as usize;
++            let unique = match seed & 3 {
++                0 => 0,
++                1 => (seed >> 32) % (step + 3),
++                _ => step + 1,
++            };
++            check_oracle(&mut index, &mut bytes, start, start + len, unique);
++        }
++    }
++
++    #[test]
++    fn cached_watermarks_disjoint_writes_do_not_rescan_history() {
++        for count in [128, 1024, 4096] {
++            for reverse in [false, true] {
++                let mut index = CachedWriteWatermarks::default();
++                for step in 0..count {
++                    let i = if reverse { count - step - 1 } else { step };
++                    let start = i as u64 * 4096;
++                    assert_eq!(
++                        index.record_and_allow(start, start + 4096, step as u64 + 1),
++                        vec![(start, start + 4096)]
++                    );
++                }
++                assert_eq!(index.ranges.len(), count);
++                assert!(
++                    index.examined_ranges() <= 3 * count,
++                    "{} visits for {count} writes",
++                    index.examined_ranges()
++                );
++            }
++        }
++    }
++
++    #[test]
++    fn cached_watermarks_tiny_overwrite_only_visits_local_history() {
++        let mut index = CachedWriteWatermarks::default();
++        for i in 0..4096 {
++            index.record_and_allow(i * 4096, (i + 1) * 4096, i + 1);
++        }
++        let before = index.examined_ranges();
++        assert!(
++            index
++                .record_and_allow(2048 * 4096 + 1, 2048 * 4096 + 2, 1)
++                .is_empty()
++        );
++        assert!(index.examined_ranges() - before <= 6);
++        let before = index.examined_ranges();
++        assert_eq!(
++            index.record_and_allow(2048 * 4096 + 1, 2048 * 4096 + 2, 5000),
++            vec![(2048 * 4096 + 1, 2048 * 4096 + 2)]
++        );
++        assert!(index.examined_ranges() - before <= 10);
++    }
++}
+diff --git a/src/vfs/io/writer/cached_write_watermarks_bench.rs b/src/vfs/io/writer/cached_write_watermarks_bench.rs
+new file mode 100644
+index 0000000..7f074db
+--- /dev/null
++++ b/src/vfs/io/writer/cached_write_watermarks_bench.rs
+@@ -0,0 +1,209 @@
++//! Explicit local comparison of the actual FileWriter cached-write path.
++//! The old algorithm is test-only, so both arms run in one binary with the
++//! same data, store, flush configuration and memory resources.
++use super::*;
++use crate::chunk::ChunkLayout;
++use crate::chunk::store::InMemoryBlockStore;
++use crate::meta::factory::create_meta_store_from_url;
++use crate::vfs::config::ReadConfig;
++
++#[derive(Clone, Copy)]
++pub(super) struct LegacyRange {
++    start: u64,
++    end: u64,
++    max_unique: u64,
++}
++
++pub(super) fn legacy_allow_and_record(
++    ranges: &mut Vec<LegacyRange>,
++    start: u64,
++    end: u64,
++    unique: u64,
++) -> Vec<(u64, usize)> {
++    let mut allowed = crate::utils::Intervals::new(start, end);
++    for range in ranges.iter() {
++        if range.max_unique > unique {
++            allowed.cut(range.start.max(start), range.end.min(end));
++        }
++    }
++    let allowed = allowed
++        .collect()
++        .into_iter()
++        .map(|(start, end)| (start, (end - start).as_usize()))
++        .collect();
++    record_legacy_watermark(ranges, start, end, unique);
++    allowed
++}
++
++fn record_legacy_watermark(ranges: &mut Vec<LegacyRange>, start: u64, end: u64, unique: u64) {
++    if unique == 0 || start >= end {
++        return;
++    }
++
++    let mut boundaries = vec![start, end];
++    for range in ranges.iter() {
++        if range.end <= start || range.start >= end {
++            continue;
++        }
++        boundaries.push(range.start.max(start));
++        boundaries.push(range.end.min(end));
++    }
++    boundaries.sort_unstable();
++    boundaries.dedup();
++
++    let mut next = Vec::with_capacity(ranges.len() + boundaries.len());
++    for range in ranges.iter().copied() {
++        if range.end <= start || range.start >= end {
++            next.push(range);
++            continue;
++        }
++        if range.start < start {
++            next.push(LegacyRange {
++                start: range.start,
++                end: start,
++                max_unique: range.max_unique,
++            });
++        }
++        if range.end > end {
++            next.push(LegacyRange {
++                start: end,
++                end: range.end,
++                max_unique: range.max_unique,
++            });
++        }
++    }
++
++    for window in boundaries.windows(2) {
++        let seg_start = window[0];
++        let seg_end = window[1];
++        if seg_start >= seg_end {
++            continue;
++        }
++        let mut max_unique = unique;
++        for range in ranges.iter() {
++            if range.start < seg_end && seg_start < range.end {
++                max_unique = max_unique.max(range.max_unique);
++            }
++        }
++        next.push(LegacyRange {
++            start: seg_start,
++            end: seg_end,
++            max_unique,
++        });
++    }
++
++    next.sort_by_key(|range| (range.start, range.end));
++    let mut merged: Vec<LegacyRange> = Vec::with_capacity(next.len());
++    for range in next {
++        if range.start >= range.end {
++            continue;
++        }
++        if let Some(last) = merged.last_mut()
++            && last.end == range.start
++            && last.max_unique == range.max_unique
++        {
++            last.end = range.end;
++            continue;
++        }
++        merged.push(range);
++    }
++    *ranges = merged;
++}
++
++fn process_cpu_ns() -> u128 {
++    let mut value = libc::timespec {
++        tv_sec: 0,
++        tv_nsec: 0,
++    };
++    // This explicitly invoked benchmark is Linux-only; the clock includes all
++    // worker threads, unlike a timer that only accounts for the caller thread.
++    assert_eq!(
++        unsafe { libc::clock_gettime(libc::CLOCK_PROCESS_CPUTIME_ID, &mut value) },
++        0
++    );
++    value.tv_sec as u128 * 1_000_000_000 + value.tv_nsec as u128
++}
++
++#[tokio::test]
++#[ignore = "explicit same-binary FileWriter timing comparison; run with --ignored --nocapture --test-threads=1"]
++async fn cached_watermark_filewriter_comparison() {
++    let layout = ChunkLayout {
++        chunk_size: 64 << 20,
++        block_size: 4 << 20,
++    };
++    for count in [128usize, 1024, 4096] {
++        // ABBAAB: each mode appears three times; stores/caches are fresh per arm.
++        for (repeat, indexed) in [false, true, true, false, false, true]
++            .into_iter()
++            .enumerate()
++        {
++            let store = Arc::new(InMemoryBlockStore::new());
++            let meta_handle = create_meta_store_from_url("sqlite::memory:").await.unwrap();
++            let meta = meta_handle.layer();
++            let backend = Arc::new(Backend::new(store, meta.clone()));
++            let ino = meta
++                .create_file(1, "watermark-comparison".into())
++                .await
++                .unwrap();
++            let inode = Inode::new(ino, 0);
++            inode.set_size((count * 4096) as u64);
++            let reader = Arc::new(DataReader::new(
++                Arc::new(ReadConfig::new(layout)),
++                backend.clone(),
++            ));
++            let config = Arc::new(
++                WriteConfig::new(layout)
++                    .page_size(4096)
++                    .freeze_min_bytes(32 << 20)
++                    .auto_flush_max_age(Duration::from_secs(600))
++                    .writeback_mode(WriteBackMode::UploadBeforeCommit)
++                    .cached_block_assembler(false),
++            );
++            let writer = DataWriter::new(config, backend, reader.clone(), None);
++            let file = writer.ensure_file(inode.clone());
++            if !indexed {
++                file.shared
++                    .inner
++                    .lock()
++                    .await
++                    .legacy_cached_write_watermarks = Some(BTreeMap::new());
++            }
++            let before_cpu = process_cpu_ns();
++            let begin = Instant::now();
++            for i in 0..count {
++                file.write_at_cached((i * 4096) as u64, &[(i % 251) as u8; 4096], i as u64 + 1)
++                    .await
++                    .unwrap();
++            }
++            let write_ns = begin.elapsed().as_nanos();
++            let after_write_cpu = process_cpu_ns();
++            let begin_flush = Instant::now();
++            file.flush().await.unwrap();
++            let flush_ns = begin_flush.elapsed().as_nanos();
++            let after_flush_cpu = process_cpu_ns();
++            let bytes = reader
++                .open_for_handle(inode, 42)
++                .read(0, count * 4096)
++                .await
++                .unwrap();
++            assert_eq!(bytes.len(), count * 4096);
++            for (i, page) in bytes.chunks_exact(4096).enumerate() {
++                assert!(page.iter().all(|&b| b == (i % 251) as u8));
++            }
++            println!(
++                "WATERMARK_BENCH {}",
++                serde_json::json!({
++                    "mode":if indexed {"indexed"} else {"baseline"},"writes":count,
++                    "request_bytes":4096,"repeat":repeat,"write_ns":write_ns,"flush_ns":flush_ns,
++                    "write_cpu_ns":after_write_cpu-before_cpu,"flush_cpu_ns":after_flush_cpu-after_write_cpu,
++                    "verified_bytes":bytes.len(),"backend":"in-memory blocks and sqlite metadata",
++                    "chunk_bytes":64<<20,"block_bytes":4<<20,"page_bytes":4096,
++                    "freeze_min_bytes":32<<20,"cached_block_assembler":false,
++                    "debug_assertions":cfg!(debug_assertions)
++                })
++            );
++            file.clear().await;
++            writer.clear(u64::try_from(ino).unwrap()).await;
++        }
++    }
++}
+diff --git a/src/workspace_overlay/meta_layer/mod.rs b/src/workspace_overlay/meta_layer/mod.rs
+index a49d596..ec6245a 100644
+--- a/src/workspace_overlay/meta_layer/mod.rs
++++ b/src/workspace_overlay/meta_layer/mod.rs
+@@ -288,15 +288,30 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+     /// while this mount holds the exclusive workspace lease and is the sole
+     /// writer; every local commit invalidates it. Native overlays additionally
+     /// require an explicit local lease proof before serving cached rows.
+-    pub fn with_upper_row_cache(mut self, ttl: std::time::Duration) -> Self {
+-        if !ttl.is_zero() {
+-            self.upper_rows = Some(Arc::new(row_cache::UpperRowCache::new_with_counters(
++    pub fn with_upper_row_cache(self, ttl: std::time::Duration) -> Self {
++        self.with_upper_row_cache_bytes(ttl, row_cache::DEFAULT_ROW_CACHE_BYTES)
++    }
++
++    /// A shared byte limit for upper and namespace rows, including pinned
++    /// values retained by in-flight readers. Zero disables both caches.
++    pub fn with_upper_row_cache_bytes(mut self, ttl: std::time::Duration, bytes: u64) -> Self {
++        self.upper_rows = None;
++        self.namespace_rows = None;
++        self.row_cache_counters.capacity_bytes.store(
++            if ttl.is_zero() { 0 } else { bytes },
++            std::sync::atomic::Ordering::Relaxed,
++        );
++        if !ttl.is_zero() && bytes != 0 {
++            let budget = row_cache::RowBudget::new(bytes, &self.row_cache_counters);
++            self.upper_rows = Some(Arc::new(row_cache::UpperRowCache::with_budget(
+                 ttl,
+                 self.row_cache_counters.clone(),
++                budget.clone(),
+             )));
+-            self.namespace_rows = Some(row_cache::UpperRowCache::new_with_counters(
++            self.namespace_rows = Some(row_cache::UpperRowCache::with_budget(
+                 ttl,
+                 self.row_cache_counters.clone(),
++                budget,
+             ));
+         }
+         self
+@@ -388,10 +403,10 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+     /// commit invalidates the keys it writes (before and after), so the
+     /// cached rows of `ino` are exactly the store's rows. Returns the cached
+     /// head/base pair and those rows, or None to use the remote fence.
+-    pub(super) async fn lease_proven_inode_rows(
++    async fn lease_proven_inode_rows(
+         &self,
+         ino: i64,
+-    ) -> Result<Option<([LayerRecord; 2], Arc<Vec<InodeDelta>>)>, MetaError> {
++    ) -> Result<Option<([LayerRecord; 2], row_cache::Retained<Vec<InodeDelta>>)>, MetaError> {
+         if self.lease_validity.is_none() {
+             return Ok(None);
+         }
+@@ -406,7 +421,7 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+             Some(row_cache::RowValue::Inode(rows)) => rows,
+             _ => {
+                 let ticket = cache.ticket();
+-                let rows = Arc::new(
++                let rows = row_cache::Retained::new(
+                     self.store
+                         .get_inode_deltas(InodeQuery {
+                             layer_ids: chain.iter().map(|layer| layer.layer_id).collect(),
+@@ -761,7 +776,7 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+             Some(row_cache::RowValue::Inode(rows)) => rows,
+             _ => {
+                 let ticket = cache.map(row_cache::UpperRowCache::ticket);
+-                let rows = std::sync::Arc::new(
++                let rows = row_cache::Retained::new(
+                     self.store
+                         .get_inode_deltas(InodeQuery {
+                             layer_ids: chain.iter().map(|layer| layer.layer_id).collect(),
+@@ -957,7 +972,7 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         };
+         let ticket = cache.ticket();
+         let parent_paths = if parent == self.root_ino() {
+-            Arc::new(vec![b"/".to_vec()])
++            row_cache::Retained::new(vec![b"/".to_vec()])
+         } else {
+             match cache.get(&row_cache::RowKey::Paths(parent)) {
+                 Some(row_cache::RowValue::Paths(paths)) => paths,
+@@ -967,21 +982,11 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         if parent_paths.is_empty() {
+             return;
+         }
+-        let paths = parent_paths
+-            .iter()
+-            .map(|path| {
+-                let mut child = path.clone();
+-                if child.last() != Some(&b'/') {
+-                    child.push(b'/');
+-                }
+-                child.extend_from_slice(name.as_bytes());
+-                child
+-            })
+-            .collect::<Vec<_>>();
+-        cache.insert(
++        cache.insert_child_paths(
+             ticket,
+             row_cache::RowKey::Paths(ino),
+-            row_cache::RowValue::Paths(Arc::new(paths)),
++            &parent_paths,
++            name.as_bytes(),
+         );
+     }
+ 
+@@ -1005,7 +1010,7 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+             cache.insert(
+                 ticket,
+                 key,
+-                row_cache::RowValue::Permission(Arc::new(snapshot.clone())),
++                row_cache::RowValue::Permission(row_cache::Retained::new(snapshot.clone())),
+             );
+         }
+         Ok(snapshot)
+@@ -1024,7 +1029,7 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+             Some(row_cache::RowValue::Dentry(rows)) => rows,
+             _ => {
+                 let ticket = cache.map(row_cache::UpperRowCache::ticket);
+-                let rows = std::sync::Arc::new(
++                let rows = row_cache::Retained::new(
+                     self.store
+                         .get_dentry_deltas(DentryQuery {
+                             layer_ids: chain.iter().map(|layer| layer.layer_id).collect(),
+@@ -1294,7 +1299,7 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         &self,
+         expected: &[LayerRecord; 2],
+         ino: i64,
+-    ) -> Option<Arc<PermissionSnapshot>> {
++    ) -> Option<row_cache::Retained<PermissionSnapshot>> {
+         if self.lease_validity.is_some()
+             && let Some(cache) = self.upper_row_cache()
+             && let Some(row_cache::RowValue::Permission(snapshot)) =
+@@ -1369,7 +1374,7 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         if self.lease_validity.is_some()
+             && let (Some(cache), Some(ticket)) = (self.upper_row_cache(), ticket)
+         {
+-            let snapshot = Arc::new(snapshot);
++            let snapshot = row_cache::Retained::new(snapshot);
+             cache.insert(
+                 ticket,
+                 row_cache::RowKey::Permission(ino),
+@@ -2238,7 +2243,7 @@ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
+                     cache.insert(
+                         ticket,
+                         key,
+-                        row_cache::RowValue::Permission(std::sync::Arc::new(snapshot.clone())),
++                        row_cache::RowValue::Permission(row_cache::Retained::new(snapshot.clone())),
+                     );
+                 }
+                 snapshot
+@@ -3764,7 +3769,7 @@ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
+             Some(row_cache::RowValue::Xattr(rows)) => rows,
+             _ => {
+                 let ticket = cache.map(row_cache::UpperRowCache::ticket);
+-                let rows = std::sync::Arc::new(
++                let rows = row_cache::Retained::new(
+                     self.store
+                         .get_xattr_deltas(XattrQuery {
+                             layer_ids: chain.iter().map(|layer| layer.layer_id).collect(),
+diff --git a/src/workspace_overlay/meta_layer/packed_paths.rs b/src/workspace_overlay/meta_layer/packed_paths.rs
+index 89569a2..482552b 100644
+--- a/src/workspace_overlay/meta_layer/packed_paths.rs
++++ b/src/workspace_overlay/meta_layer/packed_paths.rs
+@@ -90,7 +90,9 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+             cache.insert(
+                 ticket,
+                 super::row_cache::RowKey::Aliases(inode),
+-                super::row_cache::RowValue::Aliases(Arc::new(effective.clone())),
++                super::row_cache::RowValue::Aliases(super::row_cache::Retained::new(
++                    effective.clone(),
++                )),
+             );
+         }
+         Ok(effective)
+@@ -191,9 +193,12 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         if let Some(super::row_cache::RowValue::Paths(paths)) =
+             cache.and_then(|cache| cache.get(&super::row_cache::RowKey::Paths(target)))
+         {
++            // Cache storage has its own row budget. This output is a new copy:
++            // obtain its Output and reader ownership before cloning any bytes.
++            let guard = self.packed_paths_output_guard(&paths)?;
+             return Ok(OwnedPaths {
+                 paths: (*paths).clone(),
+-                guard: None,
++                guard: Some(guard),
+             });
+         }
+         let ticket = cache.map(super::row_cache::UpperRowCache::ticket);
+@@ -202,10 +207,10 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+             match self.packed_paths_bytes_owned_attempt(target).await {
+                 Ok(owned) => {
+                     if let (Some(cache), Some(ticket)) = (cache, ticket) {
+-                        cache.insert(
++                        cache.insert_paths(
+                             ticket,
+                             super::row_cache::RowKey::Paths(target),
+-                            super::row_cache::RowValue::Paths(Arc::new(owned.paths.clone())),
++                            &owned.paths,
+                         );
+                     }
+                     return Ok(owned);
+@@ -221,6 +226,33 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         unreachable!("bounded path walk retry always returns")
+     }
+ 
++    fn packed_paths_output_guard(
++        &self,
++        paths: &Vec<Vec<u8>>,
++    ) -> Result<MetadataMemoryGuard, MetaError> {
++        let lower = self
++            .packed_lower()
++            .ok_or_else(|| MetaError::Internal("missing packed path lower".into()))?;
++        let storage = paths.iter().fold(
++            (paths.capacity() * size_of::<Vec<u8>>()) as u64,
++            |total, path| total.saturating_add(path.capacity() as u64),
++        );
++        let bytes = PATHS_OUTPUT_BYTES
++            .max(storage.saturating_add(PATHS_OUTPUT_BYTES - MAX_OUTPUT_BYTES as u64));
++        let permit = lower
++            .budget
++            .admit(&[(V3BudgetPool::Output, bytes)])
++            .map_err(packed_lower::budget_to_meta)?;
++        let reader = lower
++            .authority
++            .retain_reader_request()
++            .map_err(workspace_to_meta)?;
++        Ok(Arc::new(PathsOutputOwner {
++            _permit: permit,
++            _reader: reader,
++        }))
++    }
++
+     async fn packed_paths_bytes_owned_attempt(&self, target: i64) -> Result<OwnedPaths, MetaError> {
+         let lower = self
+             .packed_lower()
+diff --git a/src/workspace_overlay/meta_layer/row_cache.rs b/src/workspace_overlay/meta_layer/row_cache.rs
+index e70b51a..d0fbe12 100644
+--- a/src/workspace_overlay/meta_layer/row_cache.rs
++++ b/src/workspace_overlay/meta_layer/row_cache.rs
+@@ -5,20 +5,144 @@
+ //! the only writer of upper rows; every local commit invalidates the keys of
+ //! the rows it writes, every view change invalidates the whole cache, and a
+ //! generation counter keeps a read that raced any invalidation from leaving
+-//! pre-commit rows behind. Under a proven lease the TTL bounds retention,
+-//! not staleness. Canceled or uncertain commits permanently disable cached
++//! pre-commit rows behind. Under a proven lease TTL bounds reuse, while a byte
++//! budget bounds retention. Canceled or uncertain commits permanently disable cached
+ //! authority. Conditional mutations still authenticate their committed view.
+ 
+-use std::sync::Arc;
++use std::ops::{Deref, DerefMut};
+ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+-use std::time::Duration;
++use std::sync::{Arc, Mutex, Weak};
++use std::time::{Duration, Instant};
+ 
+-use moka::sync::Cache;
++use lru::LruCache;
++use parking_lot::RwLock;
+ 
+ use crate::workspace_overlay::catalog::PermissionSnapshot;
+ use crate::workspace_overlay::model::{DentryDelta, InodeDelta, XattrDelta};
+ 
+ const CAPACITY: u64 = 65_536;
++const RECENCY_PROBES: usize = 8;
++pub(crate) const DEFAULT_ROW_CACHE_BYTES: u64 = 64 << 20;
++
++/// Shared by both row caches of a mount, including values pinned by readers.
++pub(super) struct RowBudget {
++    limit: u64,
++    used: Arc<AtomicU64>,
++    caches: Mutex<Vec<Weak<RwLock<Rows>>>>,
++    #[cfg(test)]
++    reclaim_steps: AtomicU64,
++}
++
++impl RowBudget {
++    pub(super) fn new(limit: u64, counters: &RowCacheCounters) -> Arc<Self> {
++        counters.capacity_bytes.store(limit, Ordering::Relaxed);
++        Arc::new(Self {
++            limit,
++            used: counters.retained_bytes.clone(),
++            caches: Mutex::new(Vec::new()),
++            #[cfg(test)]
++            reclaim_steps: AtomicU64::new(0),
++        })
++    }
++
++    fn register(&self, rows: &Arc<RwLock<Rows>>) {
++        let mut caches = self.caches.lock().unwrap();
++        caches.retain(|rows| rows.strong_count() != 0);
++        caches.push(Arc::downgrade(rows));
++    }
++
++    fn reclaim_step(&self) {
++        #[cfg(test)]
++        self.reclaim_steps.fetch_add(1, Ordering::Relaxed);
++    }
++
++    /// Reclaim one peer entry under admission pressure. This also releases
++    /// expired rows from an idle peer, without a timer or a full-cache scan.
++    /// Each successful step removes an entry; aggregate work is amortized over
++    /// prior inserts. try_write prevents cross-cache lock inversion. Each
++    /// removal makes at most RECENCY_PROBES second-chance checks.
++    fn reclaim_peer(&self, current: &Arc<RwLock<Rows>>) -> bool {
++        let mut caches = self.caches.lock().unwrap();
++        caches.retain(|rows| rows.strong_count() != 0);
++        for rows in caches.iter().filter_map(Weak::upgrade) {
++            if Arc::ptr_eq(&rows, current) {
++                continue;
++            }
++            self.reclaim_step();
++            if let Some(mut rows) = rows.try_write() {
++                let before = self.used.load(Ordering::Acquire);
++                let removed = rows.evict_entry();
++                rows.release_empty_index();
++                if removed || self.used.load(Ordering::Acquire) < before {
++                    return true;
++                }
++            }
++        }
++        false
++    }
++
++    fn admit(self: &Arc<Self>, bytes: u64) -> Option<Charge> {
++        self.used
++            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |used| {
++                used.checked_add(bytes).filter(|next| *next <= self.limit)
++            })
++            .ok()?;
++        Some(Charge {
++            budget: self.clone(),
++            bytes,
++        })
++    }
++}
++
++struct Charge {
++    budget: Arc<RowBudget>,
++    bytes: u64,
++}
++impl Drop for Charge {
++    fn drop(&mut self) {
++        self.budget.used.fetch_sub(self.bytes, Ordering::AcqRel);
++    }
++}
++
++/// All clones share one payload charge, including readers after eviction.
++/// The data drops before its charge. No raw Arc escapes this wrapper.
++pub(super) struct Retained<T>(Arc<RetainedInner<T>>);
++struct RetainedInner<T> {
++    value: T,
++    charge: Mutex<Option<Charge>>,
++}
++impl<T> Retained<T> {
++    pub(super) fn new(value: T) -> Self {
++        Self(Arc::new(RetainedInner {
++            value,
++            charge: Mutex::new(None),
++        }))
++    }
++    fn retain(&self, budget: &Arc<RowBudget>, bytes: u64) -> bool {
++        let mut charge = self.0.charge.lock().unwrap();
++        if let Some(charge) = charge.as_ref() {
++            return Arc::ptr_eq(&charge.budget, budget);
++        }
++        *charge = budget.admit(bytes);
++        charge.is_some()
++    }
++}
++impl<T> Clone for Retained<T> {
++    fn clone(&self) -> Self {
++        Self(self.0.clone())
++    }
++}
++impl<T> Deref for Retained<T> {
++    type Target = T;
++    fn deref(&self) -> &T {
++        &self.0.value
++    }
++}
++impl<T> AsRef<T> for Retained<T> {
++    fn as_ref(&self) -> &T {
++        self
++    }
++}
+ 
+ #[derive(Clone, Debug, Eq, Hash, PartialEq)]
+ pub(super) enum RowKey {
+@@ -32,17 +156,157 @@ pub(super) enum RowKey {
+ 
+ #[derive(Clone)]
+ pub(super) enum RowValue {
+-    Inode(Arc<Vec<InodeDelta>>),
+-    Dentry(Arc<Vec<DentryDelta>>),
+-    Xattr(Arc<Vec<XattrDelta>>),
+-    Permission(Arc<PermissionSnapshot>),
++    Inode(Retained<Vec<InodeDelta>>),
++    Dentry(Retained<Vec<DentryDelta>>),
++    Xattr(Retained<Vec<XattrDelta>>),
++    Permission(Retained<PermissionSnapshot>),
+     /// Complete effective paths of one inode. Only successful, complete
+     /// walks are cached; quota/cycle/view errors never are.
+-    Paths(Arc<Vec<Vec<u8>>>),
++    Paths(Retained<Vec<Vec<u8>>>),
+     /// Verified effective (parent, name) aliases of one inode. Lives in the
+     /// namespace cache: only commits that write dentries or delete an inode
+     /// can change it, so data-only commits keep it.
+-    Aliases(Arc<Vec<(i64, Vec<u8>)>>),
++    Aliases(Retained<Vec<(i64, Vec<u8>)>>),
++}
++
++fn vector_bytes<T>(rows: &Vec<T>, extra: impl Fn(&T) -> usize) -> u64 {
++    rows.iter().fold(
++        rows.capacity().saturating_mul(size_of::<T>()),
++        |total, row| total.saturating_add(extra(row)),
++    ) as u64
++}
++fn inode_bytes(rows: &Vec<InodeDelta>) -> u64 {
++    vector_bytes(rows, |row| {
++        row.symlink_target.as_ref().map_or(0, Vec::capacity)
++    })
++}
++fn dentry_bytes(rows: &Vec<DentryDelta>) -> u64 {
++    vector_bytes(rows, |row| row.name.capacity())
++}
++fn xattr_bytes(rows: &Vec<XattrDelta>) -> u64 {
++    vector_bytes(rows, |row| {
++        row.name
++            .capacity()
++            .saturating_add(row.value.as_ref().map_or(0, Vec::capacity))
++    })
++}
++impl RowValue {
++    fn payload_bytes(&self) -> u64 {
++        fn bytes<T>(_: &Retained<T>, heap: u64) -> u64 {
++            heap.saturating_add(
++                size_of::<RetainedInner<T>>() as u64 + 2 * size_of::<usize>() as u64,
++            )
++        }
++        match self {
++            Self::Inode(v) => bytes(v, inode_bytes(v)),
++            Self::Dentry(v) => bytes(v, dentry_bytes(v)),
++            Self::Xattr(v) => bytes(v, xattr_bytes(v)),
++            Self::Permission(v) => bytes(
++                v,
++                inode_bytes(&v.inodes)
++                    .saturating_add(xattr_bytes(&v.xattrs))
++                    .saturating_add(dentry_bytes(&v.dentries)),
++            ),
++            Self::Paths(v) => bytes(v, vector_bytes(v, Vec::capacity)),
++            Self::Aliases(v) => bytes(v, vector_bytes(v, |(_, name)| name.capacity())),
++        }
++    }
++    fn retain(&self, budget: &Arc<RowBudget>) -> bool {
++        let bytes = self.payload_bytes();
++        match self {
++            Self::Inode(v) => v.retain(budget, bytes),
++            Self::Dentry(v) => v.retain(budget, bytes),
++            Self::Xattr(v) => v.retain(budget, bytes),
++            Self::Permission(v) => v.retain(budget, bytes),
++            Self::Paths(v) => v.retain(budget, bytes),
++            Self::Aliases(v) => v.retain(budget, bytes),
++        }
++    }
++}
++
++struct Entry {
++    value: RowValue,
++    inserted: Instant,
++    referenced: AtomicBool,
++    _key_charge: Charge,
++}
++
++struct Rows {
++    entries: LruCache<RowKey, Entry>,
++    index_charge: Option<Charge>,
++    peak_entries: usize,
++    #[cfg(test)]
++    recency_probes: usize,
++}
++impl Rows {
++    fn new() -> Self {
++        // Do not preallocate 65,536 buckets for a tiny byte budget.
++        Self {
++            entries: LruCache::unbounded(),
++            index_charge: None,
++            peak_entries: 0,
++            #[cfg(test)]
++            recency_probes: 0,
++        }
++    }
++    fn reserve_slot(&mut self, budget: &Arc<RowBudget>) -> bool {
++        let count = self.entries.len() + 1;
++        if count <= self.peak_entries {
++            return true;
++        }
++        // Reserve the hash index at its high-water mark until it is freed.
++        // Evicting entries does not shrink the backing table.
++        let bytes = 512 + 128 * count as u64;
++        let previous = self.index_charge.as_ref().map_or(0, |charge| charge.bytes);
++        let Some(mut extra) = budget.admit(bytes - previous) else {
++            return false;
++        };
++        if let Some(charge) = &mut self.index_charge {
++            charge.bytes += extra.bytes;
++            extra.bytes = 0;
++        } else {
++            self.index_charge = Some(extra);
++        }
++        self.peak_entries = count;
++        true
++    }
++    fn release_empty_index(&mut self) {
++        if self.entries.is_empty() {
++            *self = Self::new();
++        }
++    }
++
++    /// Bounded second chance, not exact LRU. Hits set a reference bit under a
++    /// shared read lock; only admission moves nodes. Limit the scan even when
++    /// every entry is hot, so pressure cannot turn into a full-cache sweep.
++    fn evict_entry(&mut self) -> bool {
++        for probe in 0..RECENCY_PROBES {
++            let Some((key, entry)) = self.entries.pop_lru() else {
++                return false;
++            };
++            #[cfg(test)]
++            {
++                self.recency_probes += 1;
++            }
++            if probe + 1 < RECENCY_PROBES && entry.referenced.swap(false, Ordering::Relaxed) {
++                self.entries.put(key, entry);
++            } else {
++                return true;
++            }
++        }
++        unreachable!("the last probe always evicts")
++    }
++}
++impl Deref for Rows {
++    type Target = LruCache<RowKey, Entry>;
++    fn deref(&self) -> &Self::Target {
++        &self.entries
++    }
++}
++impl DerefMut for Rows {
++    fn deref_mut(&mut self) -> &mut Self::Target {
++        &mut self.entries
++    }
+ }
+ 
+ /// Re-checks a lease-proven read fence: the exclusive lease is still proven
+@@ -69,7 +333,9 @@ impl LeaseLocalFence {
+ }
+ 
+ pub(super) struct UpperRowCache {
+-    rows: Cache<RowKey, RowValue>,
++    rows: Arc<RwLock<Rows>>,
++    ttl: Duration,
++    budget: Arc<RowBudget>,
+     generation: AtomicU64,
+     /// A canceled/uncertain backend write can still complete after the caller
+     /// drops. No later refill may claim local authority in that mount.
+@@ -81,6 +347,8 @@ pub(super) struct UpperRowCache {
+ pub(super) struct RowCacheCounters {
+     pub hits: AtomicU64,
+     pub misses: AtomicU64,
++    pub retained_bytes: Arc<AtomicU64>,
++    pub capacity_bytes: AtomicU64,
+ }
+ 
+ #[derive(Debug)]
+@@ -90,7 +358,7 @@ pub(super) struct RowCacheStatsExtension {
+ 
+ impl crate::vfs::stats::FsStatsExtension for RowCacheStatsExtension {
+     fn render_max_bytes(&self) -> usize {
+-        256
++        512
+     }
+ 
+     fn render_into(&self, output: &mut dyn std::fmt::Write) {
+@@ -105,6 +373,16 @@ impl crate::vfs::stats::FsStatsExtension for RowCacheStatsExtension {
+         let _ = writeln!(output, "brewfs_workspace_row_cache_hits_total {hits}");
+         let _ = writeln!(output, "brewfs_workspace_row_cache_misses_total {misses}");
+         let _ = writeln!(output, "brewfs_workspace_row_cache_hit_ratio {ratio:.6}");
++        let _ = writeln!(
++            output,
++            "brewfs_workspace_row_cache_retained_bytes {}",
++            self.counters.retained_bytes.load(Ordering::Relaxed)
++        );
++        let _ = writeln!(
++            output,
++            "brewfs_workspace_row_cache_capacity_bytes {}",
++            self.counters.capacity_bytes.load(Ordering::Relaxed)
++        );
+     }
+ }
+ 
+@@ -157,11 +435,21 @@ impl UpperRowCache {
+     }
+ 
+     pub(super) fn new_with_counters(ttl: Duration, counters: Arc<RowCacheCounters>) -> Self {
++        let budget = RowBudget::new(DEFAULT_ROW_CACHE_BYTES, &counters);
++        Self::with_budget(ttl, counters, budget)
++    }
++
++    pub(super) fn with_budget(
++        ttl: Duration,
++        counters: Arc<RowCacheCounters>,
++        budget: Arc<RowBudget>,
++    ) -> Self {
++        let rows = Arc::new(RwLock::new(Rows::new()));
++        budget.register(&rows);
+         Self {
+-            rows: Cache::builder()
+-                .max_capacity(CAPACITY)
+-                .time_to_live(ttl)
+-                .build(),
++            rows,
++            ttl,
++            budget,
+             generation: AtomicU64::new(0),
+             disabled: AtomicBool::new(false),
+             counters,
+@@ -172,12 +460,42 @@ impl UpperRowCache {
+         RowTicket(self.generation.load(Ordering::Acquire))
+     }
+ 
++    fn evict_for_admission(&self, rows: &mut Rows) -> bool {
++        // Prefer the idle peer over repeatedly churning the active cache's
++        // only usable slot when that peer holds the shared budget.
++        if self.budget.reclaim_peer(&self.rows) {
++            return true;
++        }
++        self.budget.reclaim_step();
++        let removed = rows.evict_entry();
++        rows.release_empty_index();
++        removed
++    }
++
+     pub(super) fn get(&self, key: &RowKey) -> Option<RowValue> {
+         if self.disabled.load(Ordering::Acquire) {
+             self.counters.misses.fetch_add(1, Ordering::Relaxed);
+             return None;
+         }
+-        let value = self.rows.get(key);
++        let (value, expired) = {
++            let rows = self.rows.read();
++            match rows.peek(key) {
++                Some(entry) if entry.inserted.elapsed() < self.ttl => {
++                    // Repeated hits, including concurrent hits on the same
++                    // key, do not acquire an exclusive lock or rewrite an
++                    // already-set reference bit.
++                    if !entry.referenced.load(Ordering::Relaxed) {
++                        entry.referenced.store(true, Ordering::Relaxed);
++                    }
++                    (Some(entry.value.clone()), false)
++                }
++                Some(_) => (None, true),
++                None => (None, false),
++            }
++        };
++        if expired {
++            self.remove_expired(key);
++        }
+         if self.disabled.load(Ordering::Acquire) {
+             self.counters.misses.fetch_add(1, Ordering::Relaxed);
+             None
+@@ -191,22 +509,162 @@ impl UpperRowCache {
+         }
+     }
+ 
++    fn remove_expired(&self, key: &RowKey) {
++        let mut rows = self.rows.write();
++        // A replacement may have won while the reader released its guard.
++        // Re-check the current entry instead of deleting by the stale read.
++        if rows
++            .peek(key)
++            .is_some_and(|entry| entry.inserted.elapsed() >= self.ttl)
++        {
++            rows.pop(key);
++            rows.release_empty_index();
++        }
++    }
++
+     pub(super) fn insert(&self, ticket: RowTicket, key: RowKey, value: RowValue) {
+         if self.disabled.load(Ordering::Acquire)
+             || self.generation.load(Ordering::SeqCst) != ticket.0
+         {
+             return;
+         }
+-        self.rows.insert(key.clone(), value);
+-        // An invalidation that ran concurrently with this insert must win.
+-        // Every invalidation bumps the generation before removing, so an
+-        // insert landing after that removal sees the bump and drops itself;
+-        // one landing before it is removed by the invalidation.
+-        if self.disabled.load(Ordering::Acquire)
+-            || self.generation.load(Ordering::SeqCst) != ticket.0
++        let key_bytes = match &key {
++            RowKey::Dentry(_, name) | RowKey::Xattr(_, name) => name.capacity() as u64,
++            _ => 0,
++        };
++        // Includes the LRU node, hash-table slot and allocator bookkeeping.
++        let key_bytes =
++            key_bytes.saturating_add((size_of::<RowKey>() + size_of::<Entry>() + 128) as u64);
++        if key_bytes > self.budget.limit {
++            return;
++        }
++        let mut rows = self.rows.write();
++        rows.pop(&key);
++        if key_bytes
++            .saturating_add(value.payload_bytes())
++            .saturating_add(640)
++            > self.budget.limit
+         {
+-            self.rows.invalidate(&key);
++            return;
++        }
++        if rows.len() == CAPACITY as usize {
++            rows.evict_entry();
++        }
++        loop {
++            rows.release_empty_index();
++            if !rows.reserve_slot(&self.budget) {
++                if !self.evict_for_admission(&mut rows) {
++                    return;
++                }
++                continue;
++            }
++            if let Some(key_charge) = self.budget.admit(key_bytes) {
++                if value.retain(&self.budget) {
++                    // Invalidators bump generation before taking this lock.
++                    // If the bump comes later, their removal follows our put.
++                    if !self.disabled.load(Ordering::Acquire)
++                        && self.generation.load(Ordering::SeqCst) == ticket.0
++                    {
++                        rows.put(
++                            key,
++                            Entry {
++                                value,
++                                inserted: Instant::now(),
++                                referenced: AtomicBool::new(false),
++                                _key_charge: key_charge,
++                            },
++                        );
++                    }
++                    return;
++                }
++            }
++            if !self.evict_for_admission(&mut rows) {
++                return;
++            }
++        }
++    }
++
++    /// Reserve the cache's separate path copy before allocating it. The walk's
++    /// Output guard belongs to the returned result and cannot cover this copy.
++    pub(super) fn insert_paths(&self, ticket: RowTicket, key: RowKey, paths: &[Vec<u8>]) {
++        let bytes = paths.iter().fold(
++            (size_of::<RetainedInner<Vec<Vec<u8>>>>()
++                + 2 * size_of::<usize>()
++                + paths.len() * size_of::<Vec<u8>>()) as u64,
++            |total, path| total.saturating_add(path.len() as u64),
++        );
++        self.insert_paths_with(ticket, key, bytes, || paths.to_vec());
++    }
++
++    pub(super) fn insert_child_paths(
++        &self,
++        ticket: RowTicket,
++        key: RowKey,
++        parents: &[Vec<u8>],
++        name: &[u8],
++    ) {
++        let bytes = parents.iter().fold(
++            (size_of::<RetainedInner<Vec<Vec<u8>>>>()
++                + 2 * size_of::<usize>()
++                + parents.len() * size_of::<Vec<u8>>()) as u64,
++            |total, path| {
++                total
++                    .saturating_add(path.len() as u64)
++                    .saturating_add(name.len() as u64)
++                    .saturating_add(u64::from(path.last() != Some(&b'/')))
++            },
++        );
++        self.insert_paths_with(ticket, key, bytes, || {
++            parents
++                .iter()
++                .map(|path| {
++                    let separator = usize::from(path.last() != Some(&b'/'));
++                    let mut child = Vec::with_capacity(path.len() + separator + name.len());
++                    child.extend_from_slice(path);
++                    if separator != 0 {
++                        child.push(b'/');
++                    }
++                    child.extend_from_slice(name);
++                    child
++                })
++                .collect()
++        });
++    }
++
++    fn insert_paths_with(
++        &self,
++        ticket: RowTicket,
++        key: RowKey,
++        bytes: u64,
++        build: impl FnOnce() -> Vec<Vec<u8>>,
++    ) {
++        if bytes.saturating_add((size_of::<RowKey>() + size_of::<Entry>() + 128 + 640) as u64)
++            > self.budget.limit
++        {
++            return;
+         }
++        let value = {
++            let mut rows = self.rows.write();
++            if self.disabled.load(Ordering::Acquire)
++                || self.generation.load(Ordering::SeqCst) != ticket.0
++            {
++                return;
++            }
++            rows.pop(&key);
++            let charge = loop {
++                if let Some(charge) = self.budget.admit(bytes) {
++                    break charge;
++                }
++                if !self.evict_for_admission(&mut rows) {
++                    return;
++                }
++            };
++            Retained(Arc::new(RetainedInner {
++                value: build(),
++                charge: Mutex::new(Some(charge)),
++            }))
++        };
++        self.insert(ticket, key, RowValue::Paths(value));
+     }
+ 
+     fn disable(&self) {
+@@ -216,16 +674,18 @@ impl UpperRowCache {
+ 
+     pub(super) fn invalidate_all(&self) {
+         self.generation.fetch_add(1, Ordering::SeqCst);
+-        self.rows.invalidate_all();
++        *self.rows.write() = Rows::new();
+     }
+ 
+     /// Only these keys; unrelated cached rows stay. Still bumps the
+     /// generation so any read in flight drops its insert.
+     pub(super) fn invalidate_keys(&self, keys: &[RowKey]) {
+         self.generation.fetch_add(1, Ordering::SeqCst);
++        let mut rows = self.rows.write();
+         for key in keys {
+-            self.rows.invalidate(key);
++            rows.pop(key);
+         }
++        rows.release_empty_index();
+     }
+ }
+ 
+@@ -237,6 +697,355 @@ mod cancellation_tests;
+ mod tests {
+     use super::*;
+ 
++    fn bounded(bytes: u64) -> UpperRowCache {
++        let counters = Arc::new(RowCacheCounters::default());
++        let budget = RowBudget::new(bytes, &counters);
++        UpperRowCache::with_budget(Duration::from_secs(60), counters, budget)
++    }
++
++    fn xattr(bytes: usize) -> RowValue {
++        RowValue::Xattr(Retained::new(vec![XattrDelta {
++            layer_id: crate::workspace_overlay::ids::LayerId::new(),
++            ino: 1,
++            name: b"user.large".to_vec(),
++            op: crate::workspace_overlay::model::ValueOp::Put,
++            value: Some(vec![0; bytes]),
++            sequence: 0,
++        }]))
++    }
++
++    #[test]
++    fn byte_limit_rejects_large_xattrs_without_flushing_small_rows() {
++        let cache = bounded(8192);
++        cache.insert(
++            cache.ticket(),
++            RowKey::Inode(1),
++            RowValue::Inode(Retained::new(Vec::new())),
++        );
++        let before = cache.budget.used.load(Ordering::Acquire);
++        for ino in 2..18 {
++            cache.insert(
++                cache.ticket(),
++                RowKey::Xattr(ino, b"user.large".to_vec()),
++                xattr(64 << 10),
++            );
++        }
++        assert!(cache.get(&RowKey::Inode(1)).is_some());
++        assert_eq!(cache.budget.used.load(Ordering::Acquire), before);
++        assert_eq!(cache.rows.read().len(), 1);
++    }
++
++    #[test]
++    fn readers_keep_payload_charged_after_eviction_replacement_and_close() {
++        let cache = bounded(8192);
++        let key = RowKey::Xattr(1, b"user.large".to_vec());
++        cache.insert(cache.ticket(), key.clone(), xattr(1024));
++        let pinned = cache.get(&key).unwrap();
++        let pinned_bytes = pinned.payload_bytes();
++        cache.insert(cache.ticket(), key.clone(), xattr(2048));
++        assert!(cache.budget.used.load(Ordering::Acquire) > pinned_bytes + 2048);
++        for ino in 2..20 {
++            cache.insert(cache.ticket(), RowKey::Xattr(ino, Vec::new()), xattr(2048));
++            assert!(cache.budget.used.load(Ordering::Acquire) <= 8192);
++        }
++        let used = cache.budget.used.clone();
++        drop(cache);
++        assert_eq!(used.load(Ordering::Acquire), pinned_bytes);
++        drop(pinned);
++        assert_eq!(used.load(Ordering::Acquire), 0);
++    }
++
++    #[test]
++    fn shared_payload_is_charged_once_across_both_mount_caches() {
++        let upper = bounded(8192);
++        let namespace = UpperRowCache::with_budget(
++            Duration::from_secs(60),
++            upper.counters.clone(),
++            upper.budget.clone(),
++        );
++        let value = xattr(1024);
++        let payload = value.payload_bytes();
++        upper.insert(upper.ticket(), RowKey::Inode(1), value.clone());
++        let one = upper.budget.used.load(Ordering::Acquire);
++        namespace.insert(namespace.ticket(), RowKey::Inode(2), value.clone());
++        assert_eq!(upper.budget.used.load(Ordering::Acquire), 2 * one - payload);
++        upper.invalidate_all();
++        namespace.invalidate_all();
++        assert_eq!(upper.budget.used.load(Ordering::Acquire), payload);
++        drop(value);
++        assert_eq!(upper.budget.used.load(Ordering::Acquire), 0);
++    }
++
++    #[test]
++    fn idle_expired_namespace_cannot_starve_upper_and_reclaim_work_is_linear() {
++        let upper = bounded(64 << 10);
++        // Zero TTL makes every namespace entry deterministically expired,
++        // without sleeps or relying on the scheduler's clock granularity.
++        let namespace = UpperRowCache::with_budget(
++            Duration::ZERO,
++            upper.counters.clone(),
++            upper.budget.clone(),
++        );
++        for ino in 0..512 {
++            namespace.insert(
++                namespace.ticket(),
++                RowKey::Inode(ino),
++                RowValue::Inode(Retained::new(Vec::new())),
++            );
++        }
++        let retained = namespace.rows.read().len();
++        assert!(retained > 0);
++        let before = upper.budget.reclaim_steps.load(Ordering::Relaxed);
++        for ino in 0..512 {
++            upper.insert(
++                upper.ticket(),
++                RowKey::Inode(ino),
++                RowValue::Inode(Retained::new(Vec::new())),
++            );
++            assert!(upper.get(&RowKey::Inode(ino)).is_some());
++            assert!(upper.budget.used.load(Ordering::Acquire) <= 64 << 10);
++        }
++        assert!(namespace.rows.read().is_empty());
++        let steps = upper.budget.reclaim_steps.load(Ordering::Relaxed) - before;
++        assert!(
++            steps <= 4 * (512 + retained as u64),
++            "reclaim must remove entries, not repeatedly scan retained rows: {steps}"
++        );
++    }
++
++    #[test]
++    fn peer_reclaim_keeps_expired_payload_charged_while_a_reader_pins_it() {
++        let upper = bounded(4096);
++        let namespace = UpperRowCache::with_budget(
++            Duration::ZERO,
++            upper.counters.clone(),
++            upper.budget.clone(),
++        );
++        let pinned = xattr(2048);
++        let bytes = pinned.payload_bytes();
++        namespace.insert(
++            namespace.ticket(),
++            RowKey::Xattr(1, Vec::new()),
++            pinned.clone(),
++        );
++        upper.insert(upper.ticket(), RowKey::Xattr(2, Vec::new()), xattr(1024));
++        assert!(namespace.rows.read().is_empty());
++        assert!(upper.get(&RowKey::Xattr(2, Vec::new())).is_none());
++        assert_eq!(upper.budget.used.load(Ordering::Acquire), bytes);
++        drop(pinned);
++        upper.insert(upper.ticket(), RowKey::Xattr(2, Vec::new()), xattr(1024));
++        assert!(upper.get(&RowKey::Xattr(2, Vec::new())).is_some());
++    }
++
++    #[test]
++    fn row_cache_byte_budget_evidence() {
++        for payload_bytes in [8, 64 << 10] {
++            let legacy: moka::sync::Cache<RowKey, Arc<Vec<XattrDelta>>> =
++                moka::sync::Cache::builder()
++                    .max_capacity(CAPACITY)
++                    .time_to_live(Duration::from_secs(60))
++                    .build();
++            let cache = bounded(512 << 10);
++            for ino in 0..128 {
++                let key = RowKey::Xattr(ino, b"user.large".to_vec());
++                let RowValue::Xattr(rows) = xattr(payload_bytes) else {
++                    unreachable!()
++                };
++                legacy.insert(key.clone(), Arc::new((*rows).clone()));
++                cache.insert(cache.ticket(), key, RowValue::Xattr(rows));
++            }
++            legacy.run_pending_tasks();
++            assert_eq!(legacy.entry_count(), 128);
++            let legacy_payload: usize = legacy
++                .iter()
++                .map(|(_, rows)| {
++                    rows.iter()
++                        .map(|row| row.value.as_ref().unwrap().len())
++                        .sum::<usize>()
++                })
++                .sum();
++            let retained = cache.budget.used.load(Ordering::Acquire);
++            let entries = cache.rows.read().len();
++            assert!(retained <= 512 << 10);
++            if payload_bytes == 8 {
++                assert_eq!(entries, 128);
++            } else {
++                assert!(legacy_payload as u64 > 15 * retained);
++            }
++            println!(
++                "row-cache-byte-evidence payload_bytes={payload_bytes} input_entries=128 legacy_payload_lower_bound_bytes={legacy_payload} legacy_entries=128 bounded_retained_bytes={retained} bounded_entries={entries} budget_bytes=524288"
++            );
++        }
++    }
++
++    #[test]
++    fn derived_paths_are_admitted_before_the_copy_is_constructed() {
++        let cache = bounded(4096);
++        cache.insert_paths_with(cache.ticket(), RowKey::Paths(1), 4096, || {
++            panic!("oversized path copy must not be allocated")
++        });
++        assert_eq!(cache.budget.used.load(Ordering::Acquire), 0);
++        cache.insert_child_paths(
++            cache.ticket(),
++            RowKey::Paths(2),
++            &[b"/parent".to_vec(), b"/".to_vec()],
++            b"child",
++        );
++        let Some(RowValue::Paths(paths)) = cache.get(&RowKey::Paths(2)) else {
++            panic!("admitted child paths must be cached")
++        };
++        assert_eq!(
++            paths.as_slice(),
++            &[b"/parent/child".to_vec(), b"/child".to_vec()]
++        );
++    }
++
++    #[test]
++    fn hot_key_hits_can_share_the_read_lock() {
++        let cache = bounded(8192);
++        let key = RowKey::Inode(1);
++        cache.insert(
++            cache.ticket(),
++            key.clone(),
++            RowValue::Inode(Retained::new(Vec::new())),
++        );
++        let held = cache.rows.read();
++        let (send, receive) = std::sync::mpsc::channel();
++        std::thread::scope(|scope| {
++            for _ in 0..2 {
++                let send = send.clone();
++                let cache = &cache;
++                let key = &key;
++                scope.spawn(move || send.send(cache.get(key).is_some()).unwrap());
++            }
++            // Keeping this guard excludes an exclusive hit path. Both hits
++            // must finish before it is released, including on the same key.
++            let first = receive.recv_timeout(Duration::from_secs(2));
++            let second = receive.recv_timeout(Duration::from_secs(2));
++            drop(held);
++            assert_eq!(first, Ok(true));
++            assert_eq!(second, Ok(true));
++        });
++    }
++
++    #[test]
++    fn expired_read_cleanup_preserves_a_fresh_replacement() {
++        let cache = bounded(8192);
++        let key = RowKey::Inode(1);
++        let value = || RowValue::Inode(Retained::new(Vec::new()));
++        cache.insert(cache.ticket(), key.clone(), value());
++        cache.rows.write().get_mut(&key).unwrap().inserted = Instant::now() - 2 * cache.ttl;
++        assert!(cache.rows.read().peek(&key).unwrap().inserted.elapsed() >= cache.ttl);
++        // Deterministically interleave a replacement between the expired
++        // read observation and its write-side cleanup.
++        cache.insert(cache.ticket(), key.clone(), value());
++        let retained = cache.budget.used.load(Ordering::Acquire);
++        cache.remove_expired(&key);
++        assert!(cache.get(&key).is_some());
++        assert_eq!(cache.budget.used.load(Ordering::Acquire), retained);
++    }
++
++    #[test]
++    fn second_chance_preserves_a_recent_hit_and_bounds_all_hot_scans() {
++        let cache = bounded(64 << 10);
++        for ino in 0..16 {
++            cache.insert(
++                cache.ticket(),
++                RowKey::Inode(ino),
++                RowValue::Inode(Retained::new(Vec::new())),
++            );
++        }
++        assert!(cache.get(&RowKey::Inode(0)).is_some());
++        {
++            let mut rows = cache.rows.write();
++            assert!(rows.evict_entry());
++            assert!(rows.peek(&RowKey::Inode(0)).is_some());
++            assert!(rows.peek(&RowKey::Inode(1)).is_none());
++        }
++        for ino in (0..16).filter(|ino| *ino != 1) {
++            assert!(cache.get(&RowKey::Inode(ino)).is_some());
++        }
++        let mut rows = cache.rows.write();
++        let before = rows.recency_probes;
++        let count = rows.len();
++        assert!(rows.evict_entry());
++        assert_eq!(rows.recency_probes - before, RECENCY_PROBES);
++        assert_eq!(rows.len(), count - 1);
++        assert!(cache.budget.used.load(Ordering::Acquire) <= cache.budget.limit);
++    }
++
++    #[test]
++    #[ignore = "diagnostic same-binary hit-path comparison; record raw timings, not a throughput acceptance test"]
++    fn small_row_cache_hit_benchmark() {
++        // Retain the original 128-key shape and add a single hot key. Fresh
++        // caches per shape/thread count keep the 60-second TTL out of timing.
++        for key_count in [1, 128] {
++            for threads in [1, 8] {
++                let legacy: moka::sync::Cache<RowKey, RowValue> = moka::sync::Cache::builder()
++                    .max_capacity(CAPACITY)
++                    .time_to_live(Duration::from_secs(60))
++                    .build();
++                let cache = Arc::new(bounded(512 << 10));
++                for ino in 0..128 {
++                    let value = RowValue::Inode(Retained::new(Vec::new()));
++                    legacy.insert(RowKey::Inode(ino), value.clone());
++                    cache.insert(cache.ticket(), RowKey::Inode(ino), value);
++                }
++                legacy.run_pending_tasks();
++                let disabled = AtomicBool::new(false);
++                let hits = AtomicU64::new(0);
++                for repetition in 0..6 {
++                    for bounded_first in [repetition % 2 == 0, repetition % 2 != 0] {
++                        let barrier = std::sync::Barrier::new(threads);
++                        let begin = Instant::now();
++                        std::thread::scope(|scope| {
++                            for _ in 0..threads {
++                                scope.spawn(|| {
++                                    barrier.wait();
++                                    for i in 0..50_000 {
++                                        let key = RowKey::Inode(i % key_count);
++                                        let value = if bounded_first {
++                                            cache.get(&key)
++                                        } else {
++                                            assert!(!disabled.load(Ordering::Acquire));
++                                            let value = legacy.get(&key);
++                                            assert!(!disabled.load(Ordering::Acquire));
++                                            hits.fetch_add(1, Ordering::Relaxed);
++                                            value
++                                        };
++                                        assert!(std::hint::black_box(value).is_some());
++                                    }
++                                });
++                            }
++                        });
++                        println!(
++                            "row-cache-hit-evidence bounded={bounded_first} threads={threads} keys={key_count} repetition={repetition} hits={} wall_ns={}",
++                            threads * 50_000,
++                            begin.elapsed().as_nanos()
++                        );
++                    }
++                }
++            }
++        }
++    }
++
++    #[test]
++    fn key_capacity_nested_paths_and_expiration_release_their_charges() {
++        let counters = Arc::new(RowCacheCounters::default());
++        let budget = RowBudget::new(8192, &counters);
++        let cache = UpperRowCache::with_budget(Duration::ZERO, counters, budget);
++        let mut name = Vec::with_capacity(2048);
++        name.push(1);
++        let key = RowKey::Dentry(1, name);
++        let query = key.clone();
++        cache.insert_paths(cache.ticket(), key, &[vec![0; 1024], vec![1; 512]]);
++        assert!(cache.budget.used.load(Ordering::Acquire) >= 2048 + 1024 + 512);
++        assert!(cache.get(&query).is_none());
++        assert_eq!(cache.budget.used.load(Ordering::Acquire), 0);
++        cache.insert_paths(cache.ticket(), RowKey::Paths(2), &[vec![0; 8192]]);
++        assert_eq!(cache.budget.used.load(Ordering::Acquire), 0);
++    }
++
+     #[test]
+     fn racing_invalidation_drops_stale_insert() {
+         let cache = UpperRowCache::new(Duration::from_secs(60));
+@@ -245,14 +1054,14 @@ mod tests {
+         cache.insert(
+             ticket,
+             RowKey::Inode(5),
+-            RowValue::Inode(Arc::new(Vec::new())),
++            RowValue::Inode(Retained::new(Vec::new())),
+         );
+         assert!(cache.get(&RowKey::Inode(5)).is_none());
+         let fresh = cache.ticket();
+         cache.insert(
+             fresh,
+             RowKey::Inode(5),
+-            RowValue::Inode(Arc::new(Vec::new())),
++            RowValue::Inode(Retained::new(Vec::new())),
+         );
+         assert!(cache.get(&RowKey::Inode(5)).is_some());
+         cache.invalidate_all();
+@@ -262,7 +1071,7 @@ mod tests {
+     #[test]
+     fn key_invalidation_keeps_unrelated_rows_and_drops_racing_insert() {
+         let cache = UpperRowCache::new(Duration::from_secs(60));
+-        let row = || RowValue::Inode(Arc::new(Vec::new()));
++        let row = || RowValue::Inode(Retained::new(Vec::new()));
+         let ticket = cache.ticket();
+         cache.insert(ticket, RowKey::Inode(5), row());
+         cache.insert(ticket, RowKey::Inode(6), row());
+diff --git a/src/workspace_overlay/meta_layer/row_cache_cancellation_tests.rs b/src/workspace_overlay/meta_layer/row_cache_cancellation_tests.rs
+index c600650..78c8878 100644
+--- a/src/workspace_overlay/meta_layer/row_cache_cancellation_tests.rs
++++ b/src/workspace_overlay/meta_layer/row_cache_cancellation_tests.rs
+@@ -4,7 +4,7 @@ fn warm(cache: &UpperRowCache, ino: i64) {
+     cache.insert(
+         cache.ticket(),
+         RowKey::Inode(ino),
+-        RowValue::Inode(Arc::new(Vec::new())),
++        RowValue::Inode(Retained::new(Vec::new())),
+     );
+     assert!(cache.get(&RowKey::Inode(ino)).is_some());
+ }
+@@ -25,7 +25,7 @@ fn unresolved_commit_disables_both_caches_and_later_refills() {
+             cache.insert(
+                 ticket,
+                 RowKey::Inode(1),
+-                RowValue::Inode(Arc::new(Vec::new())),
++                RowValue::Inode(Retained::new(Vec::new())),
+             );
+             assert!(cache.get(&RowKey::Inode(1)).is_none());
+         }
+@@ -75,7 +75,7 @@ async fn canceling_the_await_disables_authority_even_with_a_live_lease() {
+     cache.insert(
+         cache.ticket(),
+         RowKey::Inode(1),
+-        RowValue::Inode(Arc::new(Vec::new())),
++        RowValue::Inode(Retained::new(Vec::new())),
+     );
+     assert!(
+         !fence.unchanged(1, &[]),
+diff --git a/src/workspace_overlay/meta_layer/tests/packed_lower_tests.rs b/src/workspace_overlay/meta_layer/tests/packed_lower_tests.rs
+index 6344866..bc3c7bf 100644
+--- a/src/workspace_overlay/meta_layer/tests/packed_lower_tests.rs
++++ b/src/workspace_overlay/meta_layer/tests/packed_lower_tests.rs
+@@ -1009,6 +1009,80 @@ async fn upper_row_cache_is_frozen_only_and_commits_invalidate_it() {
+     assert_eq!(f.meta.stat(400).await.unwrap().unwrap().size, 12345);
+ }
+ 
++#[tokio::test]
++async fn cached_paths_retain_output_and_fail_admission_before_copying() {
++    use crate::workspace_overlay::packed_v3::wire005::V3BudgetPool;
++    let mut f = fixture().await;
++    f.meta = f
++        .meta
++        .with_upper_row_cache_bytes(std::time::Duration::from_secs(60), 1 << 20);
++    // This adapter-only SQLite fixture has no native reverse authority. The
++    // root path still exercises cold and cached Output ownership without it.
++    let target = f.meta.root_ino();
++    let budget = f.meta.packed_lower().unwrap().budget.clone();
++    let pool = V3BudgetPool::Output as usize;
++    let before = budget.state().used[pool];
++    let first = f.meta.packed_paths_bytes_owned(target).await.unwrap();
++    assert!(first.guard.is_some());
++    let expected = first.paths.clone();
++    drop(first);
++    assert_eq!(budget.state().used[pool], before);
++    assert!(
++        f.meta
++            .row_cache_counters
++            .retained_bytes
++            .load(Ordering::Acquire)
++            > 0
++    );
++
++    let hit = f.meta.packed_paths_bytes_owned(target).await.unwrap();
++    assert_eq!(hit.paths, expected);
++    assert!(hit.guard.is_some());
++    assert!(budget.state().used[pool] > before);
++    f.meta.invalidate_upper_rows();
++    assert_eq!(
++        f.meta
++            .row_cache_counters
++            .retained_bytes
++            .load(Ordering::Acquire),
++        0
++    );
++    assert!(
++        budget.state().used[pool] > before,
++        "cache invalidation cannot release a returned output"
++    );
++    drop(hit);
++    assert_eq!(budget.state().used[pool], before);
++
++    drop(f.meta.packed_paths_bytes_owned(target).await.unwrap());
++    let mut pinned = Vec::new();
++    while let Ok(permit) = budget.admit(&[(V3BudgetPool::Output, 1 << 20)]) {
++        pinned.push(permit);
++    }
++    assert!(
++        f.meta.packed_paths_bytes_owned(target).await.is_err(),
++        "a hit must not bypass Output admission"
++    );
++    drop(pinned);
++    assert_eq!(
++        f.meta.packed_paths_bytes_owned(target).await.unwrap().paths,
++        expected
++    );
++    // A seeded cache hint may be larger than a normal bounded reverse walk.
++    // Its hit must charge actual storage, not just the minimum 1 MiB reserve.
++    let namespace = f.meta.namespace_row_cache().unwrap();
++    namespace.insert_paths(
++        namespace.ticket(),
++        super::super::row_cache::RowKey::Paths(target),
++        &[vec![b'a'; 768 << 10]],
++    );
++    let large = f.meta.packed_paths_bytes_owned(target).await.unwrap();
++    assert_eq!(large.paths[0].len(), 768 << 10);
++    assert!(budget.state().used[pool] - before >= 1536 << 10);
++    drop(large);
++    assert_eq!(budget.state().used[pool], before);
++}
++
+ #[tokio::test]
+ async fn request_view_skips_chunk_fences_but_final_fence_rejects_same_epoch_write() {
+     use crate::workspace_overlay::meta_layer::packed_lower::with_request_view;
+@@ -1065,7 +1139,10 @@ async fn namespace_cache_survives_data_commits_and_clears_on_namespace_commits()
+         cache.insert(
+             cache.ticket(),
+             RowKey::Aliases(400),
+-            RowValue::Aliases(std::sync::Arc::new(vec![(1, b"nonzero".to_vec())])),
++            RowValue::Aliases(super::super::row_cache::Retained::new(vec![(
++                1,
++                b"nonzero".to_vec(),
++            )])),
+         );
+     };
+     seed(namespace);
+@@ -1150,12 +1227,17 @@ async fn create_keeps_existing_paths_cached_but_other_namespace_commits_clear_th
+         cache.insert(
+             cache.ticket(),
+             RowKey::Paths(400),
+-            RowValue::Paths(std::sync::Arc::new(vec![b"/file".to_vec()])),
++            RowValue::Paths(super::super::row_cache::Retained::new(vec![
++                b"/file".to_vec(),
++            ])),
+         );
+         cache.insert(
+             cache.ticket(),
+             RowKey::Aliases(400),
+-            RowValue::Aliases(std::sync::Arc::new(vec![(1, b"file".to_vec())])),
++            RowValue::Aliases(super::super::row_cache::Retained::new(vec![(
++                1,
++                b"file".to_vec(),
++            )])),
+         );
+     };
+     let fresh_inode = |ino: i64, parent: i64| InodeDelta {
+@@ -1243,12 +1325,12 @@ async fn commit_invalidates_only_the_row_cache_keys_it_writes() {
+     f.meta.inode_permissions(400).await.unwrap().unwrap();
+     assert!(cache.get(&RowKey::Inode(400)).is_some());
+     assert!(cache.get(&RowKey::Permission(400)).is_some());
+-    let unrelated = || RowValue::Inode(std::sync::Arc::new(Vec::new()));
++    let unrelated = || RowValue::Inode(super::super::row_cache::Retained::new(Vec::new()));
+     cache.insert(cache.ticket(), RowKey::Inode(1), unrelated());
+     cache.insert(
+         cache.ticket(),
+         RowKey::Dentry(1, b"other".to_vec()),
+-        RowValue::Dentry(std::sync::Arc::new(Vec::new())),
++        RowValue::Dentry(super::super::row_cache::Retained::new(Vec::new())),
+     );
+     // A real mount commit writing inode 400.
+     let mut request = f.mutation().await;
+@@ -1313,8 +1395,12 @@ async fn unsupported_packed_commit_permanently_disables_cached_authority() {
+         .meta
+         .namespace_row_cache()
+         .expect("frozen namespace cache");
+-    let inode = || RowValue::Inode(Arc::new(Vec::new()));
+-    let paths = || RowValue::Paths(Arc::new(vec![b"/file".to_vec()]));
++    let inode = || RowValue::Inode(super::super::row_cache::Retained::new(Vec::new()));
++    let paths = || {
++        RowValue::Paths(super::super::row_cache::Retained::new(vec![
++            b"/file".to_vec(),
++        ]))
++    };
+     upper.insert(upper.ticket(), RowKey::Inode(1), inode());
+     namespace.insert(namespace.ticket(), RowKey::Paths(400), paths());
+     assert!(upper.get(&RowKey::Inode(1)).is_some());
+diff --git a/src/workspace_overlay/packed_v3/wire005/budget.rs b/src/workspace_overlay/packed_v3/wire005/budget.rs
+index 7e4952c..b90d513 100644
+--- a/src/workspace_overlay/packed_v3/wire005/budget.rs
++++ b/src/workspace_overlay/packed_v3/wire005/budget.rs
+@@ -212,10 +212,23 @@ impl V3MountBudget {
+     /// old in-flight fills can never publish into the new epoch.
+     pub(crate) fn invalidate_read_caches(&self) {
+         self.read_cache_epoch.fetch_add(1, Ordering::SeqCst);
++        self.changed.notify_waiters();
+     }
+     pub(crate) fn read_cache_epoch(&self) -> u64 {
+         self.read_cache_epoch.load(Ordering::SeqCst)
+     }
++    /// Wake queued metadata fills and cancel stale fetch futures at a view fence.
++    pub(super) async fn wait_read_cache_epoch_changed(&self, epoch: u64) {
++        loop {
++            let changed = self.changed.notified();
++            tokio::pin!(changed);
++            changed.as_mut().enable();
++            if self.read_cache_epoch() != epoch {
++                return;
++            }
++            changed.await;
++        }
++    }
+     /// Observe shutdown without retaining a memory permit while waiting.
+     /// Register before inspecting state so a concurrent close cannot be lost.
+     pub(crate) async fn wait_closed(&self) {
+diff --git a/src/workspace_overlay/packed_v3/wire005/index.rs b/src/workspace_overlay/packed_v3/wire005/index.rs
+index 4661786..e7e6cac 100644
+--- a/src/workspace_overlay/packed_v3/wire005/index.rs
++++ b/src/workspace_overlay/packed_v3/wire005/index.rs
+@@ -666,7 +666,7 @@ impl<B: ObjectBackend + Clone + 'static> V3IndexReader<B> {
+                 group_bytes.min(budget.capacity(V3BudgetPool::Metadata) / 4),
+                 budget.clone(),
+             ),
+-            group_directories: super::read_cache::RetainedMetadata::with_parallel_fills(
++            group_directories: super::read_cache::RetainedMetadata::new(
+                 (cache_bytes / 64)
+                     .min(4 << 20)
+                     .min(budget.capacity(V3BudgetPool::Metadata) / 16),
+diff --git a/src/workspace_overlay/packed_v3/wire005/read_cache.rs b/src/workspace_overlay/packed_v3/wire005/read_cache.rs
+index a7ab4dd..52ad997 100644
+--- a/src/workspace_overlay/packed_v3/wire005/read_cache.rs
++++ b/src/workspace_overlay/packed_v3/wire005/read_cache.rs
+@@ -10,6 +10,37 @@ use crate::workspace_overlay::packed_v3::wire::{PackedResult, PackedWireError};
+ // Covers the fixed digest key, BTree node, Arc and entry bookkeeping. The
+ // decoded value independently retains its original mount budget permit.
+ const ENTRY_BYTES: u64 = 512;
++const MAX_FILLS: usize = 8;
++// Covers even the first BTree leaf's spare key/value slots, plus the Fill,
++// Arc, mutex and permit. The decoded value retains its own payload permit.
++const FILL_BYTES: u64 = 1024;
++
++struct Fill<T> {
++    value: tokio::sync::Mutex<Option<Arc<T>>>,
++    _permit: V3OwnedPermit,
++}
++
++struct FillGuard<'a, T> {
++    cache: &'a RetainedMetadata<T>,
++    key: (u64, [u8; 32]),
++    fill: Option<Arc<Fill<T>>>,
++}
++
++impl<T> Drop for FillGuard<'_, T> {
++    fn drop(&mut self) {
++        let mut fills = self.cache.fills.lock().unwrap();
++        // The map and this guard are the final owners. Waiting followers also
++        // own guards, so a non-retained result survives until they consume it.
++        let fill = self.fill.take().unwrap();
++        if Arc::strong_count(&fill) == 2 {
++            fills.remove(&self.key);
++            // Release the final allocation/permit before waking a contender
++            // whose Control budget may have room for exactly one fill.
++            drop(fill);
++            self.cache.fill_changed.notify_waiters();
++        }
++    }
++}
+ 
+ struct Entry<T> {
+     value: Arc<T>,
+@@ -32,7 +63,8 @@ pub(super) struct RetainedMetadata<T> {
+     capacity: u64,
+     budget: Arc<V3MountBudget>,
+     state: Mutex<State<T>>,
+-    fetch: Box<[tokio::sync::Mutex<()>]>,
++    fills: Mutex<BTreeMap<(u64, [u8; 32]), Arc<Fill<T>>>>,
++    fill_changed: tokio::sync::Notify,
+ }
+ 
+ impl<T> RetainedMetadata<T> {
+@@ -47,16 +79,48 @@ impl<T> RetainedMetadata<T> {
+                 entries: BTreeMap::new(),
+             }),
+             budget,
+-            fetch: vec![tokio::sync::Mutex::new(())].into_boxed_slice(),
++            fills: Mutex::new(BTreeMap::new()),
++            fill_changed: tokio::sync::Notify::new(),
+         }
+     }
+ 
+-    /// Bounded stripes let a directory page fetch independent groups together.
+-    /// Identical keys still share one fill; existing data caches stay serial.
+-    pub(super) fn with_parallel_fills(capacity: u64, budget: Arc<V3MountBudget>) -> Self {
+-        let mut cache = Self::new(capacity, budget);
+-        cache.fetch = (0..8).map(|_| tokio::sync::Mutex::new(())).collect();
+-        cache
++    async fn fill(&self, epoch: u64, key: [u8; 32]) -> PackedResult<FillGuard<'_, T>> {
++        loop {
++            let changed = self.fill_changed.notified();
++            tokio::pin!(changed);
++            changed.as_mut().enable();
++            self.check_epoch(epoch)?;
++            {
++                let mut fills = self.fills.lock().unwrap();
++                let key = (epoch, key);
++                if let Some(fill) = fills.get(&key) {
++                    return Ok(FillGuard {
++                        cache: self,
++                        key,
++                        fill: Some(fill.clone()),
++                    });
++                }
++                if fills.len() < MAX_FILLS {
++                    let permit = self.budget.admit(&[(V3BudgetPool::Control, FILL_BYTES)])?;
++                    let fill = Arc::new(Fill {
++                        value: tokio::sync::Mutex::new(None),
++                        _permit: permit,
++                    });
++                    fills.insert(key, fill.clone());
++                    return Ok(FillGuard {
++                        cache: self,
++                        key,
++                        fill: Some(fill),
++                    });
++                }
++            }
++            tokio::select! {
++                () = changed => {},
++                () = self.budget.wait_read_cache_epoch_changed(epoch) => {
++                    return Err(PackedWireError::ReadViewChanged);
++                }
++            }
++        }
+     }
+ 
+     pub(super) fn cached(
+@@ -125,17 +189,29 @@ impl<T> RetainedMetadata<T> {
+             self.check_epoch(epoch)?;
+             return Ok(value);
+         }
+-        // Share successful same-key fills with bounded flight state. Namespace
+-        // caches use independent stripes; other caches have one fill lock.
+-        let _fill = self.fetch[usize::from(key[0]) % self.fetch.len()]
+-            .lock()
+-            .await;
++        // Only identical epoch/digest pairs wait on each other. The map is
++        // bounded, its owners are charged, and no registry lock spans I/O.
++        let fill = self.fill(epoch, key).await?;
++        let mut completed = tokio::select! {
++            completed = fill.fill.as_ref().unwrap().value.lock() => completed,
++            () = self.budget.wait_read_cache_epoch_changed(epoch) => {
++                return Err(PackedWireError::ReadViewChanged);
++            }
++        };
+         self.check_epoch(epoch)?;
++        if let Some(value) = completed.as_ref() {
++            return Ok(value.clone());
++        }
+         if let Some(value) = self.get(&key, epoch) {
+             self.check_epoch(epoch)?;
+             return Ok(value);
+         }
+-        let value = fetch.await?;
++        let value = tokio::select! {
++            value = fetch => value?,
++            () = self.budget.wait_read_cache_epoch_changed(epoch) => {
++                return Err(PackedWireError::ReadViewChanged);
++            }
++        };
+         let bytes = weight(&value).saturating_add(ENTRY_BYTES);
+         let mut state = self.state.lock().unwrap();
+         if state.epoch != epoch || self.budget.read_cache_epoch() != epoch {
+@@ -171,6 +247,7 @@ impl<T> RetainedMetadata<T> {
+                 state.bytes += bytes;
+             }
+         }
++        *completed = Some(value.clone());
+         Ok(value)
+     }
+ 
+@@ -193,6 +270,175 @@ mod tests {
+     use super::*;
+     use std::sync::atomic::{AtomicUsize, Ordering};
+ 
++    #[tokio::test]
++    async fn unrelated_digest_fills_do_not_wait_for_each_other() {
++        let budget = V3MountBudget::defaults();
++        let cache = RetainedMetadata::new(8192, budget);
++        let generation = ReadGeneration::readonly([1; 32]);
++        let mut other_key = [0; 32];
++        other_key[31] = 1; // Deliberately collide in the old striped lock scheme.
++        let first = cache.read(generation, [0; 32], |_| 100, async {
++            std::future::pending::<PackedResult<Arc<u64>>>().await
++        });
++        tokio::pin!(first);
++        assert!(futures::poll!(first.as_mut()).is_pending());
++        let second = cache.read(generation, other_key, |_| 100, async { Ok(Arc::new(2)) });
++        tokio::pin!(second);
++        assert!(
++            matches!(futures::poll!(second.as_mut()), std::task::Poll::Ready(Ok(value)) if *value == 2)
++        );
++    }
++
++    #[tokio::test]
++    async fn same_key_followers_share_even_when_value_is_too_large_to_retain() {
++        let budget = V3MountBudget::defaults();
++        let cache = RetainedMetadata::new(1, budget);
++        let generation = ReadGeneration::readonly([1; 32]);
++        let calls = AtomicUsize::new(0);
++        let (release, wait) = tokio::sync::oneshot::channel();
++        let first = cache.read(generation, [1; 32], |_| 100, async {
++            calls.fetch_add(1, Ordering::SeqCst);
++            wait.await.unwrap();
++            Ok(Arc::new(1))
++        });
++        let second = cache.read(generation, [1; 32], |_| 100, async {
++            calls.fetch_add(1, Ordering::SeqCst);
++            Ok(Arc::new(2))
++        });
++        tokio::pin!(first, second);
++        assert!(futures::poll!(first.as_mut()).is_pending());
++        assert!(futures::poll!(second.as_mut()).is_pending());
++        release.send(()).unwrap();
++        let first = first.await.unwrap();
++        let second = second.await.unwrap();
++        assert!(Arc::ptr_eq(&first, &second));
++        assert_eq!(calls.load(Ordering::SeqCst), 1);
++        assert!(cache.state.lock().unwrap().entries.is_empty());
++    }
++
++    #[tokio::test]
++    async fn fill_limit_and_cancellation_release_registry_and_permits() {
++        let budget = V3MountBudget::defaults();
++        let cache = RetainedMetadata::new(8192, budget.clone());
++        let generation = ReadGeneration::readonly([1; 32]);
++        let calls = AtomicUsize::new(0);
++        let mut fills: Vec<_> = (0..=MAX_FILLS)
++            .map(|key| {
++                Box::pin(cache.read(generation, [key as u8; 32], |_| 100, async {
++                    calls.fetch_add(1, Ordering::SeqCst);
++                    std::future::pending::<PackedResult<Arc<u64>>>().await
++                }))
++            })
++            .collect();
++        for fill in &mut fills {
++            assert!(futures::poll!(fill.as_mut()).is_pending());
++        }
++        assert_eq!(calls.load(Ordering::SeqCst), MAX_FILLS);
++        assert_eq!(cache.fills.lock().unwrap().len(), MAX_FILLS);
++        assert_eq!(
++            budget.state().used[V3BudgetPool::Control as usize],
++            MAX_FILLS as u64 * FILL_BYTES
++        );
++        drop(fills.remove(0));
++        assert!(futures::poll!(fills.last_mut().unwrap().as_mut()).is_pending());
++        assert_eq!(calls.load(Ordering::SeqCst), MAX_FILLS + 1);
++        drop(fills);
++        assert!(cache.fills.lock().unwrap().is_empty());
++        assert_eq!(budget.state().used[V3BudgetPool::Control as usize], 0);
++    }
++
++    #[tokio::test]
++    async fn cancelled_leader_and_failed_leader_allow_followers_to_retry() {
++        for cancel in [true, false] {
++            let budget = V3MountBudget::defaults();
++            let cache = RetainedMetadata::new(8192, budget.clone());
++            let generation = ReadGeneration::readonly([1; 32]);
++            let (release, wait) = tokio::sync::oneshot::channel();
++            let mut first = Box::pin(cache.read(generation, [1; 32], |_| 100, async {
++                let _ = wait.await;
++                Err::<Arc<u64>, _>(PackedWireError::Invalid("failed fill".into()))
++            }));
++            let mut second =
++                Box::pin(cache.read(generation, [1; 32], |_| 100, async { Ok(Arc::new(2)) }));
++            assert!(futures::poll!(first.as_mut()).is_pending());
++            assert!(futures::poll!(second.as_mut()).is_pending());
++            if cancel {
++                drop(first);
++                drop(release);
++            } else {
++                release.send(()).unwrap();
++                assert!(first.await.is_err());
++            }
++            assert_eq!(*second.await.unwrap(), 2);
++            assert!(cache.fills.lock().unwrap().is_empty());
++            assert_eq!(budget.state().used[V3BudgetPool::Control as usize], 0);
++        }
++    }
++
++    #[tokio::test]
++    async fn close_or_generation_fence_wakes_leaders_and_all_queued_fill_waiters() {
++        for close in [true, false] {
++            let budget = V3MountBudget::defaults();
++            let cache = RetainedMetadata::new(8192, budget.clone());
++            let generation = ReadGeneration::readonly([1; 32]);
++            // Eight leaders, one new-key slot waiter, and one same-key waiter.
++            let mut fills: Vec<_> = (0..=MAX_FILLS)
++                .chain(std::iter::once(0))
++                .map(|key| {
++                    Box::pin(cache.read(generation, [key as u8; 32], |_| 100, async {
++                        std::future::pending::<PackedResult<Arc<u64>>>().await
++                    }))
++                })
++                .collect();
++            for fill in &mut fills {
++                assert!(futures::poll!(fill.as_mut()).is_pending());
++            }
++            if close {
++                budget.close();
++            } else {
++                let mut next = generation;
++                next.workspace_head_epoch += 1;
++                assert!(cache.cached(next, &[0; 32]).unwrap().is_none());
++            }
++            for mut fill in fills {
++                assert!(matches!(
++                    futures::poll!(fill.as_mut()),
++                    std::task::Poll::Ready(Err(PackedWireError::ReadViewChanged))
++                ));
++            }
++            assert!(cache.fills.lock().unwrap().is_empty());
++            assert_eq!(budget.state().used[V3BudgetPool::Control as usize], 0);
++            assert!(cache.state.lock().unwrap().entries.is_empty());
++        }
++    }
++
++    #[tokio::test]
++    async fn exhausted_control_budget_rejects_fill_before_backend_and_leaks_nothing() {
++        let budget = V3MountBudget::defaults();
++        let held = budget
++            .admit(&[(
++                V3BudgetPool::Control,
++                budget.capacity(V3BudgetPool::Control),
++            )])
++            .unwrap();
++        let cache = RetainedMetadata::new(8192, budget.clone());
++        let generation = ReadGeneration::readonly([1; 32]);
++        let result = cache
++            .read(generation, [1; 32], |_| 100, async {
++                panic!("an unadmitted fill must not start backend I/O");
++                #[allow(unreachable_code)]
++                Ok(Arc::new(1u64))
++            })
++            .await;
++        assert!(matches!(result, Err(PackedWireError::LimitExceeded(_))));
++        assert!(cache.fills.lock().unwrap().is_empty());
++        drop(held);
++        assert_eq!(budget.state().used[V3BudgetPool::Control as usize], 0);
++        let calls = AtomicUsize::new(0);
++        assert_eq!(*read(&cache, generation, 1, &calls).await, 1);
++        assert_eq!(calls.load(Ordering::SeqCst), 1);
++    }
++
+     async fn read(
+         cache: &RetainedMetadata<u64>,
+         generation: ReadGeneration,
+@@ -233,7 +479,7 @@ mod tests {
+     #[tokio::test]
+     async fn directory_fills_overlap_and_same_key_followers_share() {
+         let budget = V3MountBudget::defaults();
+-        let cache = RetainedMetadata::with_parallel_fills(16384, budget.clone());
++        let cache = RetainedMetadata::new(16384, budget.clone());
+         let generation = ReadGeneration::readonly([1; 32]);
+         let barrier = Arc::new(tokio::sync::Barrier::new(8));
+         let fills = futures::future::join_all((0..8).map(|key| {

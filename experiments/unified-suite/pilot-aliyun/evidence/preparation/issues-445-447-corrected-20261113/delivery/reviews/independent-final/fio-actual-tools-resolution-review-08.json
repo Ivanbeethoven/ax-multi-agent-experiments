@@ -1,0 +1,37 @@
+{
+  "schema": "independent-actual-tools-shortio-resolution-v1",
+  "decision": "SHORT_IOS_ACCOUNTING_EXPLANATION_CLOSED_CACHED_CPU_TARGET_ACCEPTED",
+  "integrated_pr_qualified": false,
+  "checks_passed": 60,
+  "evidence": {
+    "directory": "/home/dev/ax-perf-issues-validation/corrected-runtime-review-08/diagnostic/fio-counter-actual-tools-01",
+    "runtime08_tar_sha256": "ddbb131ca0003384d2356e84f68b97952b5c3325a85a35a69464ed5735c2079f",
+    "host_receipt_sha256": "3b75e3da5ef53023e15669a3232ebe40e89f01d2fdcd906ce73e6e5a88c14993",
+    "probe_receipt_sha256": "f5f0d40969094eee8354d98f981eb09e3018b2e99417d8df50e2b5bfc8d797fb",
+    "image_id": "sha256:c8d98b130b7382e8fce8557e70242536db5b6f7c8654c86962c32d038f535645",
+    "fio_binary_sha256": "383b58e9f8fc2a0bfc9270fae73ac9491eefd0b375da9b79c57a7abeeff566ef"
+  },
+  "cases": [
+    {
+      "label": "off",
+      "pwrite_full4096_count": 4096,
+      "successful_sync_count": 0,
+      "raw_short_ios": 0,
+      "known16MiB_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5"
+    },
+    {
+      "label": "on",
+      "pwrite_full4096_count": 4096,
+      "successful_sync_count": 4095,
+      "raw_short_ios": 4095,
+      "known16MiB_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5"
+    }
+  ],
+  "local_source_abi_review_sha256": "6e12b44dac4a5c562290c2b5287dd18805f05b86289ad2aaa1e7997558dd5929",
+  "prior_cached_review_sha256": "15512f44680829670d993738e60ec6a2edf77292d42ac728c4670cb931e5326d",
+  "conclusion": "The frozen tools image used by all eight cached arms reproduces raw write.short_ios4095 only when4095 successful range-sync syscalls run between4096 complete4KiB pwrite calls. Original formal argv differs only in paths and the off control removing sync. Combined with the independently checked upstream3.39 source/ABI reproduction, this closes the accounting explanation without treating the raw field as actual short file writes.",
+  "read_scope": "Actual-tools diagnostic did not trace pread. Raw fio JSON reports complete16MiB/4096 verification reads and the probe records the independently known full-file0x5a SHA. The separate local upstream proof traces every complete pread. Do not merge these scopes or claim cloud pread tracing.",
+  "cpu_conclusion": "The prior independent698-check review establishes three corrected AB/BA/AB paired client CPU reductions of15.094,24.074,18.868percent (8,13,10ticks at100HZ). This is write plus in-tool pattern readback plus strict-drain BrewFS process CPU, excluding FIO/RustFS CPU. No wall throughput improvement claim.",
+  "preservation": "All eight formal short_ios values, the earlier pending review, and diagnostics remain unchanged. No diagnostic timing is included in performance.",
+  "remaining": "Overall integrated PR remains HOLD for repeated randwrite/direct1 CPU/GiB regression in full matrices601/603 and pending corrected workspace/long-row gates. Target improvement does not cancel another path regression."
+}

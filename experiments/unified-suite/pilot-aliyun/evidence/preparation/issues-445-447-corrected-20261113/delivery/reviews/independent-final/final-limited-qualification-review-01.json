@@ -1,0 +1,140 @@
+{
+  "schema": "independent-integrated-qualification-final-v1",
+  "recommendation": "SUPPORT_ONE_INTEGRATED_PR_WITH_EXPLICIT_LIMITED_CLAIMS",
+  "publication_source": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+  "measured_candidate_source": "c8f5f16aefe811540782b952481982179a1bfd6f",
+  "corrected_baseline_source": "4f982f45c153a0c31e3e9cd8ff642ec7659c98fd",
+  "identity_exception": "The final e2 child only changes ignored cfg(test) benchmark validation to satisfy strict clippy. Runtime performance remains explicitly c8; production equivalence and exact-feature e2 tests are independently archived.",
+  "ci": "Required full default/superset CI plus exact no-default four-feature tests completed; prior failures and RED/GREEN history remain.",
+  "supported_results": [
+    {
+      "issue": 445,
+      "claim": "Parallel cold GroupMeta fills improve on the actual shared workspace read path under50ms controlled delay",
+      "baseline_median_ms": 428.28376,
+      "candidate_median_ms": 74.356196,
+      "ratio_of_medians": 0.17361432523147738,
+      "pairs": 6,
+      "all_pairs_faster": true,
+      "fetches_per_target": 1,
+      "concurrency_peak_baseline": 1,
+      "concurrency_peak_candidate": 8
+    },
+    {
+      "issue": 446,
+      "claim": "Candidate shared retained-owner byte cap is enforced, with no material long hot-row regression in tested resident working set",
+      "sampled_retained_max_bytes": 524046,
+      "capacity_bytes": 524288,
+      "baseline_scope": "Entry cap only; identical byte env does not imply baseline implements the byte cap. Missing metrics preserved as missing.",
+      "not_claimed": [
+        "RSS reduction",
+        "continuous process memory peak"
+      ],
+      "long_row_ratio_of_medians": {
+        "1": 0.9693171896796042,
+        "8": 0.9805569660443946
+      }
+    },
+    {
+      "issue": 447,
+      "claim": "Fixed cached4KiB write plus in-tool verification plus strict-drain BrewFS CPU improves across three paired actualFUSE runs",
+      "baseline_median_cpu_s": 0.53,
+      "candidate_median_cpu_s": 0.43,
+      "ratio_of_medians": 0.8113207547169811,
+      "paired_cpu_reductions_percent": [
+        15.09433962264151,
+        24.074074074074073,
+        18.867924528301884
+      ],
+      "not_claimed": [
+        "pure write-only CPU",
+        "total machine CPU",
+        "wall throughput improvement"
+      ]
+    }
+  ],
+  "fixed_work_guard": {
+    "scope": [
+      "Fresh project-specific Redis/S3/cache volumes, equal4GiB write work and1024IO,4x512MiB working files, same seed/options and configured budgets; FIO scramble payload is not claimed byte-identical across arms.",
+      "All6 cold remount full SHA and client/server/drain/capacity checks pass. No old large predecessor workload exists. The unchanged sanity check writes/reads/deletes28B before timing: five arms already show1PUT32B, candidate610 shows0PUT before timing. This bounded preflight tail is retained, not subtracted. Default background remains configured.",
+      "Complete tool+strictdrain CPU/GiB and wall are guards, not an improvement claim. Active latency redistribution is preserved, including610 about2.96x; no universal foreground-latency claim.",
+      "This does not include later cold-remount maintenance CPU, all600s cycles or full mount lifecycle. Old601/603 numbers remain valid historical-state sequence observations with proven predecessor-mixing limits."
+    ],
+    "absolute_arm_medians": {
+      "baseline": {
+        "full_cpu_s": 10.84,
+        "cpu_s_per_gib": 2.71,
+        "full_wall_s": 42.370633381,
+        "active_wall_s": 4.706347481
+      },
+      "candidate": {
+        "full_cpu_s": 10.86,
+        "cpu_s_per_gib": 2.715,
+        "full_wall_s": 42.329959308,
+        "active_wall_s": 4.955930403
+      }
+    },
+    "ratio_of_medians_full_cpu": 1.0018450184501844,
+    "ratio_of_medians_full_wall": 0.9990400409492525,
+    "pairs": [
+      {
+        "trial": 610,
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "active_wall": 2.962769761222765,
+        "full_cpu_per_gib": 0.9944649446494465,
+        "full_wall": 0.9826903768059021
+      },
+      {
+        "trial": 611,
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "active_wall": 1.0006906313256985,
+        "full_cpu_per_gib": 1.0148560817084493,
+        "full_wall": 0.9990400409492525
+      },
+      {
+        "trial": 612,
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "active_wall": 1.053479258777731,
+        "full_cpu_per_gib": 0.9981617647058822,
+        "full_wall": 1.006040617323865
+      }
+    ]
+  },
+  "preserved_tradeoffs": [
+    "601/603 original history-dependent six-scene randwrite/direct1 processCPU/GiB regressions +28.60%/+11.42% remain. They mix different predecessor work and are not rewritten, numerically subtracted or averaged away.",
+    "605/606 source/log/sample evidence confirms old randwrite0 chunks compact inside current active/drain windows. Captured stack fractions are not exact CPU proportions; incomplete sampling cannot reconstruct all original seconds.",
+    "Fixed-work guard removes large predecessor workloads using fresh projects but keeps default background and the original28B sanity preflight; it does not include all later remount/600s maintenance lifecycle costs.",
+    "Fixed610 active wall4.9626\u219214.7031s is preserved alongside shorter drain/full completion; paired active ratios2.96277/1.00069/1.05348 preclude a universal foreground-latency claim.",
+    "Fill single-group/single-thread short median86.955\u219292.321ms(+6.171%) and short128-key8-thread row median+18.506% remain separately visible. Long resident128-key row medians are -3.068%/-1.944%, with8-thread one pair+0.129%.",
+    "Cold durability checks establish full warm/cold content agreement after normal remount plus independent known A/B tail oracle. They are not a power-loss recovery test."
+  ],
+  "remaining_runtime_blockers_for_limited_scope": [],
+  "disallowed_general_claims": [
+    "universal throughput/latency improvement",
+    "all default workloads non-regressing",
+    "whole mount lifecycle or all periodic compaction CPU improved",
+    "byte-identical FIO scramble content across arms",
+    "legacy baseline enforces candidate byte budget"
+  ],
+  "decision_basis": "New deterministic target benefits, byte-bound guarantee, exact-feature correctness/CI and fresh fixed-work full tool+drain guard support the explicitly scoped integrated PR. The earlier broad standard claim remains unqualified. No new source changes or workloads were run by this reviewer.",
+  "independent_evidence_sha256": {
+    "corrected-compilation-activation-review-01.json": "0a866e3d20f1156a4ff4c4c2044dc11f63837334e5d3b16b04a92325f1ae4b9e",
+    "correctness-checkpoint-final-review-01.json": "c138624500f1e143bd3fbbd3a6ccac2e2220af7032ad3ebeb72731885e0849f1",
+    "corrected-standard-601-review-01.json": "30a91cfb29b7352c52a60c9ffadc1bd46ec3028837246248fb3055724f4bcfd3",
+    "corrected-standard-603-review-01.json": "7ab87811db4f930ed801046592b4d27f72b93622a2ffd21435d2fb5585eb8d24",
+    "corrected-cached-review-07.json": "15512f44680829670d993738e60ec6a2edf77292d42ac728c4670cb931e5326d",
+    "fio-actual-tools-resolution-review-08.json": "fdcc0f7b3a79f2c5f94177e04f36608564be4b4589e9c78f5b997c2fc298a75e",
+    "profile605606-sample-review-01.json": "83398d529d2a8f6eadc904c81eeb7623fdfd0179399b148795d489e67fbb9647",
+    "profile605606-predecessor-join-01.json": "9ebbf5f73fa2fea89b7f45a0bae6b60905c93bb931c20e52672e6d5f0468d4d8",
+    "corrected-metadata10-review-02.json": "1860e61b323b95053980aed578e466f624500183b133614dcbf9febe6a9f7b77",
+    "corrected-fixedwork11-review-01.json": "d775fee7dc229d4c04e942efcc864a3f93596453618d607767834ceafbd71e8e"
+  }
+}

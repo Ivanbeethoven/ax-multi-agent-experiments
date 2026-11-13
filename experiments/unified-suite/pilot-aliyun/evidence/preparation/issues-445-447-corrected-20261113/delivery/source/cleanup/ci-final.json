@@ -1,0 +1,554 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-12T21:17:26.639649+00:00",
+  "local_date_timezone": "Asia/Shanghai",
+  "correctness_commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+  "publication_source_commit": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+  "publication_tree": "0a8f932b621235e967ddba0ac4b8c7ff89eb03e2",
+  "runtime_candidate_commit": "c8f5f16aefe811540782b952481982179a1bfd6f",
+  "source_binding": {
+    "source_head": "e2c964c55fafdcced34af58e840ebddda1cf9ea4",
+    "active_base_head": "7b8445042fda8e6cd5ec9a3bedc0eb606a45d8b3",
+    "active_source_equivalent_to_commit": true,
+    "files": {
+      "src/vfs/io/writer.rs": "a18a7ebc352008ca04aace44f68bf0b340bba83a6927cfd0b510b69c239059c0",
+      "src/vfs/io/writer/cached_write_watermarks_bench.rs": "4c04a680d616304caa0eba2b2a52a5f7e68d05285244fa01f38e2b137b848cd3",
+      "src/vfs/io/writer/commit_cleanup_tests.rs": "bc8eef0aeb13e064909b2d291417378b9ab6a717d1a5a44e44bbaba51c26e21f"
+    }
+  },
+  "release_equivalence_proof": {
+    "path": "testfix-release-equivalence.json",
+    "sha256": "3d84a133b656f34cd5678c634813b2df8c2207c9060af4dba8d91f7dc687cd09"
+  },
+  "local_ci_gate_passed": true,
+  "performance_acceptance_passed": false,
+  "performance_acceptance_state": "pending corrected baseline/candidate exact-feature tests and fresh-cache actual FUSE qualification owned by agent 447",
+  "full_tests_default": {
+    "rows": [
+      {
+        "status": "ok",
+        "passed": 1360,
+        "failed": 0,
+        "ignored": 266,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 184.3
+      },
+      {
+        "status": "ok",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 0.01
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 0.0
+      }
+    ],
+    "total_passed": 1362,
+    "total_failed": 0,
+    "total_ignored": 266
+  },
+  "full_tests_superset": {
+    "rows": [
+      {
+        "status": "ok",
+        "passed": 2841,
+        "failed": 0,
+        "ignored": 485,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 534.36
+      },
+      {
+        "status": "ok",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 0.01
+      },
+      {
+        "status": "ok",
+        "passed": 15,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 11.51
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 0.0
+      }
+    ],
+    "total_passed": 2858,
+    "total_failed": 0,
+    "total_ignored": 485
+  },
+  "focused": {
+    "rows": [
+      {
+        "status": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 3323,
+        "seconds": 0.48
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 2,
+        "seconds": 0.0
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 15,
+        "seconds": 0.0
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 0.0
+      }
+    ],
+    "total_passed": 3,
+    "total_failed": 0,
+    "total_ignored": 0
+  },
+  "commit_before_upload": {
+    "rows": [
+      {
+        "status": "ok",
+        "passed": 16,
+        "failed": 0,
+        "ignored": 1,
+        "measured": 0,
+        "filtered": 3309,
+        "seconds": 1.5
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 2,
+        "seconds": 0.0
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 15,
+        "seconds": 0.0
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 0.0
+      }
+    ],
+    "total_passed": 16,
+    "total_failed": 0,
+    "total_ignored": 1
+  },
+  "writeback_cache": {
+    "rows": [
+      {
+        "status": "ok",
+        "passed": 21,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 3305,
+        "seconds": 0.18
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 2,
+        "seconds": 0.0
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 15,
+        "seconds": 0.0
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "seconds": 0.0
+      }
+    ],
+    "total_passed": 21,
+    "total_failed": 0,
+    "total_ignored": 0
+  },
+  "same_executable_repeats": {
+    "executable": "/home/dev/ax-issues-target/debug/deps/brewfs-60b5945b8ee313b8",
+    "executable_sha256": "bebf54eabff7d19b861dc15b4ea1ef765c9fb3c4c9a720ffd8d9acb5a585ff76",
+    "runs": [
+      {
+        "run": 1,
+        "exit": 0,
+        "passed": 3,
+        "log": "focused-repeat-1.log",
+        "sha256": "c8a184524b10611e6f9478274bb1b26255d28b8665213504b543cf7e629c7aca"
+      },
+      {
+        "run": 2,
+        "exit": 0,
+        "passed": 3,
+        "log": "focused-repeat-2.log",
+        "sha256": "0d093e72e4d0a71159f44ccf39864ac1ed982c3ec39b22b45b6cd4ed1a48b1cd"
+      },
+      {
+        "run": 3,
+        "exit": 0,
+        "passed": 3,
+        "log": "focused-repeat-3.log",
+        "sha256": "0d093e72e4d0a71159f44ccf39864ac1ed982c3ec39b22b45b6cd4ed1a48b1cd"
+      }
+    ],
+    "same_executable_verified": true
+  },
+  "full_suite_source": "c8f5f16a; final e2 child only changes an ignored cfg(test) benchmark post-timing verification loop; full suite rerun waived explicitly by root, strict lint rerun required and passed",
+  "feature_scope": {
+    "default": "defaults enabled: fuse-io-uring-runtime,gateway-s3,gateway-webdav",
+    "superset": "defaults enabled plus workspace-overlay,observability,rustfs-ec-block-size-hint",
+    "exact_runtime": "--no-default-features --features fuse-io-uring-runtime,workspace-overlay,observability,rustfs-ec-block-size-hint",
+    "exact_runtime_full_tests": "pending; not represented by the superset result"
+  },
+  "gates": [
+    {
+      "name": "fmt",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:17:59Z",
+      "end_utc": "2026-11-12T20:18:08Z",
+      "exit": 0,
+      "elapsed_seconds": 9.0,
+      "log": "green-02/fmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "focused",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:18:08Z",
+      "end_utc": "2026-11-12T20:33:13Z",
+      "exit": 0,
+      "elapsed_seconds": 905.0,
+      "log": "green-02/focused.log",
+      "log_sha256": "c38aa77fdb9c98d57c35a529ca6e2acbed273977556cc0108d79fe35281de6c3"
+    },
+    {
+      "name": "repeat-focused",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:33:13Z",
+      "end_utc": "2026-11-12T20:33:29Z",
+      "exit": 0,
+      "elapsed_seconds": 16.0,
+      "log": "green-02/repeat-focused.log",
+      "log_sha256": "9efb845aa1b69c0bcae9e01d586624d981516b33101c31abc73c25c65a381ac5"
+    },
+    {
+      "name": "writeback",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:33:29Z",
+      "end_utc": "2026-11-12T20:33:31Z",
+      "exit": 0,
+      "elapsed_seconds": 2.0,
+      "log": "green-02/writeback.log",
+      "log_sha256": "f86332ac609d88df0e2c28512edbb308fede536ff446efd5c26c6c9232638ca9"
+    },
+    {
+      "name": "cache-writeback",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:33:31Z",
+      "end_utc": "2026-11-12T20:33:32Z",
+      "exit": 0,
+      "elapsed_seconds": 1.0,
+      "log": "green-02/cache-writeback.log",
+      "log_sha256": "81f020338ffc4a66c95a5592241caedd728d9592ff06cf678f9bf2dfd4a7fa2f"
+    },
+    {
+      "name": "actual-features",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:33:32Z",
+      "end_utc": "2026-11-12T20:42:39Z",
+      "exit": 0,
+      "elapsed_seconds": 547.0,
+      "log": "green-02/actual-features.log",
+      "log_sha256": "e037d5f459dda75549ebdfa97d097bfbc7f62aad38678fe7e60739dfc7574cb6"
+    },
+    {
+      "name": "run_perf_in_container.sh",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:42:39Z",
+      "end_utc": "2026-11-12T20:42:39Z",
+      "exit": 0,
+      "elapsed_seconds": 0.0,
+      "log": "green-02/run_perf_in_container.sh.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "run_redis_perf.sh",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:42:39Z",
+      "end_utc": "2026-11-12T20:42:39Z",
+      "exit": 0,
+      "elapsed_seconds": 0.0,
+      "log": "green-02/run_redis_perf.sh.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "run_juicefs_perf_in_container.sh",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:42:39Z",
+      "end_utc": "2026-11-12T20:42:39Z",
+      "exit": 0,
+      "elapsed_seconds": 0.0,
+      "log": "green-02/run_juicefs_perf_in_container.sh.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "run_juicefs_perf.sh",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:42:39Z",
+      "end_utc": "2026-11-12T20:42:40Z",
+      "exit": 0,
+      "elapsed_seconds": 1.0,
+      "log": "green-02/run_juicefs_perf.sh.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "test_perf_report_delta.sh",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:42:40Z",
+      "end_utc": "2026-11-12T20:42:40Z",
+      "exit": 0,
+      "elapsed_seconds": 0.0,
+      "log": "green-02/test_perf_report_delta.sh.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "test_juicefs_direct_matrix.sh",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:42:40Z",
+      "end_utc": "2026-11-12T20:42:40Z",
+      "exit": 0,
+      "elapsed_seconds": 0.0,
+      "log": "green-02/test_juicefs_direct_matrix.sh.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "test_juicefs_perf_report.sh",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:42:40Z",
+      "end_utc": "2026-11-12T20:42:40Z",
+      "exit": 0,
+      "elapsed_seconds": 0.0,
+      "log": "green-02/test_juicefs_perf_report.sh.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "check",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:42:40Z",
+      "end_utc": "2026-11-12T20:43:54Z",
+      "exit": 0,
+      "elapsed_seconds": 74.0,
+      "log": "green-02/check.log",
+      "log_sha256": "af8283ef0134a990174ce0b5c4b70b936f0c4c420b078e411ddb78ba1e01a9d4"
+    },
+    {
+      "name": "build",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:43:54Z",
+      "end_utc": "2026-11-12T20:46:33Z",
+      "exit": 0,
+      "elapsed_seconds": 159.0,
+      "log": "green-02/build.log",
+      "log_sha256": "970c37ee9a9a66062d816815ec522f8cadcad7ce0b758a49c20ba29d318787ac"
+    },
+    {
+      "name": "tokio",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:46:33Z",
+      "end_utc": "2026-11-12T20:47:42Z",
+      "exit": 0,
+      "elapsed_seconds": 69.0,
+      "log": "green-02/tokio.log",
+      "log_sha256": "08a262ec842416ca0d0e6bcb795babe2e4fc33dbf50cf6e7f81b270de018fa9c"
+    },
+    {
+      "name": "uring",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:47:42Z",
+      "end_utc": "2026-11-12T20:48:41Z",
+      "exit": 0,
+      "elapsed_seconds": 59.0,
+      "log": "green-02/uring.log",
+      "log_sha256": "866c7045b4707b5803b0ebad6f234d8534031591cc18e224e9bb69ec78cf581b"
+    },
+    {
+      "name": "tests",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:48:41Z",
+      "end_utc": "2026-11-12T20:55:36Z",
+      "exit": 0,
+      "elapsed_seconds": 415.0,
+      "log": "green-02/tests.log",
+      "log_sha256": "26347f4c12d4e824da8ae7e27300feb96d9ec9ebb3323524fe58387c0dd4ad2b"
+    },
+    {
+      "name": "clippy",
+      "directory": "green-02",
+      "start_utc": "2026-11-12T20:55:36Z",
+      "end_utc": "2026-11-12T20:56:35Z",
+      "exit": 0,
+      "elapsed_seconds": 59.0,
+      "log": "green-02/clippy.log",
+      "log_sha256": "7e42d1009f48727149c75212b7701911190d3b68fec2503163bbe46f689e8ec3"
+    },
+    {
+      "name": "fmt",
+      "directory": "testfix-gates-01",
+      "start_utc": "2026-11-12T21:11:29Z",
+      "end_utc": "2026-11-12T21:11:39Z",
+      "exit": 0,
+      "elapsed_seconds": 10.0,
+      "log": "testfix-gates-01/fmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "strict-default-clippy",
+      "directory": "testfix-gates-01",
+      "start_utc": "2026-11-12T21:11:39Z",
+      "end_utc": "2026-11-12T21:13:06Z",
+      "exit": 0,
+      "elapsed_seconds": 87.0,
+      "log": "testfix-gates-01/strict-default-clippy.log",
+      "log_sha256": "5687b77bffbb12037dd27a348ed5ad30e3210b7edec9a010344c0b55a15c9aa9"
+    },
+    {
+      "name": "superset-clippy",
+      "directory": "testfix-gates-01",
+      "start_utc": "2026-11-12T21:13:06Z",
+      "end_utc": "2026-11-12T21:16:30Z",
+      "exit": 0,
+      "elapsed_seconds": 204.0,
+      "log": "testfix-gates-01/superset-clippy.log",
+      "log_sha256": "fa7307365659b29545992d48e65856ca22bbccf1b9e35322bd51fb7395c5b42d"
+    },
+    {
+      "name": "diff",
+      "directory": "testfix-gates-01",
+      "start_utc": "2026-11-12T21:16:30Z",
+      "end_utc": "2026-11-12T21:16:30Z",
+      "exit": 0,
+      "elapsed_seconds": 0.0,
+      "log": "testfix-gates-01/diff.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "strict_default_command": "cargo clippy --locked --workspace --all-targets -- -D warnings",
+  "superset_clippy_command": "cargo clippy --locked --workspace --all-targets --features workspace-overlay,observability,rustfs-ec-block-size-hint",
+  "superset_warning_scope": "Frozen pre-cleanup workspace code warnings and vendor warnings retained; superset extra gate is not a -D warnings command.",
+  "superset_workspace_warning_blocks": [
+    "warning: use of deprecated method `std::sync::atomic::Atomic::<u64>::fetch_update`: renamed to `try_update` for consistency\n  --> src/workspace_overlay/meta_layer/row_cache.rs:86:14\n   |\n86 |             .fetch_update(Ordering::AcqRel, Ordering::Acquire, |used| {\n   |              ^^^^^^^^^^^^\n   |\n   = note: `#[warn(deprecated)]` on by default\nhelp: replace the use of the deprecated method\n   |\n86 -             .fetch_update(Ordering::AcqRel, Ordering::Acquire, |used| {\n86 +             .try_update(Ordering::AcqRel, Ordering::Acquire, |used| {\n   |",
+    "warning: this `if` statement can be collapsed\n   --> src/workspace_overlay/meta_layer/row_cache.rs:561:13\n    |\n561 | /             if let Some(key_charge) = self.budget.admit(key_bytes) {\n562 | |                 if value.retain(&self.budget) {\n...   |\n580 | |             }\n    | |_____________^\n    |\n    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#collapsible_if\n    = note: `#[warn(clippy::collapsible_if)]` on by default\nhelp: collapse nested if block\n    |\n561 ~             if let Some(key_charge) = self.budget.admit(key_bytes)\n562 ~                 && value.retain(&self.budget) {\n563 |                     // Invalidators bump generation before taking this lock.\n...\n578 |                     return;\n579 ~                 }\n    |",
+    "warning: manual slice size calculation\n   --> src/workspace_overlay/meta_layer/row_cache.rs:593:19\n    |\n593 |                 + paths.len() * size_of::<Vec<u8>>()) as u64,\n    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `std::mem::size_of_val(paths)`\n    |\n    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#manual_slice_size_calculation\n    = note: `#[warn(clippy::manual_slice_size_calculation)]` on by default",
+    "warning: manual slice size calculation\n   --> src/workspace_overlay/meta_layer/row_cache.rs:609:19\n    |\n609 |                 + parents.len() * size_of::<Vec<u8>>()) as u64,\n    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `std::mem::size_of_val(parents)`\n    |\n    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#manual_slice_size_calculation",
+    "warning: very complex type used. Consider factoring parts into `type` definitions\n  --> src/workspace_overlay/packed_v3/wire005/read_cache.rs:66:12\n   |\n66 |     fills: Mutex<BTreeMap<(u64, [u8; 32]), Arc<Fill<T>>>>,\n   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#type_complexity\n   = note: `#[warn(clippy::type_complexity)]` on by default"
+  ],
+  "failures_preserved": [
+    {
+      "path": "red-01.log",
+      "meaning": "Initial short exact filter selected zero tests; excluded from evidence."
+    },
+    {
+      "paths": [
+        "red-02.log",
+        "red-repeat-1.log",
+        "red-repeat-2.log",
+        "red-repeat-3.log"
+      ],
+      "meaning": "Four deterministic original-code assertion failures after actual upload completion and metadata completion; actual stage residual verified."
+    },
+    {
+      "path": "green-01/actual-features.log",
+      "result": {
+        "rows": [
+          {
+            "status": "FAILED",
+            "passed": 2840,
+            "failed": 1,
+            "ignored": 485,
+            "measured": 0,
+            "filtered": 0,
+            "seconds": 534.65
+          }
+        ],
+        "total_passed": 2840,
+        "total_failed": 1,
+        "total_ignored": 485
+      },
+      "meaning": "Earlier full superset failed native effective export lookup with errno12. Isolated 5/5 rechecks are diagnostic only. Packed LimitExceeded maps to errno12, so OS OOM or cleanup causality is not established. Later full v2 suite passed without budget or assertion changes."
+    },
+    {
+      "path": "green-02/strict-default-clippy.log",
+      "meaning": "Strict lint rejected preexisting ignored benchmark chunks_exact loop; fixed by separate test-only child and strict gate rerun."
+    }
+  ],
+  "lifecycle_scope": {
+    "state_handoff": "Under one SliceState lock, either publish Committed while upload incomplete and let uploader retire the stage, or reserve metadata-side retirement while upload complete and publish Committed only after existing cleanup returns.",
+    "late_uploader": "Per-slice marker suppresses duplicate promotion after metadata-side retirement.",
+    "unchanged": "Epoch skip/orphan branches, invalidation ordering, payload accounting, and best-effort filesystem remove error behavior.",
+    "production_ssd_fallback": "Tests exercise real FsWriteBackCache overlay directly. cfg(not(test)) DataWriter fallback and actual remote durability remain downstream real FUSE gates."
+  }
+}
