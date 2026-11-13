@@ -1,0 +1,30 @@
+brewfs: 成功
+packed_snapshot_fixture: 成功
+source-commit.txt: 成功
+source.patch: 成功
+BUILD-SCOPE.txt: 成功
+run_local.py: 成功
+verify_results.py: 成功
+a355-images.tar.gz: 成功
+Loaded image ID: sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43
+Loaded image ID: sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec
+Debug correctness smoke; not a performance measurement.
+TOKIO_WORKER_THREADS=4
+++ cat source-commit.txt
++ python3 run_local.py --binary /srv/ax-overlay-merge-20261113-1081395/brewfs --producer /srv/ax-overlay-merge-20261113-1081395/packed_snapshot_fixture --source-commit 10813952eaa35c7f4fe29ac447f823bc203558fe --source-patch /srv/ax-overlay-merge-20261113-1081395/source.patch --workspace-format workspace --build-profile debug --pairs 3 --passes 4 --metadata-edits 16 --metadata-sync local-buffered --cache-state both --out /srv/ax-overlay-merge-20261113-1081395/smoke-01
+two-files-pair1-off 116.455 ms
+two-files-pair1-on 93.896 ms
+two-files-pair2-on 90.415 ms
+two-files-pair2-off 116.473 ms
+two-files-pair3-off 116.675 ms
+two-files-pair3-on 86.451 ms
+modified-upper-pair1-off 225.607 ms
+modified-upper-pair1-on 195.867 ms
+modified-upper-pair2-on 207.345 ms
+modified-upper-pair2-off 235.931 ms
+modified-upper-pair3-off 227.722 ms
+modified-upper-pair3-on 206.822 ms
++ python3 verify_results.py /srv/ax-overlay-merge-20261113-1081395/smoke-01
++ docker ps --all --format '{{.Names}} {{.Status}}'
++ findmnt --json
++ printf '%s\n' 0

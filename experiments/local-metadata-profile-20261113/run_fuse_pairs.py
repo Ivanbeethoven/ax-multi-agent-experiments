@@ -14,6 +14,7 @@ def main():
         parser.add_argument(f'--{side}-build', type=Path, required=True)
         parser.add_argument(f'--{side}-source', required=True)
         parser.add_argument(f'--{side}-patch', type=Path, required=True)
+        parser.add_argument(f'--{side}-workspace-format', choices=('workspace-v1', 'workspace'), default='workspace-v1')
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
     assert os.geteuid() == 0
@@ -30,10 +31,13 @@ def main():
             env['BREWFS_METADATA_FLUSH_MS'] = str(interval)
             for side in (('before', 'after') if pair % 2 else ('after', 'before')):
                 build = getattr(args, f'{side}_build').resolve()
+                workspace_format = getattr(args, f'{side}_workspace_format')
+                producer = 'packed_snapshot_fixture' if workspace_format == 'workspace' else 'packed_v3_snapshot_fixture'
                 out = args.out / f'pair-{pair}-{interval}ms-{side}'
                 command = [sys.executable, str(harness / 'run_local.py'),
                            '--binary', str(build / 'brewfs'),
-                           '--producer', str(build / 'packed_v3_snapshot_fixture'),
+                           '--producer', str(build / producer),
+                           '--workspace-format', workspace_format,
                            '--source-commit', getattr(args, f'{side}_source'),
                            '--source-patch', str(getattr(args, f'{side}_patch').resolve()),
                            '--pairs', '3', '--passes', '4', '--metadata-edits', '100',

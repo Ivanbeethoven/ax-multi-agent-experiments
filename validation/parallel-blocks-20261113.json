@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-13",
+  "scope": "workflow-review-and-parallel-plan",
+  "base_commit": "9222c6318b8f9db0c3617219c8f18e12653aeba8",
+  "test_patch_sha256": "794393d489b094ed0bab046db7ce0123bb1e8fa4cc5be3ddbe3db9a0859801e4",
+  "experiment_blocks": [
+    "c1-io",
+    "c1-layout",
+    "c2-trace",
+    "c2-overlay",
+    "c2-ablations",
+    "c3-smallfiles",
+    "c4-fork",
+    "c4-handoff"
+  ],
+  "unique_functional_cases": 26,
+  "workflow_changes": [
+    "select blocks or individual cases",
+    "shared CLI argument file and per-case build/fixture overrides",
+    "validate all selected command arguments before output or service creation",
+    "dry-run creates no directories and starts no processes",
+    "record execution-plan before running children",
+    "stop on failed, blocked, missing/malformed receipt or nonzero child exit",
+    "preserve failed/missing receipts in the compact summary"
+  ],
+  "parallel_scope": {
+    "planned_pools_max": 2,
+    "global_active_slots_max": 32,
+    "paired_arms_same_pool": true,
+    "matrix_dispatch": "serial functional checks only",
+    "runtime_resource_locks": "external; this change does not implement distributed admission"
+  },
+  "unchanged": [
+    "infra and scenario deployment settings",
+    "current/design.json and its execution_enabled=false",
+    "formal validators and thresholds",
+    "bench/runtime",
+    "historical experimental evidence and results"
+  ],
+  "validation": {
+    "platform": "rbm Linux / Python 3.12.3, independent temporary checkout",
+    "command": "python3 -m unittest discover -s tests -p 'test_*.py' -v",
+    "tests_run": 688,
+    "passed": 662,
+    "skipped": 26,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 59.552,
+    "log_sha256": "a518d3dbd8afd43684b7d4282abd0689a0ec1b03de23fd26b465f451d8c885ee",
+    "documents_checked": 121,
+    "python_sources_parsed": 384,
+    "historical_files_verified": 355,
+    "current_design_consistent": true,
+    "platform_note": "Linux is the acceptance platform; native Windows lacks required POSIX/FUSE behavior."
+  },
+  "resources": {
+    "cloud_instances_started": 0,
+    "new_cloud_resources": 0,
+    "performance_experiments_run": 0,
+    "temporary_rbm_checkout_removed": true
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "scope": "repository-maintenance-only",
+  "source_commit": "2443946b40b5644b8cf4eabc6728c96f6c6e6c5e",
+  "removed": {
+    "scripts": 34,
+    "dedicated_test_files": 12,
+    "superseded_guides": 7,
+    "total_files": 53,
+    "bytes": 553640,
+    "manifest": "archive/retired-pilot-20261112.manifest.json"
+  },
+  "preserved": [
+    "latest five-check runners, build provenance and configuration",
+    "bench runtime and frozen validators",
+    "infra and scenario configuration, current design.json",
+    "all existing experimental evidence and results"
+  ],
+  "regression": {
+    "environment": "rbm / Linux / Python 3.12.3, isolated temporary checkout",
+    "command": "python3 -m unittest discover -s tests -p 'test_*.py' -v",
+    "tests_run": 683,
+    "passed": 657,
+    "skipped": 26,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 58.712,
+    "log_sha256": "3ad67061a3611a16e1c4f9cca620690af6cb455499a5e620ed4750c8c953a358",
+    "first_attempt": {
+      "errors": 2,
+      "cause": "Two test modules dynamically loaded script names without the .py suffix.",
+      "resolution": "Restored continue-c4-formal.py and watch-c4-formal-boundary.py; retained all associated guard tests; rescanned references with and without extensions."
+    }
+  },
+  "repository_checks": {
+    "documents_checked": 120,
+    "python_sources_parsed": 383,
+    "historical_files_sha256_verified": 355,
+    "remaining_retired_script_references_in_code_or_configs": 0,
+    "frozen_evidence_documents_not_link_checked": 113,
+    "scope_note": "Frozen evidence keeps its original paths; link checking applies to current entry points and non-evidence documents. This does not change experiment validators."
+  },
+  "resources": {
+    "new_cloud_resources": 0,
+    "new_experiments": 0,
+    "temporary_rbm_test_directory_removed": true,
+    "local_test_bundle_removed": true
+  },
+  "remote_base_checked_before_commit": true
+}

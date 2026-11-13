@@ -234,7 +234,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--allowlist', type=Path, default=ALLOWLIST)
     parser.add_argument('--quote', type=Path, required=True, help='Disk-only quote alongside its original API JSON files')
-    parser.add_argument('--stop-dir', type=Path, required=True, help='Successful stop-idle-pool.py --apply output directory')
+    parser.add_argument('--stop-dir', type=Path, required=True, help='Historical verified stop-request output directory (request.json and cloud receipts)')
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument('--out', type=Path, help='New evidence directory (writes events.json last)')
     mode.add_argument('--validate-only', action='store_true', help='Verify local evidence and print rates without writing')

@@ -1,0 +1,882 @@
+{
+  "schema": "hot-overlay-local-v1",
+  "passed": true,
+  "source_commit": "10813952eaa35c7f4fe29ac447f823bc203558fe",
+  "owner": "brewfs-hot-eba0ca0d9e",
+  "temporary_directory": "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt",
+  "containers": [
+    "brewfs-hot-eba0ca0d9e-redis",
+    "brewfs-hot-eba0ca0d9e-rustfs"
+  ],
+  "started_unix_ns": 1794554537370985579,
+  "host": {
+    "kernel": "6.8.0-149-generic",
+    "machine": "x86_64",
+    "cpu_count": 128,
+    "python": "3.12.3",
+    "swaps": "Filename\t\t\t\tType\t\tSize\t\tUsed\t\tPriority\n/swap.img                               file\t\t8388604\t\t0\t\t-2\n/swapfile                               file\t\t8388604\t\t0\t\t-3\n",
+    "loadavg": [
+      0.76220703125,
+      0.45947265625,
+      0.31689453125
+    ]
+  },
+  "source_patch_sha256": "94ce37e2fda56468a28a499c60b3eae63467d01bb6ee5d14581fe55e6898df59",
+  "binary_sha256": "40944a715275866f46fd4380584251c973b40fc7b33ab22537983aa471c637ef",
+  "producer_sha256": "d50a4491db08e9efb96caf78c16d9755d99812486fe6fbd99995eac804fe58a1",
+  "images": {
+    "redis": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+  },
+  "argv": [
+    "run_local.py",
+    "--binary",
+    "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+    "--producer",
+    "/srv/ax-overlay-merge-20261113-1081395/packed_snapshot_fixture",
+    "--source-commit",
+    "10813952eaa35c7f4fe29ac447f823bc203558fe",
+    "--source-patch",
+    "/srv/ax-overlay-merge-20261113-1081395/source.patch",
+    "--workspace-format",
+    "workspace",
+    "--build-profile",
+    "debug",
+    "--pairs",
+    "3",
+    "--passes",
+    "4",
+    "--metadata-edits",
+    "16",
+    "--metadata-sync",
+    "local-buffered",
+    "--cache-state",
+    "both",
+    "--out",
+    "/srv/ax-overlay-merge-20261113-1081395/smoke-01"
+  ],
+  "cells": [
+    {
+      "label": "two-files-pair1-off",
+      "scenario": "two-files",
+      "pair": 1,
+      "cache_enabled": false,
+      "elapsed_ns": 116455003
+    },
+    {
+      "label": "two-files-pair1-on",
+      "scenario": "two-files",
+      "pair": 1,
+      "cache_enabled": true,
+      "elapsed_ns": 93895922
+    },
+    {
+      "label": "two-files-pair2-on",
+      "scenario": "two-files",
+      "pair": 2,
+      "cache_enabled": true,
+      "elapsed_ns": 90415266
+    },
+    {
+      "label": "two-files-pair2-off",
+      "scenario": "two-files",
+      "pair": 2,
+      "cache_enabled": false,
+      "elapsed_ns": 116473247
+    },
+    {
+      "label": "two-files-pair3-off",
+      "scenario": "two-files",
+      "pair": 3,
+      "cache_enabled": false,
+      "elapsed_ns": 116675311
+    },
+    {
+      "label": "two-files-pair3-on",
+      "scenario": "two-files",
+      "pair": 3,
+      "cache_enabled": true,
+      "elapsed_ns": 86450773
+    },
+    {
+      "label": "modified-upper-pair1-off",
+      "scenario": "modified-upper",
+      "pair": 1,
+      "cache_enabled": false,
+      "elapsed_ns": 225606680
+    },
+    {
+      "label": "modified-upper-pair1-on",
+      "scenario": "modified-upper",
+      "pair": 1,
+      "cache_enabled": true,
+      "elapsed_ns": 195866940
+    },
+    {
+      "label": "modified-upper-pair2-on",
+      "scenario": "modified-upper",
+      "pair": 2,
+      "cache_enabled": true,
+      "elapsed_ns": 207345057
+    },
+    {
+      "label": "modified-upper-pair2-off",
+      "scenario": "modified-upper",
+      "pair": 2,
+      "cache_enabled": false,
+      "elapsed_ns": 235931391
+    },
+    {
+      "label": "modified-upper-pair3-off",
+      "scenario": "modified-upper",
+      "pair": 3,
+      "cache_enabled": false,
+      "elapsed_ns": 227721587
+    },
+    {
+      "label": "modified-upper-pair3-on",
+      "scenario": "modified-upper",
+      "pair": 3,
+      "cache_enabled": true,
+      "elapsed_ns": 206821839
+    }
+  ],
+  "commands": [
+    [
+      "docker",
+      "image",
+      "inspect",
+      "--format",
+      "{{.Id}}",
+      "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43"
+    ],
+    [
+      "docker",
+      "image",
+      "inspect",
+      "--format",
+      "{{.Id}}",
+      "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+    ],
+    [
+      "git",
+      "ls-remote",
+      "https://github.com/Ivanbeethoven/rustfs.git",
+      "refs/heads/feat/dynamic-block-size-rebased"
+    ],
+    [
+      "docker",
+      "image",
+      "inspect",
+      "--format",
+      "{{json .Config.Labels}}",
+      "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+    ],
+    [
+      "docker",
+      "run",
+      "--pull",
+      "never",
+      "-d",
+      "--label",
+      "brewfs.hot.owner=brewfs-hot-eba0ca0d9e",
+      "--name",
+      "brewfs-hot-eba0ca0d9e-redis",
+      "-p",
+      "127.0.0.1::6379",
+      "--memory",
+      "256m",
+      "--cpus",
+      "1",
+      "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+      "redis-server",
+      "--appendonly",
+      "no",
+      "--save",
+      ""
+    ],
+    [
+      "docker",
+      "run",
+      "--pull",
+      "never",
+      "-d",
+      "--label",
+      "brewfs.hot.owner=brewfs-hot-eba0ca0d9e",
+      "--name",
+      "brewfs-hot-eba0ca0d9e-rustfs",
+      "-p",
+      "127.0.0.1::9000",
+      "--memory",
+      "2g",
+      "--cpus",
+      "2",
+      "--env-file",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/rustfs.env",
+      "-e",
+      "RUSTFS_ADDRESS=0.0.0.0:9000",
+      "-e",
+      "RUSTFS_CONSOLE_ENABLE=false",
+      "-e",
+      "RUSTFS_VOLUMES=/data/rustfs{0...3}",
+      "-e",
+      "RUSTFS_UNSAFE_BYPASS_DISK_CHECK=true",
+      "-e",
+      "RUSTFS_OBS_LOGGER_LEVEL=warn",
+      "-e",
+      "RUSTFS_OBS_LOG_DIRECTORY=/var/log/rustfs",
+      "-e",
+      "RUSTFS_OBS_METRICS_EXPORT_ENABLED=false",
+      "-e",
+      "RUSTFS_OBS_TRACES_EXPORT_ENABLED=false",
+      "-e",
+      "RUSTFS_OBS_LOGS_EXPORT_ENABLED=false",
+      "-e",
+      "RUSTFS_OBS_PROFILING_EXPORT_ENABLED=false",
+      "-e",
+      "RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE=true",
+      "-e",
+      "RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED=true",
+      "-e",
+      "RUSTFS_EC_READ_QUANTUM_ENABLE=true",
+      "-e",
+      "RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED=true",
+      "-v",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/0:/data/rustfs0",
+      "-v",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/1:/data/rustfs1",
+      "-v",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/2:/data/rustfs2",
+      "-v",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/3:/data/rustfs3",
+      "-v",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/rustlogs:/var/log/rustfs",
+      "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec"
+    ],
+    [
+      "docker",
+      "port",
+      "brewfs-hot-eba0ca0d9e-redis",
+      "6379/tcp"
+    ],
+    [
+      "docker",
+      "port",
+      "brewfs-hot-eba0ca0d9e-rustfs",
+      "9000/tcp"
+    ],
+    [
+      "docker",
+      "exec",
+      "brewfs-hot-eba0ca0d9e-redis",
+      "redis-cli",
+      "ping"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/packed_snapshot_fixture",
+      "--source-directory",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/src-two-files",
+      "--source-consistency",
+      "best-effort-detected",
+      "--source-hardlink-policy",
+      "visible-links",
+      "--output-dir",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/objects-two-files",
+      "--manifest-output",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/manifest-two-files",
+      "--bucket",
+      "hot-eba0ca0d9e-a",
+      "--endpoint",
+      "http://127.0.0.1:32769",
+      "--region",
+      "us-east-1",
+      "--force-path-style",
+      "true",
+      "--prefix",
+      "base",
+      "--metadata-codec",
+      "raw",
+      "--data-codec",
+      "raw",
+      "--inline-data",
+      "off",
+      "--chunk-size",
+      "67108864",
+      "--block-size",
+      "4194304",
+      "--s3-rustfs-ec-block-size-hint",
+      "auto"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "two-files-pair1-off-23a7ba39",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/0094036c0e28fb501af13538da64bee61c514df29984000c7127dcf9acc880d6",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-two-files.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair1-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair1-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair1-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair1-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair1-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair1-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "two-files-pair1-on-dc8df68a",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/0094036c0e28fb501af13538da64bee61c514df29984000c7127dcf9acc880d6",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-two-files.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair1-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair1-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair1-on"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair1-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair1-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair1-on"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "two-files-pair2-on-4cbb60fa",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/0094036c0e28fb501af13538da64bee61c514df29984000c7127dcf9acc880d6",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-two-files.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair2-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair2-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair2-on"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair2-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair2-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair2-on"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "two-files-pair2-off-c0b7de67",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/0094036c0e28fb501af13538da64bee61c514df29984000c7127dcf9acc880d6",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-two-files.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair2-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair2-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair2-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair2-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair2-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair2-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "two-files-pair3-off-cbf00ff4",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/0094036c0e28fb501af13538da64bee61c514df29984000c7127dcf9acc880d6",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-two-files.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair3-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair3-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair3-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair3-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair3-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair3-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "two-files-pair3-on-1e8995d9",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/0094036c0e28fb501af13538da64bee61c514df29984000c7127dcf9acc880d6",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-two-files.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair3-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair3-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair3-on"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/two-files-pair3-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair3-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/two-files-pair3-on"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/packed_snapshot_fixture",
+      "--source-directory",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/src-modified-upper",
+      "--source-consistency",
+      "best-effort-detected",
+      "--source-hardlink-policy",
+      "visible-links",
+      "--output-dir",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/objects-modified-upper",
+      "--manifest-output",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/manifest-modified-upper",
+      "--bucket",
+      "hot-eba0ca0d9e-b",
+      "--endpoint",
+      "http://127.0.0.1:32769",
+      "--region",
+      "us-east-1",
+      "--force-path-style",
+      "true",
+      "--prefix",
+      "base",
+      "--metadata-codec",
+      "raw",
+      "--data-codec",
+      "raw",
+      "--inline-data",
+      "off",
+      "--chunk-size",
+      "67108864",
+      "--block-size",
+      "4194304",
+      "--s3-rustfs-ec-block-size-hint",
+      "auto"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "modified-upper-pair1-off-887c7e72",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/b06ff86959dd430de909a0228ff5dc9fb07de5ed67834490dbde02c3977afad5",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-modified-upper.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair1-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair1-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair1-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair1-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair1-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair1-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "modified-upper-pair1-on-523d80f9",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/b06ff86959dd430de909a0228ff5dc9fb07de5ed67834490dbde02c3977afad5",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-modified-upper.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair1-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair1-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair1-on"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair1-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair1-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair1-on"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "modified-upper-pair2-on-1f8e029a",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/b06ff86959dd430de909a0228ff5dc9fb07de5ed67834490dbde02c3977afad5",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-modified-upper.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair2-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair2-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair2-on"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair2-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair2-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair2-on"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "modified-upper-pair2-off-6c4bc7bd",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/b06ff86959dd430de909a0228ff5dc9fb07de5ed67834490dbde02c3977afad5",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-modified-upper.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair2-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair2-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair2-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair2-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair2-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair2-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "modified-upper-pair3-off-ec0d0cc9",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/b06ff86959dd430de909a0228ff5dc9fb07de5ed67834490dbde02c3977afad5",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-modified-upper.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair3-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair3-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair3-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair3-off/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair3-off"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair3-off"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "workspace",
+      "--meta-backend",
+      "redis",
+      "--meta-url",
+      "redis://127.0.0.1:32768/0",
+      "--workspace-namespace",
+      "modified-upper-pair3-on-40efc923",
+      "init-packed-volume",
+      "--manifest-key",
+      "base/objects/0/b06ff86959dd430de909a0228ff5dc9fb07de5ed67834490dbde02c3977afad5",
+      "--data-config",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/data-modified-upper.json"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair3-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair3-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair3-on"
+    ],
+    [
+      "/srv/ax-overlay-merge-20261113-1081395/brewfs",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-merge-20261113-1081395/smoke-01/modified-upper-pair3-on/config.json",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair3-on"
+    ],
+    [
+      "fusermount3",
+      "-u",
+      "/srv/ax-overlay-merge-20261113-1081395/tmp/brewfs-hot-local-hkzokfqt/modified-upper-pair3-on"
+    ],
+    [
+      "docker",
+      "inspect",
+      "--format",
+      "{{index .Config.Labels \"brewfs.hot.owner\"}}",
+      "brewfs-hot-eba0ca0d9e-redis"
+    ],
+    [
+      "docker",
+      "rm",
+      "-f",
+      "-v",
+      "brewfs-hot-eba0ca0d9e-redis"
+    ],
+    [
+      "docker",
+      "inspect",
+      "brewfs-hot-eba0ca0d9e-redis"
+    ],
+    [
+      "docker",
+      "inspect",
+      "--format",
+      "{{index .Config.Labels \"brewfs.hot.owner\"}}",
+      "brewfs-hot-eba0ca0d9e-rustfs"
+    ],
+    [
+      "docker",
+      "rm",
+      "-f",
+      "-v",
+      "brewfs-hot-eba0ca0d9e-rustfs"
+    ],
+    [
+      "docker",
+      "inspect",
+      "brewfs-hot-eba0ca0d9e-rustfs"
+    ]
+  ],
+  "runtime_env": {
+    "BREWFS_METADATA_SYNC": "local-buffered",
+    "AWS_EC2_METADATA_DISABLED": "true",
+    "RUST_LOG": "warn",
+    "BREWFS_PACKED_VERIFY_MEMO": "0",
+    "BREWFS_FUSE_READ_DIRECT_IO": "1",
+    "BREWFS_WORKSPACE_ROW_CACHE_TTL_MS": "600000",
+    "BREWFS_PACKED_RETAINED_PAYLOAD_BYTES": "8388608"
+  },
+  "metadata_sync": "local-buffered",
+  "cache_state": "both",
+  "workspace_format": "workspace",
+  "build_profile": "debug",
+  "comparison": "same debug binary; new empty-query cache disabled/enabled; writable Overlay in both arms",
+  "backend_version": {
+    "repository": "https://github.com/Ivanbeethoven/rustfs.git",
+    "branch": "feat/dynamic-block-size-rebased",
+    "revision_policy": "branch-latest",
+    "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "built_from_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "image_digest": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "resolved_at_unix_ns": 1794554539481058724,
+    "resolved_by": "git ls-remote + Docker OCI revision/source labels"
+  },
+  "cleanup": {
+    "brewfs-hot-eba0ca0d9e-redis": true,
+    "brewfs-hot-eba0ca0d9e-rustfs": true,
+    "mount_absent": true
+  },
+  "finished_unix_ns": 1794554579613065575
+}

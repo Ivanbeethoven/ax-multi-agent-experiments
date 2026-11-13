@@ -189,6 +189,10 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--pairs', type=int, default=3)
     parser.add_argument('--passes', type=int, default=128)
+    parser.add_argument('--build-profile', choices=('optimized-release', 'debug'), default='optimized-release',
+                        help='Record the actual binary profile; debug runs validate correctness only')
+    parser.add_argument('--workspace-format', choices=('workspace-v1', 'workspace'), default='workspace-v1',
+                        help='Historical builds use workspace-v1; current main requires workspace')
     parser.add_argument('--cache-state', choices=('both', 'on', 'off'), default='both',
                         help='Use on for version comparisons with the same enabled read cache')
     parser.add_argument('--metadata-sync', choices=('remote', 'local-journal', 'local-buffered'), default='remote',
@@ -211,8 +215,13 @@ def main():
                BREWFS_METADATA_SYNC=args.metadata_sync,
                AWS_REGION='us-east-1', AWS_EC2_METADATA_DISABLED='true',
                RUST_LOG='warn', NO_PROXY='127.0.0.1,localhost',
-               BREWFS_PACKED_VERIFY_MEMO='0', BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES=str(8 << 20),
+               BREWFS_PACKED_VERIFY_MEMO='0',
                BREWFS_FUSE_READ_DIRECT_IO='1', BREWFS_WORKSPACE_ROW_CACHE_TTL_MS='600000')
+    payload_cache_setting = ('BREWFS_PACKED_RETAINED_PAYLOAD_BYTES' if args.workspace_format == 'workspace'
+                             else 'BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES')
+    for key in ('BREWFS_PACKED_RETAINED_PAYLOAD_BYTES', 'BREWFS_PACKED_V3_RETAINED_PAYLOAD_BYTES'):
+        env.pop(key, None)
+    env[payload_cache_setting] = str(8 << 20)
     for name in ('BREWFS_PACKED_WORKSPACE_READ_CONTROL', 'BREWFS_PACKED_WORKSPACE_EXTENT_CONTROL'):
         env.pop(name, None)
     result = dict(schema='hot-overlay-local-v1', passed=False, source_commit=args.source_commit,
@@ -224,10 +233,11 @@ def main():
                   producer_sha256=sha(args.producer), images=dict(redis=REDIS, rustfs=RUSTFS),
                   argv=list(map(str, __import__('sys').argv)), cells=[], commands=[],
                   runtime_env={key: value for key, value in env.items() if key.startswith('BREWFS_') or key in ('RUST_LOG', 'AWS_EC2_METADATA_DISABLED')},
-                  metadata_sync=args.metadata_sync, cache_state=args.cache_state,
-                  comparison=('same optimized binary; new empty-query cache disabled/enabled; writable Overlay in both arms'
+                  metadata_sync=args.metadata_sync, cache_state=args.cache_state, workspace_format=args.workspace_format,
+                  build_profile=args.build_profile,
+                  comparison=(f'same {args.build_profile} binary; new empty-query cache disabled/enabled; writable Overlay in both arms'
                               if args.cache_state == 'both' else
-                              f'optimized binary; empty-query cache fixed {args.cache_state}; writable Overlay'))
+                              f'{args.build_profile} binary; empty-query cache fixed {args.cache_state}; writable Overlay'))
     save(args.out / 'ownership.json', dict(owner=owner, temporary_directory=str(work), containers=containers))
     process, logfile, point = None, None, None
 
@@ -350,7 +360,7 @@ def main():
                                                    '--workspace-namespace', namespace, 'init-packed-volume', '--manifest-key', manifest.read_text().strip(), '--data-config', data_config]).stdout)
                         point = work / label
                         point.mkdir()
-                        config = dict(volume_format='workspace-v1', volume={'format': 'workspace-v1'}, workspace=parent['workspace_id'], workspace_namespace=namespace,
+                        config = dict(volume_format=args.workspace_format, volume={'format': args.workspace_format}, workspace=parent['workspace_id'], workspace_namespace=namespace,
                                       data=data, meta={'backend': 'redis', 'redis': {'url': rurl}}, layout=dict(chunk_size=67108864, block_size=4194304),
                                       fuse=dict(workers=4, max_background=128, cache_ttl_ms=0, keep_cache=False),
                                       cache=dict(cache_root=str(work / ('cache-' + label)), writeback_mode='upload_before_commit', read_memory_bytes=536870912, read_ssd_bytes=0, compression='none'))

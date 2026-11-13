@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-13",
+  "scope": "cleanup-flow-review",
+  "status": "script-tests-passed",
+  "base_commit": "7a38ad7d5d21b95e84a3a3920cca4d1ce906e45d",
+  "tested_patch_sha256": "5c69500b045aa93d10dc0a7c1a3699591a490b5f9def805b5855474d2d017591",
+  "patch_scope": "all runtime, test and documentation changes; this result record was finalized after validation",
+  "fixes": [
+    "Docker inventory errors cannot prove container removal",
+    "exact container ID and per-attempt labels required for removal",
+    "independent service cleanup steps preserve Redis termination after Docker errors",
+    "failed source and target scratch is retained and its path recorded",
+    "target unmount errors do not skip process wait or erase the failure receipt",
+    "optional per-case TMPDIR ownership with preflight bytes and inode reserve",
+    "only successful closed scratch can be deleted; changed identity, mounts, active creator or evidence reject deletion",
+    "record preview hashes and actual space/inode changes before dispatching the next case"
+  ],
+  "unchanged": [
+    "formal validators and thresholds",
+    "current/design.json and experiment workload sizes",
+    "historical experimental evidence and results",
+    "cloud resources and existing shared inputs"
+  ],
+  "validation": {
+    "platform": "rbm Linux / Python 3.12.3, independent temporary checkout",
+    "command": "python3 -m unittest discover -s tests -p 'test_*.py' -v",
+    "tests_run": 704,
+    "passed": 678,
+    "skipped": 26,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 59.266,
+    "new_cleanup_tests_passed": 16,
+    "log_sha256": "5116ca777758b6efd4a0e520381844ee157eff4fb3752fa1fed1c544fc911779",
+    "documents_checked": 122,
+    "python_sources_parsed": 387,
+    "historical_files_verified": 355,
+    "native_temporary_file_cli_deletion_verified": true,
+    "service_failure_tests": "controlled Docker, Redis and FUSE process substitutes",
+    "live_native_service_smoke_run": false,
+    "scope_note": "unit/flow validation, not new filesystem performance or live shutdown acceptance"
+  },
+  "resources": {
+    "cloud_instances_started": 0,
+    "new_cloud_resources": 0,
+    "performance_experiments_run": 0,
+    "temporary_rbm_checkout_removed": true,
+    "test_log_copied_locally_and_sha_verified": true,
+    "other_sessions_resources_modified": false
+  }
+}

@@ -1,27 +1,22 @@
 # BrewFS 实验仓库
 
-验证云上多 Agent 的工作区共享、独立修改与跨机继续任务。**[从当前 C1–C4 方案开始](experiments/unified-suite/current/README.zh.md)**。
+比较 BrewFS 与 JuiceFS 在工作区共享、文件读写、派生和跨机重挂上的表现。使用已经采集的文件系统 trace；当前不再运行真实 Agent，也不验证 OpenCode 对话恢复。
 
-主候选：BrewFS `workspace-v1 + Packed-v3`。内部系统对照：`flat-v1`。唯一外部对照：JuiceFS。新实验排除 entity-v1 和 native-v2。
+**正式实验暂停。** 最小脚本检查已完成：首轮 21 个入口通过，剩余 5 个由后续检查补齐。功能通过不等于正式性能验收，实际版本和规模见结果记录。
 
-| 内容 | 入口 |
+| 要找什么 | 入口 |
 |---|---|
-| 已有结果、关键指标与失败原因 | [C1–C4 结果表（2026-11-12）](experiments/unified-suite/current/results-20261112/RESULT.zh.md) |
-| RQ、对照、三个运行开关与消融 | [当前方案](experiments/unified-suite/current/README.zh.md) |
-| 输入、操作量、性能指标、正确性 | [负载与指标](experiments/unified-suite/current/WORKLOADS.zh.md) |
-| Redis、四节点 RustFS、缓存、机器与磁盘 | [详细配置](experiments/unified-suite/current/CONFIGURATION.zh.md) |
-| 下载、Rust 回放、指标收集与交接 | [执行步骤](experiments/unified-suite/current/EXECUTION.zh.md) |
-| 子项所需格式、feature 与开跑条件 | [C1–C4 对照表](experiments/unified-suite/current/FEATURES.zh.md) |
-| 完整参数 | [design.json](experiments/unified-suite/current/design.json) |
-| 并行与按需资源 | [实验 pipeline](experiments/unified-suite/MAIN-SCALE.zh.md) |
-| 全部 trace 下载地址与 SHA | [数据目录](scenarios/k8s-containers/data-catalog.md) · [archives.json](scenarios/k8s-containers/archives.json) |
-| 采集与回放工具 | [Rust full-fuse-replay](tools/full-fuse-replay/README.md) |
-| 旧计划和实验记录 | [统一套件历史入口](experiments/unified-suite/README.md) · [实验目录](experiments/README.md) |
+| 已有性能结果和图 | [C1–C4 结果](experiments/unified-suite/current/results-20261112/RESULT.zh.md) |
+| 最新五项功能检查 | [结果、修复、版本与清理](experiments/unified-suite/pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md) |
+| 实验怎么设计、还缺什么 | [当前 C1–C4 方案](experiments/unified-suite/current/README.zh.md) · [未完成项](experiments/unified-suite/current/PENDING.zh.md) |
+| 8 块怎样拆分、并行和执行 | [实验块与流程](experiments/unified-suite/current/BLOCKS.zh.md)；现有运行器支持按块选择与命令预览 |
+| 脚本怎么运行 | [脚本入口](experiments/unified-suite/pilot-aliyun/scripts/README.zh.md) · [最小检查](experiments/unified-suite/pilot-aliyun/FIVE-CHECKS.zh.md) |
+| 配置、输入与指标 | [配置](experiments/unified-suite/current/CONFIGURATION.zh.md) · [负载与指标](experiments/unified-suite/current/WORKLOADS.zh.md) · [参数](experiments/unified-suite/current/design.json) |
+| trace 从哪下载、怎么回放 | [下载清单](scenarios/k8s-containers/data-catalog.md) · [地址与 SHA256](scenarios/k8s-containers/archives.json) · [Rust 回放器](tools/full-fuse-replay/README.md) |
+| 历史实验和退役脚本 | [实验索引](experiments/README.md) · [历史文件清单](archive/README.md) |
 
-**实验已暂停，原 A/B 测试机已清理。** jump 保留并停机不收费。[C2–C4 未完成清单](experiments/unified-suite/current/PENDING.zh.md) · [脚本入口](experiments/unified-suite/pilot-aliyun/scripts/README.zh.md) · [资源核验](experiments/unified-suite/pilot-aliyun/evidence/preparation/a-pool-retirement-01/README.zh.md)。
+当前主候选是 `workspace-v1 + Packed-v3`，外部对照只有 JuiceFS。C4 比较原生 fork 与原生 clone；Overlay 开销使用同引擎开关，并在计时前验证 lower 已热。Flat 只用于 C1/C2，完整复制不作为 C4 对照。统一开关和正式规模适配的缺项见当前方案。
 
-恢复后的小试用 1 Agent，C3 和 C4 派生各用独立的 10,000 个 4 KiB 文件。百万文件和最高 32 Agent 属于正式规模。`design.json` 记录规划参数；统一运行开关和套件适配尚未完成。
+`bench/` 放调度、负载和核验，`tools/` 放 Rust 工具，`infra/` 放部署，`experiments/` 放计划与结果。本地运行输出写到 `runs/`，不提交 Git。验证命令见 [tests/README.md](tests/README.md)。
 
-默认一池依次做系统配对，第二池按已就绪任务申请。代码在远端构建一次，资源按阶段申请并在归档核验后释放；部署规则见 [AGENTS.md](AGENTS.md)。
-
-`bench/` 是调度与核验，`tools/` 是 Rust 测量工具，`infra/` 是部署脚本。本地运行状态放 `runs/`，不入 Git；历史回执不改写。
+原 A/B 测试机已释放，jump 和两块盘保留，最近一次核验为 StopCharging。恢复实验要使用新的资源清单；不能照抄历史机器 ID。版本、资源归属和并行规则见 [AGENTS.md](AGENTS.md)。

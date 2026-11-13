@@ -1,0 +1,115 @@
+..
+----------------------------------------------------------------------
+Ran 2 tests in 1.045s
+
+OK
+usage: run_local.py [-h] --binary BINARY --producer PRODUCER --source-commit
+                    SOURCE_COMMIT --source-patch SOURCE_PATCH --out OUT
+                    [--pairs PAIRS] [--passes PASSES]
+                    [--workspace-format {workspace-v1,workspace}]
+                    [--cache-state {both,on,off}]
+                    [--metadata-sync {remote,local-journal,local-buffered}]
+                    [--metadata-edits METADATA_EDITS]
+
+Local writable Packed Overlay: optimized binary, cache off/on, paired runs.
+Uses only pinned local Docker images and loopback ports. No cloud credentials,
+cloud API, model, privileged host cache flush, or historical result
+modification.
+
+options:
+  -h, --help            show this help message and exit
+  --binary BINARY
+  --producer PRODUCER
+  --source-commit SOURCE_COMMIT
+  --source-patch SOURCE_PATCH
+  --out OUT
+  --pairs PAIRS
+  --passes PASSES
+  --workspace-format {workspace-v1,workspace}
+                        Historical builds use workspace-v1; current main
+                        requires workspace
+  --cache-state {both,on,off}
+                        Use on for version comparisons with the same enabled
+                        read cache
+  --metadata-sync {remote,local-journal,local-buffered}
+                        Metadata acknowledgement mode; each cell gets an
+                        independent local journal
+  --metadata-edits METADATA_EDITS
+                        After hot reads, time repeated chmod/stat plus final
+                        fsync/close separately
+[
+  {
+    "run": "run-03",
+    "passed": true,
+    "files_verified": 86,
+    "cells": 12
+  },
+  {
+    "run": "run-04",
+    "passed": true,
+    "files_verified": 114,
+    "cells": 16
+  },
+  {
+    "run": "guard-p1-before-r3",
+    "passed": true,
+    "files_verified": 111,
+    "kind": "compose guard"
+  },
+  {
+    "run": "guard-p1-after",
+    "passed": true,
+    "files_verified": 115,
+    "kind": "compose guard"
+  }
+]
+usage: run_fuse_pairs.py [-h] --before-build BEFORE_BUILD --before-source
+                         BEFORE_SOURCE --before-patch BEFORE_PATCH
+                         [--before-workspace-format {workspace-v1,workspace}]
+                         --after-build AFTER_BUILD --after-source AFTER_SOURCE
+                         --after-patch AFTER_PATCH
+                         [--after-workspace-format {workspace-v1,workspace}]
+                         --out OUT
+
+Alternate two optimized builds; preserve each independent three-pair run.
+
+options:
+  -h, --help            show this help message and exit
+  --before-build BEFORE_BUILD
+  --before-source BEFORE_SOURCE
+  --before-patch BEFORE_PATCH
+  --before-workspace-format {workspace-v1,workspace}
+  --after-build AFTER_BUILD
+  --after-source AFTER_SOURCE
+  --after-patch AFTER_PATCH
+  --after-workspace-format {workspace-v1,workspace}
+  --out OUT
+{"run": "pair-1-after", "passed": true, "files_verified": 145, "kind": "compose guard"}
+{"run": "pair-1-before", "passed": true, "files_verified": 137, "kind": "compose guard"}
+{"run": "pair-2-after", "passed": true, "files_verified": 138, "kind": "compose guard"}
+{"run": "pair-2-before", "passed": true, "files_verified": 138, "kind": "compose guard"}
+{"run": "pair-2-after", "passed": true, "files_verified": 107, "kind": "compose guard"}
+{"run": "pair-2-before", "passed": true, "files_verified": 111, "kind": "compose guard"}
+{"run": "pair-3-after", "passed": true, "files_verified": 123, "kind": "compose guard"}
+{"run": "pair-3-before", "passed": true, "files_verified": 123, "kind": "compose guard"}
+{"run": "guard-0-fio-randrw", "passed": true, "files_verified": 100, "kind": "compose guard"}
+{"run": "guard-0-fio-randwrite", "passed": true, "files_verified": 95, "kind": "compose guard"}
+{"run": "guard-0-fio-seqwrite", "passed": true, "files_verified": 86, "kind": "compose guard"}
+{"run": "guard-1-fio-randrw", "passed": true, "files_verified": 107, "kind": "compose guard"}
+{"run": "guard-1-fio-randwrite", "passed": true, "files_verified": 94, "kind": "compose guard"}
+{"run": "guard-1-fio-seqwrite", "passed": true, "files_verified": 90, "kind": "compose guard"}
+{"run": "mixed-pair-after", "passed": true, "files_verified": 110, "kind": "compose guard"}
+{"run": "mixed-pair-before", "passed": true, "files_verified": 102, "kind": "compose guard"}
+{"run": "pair-1-100ms-after", "passed": true, "files_verified": 68, "cells": 6}
+{"run": "pair-1-100ms-before", "passed": true, "files_verified": 68, "cells": 6}
+{"run": "pair-1-10ms-after", "passed": true, "files_verified": 68, "cells": 6}
+{"run": "pair-1-10ms-before", "passed": true, "files_verified": 68, "cells": 6}
+{"run": "pair-2-100ms-after", "passed": true, "files_verified": 68, "cells": 6}
+{"run": "pair-2-100ms-before", "passed": true, "files_verified": 68, "cells": 6}
+{"run": "pair-2-10ms-after", "passed": true, "files_verified": 68, "cells": 6}
+{"run": "pair-2-10ms-before", "passed": true, "files_verified": 68, "cells": 6}
+{"run": "pair-3-100ms-after", "passed": true, "files_verified": 68, "cells": 6}
+{"run": "pair-3-100ms-before", "passed": true, "files_verified": 68, "cells": 6}
+{"run": "pair-3-10ms-after", "passed": true, "files_verified": 68, "cells": 6}
+{"run": "pair-3-10ms-before", "passed": true, "files_verified": 68, "cells": 6}
+All 28 profile FUSE/guard runs verified

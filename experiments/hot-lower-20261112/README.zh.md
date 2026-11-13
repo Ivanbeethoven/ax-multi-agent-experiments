@@ -43,13 +43,18 @@ bash tools/perf/check_hot_overlay.sh /absolute/new-checks
 ```bash
 /path/to/python-with-boto3 run_local.py \
   --binary /absolute/new-build/brewfs \
-  --producer /absolute/new-build/packed_v3_snapshot_fixture \
+  --producer /absolute/new-build/packed_snapshot_fixture \
+  --workspace-format workspace \
   --source-commit "$(cat /absolute/new-build/source-commit.txt)" \
   --source-patch /absolute/new-build/source.patch \
   --out /absolute/new-run --pairs 3 --passes 128
 python3 summarize.py /absolute/new-run > /absolute/new-summary.json
 python3 verify_results.py /absolute/new-run
 ```
+
+以上命令适用于已移除版本化格式名的新主线。复现本页历史构建时，producer 改用
+`packed_v3_snapshot_fixture`，并传 `--workspace-format workspace-v1`。历史记录和摘要不改写。
+调试构建须另传 `--build-profile debug`，只用于正确性检查，不能据此报告性能收益。
 
 重算已交付数据，无需挂载或启动服务：
 

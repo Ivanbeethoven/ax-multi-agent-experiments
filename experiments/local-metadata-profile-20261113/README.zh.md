@@ -3,6 +3,9 @@
 代码：[BrewFS 076cd91](https://github.com/brewfs/brewfs/commit/076cd91c83a35fe9b36767832134840abdd7001e)，待审 [PR #450](https://github.com/brewfs/brewfs/pull/450)。
 源码补丁、二进制 SHA、构建参数和脚本 SHA 见[版本记录](evidence/provenance.json)。
 
+合入最新主线的兼容修改、完整检查与 A355 的 12 单元挂载验证，见[合并检查](merge-main-20261113/README.zh.md)。
+下表保留原测量版本；本轮没有重测当前主线相对 lower-only 的开销。
+
 上一轮减少的是 Redis **SET 写入次数**，不是全部请求。每次修改仍校验远端值和
 时钟；合批另外执行发送前日志、确认日志和远端事务。旧实现落盘时持有状态锁，
 所以刚修改完再读本地值，也会等后台 fsync。
@@ -143,6 +146,11 @@ python3 run_fuse_pairs.py \
   --out /results/new-fuse-pairs
 python3 summarize_fuse.py /results/new-fuse-pairs
 ```
+
+上述默认参数复现历史版本。若某一侧使用已移除版本化格式名的新主线，给该侧加
+`--before-workspace-format workspace` 或 `--after-workspace-format workspace`；
+脚本会选择对应构建目录中的 `packed_snapshot_fixture`。旧版仍使用
+`packed_v3_snapshot_fixture`。两侧须保持相同缓存和负载设置。
 
 普通读写使用 [run_compose_guard.py](../hot-lower-20261112/run_compose_guard.py)，每次
 使用新目录，切换 `--direct 0/1` 和 `--tools fio-seqwrite/fio-randwrite/fio-randrw`。
