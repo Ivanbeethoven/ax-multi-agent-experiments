@@ -1,0 +1,132 @@
+{
+  "purpose": "qualification",
+  "formal_sample": false,
+  "product": "juicefs",
+  "mode": "randwrite",
+  "events": [
+    {
+      "stage": "prepare-mount",
+      "start_ns": 54074958376301,
+      "end_ns": 54075270195422,
+      "utc_start_ns": 1794558258207005471,
+      "utc_end_ns": 1794558258518824572,
+      "passed": true
+    },
+    {
+      "stage": "prepare",
+      "start_ns": 54075273403706,
+      "end_ns": 54084009968912,
+      "utc_start_ns": 1794558258522031914,
+      "utc_end_ns": 1794558267258597841,
+      "passed": true
+    },
+    {
+      "stage": "prepare-unmount",
+      "start_ns": 54085079467356,
+      "end_ns": 54085129622897,
+      "utc_start_ns": 1794558268328095684,
+      "utc_end_ns": 1794558268378251185,
+      "passed": true
+    },
+    {
+      "stage": "measure-mount",
+      "start_ns": 54085130388187,
+      "end_ns": 54085290118173,
+      "utc_start_ns": 1794558268379016335,
+      "utc_end_ns": 1794558268538746301,
+      "passed": true
+    },
+    {
+      "stage": "measure",
+      "start_ns": 54085299099271,
+      "end_ns": 54394013756242,
+      "utc_start_ns": 1794558268547727278,
+      "utc_end_ns": 1794558577262385182,
+      "passed": true
+    },
+    {
+      "stage": "measure-unmount",
+      "start_ns": 54395089035905,
+      "end_ns": 54395313366991,
+      "utc_start_ns": 1794558578337664013,
+      "utc_end_ns": 1794558578561995189,
+      "passed": true
+    },
+    {
+      "stage": "verify-mount",
+      "start_ns": 54395314080666,
+      "end_ns": 54395472110546,
+      "utc_start_ns": 1794558578562708854,
+      "utc_end_ns": 1794558578720738804,
+      "passed": true
+    },
+    {
+      "stage": "verify",
+      "start_ns": 54395475241567,
+      "end_ns": 54403292203102,
+      "utc_start_ns": 1794558578723869705,
+      "utc_end_ns": 1794558586540831931,
+      "passed": true
+    },
+    {
+      "stage": "verify-unmount",
+      "start_ns": 54404361856253,
+      "end_ns": 54404460882822,
+      "utc_start_ns": 1794558587610484641,
+      "utc_end_ns": 1794558587709510999,
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "seed": 9173,
+  "shared_s3_endpoint": "http://10.77.13.21:19000",
+  "shared_redis_endpoint": "10.77.13.24:16379",
+  "redis_database": 28,
+  "brewfs_build": {
+    "passed": true,
+    "source_commit": "8a215a65cad19d34fd3fd7f04029f97d09617364",
+    "source_clean": true,
+    "build_host": "A366",
+    "build_profile": "release; upstream defaults; distributed copies have debug symbols stripped",
+    "features": [
+      "workspace",
+      "observability",
+      "rustfs-ec-block-size-hint"
+    ],
+    "default_features": true,
+    "target_cpu": "x86-64",
+    "jobs": 24,
+    "command": "cargo build --locked --release --offline --features workspace,observability,rustfs-ec-block-size-hint --bin brewfs --bin packed_snapshot_fixture",
+    "started_utc": "2026-11-13T05:39:26Z",
+    "ended_utc": "2026-11-13T06:04:56Z",
+    "cargo_lock_sha256": "95354f2626a3c8d86b7e92732474e365e0b5f1d8b3b4fde4898d7d1f2a515d99",
+    "build_log_sha256": "ac9ced5718b036449642c4029f054eb87c58b82fdcc746ad8b862d29c15d58c5",
+    "archive_sha256": "53f5b399ca2f55380dbe3cbe9d58e7604886e64ce5fe9abf3f711ab4026db532",
+    "archive_bytes": 71372444,
+    "artifacts": {
+      "packed_snapshot_fixture": {
+        "sha256": "4557ed4da4d8dcb4113476d74823261bd08f64d2be16de464e7e213c95589802",
+        "bytes": 38898656
+      },
+      "brewfs": {
+        "sha256": "c8ed65dc8a67f14bdc5bb71bf5a2d35ac51e72075091ae9c3ebebc84f79691d1",
+        "bytes": 354620232
+      }
+    }
+  },
+  "bucket": "ax-fio-0b52b01a789b94",
+  "fio_params": {
+    "rw": "randwrite",
+    "file_bytes_per_job": 67108864,
+    "io_bytes_per_job": 67108864,
+    "block_bytes": 4096,
+    "numjobs": 1,
+    "ioengine": "psync",
+    "iodepth": 1,
+    "time_based": false,
+    "direct": false,
+    "fsync_every_write": true,
+    "rwmixread": 75,
+    "cache_state": "client-cold"
+  }
+}

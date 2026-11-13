@@ -1,0 +1,316 @@
+{
+  "run": "ax-four-e6938e145354",
+  "profile": "perf-enabled",
+  "passed": true,
+  "formal_sample": false,
+  "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+  "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "bucket": "ax-four-e6938e145354-layout",
+  "input_sha256": "ffd3c0b68b636cedbcccb7d077fa535b976b4670e37fe3f167a0958bcefd574d",
+  "objects": [
+    {
+      "key": "object-default",
+      "requested_block_bytes": null,
+      "expected_block_bytes": 1048576,
+      "expected_quantum_bytes": 262144,
+      "reads": [
+        {
+          "range": null,
+          "bytes": 5243003,
+          "http_status": 200,
+          "seconds": 0.063332843,
+          "sha256": "ffd3c0b68b636cedbcccb7d077fa535b976b4670e37fe3f167a0958bcefd574d",
+          "equal": true
+        },
+        {
+          "range": "bytes=0-4095",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.015019839,
+          "sha256": "cd676c57fe1fe02a4b996e8e9041016179044f70ca6d940b195e3f4393bec941",
+          "equal": true
+        },
+        {
+          "range": "bytes=16368-20463",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.017455458,
+          "sha256": "c749e981e0d8013d4c25eeb8e8ffd94c1a35f4b26f06beb684323b9fabf60656",
+          "equal": true
+        },
+        {
+          "range": "bytes=65520-69615",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.013997632,
+          "sha256": "eadcbfc4de40f8ab81a29cf6cd613d45d76f5990e2a8a9329abff0e985e56461",
+          "equal": true
+        },
+        {
+          "range": "bytes=262130-266225",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.01738096,
+          "sha256": "cff989697a2d45175b830364087748397b595d61bf9e4b50151ed2b26e9501c7",
+          "equal": true
+        },
+        {
+          "range": "bytes=1048560-1052655",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.016706258,
+          "sha256": "967ebebfb888a1814528b825222af4ae14d38e0c457cca3187e01103d68e88b5",
+          "equal": true
+        }
+      ],
+      "shards": [],
+      "response": {
+        "x-rustfs-effective-ec-block-size": "1048576"
+      }
+    },
+    {
+      "key": "object-65536",
+      "requested_block_bytes": 65536,
+      "expected_block_bytes": 65536,
+      "expected_quantum_bytes": 16384,
+      "reads": [
+        {
+          "range": null,
+          "bytes": 5243003,
+          "http_status": 200,
+          "seconds": 0.050385088,
+          "sha256": "ffd3c0b68b636cedbcccb7d077fa535b976b4670e37fe3f167a0958bcefd574d",
+          "equal": true
+        },
+        {
+          "range": "bytes=0-4095",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.009003095,
+          "sha256": "cd676c57fe1fe02a4b996e8e9041016179044f70ca6d940b195e3f4393bec941",
+          "equal": true
+        },
+        {
+          "range": "bytes=16368-20463",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.008436724,
+          "sha256": "c749e981e0d8013d4c25eeb8e8ffd94c1a35f4b26f06beb684323b9fabf60656",
+          "equal": true
+        },
+        {
+          "range": "bytes=65520-69615",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.009529322,
+          "sha256": "eadcbfc4de40f8ab81a29cf6cd613d45d76f5990e2a8a9329abff0e985e56461",
+          "equal": true
+        },
+        {
+          "range": "bytes=262130-266225",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.00963082,
+          "sha256": "cff989697a2d45175b830364087748397b595d61bf9e4b50151ed2b26e9501c7",
+          "equal": true
+        },
+        {
+          "range": "bytes=1048560-1052655",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.009335953,
+          "sha256": "967ebebfb888a1814528b825222af4ae14d38e0c457cca3187e01103d68e88b5",
+          "equal": true
+        }
+      ],
+      "shards": [],
+      "response": {
+        "x-rustfs-effective-ec-block-size": "65536",
+        "x-rustfs-layout-hint-status": "applied"
+      }
+    },
+    {
+      "key": "object-262144",
+      "requested_block_bytes": 262144,
+      "expected_block_bytes": 262144,
+      "expected_quantum_bytes": 65536,
+      "reads": [
+        {
+          "range": null,
+          "bytes": 5243003,
+          "http_status": 200,
+          "seconds": 0.044422415,
+          "sha256": "ffd3c0b68b636cedbcccb7d077fa535b976b4670e37fe3f167a0958bcefd574d",
+          "equal": true
+        },
+        {
+          "range": "bytes=0-4095",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.010538965,
+          "sha256": "cd676c57fe1fe02a4b996e8e9041016179044f70ca6d940b195e3f4393bec941",
+          "equal": true
+        },
+        {
+          "range": "bytes=16368-20463",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.008482118,
+          "sha256": "c749e981e0d8013d4c25eeb8e8ffd94c1a35f4b26f06beb684323b9fabf60656",
+          "equal": true
+        },
+        {
+          "range": "bytes=65520-69615",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.009188248,
+          "sha256": "eadcbfc4de40f8ab81a29cf6cd613d45d76f5990e2a8a9329abff0e985e56461",
+          "equal": true
+        },
+        {
+          "range": "bytes=262130-266225",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.009609159,
+          "sha256": "cff989697a2d45175b830364087748397b595d61bf9e4b50151ed2b26e9501c7",
+          "equal": true
+        },
+        {
+          "range": "bytes=1048560-1052655",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.010185018,
+          "sha256": "967ebebfb888a1814528b825222af4ae14d38e0c457cca3187e01103d68e88b5",
+          "equal": true
+        }
+      ],
+      "shards": [],
+      "response": {
+        "x-rustfs-effective-ec-block-size": "262144",
+        "x-rustfs-layout-hint-status": "applied"
+      }
+    },
+    {
+      "key": "object-1048576",
+      "requested_block_bytes": 1048576,
+      "expected_block_bytes": 1048576,
+      "expected_quantum_bytes": 262144,
+      "reads": [
+        {
+          "range": null,
+          "bytes": 5243003,
+          "http_status": 200,
+          "seconds": 0.049838905,
+          "sha256": "ffd3c0b68b636cedbcccb7d077fa535b976b4670e37fe3f167a0958bcefd574d",
+          "equal": true
+        },
+        {
+          "range": "bytes=0-4095",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.013911152,
+          "sha256": "cd676c57fe1fe02a4b996e8e9041016179044f70ca6d940b195e3f4393bec941",
+          "equal": true
+        },
+        {
+          "range": "bytes=16368-20463",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.01137706,
+          "sha256": "c749e981e0d8013d4c25eeb8e8ffd94c1a35f4b26f06beb684323b9fabf60656",
+          "equal": true
+        },
+        {
+          "range": "bytes=65520-69615",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.012582727,
+          "sha256": "eadcbfc4de40f8ab81a29cf6cd613d45d76f5990e2a8a9329abff0e985e56461",
+          "equal": true
+        },
+        {
+          "range": "bytes=262130-266225",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.01453553,
+          "sha256": "cff989697a2d45175b830364087748397b595d61bf9e4b50151ed2b26e9501c7",
+          "equal": true
+        },
+        {
+          "range": "bytes=1048560-1052655",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.017558149,
+          "sha256": "967ebebfb888a1814528b825222af4ae14d38e0c457cca3187e01103d68e88b5",
+          "equal": true
+        }
+      ],
+      "shards": [],
+      "response": {
+        "x-rustfs-effective-ec-block-size": "1048576",
+        "x-rustfs-layout-hint-status": "applied"
+      }
+    },
+    {
+      "key": "object-4194304",
+      "requested_block_bytes": 4194304,
+      "expected_block_bytes": 4194304,
+      "expected_quantum_bytes": 1048576,
+      "reads": [
+        {
+          "range": null,
+          "bytes": 5243003,
+          "http_status": 200,
+          "seconds": 0.063026394,
+          "sha256": "ffd3c0b68b636cedbcccb7d077fa535b976b4670e37fe3f167a0958bcefd574d",
+          "equal": true
+        },
+        {
+          "range": "bytes=0-4095",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.018205369,
+          "sha256": "cd676c57fe1fe02a4b996e8e9041016179044f70ca6d940b195e3f4393bec941",
+          "equal": true
+        },
+        {
+          "range": "bytes=16368-20463",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.015147285,
+          "sha256": "c749e981e0d8013d4c25eeb8e8ffd94c1a35f4b26f06beb684323b9fabf60656",
+          "equal": true
+        },
+        {
+          "range": "bytes=65520-69615",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.015958641,
+          "sha256": "eadcbfc4de40f8ab81a29cf6cd613d45d76f5990e2a8a9329abff0e985e56461",
+          "equal": true
+        },
+        {
+          "range": "bytes=262130-266225",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.016666655,
+          "sha256": "cff989697a2d45175b830364087748397b595d61bf9e4b50151ed2b26e9501c7",
+          "equal": true
+        },
+        {
+          "range": "bytes=1048560-1052655",
+          "bytes": 4096,
+          "http_status": 206,
+          "seconds": 0.022330033,
+          "sha256": "967ebebfb888a1814528b825222af4ae14d38e0c457cca3187e01103d68e88b5",
+          "equal": true
+        }
+      ],
+      "shards": [],
+      "response": {
+        "x-rustfs-effective-ec-block-size": "4194304",
+        "x-rustfs-layout-hint-status": "applied"
+      }
+    }
+  ]
+}

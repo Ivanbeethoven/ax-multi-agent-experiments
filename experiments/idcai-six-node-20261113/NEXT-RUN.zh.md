@@ -12,6 +12,8 @@
 
 RustFS 每台使用一块现有 SSD，入口为 `.21:19000`；Redis 在 `.24:16379`，AOF `always`。所有业务流量和二进制分发走 WireGuard。运行需要已有 SSH 密钥和 `/srv/ax-idcai-20261113/private/c4-ssh.conf`；密钥和服务口令不放进仓库。
 
+本机 SSH 的七个公网别名已用 `36.133.158.119`，端口保持原值；各别名用 `HostKeyAlias [yun.1617k.com]:<原端口>` 继续核验既有主机密钥。其余五台仍通过跳板访问 WireGuard 地址。若域名被代理解析到虚拟地址，先核连接，不关闭主机密钥检查，也不把 SSH 断开当成服务退出。脚本握手等待 30 秒；连接失败会保留本轮状态，不自动重放负载。
+
 本批 AX 固定 `86f704be`，BrewFS 固定 `8a215a65`，RustFS 固定 `f4ed2025`，JuiceFS 为 `1.4.2`。本目录脚本复现这一批。新版本先在服务器编译和验证，再建立新批次；正在比较的几组共用同一份二进制，不能中途替换。
 
 `build-brewfs-upstream.sh <完整提交>` 使用 `/srv/.../src/brewfs-<提交>` 中的干净源码和已有 Rust 1.99 工具链；`distribute-brewfs-release.sh <完整提交>` 在 A366 安装后直传 A355。两台分别验归档、二进制 SHA-256 和命令启动。BrewFS 这版的 feature 是 `workspace`，生成器是 `packed_snapshot_fixture`，卷格式是 `flat`/`workspace`；旧的 `*-v1` 配置和 `packed_v3_snapshot_fixture` 不能照搬。
@@ -56,6 +58,10 @@ python3 adapt-current-brewfs.py /srv/ax-idcai-20261113/src/ax-idcai-current-v1
 
 `receipts/<批次名>/` 保存已结束阶段与运行编号。重复使用批次名会跳过已有阶段记录，包括失败项；不等于自动补跑失败。控制器断开后先用状态脚本确认原进程是否仍在执行；不要同时重启第二份整批任务。
 
+`-StopAfter c1-layout-block-only` 可在指定阶段收尾归档后结束本次控制器，之后用相同批次名继续。C4/C3 自动启用 `-ServiceLogs`，保留脱敏后的 RustFS、collector、Redis 日志及哈希；单项补跑也加这一参数。首次启用或日志配置变化必须记在批次中，同一对照的各臂使用一致配置。
+
+`environment-notes.json` 记录用户已说明的共享机器情况，启动时复制为本轮 `execution-context.json`。A355 正在运行其他测试；跨机恢复结果用于功能验收，计时附带整机资源样本。下轮确认机器独占后再更新该说明，不静默删除，也不停止其他人的服务或清空整机缓存。
+
 ## 补跑、保存和收尾
 
 确认原任务已结束并完成收尾后，单独补失败项，保留原失败回执。例：
@@ -74,6 +80,8 @@ python3 adapt-current-brewfs.py /srv/ax-idcai-20261113/src/ax-idcai-current-v1
 自动收尾和单独收尾均先用 `assert-run-idle.ps1` 只读检查六台的测试进程和挂载；任何一台仍忙或连接检查失败，就不停止后端或采集器。SSH 断开不能当作远端任务已结束。清理只针对该运行的服务和容器，不按名称模糊删除数据、不格式化磁盘。已有归档保留，重复归档会拒绝覆盖。
 
 每台的原始归档保存在 `evidence-archives/<运行编号>/<角色>.tar.gz`；本机 `receipts/<运行编号>/raw-archives.json` 保存路径、大小、SHA-256。原始指标和 trace 大包留在服务器，仓库放脚本、小型结果和索引。
+
+C4 fork/clone 的 `receipt.json` 包含完整十万文件树，保留在服务器原始归档中。`compact-native-receipt.py` 在服务器另生成摘要，控制端只取 `.summary.json`：保留检查结论和计时，把大树替换为文件数和树哈希，并记录原回执的大小与 SHA-256。摘要不能替代逐文件审查；需要时按归档索引取原回执核对。
 
 三组 C2 的运行编号分别传给 `scripts/summarize-c2.py`；使用 `--arm-run brewfs-workspace=receipts/<编号>`、`--arm-run juicefs=receipts/<编号>` 指定另外两组。它核对输入和二进制、实际操作/字节、终态、冷重挂、lower 不变与清理证据。部分回放不能算通过；失败记录保留实际进度。
 

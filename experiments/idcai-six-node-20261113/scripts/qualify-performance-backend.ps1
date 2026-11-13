@@ -1,6 +1,7 @@
 param([switch]$C1, [switch]$AllC1, [ValidateSet('c2','c3','c4-clone','c4-handoff','c4-fork','c4-fork-candidate')][string[]]$Workloads,
       [ValidateSet('perf-enabled','perf-disabled','perf-block-only')][string]$LayoutProfile,
       [string[]]$OnlyArm,
+      [switch]$ServiceLogs,
       [ValidateRange(60,9000)][int]$TraceTimeout = 1100,
       [switch]$C3PackedBudgetDiagnostic,
       [ValidateSet('ax-idcai-100k-v2','ax-idcai-100k-v3','ax-idcai-100k-v4','ax-idcai-100k-v5','ax-idcai-100k-v6','ax-idcai-100k-v7','ax-idcai-100k-v8','ax-idcai-current-v1')][string]$Adapter = 'ax-idcai-current-v1')
@@ -41,9 +42,9 @@ foreach ($selection in $OnlyArm) {
     }
 }
 if ($Workloads -contains 'c4-handoff') {
-    & $ssh -n -T -o BatchMode=yes idcai-jump "d='$base/input/c4-fs-checkpoint-894'; test -s `"`$d/checkpoint.json`" && jq -e '.passed == true and .files == 894 and .archive_sha256 == `"9659f428182c55fbd7d8109bb61d0f37e6ef655f61615746b49baf0d3e5821fe`"' `"`$d/install.json`" >/dev/null"
+    & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 idcai-jump "d='$base/input/c4-fs-checkpoint-894'; test -s `"`$d/checkpoint.json`" && jq -e '.passed == true and .files == 894 and .archive_sha256 == `"9659f428182c55fbd7d8109bb61d0f37e6ef655f61615746b49baf0d3e5821fe`"' `"`$d/install.json`" >/dev/null"
     if ($LASTEXITCODE -ne 0) { throw 'C4 handoff requires the frozen 894-entry input; the smoke fixture is not a substitute.' }
-    & $ssh -n -T -o BatchMode=yes idcai-jump "ssh -F '$base/private/c4-ssh.conf' -o BatchMode=yes -o ConnectTimeout=8 ax-client2 'cd $targetRepo && test -f bench/runtime/tree_verify.py && python3 -m bench.runtime.move_target --identity >/dev/null'"
+    & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 idcai-jump "ssh -F '$base/private/c4-ssh.conf' -o BatchMode=yes -o ConnectTimeout=30 ax-client2 'cd $targetRepo && test -f bench/runtime/tree_verify.py && python3 -m bench.runtime.move_target --identity >/dev/null'"
     if ($LASTEXITCODE -ne 0) { throw 'C4 target runtime is unavailable over the private network.' }
 }
 $run = 'ax-four-' + [guid]::NewGuid().ToString('N').Substring(0,12)
@@ -58,21 +59,29 @@ function Check-Native($step) {
     if ($LASTEXITCODE -ne 0) { throw "$step exited with $LASTEXITCODE." }
 }
 [void](New-Item -ItemType Directory -Path $local)
+$notes = Join-Path (Split-Path -Parent $PSScriptRoot) 'environment-notes.json'
+if (Test-Path -LiteralPath $notes) {
+    Copy-Item -LiteralPath $notes -Destination (Join-Path $local 'execution-context.json')
+}
 Write-Output "Run: $run ($backendProfile)"
-& $ssh -n -T -o BatchMode=yes idcai-jump "test -s '$base/input/pilot-100k-001/input-set.json' && mkdir -m700 '$out'"
+& $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 idcai-jump "test -s '$base/input/pilot-100k-001/input-set.json' && mkdir -m700 '$out'"
 Check-Native 'Create qualified-input run directory'
-& $scp -B -q (Join-Path $PSScriptRoot 'check-performance-backend.py') "idcai-jump:$out/"
+& $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 (Join-Path $PSScriptRoot 'check-performance-backend.py') "idcai-jump:$out/"
 Check-Native 'Install backend check'
 if ($C1) {
-    & $scp -B -q (Join-Path $PSScriptRoot 'run-performance-c1.py') "idcai-jump:$out/"
+    & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 (Join-Path $PSScriptRoot 'run-performance-c1.py') "idcai-jump:$out/"
     Check-Native 'Install C1 runner'
 }
 if ($LayoutProfile) {
-    & $scp -B -q (Join-Path $PSScriptRoot 'probe-performance-layout.py') "idcai-jump:$out/"
+    & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 (Join-Path $PSScriptRoot 'probe-performance-layout.py') "idcai-jump:$out/"
     Check-Native 'Install C1 layout probe'
 }
+if (@($Workloads | Where-Object {$_ -in 'c4-clone','c4-fork','c4-fork-candidate'}).Count) {
+    & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 (Join-Path $PSScriptRoot 'compact-native-receipt.py') "idcai-jump:$out/"
+    Check-Native 'Install native C4 receipt summarizer'
+}
 foreach ($peer in $peers) {
-    & $scp -B -q (Join-Path $PSScriptRoot 'rustfs-four-node-node.sh') (Join-Path $PSScriptRoot 'otel-performance.yaml') "${peer}:$base/"
+    & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 (Join-Path $PSScriptRoot 'rustfs-four-node-node.sh') (Join-Path $PSScriptRoot 'otel-performance.yaml') (Join-Path $PSScriptRoot 'collect-service-journal.py') "${peer}:$base/"
     Check-Native "Stage $peer"
 }
 $creds = ConvertTo-Json -Compress @{
@@ -83,28 +92,29 @@ $creds = ConvertTo-Json -Compress @{
 try {
     foreach ($peer in $peers) {
         $started += $peer
-        $raw = $creds | & $ssh -T -o BatchMode=yes -o ConnectTimeout=8 $peer "bash '$base/rustfs-four-node-node.sh' start '$run' '$backendProfile' '$backendLimit'"
+        $logs = $ServiceLogs.IsPresent.ToString().ToLowerInvariant()
+        $raw = $creds | & $ssh -T -o BatchMode=yes -o ConnectTimeout=30 $peer "bash '$base/rustfs-four-node-node.sh' start '$run' '$backendProfile' '$backendLimit' '$logs'"
         Check-Native "Start shared backend on $peer"
         [IO.File]::WriteAllText((Join-Path $local "$peer-deploy.json"),($raw -join "`n"),$utf8)
     }
-    $creds | & $ssh -T -o BatchMode=yes -o ServerAliveInterval=15 idcai-jump "flock -n '$base/measurement.lock' timeout 150 '$base/venv/bin/python' '$out/check-performance-backend.py' '$run' '$out'"
+    $creds | & $ssh -T -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 idcai-jump "flock -n '$base/measurement.lock' timeout 150 '$base/venv/bin/python' '$out/check-performance-backend.py' '$run' '$out'"
     $probeCode = $LASTEXITCODE
     foreach ($name in 'backend-probe.json','redis-info-all.txt','redis-latency-histogram.txt') {
-        & $scp -B -q "idcai-jump:$out/$name" $local
+        & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 "idcai-jump:$out/$name" $local
         if ($LASTEXITCODE -ne 0 -and $probeCode -eq 0) { throw "Missing probe evidence: $name" }
     }
     if ($probeCode -ne 0) { throw "Backend probe failed ($probeCode)" }
     foreach ($peer in $peers) {
         $capture = "set -e; d='$base/four-node/$run'; for i in 1 2 3 4 5 6; do curl --noproxy '*' -fsS --max-time 2 http://127.0.0.1:9464/metrics > `"`$d/metrics.prom`" && grep -q '^rustfs_' `"`$d/metrics.prom`" && break; sleep 3; done; grep -q '^rustfs_' `"`$d/metrics.prom`"; cp /proc/diskstats `"`$d/diskstats.txt`"; cp /proc/net/dev `"`$d/net-dev.txt`"; chronyc tracking > `"`$d/clock.txt`""
-        & $ssh -n -T -o BatchMode=yes $peer $capture
+        & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 $peer $capture
         Check-Native "Verify native RustFS metrics on $peer"
         if ($C1 -or $Workloads -or $LayoutProfile) {
-            $hashes = & $ssh -n -T -o BatchMode=yes $peer "cd '$base/four-node/$run' && sha256sum metrics.prom diskstats.txt net-dev.txt clock.txt"
+            $hashes = & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 $peer "cd '$base/four-node/$run' && sha256sum metrics.prom diskstats.txt net-dev.txt clock.txt"
             Check-Native "Inventory raw backend evidence on $peer"
             [IO.File]::WriteAllText((Join-Path $local "$peer-backend.sha256"),($hashes -join "`n") + "`n",$utf8)
         } else {
             foreach ($name in 'metrics.prom','diskstats.txt','net-dev.txt','clock.txt') {
-                & $scp -B -q "${peer}:$base/four-node/$run/$name" (Join-Path $local "$peer-$name")
+                & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 "${peer}:$base/four-node/$run/$name" (Join-Path $local "$peer-$name")
                 Check-Native "Collect $name from $peer"
             }
         }
@@ -114,24 +124,24 @@ try {
         foreach ($peer in $roles.Keys) {
             $role = $roles[$peer]
             $samples = "$out/observer-$role"
-            & $ssh -n -T -o BatchMode=yes $peer "mkdir -pm700 '$samples'"
+            & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 $peer "mkdir -pm700 '$samples'"
             Check-Native "Create observer data path on $peer"
-            & $scp -B -q (Join-Path $PSScriptRoot 'perf-host-snapshot.py') "${peer}:$samples/"
+            & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 (Join-Path $PSScriptRoot 'perf-host-snapshot.py') "${peer}:$samples/"
             Check-Native "Install observer on $peer"
             $observers += @{peer=$peer; role=$role; path=$samples}
-            & $ssh -n -T -o BatchMode=yes $peer "systemd-run --quiet --unit='$run-observer' --property=RuntimeMaxSec=$observerLimit /usr/bin/python3 '$samples/perf-host-snapshot.py' '$role' '$run' '$samples'"
+            & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 $peer "systemd-run --quiet --unit='$run-observer' --property=RuntimeMaxSec=$observerLimit /usr/bin/python3 '$samples/perf-host-snapshot.py' '$role' '$run' '$samples'"
             Check-Native "Start observer on $peer"
         }
         foreach ($observer in $observers) {
-            & $ssh -n -T -o BatchMode=yes $observer.peer "test -s '$($observer.path)/sample-000000/sample.json'"
+            & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 $observer.peer "test -s '$($observer.path)/sample-000000/sample.json'"
             Check-Native "Verify first observer sample on $($observer.peer)"
         }
     }
     if ($LayoutProfile) {
         $trial = "$out/c1-layout-$LayoutProfile-qualification"
-        $creds | & $ssh -T -o BatchMode=yes -o ServerAliveInterval=15 idcai-jump "flock -n '$base/measurement.lock' timeout 180 '$base/venv/bin/python' '$out/probe-performance-layout.py' requests '$run' '$trial' '$LayoutProfile'"
+        $creds | & $ssh -T -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 idcai-jump "flock -n '$base/measurement.lock' timeout 180 '$base/venv/bin/python' '$out/probe-performance-layout.py' requests '$run' '$trial' '$LayoutProfile'"
         $requestCode = $LASTEXITCODE
-        & $scp -B -q "idcai-jump:$trial/requests.json" (Join-Path $local 'c1-layout-requests.json')
+        & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 "idcai-jump:$trial/requests.json" (Join-Path $local 'c1-layout-requests.json')
         Check-Native 'Collect C1 layout requests'
         if ($requestCode -ne 0) { throw "C1 layout requests failed: $requestCode" }
         $files = Join-Path $local 'c1-layout-xl2'
@@ -139,17 +149,17 @@ try {
         for ($i=1; $i -le 4; $i++) {
             $peer = $peers[$i-1]
             foreach ($key in 'default','65536','262144','1048576','4194304') {
-                & $scp -B -q "${peer}:$base/four-node/$run/data/$run-layout/object-$key/xl.meta" (Join-Path $files "object-$key-obj$i.xl.meta")
+                & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 "${peer}:$base/four-node/$run/data/$run-layout/object-$key/xl.meta" (Join-Path $files "object-$key-obj$i.xl.meta")
                 Check-Native "Collect persisted XL2 on $peer for $key"
             }
         }
         $inputs = @(Get-ChildItem -LiteralPath $files -Filter '*.xl.meta' | Select-Object -ExpandProperty FullName)
         if ($inputs.Count -ne 20) { throw 'Expected 20 raw shard metadata files' }
-        & $scp -B -q @inputs "idcai-jump:$trial/"
+        & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 @inputs "idcai-jump:$trial/"
         Check-Native 'Stage raw XL2 for the pinned decoder'
-        & $ssh -n -T -o BatchMode=yes idcai-jump "'$base/venv/bin/python' '$out/probe-performance-layout.py' verify '$trial'"
+        & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 idcai-jump "'$base/venv/bin/python' '$out/probe-performance-layout.py' verify '$trial'"
         $verifyCode = $LASTEXITCODE
-        & $scp -B -q "idcai-jump:$trial/result.json" (Join-Path $local 'c1-layout-result.json')
+        & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 "idcai-jump:$trial/result.json" (Join-Path $local 'c1-layout-result.json')
         Check-Native 'Collect C1 layout receipt'
         if ($verifyCode -ne 0) { throw "Persisted C1 B/q did not match the expected geometry ($verifyCode)" }
     }
@@ -162,12 +172,12 @@ try {
             if ($mode -eq 'randrw' -and $product -eq 'juicefs') { continue }
             $database++
             $trial = "$out/c1-$mode-$product-qualification"
-            $creds | & $ssh -T -o BatchMode=yes -o ServerAliveInterval=15 idcai-jump "AX_IDCAI_TOOLS='$bin' flock -n '$base/measurement.lock' '$base/venv/bin/python' '$out/run-performance-c1.py' '$trial' '$product' '$mode' '$database'"
+            $creds | & $ssh -T -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 idcai-jump "AX_IDCAI_TOOLS='$bin' flock -n '$base/measurement.lock' '$base/venv/bin/python' '$out/run-performance-c1.py' '$trial' '$product' '$mode' '$database'"
             $code = $LASTEXITCODE
-            & $scp -B -q "idcai-jump:$trial/trial.json" (Join-Path $local "c1-$mode-$product-trial.json")
+            & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 "idcai-jump:$trial/trial.json" (Join-Path $local "c1-$mode-$product-trial.json")
             Check-Native "Collect C1 $mode $product result"
             Write-Output "C1 $product $mode qualification exit: $code"
-            & $ssh -n -T -o BatchMode=yes idcai-jump "! mountpoint -q '$trial/mnt'"
+            & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 idcai-jump "! mountpoint -q '$trial/mnt'"
             Check-Native "C1 mount cleanup for $product"
             if ($code -ne 0) { $trialFailures += "$mode/$product" }
         }
@@ -215,12 +225,18 @@ try {
                 }
                 $envExtra = if ($C3PackedBudgetDiagnostic) { 'export AX_IDCAI_C3_PACKED_BUDGET_DIAGNOSTIC=1; ' } else { '' }
                 $cmd = "umask 077; $($envExtra)export TMPDIR='$trial.scratch'; mkdir -m700 -- `"`$TMPDIR`" && flock -n '$base/measurement.lock' '$base/venv/bin/python' '$s/$runner' --brewfs '$brew' $common --out '$trial' --product '$product' --redis-db '$db' $extra"
-                $creds | & $ssh -T -o BatchMode=yes -o ServerAliveInterval=15 idcai-jump $cmd
+                $creds | & $ssh -T -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 idcai-jump $cmd
                 $code = $LASTEXITCODE
-                & $scp -B -q "idcai-jump:$trial/receipt.json" (Join-Path $local "$workload-$arm.json")
+                if ($runner -eq 'rbm-native-fork.py') {
+                    & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 idcai-jump "python3 '$out/compact-native-receipt.py' '$trial/receipt.json' --out '$trial/receipt.summary.json'"
+                    Check-Native "Summarize $workload/$arm without copying the full file trees"
+                    & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 "idcai-jump:$trial/receipt.summary.json" (Join-Path $local "$workload-$arm.summary.json")
+                } else {
+                    & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 "idcai-jump:$trial/receipt.json" (Join-Path $local "$workload-$arm.json")
+                }
                 Check-Native "Collect $workload/$arm receipt"
                 Write-Output "$workload $arm qualification exit: $code"
-                & $ssh -n -T -o BatchMode=yes idcai-jump "! findmnt -rn -o TARGET | grep -E '^($trial[.]scratch|/srv/ax-pilot-session)(/|`$)'"
+                & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 idcai-jump "! findmnt -rn -o TARGET | grep -E '^($trial[.]scratch|/srv/ax-pilot-session)(/|`$)'"
                 Check-Native "Verify no remaining mounts from $workload/$arm"
                 if ($code -ne 0) { $failures += "$workload/$arm" }
             }
@@ -233,15 +249,15 @@ try {
     & "$PSScriptRoot/assert-run-idle.ps1" -Run $run
     foreach ($observer in $observers) {
         $peer=$observer.peer; $samples=$observer.path
-        & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=8 $peer "touch '$samples/stop'; for i in 1 2 3 4 5 6 7 8; do test -s '$samples/finished.json' && break; sleep 1; done; test -s '$samples/finished.json'"
+        & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 $peer "touch '$samples/stop'; for i in 1 2 3 4 5 6 7 8; do test -s '$samples/finished.json' && break; sleep 1; done; test -s '$samples/finished.json'"
         if ($LASTEXITCODE -eq 0) {
-            & $scp -B -q "${peer}:$samples/finished.json" (Join-Path $local "observer-$($observer.role)-finished.json")
+            & $scp -B -q -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 "${peer}:$samples/finished.json" (Join-Path $local "observer-$($observer.role)-finished.json")
         } else {
             Write-Warning "Observer did not close cleanly on $peer. Raw data retained at $samples."
         }
     }
     foreach ($peer in $started) {
-        & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=8 $peer "bash '$base/rustfs-four-node-node.sh' stop '$run'" | Out-Null
+        & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 $peer "bash '$base/rustfs-four-node-node.sh' stop '$run'" | Out-Null
         $cleanup += @{node=$peer; stopped=($LASTEXITCODE -eq 0)}
     }
     [IO.File]::WriteAllText((Join-Path $local 'cleanup.json'),(ConvertTo-Json -InputObject $cleanup -Depth 4),$utf8)

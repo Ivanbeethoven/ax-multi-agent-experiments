@@ -22,7 +22,7 @@ for trial in sorted(root.glob((case or 'c[1-4]') + '-*-qualification')):
                                            if arm.get('error')), None)
         row.update(passed=data.get('passed'), finished=True, error=error)
     else:
-        row.update(finished=False, phase='starting')
+        row.update(finished=False, phase='awaiting-result-receipt')
     events = trial / 'stages.jsonl'
     if events.is_file():
         for line in reversed(events.read_text().splitlines()):

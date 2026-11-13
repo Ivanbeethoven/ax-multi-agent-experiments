@@ -1,4 +1,7 @@
-param([ValidatePattern('^[a-z0-9-]+$')][string]$Campaign = 'brewfs-8a215a6-001')
+param([ValidatePattern('^[a-z0-9-]+$')][string]$Campaign = 'brewfs-8a215a6-001',
+      [ValidateSet('c2-brewfs-flat','c2-brewfs-workspace','c2-juicefs','c1',
+                   'c1-layout-enabled','c1-layout-disabled','c1-layout-block-only',
+                   'c4-handoff','c3','c4-clone','c4-fork')][string]$StopAfter)
 
 $ErrorActionPreference = 'Stop'
 $root = Join-Path (Split-Path -Parent $PSScriptRoot) 'receipts'
@@ -18,7 +21,7 @@ if (-not $inputProof.passed -or $inputProof.entries -ne 714 -or
     throw 'C2 input receipt differs from this campaign'
 }
 foreach ($hostAlias in 'idcai-jump','idcai-client2') {
-    ssh -n -T -o BatchMode=yes $hostAlias "test -s '$release/installed.json' && cd '$release/bin' && sha256sum -c SHA256SUMS"
+    ssh -n -T -o BatchMode=yes -o ConnectTimeout=30 $hostAlias "test -s '$release/installed.json' && cd '$release/bin' && sha256sum -c SHA256SUMS"
     if ($LASTEXITCODE -ne 0) { throw "Current release is unavailable on $hostAlias" }
 }
 $stages = @('c2-brewfs-flat','c2-brewfs-workspace','c2-juicefs','c1',
@@ -27,6 +30,7 @@ foreach ($stage in $stages) {
     $done = Join-Path $summary "$stage.json"
     if (Test-Path -LiteralPath $done) {
         Write-Output "Retained existing stage: $stage"
+        if ($stage -eq $StopAfter) { break }
         continue
     }
     $before = @(Get-ChildItem -LiteralPath $root -Directory | Select-Object -ExpandProperty Name)
@@ -40,17 +44,22 @@ foreach ($stage in $stages) {
             $arm = $stage.Substring(3)
             & "$PSScriptRoot/qualify-performance-backend.ps1" -Workloads c2 -OnlyArm "c2/$arm" -TraceTimeout 9000 -Adapter ax-idcai-current-v1
         } else {
-            & "$PSScriptRoot/qualify-performance-backend.ps1" -Workloads $stage -Adapter ax-idcai-current-v1
+            & "$PSScriptRoot/qualify-performance-backend.ps1" -Workloads $stage -ServiceLogs -Adapter ax-idcai-current-v1
         }
     } catch { $failure = $_.Exception.Message }
     $new = @(Get-ChildItem -LiteralPath $root -Directory | Where-Object {$_.Name -notin $before -and $_.Name -match '^ax-four-'})
     if ($new.Count -ne 1) { throw "Cannot identify stage $stage; error: $failure" }
     $run = $new[0].Name
+    $outcome = [ordered]@{stage=$stage; run=$run; controller_workload_error=$failure; finished_at_utc=[DateTime]::UtcNow.ToString('o')}
+    [IO.File]::WriteAllText((Join-Path $new[0].FullName 'controller-outcome.json'), (ConvertTo-Json -InputObject $outcome -Depth 4), [Text.UTF8Encoding]::new($false))
     & "$PSScriptRoot/close-performance-attempt.ps1" -Run $run
-    if (Test-Path -LiteralPath (Join-Path $new[0].FullName 'observer-client-finished.json')) {
-        & "$PSScriptRoot/audit-observers.ps1" -Run $run
-        & "$PSScriptRoot/archive-performance-attempt.ps1" -Run $run
+    foreach ($role in 'client','target','obj1','obj2','obj3','obj4') {
+        if (-not (Test-Path -LiteralPath (Join-Path $new[0].FullName "observer-$role-finished.json"))) {
+            throw "Missing observer completion receipt for $role in $run; do not mark $stage passed."
+        }
     }
+    & "$PSScriptRoot/audit-observers.ps1" -Run $run
+    & "$PSScriptRoot/archive-performance-attempt.ps1" -Run $run
     if ($stage.StartsWith('c2-') -and (Test-Path -LiteralPath (Join-Path $new[0].FullName "$stage.json"))) {
         & "$PSScriptRoot/archive-c2.ps1" -Run $run -OnlyArm $stage.Substring(3)
     }
@@ -66,6 +75,8 @@ foreach ($stage in $stages) {
                 "receipts/$flat" `
                 --arm-run "brewfs-workspace=receipts/$workspace" `
                 --arm-run "juicefs=receipts/$run"
+            if ($LASTEXITCODE -notin 0,2) { throw "C2 summary failed with $LASTEXITCODE; preserve all arm receipts." }
         } finally { Pop-Location }
     }
+    if ($stage -eq $StopAfter) { break }
 }

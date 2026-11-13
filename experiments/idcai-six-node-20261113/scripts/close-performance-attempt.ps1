@@ -49,11 +49,11 @@ jq -n --arg role "$role" --arg host "$(hostname)" '{role:$role,hostname:$host,pa
 $checks = foreach ($peer in $roles.Keys) {
     $remote = $script.Replace('__RUN__', $Run).Replace('__ROLE__', $roles[$peer])
     $via = $peer
-    $raw = $remote | & $ssh -T -o BatchMode=yes -o ConnectTimeout=8 -o ServerAliveInterval=15 $via 'tr -d "\r" | bash'
+    $raw = $remote | & $ssh -T -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 $via 'tr -d "\r" | bash'
     $code = $LASTEXITCODE
     if ($code -eq 255 -and $direct.ContainsKey($peer)) {
         $via = $direct[$peer]
-        $raw = $remote | & $ssh -T -o BatchMode=yes -o ConnectTimeout=8 -o ServerAliveInterval=15 $via 'tr -d "\r" | bash'
+        $raw = $remote | & $ssh -T -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 $via 'tr -d "\r" | bash'
         $code = $LASTEXITCODE
     }
     $parsed = $null

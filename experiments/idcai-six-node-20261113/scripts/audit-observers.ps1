@@ -49,12 +49,14 @@ print(json.dumps(dict(role=role, closed=bool(finished), samples=len(records), ex
 '@
 $rows = foreach ($peer in $roles.Keys) {
     $role = $roles[$peer]
-    $raw = $code | & $ssh -T -o BatchMode=yes -o ConnectTimeout=8 $peer "python3 - '$Run' '$role'"
+    $raw = $code | & $ssh -T -o BatchMode=yes -o ConnectTimeout=30 $peer "python3 - '$Run' '$role'"
     if ($LASTEXITCODE -ne 0) { throw "Observer evidence unavailable on $peer" }
     ($raw -join "`n") | ConvertFrom-Json
 }
 $folder = Join-Path (Split-Path -Parent $PSScriptRoot) "receipts/$Run"
 $value = [ordered]@{run=$Run; passed=(@($rows | Where-Object {-not $_.passed}).Count -eq 0); roles=$rows}
 $json = ConvertTo-Json -InputObject $value -Depth 4
-if ($value.passed) { [IO.File]::WriteAllText((Join-Path $folder 'observer-audit.json'), $json, [Text.UTF8Encoding]::new($false)) }
+$name = if ($value.passed) { 'observer-audit.json' } else { 'observer-audit-failed-' + [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssfffZ') + '.json' }
+[IO.File]::WriteAllText((Join-Path $folder $name), $json, [Text.UTF8Encoding]::new($false))
 $json
+if (-not $value.passed) { throw "Observer audit failed; inspect $name before continuing this campaign." }

@@ -4,6 +4,8 @@ action=${1:?start or stop}
 run=${2:?run identifier}
 [[ "$run" =~ ^ax-four-[0-9a-f]{12}$ ]]
 profile=${3:-smoke}
+service_logs=${5:-false}
+[[ "$service_logs" == true || "$service_logs" == false ]]
 [[ "$profile" == smoke || "$profile" == perf-enabled || "$profile" == perf-disabled || "$profile" == perf-block-only ]]
 base=/srv/ax-idcai-20261113
 dir="$base/four-node/$run"
@@ -24,6 +26,9 @@ case "$action" in
            systemctl is-active --quiet "$otel_unit" || docker container inspect "$run" >/dev/null 2>&1; then
             echo "Temporary service did not stop: $run" >&2; exit 1
         fi
+        if [[ -f "$dir/service-journal-required" ]]; then
+            python3 "$dir/collect-service-journal.py" "$run" >/dev/null
+        fi
         if [[ -d "$dir" ]]; then rm -f -- "$dir/env" "$dir/redis-private.conf"; fi
         jq -n --arg run "$run" '{run:$run, stopped:true}'
         exit 0
@@ -43,9 +48,15 @@ test "$(docker image inspect -f '{{index .Config.Labels "org.opencontainers.imag
 umask 077
 mkdir -p "$base/four-node"
 mkdir "$dir"
+if [[ "$service_logs" == true ]]; then
+    test -s "$base/collect-service-journal.py"
+    install -m700 "$0" "$dir/deploy-node.sh"
+    install -m700 "$base/collect-service-journal.py" "$dir/collect-service-journal.py"
+    touch "$dir/service-journal-required"
+fi
 install -d -m0700 -o 10001 -g 10001 "$dir/data"
 envfile="$dir/env"
-trap 'rm -f -- "$envfile"' ERR
+trap 'if [[ "$service_logs" != true ]]; then rm -f -- "$envfile"; fi' ERR
 jq -er '
   if (.key|test("^[0-9a-f]{16}$")) and (.secret|test("^[0-9a-f]{64}$")) and (.rpc|test("^[0-9a-f]{64}$"))
   then "RUSTFS_ACCESS_KEY="+.key, "RUSTFS_SECRET_KEY="+.secret, "RUSTFS_RPC_SECRET="+.rpc
@@ -102,6 +113,9 @@ fi
     if [[ "$profile" != smoke ]]; then
         printf '%s\n' RUSTFS_OBS_ENDPOINT=http://127.0.0.1:4318 RUSTFS_OBS_METRICS_EXPORT_ENABLED=true OTEL_METRIC_EXPORT_INTERVAL=5000
     fi
+    if [[ "$service_logs" == true ]]; then
+        printf '%s\n' RUSTFS_OBS_LOG_STDOUT_ENABLED=true RUSTFS_OBS_LOGGER_LEVEL=warn RUSTFS_OBS_LOGS_EXPORT_ENABLED=false
+    fi
 } >> "$envfile"
 
 # Use one endpoint on the node's existing physical drive; never format or repartition it.
@@ -111,5 +125,5 @@ systemd-run --quiet --unit="$unit" --property="RuntimeMaxSec=$runtime" \
     --pull=never --network=host --cpus "$cpus" --memory "$memory" --env-file "$envfile" \
     --mount "type=bind,source=$dir/data,target=/data/rustfs0" "$image"
 jq -n --arg run "$run" --arg ip "$ip" --arg revision "$revision" --arg profile "$profile" --arg dev "$(findmnt -n -o SOURCE -T "$dir/data")" \
-    --argjson hint "$dynamic" --argjson quantum "$quantum" \
-    '{run:$run, address:$ip, source_commit:$revision, profile:$profile, backing_filesystem_device:$dev, local_endpoints:1, disk_bypass:false, configured_block_hint:$hint, configured_read_quantum:$quantum}'
+    --argjson hint "$dynamic" --argjson quantum "$quantum" --argjson service_logs "$service_logs" \
+    '{run:$run, address:$ip, source_commit:$revision, profile:$profile, backing_filesystem_device:$dev, local_endpoints:1, disk_bypass:false, configured_block_hint:$hint, configured_read_quantum:$quantum, service_journal_required:$service_logs}'

@@ -13,13 +13,15 @@
 | C2 BrewFS Flat | [完整回放和冷重挂通过](evidence/ax-four-9bf61ed86533/c2-brewfs-flat.json)，229.33 秒 |
 | C2 BrewFS Workspace | [完整回放和冷重挂通过](evidence/ax-four-72e316106d56/c2-brewfs-workspace.json)，1,316.63 秒；182 个 lower 对象保持不变 |
 | C2 JuiceFS | [完整回放和冷重挂通过](evidence/ax-four-65e01ef71d7e/c2-juicefs.json)，4,019.99 秒 |
-| C1 | 九项 I/O 已启动，运行编号 `ax-four-aa0966f7c0c2`；之后检查三种 B/q 配置，只跳过 JuiceFS 混合读写 |
+| C1 | [九项 I/O 已结束：八项通过](evidence/ax-four-aa0966f7c0c2/c1-comparison.json)，BrewFS 混合读写冷重挂返回 EIO，见[失败分析](C1-FAILURE.zh.md)。三种 B/q 检查中 enabled 已通过，另外两种继续执行 |
 | C3 | 两组十万文件已排队；旧版 Packed 的 ENOMEM 尚待新版实测 |
 | C4 | 两系统 stay/move、十万文件 fork/clone 已排队；派生后检查六类修改和完整父/子树 |
 
 三组 C2 都执行 1,747,109 次操作，实际文件读取 281,774,624 B、写入 194,706,661 B。计时仅为 Rust 回放过程；准备、终态校验和冷重挂另记。本次 Workspace 比 Flat 慢、比 JuiceFS 快，保留原值。捕获负载中的重复读取比例为 89.74%，不等于后端缓存命中率。[三组汇总](evidence/ax-four-9bf61ed86533/c2-comparison.json)核对了输入、二进制和所有完整性检查。
 
 这些是单次脚本验收，尚未做正式重复、观测开销校准或多 Agent 扩展。C2 连续监控包含整机计数、RustFS 进程/cgroup、Redis 和客户端原生文件系统计数；客户端逐进程 CPU 采集从后续 C1/C3/C4 开始。
+
+A355 同时运行用户的其他测试。C4 move 的耗时将附带这一说明和整机资源样本；源端 C1/C2/C3 主要在 A366 执行。只停止本轮拥有的服务，不调整其他任务。
 
 ## 数据与证据
 

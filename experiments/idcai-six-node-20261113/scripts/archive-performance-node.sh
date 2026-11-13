@@ -24,8 +24,13 @@ receipt() {
     gzip -t -- "$archive"
     local sha
     sha=$(sha256sum -- "$archive" | cut -d' ' -f1)
+    local journal=null
+    if [[ -f "$storage/service-journal-required" ]]; then
+        journal=$(python3 "$storage/collect-service-journal.py" "$run")
+    fi
     jq -n --arg run "$run" --arg role "$role" --arg path "$archive" --arg sha "$sha" \
-        --argjson bytes "$(stat -c %s "$archive")" '{run:$run,role:$role,path:$path,sha256:$sha,bytes:$bytes}'
+        --argjson journal "$journal" --argjson bytes "$(stat -c %s "$archive")" \
+        '{run:$run,role:$role,path:$path,sha256:$sha,bytes:$bytes,service_journal:$journal}'
 }
 if [[ -f "$archive" ]]; then receipt; exit; fi
 tmp=$(mktemp "$path/.${role}.XXXXXX")
@@ -37,6 +42,11 @@ if [[ "$role" == client ]]; then
     done
 fi
 if [[ "$role" == obj* ]]; then
+    if [[ -f "$storage/service-journal-required" ]]; then
+        python3 "$storage/collect-service-journal.py" "$run" >/dev/null
+        members+=("${storage#"$base/"}/service-journal.jsonl" "${storage#"$base/"}/service-journal-proof.json" "${storage#"$base/"}/service-journal-required")
+        members+=("${storage#"$base/"}/deploy-node.sh" "${storage#"$base/"}/collect-service-journal.py")
+    fi
     for name in metrics.prom diskstats.txt net-dev.txt clock.txt; do
         test -s "$storage/$name"
         members+=("${storage#"$base/"}/$name")

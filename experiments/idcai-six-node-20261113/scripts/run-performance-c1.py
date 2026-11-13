@@ -24,6 +24,20 @@ MIB = 1024**2
 ENDPOINT = 'http://10.77.13.21:19000'
 
 
+def fio_failure_record(folder, phase, error, scrub):
+    """Keep the native failure even when fio prepends error text to its JSON."""
+    code = folder/'exit.json'
+    stderr = folder/'stderr.log'
+    raw = folder/'fio.json'
+    exit_info = json.loads(code.read_text()) if code.is_file() else {}
+    return dict(phase=phase, passed=False, native_exit_code=exit_info.get('exit_code'),
+                wall_seconds=exit_info.get('wall_seconds'),
+                wrapper_error=type(error).__name__+': '+scrub(str(error)),
+                stderr_tail=scrub(stderr.read_text(errors='replace')[-4000:]) if stderr.is_file() else None,
+                raw_fio_sha256=hashlib.sha256(raw.read_bytes()).hexdigest() if raw.is_file() else None,
+                raw_output_unchanged=True)
+
+
 def main(out, product, mode, database, phase='qualification'):
     out = Path(out)
     if product not in ('brewfs','juicefs') or mode not in ('read','write','randread','randwrite','randrw'):
@@ -186,7 +200,13 @@ def main(out, product, mode, database, phase='qualification'):
             digest=hashlib.file_digest(f,'sha256').hexdigest()
         start=clock()
         result['fio_params'] = params
-        r=fio_run(dict(params=params,root=str(mnt),binary=dict(path=str(binary),sha256=digest),seed=9173),label,out/label)
+        try:
+            r=fio_run(dict(params=params,root=str(mnt),binary=dict(path=str(binary),sha256=digest),seed=9173),label,out/label)
+        except Exception as error:
+            failure = result['failed_fio'] = fio_failure_record(out/label, label, error, scrub)
+            record(label,start,False)
+            raise RuntimeError(f"fio {label} failed; native exit={failure['native_exit_code']}; "
+                               f"{failure['stderr_tail'] or failure['wrapper_error']}") from error
         record(label,start,r['passed'])
         if not r['passed']:
             raise RuntimeError('fio failed')

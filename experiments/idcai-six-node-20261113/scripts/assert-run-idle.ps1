@@ -7,7 +7,7 @@ $receiptRoot = Join-Path (Split-Path -Parent $PSScriptRoot) "receipts/$Run"
 if (-not (Test-Path -LiteralPath $receiptRoot -PathType Container)) { throw 'Expected an existing attempt receipt directory.' }
 $idleCode = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'check-run-idle.py') -Raw
 $idle = foreach ($peer in 'idcai-jump','idcai-client2','idcai-obj1','idcai-obj2','idcai-obj3','idcai-obj4') {
-    $raw = $idleCode | & $ssh -T -o BatchMode=yes -o ConnectTimeout=8 $peer "python3 - '$Run'"
+    $raw = $idleCode | & $ssh -T -o BatchMode=yes -o ConnectTimeout=30 $peer "python3 - '$Run'"
     $exitCode = $LASTEXITCODE
     $parsed = $null
     $errorText = $null
