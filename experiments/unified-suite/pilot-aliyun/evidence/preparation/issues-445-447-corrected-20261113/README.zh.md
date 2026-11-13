@@ -6,6 +6,8 @@
 
 两份最终意见：[运行与证据终审](delivery/reviews/independent-final/final-limited-qualification-review-01.md)、[源码与同工作量复核](delivery/reviews/source-and-fixed-work/final-scope-review/limited-pr-opinion.md)。[后续一轮源码走查](delivery/reviews/ax-next-review-445-01/review.md)也已完成，检查填充取消与代际、行缓存记账与读者持有、写回清理交接及 Packed 持久缓存身份；没有新增可确认的问题。已知冷 HEAD 锁竞争和属性缓存刷新边界仍保留为后续项，不写成此次已经解决。
 
+[PR 触发的官方 CI](https://github.com/brewfs/brewfs/actions/runs/43351717736)已在同一 `e2c964c5` head 通过：构建、`cargo test --workspace --lib`（1,360 通过、266 忽略）及 `cargo clippy --workspace --all-targets -- -D warnings` 全部成功。官方只运行 lib 测试；下文的本地默认 1,362 数包含另两个 bin 测试，口径分别保留。[原始 CI 包](pr-ci.tar.gz)、[API 回执](pr-ci-receipt.json)、[协调者核验](pr-ci-coordinator.json)作为追加记录，不修改冻结交付清单。
+
 ## 实际源码与构建
 
 两臂都包含相同的元数据最后完成时的暂存清理修复。基线为 `4f982f45c153a0c31e3e9cd8ff642ec7659c98fd`，候选为 `c8f5f16aefe811540782b952481982179a1bfd6f`；整树重建验证候选相对基线恰为原三项性能补丁。发布用子提交 `e2c964c55fafdcced34af58e840ebddda1cf9ea4` 只调整忽略 benchmark 在计时结束后的测试迭代器，其余 2,001 个条目的 mode/OID 相同。实测始终记录实际 c8 二进制身份。
