@@ -1,0 +1,38 @@
+{
+  "schema": "ax-small-pilot-inputs-v1",
+  "passed": true,
+  "smoke_only": false,
+  "formal_sample": false,
+  "files_per_tree": 100000,
+  "file_bytes": 4096,
+  "smallfiles_sha256": "d83c345374a6f8f858239db75991b4faec85701be8ffa7409d7dfda8037c0795",
+  "c3": {
+    "root": "smallfiles-source",
+    "manifest": {
+      "path": "receipts/c3-tree.json",
+      "sha256": "d37204ae014ff9ba23754d663cf63a9b48b1d291e482f9567a59449d5064f0db"
+    },
+    "fixture_proof": {
+      "path": "receipts/c3-verify-base/result.json",
+      "sha256": "aed247a5b5c711fe5b433d8aca5bce1a83b1fbc3d3d68b9939bdd508d7cc5c06"
+    },
+    "directories": 1025,
+    "files": 100000,
+    "logical_bytes": 409600000
+  },
+  "c4": {
+    "root": "fork-source",
+    "manifest": {
+      "path": "receipts/c4-fixture-tree.json",
+      "sha256": "310fc23ed31f7d5453127aa96f55c7b8c7cad43694c6448c296ee54e8704d764"
+    },
+    "fixture_proof": {
+      "path": "receipts/c4-fixture.json",
+      "sha256": "276cd354adbefcc7ea4aa6799038064bb77d97073a4fe999f6b46be3d7a27a55"
+    },
+    "directories": 100,
+    "files": 100000,
+    "logical_bytes": 409600000
+  },
+  "scope": "new deterministic local input trees and full readback only"
+}

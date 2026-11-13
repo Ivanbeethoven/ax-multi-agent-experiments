@@ -2,13 +2,13 @@
 
 先读 [当前 C1–C4 方案](experiments/unified-suite/current/README.zh.md)、[feature 对照](experiments/unified-suite/current/FEATURES.zh.md)和[未完成项](experiments/unified-suite/current/PENDING.zh.md)。
 
-2026-11-13 已按 [8 个实验块](experiments/unified-suite/current/BLOCKS.zh.md)整理分工。当前授权是检查流程和修改规划，未恢复云上正式实验。各块独立准备；配对条件仍同池顺序执行。运行器的 `--block` / `--dry-run` 仅用于最小功能检查，不能作为性能准入或跨池资源锁。
+2026-11-13 已按 [8 个实验块](experiments/unified-suite/current/BLOCKS.zh.md)整理分工。用户随后授权在现有六台 IDCAI 服务器运行 C1–C4 小规模验收，并在运行中更新文档和脚本。该批使用完整 pytest trace、C3/C4 各十万文件、四节点每台一盘 RustFS；见 [IDCAI 运行入口](experiments/idcai-six-node-20261113/README.md)。正式云上扩展实验仍未恢复。配对条件同池顺序执行；运行器的 `--block` / `--dry-run` 不能作为性能准入或跨池资源锁。
 
 - 正式实验暂停。2026-11-12 的 `ssh rbm` 最小检查已收尾：首轮 21 项通过，剩余 5 项由[后续检查](experiments/unified-suite/pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md)补齐。原失败不改写，功能通过不算性能验收。
 - 用户已取消实际 Agent 运行和 OpenCode resume；C4 只检查工作区文件树、跨机重挂和后续文件读写，状态文件按普通文件核验。
 - JuiceFS 混合读写已跳过。C4 删除 BrewFS 完整复制，只比较原生 fork 与原生 clone；Overlay 用同引擎开关，并在计时前验证 lower 热态。
 - 主候选为 `workspace-v1 + Packed-v3`；`flat-v1` 只用于 C1/C2；外部对照只有 JuiceFS。entity-v1、native-v2 不进入新实验。缺少的统一开关/适配如实记录，不用旧引擎补数。
-- 小试为 1 个负载槽，C3/C4 派生各 10,000 × 4 KiB 独立输入；`--tiny` 仅用于明确选择的脚本检查。正式百万文件、最高 32 槽参数仍以 current 为准，不把历史规模改写成新规模。
+- IDCAI 本批为 1 个负载槽、C3/C4 派生各 100,000 × 4 KiB；此前一万文件回执保留原义。`--tiny` 仅用于明确选择的脚本检查。正式百万文件、最高 32 槽参数仍以 current 为准。
 - 结果、失败、冻结配置和原始回执保持原义。仓库整理先查引用；保留最新修复、配置和测试，退役文件记录来源 commit 与 SHA256，见 [archive](archive/README.md)。其他会话的修改在独立 worktree 中处理。
 
 # 资源与运行

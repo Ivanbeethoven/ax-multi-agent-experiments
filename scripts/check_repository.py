@@ -15,6 +15,7 @@ def check():
     for directory in ('bench', 'infra', 'paper-design'):
         docs.extend((ROOT/directory).rglob('*.md'))
     docs.extend((ROOT/'scripts').glob('*.md'))
+    docs.extend((ROOT/'experiments/idcai-six-node-20261113').glob('*.md'))
     docs.extend(LEGACY_EXPERIMENT.glob('*.md'))
     historical_docs = list(EXPERIMENT.rglob('*.md'))
     frozen_docs = [doc for doc in historical_docs if 'evidence' in doc.relative_to(EXPERIMENT).parts]
@@ -41,6 +42,7 @@ def check():
     sources.extend((ROOT/'scripts').glob('*.py'))
     sources.extend((LEGACY_EXPERIMENT/'scripts').glob('*.py'))
     sources.extend((EXPERIMENT/'pilot-aliyun/scripts').glob('*.py'))
+    sources.extend((ROOT/'experiments/idcai-six-node-20261113/scripts').glob('*.py'))
     for source in sources:
         try: ast.parse(source.read_text(encoding='utf-8-sig'), filename=str(source))
         except SyntaxError as exc: errors.append(str(exc))

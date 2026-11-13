@@ -1,0 +1,190 @@
+{
+  "schema": "idcai-c1-c4-performance-preparation-v1",
+  "campaign": "brewfs-8a215a6-001",
+  "ax_commit": "86f704be9129fbb5f6e466cfbbb15fdf383fc4e8",
+  "brewfs_commit": "8a215a65cad19d34fd3fd7f04029f97d09617364",
+  "rustfs_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+  "rustfs_image_digest": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+  "juicefs": {
+    "version": "1.4.2",
+    "sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+  },
+  "pool": {
+    "wireguard_interface": "axwg0",
+    "source": "10.77.13.11",
+    "migration_target": "10.77.13.12",
+    "rustfs": {
+      "members": [
+        "10.77.13.21",
+        "10.77.13.22",
+        "10.77.13.23",
+        "10.77.13.24"
+      ],
+      "endpoints_per_host": 1,
+      "disk_check_bypass": false,
+      "port": 19000,
+      "application_endpoint": "http://10.77.13.21:19000"
+    },
+    "redis": {
+      "address": "10.77.13.24",
+      "port": 16379,
+      "appendonly": true,
+      "appendfsync": "always",
+      "shares_host_and_system_ssd_with": "rustfs-4"
+    },
+    "same_pool_pairing": "serial, exclusive; fresh volume identity, Redis DB and S3 prefix per arm; no global page-cache drop"
+  },
+  "scope": {
+    "slots": 1,
+    "files_per_c3_and_c4_fork_tree": 100000,
+    "bytes_per_file": 4096,
+    "model_calls": 0,
+    "original_plan_pilot_repetitions": 1
+  },
+  "workloads": {
+    "c1-io": {
+      "arms": [
+        "brewfs-basic",
+        "juicefs"
+      ],
+      "modes": [
+        "read",
+        "write",
+        "randread",
+        "randwrite",
+        "randrw"
+      ],
+      "bytes_per_mode": 67108864,
+      "seed": 9173,
+      "excluded": "JuiceFS randrw",
+      "mixed_read_percent": 75,
+      "execution_cases": 9
+    },
+    "c1-layout": {
+      "modes": [
+        "auto",
+        "off",
+        "64k",
+        "256k",
+        "1m",
+        "4m",
+        "block-only"
+      ],
+      "admit_when": "External-object persisted B/q and matched CRC verified"
+    },
+    "c2-trace": {
+      "arms": [
+        "brewfs-basic",
+        "brewfs-full",
+        "juicefs"
+      ],
+      "input": "pytest-full-02",
+      "callbacks": 1747109,
+      "pacing": "off",
+      "admit_when": "strict full replay, initial/final tree, SQLite, links and cold reopen accepted for all arms"
+    },
+    "c2-overlay": {
+      "admit_when": "same-engine toggle and matched hot lower proven"
+    },
+    "c2-ablations": {
+      "admit_when": "full-trace pair and actual optimized same-build toggle proven"
+    },
+    "c3-smallfiles": {
+      "arms": [
+        "brewfs-full",
+        "juicefs"
+      ],
+      "files": 100000,
+      "input_tree_sha256": "d37204ae014ff9ba23754d663cf63a9b48b1d291e482f9567a59449d5064f0db",
+      "hot_files": 1024,
+      "reads_per_read_phase": 8192,
+      "cow_files": 256,
+      "hot_writes": 256,
+      "mixed_operations": 1024
+    },
+    "c4-fork": {
+      "arms": [
+        "brewfs-native-fork",
+        "juicefs-native-clone"
+      ],
+      "files": 100000,
+      "input_tree_sha256": "310fc23ed31f7d5453127aa96f55c7b8c7cad43694c6448c296ee54e8704d764",
+      "admit_when": "both native derivations qualify against the same parent tree",
+      "brewfs_fork_source": "immutable revision from upstream init-packed-volume",
+      "live_workspace_publication_tested": false,
+      "child_operations": [
+        "overwrite",
+        "append",
+        "truncate",
+        "new-file",
+        "unlink",
+        "rename"
+      ],
+      "adapter_manifest": "evidence/brewfs-8a215a6-001/adapter-c4-six-ops.json"
+    },
+    "c4-handoff": {
+      "arms": [
+        "brewfs-stay",
+        "brewfs-move",
+        "juicefs-stay",
+        "juicefs-move"
+      ],
+      "input_entries": 894,
+      "admit_when": "shared volume identity, original source exit, target read/write, zero upload debt and cold tree proven"
+    }
+  },
+  "observability": {
+    "sample_seconds": 5,
+    "max_gap_seconds": 30,
+    "observer_pairs_required": 3,
+    "overhead_limit_percent": 5,
+    "raw": [
+      "fio JSON+",
+      "replay JSON",
+      "smallfiles phase JSON and per-thread CSV",
+      "client metrics and PID/cgroup",
+      "per-RustFS-node OTLP Prometheus",
+      "Redis INFO and LATENCY HISTOGRAM",
+      "host proc/PSI/diskstats/net-dev",
+      "phase and drain receipts",
+      "input and output tree hashes",
+      "clock samples"
+    ],
+    "phase_stages": [
+      "prepare",
+      "mount",
+      "measure-start",
+      "measure-end",
+      "drain-end",
+      "verify-end",
+      "close"
+    ],
+    "admission": "No formal timing until the matching runtime, paired workload, metrics coverage and calibration gates pass. Keep any preparation or diagnostic result separate.",
+    "formal_overhead_calibration_completed": false,
+    "c2_continuous_client_process_counters": false,
+    "process_update_receipt": "evidence/brewfs-8a215a6-001/process-observation-update.json",
+    "process_counter_stages": [
+      "C1",
+      "C3",
+      "C4"
+    ]
+  },
+  "server_results_parent": "/srv/ax-idcai-20261113/campaign-100k-001",
+  "brewfs_build_receipt": "evidence/brewfs-update-8a215a6/build.json",
+  "adapter_manifest": "evidence/brewfs-8a215a6-001/adapter.json",
+  "volume_formats": [
+    "flat",
+    "workspace"
+  ],
+  "brewfs_features": [
+    "workspace",
+    "observability",
+    "rustfs-ec-block-size-hint"
+  ],
+  "workspace_packed_cache": {
+    "mode": "on",
+    "bytes": 268435456
+  },
+  "formal_sample": false,
+  "c2_timeout_seconds": 9000
+}

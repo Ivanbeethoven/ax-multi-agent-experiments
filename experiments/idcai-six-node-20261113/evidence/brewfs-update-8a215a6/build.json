@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "source_commit": "8a215a65cad19d34fd3fd7f04029f97d09617364",
+  "source_clean": true,
+  "build_host": "A366",
+  "build_profile": "release; upstream defaults; distributed copies have debug symbols stripped",
+  "features": [
+    "workspace",
+    "observability",
+    "rustfs-ec-block-size-hint"
+  ],
+  "default_features": true,
+  "target_cpu": "x86-64",
+  "jobs": 24,
+  "command": "cargo build --locked --release --offline --features workspace,observability,rustfs-ec-block-size-hint --bin brewfs --bin packed_snapshot_fixture",
+  "started_utc": "2026-11-13T05:39:26Z",
+  "ended_utc": "2026-11-13T06:04:56Z",
+  "cargo_lock_sha256": "95354f2626a3c8d86b7e92732474e365e0b5f1d8b3b4fde4898d7d1f2a515d99",
+  "build_log_sha256": "ac9ced5718b036449642c4029f054eb87c58b82fdcc746ad8b862d29c15d58c5",
+  "archive_sha256": "53f5b399ca2f55380dbe3cbe9d58e7604886e64ce5fe9abf3f711ab4026db532",
+  "archive_bytes": 71372444,
+  "artifacts": {
+    "packed_snapshot_fixture": {
+      "sha256": "4557ed4da4d8dcb4113476d74823261bd08f64d2be16de464e7e213c95589802",
+      "bytes": 38898656
+    },
+    "brewfs": {
+      "sha256": "c8ed65dc8a67f14bdc5bb71bf5a2d35ac51e72075091ae9c3ebebc84f79691d1",
+      "bytes": 354620232
+    }
+  }
+}

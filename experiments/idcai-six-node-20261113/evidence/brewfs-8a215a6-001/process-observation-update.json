@@ -1,0 +1,17 @@
+{
+  "purpose": "process counters for subsequent C1/C3/C4 stages",
+  "c2_continuous_per_process_coverage": false,
+  "current_c2_diagnostic": "ax-four-65e01ef71d7e/diagnostic-process-snapshot",
+  "process_identity": "PID plus /proc start ticks; owned argv ancestry or AX_IDCAI_RUN environment marker",
+  "sample_seconds": 5,
+  "limitations": [
+    "Processes shorter than the sample interval can be missed",
+    "Shared cgroup counters are not attributed to one process",
+    "C4 target marker will be exercised by the pending migration tests"
+  ],
+  "source_sha256": {
+    "perf-host-snapshot.py": "9fbf54271430a737b24e9a716e288e56f6c2208aa78a9c0506cd6d2cebf11027",
+    "audit-observers.ps1": "d8ad26ec199234d918824ff2cac864c85a95d7f312e453f666d5b5bf203d1112",
+    "idcai_move_client.py": "0837711762596bc22bd5b614f7c273405f1145d8713f2797ceb82b905262cd6c"
+  }
+}
