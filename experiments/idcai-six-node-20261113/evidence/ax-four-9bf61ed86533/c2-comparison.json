@@ -1,0 +1,104 @@
+{
+  "run": "ax-four-9bf61ed86533",
+  "trace": "pytest-full-02",
+  "trace_events_sha256": "0300a208c3fff9bbe125d40e2214f46d459d7cad3b86141e1960a8cf9384c45f",
+  "initial_tree_sha256": "c1b9b066e6660301ad944fff78de1910e6388021c6caa90923355848eb1c2847",
+  "replay_binary_sha256": "ad9c7d0a263cec5add614c03d4e8f2e2253ebc1ef0f86fca73676396d425ba8a",
+  "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+  "formal_sample": false,
+  "brewfs_binary_sha256": "c8ed65dc8a67f14bdc5bb71bf5a2d35ac51e72075091ae9c3ebebc84f79691d1",
+  "producer_binary_sha256": "4557ed4da4d8dcb4113476d74823261bd08f64d2be16de464e7e213c95589802",
+  "juicefs_binary_sha256": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+  "timer": "Rust active replay wall time; excludes setup, terminal-state verification and cold reopen",
+  "read_write_scope": "Successful POSIX bytes reported by the replay; excludes preparation and verification",
+  "repeated_read_scope": "Captured workload repeated bytes; not a backend cache-hit measurement",
+  "arms": [
+    {
+      "arm": "brewfs-flat",
+      "passed": true,
+      "error": null,
+      "replay_seconds": 229.329360838,
+      "operations": 1747109,
+      "actual_read_bytes": 281774624,
+      "actual_write_bytes": 194706661,
+      "cold_verified": true,
+      "replay_verified": true,
+      "initial_and_final_verified": true,
+      "immutable_lower_verified": null,
+      "captured_repeated_read_ratio": 0.8974283468478694,
+      "cold_databases": [
+        {
+          "path": "state/data/opencode/opencode.db",
+          "sha256": "4064e23efd0f27dc2feaeebe632e3112f8d1a32264827e3dad8af65e40e97a2d",
+          "quick_check": "ok",
+          "rows": {
+            "session": 1,
+            "message": 26,
+            "part": 109
+          }
+        }
+      ],
+      "terminal_probe_errno_differences": 1048,
+      "receipt": "ax-four-9bf61ed86533/c2-brewfs-flat.json",
+      "receipt_sha256": "0599a06fec901a75ef1f579c5e33e75116eb96459b9de87eee0fb41e339b7454"
+    },
+    {
+      "arm": "brewfs-workspace",
+      "passed": true,
+      "error": null,
+      "replay_seconds": 1316.627970446,
+      "operations": 1747109,
+      "actual_read_bytes": 281774624,
+      "actual_write_bytes": 194706661,
+      "cold_verified": true,
+      "replay_verified": true,
+      "initial_and_final_verified": true,
+      "immutable_lower_verified": true,
+      "captured_repeated_read_ratio": 0.8974283468478694,
+      "cold_databases": [
+        {
+          "path": "state/data/opencode/opencode.db",
+          "sha256": "4064e23efd0f27dc2feaeebe632e3112f8d1a32264827e3dad8af65e40e97a2d",
+          "quick_check": "ok",
+          "rows": {
+            "session": 1,
+            "message": 26,
+            "part": 109
+          }
+        }
+      ],
+      "terminal_probe_errno_differences": 1048,
+      "receipt": "ax-four-72e316106d56/c2-brewfs-workspace.json",
+      "receipt_sha256": "0d9fcc297220813c72d07274c3fed931ec09b7388e119b78ba4382dba8808ddd"
+    },
+    {
+      "arm": "juicefs",
+      "passed": true,
+      "error": null,
+      "replay_seconds": 4019.990969307,
+      "operations": 1747109,
+      "actual_read_bytes": 281774624,
+      "actual_write_bytes": 194706661,
+      "cold_verified": true,
+      "replay_verified": true,
+      "initial_and_final_verified": true,
+      "immutable_lower_verified": null,
+      "captured_repeated_read_ratio": 0.8974283468478694,
+      "cold_databases": [
+        {
+          "path": "state/data/opencode/opencode.db",
+          "sha256": "4064e23efd0f27dc2feaeebe632e3112f8d1a32264827e3dad8af65e40e97a2d",
+          "quick_check": "ok",
+          "rows": {
+            "session": 1,
+            "message": 26,
+            "part": 109
+          }
+        }
+      ],
+      "terminal_probe_errno_differences": 0,
+      "receipt": "ax-four-65e01ef71d7e/c2-juicefs.json",
+      "receipt_sha256": "260605b46b4d866d19866baa036ab255480c335ed8af24672260b86bc2cb0d0e"
+    }
+  ]
+}

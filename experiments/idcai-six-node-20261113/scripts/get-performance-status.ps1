@@ -63,7 +63,10 @@ for trial in sorted(root.glob((case or 'c[1-4]') + '-*-qualification')):
                     position = next(int(line.split()[1]) for line in
                                     (proc / 'fdinfo' / fd.name).read_text().splitlines()
                                     if line.startswith('pos:'))
-                    row['trace_read'] = {'bytes': position, 'total_bytes': size}
+                    row['phase'] = 'replaying'
+                    row['trace_read'] = {'bytes': position, 'total_bytes': size,
+                                         'file_percent': round(100 * position / size, 2) if size else None,
+                                         'scope': 'JSON input bytes consumed; not operation count or completion'}
                     break
             except (OSError, KeyError, ValueError, StopIteration):
                 pass  # The child can close descriptors between checks.
@@ -74,6 +77,13 @@ for trial in sorted(root.glob((case or 'c[1-4]') + '-*-qualification')):
             continue
         row['replay_process_exit'] = data.get('exit_code')
         row['replay_process_seconds'] = data.get('wall_seconds')
+    if not row['finished'] and row.get('replay', {}).get('completed'):
+        if not row.get('verified'):
+            row['phase'] = 'replay-complete-awaiting-final-state-proof'
+        elif not row.get('cold_verified'):
+            row['phase'] = 'awaiting-cold-reopen-proof'
+        else:
+            row['phase'] = 'awaiting-cleanup-receipt'
     rows.append(row)
 print(json.dumps({'run': run, 'case': case or None, 'trials': rows}, indent=2))
 '@
