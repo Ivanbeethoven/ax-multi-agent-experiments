@@ -9,18 +9,7 @@ $receiptRoot = Join-Path (Split-Path -Parent $PSScriptRoot) "receipts/$Run"
 if (-not (Test-Path -LiteralPath $receiptRoot -PathType Container)) { throw 'Expected an existing attempt receipt directory.' }
 $utc = [DateTime]::UtcNow
 $receipt = Join-Path $receiptRoot ('closure-' + $utc.ToString('yyyyMMddTHHmmssfffZ') + '.json')
-$idleCode = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'check-run-idle.py') -Raw
-$idle = foreach ($peer in $roles.Keys) {
-    $raw = $idleCode | & $ssh -T -o BatchMode=yes -o ConnectTimeout=8 $peer "python3 - '$Run'"
-    $exitCode = $LASTEXITCODE
-    $parsed = if ($raw) { ($raw -join "`n") | ConvertFrom-Json } else { $null }
-    [ordered]@{node=$peer; exit_code=$exitCode; result=$parsed}
-}
-$idlePath = Join-Path $receiptRoot ('idle-check-' + $utc.ToString('yyyyMMddTHHmmssfffZ') + '.json')
-[IO.File]::WriteAllText($idlePath, (ConvertTo-Json -InputObject @($idle) -Depth 6), [Text.UTF8Encoding]::new($false))
-if (@($idle | Where-Object {$_.exit_code -ne 0 -or -not $_.result.idle}).Count) {
-    throw 'No services stopped: a workload/mount is still active or an idle check failed. Inspect idle-check receipt first.'
-}
+& "$PSScriptRoot/assert-run-idle.ps1" -Run $Run
 $script = @'
 set -euo pipefail
 base=/srv/ax-idcai-20261113

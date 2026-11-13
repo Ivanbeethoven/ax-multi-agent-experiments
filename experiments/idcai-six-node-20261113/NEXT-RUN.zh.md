@@ -71,7 +71,7 @@ python3 adapt-current-brewfs.py /srv/ax-idcai-20261113/src/ax-idcai-current-v1
 ./scripts/archive-c2.ps1 -Run ax-four-XXXXXXXXXXXX -OnlyArm juicefs
 ```
 
-收尾先只读检查六台的测试进程和挂载；任何一台仍忙或连接检查失败，就不执行停服务操作。清理只针对该运行的服务和容器，不按名称模糊删除数据、不格式化磁盘。已有归档保留，重复归档会拒绝覆盖。
+自动收尾和单独收尾均先用 `assert-run-idle.ps1` 只读检查六台的测试进程和挂载；任何一台仍忙或连接检查失败，就不停止后端或采集器。SSH 断开不能当作远端任务已结束。清理只针对该运行的服务和容器，不按名称模糊删除数据、不格式化磁盘。已有归档保留，重复归档会拒绝覆盖。
 
 每台的原始归档保存在 `evidence-archives/<运行编号>/<角色>.tar.gz`；本机 `receipts/<运行编号>/raw-archives.json` 保存路径、大小、SHA-256。原始指标和 trace 大包留在服务器，仓库放脚本、小型结果和索引。
 

@@ -228,6 +228,9 @@ try {
         if ($failures.Count) { throw "Qualification failures: $($failures -join ', ')" }
     }
 } finally {
+    # An SSH failure does not prove the remote workload ended. Keep its backend
+    # and observers intact until all six nodes confirm the workload is idle.
+    & "$PSScriptRoot/assert-run-idle.ps1" -Run $run
     foreach ($observer in $observers) {
         $peer=$observer.peer; $samples=$observer.path
         & $ssh -n -T -o BatchMode=yes -o ConnectTimeout=8 $peer "touch '$samples/stop'; for i in 1 2 3 4 5 6 7 8; do test -s '$samples/finished.json' && break; sleep 1; done; test -s '$samples/finished.json'"
