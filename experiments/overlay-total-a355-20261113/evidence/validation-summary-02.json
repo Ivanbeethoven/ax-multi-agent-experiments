@@ -1,0 +1,386 @@
+{
+  "passed": true,
+  "cells": 24,
+  "object_meter": "proxy",
+  "rows": [
+    {
+      "scenario": "small-files-32",
+      "arm": "production",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "first_round_ms": 117.367852,
+      "first_round_runs_ms": [
+        125.559464,
+        117.367852,
+        114.335776
+      ],
+      "steady_ms_per_round": 38.853092,
+      "steady_runs_ms_per_round": [
+        39.217286,
+        38.567563,
+        38.853092
+      ],
+      "mount_and_first_read_ms": 163.792116,
+      "mount_ms": 45.588987,
+      "first_requests": 11.0,
+      "first_bytes": 166844.0,
+      "mount_requests": 3.0,
+      "mount_bytes": 14263.0,
+      "first_redis_commands": 183.0,
+      "steady_redis_commands": 16.0,
+      "first_upper_extent_queries": 32.0,
+      "first_upper_directory_queries": 2.0,
+      "hot_pread_us": 213.806,
+      "hot_open_list_us": 2889.412
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "packed-direct",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "first_round_ms": 51.133276,
+      "first_round_runs_ms": [
+        51.133276,
+        51.769945,
+        49.390708
+      ],
+      "steady_ms_per_round": 17.675918,
+      "steady_runs_ms_per_round": [
+        17.530549,
+        17.675918,
+        19.007204
+      ],
+      "mount_and_first_read_ms": 81.947939,
+      "mount_ms": 30.177994,
+      "first_requests": 11.0,
+      "first_bytes": 166844.0,
+      "mount_requests": 4.0,
+      "mount_bytes": 14327.0,
+      "first_redis_commands": 0.0,
+      "steady_redis_commands": 0.0,
+      "first_upper_extent_queries": 0,
+      "first_upper_directory_queries": 0,
+      "hot_pread_us": 207.364,
+      "hot_open_list_us": 1166.59
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "production",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "first_round_ms": 38.65774,
+      "first_round_runs_ms": [
+        38.042911,
+        44.869435,
+        38.65774
+      ],
+      "steady_ms_per_round": 39.21962,
+      "steady_runs_ms_per_round": [
+        39.21962,
+        44.404504,
+        38.513763
+      ],
+      "mount_and_first_read_ms": 88.047807,
+      "mount_ms": 47.627072,
+      "first_requests": 0.0,
+      "first_bytes": 0.0,
+      "mount_requests": 3.0,
+      "mount_bytes": 14263.0,
+      "first_redis_commands": 16.0,
+      "steady_redis_commands": 16.0,
+      "first_upper_extent_queries": 0.0,
+      "first_upper_directory_queries": 0.0,
+      "hot_pread_us": 214.5225,
+      "hot_open_list_us": 2665.347
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "packed-direct",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "first_round_ms": 17.307586,
+      "first_round_runs_ms": [
+        18.705506,
+        17.307586,
+        16.670306
+      ],
+      "steady_ms_per_round": 18.169864,
+      "steady_runs_ms_per_round": [
+        17.334115,
+        18.169864,
+        18.356709
+      ],
+      "mount_and_first_read_ms": 48.890111,
+      "mount_ms": 30.540506,
+      "first_requests": 0.0,
+      "first_bytes": 0.0,
+      "mount_requests": 4.0,
+      "mount_bytes": 14327.0,
+      "first_redis_commands": 0.0,
+      "steady_redis_commands": 0.0,
+      "first_upper_extent_queries": 0,
+      "first_upper_directory_queries": 0,
+      "hot_pread_us": 209.653,
+      "hot_open_list_us": 1112.11
+    },
+    {
+      "scenario": "two-files",
+      "arm": "production",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "first_round_ms": 43.763146,
+      "first_round_runs_ms": [
+        44.103305,
+        43.763146,
+        39.672419
+      ],
+      "steady_ms_per_round": 6.347756,
+      "steady_runs_ms_per_round": [
+        6.387039,
+        6.347756,
+        5.381738
+      ],
+      "mount_and_first_read_ms": 93.226798,
+      "mount_ms": 49.123493,
+      "first_requests": 11.0,
+      "first_bytes": 27412.0,
+      "mount_requests": 3.0,
+      "mount_bytes": 14251.0,
+      "first_redis_commands": 33.0,
+      "steady_redis_commands": 16.0,
+      "first_upper_extent_queries": 2.0,
+      "first_upper_directory_queries": 2.0,
+      "hot_pread_us": 289.887,
+      "hot_open_list_us": 2645.981
+    },
+    {
+      "scenario": "two-files",
+      "arm": "packed-direct",
+      "cache_temperature": "cold",
+      "pairs": 3,
+      "first_round_ms": 30.887478,
+      "first_round_runs_ms": [
+        30.484111,
+        30.887478,
+        31.141318
+      ],
+      "steady_ms_per_round": 2.341446,
+      "steady_runs_ms_per_round": [
+        2.636333,
+        2.341446,
+        2.163467
+      ],
+      "mount_and_first_read_ms": 60.951621,
+      "mount_ms": 30.064143,
+      "first_requests": 11.0,
+      "first_bytes": 27412.0,
+      "mount_requests": 4.0,
+      "mount_bytes": 14315.0,
+      "first_redis_commands": 0.0,
+      "steady_redis_commands": 0.0,
+      "first_upper_extent_queries": 0,
+      "first_upper_directory_queries": 0,
+      "hot_pread_us": 258.4385,
+      "hot_open_list_us": 1035.347
+    },
+    {
+      "scenario": "two-files",
+      "arm": "production",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "first_round_ms": 5.364807,
+      "first_round_runs_ms": [
+        5.0696,
+        5.364807,
+        5.406353
+      ],
+      "steady_ms_per_round": 5.493775,
+      "steady_runs_ms_per_round": [
+        5.493775,
+        4.927626,
+        6.842573
+      ],
+      "mount_and_first_read_ms": 52.586479,
+      "mount_ms": 47.221672,
+      "first_requests": 0.0,
+      "first_bytes": 0.0,
+      "mount_requests": 3.0,
+      "mount_bytes": 14251.0,
+      "first_redis_commands": 16.0,
+      "steady_redis_commands": 16.0,
+      "first_upper_extent_queries": 0.0,
+      "first_upper_directory_queries": 0.0,
+      "hot_pread_us": 276.0415,
+      "hot_open_list_us": 2551.766
+    },
+    {
+      "scenario": "two-files",
+      "arm": "packed-direct",
+      "cache_temperature": "warm",
+      "pairs": 3,
+      "first_round_ms": 2.181981,
+      "first_round_runs_ms": [
+        2.141807,
+        2.528323,
+        2.181981
+      ],
+      "steady_ms_per_round": 2.286765,
+      "steady_runs_ms_per_round": [
+        2.089991,
+        2.586891,
+        2.286765
+      ],
+      "mount_and_first_read_ms": 32.22188,
+      "mount_ms": 29.953037,
+      "first_requests": 0.0,
+      "first_bytes": 0.0,
+      "mount_requests": 4.0,
+      "mount_bytes": 14315.0,
+      "first_redis_commands": 0.0,
+      "steady_redis_commands": 0.0,
+      "first_upper_extent_queries": 0,
+      "first_upper_directory_queries": 0,
+      "hot_pread_us": 240.666,
+      "hot_open_list_us": 958.865
+    }
+  ],
+  "differences": [
+    {
+      "scenario": "small-files-32",
+      "cache_temperature": "cold",
+      "measures": {
+        "first": {
+          "extra_ms": 66.234576,
+          "extra_pct": 129.5332143397188,
+          "paired_extra_pct": [
+            145.55333399721934,
+            126.71040504292597,
+            131.49248235113373
+          ]
+        },
+        "steady": {
+          "extra_ms": 21.177173999999997,
+          "extra_pct": 119.80805749381727,
+          "paired_extra_pct": [
+            123.7082592222297,
+            118.19270150495154,
+            104.41245329928589
+          ]
+        },
+        "start_read": {
+          "extra_ms": 81.84417699999999,
+          "extra_pct": 99.87338058617921,
+          "paired_extra_pct": [
+            106.828214640155,
+            97.64568453637375,
+            107.52293942037801
+          ]
+        }
+      }
+    },
+    {
+      "scenario": "small-files-32",
+      "cache_temperature": "warm",
+      "measures": {
+        "first": {
+          "extra_ms": 21.350153999999996,
+          "extra_pct": 123.35720302068695,
+          "paired_extra_pct": [
+            103.37814438165958,
+            159.24721679846053,
+            131.89580323240614
+          ]
+        },
+        "steady": {
+          "extra_ms": 21.049756,
+          "extra_pct": 115.84982694421927,
+          "paired_extra_pct": [
+            126.25683514849185,
+            144.385450546025,
+            109.80755864245602
+          ]
+        },
+        "start_read": {
+          "extra_ms": 39.15769600000001,
+          "extra_pct": 80.09328512262942,
+          "paired_extra_pct": [
+            78.79175069039096,
+            87.01513072858435,
+            84.73815244787846
+          ]
+        }
+      }
+    },
+    {
+      "scenario": "two-files",
+      "cache_temperature": "cold",
+      "measures": {
+        "first": {
+          "extra_ms": 12.875667999999997,
+          "extra_pct": 41.685721313990086,
+          "paired_extra_pct": [
+            44.676369273160034,
+            41.685721313990086,
+            27.39479748416558
+          ]
+        },
+        "steady": {
+          "extra_ms": 4.006310000000001,
+          "extra_pct": 171.10409550337698,
+          "paired_extra_pct": [
+            142.26981189402096,
+            171.10409550337698,
+            148.7552618089391
+          ]
+        },
+        "start_read": {
+          "extra_ms": 32.275177,
+          "extra_pct": 52.952122471033206,
+          "paired_extra_pct": [
+            54.55422009764257,
+            53.133013476376604,
+            37.344487189583894
+          ]
+        }
+      }
+    },
+    {
+      "scenario": "two-files",
+      "cache_temperature": "warm",
+      "measures": {
+        "first": {
+          "extra_ms": 3.182826,
+          "extra_pct": 145.86863955277337,
+          "paired_extra_pct": [
+            136.69733080524998,
+            112.18835568082083,
+            147.77268912974034
+          ]
+        },
+        "steady": {
+          "extra_ms": 3.2070100000000004,
+          "extra_pct": 140.24221990453768,
+          "paired_extra_pct": [
+            162.86117978498473,
+            90.48448504401617,
+            199.22501874919374
+          ]
+        },
+        "start_read": {
+          "extra_ms": 20.364599,
+          "extra_pct": 63.20115089498191,
+          "paired_extra_pct": [
+            56.65828002587063,
+            61.912638664876084,
+            64.77695142414422
+          ]
+        }
+      }
+    }
+  ],
+  "source_commit": "03c8cc55d61473533c00a8afe13b4ef1fcd9b725",
+  "source_patch_sha256": "647970c1af06eeafd125dd0af608c21561b6e3644513437198164b836ab36484",
+  "binary_sha256": "a797321fa0df7a002e2ad6350620e5f4f5397f9ca16bd3cae86812d93e42aee6",
+  "harness_sha256": "9e0d80efd341c776dc85c608e132050365ffc6755d7bc16dcbe31ffec01b94f6",
+  "scope": "writable WorkspaceMetaLayer vs standalone PackedReadonlyMeta; same immutable manifest, binary and shared cache budgets; no upper-bypass ablation"
+}

@@ -206,6 +206,20 @@ def measured_round(root, expected):
                 round_elapsed_ns=time.monotonic_ns() - round_start)
 
 
+def total_overlay_config(config, arm, manifest_key):
+    """Pair the shared Packed caches; the standalone arm has no workspace."""
+    assert arm in ('production', 'packed-direct')
+    config = dict(config, cache=dict(config['cache']))
+    config['cache'].update(read_memory_bytes=0, read_ssd_bytes=0, packed_cache='off',
+                           packed_cache_bytes=0, prefetch_enabled=False, range_background_prefetch=False)
+    if arm == 'packed-direct':
+        config.update(volume_format='packed-snapshot', volume={'format': 'packed-snapshot'},
+                      packed_manifest_key=manifest_key)
+        config.pop('workspace', None)
+        config.pop('workspace_namespace', None)
+    return config
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', type=Path, required=True)
@@ -217,10 +231,10 @@ def main():
     parser.add_argument('--passes', type=int, default=128)
     parser.add_argument('--build-profile', choices=('optimized-release', 'debug'), default='optimized-release',
                         help='Record the actual binary profile; debug runs validate correctness only')
-    parser.add_argument('--comparison', choices=('empty-cache', 'overlay-tax', 'cold-native'), default='empty-cache',
+    parser.add_argument('--comparison', choices=('empty-cache', 'overlay-tax', 'cold-native', 'overlay-total'), default='empty-cache',
                         help='overlay-tax requires the archived read-only ablation patch; includes unmodified production mode')
     parser.add_argument('--object-meter', choices=('proxy', 'client'), default='proxy',
-                        help='client is available only for cold-native: direct S3, phase counters from BrewFS')
+                        help='client: direct S3 with BrewFS phase counters for cold-native or overlay-total')
     parser.add_argument('--workspace-format', choices=('workspace-v1', 'workspace'), default='workspace-v1',
                         help='Historical builds use workspace-v1; current main requires workspace')
     parser.add_argument('--cache-state', choices=('both', 'on', 'off'), default='both',
@@ -233,8 +247,9 @@ def main():
     assert os.geteuid() == 0, 'run under sudo for private RustFS volume ownership'
     assert args.pairs >= 3 and 1 <= args.passes <= 4096
     assert 0 <= args.metadata_edits <= 4096
-    assert args.object_meter == 'proxy' or args.comparison == 'cold-native'
-    if args.comparison in ('overlay-tax', 'cold-native'):
+    phased = args.comparison in ('cold-native', 'overlay-total')
+    assert args.object_meter == 'proxy' or phased
+    if args.comparison in ('overlay-tax', 'cold-native', 'overlay-total'):
         assert args.metadata_sync == 'remote' and args.metadata_edits == 0
         assert args.workspace_format == 'workspace' and args.cache_state == 'on'
         assert args.build_profile == 'optimized-release'
@@ -259,9 +274,12 @@ def main():
     env[payload_cache_setting] = str(8 << 20)
     for name in ('BREWFS_PACKED_WORKSPACE_READ_CONTROL', 'BREWFS_PACKED_WORKSPACE_EXTENT_CONTROL'):
         env.pop(name, None)
-    if args.comparison in ('overlay-tax', 'cold-native'):
+    if args.comparison in ('overlay-tax', 'cold-native', 'overlay-total'):
         env['BREWFS_WORKSPACE_ROW_CACHE_TTL_MS'] = '60000'
         env['BREWFS_WORKSPACE_ROW_CACHE_BYTES'] = str(64 << 20)
+    if args.comparison == 'overlay-total':
+        env['BREWFS_PACKED_METADATA_CACHE_BYTES'] = str(256 << 20)
+        env.pop('BREWFS_PACKED_METADATA_ARM', None)
     result = dict(schema='hot-overlay-local-v1', passed=False, source_commit=args.source_commit,
                   owner=owner, temporary_directory=str(work), containers=containers,
                   started_unix_ns=time.time_ns(), host=dict(kernel=platform.release(), machine=platform.machine(),
@@ -285,6 +303,10 @@ def main():
         result.update(schema='overlay-cold-native-v1',
                       object_meter=args.object_meter,
                       comparison='fresh remount and cache directory; first round vs subsequent reads; native-overlay is workspace without Packed lower, files in writable layer',
+                      cold_scope='client process and client cache only; backend Redis/RustFS and host caches are not flushed')
+    if args.comparison == 'overlay-total':
+        result.update(schema='overlay-total-v1', object_meter=args.object_meter,
+                      comparison='writable WorkspaceMetaLayer vs standalone PackedReadonlyMeta; same immutable manifest, binary and shared cache budgets; no upper-bypass ablation',
                       cold_scope='client process and client cache only; backend Redis/RustFS and host caches are not flushed')
     process, logfile, point = None, None, None
 
@@ -322,12 +344,12 @@ def main():
         process = logfile = None
         assert code == 0 and not mounted(), 'mount did not exit cleanly'
 
-    def wait_for(predicate, label):
+    def wait_for(predicate, label, interval=.1):
         until = time.monotonic() + 30
         while time.monotonic() < until:
             if predicate():
                 return
-            time.sleep(.1)
+            time.sleep(interval)
         raise TimeoutError(label)
 
     def start_mount(config_path, log_path, mount_env=None):
@@ -343,7 +365,7 @@ def main():
             if process.poll() is not None:
                 raise RuntimeError(f'mount failed: {log_path}')
             return mounted()
-        wait_for(ready, 'FUSE mount')
+        wait_for(ready, 'FUSE mount', interval=.001 if args.comparison == 'overlay-total' else .1)
 
     try:
         for image in (REDIS, RUSTFS):
@@ -388,7 +410,7 @@ def main():
         s3 = boto3.client('s3', endpoint_url=endpoint, region_name='us-east-1', aws_access_key_id=access, aws_secret_access_key=secret,
                           config=Config(signature_version='s3v4', connect_timeout=2, read_timeout=10, retries={'total_max_attempts': 3}, s3={'addressing_style': 'path'}))
         with meter(rustfs_port) as (metered_endpoint, s3_counts):
-            scenarios = ('two-files', 'small-files-32') if args.comparison in ('overlay-tax', 'cold-native') else ('two-files', 'modified-upper')
+            scenarios = ('two-files', 'small-files-32') if args.comparison in ('overlay-tax', 'cold-native', 'overlay-total') else ('two-files', 'modified-upper')
             for scenario in scenarios:
                 payload = {'a.txt': b'packed smoke\n', 'sub/b.txt': bytes(range(64))}
                 if scenario == 'small-files-32':
@@ -425,9 +447,13 @@ def main():
                                       for state in ('cold', 'warm')]
                         random.Random(20261113 + pair).shuffle(conditions)
                         arms = [(True, arm, state) for arm, state in conditions]
+                    if args.comparison == 'overlay-total':
+                        order = ('production', 'packed-direct') if pair % 2 == 0 else ('packed-direct', 'production')
+                        temperatures = ('cold', 'warm') if pair % 2 == 0 else ('warm', 'cold')
+                        arms = [(True, arm, state) for state in temperatures for arm in order]
                     for enabled, arm, cache_temperature in arms:
                         suffix = arm if args.comparison == 'overlay-tax' else ('on' if enabled else 'off')
-                        if args.comparison == 'cold-native':
+                        if phased:
                             suffix = arm + '-' + cache_temperature
                         label = f'{scenario}-pair{pair+1}-' + suffix
                         assert sha(args.binary) == result['binary_sha256'], 'binary changed during pairing'
@@ -436,14 +462,18 @@ def main():
                         namespace = label + '-' + uuid.uuid4().hex[:8]
                         rurl = f'redis://127.0.0.1:{redis_port}/0'
                         init = ['init-volume'] if arm == 'native-overlay' else ['init-packed-volume', '--manifest-key', manifest.read_text().strip()]
-                        parent = json.loads(invoke([args.binary, 'workspace', '--meta-backend', 'redis', '--meta-url', rurl,
-                                                   '--workspace-namespace', namespace, *init, '--data-config', data_config]).stdout)
+                        parent = {'workspace_id': None}
+                        if arm != 'packed-direct':
+                            parent = json.loads(invoke([args.binary, 'workspace', '--meta-backend', 'redis', '--meta-url', rurl,
+                                                       '--workspace-namespace', namespace, *init, '--data-config', data_config]).stdout)
                         point = work / label
                         point.mkdir()
                         config = dict(volume_format=args.workspace_format, volume={'format': args.workspace_format}, workspace=parent['workspace_id'], workspace_namespace=namespace,
                                       data=data, meta={'backend': 'redis', 'redis': {'url': rurl}}, layout=dict(chunk_size=67108864, block_size=4194304),
                                       fuse=dict(workers=4, max_background=128, cache_ttl_ms=0, keep_cache=False),
                                       cache=dict(cache_root=str(work / ('cache-' + label)), writeback_mode='upload_before_commit', read_memory_bytes=536870912, read_ssd_bytes=0, compression='none'))
+                        if args.comparison == 'overlay-total':
+                            config = total_overlay_config(config, arm, manifest.read_text().strip())
                         config_path = out / 'config.json'
                         save(config_path, config)
                         env['BREWFS_WORKSPACE_EMPTY_QUERY_CACHE'] = str(int(enabled))
@@ -454,7 +484,7 @@ def main():
                             env['BREWFS_METADATA_JOURNAL_DIR'] = str(work / ('journal-' + label))
                         else:
                             env.pop('BREWFS_METADATA_JOURNAL_DIR', None)
-                        if args.comparison == 'cold-native':
+                        if phased:
                             # Prepare and verify once, then really unmount. Never delete a live cache.
                             preparation_config = dict(config, cache=dict(config['cache'], cache_root=str(work / ('prepare-cache-' + label))))
                             preparation_path = out / 'prepare-config.json'
@@ -472,12 +502,19 @@ def main():
                             assert not Path(config['cache']['cache_root']).exists()
                             save(out / 'remount-proof.json', dict(clean_unmount=True, same_workspace=parent['workspace_id'],
                                  preparation_cache=preparation_config['cache']['cache_root'], measured_cache=config['cache']['cache_root'],
+                                 manifest_key=manifest.read_text().strip(), mount_format=config['volume_format'],
                                  measured_cache_absent_before_mount=True, native_data_in_writable_layer=arm == 'native-overlay'))
                         mount_s3_before = s3_counts()
+                        if args.comparison == 'overlay-total':
+                            mount_redis_before = commandstats(redis_port)
                         mount_started = time.monotonic_ns()
                         start_mount(config_path, out / 'mount.log')
                         mount_elapsed_ns = time.monotonic_ns() - mount_started
                         mount_s3 = delta(s3_counts(), mount_s3_before)
+                        if args.comparison == 'overlay-total':
+                            time.sleep(.3)
+                            (out / 'mount.stats').write_text((point / '.stats').read_text())
+                            mount_redis_after = commandstats(redis_port)
                         mount_row = next(row for row in Path('/proc/self/mountinfo').read_text().splitlines() if row.split()[4] == str(point))
                         assert 'rw' in mount_row.split()[5].split(','), 'the comparison requires writable Overlay'
                         (out / 'mountinfo.txt').write_text(mount_row + '\n')
@@ -488,7 +525,7 @@ def main():
                         warmup_s3_before = s3_counts()
                         # Warm old empty results before mutating: correctness
                         # checks must catch stale negatives in the same mount.
-                        if args.comparison != 'cold-native' or cache_temperature == 'warm':
+                        if not phased or cache_temperature == 'warm':
                             measured_round(point, expected)
                             measured_round(point, expected)
                         if scenario == 'modified-upper':
@@ -516,7 +553,7 @@ def main():
                             os.rename(point / 'sub/new.txt', point / 'sub/renamed.txt')
                             expected['sub/renamed.txt'] = expected.pop('sub/new.txt')
                         warm = []
-                        for index in range(0 if args.comparison == 'cold-native' and cache_temperature == 'cold' else 3):
+                        for index in range(0 if phased and cache_temperature == 'cold' else 3):
                             before = s3_counts()
                             measured_round(point, expected)
                             warm.append(delta(s3_counts(), before))
@@ -525,16 +562,19 @@ def main():
                         warmup_s3 = delta(s3_counts(), warmup_s3_before)
                         if warm:
                             assert all(value == 0 for value in warm[-1].values()), f'lower/upper not hot: {warm}'
-                        if args.comparison == 'cold-native':
+                        if phased:
                             # Native object counters are mirrored by VFS every 100 ms.
                             # Wait outside timed phases so the preceding phase is fully reflected.
                             time.sleep(.3)
                         (out / 'before.stats').write_text((point / '.stats').read_text())
                         before_stats = metrics((out / 'before.stats').read_text())
+                        if args.comparison == 'overlay-total':
+                            assert before_stats['brewfs_packed_v3_payload_retention_capacity_bytes'] == 8 << 20
+                            assert before_stats['brewfs_packed_index_cache_configured_bytes'] == 256 << 20
                         before_redis = commandstats(redis_port)
                         before_s3 = s3_counts()
                         assert before_s3['inflight'] == 0, 'object request still active before measurement'
-                        if args.comparison == 'cold-native':
+                        if phased:
                             first = measured_round(point, expected)
                             first_s3 = delta(s3_counts(), before_s3)
                             first_redis = commandstats(redis_port)
@@ -554,7 +594,7 @@ def main():
                             elapsed = time.monotonic_ns() - started
                         after_s3 = s3_counts()
                         after_redis = commandstats(redis_port)
-                        if args.comparison == 'cold-native':
+                        if phased:
                             time.sleep(.3)
                         (out / 'after.stats').write_text((point / '.stats').read_text())
                         stats_delta = delta(metrics((out / 'after.stats').read_text()), before_stats)
@@ -567,7 +607,7 @@ def main():
                                     expected_sha256={name: hashlib.sha256(content).hexdigest() for name, content in expected.items()}, samples=samples)
                         save(out / 'hot-read.json', cell)
                         assert after_s3['inflight'] == 0, 'object request still active after measurement'
-                        if args.comparison == 'cold-native':
+                        if phased:
                             steady_s3 = delta(after_s3, steady_s3_before)
                             objects_before = client_objects((out / 'before.stats').read_text(), arm)
                             objects_first = client_objects((out / 'first.stats').read_text(), arm)
@@ -600,7 +640,21 @@ def main():
                         else:
                             assert all(value == 0 for value in remote_delta.values()), 'remote traffic in measured phase'
                             assert stats_delta['brewfs_fuse_read_ops_total'] == args.passes * len(expected)
-                        if args.comparison == 'cold-native' and arm in ('overlay-read', 'lower-read'):
+                        if args.comparison == 'overlay-total':
+                            cell['manifest_key'] = manifest.read_text().strip()
+                            cell['mount_format'] = config['volume_format']
+                            cell['cache_config'] = {k: v for k, v in config['cache'].items() if k != 'cache_root'}
+                            cell['mount_objects'] = client_objects((out / 'mount.stats').read_text(), arm)
+                            cell['warmup_objects'] = delta(objects_before, cell['mount_objects'])
+                            cell['mount_redis_delta'] = redis_delta(mount_redis_after, mount_redis_before)
+                            cell['warmup_redis_delta'] = redis_delta(before_redis, mount_redis_after)
+                            if cache_temperature == 'cold':
+                                assert not any(cell['warmup_objects'].values()), 'object reads after mount before cold phase'
+                            if arm == 'packed-direct':
+                                for stage in ('mount_redis_delta', 'warmup_redis_delta', 'redis_delta'):
+                                    assert all(v.get('calls', 0) == 0 for k, v in cell[stage].items() if k != 'info'), 'standalone snapshot accessed Redis'
+                                assert all(value == 0 for key, value in stats_delta.items() if key.startswith('brewfs_workspace_') and key.endswith('_total')), 'standalone snapshot used Workspace operations'
+                        if phased and arm in ('overlay-read', 'lower-read', 'packed-direct'):
                             import errno
                             try:
                                 forbidden = os.open(point / 'a.txt', os.O_WRONLY)
@@ -688,7 +742,7 @@ def main():
                             cell['remote_remount_verified'] = True
                         save(out / 'result.json', cell)
                         result['cells'].append({key: cell[key] for key in ('label', 'scenario', 'pair', 'arm', 'cache_enabled', 'elapsed_ns')})
-                        if args.comparison == 'cold-native':
+                        if phased:
                             result['cells'][-1]['cache_temperature'] = cache_temperature
                         print(label, round(elapsed / 1e6, 3), 'ms', flush=True)
             result['passed'] = True

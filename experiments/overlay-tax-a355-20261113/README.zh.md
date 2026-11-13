@@ -1,5 +1,8 @@
 # A355：BrewFS Overlay 冷读、热读与 native Workspace
 
+**完整 Overlay 读路径的后续对照见 [直接 Packed 对比结果](../overlay-total-a355-20261113/README.zh.md)。**
+本页保留空上层解析和 native/workspace 比较的原始结果。
+
 本轮使用用户已有的 A355（`idcai-client2`），Redis 与 RustFS 只在本机回环地址运行。
 未使用其他 C2 节点，没有新建服务器。
 已完成 36 项热读对照、[96 项冷/热比较](#冷读与-native-overlay-结果)和 48 项计数交叉校验。
