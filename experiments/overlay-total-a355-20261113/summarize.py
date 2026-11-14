@@ -48,7 +48,9 @@ def summarize(root):
         for cell in group:
             c = cell
             if versioned:
-                expected_binary = run['candidate_binary_sha256'] if c['arm'] == 'candidate' else run['binary_sha256']
+                use_candidate = c['arm'] == 'candidate' or (
+                    c['arm'] == 'packed-direct' and run['total_settings'].get('lower_build', 'baseline') == 'candidate')
+                expected_binary = run['candidate_binary_sha256'] if use_candidate else run['binary_sha256']
                 assert c['binary_sha256'] == expected_binary
             if run.get('detail_runner', {}).get('effective_kernel_ttl') == 'zero-checked':
                 assert c['effective_kernel_ttl_checked_zero']

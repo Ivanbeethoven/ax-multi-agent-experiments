@@ -252,7 +252,11 @@ def main():
     parser.add_argument('--total-temperatures', choices=('both', 'warm'), default='both')
     parser.add_argument('--total-row-cache-bytes', type=int, default=64 << 20)
     parser.add_argument('--total-payload-cache-bytes', type=int, default=8 << 20)
+    parser.add_argument('--total-lower-build', choices=('baseline', 'candidate'), default='baseline',
+                        help='Choose the binary for standalone lower; legacy runs used baseline')
     args = parser.parse_args()
+    if args.total_lower_build == 'candidate':
+        assert args.comparison == 'overlay-total' and args.candidate_binary
     assert os.geteuid() == 0, 'run under sudo for private RustFS volume ownership'
     assert args.pairs >= 3 and 1 <= args.passes <= 4096
     assert 0 <= args.metadata_edits <= 4096
@@ -339,6 +343,7 @@ def main():
                           candidate_binary_sha256=sha(args.candidate_binary),
                           candidate_source_patch_sha256=sha(args.candidate_source_patch),
                           comparison='baseline Overlay, candidate Overlay and standalone Packed; one immutable manifest and identical cache budgets')
+        result['total_settings']['lower_build'] = args.total_lower_build
     process, logfile, point = None, None, None
 
     def invoke(argv, *, check=True, timeout=60):
@@ -500,7 +505,9 @@ def main():
                             suffix = arm + '-' + cache_temperature
                         label = f'{scenario}-pair{pair+1}-' + suffix
                         assert sha(args.binary) == result['binary_sha256'], 'binary changed during pairing'
-                        active_binary = args.candidate_binary if arm == 'candidate' else args.binary
+                        use_candidate = arm == 'candidate' or (
+                            arm == 'packed-direct' and args.total_lower_build == 'candidate')
+                        active_binary = args.candidate_binary if use_candidate else args.binary
                         if args.candidate_binary:
                             assert sha(args.candidate_binary) == result['candidate_binary_sha256'], 'candidate changed during pairing'
                         out = args.out / label

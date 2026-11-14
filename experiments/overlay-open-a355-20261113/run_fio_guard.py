@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Small mixed-I/O regression guard, separate from read-cost measurements.
 
-Use the empty-cache workload with cache-state=on. fio runs once per mounted
-cell, before warmup/measurement; all original content/remount checks remain.
+Use empty-cache, or overlay-total to alternate baseline/candidate binaries.
+fio runs once per writable cell, before warmup/measurement; all original
+content/remount checks remain. The readonly lower arm never runs write fio.
 """
 import json
 import os
@@ -15,17 +16,28 @@ import run_detail
 
 
 def main():
+    runtime = 5
+    if '--fio-runtime' in sys.argv:
+        index = sys.argv.index('--fio-runtime')
+        runtime = int(sys.argv[index + 1])
+        del sys.argv[index:index + 2]
+    assert 1 <= runtime <= 60
     prepared = '--prepared-file' in sys.argv
     if prepared:
         sys.argv.remove('--prepared-file')
     assert '--comparison' in sys.argv
-    assert sys.argv[sys.argv.index('--comparison') + 1] == 'empty-cache'
+    comparison = sys.argv[sys.argv.index('--comparison') + 1]
+    assert comparison in ('empty-cache', 'overlay-total')
+    if comparison == 'overlay-total':
+        assert prepared and '--candidate-binary' in sys.argv
     output = Path(sys.argv[sys.argv.index('--out') + 1])
     original = run_detail.measured_round
     seen = set()
 
     def round_with_guard(root, expected):
         result = original(root, expected)
+        if 'packed-direct' in root.name:
+            return result
         if root in seen:
             return result
         seen.add(root)
@@ -49,7 +61,7 @@ def main():
                 elapsed_ns=time.monotonic_ns() - prepare_started), indent=2))
         command = ['/usr/bin/fio', '--name=overlay-randrw', '--filename=' + str(target),
                    '--ioengine=sync', '--direct=1', '--rw=randrw', '--rwmixread=70',
-                   '--bs=4k', '--size=16m', '--runtime=5', '--time_based=1',
+                   '--bs=4k', '--size=16m', f'--runtime={runtime}', '--time_based=1',
                    '--iodepth=1', '--numjobs=1', '--fallocate=none', '--end_fsync=1',
                    '--randrepeat=1', '--randseed=241113', '--output-format=json']
         if prepared:
@@ -60,6 +72,7 @@ def main():
             (cell / 'fio.json').write_bytes(done.stdout)
             (cell / 'fio.stderr').write_bytes(done.stderr)
             receipt = dict(command=command, exit_code=done.returncode,
+                           runtime_seconds=runtime,
                            wall_with_final_fsync_ns=time.monotonic_ns() - started)
             (cell / 'fio-receipt.json').write_text(json.dumps(receipt, indent=2))
             assert done.returncode == 0, done.stderr.decode(errors='replace')

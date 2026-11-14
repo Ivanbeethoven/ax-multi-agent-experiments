@@ -14,6 +14,7 @@ def render(root):
         '旧版与候选采用相同输入；直接 lower 是同引擎只读路径。单位 ms，计时不含预热。',
         f"旧版二进制 SHA256：`{documents[0]['baseline_binary_sha256']}`。",
         f"候选二进制 SHA256：`{documents[0]['candidate_binary_sha256']}`。",
+        '直接 lower 使用' + ('候选' if documents[0]['settings'].get('lower_build', 'baseline') == 'candidate' else '旧版') + '二进制；各单元另核验实际 SHA256。',
         '开销 = 100 ×（候选耗时 / 对照耗时 − 1）。汇总用展示的中位耗时相除；正数表示变慢。', '',
         '| 输入 | 旧 Overlay | 新 Overlay | 直接 lower | 新/旧 − 1 | 新/lower − 1 |',
         '|---|---:|---:|---:|---:|---:|']

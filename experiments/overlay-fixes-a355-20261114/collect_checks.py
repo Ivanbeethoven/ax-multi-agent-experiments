@@ -6,9 +6,9 @@ from pathlib import Path
 import re
 
 
-def collect(root):
+def collect(root, kinds=('replace', 'mixed', 'fio')):
     result = {}
-    for kind in ('replace', 'mixed', 'fio'):
+    for kind in kinds:
         directory = root / kind
         run = json.loads((directory / 'run.json').read_text())
         assert run['passed'] and len(run['cells']) == 6
