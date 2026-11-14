@@ -1,0 +1,19 @@
+
+running 1 test
+test workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_lookup_to_stat_interleaving ... LOOKUP_STAT cache=0 replace=true old=401 new=402 expected=Some(402) observed=Err(NotFound(401))
+LOOKUP_STAT cache=0 replace=false old=401 new=402 expected=None observed=Err(NotFound(401))
+LOOKUP_STAT cache=67108864 replace=true old=401 new=402 expected=Some(402) observed=Err(NotFound(401))
+LOOKUP_STAT cache=67108864 replace=false old=401 new=402 expected=None observed=Err(NotFound(401))
+
+thread 'workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_lookup_to_stat_interleaving' (316761) panicked at src/workspace/meta_layer/tests/enoent_f24_tests.rs:178:5:
+LOOKUP_STAT_INTERLEAVING: ["cache=0 replace=true: Err(NotFound(401))", "cache=0 replace=false: Err(NotFound(401))", "cache=67108864 replace=true: Err(NotFound(401))", "cache=67108864 replace=false: Err(NotFound(401))"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_lookup_to_stat_interleaving
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.10s
+

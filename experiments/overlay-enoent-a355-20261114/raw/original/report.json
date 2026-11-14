@@ -1,0 +1,641 @@
+{
+  "started_utc": "2026-11-14T09:28:26.417382+00:00",
+  "pid": 315597,
+  "source": "/srv/ax-enoent-local-20261114-0840/pair-02/original-source",
+  "base_commit": "fa630c33ed9691f66b09742ae695aecb0d666a0e",
+  "role": "original",
+  "commands": [
+    {
+      "name": "toolchain",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/rustc",
+        "-Vv"
+      ],
+      "started_utc": "2026-11-14T09:28:26.500755+00:00",
+      "expected_exit": 0,
+      "pid": 315603,
+      "exit_code": 0,
+      "seconds": 1.1442816120106727,
+      "finished_utc": "2026-11-14T09:28:27.649130+00:00"
+    },
+    {
+      "name": "compile-tests",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime,workspace,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability",
+        "--lib",
+        "--no-run",
+        "--message-format=json-render-diagnostics"
+      ],
+      "started_utc": "2026-11-14T09:28:27.649766+00:00",
+      "expected_exit": 0,
+      "pid": 315607,
+      "exit_code": 0,
+      "seconds": 521.7484602289915,
+      "finished_utc": "2026-11-14T09:37:09.402678+00:00"
+    },
+    {
+      "name": "inventory",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--list",
+        "--color=never"
+      ],
+      "started_utc": "2026-11-14T09:37:11.056291+00:00",
+      "expected_exit": 0,
+      "pid": 316746,
+      "exit_code": 0,
+      "seconds": 1.1451407429995015,
+      "finished_utc": "2026-11-14T09:37:12.205462+00:00"
+    },
+    {
+      "name": "redis-before",
+      "command": [
+        "/usr/bin/redis-cli",
+        "-p",
+        "16379",
+        "info",
+        "commandstats"
+      ],
+      "started_utc": "2026-11-14T09:37:12.321410+00:00",
+      "expected_exit": 0,
+      "pid": 316756,
+      "exit_code": 0,
+      "seconds": 1.1397532119881362,
+      "finished_utc": "2026-11-14T09:37:13.465690+00:00"
+    },
+    {
+      "name": "enoent_f24_lookup_to_stat_interleaving-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_lookup_to_stat_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:13.466437+00:00",
+      "expected_exit": 101,
+      "pid": 316759,
+      "exit_code": 101,
+      "seconds": 1.1377035650075413,
+      "finished_utc": "2026-11-14T09:37:14.608657+00:00"
+    },
+    {
+      "name": "enoent_f24_retired_inode_getattr_interleaving-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retired_inode_getattr_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:14.609440+00:00",
+      "expected_exit": 101,
+      "pid": 316764,
+      "exit_code": 101,
+      "seconds": 1.1388896930147894,
+      "finished_utc": "2026-11-14T09:37:15.752936+00:00"
+    },
+    {
+      "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_revalidates_lower_and_bounds_repeated_replacements",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:15.753888+00:00",
+      "expected_exit": 101,
+      "pid": 316769,
+      "exit_code": 101,
+      "seconds": 1.1503720849868841,
+      "finished_utc": "2026-11-14T09:37:16.908624+00:00"
+    },
+    {
+      "name": "enoent_f24_retained_handle_and_permission_controls-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retained_handle_and_permission_controls",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:16.909434+00:00",
+      "expected_exit": 0,
+      "pid": 316774,
+      "exit_code": 0,
+      "seconds": 1.14126630499959,
+      "finished_utc": "2026-11-14T09:37:18.055405+00:00"
+    },
+    {
+      "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_and_getattr_preserve_backend_errors_with_live_handle",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:18.056214+00:00",
+      "expected_exit": 0,
+      "pid": 316780,
+      "exit_code": 0,
+      "seconds": 1.1407393389963545,
+      "finished_utc": "2026-11-14T09:37:19.201656+00:00"
+    },
+    {
+      "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_dangling_dentry_is_not_hidden_by_revalidation",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:19.202504+00:00",
+      "expected_exit": 0,
+      "pid": 316785,
+      "exit_code": 0,
+      "seconds": 1.146165442012716,
+      "finished_utc": "2026-11-14T09:37:20.353290+00:00"
+    },
+    {
+      "name": "lookup_stat_kernel_revalidates_without_userspace_retry-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::lookup_stat_kernel_revalidates_without_userspace_retry",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:20.354455+00:00",
+      "expected_exit": 101,
+      "pid": 316790,
+      "exit_code": 101,
+      "seconds": 2.2936115270131268,
+      "finished_utc": "2026-11-14T09:37:22.652019+00:00"
+    },
+    {
+      "name": "retired_getattr_kernel_revalidates_before_open_and_stat-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::retired_getattr_kernel_revalidates_before_open_and_stat",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:22.652855+00:00",
+      "expected_exit": 101,
+      "pid": 316894,
+      "exit_code": 101,
+      "seconds": 2.3016061279922724,
+      "finished_utc": "2026-11-14T09:37:24.959013+00:00"
+    },
+    {
+      "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::repeated_getattr_replacement_exhausts_kernel_retry_as_stale",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:24.959939+00:00",
+      "expected_exit": 101,
+      "pid": 316954,
+      "exit_code": 101,
+      "seconds": 1.140580896026222,
+      "finished_utc": "2026-11-14T09:37:26.105049+00:00"
+    },
+    {
+      "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::kernel_retained_handle_preserves_absence_permissions_and_backend_errors",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:26.106122+00:00",
+      "expected_exit": 0,
+      "pid": 316982,
+      "exit_code": 0,
+      "seconds": 1.1420486849965528,
+      "finished_utc": "2026-11-14T09:37:27.252813+00:00"
+    },
+    {
+      "name": "enoent_f24_lookup_to_stat_interleaving-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_lookup_to_stat_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:27.254042+00:00",
+      "expected_exit": 101,
+      "pid": 316999,
+      "exit_code": 101,
+      "seconds": 1.1388115680019837,
+      "finished_utc": "2026-11-14T09:37:28.397866+00:00"
+    },
+    {
+      "name": "enoent_f24_retired_inode_getattr_interleaving-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retired_inode_getattr_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:28.398838+00:00",
+      "expected_exit": 101,
+      "pid": 317004,
+      "exit_code": 101,
+      "seconds": 1.1397285569983069,
+      "finished_utc": "2026-11-14T09:37:29.542372+00:00"
+    },
+    {
+      "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_revalidates_lower_and_bounds_repeated_replacements",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:29.543610+00:00",
+      "expected_exit": 101,
+      "pid": 317009,
+      "exit_code": 101,
+      "seconds": 1.146745947015006,
+      "finished_utc": "2026-11-14T09:37:30.694993+00:00"
+    },
+    {
+      "name": "enoent_f24_retained_handle_and_permission_controls-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retained_handle_and_permission_controls",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:30.696299+00:00",
+      "expected_exit": 0,
+      "pid": 317016,
+      "exit_code": 0,
+      "seconds": 1.1397467409842648,
+      "finished_utc": "2026-11-14T09:37:31.840786+00:00"
+    },
+    {
+      "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_and_getattr_preserve_backend_errors_with_live_handle",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:31.841990+00:00",
+      "expected_exit": 0,
+      "pid": 317021,
+      "exit_code": 0,
+      "seconds": 1.1406032769882586,
+      "finished_utc": "2026-11-14T09:37:32.987159+00:00"
+    },
+    {
+      "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_dangling_dentry_is_not_hidden_by_revalidation",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:32.988224+00:00",
+      "expected_exit": 0,
+      "pid": 317026,
+      "exit_code": 0,
+      "seconds": 1.1469840479840059,
+      "finished_utc": "2026-11-14T09:37:34.139986+00:00"
+    },
+    {
+      "name": "lookup_stat_kernel_revalidates_without_userspace_retry-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::lookup_stat_kernel_revalidates_without_userspace_retry",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:34.141096+00:00",
+      "expected_exit": 101,
+      "pid": 317031,
+      "exit_code": 101,
+      "seconds": 2.28331940798671,
+      "finished_utc": "2026-11-14T09:37:36.429105+00:00"
+    },
+    {
+      "name": "retired_getattr_kernel_revalidates_before_open_and_stat-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::retired_getattr_kernel_revalidates_before_open_and_stat",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:36.430719+00:00",
+      "expected_exit": 101,
+      "pid": 317092,
+      "exit_code": 101,
+      "seconds": 2.3073959439934697,
+      "finished_utc": "2026-11-14T09:37:38.742932+00:00"
+    },
+    {
+      "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::repeated_getattr_replacement_exhausts_kernel_retry_as_stale",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:38.744063+00:00",
+      "expected_exit": 101,
+      "pid": 317152,
+      "exit_code": 101,
+      "seconds": 1.1402174819959328,
+      "finished_utc": "2026-11-14T09:37:39.889136+00:00"
+    },
+    {
+      "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::kernel_retained_handle_preserves_absence_permissions_and_backend_errors",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:39.890523+00:00",
+      "expected_exit": 0,
+      "pid": 317180,
+      "exit_code": 0,
+      "seconds": 1.1392802869959269,
+      "finished_utc": "2026-11-14T09:37:41.034575+00:00"
+    },
+    {
+      "name": "enoent_f24_lookup_to_stat_interleaving-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_lookup_to_stat_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:41.036573+00:00",
+      "expected_exit": 101,
+      "pid": 317197,
+      "exit_code": 101,
+      "seconds": 1.1400402539875358,
+      "finished_utc": "2026-11-14T09:37:42.181464+00:00"
+    },
+    {
+      "name": "enoent_f24_retired_inode_getattr_interleaving-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retired_inode_getattr_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:42.182659+00:00",
+      "expected_exit": 101,
+      "pid": 317202,
+      "exit_code": 101,
+      "seconds": 1.140748206002172,
+      "finished_utc": "2026-11-14T09:37:43.328269+00:00"
+    },
+    {
+      "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_revalidates_lower_and_bounds_repeated_replacements",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:43.329704+00:00",
+      "expected_exit": 101,
+      "pid": 317207,
+      "exit_code": 101,
+      "seconds": 1.1497057610249612,
+      "finished_utc": "2026-11-14T09:37:44.500049+00:00"
+    },
+    {
+      "name": "enoent_f24_retained_handle_and_permission_controls-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retained_handle_and_permission_controls",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:44.501471+00:00",
+      "expected_exit": 0,
+      "pid": 317212,
+      "exit_code": 0,
+      "seconds": 1.1638444049749523,
+      "finished_utc": "2026-11-14T09:37:45.695964+00:00"
+    },
+    {
+      "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_and_getattr_preserve_backend_errors_with_live_handle",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:45.699576+00:00",
+      "expected_exit": 0,
+      "pid": 317217,
+      "exit_code": 0,
+      "seconds": 1.1428785430034623,
+      "finished_utc": "2026-11-14T09:37:46.847646+00:00"
+    },
+    {
+      "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_dangling_dentry_is_not_hidden_by_revalidation",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:37:46.849188+00:00",
+      "expected_exit": 0,
+      "pid": 317222,
+      "exit_code": 0,
+      "seconds": 1.145835691015236,
+      "finished_utc": "2026-11-14T09:37:48.000128+00:00"
+    },
+    {
+      "name": "lookup_stat_kernel_revalidates_without_userspace_retry-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::lookup_stat_kernel_revalidates_without_userspace_retry",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:48.001446+00:00",
+      "expected_exit": 101,
+      "pid": 317227,
+      "exit_code": 101,
+      "seconds": 2.2898321240209043,
+      "finished_utc": "2026-11-14T09:37:50.296808+00:00"
+    },
+    {
+      "name": "retired_getattr_kernel_revalidates_before_open_and_stat-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::retired_getattr_kernel_revalidates_before_open_and_stat",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:50.298234+00:00",
+      "expected_exit": 101,
+      "pid": 317288,
+      "exit_code": 101,
+      "seconds": 2.296332257014001,
+      "finished_utc": "2026-11-14T09:37:52.599787+00:00"
+    },
+    {
+      "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::repeated_getattr_replacement_exhausts_kernel_retry_as_stale",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:52.601337+00:00",
+      "expected_exit": 101,
+      "pid": 317348,
+      "exit_code": 101,
+      "seconds": 1.1509656150010414,
+      "finished_utc": "2026-11-14T09:37:53.757310+00:00"
+    },
+    {
+      "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::kernel_retained_handle_preserves_absence_permissions_and_backend_errors",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:37:53.758971+00:00",
+      "expected_exit": 0,
+      "pid": 317376,
+      "exit_code": 0,
+      "seconds": 1.139185701002134,
+      "finished_utc": "2026-11-14T09:37:54.903374+00:00"
+    },
+    {
+      "name": "redis-after",
+      "command": [
+        "/usr/bin/redis-cli",
+        "-p",
+        "16379",
+        "info",
+        "commandstats"
+      ],
+      "started_utc": "2026-11-14T09:37:54.905048+00:00",
+      "expected_exit": 0,
+      "pid": 317394,
+      "exit_code": 0,
+      "seconds": 1.1461502340098377,
+      "finished_utc": "2026-11-14T09:37:56.056368+00:00"
+    }
+  ],
+  "performance_measurement": false,
+  "peak_process_group_rss": 34176905216,
+  "lock_acquired_utc": "2026-11-14T09:28:26.417597+00:00",
+  "environment_limits": {
+    "cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "jobs": 4,
+    "nice": 19,
+    "io_class": "idle",
+    "rss_limit": 51539607552
+  },
+  "isolation": {
+    "network": "loopback only",
+    "mount": "private",
+    "kernel": "6.8.0-149-generic"
+  },
+  "build_environment": {
+    "RUSTC": "/srv/ax-overlay-tax-20261113/toolchain/bin/rustc",
+    "CARGO_HOME": "/srv/ax-enoent-local-20261114-0840/cargo",
+    "CARGO_TARGET_DIR": "/srv/ax-enoent-local-20261114-0840/target",
+    "TMPDIR": "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/tmp",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_NET_OFFLINE": "true",
+    "RUST_TEST_THREADS": "1",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "test_binary": "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/brewfs-lib-tests",
+  "redis": {
+    "command": [
+      "/usr/bin/redis-server",
+      "--bind",
+      "127.0.0.1",
+      "--port",
+      "16379",
+      "--save",
+      "",
+      "--appendonly",
+      "no",
+      "--maxmemory",
+      "256mb",
+      "--maxmemory-policy",
+      "noeviction",
+      "--dir",
+      "/srv/ax-enoent-local-20261114-0840/pair-02/original-results/redis"
+    ],
+    "pid": 316749,
+    "exit_code": 0
+  },
+  "completed": true,
+  "passed": true,
+  "finished_utc": "2026-11-14T09:37:56.121710+00:00",
+  "mounts_after": "/ ext4\n/dev devtmpfs\n/dev/pts devpts\n/dev/shm tmpfs\n/dev/hugepages hugetlbfs\n/dev/mqueue mqueue\n/run tmpfs\n/run/lock tmpfs\n/run/snapd/ns tmpfs\n/run/user/0 tmpfs\n/run/user/0/doc fuse.portal\n/run/user/0/gvfs fuse.gvfsd-fuse\n/sys sysfs\n/sys/kernel/security securityfs\n/sys/fs/cgroup cgroup2\n/sys/fs/pstore pstore\n/sys/fs/bpf bpf\n/sys/kernel/debug debugfs\n/sys/kernel/tracing tracefs\n/sys/fs/fuse/connections fusectl\n/sys/kernel/config configfs\n/proc proc\n/proc/sys/fs/binfmt_misc autofs\n/proc/sys/fs/binfmt_misc binfmt_misc\n/snap/bare/5 squashfs\n/snap/core22/2292 squashfs\n/snap/firefox/7766 squashfs\n/snap/gnome-42-2204/247 squashfs\n/snap/firmware-updater/210 squashfs\n/snap/snap-store/1270 squashfs\n/snap/gtk-common-themes/1535 squashfs\n/snap/snapd-desktop-integration/343 squashfs\n/snap/snapd/25935 squashfs\n/snap/thunderbird/959 squashfs\n/tmp/fuse fuse\n/snap/snapd/28332 squashfs\n/snap/core24/2307 squashfs\n/snap/mesa-2404/1839 squashfs\n/snap/firmware-updater/262 squashfs\n/snap/gnome-46-2404/177 squashfs\n/snap/snap-store/1489 squashfs\n",
+  "lock_released_utc": "2026-11-14T09:37:56.125825+00:00"
+}

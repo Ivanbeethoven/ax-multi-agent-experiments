@@ -8,6 +8,7 @@
 
 | 要找什么 | 入口 |
 |---|---|
+| Overlay 原子替换重试 | [LOOKUP/GETATTR 并发替换、Redis/FUSE 检查与复测脚本](experiments/overlay-enoent-a355-20261114/README.zh.md) |
 | 已有性能结果和图 | [C1–C4 结果](experiments/unified-suite/current/results-20261112/RESULT.zh.md) |
 | Private Workspace 缓存 | [租约保留、60 秒 TTL 消融及目录热读](experiments/overlay-lease-cache-a355-20261114/README.zh.md) |
 | Overlay open 后续优化 | [异步状态、调度、Redis 查询分解与新旧版复测](experiments/overlay-open-profile-a355-20261114/README.zh.md) |

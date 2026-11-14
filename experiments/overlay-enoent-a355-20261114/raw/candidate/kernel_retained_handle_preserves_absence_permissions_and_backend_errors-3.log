@@ -1,0 +1,30 @@
+
+running 1 test
+test workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::kernel_retained_handle_preserves_absence_permissions_and_backend_errors ... KERNEL_BACKEND redis cache=0
+KERNEL_CONTROL cache=0 command=fstat injected=0 expected={"ino":401,"nlink":0} observed={"ino":401,"nlink":0}
+KERNEL_CONTROL cache=0 command=absent injected=0 expected={"errno":2} observed={"errno":2}
+KERNEL_CONTROL cache=0 command=open injected=0 expected={"errno":13} observed={"errno":13}
+[packed-native-kernel-read-diag] stage=fuse-getattr unique=28 inode=401 fh=None error=PermissionDenied { path: PathHint(None) }
+KERNEL_CONTROL cache=0 command=fstat injected=13 expected={"errno":13} observed={"errno":13}
+[packed-native-kernel-read-diag] stage=fuse-getattr unique=30 inode=401 fh=None error=Other
+KERNEL_CONTROL cache=0 command=fstat injected=5 expected={"errno":5} observed={"errno":5}
+[packed-native-kernel-read-diag] stage=fuse-getattr unique=32 inode=401 fh=None error=NotFound { path: PathHint(None) }
+KERNEL_CONTROL cache=0 command=fstat injected=2 expected={"errno":2} observed={"errno":2}
+KERNEL_CONTROL cache=0 command=fstat injected=0 expected={"ino":401,"nlink":0} observed={"ino":401,"nlink":0}
+KERNEL_CONTROL_TRACE cache=0 events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "getattr uid=1000 ino=401 fh=None result=Ok((401, 1))", "open uid=1000 ino=401 result=Ok(1)", "getattr uid=1000 ino=401 fh=None result=Ok((401, 0))", "getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target-absent\" result=Err(Errno(2))", "getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(402)", "lookup uid=1000 parent=1 name=\"target\" result=Ok(402)", "getattr uid=1000 ino=402 fh=None result=Ok((402, 1))", "getattr uid=1000 ino=401 fh=None result=Err(Errno(13))", "getattr uid=1000 ino=401 fh=None result=Err(Errno(5))", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))", "getattr uid=1000 ino=401 fh=None result=Ok((401, 0))"]
+KERNEL_BACKEND redis cache=67108864
+KERNEL_CONTROL cache=67108864 command=fstat injected=0 expected={"ino":401,"nlink":0} observed={"ino":401,"nlink":0}
+KERNEL_CONTROL cache=67108864 command=absent injected=0 expected={"errno":2} observed={"errno":2}
+KERNEL_CONTROL cache=67108864 command=open injected=0 expected={"errno":13} observed={"errno":13}
+[packed-native-kernel-read-diag] stage=fuse-getattr unique=28 inode=401 fh=None error=PermissionDenied { path: PathHint(None) }
+KERNEL_CONTROL cache=67108864 command=fstat injected=13 expected={"errno":13} observed={"errno":13}
+[packed-native-kernel-read-diag] stage=fuse-getattr unique=30 inode=401 fh=None error=Other
+KERNEL_CONTROL cache=67108864 command=fstat injected=5 expected={"errno":5} observed={"errno":5}
+[packed-native-kernel-read-diag] stage=fuse-getattr unique=32 inode=401 fh=None error=NotFound { path: PathHint(None) }
+KERNEL_CONTROL cache=67108864 command=fstat injected=2 expected={"errno":2} observed={"errno":2}
+KERNEL_CONTROL cache=67108864 command=fstat injected=0 expected={"ino":401,"nlink":0} observed={"ino":401,"nlink":0}
+KERNEL_CONTROL_TRACE cache=67108864 events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "getattr uid=1000 ino=401 fh=None result=Ok((401, 1))", "open uid=1000 ino=401 result=Ok(1)", "getattr uid=1000 ino=401 fh=None result=Ok((401, 0))", "getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target-absent\" result=Err(Errno(2))", "getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(402)", "lookup uid=1000 parent=1 name=\"target\" result=Ok(402)", "getattr uid=1000 ino=402 fh=None result=Ok((402, 1))", "getattr uid=1000 ino=401 fh=None result=Err(Errno(13))", "getattr uid=1000 ino=401 fh=None result=Err(Errno(5))", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))", "getattr uid=1000 ino=401 fh=None result=Ok((401, 0))"]
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.28s
+

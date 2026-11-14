@@ -1,0 +1,45 @@
+
+running 1 test
+test workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::retired_getattr_kernel_revalidates_before_open_and_stat ... KERNEL_BACKEND redis cache=0
+KERNEL_TRACE at=Getattr change=Replace stat=false cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change Getattr Replace error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=0
+KERNEL_TRACE at=Getattr change=Replace stat=true cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change Getattr Replace error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=0
+KERNEL_TRACE at=Getattr change=Unlink stat=false cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change Getattr Unlink error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=0
+KERNEL_TRACE at=Getattr change=Unlink stat=true cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change Getattr Unlink error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=0
+KERNEL_TRACE at=Getattr change=Deny stat=false cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change Getattr Deny error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+KERNEL_TRACE at=Getattr change=Replace stat=false cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change Getattr Replace error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+KERNEL_TRACE at=Getattr change=Replace stat=true cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change Getattr Replace error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+KERNEL_TRACE at=Getattr change=Unlink stat=false cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change Getattr Unlink error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+KERNEL_TRACE at=Getattr change=Unlink stat=true cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change Getattr Unlink error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+KERNEL_TRACE at=Getattr change=Deny stat=false cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change Getattr Deny error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+
+thread 'workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::retired_getattr_kernel_revalidates_before_open_and_stat' (317094) panicked at src/workspace/meta_layer/tests/enoent_f24_kernel_tests.rs:440:5:
+KERNEL_RETIRED_GETATTR: ["cache=0 change=Replace stat=false: expected={\"ino\":402,\"nlink\":1} observed={\"errno\":2}", "cache=0 change=Replace stat=true: expected={\"ino\":402,\"nlink\":1} observed={\"errno\":2}", "cache=0 change=Unlink stat=false: missing stale-node revalidation: getattr uid=1000 ino=401 fh=None result=Err(Errno(116))", "cache=0 change=Unlink stat=true: missing stale-node revalidation: getattr uid=1000 ino=401 fh=None result=Err(Errno(116))", "cache=0 change=Deny stat=false: expected={\"errno\":13} observed={\"errno\":2}", "cache=67108864 change=Replace stat=false: expected={\"ino\":402,\"nlink\":1} observed={\"errno\":2}", "cache=67108864 change=Replace stat=true: expected={\"ino\":402,\"nlink\":1} observed={\"errno\":2}", "cache=67108864 change=Unlink stat=false: missing stale-node revalidation: getattr uid=1000 ino=401 fh=None result=Err(Errno(116))", "cache=67108864 change=Unlink stat=true: missing stale-node revalidation: getattr uid=1000 ino=401 fh=None result=Err(Errno(116))", "cache=67108864 change=Deny stat=false: expected={\"errno\":13} observed={\"errno\":2}"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::retired_getattr_kernel_revalidates_before_open_and_stat
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.28s
+
