@@ -1,0 +1,470 @@
+{
+  "passed": true,
+  "cells": 48,
+  "object_meter": "client",
+  "rows": [
+    {
+      "scenario": "small-files-32",
+      "arm": "production",
+      "cache_temperature": "cold",
+      "pairs": 6,
+      "first_round_ms": 111.83004,
+      "first_round_runs_ms": [
+        111.712928,
+        112.502191,
+        114.589927,
+        111.947152,
+        107.996716,
+        107.64808
+      ],
+      "steady_ms_per_round": 36.197022171875005,
+      "steady_runs_ms_per_round": [
+        33.0402214609375,
+        38.7455697109375,
+        35.66506495703125,
+        36.56115671875,
+        36.2430081640625,
+        36.1510361796875
+      ],
+      "mount_and_first_read_ms": 154.5334235,
+      "mount_ms": 43.2926245,
+      "first_requests": 11.0,
+      "first_bytes": 166844.0,
+      "mount_requests": 3.0,
+      "mount_bytes": 14263.0,
+      "first_redis_commands": 183.0,
+      "steady_redis_commands": 4256.0,
+      "first_upper_extent_queries": 32.0,
+      "first_upper_directory_queries": 2.0,
+      "hot_pread_us": 205.27050000000003,
+      "hot_open_list_us": 2538.71925
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "packed-direct",
+      "cache_temperature": "cold",
+      "pairs": 6,
+      "first_round_ms": 41.5029045,
+      "first_round_runs_ms": [
+        40.813472,
+        40.046652,
+        42.025317,
+        40.980492,
+        42.520454,
+        42.313821
+      ],
+      "steady_ms_per_round": 14.7052894609375,
+      "steady_runs_ms_per_round": [
+        14.8291370859375,
+        14.6740878828125,
+        14.7364910390625,
+        14.62962193359375,
+        14.80615576953125,
+        14.65590968359375
+      ],
+      "mount_and_first_read_ms": 69.93268549999999,
+      "mount_ms": 27.913545,
+      "first_requests": 11.0,
+      "first_bytes": 166844.0,
+      "mount_requests": 4.0,
+      "mount_bytes": 14327.0,
+      "first_redis_commands": 0.0,
+      "steady_redis_commands": 0.0,
+      "first_upper_extent_queries": 0.0,
+      "first_upper_directory_queries": 0.0,
+      "hot_pread_us": 180.55425,
+      "hot_open_list_us": 670.5922499999999
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "production",
+      "cache_temperature": "warm",
+      "pairs": 6,
+      "first_round_ms": 40.079042,
+      "first_round_runs_ms": [
+        39.459174,
+        39.270695,
+        44.073471,
+        40.440622,
+        39.717462,
+        44.96945
+      ],
+      "steady_ms_per_round": 36.67023669921875,
+      "steady_runs_ms_per_round": [
+        36.19934976171875,
+        36.5641901484375,
+        36.9418412109375,
+        36.77628325,
+        36.52704106640625,
+        39.86074701171875
+      ],
+      "mount_and_first_read_ms": 86.516927,
+      "mount_ms": 44.196964,
+      "first_requests": 0.0,
+      "first_bytes": 0.0,
+      "mount_requests": 3.0,
+      "mount_bytes": 14263.0,
+      "first_redis_commands": 16.0,
+      "steady_redis_commands": 4256.0,
+      "first_upper_extent_queries": 0.0,
+      "first_upper_directory_queries": 0.0,
+      "hot_pread_us": 206.5075,
+      "hot_open_list_us": 2628.2455
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "packed-direct",
+      "cache_temperature": "warm",
+      "pairs": 6,
+      "first_round_ms": 17.8352285,
+      "first_round_runs_ms": [
+        17.178337,
+        17.950437,
+        18.306046,
+        18.160756,
+        17.72002,
+        17.652304
+      ],
+      "steady_ms_per_round": 14.703113966796874,
+      "steady_runs_ms_per_round": [
+        14.71207429296875,
+        14.753370859375,
+        14.694153640625,
+        14.68936813671875,
+        14.66691537890625,
+        14.80932966015625
+      ],
+      "mount_and_first_read_ms": 46.382086,
+      "mount_ms": 28.751186500000003,
+      "first_requests": 0.0,
+      "first_bytes": 0.0,
+      "mount_requests": 4.0,
+      "mount_bytes": 14327.0,
+      "first_redis_commands": 0.0,
+      "steady_redis_commands": 0.0,
+      "first_upper_extent_queries": 0.0,
+      "first_upper_directory_queries": 0.0,
+      "hot_pread_us": 180.47424999999998,
+      "hot_open_list_us": 670.2115
+    },
+    {
+      "scenario": "two-files",
+      "arm": "production",
+      "cache_temperature": "cold",
+      "pairs": 6,
+      "first_round_ms": 33.5484615,
+      "first_round_runs_ms": [
+        37.285238,
+        28.90728,
+        33.761842,
+        29.806997,
+        33.335081,
+        34.156944
+      ],
+      "steady_ms_per_round": 3.93176555078125,
+      "steady_runs_ms_per_round": [
+        3.95308840234375,
+        3.91232090234375,
+        3.93723587890625,
+        3.92629522265625,
+        3.89526662109375,
+        4.3681921171875
+      ],
+      "mount_and_first_read_ms": 76.72708449999999,
+      "mount_ms": 43.3788735,
+      "first_requests": 11.0,
+      "first_bytes": 27412.0,
+      "mount_requests": 3.0,
+      "mount_bytes": 14251.0,
+      "first_redis_commands": 33.0,
+      "steady_redis_commands": 4096.0,
+      "first_upper_extent_queries": 2.0,
+      "first_upper_directory_queries": 2.0,
+      "hot_pread_us": 207.59199999999998,
+      "hot_open_list_us": 1658.99275
+    },
+    {
+      "scenario": "two-files",
+      "arm": "packed-direct",
+      "cache_temperature": "cold",
+      "pairs": 6,
+      "first_round_ms": 21.365522499999997,
+      "first_round_runs_ms": [
+        21.419893,
+        21.35869,
+        21.201167,
+        20.974448,
+        21.564571,
+        21.372355
+      ],
+      "steady_ms_per_round": 1.381817154296875,
+      "steady_runs_ms_per_round": [
+        1.388201734375,
+        1.35764443359375,
+        1.39009465625,
+        1.38769939453125,
+        1.3759349140625,
+        1.374016515625
+      ],
+      "mount_and_first_read_ms": 49.222863000000004,
+      "mount_ms": 27.981710999999997,
+      "first_requests": 11.0,
+      "first_bytes": 27412.0,
+      "mount_requests": 4.0,
+      "mount_bytes": 14315.0,
+      "first_redis_commands": 0.0,
+      "steady_redis_commands": 0.0,
+      "first_upper_extent_queries": 0.0,
+      "first_upper_directory_queries": 0.0,
+      "hot_pread_us": 178.85625,
+      "hot_open_list_us": 459.75874999999996
+    },
+    {
+      "scenario": "two-files",
+      "arm": "production",
+      "cache_temperature": "warm",
+      "pairs": 6,
+      "first_round_ms": 5.647871,
+      "first_round_runs_ms": [
+        5.173381,
+        5.851788,
+        5.605442,
+        5.777501,
+        5.6903,
+        5.240737
+      ],
+      "steady_ms_per_round": 3.96195280859375,
+      "steady_runs_ms_per_round": [
+        3.9550939921875,
+        4.14891234375,
+        3.949057109375,
+        4.1902945,
+        3.968811625,
+        3.88124682421875
+      ],
+      "mount_and_first_read_ms": 50.883939,
+      "mount_ms": 45.465008,
+      "first_requests": 0.0,
+      "first_bytes": 0.0,
+      "mount_requests": 3.0,
+      "mount_bytes": 14251.0,
+      "first_redis_commands": 16.0,
+      "steady_redis_commands": 4096.0,
+      "first_upper_extent_queries": 0.0,
+      "first_upper_directory_queries": 0.0,
+      "hot_pread_us": 207.715,
+      "hot_open_list_us": 1699.5025
+    },
+    {
+      "scenario": "two-files",
+      "arm": "packed-direct",
+      "cache_temperature": "warm",
+      "pairs": 6,
+      "first_round_ms": 2.1387159999999996,
+      "first_round_runs_ms": [
+        2.130997,
+        2.095572,
+        2.146435,
+        2.236823,
+        1.928743,
+        2.82927
+      ],
+      "steady_ms_per_round": 1.376506126953125,
+      "steady_runs_ms_per_round": [
+        1.398285328125,
+        1.38860556640625,
+        1.37123092578125,
+        1.379296765625,
+        1.3427891875,
+        1.37371548828125
+      ],
+      "mount_and_first_read_ms": 30.183319,
+      "mount_ms": 27.979382,
+      "first_requests": 0.0,
+      "first_bytes": 0.0,
+      "mount_requests": 4.0,
+      "mount_bytes": 14315.0,
+      "first_redis_commands": 0.0,
+      "steady_redis_commands": 0.0,
+      "first_upper_extent_queries": 0.0,
+      "first_upper_directory_queries": 0.0,
+      "hot_pread_us": 178.9665,
+      "hot_open_list_us": 456.861
+    }
+  ],
+  "differences": [
+    {
+      "scenario": "small-files-32",
+      "cache_temperature": "cold",
+      "measures": {
+        "first": {
+          "extra_ms": 70.3271355,
+          "extra_pct": 169.45111757178344,
+          "paired_extra_pct": [
+            173.71581618932103,
+            180.92783137027283,
+            172.66879866724145,
+            173.17181062638292,
+            153.98768319830265,
+            154.40406339101352
+          ]
+        },
+        "steady": {
+          "extra_ms": 21.491732710937505,
+          "extra_pct": 146.14967470057096,
+          "paired_extra_pct": [
+            122.80609633226476,
+            164.04073643527445,
+            142.01870623401928,
+            149.9118356216386,
+            144.78337745605066,
+            146.6652494464811
+          ]
+        },
+        "start_read": {
+          "extra_ms": 84.600738,
+          "extra_pct": 120.97453057197414,
+          "paired_extra_pct": [
+            122.70251233643812,
+            123.89813206160687,
+            119.3470141975261,
+            130.1577964156574,
+            116.45681456155489,
+            112.22974135614345
+          ]
+        }
+      }
+    },
+    {
+      "scenario": "small-files-32",
+      "cache_temperature": "warm",
+      "measures": {
+        "first": {
+          "extra_ms": 22.2438135,
+          "extra_pct": 124.71841053227885,
+          "paired_extra_pct": [
+            129.7031080482354,
+            118.77291901027256,
+            140.75909674869166,
+            122.68137956371419,
+            124.13892309376622,
+            154.75116449388136
+          ]
+        },
+        "steady": {
+          "extra_ms": 21.967122732421874,
+          "extra_pct": 149.40456002741226,
+          "paired_extra_pct": [
+            146.0519777215867,
+            147.83617586080578,
+            151.40502892799628,
+            150.35987189994228,
+            149.04378407295457,
+            169.15969815272643
+          ]
+        },
+        "start_read": {
+          "extra_ms": 40.134840999999994,
+          "extra_pct": 86.53090979996026,
+          "paired_extra_pct": [
+            86.13444082497487,
+            87.46946663486021,
+            84.24183549289717,
+            78.63698846735265,
+            75.39803251797667,
+            96.08024379969571
+          ]
+        }
+      }
+    },
+    {
+      "scenario": "two-files",
+      "cache_temperature": "cold",
+      "measures": {
+        "first": {
+          "extra_ms": 12.182939000000005,
+          "extra_pct": 57.02148870920431,
+          "paired_extra_pct": [
+            74.0682738237768,
+            35.34200833478083,
+            59.24520570023337,
+            42.11099619880343,
+            54.58262999991979,
+            59.818344772955555
+          ]
+        },
+        "steady": {
+          "extra_ms": 2.5499483964843748,
+          "extra_pct": 184.5358764403162,
+          "paired_extra_pct": [
+            184.7632519436032,
+            188.1697744664742,
+            183.23509202801813,
+            182.93557222329918,
+            183.09962784451977,
+            217.91409109813625
+          ]
+        },
+        "start_read": {
+          "extra_ms": 27.504221499999986,
+          "extra_pct": 55.87692349386499,
+          "paired_extra_pct": [
+            65.49643601031516,
+            40.759399846341736,
+            63.54651204550572,
+            56.61579266195969,
+            49.79902293986793,
+            56.53237119770145
+          ]
+        }
+      }
+    },
+    {
+      "scenario": "two-files",
+      "cache_temperature": "warm",
+      "measures": {
+        "first": {
+          "extra_ms": 3.5091550000000007,
+          "extra_pct": 164.077652198796,
+          "paired_extra_pct": [
+            142.7681033807181,
+            179.245380258946,
+            161.15125778325455,
+            158.29048610462252,
+            195.0263461746847,
+            85.23283391122092
+          ]
+        },
+        "steady": {
+          "extra_ms": 2.585446681640625,
+          "extra_pct": 187.82674708201057,
+          "paired_extra_pct": [
+            182.85314253357691,
+            198.78263807392776,
+            187.99358555343622,
+            203.799342130789,
+            195.56475893204941,
+            182.53643911919823
+          ]
+        },
+        "start_read": {
+          "extra_ms": 20.700619999999997,
+          "extra_pct": 68.58298121555153,
+          "paired_extra_pct": [
+            61.8648950313468,
+            68.91433055808231,
+            73.41229340713258,
+            81.39123362870168,
+            63.238439021177584,
+            65.0685096080078
+          ]
+        }
+      }
+    }
+  ],
+  "source_commit": "03c8cc55d61473533c00a8afe13b4ef1fcd9b725",
+  "source_patch_sha256": "647970c1af06eeafd125dd0af608c21561b6e3644513437198164b836ab36484",
+  "binary_sha256": "a797321fa0df7a002e2ad6350620e5f4f5397f9ca16bd3cae86812d93e42aee6",
+  "harness_sha256": "9e0d80efd341c776dc85c608e132050365ffc6755d7bc16dcbe31ffec01b94f6",
+  "scope": "writable WorkspaceMetaLayer vs standalone PackedReadonlyMeta; same immutable manifest, binary and shared cache budgets; no upper-bypass ablation"
+}

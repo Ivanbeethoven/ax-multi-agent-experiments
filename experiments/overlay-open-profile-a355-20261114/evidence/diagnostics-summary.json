@@ -1,0 +1,1146 @@
+{
+  "diagnostic_only": true,
+  "timing": "Server stages overlap; caller open includes LOOKUP; CPU-profile elapsed times are not acceptance measurements.",
+  "stages": [
+    {
+      "scenario": "small-files-32",
+      "arm": "packed-direct",
+      "stages": {
+        "open_admission": {
+          "calls": 864.0,
+          "total_ms": 0.341019,
+          "mean_us": 0.3946979166666667
+        },
+        "open_stat": {
+          "calls": 864.0,
+          "total_ms": 1.266423,
+          "mean_us": 1.465767361111111
+        },
+        "open_record": {
+          "calls": 864.0,
+          "total_ms": 0.353734,
+          "mean_us": 0.4094143518518518
+        },
+        "open_handle": {
+          "calls": 864.0,
+          "total_ms": 1.753787,
+          "mean_us": 2.029846064814815
+        },
+        "permission_gate": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "permission_snapshot": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "permission_decode": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "permission_miss": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "extent_query": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "directory_fence": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "directory_query": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        }
+      },
+      "fuse": {
+        "lookup": {
+          "calls": 1755.0,
+          "mean_us": 13.070888888888893
+        },
+        "getattr": {
+          "calls": 3564.0,
+          "mean_us": 2.672737654320987
+        },
+        "open": {
+          "calls": 864.0,
+          "mean_us": 10.398622685185186
+        },
+        "read": {
+          "calls": 864.0,
+          "mean_us": 113.47597800925926
+        },
+        "flush": {
+          "calls": 864.0,
+          "mean_us": 2.0978622685185186
+        },
+        "release": {
+          "calls": 864.0,
+          "mean_us": 32.729148148148155
+        },
+        "opendir": {
+          "calls": 27.0,
+          "mean_us": 31.144333333333332
+        },
+        "readdir": {
+          "calls": 54.0,
+          "mean_us": 15.915740740740741
+        }
+      },
+      "caller_open_mean_us": 530.9774606481482
+    },
+    {
+      "scenario": "small-files-32",
+      "arm": "production",
+      "stages": {
+        "open_admission": {
+          "calls": 864.0,
+          "total_ms": 0.436916,
+          "mean_us": 0.5056898148148148
+        },
+        "open_stat": {
+          "calls": 864.0,
+          "total_ms": 4.238686,
+          "mean_us": 4.905886574074074
+        },
+        "open_record": {
+          "calls": 864.0,
+          "total_ms": 4.506332,
+          "mean_us": 5.2156620370370375
+        },
+        "open_handle": {
+          "calls": 864.0,
+          "total_ms": 1.842835,
+          "mean_us": 2.1329108796296294
+        },
+        "permission_gate": {
+          "calls": 864.0,
+          "total_ms": 0.231557,
+          "mean_us": 0.26800578703703704
+        },
+        "permission_snapshot": {
+          "calls": 864.0,
+          "total_ms": 0.680217,
+          "mean_us": 0.7872881944444444
+        },
+        "permission_decode": {
+          "calls": 864.0,
+          "total_ms": 1.543049,
+          "mean_us": 1.7859363425925927
+        },
+        "permission_miss": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "extent_query": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "directory_fence": {
+          "calls": 54.0,
+          "total_ms": 20.296161,
+          "mean_us": 375.8548333333333
+        },
+        "directory_query": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        }
+      },
+      "fuse": {
+        "lookup": {
+          "calls": 1755.0,
+          "mean_us": 16.23448205128205
+        },
+        "getattr": {
+          "calls": 3564.0,
+          "mean_us": 4.992014870931537
+        },
+        "open": {
+          "calls": 864.0,
+          "mean_us": 23.918182870370373
+        },
+        "read": {
+          "calls": 864.0,
+          "mean_us": 134.69992592592592
+        },
+        "flush": {
+          "calls": 864.0,
+          "mean_us": 6.65454398148148
+        },
+        "release": {
+          "calls": 864.0,
+          "mean_us": 40.884094907407416
+        },
+        "opendir": {
+          "calls": 27.0,
+          "mean_us": 513.8137037037037
+        },
+        "readdir": {
+          "calls": 54.0,
+          "mean_us": 17.497055555555555
+        }
+      },
+      "caller_open_mean_us": 587.8826435185185
+    },
+    {
+      "scenario": "two-files",
+      "arm": "packed-direct",
+      "stages": {
+        "open_admission": {
+          "calls": 54.0,
+          "total_ms": 0.024647,
+          "mean_us": 0.4564259259259259
+        },
+        "open_stat": {
+          "calls": 54.0,
+          "total_ms": 0.078213,
+          "mean_us": 1.448388888888889
+        },
+        "open_record": {
+          "calls": 54.0,
+          "total_ms": 0.025837,
+          "mean_us": 0.478462962962963
+        },
+        "open_handle": {
+          "calls": 54.0,
+          "total_ms": 0.137438,
+          "mean_us": 2.545148148148148
+        },
+        "permission_gate": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "permission_snapshot": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "permission_decode": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "permission_miss": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "extent_query": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "directory_fence": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "directory_query": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        }
+      },
+      "fuse": {
+        "lookup": {
+          "calls": 135.0,
+          "mean_us": 14.813992592592601
+        },
+        "getattr": {
+          "calls": 324.0,
+          "mean_us": 3.0109290123456733
+        },
+        "open": {
+          "calls": 54.0,
+          "mean_us": 12.220296296296281
+        },
+        "read": {
+          "calls": 54.0,
+          "mean_us": 125.76488888888885
+        },
+        "flush": {
+          "calls": 54.0,
+          "mean_us": 2.515518518518519
+        },
+        "release": {
+          "calls": 54.0,
+          "mean_us": 35.953037037037035
+        },
+        "opendir": {
+          "calls": 27.0,
+          "mean_us": 28.023074074074074
+        },
+        "readdir": {
+          "calls": 27.0,
+          "mean_us": 8.71722222222222
+        }
+      },
+      "caller_open_mean_us": 610.4450555555555
+    },
+    {
+      "scenario": "two-files",
+      "arm": "production",
+      "stages": {
+        "open_admission": {
+          "calls": 54.0,
+          "total_ms": 0.026725,
+          "mean_us": 0.4949074074074074
+        },
+        "open_stat": {
+          "calls": 54.0,
+          "total_ms": 0.303542,
+          "mean_us": 5.621148148148148
+        },
+        "open_record": {
+          "calls": 54.0,
+          "total_ms": 0.271844,
+          "mean_us": 5.034148148148148
+        },
+        "open_handle": {
+          "calls": 54.0,
+          "total_ms": 0.131476,
+          "mean_us": 2.434740740740741
+        },
+        "permission_gate": {
+          "calls": 54.0,
+          "total_ms": 0.017594,
+          "mean_us": 0.32581481481481483
+        },
+        "permission_snapshot": {
+          "calls": 54.0,
+          "total_ms": 0.034973,
+          "mean_us": 0.6476481481481482
+        },
+        "permission_decode": {
+          "calls": 54.0,
+          "total_ms": 0.082573,
+          "mean_us": 1.5291296296296295
+        },
+        "permission_miss": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "extent_query": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        },
+        "directory_fence": {
+          "calls": 54.0,
+          "total_ms": 20.379187,
+          "mean_us": 377.39235185185186
+        },
+        "directory_query": {
+          "calls": 0.0,
+          "total_ms": 0.0,
+          "mean_us": null
+        }
+      },
+      "fuse": {
+        "lookup": {
+          "calls": 135.0,
+          "mean_us": 17.40925185185184
+        },
+        "getattr": {
+          "calls": 324.0,
+          "mean_us": 5.46563888888888
+        },
+        "open": {
+          "calls": 54.0,
+          "mean_us": 26.348629629629603
+        },
+        "read": {
+          "calls": 54.0,
+          "mean_us": 144.8240925925926
+        },
+        "flush": {
+          "calls": 54.0,
+          "mean_us": 6.938018518518518
+        },
+        "release": {
+          "calls": 54.0,
+          "mean_us": 42.45601851851852
+        },
+        "opendir": {
+          "calls": 27.0,
+          "mean_us": 444.3917407407406
+        },
+        "readdir": {
+          "calls": 27.0,
+          "mean_us": 10.79111111111111
+        }
+      },
+      "caller_open_mean_us": 688.4404814814815
+    }
+  ],
+  "cpu_baseline": [
+    {
+      "mode": "cpu-openat",
+      "calls": 20000,
+      "total_ms": {
+        "open": 8072.136479,
+        "close": 2132.837558
+      },
+      "median_us": {
+        "open": 412.4915,
+        "close": 107.249
+      },
+      "redis_commands": {
+        "zrem": 0.0,
+        "strlen": 39.0,
+        "scan": 0.0,
+        "del": 0.0,
+        "type": 25.0,
+        "set": 7.0,
+        "evalsha": 10.0,
+        "mget": 0.0,
+        "get": 62.0,
+        "ping": 0.0,
+        "script|load": 0.0,
+        "zadd": 7.0,
+        "client|setinfo": 0.0,
+        "time": 10.0,
+        "exists": 0.0,
+        "zrangebylex": 0.0,
+        "exec": 0.0,
+        "multi": 0.0
+      }
+    },
+    {
+      "mode": "cpu-path",
+      "calls": 20000,
+      "total_ms": {
+        "open": 10451.606787,
+        "close": 2018.473454
+      },
+      "median_us": {
+        "open": 528.062,
+        "close": 98.994
+      },
+      "redis_commands": {
+        "zrem": 0.0,
+        "strlen": 39.0,
+        "scan": 0.0,
+        "del": 0.0,
+        "type": 25.0,
+        "set": 7.0,
+        "evalsha": 10.0,
+        "mget": 0.0,
+        "get": 62.0,
+        "ping": 0.0,
+        "script|load": 0.0,
+        "zadd": 7.0,
+        "client|setinfo": 0.0,
+        "time": 10.0,
+        "exists": 0.0,
+        "zrangebylex": 0.0,
+        "exec": 0.0,
+        "multi": 0.0
+      }
+    }
+  ],
+  "cpu_candidate": [
+    {
+      "mode": "cpu-openat",
+      "calls": 20000,
+      "total_ms": {
+        "open": 6590.04252,
+        "close": 1550.63493
+      },
+      "median_us": {
+        "open": 342.154,
+        "close": 81.2655
+      },
+      "redis_commands": {
+        "exec": 0.0,
+        "time": 10.0,
+        "zadd": 7.0,
+        "client|setinfo": 0.0,
+        "zrangebylex": 0.0,
+        "ping": 0.0,
+        "set": 7.0,
+        "evalsha": 10.0,
+        "mget": 0.0,
+        "script|load": 0.0,
+        "strlen": 39.0,
+        "multi": 0.0,
+        "type": 25.0,
+        "zrem": 0.0,
+        "scan": 0.0,
+        "exists": 0.0,
+        "get": 62.0,
+        "del": 0.0
+      }
+    },
+    {
+      "mode": "cpu-path",
+      "calls": 20000,
+      "total_ms": {
+        "open": 10544.143869,
+        "close": 1698.537817
+      },
+      "median_us": {
+        "open": 522.128,
+        "close": 83.084
+      },
+      "redis_commands": {
+        "exec": 0.0,
+        "time": 10.0,
+        "zadd": 7.0,
+        "client|setinfo": 0.0,
+        "zrangebylex": 0.0,
+        "ping": 0.0,
+        "set": 7.0,
+        "evalsha": 10.0,
+        "mget": 0.0,
+        "script|load": 0.0,
+        "strlen": 39.0,
+        "multi": 0.0,
+        "type": 25.0,
+        "zrem": 0.0,
+        "scan": 0.0,
+        "exists": 0.0,
+        "get": 62.0,
+        "del": 0.0
+      }
+    }
+  ],
+  "metadata_expired_probe": {
+    "diagnostic_only": true,
+    "metadata_idle_seconds": 61,
+    "phase": "preparation mount, after first full read",
+    "mount_command": [
+      "/srv/ax-overlay-open-retry-20261114/artifacts/brewfs",
+      "--metrics",
+      "--metrics-addr",
+      "127.0.0.1:57815",
+      "mount",
+      "--config",
+      "/srv/ax-overlay-open-retry-20261114/results/profile-stages/small-files-32-pair1-production-warm/prepare-config.json",
+      "/tmp/brewfs-hot-local-3g0_f1th/small-files-32-pair1-production-warm"
+    ],
+    "payload_hot": {
+      "read_requests": 0.0,
+      "body_bytes": 0.0
+    },
+    "sample": {
+      "open_and_list_ns": 8886899,
+      "lookup_and_stat_ns": 751162,
+      "pread": [
+        {
+          "path": "a.txt",
+          "elapsed_ns": 883758,
+          "bytes": 13,
+          "open_ns": 1549191,
+          "fstat_ns": 136933,
+          "close_ns": 159395
+        },
+        {
+          "path": "sub/b.txt",
+          "elapsed_ns": 875362,
+          "bytes": 64,
+          "open_ns": 1691404,
+          "fstat_ns": 175936,
+          "close_ns": 201353
+        },
+        {
+          "path": "sub/item-00.bin",
+          "elapsed_ns": 783011,
+          "bytes": 4096,
+          "open_ns": 1783355,
+          "fstat_ns": 194781,
+          "close_ns": 204158
+        },
+        {
+          "path": "sub/item-01.bin",
+          "elapsed_ns": 765910,
+          "bytes": 4096,
+          "open_ns": 1585168,
+          "fstat_ns": 196194,
+          "close_ns": 186145
+        },
+        {
+          "path": "sub/item-02.bin",
+          "elapsed_ns": 740693,
+          "bytes": 4096,
+          "open_ns": 1801328,
+          "fstat_ns": 177419,
+          "close_ns": 183470
+        },
+        {
+          "path": "sub/item-03.bin",
+          "elapsed_ns": 680240,
+          "bytes": 4096,
+          "open_ns": 1515509,
+          "fstat_ns": 141843,
+          "close_ns": 127155
+        },
+        {
+          "path": "sub/item-04.bin",
+          "elapsed_ns": 681874,
+          "bytes": 4096,
+          "open_ns": 1315498,
+          "fstat_ns": 133297,
+          "close_ns": 139248
+        },
+        {
+          "path": "sub/item-05.bin",
+          "elapsed_ns": 707762,
+          "bytes": 4096,
+          "open_ns": 1325747,
+          "fstat_ns": 132676,
+          "close_ns": 143115
+        },
+        {
+          "path": "sub/item-06.bin",
+          "elapsed_ns": 679970,
+          "bytes": 4096,
+          "open_ns": 1576030,
+          "fstat_ns": 132515,
+          "close_ns": 155959
+        },
+        {
+          "path": "sub/item-07.bin",
+          "elapsed_ns": 714244,
+          "bytes": 4096,
+          "open_ns": 1447342,
+          "fstat_ns": 138176,
+          "close_ns": 141713
+        },
+        {
+          "path": "sub/item-08.bin",
+          "elapsed_ns": 680621,
+          "bytes": 4096,
+          "open_ns": 1340564,
+          "fstat_ns": 142484,
+          "close_ns": 123749
+        },
+        {
+          "path": "sub/item-09.bin",
+          "elapsed_ns": 651848,
+          "bytes": 4096,
+          "open_ns": 1336356,
+          "fstat_ns": 135501,
+          "close_ns": 142825
+        },
+        {
+          "path": "sub/item-10.bin",
+          "elapsed_ns": 701671,
+          "bytes": 4096,
+          "open_ns": 1429509,
+          "fstat_ns": 132946,
+          "close_ns": 138978
+        },
+        {
+          "path": "sub/item-11.bin",
+          "elapsed_ns": 664872,
+          "bytes": 4096,
+          "open_ns": 1319365,
+          "fstat_ns": 140741,
+          "close_ns": 123759
+        },
+        {
+          "path": "sub/item-12.bin",
+          "elapsed_ns": 689889,
+          "bytes": 4096,
+          "open_ns": 1304247,
+          "fstat_ns": 130763,
+          "close_ns": 142714
+        },
+        {
+          "path": "sub/item-13.bin",
+          "elapsed_ns": 685080,
+          "bytes": 4096,
+          "open_ns": 1287346,
+          "fstat_ns": 129620,
+          "close_ns": 126735
+        },
+        {
+          "path": "sub/item-14.bin",
+          "elapsed_ns": 698725,
+          "bytes": 4096,
+          "open_ns": 1346204,
+          "fstat_ns": 132766,
+          "close_ns": 137916
+        },
+        {
+          "path": "sub/item-15.bin",
+          "elapsed_ns": 670303,
+          "bytes": 4096,
+          "open_ns": 1325195,
+          "fstat_ns": 132876,
+          "close_ns": 147333
+        },
+        {
+          "path": "sub/item-16.bin",
+          "elapsed_ns": 687644,
+          "bytes": 4096,
+          "open_ns": 1314055,
+          "fstat_ns": 134329,
+          "close_ns": 136673
+        },
+        {
+          "path": "sub/item-17.bin",
+          "elapsed_ns": 780096,
+          "bytes": 4096,
+          "open_ns": 1449507,
+          "fstat_ns": 130222,
+          "close_ns": 150199
+        },
+        {
+          "path": "sub/item-18.bin",
+          "elapsed_ns": 1566433,
+          "bytes": 4096,
+          "open_ns": 1428187,
+          "fstat_ns": 135010,
+          "close_ns": 163252
+        },
+        {
+          "path": "sub/item-19.bin",
+          "elapsed_ns": 697532,
+          "bytes": 4096,
+          "open_ns": 1453634,
+          "fstat_ns": 146100,
+          "close_ns": 148105
+        },
+        {
+          "path": "sub/item-20.bin",
+          "elapsed_ns": 674550,
+          "bytes": 4096,
+          "open_ns": 1932061,
+          "fstat_ns": 129681,
+          "close_ns": 243682
+        },
+        {
+          "path": "sub/item-21.bin",
+          "elapsed_ns": 741865,
+          "bytes": 4096,
+          "open_ns": 1341726,
+          "fstat_ns": 139589,
+          "close_ns": 148525
+        },
+        {
+          "path": "sub/item-22.bin",
+          "elapsed_ns": 697503,
+          "bytes": 4096,
+          "open_ns": 1323292,
+          "fstat_ns": 138807,
+          "close_ns": 235737
+        },
+        {
+          "path": "sub/item-23.bin",
+          "elapsed_ns": 742296,
+          "bytes": 4096,
+          "open_ns": 1385918,
+          "fstat_ns": 141923,
+          "close_ns": 123609
+        },
+        {
+          "path": "sub/item-24.bin",
+          "elapsed_ns": 658550,
+          "bytes": 4096,
+          "open_ns": 1432826,
+          "fstat_ns": 137815,
+          "close_ns": 108551
+        },
+        {
+          "path": "sub/item-25.bin",
+          "elapsed_ns": 637731,
+          "bytes": 4096,
+          "open_ns": 1115778,
+          "fstat_ns": 99163,
+          "close_ns": 140030
+        },
+        {
+          "path": "sub/item-26.bin",
+          "elapsed_ns": 643733,
+          "bytes": 4096,
+          "open_ns": 1141195,
+          "fstat_ns": 119682,
+          "close_ns": 121756
+        },
+        {
+          "path": "sub/item-27.bin",
+          "elapsed_ns": 652008,
+          "bytes": 4096,
+          "open_ns": 1200094,
+          "fstat_ns": 100727,
+          "close_ns": 102600
+        },
+        {
+          "path": "sub/item-28.bin",
+          "elapsed_ns": 649233,
+          "bytes": 4096,
+          "open_ns": 1100660,
+          "fstat_ns": 96819,
+          "close_ns": 101748
+        },
+        {
+          "path": "sub/item-29.bin",
+          "elapsed_ns": 651387,
+          "bytes": 4096,
+          "open_ns": 1141405,
+          "fstat_ns": 105115,
+          "close_ns": 106628
+        }
+      ],
+      "round_elapsed_ns": 88083254,
+      "breakdown_ns": {
+        "directory_open": 2450982,
+        "directory_list": 6435917,
+        "directory_relative_stat": 751162,
+        "directory_close": 8777,
+        "file_open": 45039696,
+        "file_fstat": 4392449,
+        "file_close": 4756815,
+        "file_pread": 23436394,
+        "caller_other": 811062
+      }
+    },
+    "stages": {
+      "brewfs_hot_path_calls_total{stage=\"open_admission\"}": 32.0,
+      "brewfs_hot_path_nanoseconds_total{stage=\"open_admission\"}": 15527.0,
+      "brewfs_hot_path_calls_total{stage=\"open_stat\"}": 32.0,
+      "brewfs_hot_path_nanoseconds_total{stage=\"open_stat\"}": 149038.0,
+      "brewfs_hot_path_calls_total{stage=\"open_record\"}": 32.0,
+      "brewfs_hot_path_nanoseconds_total{stage=\"open_record\"}": 9170030.0,
+      "brewfs_hot_path_calls_total{stage=\"open_handle\"}": 32.0,
+      "brewfs_hot_path_nanoseconds_total{stage=\"open_handle\"}": 85268.0,
+      "brewfs_hot_path_calls_total{stage=\"permission_gate\"}": 32.0,
+      "brewfs_hot_path_nanoseconds_total{stage=\"permission_gate\"}": 10630.0,
+      "brewfs_hot_path_calls_total{stage=\"permission_snapshot\"}": 32.0,
+      "brewfs_hot_path_nanoseconds_total{stage=\"permission_snapshot\"}": 9018114.0,
+      "brewfs_hot_path_calls_total{stage=\"permission_decode\"}": 32.0,
+      "brewfs_hot_path_nanoseconds_total{stage=\"permission_decode\"}": 50742.0,
+      "brewfs_hot_path_calls_total{stage=\"permission_miss\"}": 32.0,
+      "brewfs_hot_path_nanoseconds_total{stage=\"permission_miss\"}": 8892752.0,
+      "brewfs_hot_path_calls_total{stage=\"extent_query\"}": 32.0,
+      "brewfs_hot_path_nanoseconds_total{stage=\"extent_query\"}": 13303225.0,
+      "brewfs_hot_path_calls_total{stage=\"directory_fence\"}": 2.0,
+      "brewfs_hot_path_nanoseconds_total{stage=\"directory_fence\"}": 461124.0,
+      "brewfs_hot_path_calls_total{stage=\"directory_query\"}": 2.0,
+      "brewfs_hot_path_nanoseconds_total{stage=\"directory_query\"}": 471053.0,
+      "brewfs_fuse_op_total{op=\"init\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"init\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"lookup\"}": 65.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"lookup\"}": 0.009310886999999997,
+      "brewfs_fuse_op_total{op=\"getattr\"}": 132.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"getattr\"}": 0.0008724089999999993,
+      "brewfs_fuse_op_total{op=\"setattr\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"setattr\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"readlink\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"readlink\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"symlink\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"symlink\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"mknod\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"mknod\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"mkdir\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"mkdir\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"unlink\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"unlink\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"rmdir\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"rmdir\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"rename\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"rename\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"link\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"link\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"open\"}": 32.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"open\"}": 0.009962173,
+      "brewfs_fuse_op_total{op=\"read\"}": 32.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"read\"}": 0.018312022,
+      "brewfs_fuse_op_total{op=\"write\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"write\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"statfs\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"statfs\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"release\"}": 32.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"release\"}": 0.0013925279999999999,
+      "brewfs_fuse_op_total{op=\"fsync\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"fsync\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"setxattr\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"setxattr\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"getxattr\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"getxattr\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"listxattr\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"listxattr\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"removexattr\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"removexattr\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"flush\"}": 32.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"flush\"}": 0.00026312799999999995,
+      "brewfs_fuse_op_total{op=\"opendir\"}": 1.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"opendir\"}": 0.0010244190000000002,
+      "brewfs_fuse_op_total{op=\"readdir\"}": 2.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"readdir\"}": 4.4673e-05,
+      "brewfs_fuse_op_total{op=\"releasedir\"}": 1.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"releasedir\"}": 4.1780000000000005e-06,
+      "brewfs_fuse_op_total{op=\"fsyncdir\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"fsyncdir\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"getlk\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"getlk\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"setlk\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"setlk\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"access\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"access\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"create\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"create\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"interrupt\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"interrupt\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"bmap\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"bmap\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"ioctl\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"ioctl\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"poll\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"poll\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"notify_reply\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"notify_reply\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"fallocate\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"fallocate\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"readdirplus\"}": 1.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"readdirplus\"}": 0.005568289000000001,
+      "brewfs_fuse_op_total{op=\"lseek\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"lseek\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"copy_file_range\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"copy_file_range\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"destroy\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"destroy\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"forget\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"forget\"}": 0.0,
+      "brewfs_fuse_op_total{op=\"batch_forget\"}": 0.0,
+      "brewfs_fuse_op_latency_seconds_sum{op=\"batch_forget\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"append_slice\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"attach_dir_node\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"batch_stat\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"cache_acls\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"chmod\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"chown\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"cleanup_detached_node\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"cleanup_orphan_uncommitted_slices\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"cleanup_sessions\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"cleanup_slices\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"clone_entry\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"close\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"confirm_delayed_deleted\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"confirm_slice_committed\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"create_file\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"create_file_with_attr\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"create_node\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"create_node_with_attr\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"delete_file_data\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"delete_quota\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"delete_slice\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"delete_sustained_inode\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"delete_uncommitted_slices\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"directory_is_descendant_of\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"dump\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"extend_file_size\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"fallocate_file\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"find_detached_nodes\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"flush_quotas\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"flush_volume_stat\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"from_config\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_acl\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_chunk_version\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_counter\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_deleted_files\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_dentries\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_dir_parent\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_dir_stat\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_flock\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_global_lock\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_names\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_parents\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_paths\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_plock\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_quota\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_slices\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_slices_with_version\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"get_xattr\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"incr_counter\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"initialize\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"is_global_lock_held\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"link\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"list_chunk_ids\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"list_xattr\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"load\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"load_quotas\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"lookup\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"lookup_path\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"lookup_with_attr\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"mkdir\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"mkdir_with_attr\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"next_id\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"open\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"process_delayed_slices\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"read_slices\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"read_symlink\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"readdir\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"readdir_page\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"readdir_plus\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"record_uncommitted_slice\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"release_global_lock\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"remove_file_metadata\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"remove_xattr\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"rename\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"rename_exchange\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"rename_noreplace\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"rename_with_mode\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"rename_with_outcome\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"replace_slices_for_compact\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"replace_slices_for_compact_with_version\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"restore_deleted_file\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"rmdir\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"set_acl\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"set_attr\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"set_counter_if_small\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"set_file_size\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"set_flock\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"set_plock\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"set_quota\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"set_xattr\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"shutdown_session\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"start_session\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"stat\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"stat_fs\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"symlink\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"sync_dir_stat\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"sync_volume_stat\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"truncate\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"truncate_file\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"unlink\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"update_dir_stat\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"update_volume_stat\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"validate_rename_exchange_ancestry\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"write\",backend=\"redis\"}": 0.0,
+      "brewfs_metadata_op_latency_seconds_sum{op=\"write_slice\",backend=\"redis\"}": 0.0
+    },
+    "redis_delta": {
+      "exec": {
+        "calls": 2.0,
+        "usec": 14.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "exists": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "script|load": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "set": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "type": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "get": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "time": {
+        "calls": 2.0,
+        "usec": 3.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "zadd": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "zrem": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "multi": {
+        "calls": 2.0,
+        "usec": 2.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "ping": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "strlen": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "evalsha": {
+        "calls": 2.0,
+        "usec": 64.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "zrangebylex": {
+        "calls": 66.0,
+        "usec": 306.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "client|setinfo": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "scan": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "del": {
+        "calls": 0.0,
+        "usec": 0.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "info": {
+        "calls": 1.0,
+        "usec": 112.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      },
+      "mget": {
+        "calls": 101.0,
+        "usec": 267.0,
+        "rejected_calls": 0.0,
+        "failed_calls": 0.0
+      }
+    }
+  }
+}

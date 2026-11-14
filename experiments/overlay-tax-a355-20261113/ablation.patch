@@ -1,0 +1,738 @@
+diff --git a/src/cli.rs b/src/cli.rs
+index 71470c6..0b24907 100644
+--- a/src/cli.rs
++++ b/src/cli.rs
+@@ -2065,6 +2065,9 @@ where
+             }
+         }
+         meta_layer.initialize().await?;
++        if let Some(mode) = workspace::meta_layer::PackedReadControl::from_env()? {
++            meta_layer.enable_packed_read_control(mode).await?;
++        }
+         let writeback_root = crate::workspace::cache_scope::writeback_root(
+             &args.cache.cache_root,
+             header.volume_id,
+diff --git a/src/workspace/meta_layer/mod.rs b/src/workspace/meta_layer/mod.rs
+index eacd120..294f352 100644
+--- a/src/workspace/meta_layer/mod.rs
++++ b/src/workspace/meta_layer/mod.rs
+@@ -51,6 +51,8 @@ mod namespace_epoch;
+ mod packed_enumeration;
+ pub mod packed_lower;
+ mod packed_paths;
++mod packed_read_control;
++pub(crate) use packed_read_control::PackedReadControl;
+ mod packed_permissions;
+ mod row_cache;
+ pub use packed_lower::{
+@@ -67,6 +69,7 @@ use row_cache::{RowCacheCounters, RowCacheStatsExtension};
+ struct WorkspaceStatsExtension {
+     rows: RowCacheStatsExtension,
+     packed: Option<Arc<dyn crate::vfs::stats::FsStatsExtension>>,
++    read_control: Option<Arc<packed_read_control::PackedReadControlWitness>>,
+ }
+ 
+ impl FsStatsExtension for WorkspaceStatsExtension {
+@@ -77,15 +80,21 @@ impl FsStatsExtension for WorkspaceStatsExtension {
+     }
+ 
+     fn render_max_bytes(&self) -> usize {
+-        self.rows.render_max_bytes().saturating_add(
+-            self.packed
+-                .as_ref()
+-                .map_or(0, |packed| packed.render_max_bytes()),
+-        )
++        self.rows
++            .render_max_bytes()
++            .saturating_add(self.read_control.as_ref().map_or(0, |_| 2048))
++            .saturating_add(
++                self.packed
++                    .as_ref()
++                    .map_or(0, |packed| packed.render_max_bytes()),
++            )
+     }
+ 
+     fn render_into(&self, output: &mut dyn std::fmt::Write) {
+         self.rows.render_into(output);
++        if let Some(control) = &self.read_control {
++            control.render_into(output);
++        }
+         if let Some(packed) = &self.packed {
+             packed.render_into(output);
+         }
+@@ -133,6 +142,7 @@ pub struct WorkspaceMetaLayer<W> {
+     metrics: Arc<WorkspaceMetrics>,
+     row_cache_counters: Arc<RowCacheCounters>,
+     empty_query_cache_enabled: bool,
++    packed_read_control: std::sync::OnceLock<Arc<packed_read_control::PackedReadControlWitness>>,
+     lower: WorkspaceLower,
+ }
+ 
+@@ -308,6 +318,7 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+             metrics: global_workspace_metrics(),
+             row_cache_counters: Arc::new(RowCacheCounters::default()),
+             empty_query_cache_enabled: true,
++            packed_read_control: std::sync::OnceLock::new(),
+             lower: WorkspaceLower::Native,
+         }
+     }
+@@ -377,6 +388,7 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+     /// only one extension, so separate registrations would silently lose one.
+     pub fn install_workspace_stats(&self, stats: &crate::vfs::stats::FsStats) -> bool {
+         stats.set_extension(Arc::new(WorkspaceStatsExtension {
++            read_control: self.packed_read_control.get().cloned(),
+             rows: RowCacheStatsExtension {
+                 counters: self.row_cache_counters.clone(),
+             },
+@@ -836,10 +848,37 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         ino: i64,
+     ) -> Result<Resolution<InodeDelta>, MetaError> {
+         let chain = self.chain().await?;
++        let control = if self.packed_read_control.get().is_some() {
++            let guard = self.guard().await;
++            self.packed_namespace_read_control(&guard, &chain.clone().try_into().unwrap())
++                .await?
++        } else {
++            None
++        };
++        if let Some(control) = control
++            && !control.preserve_root_inode(ino, self.root_ino())
++            && control.record_namespace_bypass(packed_read_control::NamespaceRead::Getattr, 1)
++        {
++            return Ok(Resolution::Absent);
++        }
+         let cache = self.upper_row_cache();
+         let rows = match cache.and_then(|cache| cache.get(&row_cache::RowKey::Inode(ino))) {
+-            Some(row_cache::RowValue::Inode(rows)) => rows,
++            Some(row_cache::RowValue::Inode(rows)) => {
++                if let Some(control) = control {
++                    control.record_namespace_resolution(
++                        packed_read_control::NamespaceRead::Getattr,
++                        true,
++                    );
++                }
++                rows
++            }
+             _ => {
++                if let Some(control) = control {
++                    control.record_namespace_resolution(
++                        packed_read_control::NamespaceRead::Getattr,
++                        false,
++                    );
++                }
+                 let ticket = cache.map(row_cache::UpperRowCache::ticket);
+                 let rows = row_cache::Retained::new(
+                     self.store
+@@ -1088,11 +1127,44 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+     ) -> Result<Option<ResolvedDentry>, MetaError> {
+         let fence = self.packed_metadata_fence().await?;
+         let chain = self.chain().await?;
++        let control = match &fence {
++            Some((guard, layers, _)) => self.packed_namespace_read_control(guard, layers).await?,
++            None => None,
++        };
++        if let Some(control) = control
++            && control.record_namespace_bypass(packed_read_control::NamespaceRead::Lookup, 1)
++        {
++            let lower = self.packed_lower().expect("control requires packed lower");
++            let entry = lower.metadata.lookup_with_attr_bytes(parent, name).await?;
++            self.validate_packed_namespace_read_control(control).await?;
++            return Ok(entry.map(|(ino, attr)| ResolvedDentry {
++                layer_id: lower.binding.base_layer_id,
++                parent_ino: parent,
++                name: name.to_vec(),
++                ino,
++                entry_type: file_type_code(attr.kind),
++                sequence: 0,
++            }));
++        }
+         let cache = self.upper_row_cache();
+         let key = row_cache::RowKey::Dentry(parent, name.to_vec());
+         let rows = match cache.and_then(|cache| cache.get(&key)) {
+-            Some(row_cache::RowValue::Dentry(rows)) => rows,
++            Some(row_cache::RowValue::Dentry(rows)) => {
++                if let Some(control) = control {
++                    control.record_namespace_resolution(
++                        packed_read_control::NamespaceRead::Lookup,
++                        true,
++                    );
++                }
++                rows
++            }
+             _ => {
++                if let Some(control) = control {
++                    control.record_namespace_resolution(
++                        packed_read_control::NamespaceRead::Lookup,
++                        false,
++                    );
++                }
+                 let ticket = cache.map(row_cache::UpperRowCache::ticket);
+                 let rows = row_cache::Retained::new(
+                     self.store
+@@ -2442,6 +2514,10 @@ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
+         _write: bool,
+         _append: bool,
+     ) -> Result<(), MetaError> {
++        if _write || _append {
++            self.refuse_packed_read_control_mutation()
++                .map_err(MetaError::Io)?;
++        }
+         let _mutation_guard = self.mutation_gate.lock().await;
+         let actor = crate::meta::layer::namespace_actor();
+         let created = actor.is_some() && crate::meta::layer::take_created_inode_open_authority(ino);
+@@ -3489,6 +3565,8 @@ impl<W: WorkspaceStore + 'static> MetaLayer for WorkspaceMetaLayer<W> {
+         slice: SliceDesc,
+         new_size: u64,
+     ) -> Result<(), MetaError> {
++        self.refuse_packed_read_control_mutation()
++            .map_err(MetaError::Io)?;
+         Self::validate_write(ino, chunk_id, &slice, new_size, self.chunk_size)?;
+         let (sender, mut receiver) = tokio::sync::oneshot::channel();
+         {
+diff --git a/src/workspace/meta_layer/packed_enumeration.rs b/src/workspace/meta_layer/packed_enumeration.rs
+index 253d8d2..4542c50 100644
+--- a/src/workspace/meta_layer/packed_enumeration.rs
++++ b/src/workspace/meta_layer/packed_enumeration.rs
+@@ -398,6 +398,10 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+             .packed_enumeration_fence()
+             .await?
+             .ok_or_else(|| MetaError::Internal("packed directory missing fence".into()))?;
++        let control = self.packed_namespace_read_control(&guard, &layers).await?;
++        let bypass_native = control.is_some_and(|c| {
++            c.record_namespace_bypass(super::packed_read_control::NamespaceRead::DirectoryProbe, 2)
++        });
+         let attr = self.stat(ino).await?.ok_or(MetaError::NotFound(ino))?;
+         if attr.kind != FileType::Dir {
+             return Err(MetaError::NotDirectory(ino));
+@@ -410,13 +414,16 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         let cache = self.empty_query_cache();
+         let key =
+             row_cache::RowKey::EmptyDirectory(row_cache::ReadViewKey::new(&guard, &layers), ino);
+-        let cached_empty = matches!(
+-            cache.and_then(|c| c.get(&key)),
+-            Some(row_cache::RowValue::EmptyUpper(_))
+-        );
++        let cached_empty = !bypass_native
++            && matches!(
++                cache.and_then(|c| c.get(&key)),
++                Some(row_cache::RowValue::EmptyUpper(_))
++            );
+         let ticket = cache.map(row_cache::UpperRowCache::ticket);
+         let mut native_empty = true;
+-        if cached_empty {
++        if bypass_native {
++            // Admission proved both native dentry sets empty; fences are unchanged.
++        } else if cached_empty {
+             self.row_cache_counters
+                 .directory_empty_hits
+                 .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+@@ -441,7 +448,8 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+             local_namespace,
+         };
+         view.validate().await?;
+-        if !cached_empty
++        if !bypass_native
++            && !cached_empty
+             && native_empty
+             && let (Some(cache), Some(ticket)) = (cache, ticket)
+         {
+diff --git a/src/workspace/meta_layer/packed_lower.rs b/src/workspace/meta_layer/packed_lower.rs
+index a99af0c..76dadde 100644
+--- a/src/workspace/meta_layer/packed_lower.rs
++++ b/src/workspace/meta_layer/packed_lower.rs
+@@ -739,6 +739,7 @@ pub(super) async fn begin_request<W: WorkspaceStore + 'static>(
+         .map_err(budget_to_meta)?;
+     let (guard, layers, reader_owner, inodes, fused) =
+         capture_inode_fence(meta, &lower, ino).await?;
++    meta.packed_read_control_for_view(&guard, &layers)?;
+     let file_size =
+         match resolve_inode_state(&layers, &inodes, ino).map_err(read_workspace_error)? {
+             Resolution::Present(inode) => {
+@@ -1008,6 +1009,9 @@ pub(super) async fn prepare<W: WorkspaceStore + 'static>(
+             .await
+             .map_err(fetch_to_meta)?,
+     };
++    let bypass_extent = meta
++        .packed_read_control_for_view(&guard, &layers)?
++        .is_some_and(|control| control.record_extent_resolution());
+     // Reserve all bounded upper preparation/bookkeeping before backend query.
+     // This read holds no other Plans charge yet, so it waits for sibling
+     // arenas (which shrink before lower preparation) instead of failing.
+@@ -1069,7 +1073,9 @@ pub(super) async fn prepare<W: WorkspaceStore + 'static>(
+         offset,
+         end,
+     );
+-    let rows = if matches!(
++    let rows = if bypass_extent {
++        Vec::new()
++    } else if matches!(
+         cache.and_then(|c| c.get(&key)),
+         Some(super::row_cache::RowValue::EmptyUpper(_))
+     ) {
+@@ -1103,8 +1109,13 @@ pub(super) async fn prepare<W: WorkspaceStore + 'static>(
+         }
+         rows
+     };
+-    let coverage = resolve_extent_coverage(&layers, &rows, ino, chunk_index, offset..end)
+-        .map_err(read_workspace_to_meta)?;
++    let covered = if bypass_extent {
++        Vec::new()
++    } else {
++        resolve_extent_coverage(&layers, &rows, ino, chunk_index, offset..end)
++            .map_err(read_workspace_to_meta)?
++            .covered
++    };
+     // Backend rows are dropped here. Only resolved upper segments, their gaps
+     // and per-gap bookkeeping stay live; each segment yields at most one gap.
+     let retained_rows = rows.len() as u64 + 2;
+@@ -1119,7 +1130,7 @@ pub(super) async fn prepare<W: WorkspaceStore + 'static>(
+         )
+         .map_err(budget_to_meta)?;
+     permits.push(arena);
+-    let upper = coverage.covered.into_iter().map(|extent| LogicalSegment {
++    let upper = covered.into_iter().map(|extent| LogicalSegment {
+         logical_offset: extent.logical_offset,
+         length: extent.length,
+         source: match extent.kind {
+diff --git a/src/workspace/meta_layer/packed_permissions.rs b/src/workspace/meta_layer/packed_permissions.rs
+index 1763ed6..ab677d7 100644
+--- a/src/workspace/meta_layer/packed_permissions.rs
++++ b/src/workspace/meta_layer/packed_permissions.rs
+@@ -250,6 +250,8 @@ impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
+         request: VersionedMutation,
+         written: super::RowsWritten,
+     ) -> Result<super::super::catalog::MutationResult, WorkspaceError> {
++        self.refuse_packed_read_control_mutation()
++            .map_err(WorkspaceError::Io)?;
+         // Before and after: an uncertain/failed commit may still have
+         // applied, and no concurrent read may cache pre-commit rows. Only
+         // the keys this commit writes are dropped.
+diff --git a/src/workspace/meta_layer/packed_read_control.rs b/src/workspace/meta_layer/packed_read_control.rs
+new file mode 100644
+index 0000000..1c00428
+--- /dev/null
++++ b/src/workspace/meta_layer/packed_read_control.rs
+@@ -0,0 +1,329 @@
++//! Read-only ablations on the same WorkspaceMetaLayer, lease, permissions
++//! and wire005 lower. The read-data pair omits the empty extent resolver;
++//! the broader read pair also omits proved-empty namespace queries.
++
++use std::sync::Arc;
++use std::sync::atomic::{AtomicU64, Ordering};
++
++use super::{
++    HeadGuard, InodeState, LayerRecord, MetaError, WorkspaceError, WorkspaceMetaLayer,
++    WorkspaceStore, validate_fixed_layer_pair, workspace_to_meta,
++};
++use crate::meta::MetaLayer;
++use crate::workspace::digest::{CanonicalLayerDelta, delta_digest, root_hash};
++
++pub(crate) const PACKED_READ_CONTROL_ENV: &str = "BREWFS_PACKED_WORKSPACE_READ_CONTROL";
++
++#[derive(Clone, Copy, Debug, Eq, PartialEq)]
++pub(crate) enum PackedReadControl {
++    Overlay,
++    LowerOnly,
++    OverlayRead,
++    LowerRead,
++}
++
++impl PackedReadControl {
++    pub(crate) fn from_env() -> anyhow::Result<Option<Self>> {
++        match std::env::var(PACKED_READ_CONTROL_ENV) {
++            Ok(mode) if mode == "overlay" => Ok(Some(Self::Overlay)),
++            Ok(mode) if mode == "lower-only" => Ok(Some(Self::LowerOnly)),
++            Ok(mode) if mode == "overlay-read" => Ok(Some(Self::OverlayRead)),
++            Ok(mode) if mode == "lower-read" => Ok(Some(Self::LowerRead)),
++            Err(std::env::VarError::NotPresent) => Ok(None),
++            _ => anyhow::bail!(
++                "{PACKED_READ_CONTROL_ENV} must be overlay, lower-only, overlay-read, or lower-read"
++            ),
++        }
++    }
++
++    fn name(self) -> &'static str {
++        match self {
++            Self::Overlay => "overlay",
++            Self::LowerOnly => "lower-only",
++            Self::OverlayRead => "overlay-read",
++            Self::LowerRead => "lower-read",
++        }
++    }
++
++    fn measures_namespace(self) -> bool {
++        matches!(self, Self::OverlayRead | Self::LowerRead)
++    }
++}
++
++#[derive(Clone, Copy)]
++pub(super) enum NamespaceRead {
++    Lookup = 0,
++    Getattr = 1,
++    DirectoryProbe = 2,
++}
++
++#[derive(Debug, Default)]
++struct NamespaceCounters {
++    queries: AtomicU64,
++    cache_hits: AtomicU64,
++    bypasses: AtomicU64,
++}
++
++#[derive(Debug)]
++pub(super) struct PackedReadControlWitness {
++    mode: PackedReadControl,
++    guard: HeadGuard,
++    layers: [LayerRecord; 2],
++    extent_queries: AtomicU64,
++    extent_bypasses: AtomicU64,
++    native_root: i64,
++    root_preserved: AtomicU64,
++    namespace: [NamespaceCounters; 3],
++}
++
++impl PackedReadControlWitness {
++    pub(super) fn record_extent_resolution(&self) -> bool {
++        let bypass = matches!(
++            self.mode,
++            PackedReadControl::LowerOnly | PackedReadControl::LowerRead
++        );
++        let counter = if bypass {
++            &self.extent_bypasses
++        } else {
++            &self.extent_queries
++        };
++        counter.fetch_add(1, Ordering::Relaxed);
++        bypass
++    }
++
++    pub(super) fn record_namespace_bypass(&self, op: NamespaceRead, count: u64) -> bool {
++        if self.mode != PackedReadControl::LowerRead {
++            return false;
++        }
++        self.namespace[op as usize]
++            .bypasses
++            .fetch_add(count, Ordering::Relaxed);
++        true
++    }
++
++    pub(super) fn record_namespace_resolution(&self, op: NamespaceRead, cache_hit: bool) {
++        let counters = &self.namespace[op as usize];
++        let counter = if cache_hit {
++            &counters.cache_hits
++        } else {
++            &counters.queries
++        };
++        counter.fetch_add(1, Ordering::Relaxed);
++    }
++
++    pub(super) fn preserve_root_inode(&self, ino: i64, view_root: i64) -> bool {
++        if ino != self.native_root && ino != view_root {
++            return false;
++        }
++        self.root_preserved.fetch_add(1, Ordering::Relaxed);
++        true
++    }
++
++    pub(super) fn render_into(&self, output: &mut dyn std::fmt::Write) {
++        let _ = writeln!(
++            output,
++            "brewfs_workspace_read_extent_control_info{{mode=\"{}\"}} 1",
++            self.mode.name()
++        );
++        let _ = writeln!(
++            output,
++            "brewfs_workspace_read_extent_control_queries_total {}",
++            self.extent_queries.load(Ordering::Relaxed)
++        );
++        let _ = writeln!(
++            output,
++            "brewfs_workspace_read_extent_control_bypasses_total {}",
++            self.extent_bypasses.load(Ordering::Relaxed)
++        );
++        if !self.mode.measures_namespace() {
++            return;
++        }
++        let _ = writeln!(
++            output,
++            "brewfs_workspace_read_namespace_control_root_preserved_total {}",
++            self.root_preserved.load(Ordering::Relaxed)
++        );
++        for (op, counters) in ["lookup", "getattr", "directory_probe"]
++            .into_iter()
++            .zip(&self.namespace)
++        {
++            for (kind, value) in [
++                ("queries", &counters.queries),
++                ("cache_hits", &counters.cache_hits),
++                ("bypasses", &counters.bypasses),
++            ] {
++                let _ = writeln!(
++                    output,
++                    "brewfs_workspace_read_namespace_control_{op}_{kind}_total {}",
++                    value.load(Ordering::Relaxed)
++                );
++            }
++        }
++    }
++}
++
++fn no_native_rows_except_inode(delta: &CanonicalLayerDelta) -> bool {
++    delta.dentries.is_empty()
++        && delta.extents.is_empty()
++        && delta.xattrs.is_empty()
++        && delta.acls.is_empty()
++}
++
++impl<W: WorkspaceStore + 'static> WorkspaceMetaLayer<W> {
++    /// Called once, after regular packed mount admission and before exposing
++    /// FUSE. The small native root stub is expected for initial packed seeds.
++    pub(crate) async fn enable_packed_read_control(
++        &self,
++        mode: PackedReadControl,
++    ) -> Result<(), MetaError> {
++        let invalid = || {
++            MetaError::NotSupported(
++                "Packed read control requires a fresh empty upper and sealed root-only stub".into(),
++            )
++        };
++        let lower = self.packed_lower().ok_or_else(invalid)?;
++        let guard = self.guard().await;
++        let layers: [LayerRecord; 2] = self
++            .store
++            .load_layer_chain(guard.expected_head_layer_id)
++            .await
++            .map_err(workspace_to_meta)?
++            .try_into()
++            .map_err(|_| invalid())?;
++        validate_fixed_layer_pair(&layers).map_err(workspace_to_meta)?;
++        let [head, base] = &layers;
++        if head.owner_workspace_id != Some(guard.workspace_id)
++            || head.next_sequence != 2
++            || lower.binding.binding_version != 1
++            || head.owned_slice_count != 0
++            || head.owned_bytes != 0
++            || base.layer_id != lower.binding.base_layer_id
++            || base.owner_workspace_id.is_some()
++            || base.sealed_version != Some(1)
++            || base.next_sequence != 2
++            || base.owned_slice_count != 0
++            || base.owned_bytes != 0
++        {
++            return Err(invalid());
++        }
++        let upper_delta = self
++            .store
++            .load_layer_delta(head.layer_id)
++            .await
++            .map_err(workspace_to_meta)?;
++        if upper_delta != CanonicalLayerDelta::default() {
++            return Err(invalid());
++        }
++        let stub = self
++            .store
++            .load_layer_delta(base.layer_id)
++            .await
++            .map_err(workspace_to_meta)?;
++        let [root] = stub.inodes.as_slice() else {
++            return Err(invalid());
++        };
++        if !no_native_rows_except_inode(&stub)
++            || root.layer_id != base.layer_id
++            || root.ino != self.root_ino()
++            || root.kind != super::file_type_code(crate::meta::store::FileType::Dir)
++            || root.state != InodeState::Present
++            || root.sequence != 1
++        {
++            return Err(invalid());
++        }
++        let digest = delta_digest(&stub).map_err(workspace_to_meta)?;
++        if base.delta_digest != Some(digest) || base.root_hash != Some(root_hash([0; 32], digest)) {
++            return Err(invalid());
++        }
++        // Scans occurred under the already-acquired exclusive writer lease.
++        // Recheck the exact guard and both unchanged layer records afterwards.
++        self.store
++            .validate_read_fence(guard.clone(), layers.clone())
++            .await
++            .map_err(workspace_to_meta)?;
++        self.packed_read_control
++            .set(Arc::new(PackedReadControlWitness {
++                mode,
++                guard: guard.clone(),
++                layers: layers.clone(),
++                extent_queries: AtomicU64::new(0),
++                extent_bypasses: AtomicU64::new(0),
++                native_root: root.ino,
++                root_preserved: AtomicU64::new(0),
++                namespace: Default::default(),
++            }))
++            .map_err(|_| MetaError::Internal("Packed read control was already installed".into()))?;
++        tracing::info!(
++            mode = mode.name(),
++            workspace = %guard.workspace_id,
++            head = %head.layer_id,
++            base = %base.layer_id,
++            packed_manifest_digest = %hex::encode(lower.binding.manifest.digest),
++            "Packed read control admitted: empty native upper and sealed root-only stub"
++        );
++        Ok(())
++    }
++
++    pub(super) fn packed_read_control_for_view(
++        &self,
++        guard: &HeadGuard,
++        layers: &[LayerRecord; 2],
++    ) -> Result<Option<&PackedReadControlWitness>, MetaError> {
++        let Some(witness) = self.packed_read_control.get().map(Arc::as_ref) else {
++            return Ok(None);
++        };
++        if &witness.guard != guard || &witness.layers != layers {
++            return Err(workspace_to_meta(WorkspaceError::Fenced));
++        }
++        Ok(Some(witness))
++    }
++
++    /// Both namespace arms prove the same empty-layer view before looking
++    /// at the native cache or lower. A local lease, when configured, may
++    /// authorize it only while the exact mount view remains authoritative.
++    pub(super) async fn packed_namespace_read_control(
++        &self,
++        guard: &HeadGuard,
++        layers: &[LayerRecord; 2],
++    ) -> Result<Option<&PackedReadControlWitness>, MetaError> {
++        if !self
++            .packed_read_control
++            .get()
++            .is_some_and(|control| control.mode.measures_namespace())
++        {
++            return Ok(None);
++        }
++        let Some(witness) = self.packed_read_control_for_view(guard, layers)? else {
++            return Err(workspace_to_meta(WorkspaceError::Fenced));
++        };
++        self.validate_packed_namespace_read_control(witness).await?;
++        Ok(Some(witness))
++    }
++
++    pub(super) async fn validate_packed_namespace_read_control(
++        &self,
++        witness: &PackedReadControlWitness,
++    ) -> Result<(), MetaError> {
++        if self.guard().await != witness.guard {
++            return Err(workspace_to_meta(WorkspaceError::Fenced));
++        }
++        if let Some(lease) = &self.lease_validity {
++            return if lease.authoritative() {
++                Ok(())
++            } else {
++                Err(workspace_to_meta(WorkspaceError::Fenced))
++            };
++        }
++        self.store
++            .validate_read_fence(witness.guard.clone(), witness.layers.clone())
++            .await
++            .map_err(workspace_to_meta)
++    }
++
++    pub(super) fn refuse_packed_read_control_mutation(&self) -> Result<(), std::io::Error> {
++        if self.packed_read_control.get().is_some() {
++            return Err(std::io::Error::from_raw_os_error(libc::EROFS));
++        }
++        Ok(())
++    }
++}
+diff --git a/src/workspace/stores/kv_store/packed_reader_pins/packed_enumeration_tests.rs b/src/workspace/stores/kv_store/packed_reader_pins/packed_enumeration_tests.rs
+index 660904b..3cb6183 100644
+--- a/src/workspace/stores/kv_store/packed_reader_pins/packed_enumeration_tests.rs
++++ b/src/workspace/stores/kv_store/packed_reader_pins/packed_enumeration_tests.rs
+@@ -4,6 +4,89 @@ use super::*;
+ use crate::workspace::packed::snapshot::SnapshotBudgetPool;
+ use futures::{FutureExt, StreamExt};
+ 
++#[tokio::test]
++async fn read_ablation_preserves_contents_and_rejects_writes() {
++    use crate::chunk::read_plan::WorkspaceReadPlanProvider;
++    use crate::workspace::meta_layer::PackedReadControl;
++    for mode in [PackedReadControl::OverlayRead, PackedReadControl::LowerRead] {
++        let f = fixture(false).await;
++        f.meta.enable_packed_read_control(mode).await.unwrap();
++        assert_eq!(f.meta.lookup(1, "nonzero").await.unwrap(), Some(400));
++        let attr = f.meta.stat(400).await.unwrap().unwrap();
++        assert_eq!(attr.size, f.payload.len() as u64);
++        let directory = f.meta.opendir(1).await.unwrap();
++        let entries = directory.get_entries_page_raw_owned(0, 8).await.unwrap();
++        assert_eq!(entries.entries.len(), 1);
++        assert_eq!(entries.entries[0].name, b"nonzero");
++        drop(entries);
++        let prepared = f
++            .meta
++            .prepare_unified_read(400, 0, 0, CHUNK)
++            .await
++            .unwrap()
++            .unwrap();
++        let mut output = Vec::new();
++        for segment in &prepared.plan.segments {
++            let mut bytes = vec![0; segment.length as usize];
++            prepared
++                .fetcher
++                .read_source(&segment.source, &mut bytes)
++                .await
++                .unwrap();
++            output.extend(bytes);
++        }
++        assert_eq!(output, f.payload[..CHUNK as usize]);
++        assert!(f.meta.create_file(1, "forbidden".into()).await.is_err());
++        assert!(f.vfs.chmod(400, 0o600).await.is_err());
++        assert_eq!(f.meta.stat(400).await.unwrap().unwrap().mode, attr.mode);
++        drop(directory);
++        drop(prepared);
++        f.reader.shutdown().await.unwrap();
++    }
++}
++
++#[tokio::test]
++async fn read_ablation_refuses_nonempty_upper() {
++    use crate::workspace::meta_layer::PackedReadControl;
++    let f = fixture(false).await;
++    f.meta.create_file(1, "upper".into()).await.unwrap();
++    assert!(
++        f.meta
++            .enable_packed_read_control(PackedReadControl::LowerRead)
++            .await
++            .is_err()
++    );
++    f.reader.shutdown().await.unwrap();
++}
++
++#[tokio::test]
++async fn read_ablation_refuses_revoked_lease_and_replaced_view() {
++    use crate::workspace::lifecycle::LeaseValidity;
++    use crate::workspace::meta_layer::PackedReadControl;
++    for change_view in [false, true] {
++        let lease = Arc::new(LeaseValidity::new(
++            std::time::Instant::now(),
++            std::time::Duration::from_secs(60),
++        ));
++        let f = fixture_with_lease(false, packed().await, Some(lease.clone())).await;
++        f.meta
++            .enable_packed_read_control(PackedReadControl::LowerRead)
++            .await
++            .unwrap();
++        assert!(f.meta.stat(400).await.unwrap().is_some());
++        if change_view {
++            let mut view = f.meta.view_context().await;
++            view.head_epoch += 1;
++            f.meta.replace_view_context(view).await;
++        } else {
++            lease.revoke();
++        }
++        assert!(f.meta.stat(400).await.is_err());
++        assert!(f.meta.lookup(1, "nonzero").await.is_err());
++        f.reader.shutdown().await.unwrap();
++    }
++}
++
+ #[tokio::test]
+ async fn packed_directory_lease_fence_ignores_attribute_commits_but_not_namespace_changes() {
+     use crate::workspace::lifecycle::LeaseValidity;

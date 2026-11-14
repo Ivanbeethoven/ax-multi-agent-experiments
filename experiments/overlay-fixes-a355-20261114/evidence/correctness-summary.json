@@ -1,0 +1,254 @@
+{
+  "replace": {
+    "passed": true,
+    "cells": [
+      {
+        "label": "two-files-pair1-on",
+        "remount_verified": true,
+        "writes": 100,
+        "reads": 1600,
+        "stale_open_revalidations": 5,
+        "publication_waits": 0
+      },
+      {
+        "label": "two-files-pair2-on",
+        "remount_verified": true,
+        "writes": 100,
+        "reads": 1600,
+        "stale_open_revalidations": 4,
+        "publication_waits": 0
+      },
+      {
+        "label": "two-files-pair3-on",
+        "remount_verified": true,
+        "writes": 100,
+        "reads": 1600,
+        "stale_open_revalidations": 9,
+        "publication_waits": 0
+      },
+      {
+        "label": "modified-upper-pair1-on",
+        "remount_verified": true,
+        "writes": 100,
+        "reads": 1600,
+        "stale_open_revalidations": 1,
+        "publication_waits": 0
+      },
+      {
+        "label": "modified-upper-pair2-on",
+        "remount_verified": true,
+        "writes": 100,
+        "reads": 1600,
+        "stale_open_revalidations": 0,
+        "publication_waits": 0
+      },
+      {
+        "label": "modified-upper-pair3-on",
+        "remount_verified": true,
+        "writes": 100,
+        "reads": 1600,
+        "stale_open_revalidations": 4,
+        "publication_waits": 0
+      }
+    ],
+    "binary_sha256": "d9a42486fde0837e2282d6e4f1a03b587dfa3450e8266bca78b950965d0171d4",
+    "producer_sha256": "d2df769ffae39554765cd6bc11beb46fff59a0b58a95c30821300392b2fda18f",
+    "cleanup": {
+      "brewfs-hot-ff650e9332-redis": true,
+      "brewfs-hot-ff650e9332-rustfs": true,
+      "mount_absent": true
+    }
+  },
+  "mixed": {
+    "passed": true,
+    "cells": [
+      {
+        "label": "two-files-pair1-on",
+        "remount_verified": true,
+        "bytes": 65536,
+        "reads": 9905,
+        "writes": 4214,
+        "wall_ns": 9790740193,
+        "final_fsync_ns": 1736704600,
+        "stale_open_revalidations": 0,
+        "publication_waits": 1864
+      },
+      {
+        "label": "two-files-pair2-on",
+        "remount_verified": true,
+        "bytes": 65536,
+        "reads": 9248,
+        "writes": 3956,
+        "wall_ns": 9021138718,
+        "final_fsync_ns": 939140359,
+        "stale_open_revalidations": 0,
+        "publication_waits": 1945
+      },
+      {
+        "label": "two-files-pair3-on",
+        "remount_verified": true,
+        "bytes": 65536,
+        "reads": 9697,
+        "writes": 4135,
+        "wall_ns": 9683697550,
+        "final_fsync_ns": 1590138891,
+        "stale_open_revalidations": 0,
+        "publication_waits": 1846
+      },
+      {
+        "label": "modified-upper-pair1-on",
+        "remount_verified": true,
+        "bytes": 65536,
+        "reads": 9550,
+        "writes": 4089,
+        "wall_ns": 9641467170,
+        "final_fsync_ns": 1622107957,
+        "stale_open_revalidations": 0,
+        "publication_waits": 1858
+      },
+      {
+        "label": "modified-upper-pair2-on",
+        "remount_verified": true,
+        "bytes": 65536,
+        "reads": 10482,
+        "writes": 4493,
+        "wall_ns": 10119856602,
+        "final_fsync_ns": 2116258730,
+        "stale_open_revalidations": 0,
+        "publication_waits": 1869
+      },
+      {
+        "label": "modified-upper-pair3-on",
+        "remount_verified": true,
+        "bytes": 65536,
+        "reads": 10247,
+        "writes": 4375,
+        "wall_ns": 9993668012,
+        "final_fsync_ns": 1988527653,
+        "stale_open_revalidations": 0,
+        "publication_waits": 1881
+      }
+    ],
+    "binary_sha256": "d9a42486fde0837e2282d6e4f1a03b587dfa3450e8266bca78b950965d0171d4",
+    "producer_sha256": "d2df769ffae39554765cd6bc11beb46fff59a0b58a95c30821300392b2fda18f",
+    "cleanup": {
+      "brewfs-hot-f04dfb120e-redis": true,
+      "brewfs-hot-f04dfb120e-rustfs": true,
+      "mount_absent": true
+    }
+  },
+  "fio": {
+    "passed": true,
+    "cells": [
+      {
+        "label": "two-files-pair1-on",
+        "remount_verified": true,
+        "wall_with_final_fsync_ns": 10993240861,
+        "read": {
+          "bytes": 9318400,
+          "bw_bytes": 877852,
+          "mean_clat_ns": 4512530.154725,
+          "p99_clat_ns": 2072576
+        },
+        "write": {
+          "bytes": 3854336,
+          "bw_bytes": 363102,
+          "mean_clat_ns": 358504.350691,
+          "p99_clat_ns": 978944
+        }
+      },
+      {
+        "label": "two-files-pair2-on",
+        "remount_verified": true,
+        "wall_with_final_fsync_ns": 8942581601,
+        "read": {
+          "bytes": 8126464,
+          "bw_bytes": 948688,
+          "mean_clat_ns": 4145670.775202,
+          "p99_clat_ns": 1908736
+        },
+        "write": {
+          "bytes": 3313664,
+          "bw_bytes": 386839,
+          "mean_clat_ns": 410891.820766,
+          "p99_clat_ns": 937984
+        }
+      },
+      {
+        "label": "two-files-pair3-on",
+        "remount_verified": true,
+        "wall_with_final_fsync_ns": 8411484304,
+        "read": {
+          "bytes": 7761920,
+          "bw_bytes": 966013,
+          "mean_clat_ns": 4067320.920317,
+          "p99_clat_ns": 2441216
+        },
+        "write": {
+          "bytes": 3182592,
+          "bw_bytes": 396091,
+          "mean_clat_ns": 411129.786358,
+          "p99_clat_ns": 921600
+        }
+      },
+      {
+        "label": "modified-upper-pair1-on",
+        "remount_verified": true,
+        "wall_with_final_fsync_ns": 7999127514,
+        "read": {
+          "bytes": 7229440,
+          "bw_bytes": 948620,
+          "mean_clat_ns": 4142959.483853,
+          "p99_clat_ns": 2768896
+        },
+        "write": {
+          "bytes": 2973696,
+          "bw_bytes": 390197,
+          "mean_clat_ns": 413998.289256,
+          "p99_clat_ns": 929792
+        }
+      },
+      {
+        "label": "modified-upper-pair2-on",
+        "remount_verified": true,
+        "wall_with_final_fsync_ns": 11107429678,
+        "read": {
+          "bytes": 9367552,
+          "bw_bytes": 872617,
+          "mean_clat_ns": 4544588.765632,
+          "p99_clat_ns": 1662976
+        },
+        "write": {
+          "bytes": 3866624,
+          "bw_bytes": 360188,
+          "mean_clat_ns": 350939.510593,
+          "p99_clat_ns": 913408
+        }
+      },
+      {
+        "label": "modified-upper-pair3-on",
+        "remount_verified": true,
+        "wall_with_final_fsync_ns": 8793943054,
+        "read": {
+          "bytes": 8011776,
+          "bw_bytes": 952195,
+          "mean_clat_ns": 4128695.528119,
+          "p99_clat_ns": 2146304
+        },
+        "write": {
+          "bytes": 3260416,
+          "bw_bytes": 387498,
+          "mean_clat_ns": 413602.537688,
+          "p99_clat_ns": 937984
+        }
+      }
+    ],
+    "binary_sha256": "d9a42486fde0837e2282d6e4f1a03b587dfa3450e8266bca78b950965d0171d4",
+    "producer_sha256": "d2df769ffae39554765cd6bc11beb46fff59a0b58a95c30821300392b2fda18f",
+    "cleanup": {
+      "brewfs-hot-2a5f7c1fd6-redis": true,
+      "brewfs-hot-2a5f7c1fd6-rustfs": true,
+      "mount_absent": true
+    }
+  }
+}

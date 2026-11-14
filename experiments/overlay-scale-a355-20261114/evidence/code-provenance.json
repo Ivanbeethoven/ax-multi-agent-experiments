@@ -1,0 +1,51 @@
+{
+  "brewfs_repository": "https://github.com/brewfs/brewfs",
+  "base_main_commit": "03c8cc55d61473533c00a8afe13b4ef1fcd9b725",
+  "candidate_branch": "codex/a355-overlay-open-cache-20261113",
+  "candidate_commit": "97db0eb1f6b4575774284c089d5fd7831faf5c6e",
+  "candidate_commit_url": "https://github.com/brewfs/brewfs/commit/97db0eb1f6b4575774284c089d5fd7831faf5c6e",
+  "acceptance": "review-candidate; full acceptance blocked by failures reproduced on baseline and candidate",
+  "measured_source": {
+    "patch_file_in_archive": "artifacts/source.patch",
+    "patch_sha256": "a772914061eb3bda82cf0bbaa822fa12c492b1b2c2b9eca187f03f75b9038c98",
+    "scope": "The eight changed Rust files under src; documentation and the check runner were added to the commit after measurement.",
+    "verification": "The commit diff under src exactly matches the tested patch. All 2015 tracked baseline source files were checked against base plus patch; only CRLF/LF normalization was allowed.",
+    "full_source_audit": "full-source-audit.json",
+    "line_endings": "source-normalization.json"
+  },
+  "candidate_binary_sha256": "24e85b2e708c10edcc7cc56ea2b47c0ff300849200e2eedd1da520a714d3936c",
+  "baseline_binary_sha256": "a797321fa0df7a002e2ad6350620e5f4f5397f9ca16bd3cae86812d93e42aee6",
+  "baseline_parity_patch_sha256": "647970c1af06eeafd125dd0af608c21561b6e3644513437198164b836ab36484",
+  "shared_producer_sha256": "00ee899749b890eb0c2d5379f33a5be88d3b9ab7af25c720c895a7c28709cebf",
+  "release": {
+    "opt_level": 3,
+    "brewfs_package_opt_level": 3,
+    "cargo_incremental": 0,
+    "locked": true,
+    "features": "fuse-io-uring-runtime,workspace,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability",
+    "build_reproducer": "../../overlay-open-a355-20261113/build.sh"
+  },
+  "runtime": {
+    "host": "existing A355",
+    "metadata_backend": "private Redis",
+    "rustfs_repository": "https://github.com/Ivanbeethoven/rustfs",
+    "rustfs_branch": "feat/dynamic-block-size-rebased",
+    "rustfs_source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+    "rustfs_image_digest": "sha256:942893356344d292d9fcccadfceb039467c589ba10b4045cb148c0a65d2d3fec",
+    "redis_image_digest": "sha256:63218503f6461303e502355b8b0359a1194a190341f954e7fc7e8f92cd382a43",
+    "rustfs_image_proof": "Per-batch run.json backend_version and images fields in raw archive",
+    "new_cloud_resources": false,
+    "sqlite_tests_executed_in_this_iteration": false
+  },
+  "reference": {
+    "repository": "https://github.com/Ivanbeethoven/juicefs",
+    "branch": "codex/lazy-workspace-fork-20261113",
+    "code_commit": "8aeb68f",
+    "results_commit": "5708225eb6904338b5e2290cba59ee11f55335bc"
+  },
+  "raw_archive": {
+    "file": "phase2-results.tar.gz",
+    "bytes": 42366770,
+    "sha256": "a327702e6f3ce7bb98bfb05744c1bcb17c959eff1498dfb926206e6e1ad31fc8"
+  }
+}

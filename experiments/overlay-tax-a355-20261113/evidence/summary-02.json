@@ -1,0 +1,450 @@
+{
+  "passed": true,
+  "binary_sha256": "4c354ad2abc27fe4b9da509e92a246d0cc120183ee45f6046d61826d6ff115d0",
+  "source_commit": "03c8cc55d61473533c00a8afe13b4ef1fcd9b725",
+  "source_patch_sha256": "7cda6c9524b2440bc61a3ad9057814100088e2b735ce4d733b7616201cbdb466",
+  "cells": 36,
+  "scenarios": [
+    {
+      "scenario": "small-files-32",
+      "pairs": 6,
+      "files": 32,
+      "rounds": 1024,
+      "arms": {
+        "production": {
+          "total_ms": 40096.3886355,
+          "pread_total_ms": 7927.570621,
+          "open_list_total_ms": 2621.1276585,
+          "lookup_stat_total_ms": 340.9701085,
+          "pread_median_us": 239.98950000000002,
+          "open_list_median_us": 2530.64425,
+          "lookup_stat_median_us": 327.507,
+          "redis_commands": 17173.0,
+          "redis_commands_by_name": {
+            "client|setinfo": 0.0,
+            "del": 0.0,
+            "evalsha": 2116.0,
+            "exec": 2048.0,
+            "exists": 15.0,
+            "get": 2334.0,
+            "info": 1.0,
+            "mget": 2048.0,
+            "multi": 2048.0,
+            "ping": 0.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "set": 28.0,
+            "strlen": 2232.0,
+            "time": 4143.0,
+            "type": 113.0,
+            "zadd": 28.0,
+            "zrangebylex": 20.0,
+            "zrem": 0.0
+          },
+          "counters": {
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 32768.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 2048.0,
+            "brewfs_workspace_row_cache_hits_total": 606211.0
+          },
+          "runs_ms": [
+            38573.718876,
+            40299.092109,
+            39893.685162,
+            40983.462752,
+            40336.587269,
+            39185.041821
+          ]
+        },
+        "overlay-read": {
+          "total_ms": 39649.170325,
+          "pread_total_ms": 7910.116979,
+          "open_list_total_ms": 2605.0646125000003,
+          "lookup_stat_total_ms": 339.4967775,
+          "pread_median_us": 239.3385,
+          "open_list_median_us": 2539.33225,
+          "lookup_stat_median_us": 325.7015,
+          "redis_commands": 17173.0,
+          "redis_commands_by_name": {
+            "client|setinfo": 0.0,
+            "del": 0.0,
+            "evalsha": 2116.0,
+            "exec": 2048.0,
+            "exists": 15.0,
+            "get": 2334.0,
+            "info": 1.0,
+            "mget": 2048.0,
+            "multi": 2048.0,
+            "ping": 0.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "set": 28.0,
+            "strlen": 2232.0,
+            "time": 4143.0,
+            "type": 113.0,
+            "zadd": 28.0,
+            "zrangebylex": 20.0,
+            "zrem": 0.0
+          },
+          "counters": {
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 32768.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 2048.0,
+            "brewfs_workspace_row_cache_hits_total": 606211.0
+          },
+          "runs_ms": [
+            39868.72269,
+            39870.253387,
+            40490.712266,
+            38256.671348,
+            39163.306575,
+            39429.61796
+          ]
+        },
+        "lower-read": {
+          "total_ms": 38868.246299,
+          "pread_total_ms": 7697.954272999999,
+          "open_list_total_ms": 2561.415939,
+          "lookup_stat_total_ms": 330.702695,
+          "pread_median_us": 233.3275,
+          "open_list_median_us": 2464.55725,
+          "lookup_stat_median_us": 316.60925000000003,
+          "redis_commands": 17013.0,
+          "redis_commands_by_name": {
+            "client|setinfo": 0.0,
+            "del": 0.0,
+            "evalsha": 2106.0,
+            "exec": 2048.0,
+            "exists": 15.0,
+            "get": 2272.0,
+            "info": 1.0,
+            "mget": 2048.0,
+            "multi": 2048.0,
+            "ping": 0.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "set": 21.0,
+            "strlen": 2193.0,
+            "time": 4133.0,
+            "type": 88.0,
+            "zadd": 21.0,
+            "zrangebylex": 20.0,
+            "zrem": 0.0
+          },
+          "counters": {
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 0.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 0.0,
+            "brewfs_workspace_row_cache_hits_total": 267266.0
+          },
+          "runs_ms": [
+            39261.614196,
+            37154.262872,
+            38635.229447,
+            38895.304432,
+            38989.963686,
+            38841.188166
+          ]
+        }
+      },
+      "paired_ratios": [
+        {
+          "pair": 1,
+          "order": [
+            "production",
+            "overlay-read",
+            "lower-read"
+          ],
+          "overlay_extra_pct": 1.5463156735462391,
+          "production_vs_lower_pct": -1.7520810952038834,
+          "control_vs_production_pct": 3.357217949772884
+        },
+        {
+          "pair": 2,
+          "order": [
+            "production",
+            "lower-read",
+            "overlay-read"
+          ],
+          "overlay_extra_pct": 7.310037409050074,
+          "production_vs_lower_pct": 8.464248766916027,
+          "control_vs_production_pct": -1.064139908760442
+        },
+        {
+          "pair": 3,
+          "order": [
+            "overlay-read",
+            "production",
+            "lower-read"
+          ],
+          "overlay_extra_pct": 4.802567101472399,
+          "production_vs_lower_pct": 3.2572751165522495,
+          "control_vs_production_pct": 1.4965453845028343
+        },
+        {
+          "pair": 4,
+          "order": [
+            "overlay-read",
+            "lower-read",
+            "production"
+          ],
+          "overlay_extra_pct": -1.6419284880942686,
+          "production_vs_lower_pct": 5.368664291214609,
+          "control_vs_production_pct": -6.65339437153083
+        },
+        {
+          "pair": 5,
+          "order": [
+            "lower-read",
+            "production",
+            "overlay-read"
+          ],
+          "overlay_extra_pct": 0.44458335585022546,
+          "production_vs_lower_pct": 3.453769779948601,
+          "control_vs_production_pct": -2.9087257337253813
+        },
+        {
+          "pair": 6,
+          "order": [
+            "lower-read",
+            "overlay-read",
+            "production"
+          ],
+          "overlay_extra_pct": 1.5149634235831266,
+          "production_vs_lower_pct": 0.8852809896814584,
+          "control_vs_production_pct": 0.6241568915946072
+        }
+      ],
+      "overlay_extra_pct": 2.009156832013015,
+      "production_vs_lower_pct": 3.159757523023621,
+      "paired_overlay_range_pct": [
+        -1.6419284880942686,
+        7.310037409050074
+      ]
+    },
+    {
+      "scenario": "two-files",
+      "pairs": 6,
+      "files": 2,
+      "rounds": 1024,
+      "arms": {
+        "production": {
+          "total_ms": 4396.2335585,
+          "pread_total_ms": 476.7929795,
+          "open_list_total_ms": 1943.24851,
+          "lookup_stat_total_ms": 331.57581949999997,
+          "pread_median_us": 229.107,
+          "open_list_median_us": 1888.7025,
+          "lookup_stat_median_us": 319.55949999999996,
+          "redis_commands": 16384.0,
+          "redis_commands_by_name": {
+            "client|setinfo": 0.0,
+            "del": 0.0,
+            "evalsha": 2048.0,
+            "exec": 2048.0,
+            "exists": 0.0,
+            "get": 2048.0,
+            "info": 1.0,
+            "mget": 2048.0,
+            "multi": 2048.0,
+            "ping": 0.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "set": 0.0,
+            "strlen": 2048.0,
+            "time": 4096.0,
+            "type": 0.0,
+            "zadd": 0.0,
+            "zrangebylex": 0.0,
+            "zrem": 0.0
+          },
+          "counters": {
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 2048.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 2048.0,
+            "brewfs_workspace_row_cache_hits_total": 53251.0
+          },
+          "runs_ms": [
+            4295.070625,
+            4428.801226,
+            4385.055215,
+            4317.783512,
+            4421.772392,
+            4407.411902
+          ]
+        },
+        "overlay-read": {
+          "total_ms": 4438.760415500001,
+          "pread_total_ms": 477.96104349999996,
+          "open_list_total_ms": 1948.1603235,
+          "lookup_stat_total_ms": 340.9320985,
+          "pread_median_us": 230.044,
+          "open_list_median_us": 1893.08275,
+          "lookup_stat_median_us": 328.99,
+          "redis_commands": 16384.0,
+          "redis_commands_by_name": {
+            "client|setinfo": 0.0,
+            "del": 0.0,
+            "evalsha": 2048.0,
+            "exec": 2048.0,
+            "exists": 0.0,
+            "get": 2048.0,
+            "info": 1.0,
+            "mget": 2048.0,
+            "multi": 2048.0,
+            "ping": 0.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "set": 0.0,
+            "strlen": 2048.0,
+            "time": 4096.0,
+            "type": 0.0,
+            "zadd": 0.0,
+            "zrangebylex": 0.0,
+            "zrem": 0.0
+          },
+          "counters": {
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 2048.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 2048.0,
+            "brewfs_workspace_row_cache_hits_total": 53251.0
+          },
+          "runs_ms": [
+            4460.722496,
+            4416.798335,
+            4519.238776,
+            4215.761807,
+            4482.037362,
+            4276.305875
+          ]
+        },
+        "lower-read": {
+          "total_ms": 4349.328053499999,
+          "pread_total_ms": 470.92774899999995,
+          "open_list_total_ms": 1940.3092095000002,
+          "lookup_stat_total_ms": 325.80362349999996,
+          "pread_median_us": 226.48225,
+          "open_list_median_us": 1887.8085,
+          "lookup_stat_median_us": 312.85474999999997,
+          "redis_commands": 16384.0,
+          "redis_commands_by_name": {
+            "client|setinfo": 0.0,
+            "del": 0.0,
+            "evalsha": 2048.0,
+            "exec": 2048.0,
+            "exists": 0.0,
+            "get": 2048.0,
+            "info": 1.0,
+            "mget": 2048.0,
+            "multi": 2048.0,
+            "ping": 0.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "set": 0.0,
+            "strlen": 2048.0,
+            "time": 4096.0,
+            "type": 0.0,
+            "zadd": 0.0,
+            "zrangebylex": 0.0,
+            "zrem": 0.0
+          },
+          "counters": {
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 0.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 0.0,
+            "brewfs_workspace_row_cache_hits_total": 21506.0
+          },
+          "runs_ms": [
+            4203.263628,
+            4389.039589,
+            4340.177247,
+            4368.805454,
+            4358.47886,
+            4190.702172
+          ]
+        }
+      },
+      "paired_ratios": [
+        {
+          "pair": 1,
+          "order": [
+            "production",
+            "overlay-read",
+            "lower-read"
+          ],
+          "overlay_extra_pct": 6.12521342427681,
+          "production_vs_lower_pct": 2.1841836516850455,
+          "control_vs_production_pct": 3.856790387468889
+        },
+        {
+          "pair": 2,
+          "order": [
+            "production",
+            "lower-read",
+            "overlay-read"
+          ],
+          "overlay_extra_pct": 0.6324560404870949,
+          "production_vs_lower_pct": 0.9059302426811522,
+          "control_vs_production_pct": -0.27101895947677646
+        },
+        {
+          "pair": 3,
+          "order": [
+            "overlay-read",
+            "production",
+            "lower-read"
+          ],
+          "overlay_extra_pct": 4.125673188203782,
+          "production_vs_lower_pct": 1.0340123328147488,
+          "control_vs_production_pct": 3.0600198725205807
+        },
+        {
+          "pair": 4,
+          "order": [
+            "overlay-read",
+            "lower-read",
+            "production"
+          ],
+          "overlay_extra_pct": -3.5031005296854323,
+          "production_vs_lower_pct": -1.1678693990203937,
+          "control_vs_production_pct": -2.3628258507278344
+        },
+        {
+          "pair": 5,
+          "order": [
+            "lower-read",
+            "production",
+            "overlay-read"
+          ],
+          "overlay_extra_pct": 2.8348996512053803,
+          "production_vs_lower_pct": 1.4521931626393147,
+          "control_vs_production_pct": 1.362914339712118
+        },
+        {
+          "pair": 6,
+          "order": [
+            "lower-read",
+            "overlay-read",
+            "production"
+          ],
+          "overlay_extra_pct": 2.042705481958551,
+          "production_vs_lower_pct": 5.171203323584694,
+          "control_vs_production_pct": -2.9746715286698477
+        }
+      ],
+      "overlay_extra_pct": 2.056233995226764,
+      "production_vs_lower_pct": 1.0784540605589532,
+      "paired_overlay_range_pct": [
+        -3.5031005296854323,
+        6.12521342427681
+      ]
+    }
+  ],
+  "note": "Small read-only hot-lower diagnostic; shared plan/fence/permission costs remain in lower-read."
+}

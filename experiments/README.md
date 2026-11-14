@@ -4,6 +4,10 @@
 
 | 目录 | 内容 |
 |---|---|
+| [overlay-lease-cache-a355-20261114](overlay-lease-cache-a355-20261114/README.zh.md) | 租约有效期间保留元数据缓存；一万文件、61 秒消融、目录校验与实际 Redis 计数 |
+| [overlay-open-profile-a355-20261114](overlay-open-profile-a355-20261114/README.zh.md) | open/close 状态与调度优化；Redis 查询分解、并发回归及三对复测 |
+| [overlay-scale-a355-20261114](overlay-scale-a355-20261114/README.zh.md) | 热 Overlay 优化前后、直接只读 lower；1 万真实文件、两档缓存、分页和原始记录 |
+| [overlay-open-a355-20261113](overlay-open-a355-20261113/README.zh.md) | open/close/权限缓存分解；修正旧对照实际 TTL 不一致的问题 |
 | [idcai-six-node-20261113](idcai-six-node-20261113/README.md) | 现有六台机器的完整 C2、十万文件 C3/C4、四节点 RustFS；运行命令、修复和原始数据索引 |
 | [unified-suite/current](unified-suite/current/README.zh.md) | 当前方案、配置、负载、结果和未完成项 |
 | [最新五项检查](unified-suite/pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md) | Packed 消融和文件系统跨机检查；不是性能比较 |

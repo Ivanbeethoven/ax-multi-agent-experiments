@@ -1,0 +1,18 @@
+{
+  "full_ci_passed": false,
+  "test_workspace_step_passed": false,
+  "ci_scope": "fmt, strict all-target Clippy and workspace lib/bin tests for the measured feature set; not the full CI matrix",
+  "known_sqlite_failures": [
+    "workspace::meta_layer::tests::writable_acl_independent_sqlite_instances_keep_mode_acl_during_atime_writes"
+  ],
+  "tests": [
+    "test result: FAILED. 2849 passed; 1 failed; 489 ignored; 0 measured; 0 filtered out; finished in 282.11s"
+  ],
+  "changed_source_files": [
+    "src/cli.rs"
+  ],
+  "backend": "Redis",
+  "user_instruction": "SQLite failure does not block Redis measurements; no SQLite tests removed",
+  "harness_sha256": "9e0d80efd341c776dc85c608e132050365ffc6755d7bc16dcbe31ffec01b94f6",
+  "patch_sha256": "647970c1af06eeafd125dd0af608c21561b6e3644513437198164b836ab36484"
+}
