@@ -1,0 +1,989 @@
+{
+  "schema": "overlay-hot-scale-v1",
+  "passed": true,
+  "definition": "100 * (numerator / denominator - 1); positive is slower",
+  "timing": "all timed rounds; excludes warmup and inter-phase stats collection",
+  "redis_scope": "actual server commandstats, including Lua-internal commands; not network round trips",
+  "settings": {
+    "fixture": "many10000",
+    "temperatures": "warm",
+    "upper_row_cache_bytes": 67108864,
+    "retained_payload_bytes": 67108864,
+    "packed_metadata_bytes": 268435456
+  },
+  "source_commit": "03c8cc55d61473533c00a8afe13b4ef1fcd9b725",
+  "baseline_binary_sha256": "24e85b2e708c10edcc7cc56ea2b47c0ff300849200e2eedd1da520a714d3936c",
+  "candidate_binary_sha256": "d9a42486fde0837e2282d6e4f1a03b587dfa3450e8266bca78b950965d0171d4",
+  "baseline_patch_sha256": "a772914061eb3bda82cf0bbaa822fa12c492b1b2c2b9eca187f03f75b9038c98",
+  "candidate_patch_sha256": "f5da10a6e8511a7dcdbbc92079dbdf8104f95a80fa92170f6b209572e230baab",
+  "groups": [
+    {
+      "scenario": "many-files-10000",
+      "median_elapsed_ms": {
+        "production": 42194.41664,
+        "candidate": 41753.026661,
+        "packed-direct": 26975.830649
+      },
+      "candidate_vs_baseline_pct": -1.0460862221793654,
+      "baseline_vs_lower_pct": 56.41563438404875,
+      "candidate_vs_lower_pct": 54.77939198342274,
+      "mean_stages_ms": {
+        "production": {
+          "directory_open": 3.5165166666666665,
+          "directory_list": 83.22146066666666,
+          "directory_relative_stat": 1.4093766666666667,
+          "directory_close": 0.025701333333333333,
+          "file_open": 24538.696463333334,
+          "file_fstat": 2768.7113306666665,
+          "file_close": 3620.1598513333333,
+          "file_pread": 10520.39644,
+          "caller_other": 666.009431,
+          "between_rounds": 0.36966166666666667
+        },
+        "candidate": {
+          "directory_open": 3.6600396666666666,
+          "directory_list": 82.70503066666667,
+          "directory_relative_stat": 1.539331,
+          "directory_close": 0.026599,
+          "file_open": 24280.913154333335,
+          "file_fstat": 2734.9583653333334,
+          "file_close": 3619.4366893333336,
+          "file_pread": 10363.510816333333,
+          "caller_other": 614.5074273333333,
+          "between_rounds": 0.394781
+        },
+        "packed-direct": {
+          "directory_open": 2.062367,
+          "directory_list": 76.50297666666667,
+          "directory_relative_stat": 0.9643229999999999,
+          "directory_close": 0.024575666666666666,
+          "file_open": 15376.932952666666,
+          "file_fstat": 2290.697209666667,
+          "file_close": 2421.709874333333,
+          "file_pread": 6167.753231,
+          "caller_other": 558.8848826666666,
+          "between_rounds": 0.3624446666666667
+        }
+      },
+      "pairs": [
+        {
+          "pair": 1,
+          "elapsed_ms": {
+            "production": 41520.225652,
+            "candidate": 41353.95993,
+            "packed-direct": 26004.192743
+          },
+          "candidate_vs_baseline_pct": -0.4004451309912227,
+          "baseline_vs_lower_pct": 59.66742771961926,
+          "candidate_vs_lower_pct": 59.0280472795371
+        },
+        {
+          "pair": 2,
+          "elapsed_ms": {
+            "production": 42892.906408,
+            "packed-direct": 26975.830649,
+            "candidate": 41997.970111
+          },
+          "candidate_vs_baseline_pct": -2.0864435915983637,
+          "baseline_vs_lower_pct": 59.00495138076518,
+          "candidate_vs_lower_pct": 55.68740276235711
+        },
+        {
+          "pair": 3,
+          "elapsed_ms": {
+            "candidate": 41753.026661,
+            "production": 42194.41664,
+            "packed-direct": 27707.66112
+          },
+          "candidate_vs_baseline_pct": -1.0460862221793654,
+          "baseline_vs_lower_pct": 52.284295874916495,
+          "candidate_vs_lower_pct": 50.691270837226135
+        }
+      ],
+      "trials": [
+        {
+          "pair": 1,
+          "arm": "production",
+          "label": "many-files-10000-pair1-production-warm",
+          "elapsed_ms": 41520.225652,
+          "stages_ms": {
+            "directory_open": 3.608726,
+            "directory_list": 85.739077,
+            "directory_relative_stat": 1.525475,
+            "directory_close": 0.025869,
+            "file_open": 24217.424412,
+            "file_fstat": 2722.124375,
+            "file_close": 3588.183671,
+            "file_pread": 10306.600761,
+            "caller_other": 594.637135,
+            "between_rounds": 0.356151
+          },
+          "round_elapsed_ms": [
+            20544.115543,
+            10534.248604,
+            10441.505354
+          ],
+          "warmup_ms": 64843.318502,
+          "row_cache_retained_bytes": {
+            "before": 31027437.0,
+            "after": 31027437.0
+          },
+          "first_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 130532.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 0.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 2.0
+          },
+          "steady_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 340549.0,
+            "brewfs_workspace_row_cache_misses_total": 0.0,
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 4.0
+          },
+          "redis_executed_commands": 50641.0,
+          "redis_commands": {
+            "client|setinfo": 0.0,
+            "get": 308.0,
+            "set": 28.0,
+            "ping": 0.0,
+            "strlen": 206.0,
+            "zrangebylex": 20020.0,
+            "zadd": 28.0,
+            "mget": 29750.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "exists": 19.0,
+            "evalsha": 86.0,
+            "time": 71.0,
+            "multi": 6.0,
+            "type": 113.0,
+            "zrem": 0.0,
+            "exec": 6.0,
+            "del": 0.0
+          },
+          "untimed_single_pass_wire_audit": {
+            "passed": true,
+            "errors": [],
+            "timed": false,
+            "scope": "one identical workload pass after timing; excludes marker PINGs",
+            "audit_elapsed_ns": 8886666793,
+            "counts": {
+              "client": {
+                "MULTI": 2,
+                "TIME": 2,
+                "MGET": 2,
+                "EXEC": 2,
+                "EVALSHA": 10
+              },
+              "lua": {
+                "STRLEN": 39,
+                "GET": 62,
+                "TIME": 10,
+                "TYPE": 25,
+                "SET": 7,
+                "ZADD": 7
+              }
+            },
+            "client_commands": 18,
+            "lua_commands": 150,
+            "monitor_closed": true
+          },
+          "workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 471081.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 6.0
+          },
+          "first_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          },
+          "steady_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          }
+        },
+        {
+          "pair": 1,
+          "arm": "candidate",
+          "label": "many-files-10000-pair1-candidate-warm",
+          "elapsed_ms": 41353.95993,
+          "stages_ms": {
+            "directory_open": 3.866842,
+            "directory_list": 82.003358,
+            "directory_relative_stat": 1.638534,
+            "directory_close": 0.024685,
+            "file_open": 24057.323656,
+            "file_fstat": 2708.234055,
+            "file_close": 3591.433261,
+            "file_pread": 10313.235267,
+            "caller_other": 595.817815,
+            "between_rounds": 0.382457
+          },
+          "round_elapsed_ms": [
+            21011.814526,
+            10159.234703,
+            10182.528244
+          ],
+          "warmup_ms": 65025.158404,
+          "row_cache_retained_bytes": {
+            "before": 31027437.0,
+            "after": 31027437.0
+          },
+          "first_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 130532.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 0.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 2.0
+          },
+          "steady_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 340549.0,
+            "brewfs_workspace_row_cache_misses_total": 0.0,
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 4.0
+          },
+          "redis_executed_commands": 50641.0,
+          "redis_commands": {
+            "client|setinfo": 0.0,
+            "monitor": 0.0,
+            "get": 308.0,
+            "set": 28.0,
+            "ping": 0.0,
+            "strlen": 206.0,
+            "zrangebylex": 20020.0,
+            "zadd": 28.0,
+            "mget": 29750.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "exists": 19.0,
+            "evalsha": 86.0,
+            "time": 71.0,
+            "multi": 6.0,
+            "type": 113.0,
+            "zrem": 0.0,
+            "exec": 6.0,
+            "del": 0.0
+          },
+          "untimed_single_pass_wire_audit": {
+            "passed": true,
+            "errors": [],
+            "timed": false,
+            "scope": "one identical workload pass after timing; excludes marker PINGs",
+            "audit_elapsed_ns": 10303585163,
+            "counts": {
+              "client": {
+                "MULTI": 2,
+                "TIME": 2,
+                "MGET": 2,
+                "EXEC": 2,
+                "EVALSHA": 10
+              },
+              "lua": {
+                "STRLEN": 39,
+                "GET": 62,
+                "TIME": 10,
+                "TYPE": 25,
+                "SET": 7,
+                "ZADD": 7
+              }
+            },
+            "client_commands": 18,
+            "lua_commands": 150,
+            "monitor_closed": true
+          },
+          "workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 471081.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 6.0
+          },
+          "first_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          },
+          "steady_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          }
+        },
+        {
+          "pair": 1,
+          "arm": "packed-direct",
+          "label": "many-files-10000-pair1-packed-direct-warm",
+          "elapsed_ms": 26004.192743,
+          "stages_ms": {
+            "directory_open": 2.042413,
+            "directory_list": 75.154162,
+            "directory_relative_stat": 0.879648,
+            "directory_close": 0.021269,
+            "file_open": 14869.42201,
+            "file_fstat": 2178.142317,
+            "file_close": 2318.797153,
+            "file_pread": 6071.630891,
+            "caller_other": 487.805869,
+            "between_rounds": 0.297011
+          },
+          "round_elapsed_ms": [
+            8435.50564,
+            8744.581819,
+            8823.808273
+          ],
+          "warmup_ms": 45533.80574,
+          "row_cache_retained_bytes": {
+            "before": 0.0,
+            "after": 0.0
+          },
+          "first_workspace_counters": {},
+          "steady_workspace_counters": {},
+          "redis_executed_commands": 0.0,
+          "redis_commands": {
+            "client|setinfo": 0.0,
+            "monitor": 0.0,
+            "get": 0.0,
+            "set": 0.0,
+            "ping": 0.0,
+            "strlen": 0.0,
+            "zrangebylex": 0.0,
+            "zadd": 0.0,
+            "mget": 0.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "exists": 0.0,
+            "evalsha": 0.0,
+            "time": 0.0,
+            "multi": 0.0,
+            "type": 0.0,
+            "zrem": 0.0,
+            "exec": 0.0,
+            "del": 0.0
+          },
+          "untimed_single_pass_wire_audit": {
+            "passed": true,
+            "errors": [],
+            "timed": false,
+            "scope": "one identical workload pass after timing; excludes marker PINGs",
+            "audit_elapsed_ns": 8726195927,
+            "counts": {
+              "client": {},
+              "lua": {}
+            },
+            "client_commands": 0,
+            "lua_commands": 0,
+            "monitor_closed": true
+          },
+          "workspace_counters": {},
+          "first_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          },
+          "steady_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          }
+        },
+        {
+          "pair": 2,
+          "arm": "production",
+          "label": "many-files-10000-pair2-production-warm",
+          "elapsed_ms": 42892.906408,
+          "stages_ms": {
+            "directory_open": 3.354993,
+            "directory_list": 81.378711,
+            "directory_relative_stat": 1.307982,
+            "directory_close": 0.025898,
+            "file_open": 24846.592933,
+            "file_fstat": 2821.423919,
+            "file_close": 3640.536508,
+            "file_pread": 10767.380292,
+            "caller_other": 730.569881,
+            "between_rounds": 0.335291
+          },
+          "round_elapsed_ms": [
+            21950.607301,
+            10360.32482,
+            10581.638996
+          ],
+          "warmup_ms": 65257.771115,
+          "row_cache_retained_bytes": {
+            "before": 31027437.0,
+            "after": 31027437.0
+          },
+          "first_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 130532.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 0.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 2.0
+          },
+          "steady_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 340549.0,
+            "brewfs_workspace_row_cache_misses_total": 0.0,
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 4.0
+          },
+          "redis_executed_commands": 50641.0,
+          "redis_commands": {
+            "client|setinfo": 0.0,
+            "monitor": 0.0,
+            "get": 308.0,
+            "set": 28.0,
+            "ping": 0.0,
+            "strlen": 206.0,
+            "zrangebylex": 20020.0,
+            "zadd": 28.0,
+            "mget": 29750.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "exists": 19.0,
+            "evalsha": 86.0,
+            "time": 71.0,
+            "multi": 6.0,
+            "type": 113.0,
+            "zrem": 0.0,
+            "exec": 6.0,
+            "del": 0.0
+          },
+          "untimed_single_pass_wire_audit": {
+            "passed": true,
+            "errors": [],
+            "timed": false,
+            "scope": "one identical workload pass after timing; excludes marker PINGs",
+            "audit_elapsed_ns": 11164318675,
+            "counts": {
+              "client": {
+                "MULTI": 2,
+                "TIME": 3,
+                "MGET": 7,
+                "EXEC": 2,
+                "EVALSHA": 66
+              },
+              "lua": {
+                "STRLEN": 128,
+                "GET": 184,
+                "TIME": 44,
+                "TYPE": 63,
+                "SET": 14,
+                "ZADD": 14,
+                "ZRANGEBYLEX": 20,
+                "EXISTS": 19
+              }
+            },
+            "client_commands": 80,
+            "lua_commands": 486,
+            "monitor_closed": true
+          },
+          "workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 471081.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 6.0
+          },
+          "first_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          },
+          "steady_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          }
+        },
+        {
+          "pair": 2,
+          "arm": "packed-direct",
+          "label": "many-files-10000-pair2-packed-direct-warm",
+          "elapsed_ms": 26975.830649,
+          "stages_ms": {
+            "directory_open": 2.183645,
+            "directory_list": 79.201298,
+            "directory_relative_stat": 1.005242,
+            "directory_close": 0.025828,
+            "file_open": 15452.090302,
+            "file_fstat": 2324.279135,
+            "file_close": 2448.071782,
+            "file_pread": 6112.246826,
+            "caller_other": 556.333233,
+            "between_rounds": 0.393358
+          },
+          "round_elapsed_ms": [
+            8983.463811,
+            9017.606808,
+            8974.366672
+          ],
+          "warmup_ms": 46753.943682,
+          "row_cache_retained_bytes": {
+            "before": 0.0,
+            "after": 0.0
+          },
+          "first_workspace_counters": {},
+          "steady_workspace_counters": {},
+          "redis_executed_commands": 0.0,
+          "redis_commands": {
+            "client|setinfo": 0.0,
+            "monitor": 0.0,
+            "get": 0.0,
+            "set": 0.0,
+            "ping": 0.0,
+            "strlen": 0.0,
+            "zrangebylex": 0.0,
+            "zadd": 0.0,
+            "mget": 0.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "exists": 0.0,
+            "evalsha": 0.0,
+            "time": 0.0,
+            "multi": 0.0,
+            "type": 0.0,
+            "zrem": 0.0,
+            "exec": 0.0,
+            "del": 0.0
+          },
+          "untimed_single_pass_wire_audit": {
+            "passed": true,
+            "errors": [],
+            "timed": false,
+            "scope": "one identical workload pass after timing; excludes marker PINGs",
+            "audit_elapsed_ns": 8914592375,
+            "counts": {
+              "client": {},
+              "lua": {}
+            },
+            "client_commands": 0,
+            "lua_commands": 0,
+            "monitor_closed": true
+          },
+          "workspace_counters": {},
+          "first_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          },
+          "steady_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          }
+        },
+        {
+          "pair": 2,
+          "arm": "candidate",
+          "label": "many-files-10000-pair2-candidate-warm",
+          "elapsed_ms": 41997.970111,
+          "stages_ms": {
+            "directory_open": 3.388637,
+            "directory_list": 83.825332,
+            "directory_relative_stat": 1.548759,
+            "directory_close": 0.029866,
+            "file_open": 24441.613688,
+            "file_fstat": 2775.902463,
+            "file_close": 3645.207218,
+            "file_pread": 10384.597891,
+            "caller_other": 661.449493,
+            "between_rounds": 0.406764
+          },
+          "round_elapsed_ms": [
+            20742.136157,
+            10694.922628,
+            10560.504562
+          ],
+          "warmup_ms": 66768.485223,
+          "row_cache_retained_bytes": {
+            "before": 31027437.0,
+            "after": 31027437.0
+          },
+          "first_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 130532.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 0.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 2.0
+          },
+          "steady_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 340549.0,
+            "brewfs_workspace_row_cache_misses_total": 0.0,
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 4.0
+          },
+          "redis_executed_commands": 50641.0,
+          "redis_commands": {
+            "client|setinfo": 0.0,
+            "monitor": 0.0,
+            "get": 308.0,
+            "set": 28.0,
+            "ping": 0.0,
+            "strlen": 206.0,
+            "zrangebylex": 20020.0,
+            "zadd": 28.0,
+            "mget": 29750.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "exists": 19.0,
+            "evalsha": 86.0,
+            "time": 71.0,
+            "multi": 6.0,
+            "type": 113.0,
+            "zrem": 0.0,
+            "exec": 6.0,
+            "del": 0.0
+          },
+          "untimed_single_pass_wire_audit": {
+            "passed": true,
+            "errors": [],
+            "timed": false,
+            "scope": "one identical workload pass after timing; excludes marker PINGs",
+            "audit_elapsed_ns": 10457391077,
+            "counts": {
+              "client": {
+                "MULTI": 2,
+                "TIME": 3,
+                "MGET": 7,
+                "EXEC": 2,
+                "EVALSHA": 56
+              },
+              "lua": {
+                "STRLEN": 89,
+                "GET": 122,
+                "TIME": 34,
+                "ZRANGEBYLEX": 20,
+                "EXISTS": 19,
+                "TYPE": 38,
+                "SET": 7,
+                "ZADD": 7
+              }
+            },
+            "client_commands": 70,
+            "lua_commands": 336,
+            "monitor_closed": true
+          },
+          "workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 471081.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 6.0
+          },
+          "first_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          },
+          "steady_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          }
+        },
+        {
+          "pair": 3,
+          "arm": "candidate",
+          "label": "many-files-10000-pair3-candidate-warm",
+          "elapsed_ms": 41753.026661,
+          "stages_ms": {
+            "directory_open": 3.72464,
+            "directory_list": 82.286402,
+            "directory_relative_stat": 1.4307,
+            "directory_close": 0.025246,
+            "file_open": 24343.802119,
+            "file_fstat": 2720.738578,
+            "file_close": 3621.669589,
+            "file_pread": 10392.699291,
+            "caller_other": 586.254974,
+            "between_rounds": 0.395122
+          },
+          "round_elapsed_ms": [
+            21082.837067,
+            10439.198482,
+            10230.59599
+          ],
+          "warmup_ms": 66092.918549,
+          "row_cache_retained_bytes": {
+            "before": 31027437.0,
+            "after": 31027437.0
+          },
+          "first_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 130532.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 0.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 2.0
+          },
+          "steady_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 340549.0,
+            "brewfs_workspace_row_cache_misses_total": 0.0,
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 4.0
+          },
+          "redis_executed_commands": 50641.0,
+          "redis_commands": {
+            "client|setinfo": 0.0,
+            "monitor": 0.0,
+            "get": 308.0,
+            "set": 28.0,
+            "ping": 0.0,
+            "strlen": 206.0,
+            "zrangebylex": 20020.0,
+            "zadd": 28.0,
+            "mget": 29750.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "exists": 19.0,
+            "evalsha": 86.0,
+            "time": 71.0,
+            "multi": 6.0,
+            "type": 113.0,
+            "zrem": 0.0,
+            "exec": 6.0,
+            "del": 0.0
+          },
+          "untimed_single_pass_wire_audit": {
+            "passed": true,
+            "errors": [],
+            "timed": false,
+            "scope": "one identical workload pass after timing; excludes marker PINGs",
+            "audit_elapsed_ns": 10203377549,
+            "counts": {
+              "client": {
+                "MULTI": 2,
+                "TIME": 2,
+                "MGET": 2,
+                "EXEC": 2,
+                "EVALSHA": 10
+              },
+              "lua": {
+                "STRLEN": 39,
+                "GET": 62,
+                "TIME": 10,
+                "TYPE": 25,
+                "SET": 7,
+                "ZADD": 7
+              }
+            },
+            "client_commands": 18,
+            "lua_commands": 150,
+            "monitor_closed": true
+          },
+          "workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 471081.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 6.0
+          },
+          "first_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          },
+          "steady_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          }
+        },
+        {
+          "pair": 3,
+          "arm": "production",
+          "label": "many-files-10000-pair3-production-warm",
+          "elapsed_ms": 42194.41664,
+          "stages_ms": {
+            "directory_open": 3.585831,
+            "directory_list": 82.546594,
+            "directory_relative_stat": 1.394673,
+            "directory_close": 0.025337,
+            "file_open": 24552.072045,
+            "file_fstat": 2762.585698,
+            "file_close": 3631.759375,
+            "file_pread": 10487.208267,
+            "caller_other": 672.821277,
+            "between_rounds": 0.417543
+          },
+          "round_elapsed_ms": [
+            21192.689836,
+            10573.131209,
+            10428.178052
+          ],
+          "warmup_ms": 65603.808911,
+          "row_cache_retained_bytes": {
+            "before": 31027437.0,
+            "after": 31027437.0
+          },
+          "first_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 130532.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 0.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 2.0
+          },
+          "steady_workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 340549.0,
+            "brewfs_workspace_row_cache_misses_total": 0.0,
+            "brewfs_workspace_upper_extent_queries_total": 0.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 4.0
+          },
+          "redis_executed_commands": 50641.0,
+          "redis_commands": {
+            "client|setinfo": 0.0,
+            "monitor": 0.0,
+            "get": 308.0,
+            "set": 28.0,
+            "ping": 0.0,
+            "strlen": 206.0,
+            "zrangebylex": 20020.0,
+            "zadd": 28.0,
+            "mget": 29750.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "exists": 19.0,
+            "evalsha": 86.0,
+            "time": 71.0,
+            "multi": 6.0,
+            "type": 113.0,
+            "zrem": 0.0,
+            "exec": 6.0,
+            "del": 0.0
+          },
+          "untimed_single_pass_wire_audit": {
+            "passed": true,
+            "errors": [],
+            "timed": false,
+            "scope": "one identical workload pass after timing; excludes marker PINGs",
+            "audit_elapsed_ns": 10492732072,
+            "counts": {
+              "client": {
+                "MULTI": 2,
+                "TIME": 2,
+                "MGET": 2,
+                "EXEC": 2,
+                "EVALSHA": 10
+              },
+              "lua": {
+                "STRLEN": 39,
+                "GET": 62,
+                "TIME": 10,
+                "TYPE": 25,
+                "SET": 7,
+                "ZADD": 7
+              }
+            },
+            "client_commands": 18,
+            "lua_commands": 150,
+            "monitor_closed": true
+          },
+          "workspace_counters": {
+            "brewfs_workspace_row_cache_hits_total": 471081.0,
+            "brewfs_workspace_row_cache_misses_total": 39744.0,
+            "brewfs_workspace_upper_extent_queries_total": 10000.0,
+            "brewfs_workspace_upper_extent_empty_cache_hits_total": 20000.0,
+            "brewfs_workspace_upper_directory_queries_total": 0.0,
+            "brewfs_workspace_upper_directory_empty_cache_hits_total": 6.0
+          },
+          "first_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          },
+          "steady_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          }
+        },
+        {
+          "pair": 3,
+          "arm": "packed-direct",
+          "label": "many-files-10000-pair3-packed-direct-warm",
+          "elapsed_ms": 27707.66112,
+          "stages_ms": {
+            "directory_open": 1.961043,
+            "directory_list": 75.15347,
+            "directory_relative_stat": 1.008079,
+            "directory_close": 0.02663,
+            "file_open": 15809.286546,
+            "file_fstat": 2369.670177,
+            "file_close": 2498.260688,
+            "file_pread": 6319.381976,
+            "caller_other": 632.515546,
+            "between_rounds": 0.396965
+          },
+          "round_elapsed_ms": [
+            9220.732419,
+            9341.527592,
+            9145.004144
+          ],
+          "warmup_ms": 46693.374832,
+          "row_cache_retained_bytes": {
+            "before": 0.0,
+            "after": 0.0
+          },
+          "first_workspace_counters": {},
+          "steady_workspace_counters": {},
+          "redis_executed_commands": 0.0,
+          "redis_commands": {
+            "client|setinfo": 0.0,
+            "monitor": 0.0,
+            "get": 0.0,
+            "set": 0.0,
+            "ping": 0.0,
+            "strlen": 0.0,
+            "zrangebylex": 0.0,
+            "zadd": 0.0,
+            "mget": 0.0,
+            "scan": 0.0,
+            "script|load": 0.0,
+            "exists": 0.0,
+            "evalsha": 0.0,
+            "time": 0.0,
+            "multi": 0.0,
+            "type": 0.0,
+            "zrem": 0.0,
+            "exec": 0.0,
+            "del": 0.0
+          },
+          "untimed_single_pass_wire_audit": {
+            "passed": true,
+            "errors": [],
+            "timed": false,
+            "scope": "one identical workload pass after timing; excludes marker PINGs",
+            "audit_elapsed_ns": 9212229374,
+            "counts": {
+              "client": {},
+              "lua": {}
+            },
+            "client_commands": 0,
+            "lua_commands": 0,
+            "monitor_closed": true
+          },
+          "workspace_counters": {},
+          "first_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          },
+          "steady_objects": {
+            "read_requests": 0.0,
+            "body_bytes": 0.0
+          }
+        }
+      ]
+    }
+  ]
+}

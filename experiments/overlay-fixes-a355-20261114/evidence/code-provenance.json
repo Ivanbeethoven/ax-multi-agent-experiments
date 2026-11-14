@@ -1,0 +1,42 @@
+{
+  "brewfs_repository": "https://github.com/brewfs/brewfs",
+  "branch": "codex/a355-overlay-open-cache-20261113",
+  "baseline_commit": "97db0eb1f6b4575774284c089d5fd7831faf5c6e",
+  "candidate_commit": "3785e30e9999d5efcab6e46d486a6204460320e2",
+  "patch_base_commit": "03c8cc55d61473533c00a8afe13b4ef1fcd9b725",
+  "tested_src_patch_sha256": "f5da10a6e8511a7dcdbbc92079dbdf8104f95a80fa92170f6b209572e230baab",
+  "patch_verification": "The committed diff under src exactly matches the tested patch. The 2018-file build manifest was checked separately; the new explanatory document was added after measurement.",
+  "baseline_binary_sha256": "24e85b2e708c10edcc7cc56ea2b47c0ff300849200e2eedd1da520a714d3936c",
+  "candidate_binary_sha256": "d9a42486fde0837e2282d6e4f1a03b587dfa3450e8266bca78b950965d0171d4",
+  "producer_sha256": "d2df769ffae39554765cd6bc11beb46fff59a0b58a95c30821300392b2fda18f",
+  "profile": {
+    "name": "release",
+    "brewfs_opt_level": 3,
+    "debug": 0,
+    "incremental": 0,
+    "features": "fuse-io-uring-runtime,workspace,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability",
+    "toolchain": "rustc 1.99.0; full rustc -Vv in archived release-environment.txt"
+  },
+  "validation": {
+    "host": "existing A355",
+    "new_paid_resources": false,
+    "sqlite_tests_executed": false,
+    "all_backend_workspace_suite_executed": false,
+    "selected_rust_tests_and_build_checks_passed": true,
+    "shell_checks": "Passed in a separate LF-normalized copy. Initial CRLF failure and normalization receipt retained.",
+    "completion_receipts": ["checks/status.txt", "fixed-release.exit", "validation-01/exit-code.txt"],
+    "original_driver": "green.exit is from a terminated driver, not an acceptance receipt; see green-interrupted.txt. The CI child completed and release was built with the baseline's DEBUG=0 setting.",
+    "replace_cells": 6,
+    "verified_mixed_io_cells": 6,
+    "fio_randrw_cells": 6,
+    "paired_hot_read_cells": 27,
+    "metadata_sync": "remote",
+    "known_untested_scope": ["cross-host execution", "local-buffered FUSE rerun", "complete all-backend suite including SQLite"]
+  },
+  "raw_archive": {
+    "file": "results.tar.gz",
+    "bytes": 27605164,
+    "sha256": "b3e225b7825554b402485e479b6687b1ac458a46d58ad4ecdc52ef0128cea600",
+    "original_checksums_verified": 815
+  }
+}

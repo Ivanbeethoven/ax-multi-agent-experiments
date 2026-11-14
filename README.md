@@ -10,6 +10,7 @@
 |---|---|
 | 已有性能结果和图 | [C1–C4 结果](experiments/unified-suite/current/results-20261112/RESULT.zh.md) |
 | Overlay 热读优化与复测 | [小输入和 1 万文件、16/64 MiB 缓存](experiments/overlay-scale-a355-20261114/README.zh.md) · [open/close 分解与旧 TTL 对照修正](experiments/overlay-open-a355-20261113/README.zh.md) |
+| Overlay 并发错误修复 | [原子替换、混合读写正确性及修复前后热读对比](experiments/overlay-fixes-a355-20261114/README.zh.md) |
 | 最新五项功能检查 | [结果、修复、版本与清理](experiments/unified-suite/pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md) |
 | 实验怎么设计、还缺什么 | [当前 C1–C4 方案](experiments/unified-suite/current/README.zh.md) · [未完成项](experiments/unified-suite/current/PENDING.zh.md) |
 | 8 块怎样拆分、并行和执行 | [实验块与流程](experiments/unified-suite/current/BLOCKS.zh.md)；现有运行器支持按块选择与命令预览 |
