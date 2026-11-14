@@ -1,0 +1,949 @@
+{
+  "paired_regressions_passed": true,
+  "complete_ci_passed": true,
+  "missing_commands": [],
+  "original": {
+    "base": "fa630c33ed9691f66b09742ae695aecb0d666a0e",
+    "compiled_for_this_source": true,
+    "diagnostic_outcomes": [
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.10s"
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.19s"
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.04s"
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.05s"
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.06s"
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.04s"
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.21s"
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.25s"
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.56s"
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.32s"
+      },
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.10s"
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.19s"
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.05s"
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.05s"
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.07s"
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.04s"
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.21s"
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.28s"
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.52s"
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.28s"
+      },
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.10s"
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.19s"
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.06s"
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.05s"
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.07s"
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.04s"
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.28s"
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.29s"
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "summary": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.57s"
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.27s"
+      }
+    ],
+    "full_test_summaries": {},
+    "commands": [
+      {
+        "name": "toolchain",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1442816120106727
+      },
+      {
+        "name": "compile-tests",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 521.7484602289915
+      },
+      {
+        "name": "inventory",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1451407429995015
+      },
+      {
+        "name": "redis-before",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1397532119881362
+      },
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.1377035650075413
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.1388896930147894
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.1503720849868841
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.14126630499959
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1407393389963545
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.146165442012716
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 2.2936115270131268
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 2.3016061279922724
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-1",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.140580896026222
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1420486849965528
+      },
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.1388115680019837
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.1397285569983069
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.146745947015006
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1397467409842648
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1406032769882586
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1469840479840059
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 2.28331940798671
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 2.3073959439934697
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-2",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.1402174819959328
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1392802869959269
+      },
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.1400402539875358
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.140748206002172
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.1497057610249612
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1638444049749523
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1428785430034623
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.145835691015236
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 2.2898321240209043
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 2.296332257014001
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-3",
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 1.1509656150010414
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.139185701002134
+      },
+      {
+        "name": "redis-after",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1461502340098377
+      }
+    ],
+    "kernel_traces": 72,
+    "kernel_control_traces": 6,
+    "redis_mounts": 78,
+    "lock_released_utc": "2026-11-14T09:37:56.125825+00:00",
+    "redis_exit": 0,
+    "runner_completed": true,
+    "runner_error": null
+  },
+  "candidate": {
+    "base": "fa630c33ed9691f66b09742ae695aecb0d666a0e",
+    "compiled_for_this_source": true,
+    "diagnostic_outcomes": [
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.10s"
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.19s"
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.18s"
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.04s"
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.07s"
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.04s"
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.21s"
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.38s"
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.59s"
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.26s"
+      },
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.10s"
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.19s"
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.18s"
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.05s"
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.07s"
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.04s"
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.33s"
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.31s"
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.58s"
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.28s"
+      },
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.14s"
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.19s"
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.18s"
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.05s"
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.07s"
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.04s"
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.34s"
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.37s"
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.60s"
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.28s"
+      }
+    ],
+    "full_test_summaries": {
+      "default": [
+        "test result: ok. 1362 passed; 0 failed; 266 ignored; 0 measured; 0 filtered out; finished in 67.07s",
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "features": [
+        "test result: ok. 2877 passed; 0 failed; 493 ignored; 0 measured; 0 filtered out; finished in 143.47s",
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+        "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.53s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ]
+    },
+    "commands": [
+      {
+        "name": "toolchain",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1442555359972175
+      },
+      {
+        "name": "clean-package",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 2.2780440780043136
+      },
+      {
+        "name": "compile-tests",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 500.41010569100035
+      },
+      {
+        "name": "inventory",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1415424110018648
+      },
+      {
+        "name": "redis-before",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1438767240033485
+      },
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1366837940004189
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1395821909827646
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1388569189875852
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1392926650005393
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1387995120021515
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1454730400000699
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 2.2691876780008897
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 2.275075360026676
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1497130109928548
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-1",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1471551439899486
+      },
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1393305950041395
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1384883249993436
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1409733469772618
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.145647472993005
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1391129920084495
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1426436899928376
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 2.280247477989178
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 2.2797304400010034
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1639684390102047
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-2",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1645053940010257
+      },
+      {
+        "name": "enoent_f24_lookup_to_stat_interleaving-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.154685769986827
+      },
+      {
+        "name": "enoent_f24_retired_inode_getattr_interleaving-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1406964039779268
+      },
+      {
+        "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.142684295977233
+      },
+      {
+        "name": "enoent_f24_retained_handle_and_permission_controls-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.140012869000202
+      },
+      {
+        "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1411074850184377
+      },
+      {
+        "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1472645370231476
+      },
+      {
+        "name": "lookup_stat_kernel_revalidates_without_userspace_retry-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 2.2842067290039267
+      },
+      {
+        "name": "retired_getattr_kernel_revalidates_before_open_and_stat-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 2.280069569009356
+      },
+      {
+        "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1412210460111964
+      },
+      {
+        "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-3",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1537009970052168
+      },
+      {
+        "name": "redis-after",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1463950570032466
+      },
+      {
+        "name": "fmt",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 5.715832132002106
+      },
+      {
+        "name": "default-check",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 88.91991900699213
+      },
+      {
+        "name": "default-build",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 142.09095882199472
+      },
+      {
+        "name": "default-all-tests",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 248.3045134349959
+      },
+      {
+        "name": "default-clippy",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 101.64728920097696
+      },
+      {
+        "name": "features-check",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 92.5782088820124
+      },
+      {
+        "name": "features-build",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 265.7965269680135
+      },
+      {
+        "name": "features-all-tests",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 717.2130609859887
+      },
+      {
+        "name": "features-clippy",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 155.31477704201825
+      },
+      {
+        "name": "syntax-run_perf_in_container.sh",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1457979709957726
+      },
+      {
+        "name": "syntax-run_redis_perf.sh",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1366679320053663
+      },
+      {
+        "name": "syntax-run_juicefs_perf_in_container.sh",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1443240299995523
+      },
+      {
+        "name": "syntax-run_juicefs_perf.sh",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1454795009922236
+      },
+      {
+        "name": "test_perf_report_delta.sh",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1394368030014448
+      },
+      {
+        "name": "test_juicefs_direct_matrix.sh",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1389497710042633
+      },
+      {
+        "name": "test_juicefs_perf_report.sh",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.1382720459951088
+      },
+      {
+        "name": "fuse-tokio-runtime",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 61.749132809985895
+      },
+      {
+        "name": "fuse-io-uring-runtime",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 38.862964809988625
+      },
+      {
+        "name": "cargo-metadata",
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 1.145103860006202
+      }
+    ],
+    "kernel_traces": 72,
+    "kernel_control_traces": 6,
+    "redis_mounts": 78,
+    "lock_released_utc": "2026-11-14T10:48:46.036938+00:00",
+    "redis_exit": 0,
+    "runner_completed": true,
+    "runner_error": null
+  }
+}

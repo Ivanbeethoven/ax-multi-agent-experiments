@@ -1,0 +1,1026 @@
+{
+  "source": "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-source",
+  "base_commit": "fa630c33ed9691f66b09742ae695aecb0d666a0e",
+  "role": "candidate",
+  "build_environment": {
+    "RUSTC": "/srv/ax-overlay-tax-20261113/toolchain/bin/rustc",
+    "CARGO_HOME": "/srv/ax-enoent-local-20261114-0840/cargo",
+    "CARGO_TARGET_DIR": "/srv/ax-enoent-local-20261114-0840/target",
+    "TMPDIR": "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/tmp",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_NET_OFFLINE": "true",
+    "RUST_TEST_THREADS": "1",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "redis": {
+    "command": [
+      "/usr/bin/redis-server",
+      "--bind",
+      "127.0.0.1",
+      "--port",
+      "16379",
+      "--save",
+      "",
+      "--appendonly",
+      "no",
+      "--maxmemory",
+      "256mb",
+      "--maxmemory-policy",
+      "noeviction",
+      "--dir",
+      "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/redis"
+    ],
+    "pid": 319268,
+    "exit_code": 0
+  },
+  "test_binary": "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+  "environment_limits": {
+    "cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "jobs": 4,
+    "nice": 19,
+    "io_class": "idle",
+    "rss_limit": 51539607552
+  },
+  "isolation": {
+    "network": "loopback only",
+    "mount": "private",
+    "kernel": "6.8.0-149-generic"
+  },
+  "started_utc": "2026-11-14T10:44:20.782704+00:00",
+  "pid": 364968,
+  "continued_from": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json",
+  "commands": [
+    {
+      "name": "toolchain",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/rustc",
+        "-Vv"
+      ],
+      "started_utc": "2026-11-14T09:42:00.690417+00:00",
+      "expected_exit": 0,
+      "pid": 318165,
+      "exit_code": 0,
+      "seconds": 1.1442555359972175,
+      "finished_utc": "2026-11-14T09:42:01.839445+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "clean-package",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "clean",
+        "--package",
+        "brewfs"
+      ],
+      "started_utc": "2026-11-14T09:42:01.840128+00:00",
+      "expected_exit": 0,
+      "pid": 318169,
+      "exit_code": 0,
+      "seconds": 2.2780440780043136,
+      "finished_utc": "2026-11-14T09:42:04.122373+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "compile-tests",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime,workspace,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability",
+        "--lib",
+        "--no-run",
+        "--message-format=json-render-diagnostics"
+      ],
+      "started_utc": "2026-11-14T09:42:04.123257+00:00",
+      "expected_exit": 0,
+      "pid": 318175,
+      "exit_code": 0,
+      "seconds": 500.41010569100035,
+      "finished_utc": "2026-11-14T09:50:24.537643+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "inventory",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--list",
+        "--color=never"
+      ],
+      "started_utc": "2026-11-14T09:50:26.212533+00:00",
+      "expected_exit": 0,
+      "pid": 319265,
+      "exit_code": 0,
+      "seconds": 1.1415424110018648,
+      "finished_utc": "2026-11-14T09:50:27.357974+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "redis-before",
+      "command": [
+        "/usr/bin/redis-cli",
+        "-p",
+        "16379",
+        "info",
+        "commandstats"
+      ],
+      "started_utc": "2026-11-14T09:50:27.473021+00:00",
+      "expected_exit": 0,
+      "pid": 319275,
+      "exit_code": 0,
+      "seconds": 1.1438767240033485,
+      "finished_utc": "2026-11-14T09:50:28.621197+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "enoent_f24_lookup_to_stat_interleaving-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_lookup_to_stat_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:28.621950+00:00",
+      "expected_exit": 0,
+      "pid": 319278,
+      "exit_code": 0,
+      "seconds": 1.1366837940004189,
+      "finished_utc": "2026-11-14T09:50:29.763489+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "enoent_f24_retired_inode_getattr_interleaving-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retired_inode_getattr_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:29.764289+00:00",
+      "expected_exit": 0,
+      "pid": 319283,
+      "exit_code": 0,
+      "seconds": 1.1395821909827646,
+      "finished_utc": "2026-11-14T09:50:30.908427+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_revalidates_lower_and_bounds_repeated_replacements",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:30.909431+00:00",
+      "expected_exit": 0,
+      "pid": 319290,
+      "exit_code": 0,
+      "seconds": 1.1388569189875852,
+      "finished_utc": "2026-11-14T09:50:32.052973+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "enoent_f24_retained_handle_and_permission_controls-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retained_handle_and_permission_controls",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:32.053953+00:00",
+      "expected_exit": 0,
+      "pid": 319295,
+      "exit_code": 0,
+      "seconds": 1.1392926650005393,
+      "finished_utc": "2026-11-14T09:50:33.197597+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_and_getattr_preserve_backend_errors_with_live_handle",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:33.198444+00:00",
+      "expected_exit": 0,
+      "pid": 319300,
+      "exit_code": 0,
+      "seconds": 1.1387995120021515,
+      "finished_utc": "2026-11-14T09:50:34.341823+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_dangling_dentry_is_not_hidden_by_revalidation",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:34.342697+00:00",
+      "expected_exit": 0,
+      "pid": 319305,
+      "exit_code": 0,
+      "seconds": 1.1454730400000699,
+      "finished_utc": "2026-11-14T09:50:35.492849+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_stat_kernel_revalidates_without_userspace_retry-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::lookup_stat_kernel_revalidates_without_userspace_retry",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:50:35.493759+00:00",
+      "expected_exit": 0,
+      "pid": 319310,
+      "exit_code": 0,
+      "seconds": 2.2691876780008897,
+      "finished_utc": "2026-11-14T09:50:37.767831+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "retired_getattr_kernel_revalidates_before_open_and_stat-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::retired_getattr_kernel_revalidates_before_open_and_stat",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:50:37.768770+00:00",
+      "expected_exit": 0,
+      "pid": 319376,
+      "exit_code": 0,
+      "seconds": 2.275075360026676,
+      "finished_utc": "2026-11-14T09:50:40.048734+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::repeated_getattr_replacement_exhausts_kernel_retry_as_stale",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:50:40.049917+00:00",
+      "expected_exit": 0,
+      "pid": 319436,
+      "exit_code": 0,
+      "seconds": 1.1497130109928548,
+      "finished_utc": "2026-11-14T09:50:41.204128+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-1",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::kernel_retained_handle_preserves_absence_permissions_and_backend_errors",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:50:41.205325+00:00",
+      "expected_exit": 0,
+      "pid": 319464,
+      "exit_code": 0,
+      "seconds": 1.1471551439899486,
+      "finished_utc": "2026-11-14T09:50:42.357176+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "enoent_f24_lookup_to_stat_interleaving-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_lookup_to_stat_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:42.358406+00:00",
+      "expected_exit": 0,
+      "pid": 319482,
+      "exit_code": 0,
+      "seconds": 1.1393305950041395,
+      "finished_utc": "2026-11-14T09:50:43.502661+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "enoent_f24_retired_inode_getattr_interleaving-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retired_inode_getattr_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:43.503660+00:00",
+      "expected_exit": 0,
+      "pid": 319487,
+      "exit_code": 0,
+      "seconds": 1.1384883249993436,
+      "finished_utc": "2026-11-14T09:50:44.647017+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_revalidates_lower_and_bounds_repeated_replacements",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:44.648241+00:00",
+      "expected_exit": 0,
+      "pid": 319492,
+      "exit_code": 0,
+      "seconds": 1.1409733469772618,
+      "finished_utc": "2026-11-14T09:50:45.794002+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "enoent_f24_retained_handle_and_permission_controls-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retained_handle_and_permission_controls",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:45.795622+00:00",
+      "expected_exit": 0,
+      "pid": 319497,
+      "exit_code": 0,
+      "seconds": 1.145647472993005,
+      "finished_utc": "2026-11-14T09:50:46.946251+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_and_getattr_preserve_backend_errors_with_live_handle",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:46.947305+00:00",
+      "expected_exit": 0,
+      "pid": 319502,
+      "exit_code": 0,
+      "seconds": 1.1391129920084495,
+      "finished_utc": "2026-11-14T09:50:48.091283+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_dangling_dentry_is_not_hidden_by_revalidation",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:48.092363+00:00",
+      "expected_exit": 0,
+      "pid": 319507,
+      "exit_code": 0,
+      "seconds": 1.1426436899928376,
+      "finished_utc": "2026-11-14T09:50:49.240099+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_stat_kernel_revalidates_without_userspace_retry-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::lookup_stat_kernel_revalidates_without_userspace_retry",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:50:49.241196+00:00",
+      "expected_exit": 0,
+      "pid": 319512,
+      "exit_code": 0,
+      "seconds": 2.280247477989178,
+      "finished_utc": "2026-11-14T09:50:51.526452+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "retired_getattr_kernel_revalidates_before_open_and_stat-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::retired_getattr_kernel_revalidates_before_open_and_stat",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:50:51.528130+00:00",
+      "expected_exit": 0,
+      "pid": 319573,
+      "exit_code": 0,
+      "seconds": 2.2797304400010034,
+      "finished_utc": "2026-11-14T09:50:53.812922+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::repeated_getattr_replacement_exhausts_kernel_retry_as_stale",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:50:53.816457+00:00",
+      "expected_exit": 0,
+      "pid": 319633,
+      "exit_code": 0,
+      "seconds": 1.1639684390102047,
+      "finished_utc": "2026-11-14T09:50:55.001116+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-2",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::kernel_retained_handle_preserves_absence_permissions_and_backend_errors",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:50:55.004059+00:00",
+      "expected_exit": 0,
+      "pid": 319662,
+      "exit_code": 0,
+      "seconds": 1.1645053940010257,
+      "finished_utc": "2026-11-14T09:50:56.174336+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "enoent_f24_lookup_to_stat_interleaving-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_lookup_to_stat_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:56.186045+00:00",
+      "expected_exit": 0,
+      "pid": 319679,
+      "exit_code": 0,
+      "seconds": 1.154685769986827,
+      "finished_utc": "2026-11-14T09:50:57.362726+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "enoent_f24_retired_inode_getattr_interleaving-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retired_inode_getattr_interleaving",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:57.364536+00:00",
+      "expected_exit": 0,
+      "pid": 319684,
+      "exit_code": 0,
+      "seconds": 1.1406964039779268,
+      "finished_utc": "2026-11-14T09:50:58.525993+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_revalidates_lower_and_bounds_repeated_replacements-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_revalidates_lower_and_bounds_repeated_replacements",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:58.527419+00:00",
+      "expected_exit": 0,
+      "pid": 319689,
+      "exit_code": 0,
+      "seconds": 1.142684295977233,
+      "finished_utc": "2026-11-14T09:50:59.685807+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "enoent_f24_retained_handle_and_permission_controls-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::enoent_f24_retained_handle_and_permission_controls",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:50:59.695031+00:00",
+      "expected_exit": 0,
+      "pid": 319694,
+      "exit_code": 0,
+      "seconds": 1.140012869000202,
+      "finished_utc": "2026-11-14T09:51:00.840113+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_and_getattr_preserve_backend_errors_with_live_handle-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_and_getattr_preserve_backend_errors_with_live_handle",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:51:00.841413+00:00",
+      "expected_exit": 0,
+      "pid": 319699,
+      "exit_code": 0,
+      "seconds": 1.1411074850184377,
+      "finished_utc": "2026-11-14T09:51:01.987739+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_dangling_dentry_is_not_hidden_by_revalidation-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_dangling_dentry_is_not_hidden_by_revalidation",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-14T09:51:01.989750+00:00",
+      "expected_exit": 0,
+      "pid": 319704,
+      "exit_code": 0,
+      "seconds": 1.1472645370231476,
+      "finished_utc": "2026-11-14T09:51:03.142206+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "lookup_stat_kernel_revalidates_without_userspace_retry-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::lookup_stat_kernel_revalidates_without_userspace_retry",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:51:03.143546+00:00",
+      "expected_exit": 0,
+      "pid": 319709,
+      "exit_code": 0,
+      "seconds": 2.2842067290039267,
+      "finished_utc": "2026-11-14T09:51:05.432710+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "retired_getattr_kernel_revalidates_before_open_and_stat-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::retired_getattr_kernel_revalidates_before_open_and_stat",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:51:05.434298+00:00",
+      "expected_exit": 0,
+      "pid": 319770,
+      "exit_code": 0,
+      "seconds": 2.280069569009356,
+      "finished_utc": "2026-11-14T09:51:07.719653+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "repeated_getattr_replacement_exhausts_kernel_retry_as_stale-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::repeated_getattr_replacement_exhausts_kernel_retry_as_stale",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:51:07.721260+00:00",
+      "expected_exit": 0,
+      "pid": 319830,
+      "exit_code": 0,
+      "seconds": 1.1412210460111964,
+      "finished_utc": "2026-11-14T09:51:08.867744+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "kernel_retained_handle_preserves_absence_permissions_and_backend_errors-3",
+      "command": [
+        "/srv/ax-enoent-local-20261114-0840/pair-02/candidate-clean-results/brewfs-lib-tests",
+        "--exact",
+        "workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::kernel_retained_handle_preserves_absence_permissions_and_backend_errors",
+        "--nocapture",
+        "--test-threads=1",
+        "--ignored"
+      ],
+      "started_utc": "2026-11-14T09:51:08.869410+00:00",
+      "expected_exit": 0,
+      "pid": 319858,
+      "exit_code": 0,
+      "seconds": 1.1537009970052168,
+      "finished_utc": "2026-11-14T09:51:10.028178+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "redis-after",
+      "command": [
+        "/usr/bin/redis-cli",
+        "-p",
+        "16379",
+        "info",
+        "commandstats"
+      ],
+      "started_utc": "2026-11-14T09:51:10.029849+00:00",
+      "expected_exit": 0,
+      "pid": 319876,
+      "exit_code": 0,
+      "seconds": 1.1463950570032466,
+      "finished_utc": "2026-11-14T09:51:11.181686+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "fmt",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "started_utc": "2026-11-14T09:51:11.183133+00:00",
+      "expected_exit": 0,
+      "pid": 319879,
+      "exit_code": 0,
+      "seconds": 5.715832132002106,
+      "finished_utc": "2026-11-14T09:51:16.904033+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "default-check",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "--workspace"
+      ],
+      "started_utc": "2026-11-14T09:51:16.905752+00:00",
+      "expected_exit": 0,
+      "pid": 319895,
+      "exit_code": 0,
+      "seconds": 88.91991900699213,
+      "finished_utc": "2026-11-14T09:52:45.830962+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "default-build",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "--workspace"
+      ],
+      "started_utc": "2026-11-14T09:52:45.832424+00:00",
+      "expected_exit": 0,
+      "pid": 322016,
+      "exit_code": 0,
+      "seconds": 142.09095882199472,
+      "finished_utc": "2026-11-14T09:55:07.928384+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "default-all-tests",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--workspace",
+        "--lib",
+        "--bins",
+        "--",
+        "--test-threads=4"
+      ],
+      "started_utc": "2026-11-14T09:55:07.931098+00:00",
+      "expected_exit": 0,
+      "pid": 324348,
+      "exit_code": 0,
+      "seconds": 248.3045134349959,
+      "finished_utc": "2026-11-14T09:59:16.241114+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "default-clippy",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "started_utc": "2026-11-14T09:59:16.242865+00:00",
+      "expected_exit": 0,
+      "pid": 329487,
+      "exit_code": 0,
+      "seconds": 101.64728920097696,
+      "finished_utc": "2026-11-14T10:00:57.895452+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "features-check",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "--workspace",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime,workspace,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability"
+      ],
+      "started_utc": "2026-11-14T10:00:57.897344+00:00",
+      "expected_exit": 0,
+      "pid": 331384,
+      "exit_code": 0,
+      "seconds": 92.5782088820124,
+      "finished_utc": "2026-11-14T10:02:30.481076+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "features-build",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "--workspace",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime,workspace,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability"
+      ],
+      "started_utc": "2026-11-14T10:22:52.625657+00:00",
+      "expected_exit": 0,
+      "pid": 345121,
+      "exit_code": 0,
+      "seconds": 265.7965269680135,
+      "finished_utc": "2026-11-14T10:27:18.429613+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "features-all-tests",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--workspace",
+        "--lib",
+        "--bins",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime,workspace,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability",
+        "--",
+        "--test-threads=4"
+      ],
+      "started_utc": "2026-11-14T10:27:18.431631+00:00",
+      "expected_exit": 0,
+      "pid": 345752,
+      "exit_code": 0,
+      "seconds": 717.2130609859887,
+      "finished_utc": "2026-11-14T10:39:15.651740+00:00",
+      "from_report": "/srv/ax-enoent-local-20261114-0840/pair-02/completed-results-02/report.json"
+    },
+    {
+      "name": "features-clippy",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--workspace",
+        "--all-targets",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime,workspace,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "started_utc": "2026-11-14T10:44:20.870265+00:00",
+      "expected_exit": 0,
+      "pid": 364974,
+      "exit_code": 0,
+      "seconds": 155.31477704201825,
+      "finished_utc": "2026-11-14T10:46:56.192587+00:00"
+    },
+    {
+      "name": "syntax-run_perf_in_container.sh",
+      "command": [
+        "bash",
+        "-n",
+        "docker/compose-xfstests/run_perf_in_container.sh"
+      ],
+      "started_utc": "2026-11-14T10:46:56.195132+00:00",
+      "expected_exit": 0,
+      "pid": 365565,
+      "exit_code": 0,
+      "seconds": 1.1457979709957726,
+      "finished_utc": "2026-11-14T10:46:57.348235+00:00"
+    },
+    {
+      "name": "syntax-run_redis_perf.sh",
+      "command": [
+        "bash",
+        "-n",
+        "docker/compose-xfstests/run_redis_perf.sh"
+      ],
+      "started_utc": "2026-11-14T10:46:57.350040+00:00",
+      "expected_exit": 0,
+      "pid": 365568,
+      "exit_code": 0,
+      "seconds": 1.1366679320053663,
+      "finished_utc": "2026-11-14T10:46:58.494007+00:00"
+    },
+    {
+      "name": "syntax-run_juicefs_perf_in_container.sh",
+      "command": [
+        "bash",
+        "-n",
+        "docker/compose-xfstests/run_juicefs_perf_in_container.sh"
+      ],
+      "started_utc": "2026-11-14T10:46:58.495750+00:00",
+      "expected_exit": 0,
+      "pid": 365571,
+      "exit_code": 0,
+      "seconds": 1.1443240299995523,
+      "finished_utc": "2026-11-14T10:46:59.647316+00:00"
+    },
+    {
+      "name": "syntax-run_juicefs_perf.sh",
+      "command": [
+        "bash",
+        "-n",
+        "docker/compose-xfstests/run_juicefs_perf.sh"
+      ],
+      "started_utc": "2026-11-14T10:46:59.649127+00:00",
+      "expected_exit": 0,
+      "pid": 365574,
+      "exit_code": 0,
+      "seconds": 1.1454795009922236,
+      "finished_utc": "2026-11-14T10:47:00.801732+00:00"
+    },
+    {
+      "name": "test_perf_report_delta.sh",
+      "command": [
+        "bash",
+        "docker/compose-xfstests/test_perf_report_delta.sh"
+      ],
+      "started_utc": "2026-11-14T10:47:00.803575+00:00",
+      "expected_exit": 0,
+      "pid": 365577,
+      "exit_code": 0,
+      "seconds": 1.1394368030014448,
+      "finished_utc": "2026-11-14T10:47:01.950120+00:00"
+    },
+    {
+      "name": "test_juicefs_direct_matrix.sh",
+      "command": [
+        "bash",
+        "docker/compose-xfstests/test_juicefs_direct_matrix.sh"
+      ],
+      "started_utc": "2026-11-14T10:47:01.952223+00:00",
+      "expected_exit": 0,
+      "pid": 365613,
+      "exit_code": 0,
+      "seconds": 1.1389497710042633,
+      "finished_utc": "2026-11-14T10:47:03.097961+00:00"
+    },
+    {
+      "name": "test_juicefs_perf_report.sh",
+      "command": [
+        "bash",
+        "docker/compose-xfstests/test_juicefs_perf_report.sh"
+      ],
+      "started_utc": "2026-11-14T10:47:03.099798+00:00",
+      "expected_exit": 0,
+      "pid": 365671,
+      "exit_code": 0,
+      "seconds": 1.1382720459951088,
+      "finished_utc": "2026-11-14T10:47:04.245223+00:00"
+    },
+    {
+      "name": "fuse-tokio-runtime",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "-p",
+        "brewfs",
+        "--no-default-features",
+        "--features",
+        "fuse-tokio-runtime"
+      ],
+      "started_utc": "2026-11-14T10:47:04.247137+00:00",
+      "expected_exit": 0,
+      "pid": 365694,
+      "exit_code": 0,
+      "seconds": 61.749132809985895,
+      "finished_utc": "2026-11-14T10:48:06.003435+00:00"
+    },
+    {
+      "name": "fuse-io-uring-runtime",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "-p",
+        "brewfs",
+        "--no-default-features",
+        "--features",
+        "fuse-io-uring-runtime"
+      ],
+      "started_utc": "2026-11-14T10:48:06.005726+00:00",
+      "expected_exit": 0,
+      "pid": 366122,
+      "exit_code": 0,
+      "seconds": 38.862964809988625,
+      "finished_utc": "2026-11-14T10:48:44.876046+00:00"
+    },
+    {
+      "name": "cargo-metadata",
+      "command": [
+        "/srv/ax-overlay-tax-20261113/toolchain/bin/cargo",
+        "metadata",
+        "--no-deps",
+        "--format-version",
+        "1"
+      ],
+      "started_utc": "2026-11-14T10:48:44.878323+00:00",
+      "expected_exit": 0,
+      "pid": 366297,
+      "exit_code": 0,
+      "seconds": 1.145103860006202,
+      "finished_utc": "2026-11-14T10:48:46.030584+00:00"
+    }
+  ],
+  "performance_measurement": false,
+  "peak_process_group_rss": 8872206336,
+  "source_files_compared": 2026,
+  "source_content_matches_archive": true,
+  "lock_acquired_utc": "2026-11-14T10:44:20.789440+00:00",
+  "rfuse3_workspace_member": false,
+  "completed": true,
+  "passed": true,
+  "finished_utc": "2026-11-14T10:48:46.033193+00:00",
+  "mounts_after": "/ ext4\n/dev devtmpfs\n/dev/pts devpts\n/dev/shm tmpfs\n/dev/hugepages hugetlbfs\n/dev/mqueue mqueue\n/run tmpfs\n/run/lock tmpfs\n/run/snapd/ns tmpfs\n/run/user/0 tmpfs\n/run/user/0/doc fuse.portal\n/run/user/0/gvfs fuse.gvfsd-fuse\n/sys sysfs\n/sys/kernel/security securityfs\n/sys/fs/cgroup cgroup2\n/sys/fs/pstore pstore\n/sys/fs/bpf bpf\n/sys/kernel/debug debugfs\n/sys/kernel/tracing tracefs\n/sys/fs/fuse/connections fusectl\n/sys/kernel/config configfs\n/proc proc\n/proc/sys/fs/binfmt_misc autofs\n/proc/sys/fs/binfmt_misc binfmt_misc\n/snap/bare/5 squashfs\n/snap/core22/2292 squashfs\n/snap/firefox/7766 squashfs\n/snap/gnome-42-2204/247 squashfs\n/snap/firmware-updater/210 squashfs\n/snap/snap-store/1270 squashfs\n/snap/gtk-common-themes/1535 squashfs\n/snap/snapd-desktop-integration/343 squashfs\n/snap/snapd/25935 squashfs\n/snap/thunderbird/959 squashfs\n/tmp/fuse fuse\n/snap/snapd/28332 squashfs\n/snap/core24/2307 squashfs\n/snap/mesa-2404/1839 squashfs\n/snap/firmware-updater/262 squashfs\n/snap/gnome-46-2404/177 squashfs\n/snap/snap-store/1489 squashfs\n",
+  "lock_released_utc": "2026-11-14T10:48:46.036938+00:00"
+}

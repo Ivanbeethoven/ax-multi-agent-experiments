@@ -1,0 +1,27 @@
+
+running 1 test
+test workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::repeated_getattr_replacement_exhausts_kernel_retry_as_stale ... KERNEL_BACKEND redis cache=0
+KERNEL_TRACE at=GetattrAgain change=Replace stat=false cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change GetattrAgain Replace error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=0
+KERNEL_TRACE at=GetattrAgain change=Replace stat=true cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change GetattrAgain Replace error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+KERNEL_TRACE at=GetattrAgain change=Replace stat=false cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change GetattrAgain Replace error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+KERNEL_TRACE at=GetattrAgain change=Replace stat=true cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "lookup uid=1000 parent=1 name=\"target\" result=Ok(401)", "change GetattrAgain Replace error=None", "getattr uid=1000 ino=401 fh=None result=Err(Errno(2))"]
+
+thread 'workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::repeated_getattr_replacement_exhausts_kernel_retry_as_stale' (317154) panicked at src/workspace/meta_layer/tests/enoent_f24_kernel_tests.rs:454:5:
+KERNEL_REPEATED_GETATTR: ["cache=0 stat=false: expected={\"errno\":116} observed={\"errno\":2}", "cache=0 stat=true: expected={\"errno\":116} observed={\"errno\":2}", "cache=67108864 stat=false: expected={\"errno\":116} observed={\"errno\":2}", "cache=67108864 stat=true: expected={\"errno\":116} observed={\"errno\":2}"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::repeated_getattr_replacement_exhausts_kernel_retry_as_stale
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.52s
+

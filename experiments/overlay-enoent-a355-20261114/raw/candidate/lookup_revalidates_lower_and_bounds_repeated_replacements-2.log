@@ -1,0 +1,12 @@
+
+running 1 test
+test workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::lookup_revalidates_lower_and_bounds_repeated_replacements ... LOOKUP_REPEATED cache=0 changes=1 result=Ok(Some((401, FileAttr { ino: 401, size: 0, blocks: 0, kind: File, mode: 384, rdev: 0, uid: 1000, gid: 1000, atime: 1794649844702149573, mtime: 1794649844702149573, ctime: 1794649844707181140, nlink: 1 })))
+LOOKUP_REPEATED cache=0 changes=3 result=Ok(Some((404, FileAttr { ino: 404, size: 0, blocks: 0, kind: File, mode: 384, rdev: 0, uid: 1000, gid: 1000, atime: 1794649844732601202, mtime: 1794649844732601202, ctime: 1794649844733921417, nlink: 1 })))
+LOOKUP_REPEATED cache=0 changes=8 result=Err(Io(Os { code: 116, kind: StaleNetworkFileHandle, message: "Stale file handle" }))
+LOOKUP_REPEATED cache=67108864 changes=1 result=Ok(Some((401, FileAttr { ino: 401, size: 0, blocks: 0, kind: File, mode: 384, rdev: 0, uid: 1000, gid: 1000, atime: 1794649844785804433, mtime: 1794649844785804433, ctime: 1794649844787088641, nlink: 1 })))
+LOOKUP_REPEATED cache=67108864 changes=3 result=Ok(Some((404, FileAttr { ino: 404, size: 0, blocks: 0, kind: File, mode: 384, rdev: 0, uid: 1000, gid: 1000, atime: 1794649844808601458, mtime: 1794649844808601458, ctime: 1794649844809424372, nlink: 1 })))
+LOOKUP_REPEATED cache=67108864 changes=8 result=Err(Io(Os { code: 116, kind: StaleNetworkFileHandle, message: "Stale file handle" }))
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 0.18s
+

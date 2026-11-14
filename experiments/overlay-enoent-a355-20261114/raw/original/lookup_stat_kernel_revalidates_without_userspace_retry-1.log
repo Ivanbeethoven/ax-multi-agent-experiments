@@ -1,0 +1,55 @@
+
+running 1 test
+test workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::lookup_stat_kernel_revalidates_without_userspace_retry ... KERNEL_BACKEND redis cache=0
+[packed-native-kernel-read-diag] stage=fuse-lookup-child unique=6 parent=1 error=not found
+KERNEL_TRACE at=LookupStat change=Replace stat=false cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "change LookupStat Replace error=None", "lookup uid=1000 parent=1 name=\"target\" result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=0
+[packed-native-kernel-read-diag] stage=fuse-lookup-child unique=6 parent=1 error=not found
+KERNEL_TRACE at=LookupStat change=Replace stat=true cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "change LookupStat Replace error=None", "lookup uid=1000 parent=1 name=\"target\" result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=0
+[packed-native-kernel-read-diag] stage=fuse-lookup-child unique=6 parent=1 error=not found
+KERNEL_TRACE at=LookupStat change=Unlink stat=false cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "change LookupStat Unlink error=None", "lookup uid=1000 parent=1 name=\"target\" result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=0
+[packed-native-kernel-read-diag] stage=fuse-lookup-child unique=6 parent=1 error=not found
+KERNEL_TRACE at=LookupStat change=Unlink stat=true cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "change LookupStat Unlink error=None", "lookup uid=1000 parent=1 name=\"target\" result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=0
+[packed-native-kernel-read-diag] stage=fuse-lookup-child unique=6 parent=1 error=not found
+KERNEL_TRACE at=LookupStat change=Deny stat=false cache=0 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "change LookupStat Deny error=None", "lookup uid=1000 parent=1 name=\"target\" result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+[packed-native-kernel-read-diag] stage=fuse-lookup-child unique=6 parent=1 error=not found
+KERNEL_TRACE at=LookupStat change=Replace stat=false cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "change LookupStat Replace error=None", "lookup uid=1000 parent=1 name=\"target\" result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+[packed-native-kernel-read-diag] stage=fuse-lookup-child unique=6 parent=1 error=not found
+KERNEL_TRACE at=LookupStat change=Replace stat=true cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "change LookupStat Replace error=None", "lookup uid=1000 parent=1 name=\"target\" result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+[packed-native-kernel-read-diag] stage=fuse-lookup-child unique=6 parent=1 error=not found
+KERNEL_TRACE at=LookupStat change=Unlink stat=false cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "change LookupStat Unlink error=None", "lookup uid=1000 parent=1 name=\"target\" result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+[packed-native-kernel-read-diag] stage=fuse-lookup-child unique=6 parent=1 error=not found
+KERNEL_TRACE at=LookupStat change=Unlink stat=true cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "change LookupStat Unlink error=None", "lookup uid=1000 parent=1 name=\"target\" result=Err(Errno(2))"]
+KERNEL_BACKEND redis cache=67108864
+[packed-native-kernel-read-diag] stage=fuse-lookup-child unique=6 parent=1 error=not found
+KERNEL_TRACE at=LookupStat change=Deny stat=false cache=67108864 old=401 new=402 status=exit status: 0 stdout={"errno": 2}
+ stderr= events=["getattr uid=1000 ino=1 fh=None result=Ok((1, 2))", "change LookupStat Deny error=None", "lookup uid=1000 parent=1 name=\"target\" result=Err(Errno(2))"]
+
+thread 'workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::lookup_stat_kernel_revalidates_without_userspace_retry' (316792) panicked at src/workspace/meta_layer/tests/enoent_f24_kernel_tests.rs:419:5:
+KERNEL_LOOKUP_STAT: ["cache=0 change=Replace stat=false: expected={\"ino\":402,\"nlink\":1} observed={\"errno\":2}", "cache=0 change=Replace stat=true: expected={\"ino\":402,\"nlink\":1} observed={\"errno\":2}", "cache=0 change=Deny stat=false: expected={\"errno\":13} observed={\"errno\":2}", "cache=67108864 change=Replace stat=false: expected={\"ino\":402,\"nlink\":1} observed={\"errno\":2}", "cache=67108864 change=Replace stat=true: expected={\"ino\":402,\"nlink\":1} observed={\"errno\":2}", "cache=67108864 change=Deny stat=false: expected={\"errno\":13} observed={\"errno\":2}"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    workspace::meta_layer::tests::packed_open_preparation_tests::enoent_f24_tests::kernel::lookup_stat_kernel_revalidates_without_userspace_retry
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3369 filtered out; finished in 1.21s
+
