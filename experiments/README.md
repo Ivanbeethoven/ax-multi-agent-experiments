@@ -4,6 +4,7 @@
 
 | 目录 | 内容 |
 |---|---|
+| [Overlay 热读复测](overlay-enoent-hotread-20261114/README.zh.md) | 并发替换修复前后与只读 lower；两文件和一万文件，各三次 |
 | [overlay-enoent-a355-20261114](overlay-enoent-a355-20261114/README.zh.md) | LOOKUP/GETATTR 并发替换；原版与修复版使用相同测试，Redis 和非 root FUSE 检查 |
 | [overlay-lease-cache-a355-20261114](overlay-lease-cache-a355-20261114/README.zh.md) | 租约有效期间保留元数据缓存；一万文件、61 秒消融、目录校验与实际 Redis 计数 |
 | [overlay-open-profile-a355-20261114](overlay-open-profile-a355-20261114/README.zh.md) | open/close 状态与调度优化；Redis 查询分解、并发回归及三对复测 |

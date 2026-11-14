@@ -1,0 +1,30 @@
+{
+  "source_commit": "fa630c33ed9691f66b09742ae695aecb0d666a0e",
+  "source_path": "/srv/ax-overlay-enoent-hotread-a331bb12ba/original-source",
+  "command": [
+    "cargo",
+    "--config",
+    "profile.release.package.brewfs.opt-level=3",
+    "build",
+    "--locked",
+    "--offline",
+    "--release",
+    "--no-default-features",
+    "--features",
+    "fuse-io-uring-runtime,workspace,native-packed-base,frozen-base-metadata,rustfs-ec-block-size-hint,observability",
+    "--jobs",
+    "12",
+    "--message-format=json-render-diagnostics",
+    "--bin",
+    "brewfs"
+  ],
+  "binaries": {
+    "brewfs": {
+      "path": "/srv/ax-overlay-enoent-hotread-a331bb12ba/results/before/brewfs",
+      "bytes": 403695848,
+      "rebuilt": true,
+      "compiler_source": "/srv/ax-overlay-enoent-hotread-a331bb12ba/original-source/src/main.rs"
+    }
+  },
+  "version": "\u001b[2m2026-11-14T11:50:57.509948Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[1;32mbrewfs::cli\u001b[0m\u001b[32m: \u001b[32mraised RLIMIT_NOFILE, \u001b[1;32msoft\u001b[0m\u001b[32m: 1048576, \u001b[1;32mhard\u001b[0m\u001b[32m: 1048576\u001b[0m\n    \u001b[2;3mat\u001b[0m src/cli.rs:196\n\nbrewfs 0.1.2\ncommit: unknown\ncommit_short: unknown\nbranch: unknown\ndirty: unknown\nbuilt: unix:1794655969"
+}
