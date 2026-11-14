@@ -131,8 +131,9 @@ def other_container_io(allowed):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ('before-source', 'after-source', 'out', 'toolchain', 'cargo-home'):
-        parser.add_argument('--' + name, type=Path, required=True)
+    for name in ('before-source', 'after-source', 'toolchain', 'cargo-home'):
+        parser.add_argument('--' + name, type=Path)
+    parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--redis-image', default='')
     parser.add_argument('--rustfs-image', required=True)
     parser.add_argument('--lock', type=Path, action='append', default=[])
@@ -141,18 +142,22 @@ def main():
     parser.add_argument('--allow-idle-container', action='append', default=[])
     parser.add_argument('--wait-idle-seconds', type=int, default=600)
     parser.add_argument('--reuse-builds', type=Path, help='Run measurements using a completed build directory')
+    parser.add_argument('--native', action='store_true', help='Compare both native paths using only the after build')
     args = parser.parse_args()
     if os.geteuid() != 0:
         parser.error('the isolated FUSE/RustFS test requires root')
+    if not args.reuse_builds and not all((args.before_source, args.after_source, args.toolchain, args.cargo_home)):
+        parser.error('a fresh build requires both source directories, the toolchain, and the Cargo cache')
     root = args.out.resolve()
     root.mkdir()
     scratch = root / 'scratch'
     scratch.mkdir()
     allowed = set(args.allow_idle_container)
     env = {key: value for key, value in os.environ.items() if not key.startswith('CARGO_PROFILE_')}
-    env.update(PATH=str(args.toolchain.resolve()) + ':' + os.environ['PATH'],
-               CARGO_HOME=str(args.cargo_home.resolve()), CARGO_NET_OFFLINE='true',
-               CARGO_INCREMENTAL='0', CARGO_PROFILE_RELEASE_DEBUG='0')
+    if not args.reuse_builds:
+        env.update(PATH=str(args.toolchain.resolve()) + ':' + os.environ['PATH'],
+                   CARGO_HOME=str(args.cargo_home.resolve()), CARGO_NET_OFFLINE='true',
+                   CARGO_INCREMENTAL='0', CARGO_PROFILE_RELEASE_DEBUG='0')
     try:
         with ExitStack() as stack:
             locks = ['/run/lock/ax-overlay-open-diagnostic.lock', *map(str, args.lock)]
@@ -171,16 +176,19 @@ def main():
                 for binary in ('redis-server', 'redis-cli'):
                     subprocess.run([binary, '--version'], check=True)
             for role, path in (('before', args.before_source), ('after', args.after_source)):
+                if role == 'before' and args.native:
+                    continue
                 if args.reuse_builds:
                     receipt = build_root / role / 'build.json'
                     prior = json.loads(receipt.read_text())
-                    assert Path(prior['source_path']) == path.resolve()
+                    if path:
+                        assert Path(prior['source_path']) == path.resolve()
                     out = root / role
                     out.mkdir()
                     shutil.copyfile(receipt, out / 'build.json')
                     for name, item in prior['binaries'].items():
                         binary = build_root / role / name
-                        assert Path(item['path']) == binary and binary.stat().st_size == item['bytes']
+                        assert binary.stat().st_size == item['bytes']
                 else:
                     build(role, path.resolve(), root, env, args.jobs)
             packages = Path(__file__).resolve().parents[1] / 'python-packages'
@@ -194,12 +202,16 @@ def main():
                      wait_idle(root, args.wait_idle_seconds, args.available_ram_gib, allowed))
                 before_io = other_container_io(allowed)
                 command = [sys.executable, str(Path(__file__).with_name('run.py')), '--fixture', fixture,
-                           '--before', str(build_root / 'before/brewfs'), '--after', str(build_root / 'after/brewfs'),
+                           '--before', str(build_root / ('after' if args.native else 'before') / 'brewfs'),
+                           '--after', str(build_root / 'after/brewfs'),
                            '--producer', str(build_root / 'after/packed_snapshot_fixture'),
-                           '--before-build', str(root / 'before/build.json'),
-                           '--after-build', str(root / 'after/build.json'), '--source-commit', VERSIONS['before'],
+                           '--before-build', str(root / ('after' if args.native else 'before') / 'build.json'),
+                           '--after-build', str(root / 'after/build.json'), '--source-commit',
+                           json.loads((root / ('after' if args.native else 'before') / 'build.json').read_text())['source_commit'],
                            '--redis-image', args.redis_image, '--rustfs-image', args.rustfs_image,
                            '--out', str(root / fixture)]
+                if args.native:
+                    command.append('--native')
                 save(root / (fixture + '-command.json'), command)
                 with (root / (fixture + '.log')).open('x') as log:
                     subprocess.run(command, env=measure_env, stdout=log, stderr=subprocess.STDOUT, check=True)

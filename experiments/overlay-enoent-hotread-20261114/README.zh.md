@@ -28,6 +28,25 @@ A366 有 128 个逻辑 CPU。开始前约有 245 GiB 可用内存和 664 GiB SSD
 
 [逐轮统计和阶段耗时](results/summary.json) · [两文件逐次记录](results/two-files-trials.ndjson.gz) · [一万文件逐次记录](results/many-files-10000-trials.ndjson.gz) · [修复前构建](results/before-build.json) · [修复后构建](results/after-build.json)
 
+## Native 对照
+
+用同一个修复版 BrewFS 比较两种可写卷：`native` 是直接挂载的 `flat` 卷；`native-overlay` 由 `workspace init-volume` 创建，数据写在工作区的可写层。两边都不使用 Packed。每组各运行三对，交替顺序。每个挂载独立导入相同文件，逐文件同步后正常卸载，再重新挂载并预热。导入、卸载和预热均不计时。
+
+两边使用 Redis、4 MiB 数据块和分块、256 MiB 客户端读内存、禁用读 SSD 缓存和预读、FUSE TTL 为 0，并通过 direct I/O 验证计时读操作到达 BrewFS。各挂载使用独立 Redis 数据库和对象桶。
+
+A672 有 104 个逻辑 CPU，测试开始前约有 118 GiB 可用内存和 755 GiB SSD 空余，无其他测试进程或容器。以下耗时为同一台机器上各路径三次运行的中位数：
+
+| 文件数 | native | native-overlay | native-overlay / native − 1 | 三对差值 |
+|---|---:|---:|---:|---|
+| 2 | 0.5665 秒 | 0.9303 秒 | +64.22% | +58.17%、+64.22%、+51.89% |
+| 10,000 | 25.6916 秒 | 23.3124 秒 | −9.26% | −13.24%、−7.57%、−1.55% |
+
+两文件组中，打开并列出目录的累计中位耗时由 144 ms 增至 425 ms。一万文件组的目录操作也更慢（393 ms → 1,829 ms），但 `pread` 的累计中位耗时减少了 3.25 秒（7.226 秒 → 3.976 秒）。这组对照衡量完整挂载路径的差别，包含两种元数据实现及其缓存行为。
+
+12 次计时均无对象读取。Redis 命令数中位数分别为 2 → 4,626 和 120,707 → 182,138；统计包含 Lua 内部执行的命令。A672 的 native 比较独立于 A366 的 Packed 比较。
+
+[逐轮统计](native-results/summary.json) · [两文件逐次记录](native-results/two-files-trials.ndjson.gz) · [一万文件逐次记录](native-results/many-files-10000-trials.ndjson.gz)
+
 ## 复测命令
 
 需要有充足空余内存和 SSD 空间的 Linux 机器、已安装的 Docker/FUSE/Redis、包含 boto3 的 Python 环境和离线 Cargo 依赖。先准备对照源码 `fa630c33ed9691f66b09742ae695aecb0d666a0e` 和修复源码 `187f62dd2dc820dfdab8148bf70419eb587befa1`。在测试机的仓库根目录运行：
@@ -44,3 +63,13 @@ python3 experiments/overlay-enoent-hotread-20261114/summarize.py /work/new-run/m
 ```
 
 `run_host.py` 分别构建两个版本的优化 release，记录命令和构建输出，并在两组测试前后记录资源占用。结果目录含每次挂载的原始调用耗时、配置、完整计数、执行顺序和服务退出状态。耗时开销按同组 `被测耗时 / 对照耗时 − 1` 计算，正值表示耗时增加。
+
+已有修复版构建时，可以直接复测两个 native 路径：
+
+```bash
+python3 experiments/overlay-enoent-hotread-20261114/run_host.py \
+  --native --reuse-builds /work/new-run --out /work/native-run \
+  --rustfs-image ax-idcai/rustfs:f4ed202508f2153afb7956bae6f7799b60eccd00
+python3 experiments/overlay-enoent-hotread-20261114/summarize_native.py /work/native-run/two-files
+python3 experiments/overlay-enoent-hotread-20261114/summarize_native.py /work/native-run/many-files-10000
+```

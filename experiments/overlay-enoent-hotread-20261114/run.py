@@ -23,7 +23,54 @@ def load(name, path, source):
     return runner
 
 
-def prepare(base, detail, redis_image, rustfs_image, fixture):
+def prepare_native(base, preflight=False):
+    start = base.index("                invoke([args.producer")
+    end = base.index("                data = dict", start)
+    base = base[:start] + base[end:]
+    start = base.index("                        if args.comparison == 'overlay-total':\n                            assert before_stats")
+    end = base.index("                        before_redis", start)
+    base = base[:start] + base[end:]
+    edits = (
+        ("if arm == 'native-overlay':\n        return dict(read_requests=",
+         "if arm in ('native', 'native-overlay'):\n        return dict(read_requests="),
+        ("                        temperatures = ('cold', 'warm')", "                        order = ('native', 'native-overlay') if pair % 2 == 0 else ('native-overlay', 'native')\n                        temperatures = ('cold', 'warm')"),
+        ("                        rurl = f'redis://127.0.0.1:{redis_port}/0'", """                        rurl = f"redis://127.0.0.1:{redis_port}/{2*pair + (1 if arm == 'native' else 2)}"
+                        native_bucket = f"{bucket}-{pair+1}-{'n' if arm == 'native' else 'w'}"
+                        s3.create_bucket(Bucket=native_bucket)
+                        data = dict(backend='s3', s3=dict(bucket=native_bucket, endpoint=endpoint, region='us-east-1',
+                                  force_path_style=True, rustfs_ec_block_size_hint='auto'))
+                        data_config.write_text(json.dumps({'data': data}))"""),
+        ("                        if arm != 'packed-direct':\n                            parent = json.loads",
+         "                        if arm == 'native-overlay':\n                            parent = json.loads"),
+        ("                        init = ['init-volume'] if arm == 'native-overlay' else ['init-packed-volume', '--manifest-key', manifest.read_text().strip()]",
+         "                        init = ['init-volume']"),
+        ("                            config = total_overlay_config(config, arm, manifest.read_text().strip())", """                            config['cache'].update(read_memory_bytes=256 << 20, read_ssd_bytes=0,
+                                prefetch_enabled=False, range_background_prefetch=False)
+                            config['layout']['chunk_size'] = 4 << 20
+                            if arm == 'native':
+                                config.update(volume_format='flat', volume={'format': 'flat'})
+                                config.pop('workspace')
+                                config.pop('workspace_namespace')"""),
+        ("                            if arm == 'native-overlay':\n                                (point / 'sub').mkdir()",
+         "                            if arm in ('native', 'native-overlay'):\n                                (point / 'sub').mkdir()"),
+        ("manifest_key=manifest.read_text().strip(), mount_format=config['volume_format'],",
+         "mount_format=config['volume_format'],"),
+        ("                            cell['manifest_key'] = manifest.read_text().strip()", "                            cell['fixture'] = scenario"),
+    )
+    for old, new in edits:
+        base = replace(base, old, new)
+    base = replace(base, "    assert args.pairs >= 3 and 1 <= args.passes <= 4096",
+                   f"    assert args.pairs >= {1 if preflight else 3} and 1 <= args.passes <= 4096")
+    base = replace(base, "            result.update(schema='overlay-version-total-v1',",
+                   "            result['total_settings'] = dict(fixture=args.total_fixture, temperatures='warm',\n"
+                   "                                          read_memory_bytes=256 << 20, upper_row_cache_bytes=64 << 20)\n"
+                   "            result.update(schema='native-workspace-flat-v1',")
+    base = replace(base, "comparison='baseline Overlay, candidate Overlay and standalone Packed; one immutable manifest and identical cache budgets'",
+                   "comparison='BrewFS workspace without Packed lower vs BrewFS flat; both writable, same binary and file contents'")
+    return base
+
+
+def prepare(base, detail, redis_image, rustfs_image, fixture, native=False, preflight=False):
     # Preserve the mount, byte-by-byte verification, timings and metrics from
     # the earlier comparison. Use build receipts for source/artifact records.
     start = base.index('\nREDIS = ')
@@ -106,6 +153,8 @@ def prepare(base, detail, redis_image, rustfs_image, fixture):
             if cleanup['redis_exit_code'] != 0:
                 result['passed'] = False
         for name in containers:""")
+    if native:
+        base = prepare_native(base, preflight)
     return base, detail
 
 
@@ -118,11 +167,19 @@ def main():
     parser.add_argument('--redis-image', default='', help='Use the installed redis-server if omitted')
     parser.add_argument('--fixture', choices=('two-files', 'many-files-10000'), required=True)
     parser.add_argument('--pairs', type=int, default=3)
+    parser.add_argument('--native', action='store_true')
+    parser.add_argument('--preflight', action='store_true')
     args = parser.parse_args()
+    if args.preflight and (not args.native or args.fixture != 'two-files'):
+        parser.error('--preflight requires the two-file native comparison')
+    if args.native and args.before.resolve() != args.after.resolve():
+        parser.error('native and native-overlay must use the same BrewFS executable')
+    if not (1 if args.preflight else 3) <= args.pairs <= 7 and args.native:
+        parser.error('native comparison requires three to seven pairs, or a one-pair preflight')
     fixture = args.fixture
     large = fixture == 'many-files-10000'
     base, detail = prepare(BASE.read_text(encoding='utf-8'), DETAIL.read_text(encoding='utf-8'),
-                           args.redis_image, args.rustfs_image, fixture)
+                           args.redis_image, args.rustfs_image, fixture, args.native, args.preflight)
     runner = load('hotread_runner', BASE, base)
     stats = load('hotread_timing', DETAIL, detail)
     from run_host import processes
@@ -164,7 +221,7 @@ def main():
                 '--cache-state', 'on', '--metadata-sync', 'remote', '--pairs', str(args.pairs),
                 '--comparison', 'overlay-total', '--object-meter', 'client',
                 '--total-temperatures', 'warm', '--total-lower-build', 'candidate',
-                '--total-row-cache-bytes', str(64 << 20), '--passes', '2' if large else '256',
+                '--total-row-cache-bytes', str(64 << 20), '--passes', '2' if large or args.preflight else '256',
                 '--total-fixture', 'many10000' if large else 'standard',
                 '--total-payload-cache-bytes', str((64 if large else 8) << 20)]
     runner.main()
