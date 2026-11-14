@@ -1,0 +1,517 @@
+{
+  "schema": "ax-c3-roomy-summary-v1",
+  "run": "ax-four-0ee20917f05d",
+  "formal_sample": false,
+  "passed_cases": 2,
+  "expected_cases": 2,
+  "matched_input_profile_and_binaries": true,
+  "all_passed": true,
+  "cases": [
+    {
+      "arm": "brewfs-workspace",
+      "finished": true,
+      "passed": true,
+      "phase": "complete",
+      "error": null,
+      "receipt_sha256": "4139786b37548345279eff6b9269ecb30e0622d9e7fba709106f6e7070f48ca9",
+      "input_manifest_sha256": "d37204ae014ff9ba23754d663cf63a9b48b1d291e482f9567a59449d5064f0db",
+      "binary_sha256": {
+        "brewfs": "c8ed65dc8a67f14bdc5bb71bf5a2d35ac51e72075091ae9c3ebebc84f79691d1",
+        "producer": "4557ed4da4d8dcb4113476d74823261bd08f64d2be16de464e7e213c95589802",
+        "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+        "smallfiles": "d83c345374a6f8f858239db75991b4faec85701be8ffa7409d7dfda8037c0795"
+      },
+      "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+      "verify-base": {
+        "passed": true,
+        "completed": true,
+        "files": 100000,
+        "bytes_checked": 409600000,
+        "touched_files": 0,
+        "workspace": 1,
+        "workers": 16,
+        "full_namespace": true,
+        "modes_owners_links": true,
+        "wall_seconds": 206.515667194,
+        "source_sha256": "cdb4f7459c0c681678ff44b847ccca401bfff457cea22cf6a3f9d50df4339edf"
+      },
+      "run": {
+        "completed": true,
+        "passed": true,
+        "files": 100000,
+        "seed": 9173,
+        "workspace": 1,
+        "workers": 8,
+        "hot_files": 1024,
+        "cow_files": 256,
+        "read_ops": 8192,
+        "write_ops": 256,
+        "mixed_ops": 1024,
+        "verified_reads": 20224,
+        "writes": 768,
+        "actual_read_bytes": 82837504,
+        "actual_write_bytes": 3145728,
+        "wall_seconds": 89.271124196,
+        "phases": [
+          {
+            "phase": "cold-read",
+            "reads": 8192,
+            "writes": 0,
+            "read_bytes": 33554432,
+            "write_bytes": 0,
+            "wall_seconds": 37.678500668,
+            "io_p50_ns": 32827029,
+            "io_p95_ns": 78316291,
+            "io_p99_ns": 101433877,
+            "application_p99_ns": 101436813
+          },
+          {
+            "phase": "lower-prewarm",
+            "reads": 2048,
+            "writes": 0,
+            "read_bytes": 8388608,
+            "write_bytes": 0,
+            "wall_seconds": 9.859778075,
+            "io_p50_ns": 33756704,
+            "io_p95_ns": 80019370,
+            "io_p99_ns": 103212638,
+            "application_p99_ns": 103215603
+          },
+          {
+            "phase": "hot-read",
+            "reads": 8192,
+            "writes": 0,
+            "read_bytes": 33554432,
+            "write_bytes": 0,
+            "wall_seconds": 36.438803735,
+            "io_p50_ns": 31515867,
+            "io_p95_ns": 75334058,
+            "io_p99_ns": 97909248,
+            "application_p99_ns": 97912395
+          },
+          {
+            "phase": "cow",
+            "reads": 0,
+            "writes": 256,
+            "read_bytes": 0,
+            "write_bytes": 1048576,
+            "wall_seconds": 1.278311661,
+            "io_p50_ns": 37586249,
+            "io_p95_ns": 47192861,
+            "io_p99_ns": 86493871,
+            "application_p99_ns": 86497869
+          },
+          {
+            "phase": "upper-prewarm",
+            "reads": 512,
+            "writes": 0,
+            "read_bytes": 2097152,
+            "write_bytes": 0,
+            "wall_seconds": 0.268118757,
+            "io_p50_ns": 3882031,
+            "io_p95_ns": 6233985,
+            "io_p99_ns": 6907294,
+            "application_p99_ns": 6910310
+          },
+          {
+            "phase": "hot-write",
+            "reads": 0,
+            "writes": 256,
+            "read_bytes": 0,
+            "write_bytes": 1048576,
+            "wall_seconds": 1.484735352,
+            "io_p50_ns": 45181569,
+            "io_p95_ns": 54138807,
+            "io_p99_ns": 57689103,
+            "application_p99_ns": 57692079
+          },
+          {
+            "phase": "upper-rewarm",
+            "reads": 512,
+            "writes": 0,
+            "read_bytes": 2097152,
+            "write_bytes": 0,
+            "wall_seconds": 0.268669419,
+            "io_p50_ns": 3677543,
+            "io_p95_ns": 6392299,
+            "io_p99_ns": 6920910,
+            "application_p99_ns": 6923965
+          },
+          {
+            "phase": "mixed",
+            "reads": 768,
+            "writes": 256,
+            "read_bytes": 3145728,
+            "write_bytes": 1048576,
+            "wall_seconds": 1.984974232,
+            "io_p50_ns": 8562735,
+            "io_p95_ns": 44186263,
+            "io_p99_ns": 48985026,
+            "application_p99_ns": 48986849
+          }
+        ],
+        "remote_durability_verified": false,
+        "source_sha256": "bf5acf84b27c5158227bdab45cb62ff8f0fd62275a2dd44c42b4f9e0371c1256"
+      },
+      "verify-touched": {
+        "passed": true,
+        "completed": true,
+        "files": 100000,
+        "bytes_checked": 409600000,
+        "touched_files": 256,
+        "workspace": 1,
+        "workers": 16,
+        "full_namespace": true,
+        "modes_owners_links": true,
+        "wall_seconds": 213.613056046,
+        "source_sha256": "4495981f0aa5d272cf28ce53feb9c5f61aa9d0a101fe5afdeda8a9052090324a"
+      },
+      "mount_cache": {
+        "initial": {
+          "profile": "roomy-v1",
+          "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+          "product": "brewfs",
+          "memory_scope": {
+            "path": "/sys/fs/cgroup/system.slice/ax-four-0ee20917f05d-c3-brewfs-workspace.scope",
+            "memory.max": "34359738368",
+            "memory.swap.max": "0",
+            "memory.current": "226795520"
+          },
+          "disk_cache_total_bytes": 68719476736,
+          "cache": {
+            "cache_root": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-0ee20917f05d/c3-brewfs-workspace-qualification.scratch/ax-rbm-11610b54b8e4-6x_bt9y3/initial-roomy-cache",
+            "writeback_mode": "upload_before_commit",
+            "read_memory_bytes": 8589934592,
+            "write_memory_bytes": 2147483648,
+            "memory_budget_bytes": 2147483648,
+            "read_ssd_bytes": 34359738368,
+            "write_ssd_bytes": 17179869184,
+            "packed_cache_bytes": 17179869184,
+            "packed_cache": "on"
+          },
+          "budget_environment": {
+            "BREWFS_PACKED_METADATA_CACHE_BYTES": "1073741824",
+            "BREWFS_PACKED_ROOTS_BUDGET_BYTES": "67108864",
+            "BREWFS_PACKED_METADATA_OWNED_BUDGET_BYTES": "2147483648",
+            "BREWFS_PACKED_PLANS_BUDGET_BYTES": "268435456",
+            "BREWFS_PACKED_CONTROL_BUDGET_BYTES": "67108864",
+            "BREWFS_PACKED_STORED_BUDGET_BYTES": "268435456",
+            "BREWFS_PACKED_RAW_BUDGET_BYTES": "536870912",
+            "BREWFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": "134217728",
+            "BREWFS_PACKED_OUTPUT_BUDGET_BYTES": "536870912"
+          },
+          "disk_free_before_bytes": 803672219648,
+          "mount_config_sha256": "bbbd0640b5fd23a13489f4fe21785ee45062446e04f1da055ab5b6f19acefcf1"
+        },
+        "reopen": {
+          "profile": "roomy-v1",
+          "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+          "product": "brewfs",
+          "memory_scope": {
+            "path": "/sys/fs/cgroup/system.slice/ax-four-0ee20917f05d-c3-brewfs-workspace.scope",
+            "memory.max": "34359738368",
+            "memory.swap.max": "0",
+            "memory.current": "453435392"
+          },
+          "disk_cache_total_bytes": 68719476736,
+          "cache": {
+            "cache_root": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-0ee20917f05d/c3-brewfs-workspace-qualification.scratch/ax-rbm-11610b54b8e4-6x_bt9y3/reopen-roomy-cache",
+            "writeback_mode": "upload_before_commit",
+            "read_memory_bytes": 8589934592,
+            "write_memory_bytes": 2147483648,
+            "memory_budget_bytes": 2147483648,
+            "read_ssd_bytes": 34359738368,
+            "write_ssd_bytes": 17179869184,
+            "packed_cache_bytes": 17179869184,
+            "packed_cache": "on"
+          },
+          "budget_environment": {
+            "BREWFS_PACKED_METADATA_CACHE_BYTES": "1073741824",
+            "BREWFS_PACKED_ROOTS_BUDGET_BYTES": "67108864",
+            "BREWFS_PACKED_METADATA_OWNED_BUDGET_BYTES": "2147483648",
+            "BREWFS_PACKED_PLANS_BUDGET_BYTES": "268435456",
+            "BREWFS_PACKED_CONTROL_BUDGET_BYTES": "67108864",
+            "BREWFS_PACKED_STORED_BUDGET_BYTES": "268435456",
+            "BREWFS_PACKED_RAW_BUDGET_BYTES": "536870912",
+            "BREWFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": "134217728",
+            "BREWFS_PACKED_OUTPUT_BUDGET_BYTES": "536870912"
+          },
+          "disk_free_before_bytes": 803447160832,
+          "mount_config_sha256": "ab0a18ce06e8790f376737178e52e12a15401f5324065392cd7a29d2a64569ec"
+        }
+      },
+      "native_capacities": {
+        "initial": {
+          "passed": true,
+          "expected": {
+            "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+            "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+            "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+            "brewfs_packed_budget_control_capacity_bytes": "67108864",
+            "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+            "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+            "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+            "brewfs_packed_budget_output_capacity_bytes": "536870912"
+          },
+          "actual": {
+            "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+            "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+            "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+            "brewfs_packed_budget_control_capacity_bytes": "67108864",
+            "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+            "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+            "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+            "brewfs_packed_budget_output_capacity_bytes": "536870912"
+          },
+          "native_stats_sha256": "18babc2a507fdd504c4049de40a5e6865676ebb356c6c85d527c4362b6524393"
+        },
+        "reopen": {
+          "passed": true,
+          "expected": {
+            "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+            "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+            "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+            "brewfs_packed_budget_control_capacity_bytes": "67108864",
+            "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+            "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+            "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+            "brewfs_packed_budget_output_capacity_bytes": "536870912"
+          },
+          "actual": {
+            "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+            "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+            "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+            "brewfs_packed_budget_control_capacity_bytes": "67108864",
+            "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+            "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+            "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+            "brewfs_packed_budget_output_capacity_bytes": "536870912"
+          },
+          "native_stats_sha256": "9e440a66f40b5fd539ef29a30dfeb56cc1332db6d97b0394a227f72f57cdb0ab"
+        }
+      }
+    },
+    {
+      "arm": "juicefs",
+      "finished": true,
+      "passed": true,
+      "phase": "complete",
+      "error": null,
+      "receipt_sha256": "ff06cfa08412ecb7b6280afcc7b0c4216e9b774ad51f882545e1703a7de20db5",
+      "input_manifest_sha256": "d37204ae014ff9ba23754d663cf63a9b48b1d291e482f9567a59449d5064f0db",
+      "binary_sha256": {
+        "brewfs": "c8ed65dc8a67f14bdc5bb71bf5a2d35ac51e72075091ae9c3ebebc84f79691d1",
+        "producer": "4557ed4da4d8dcb4113476d74823261bd08f64d2be16de464e7e213c95589802",
+        "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+        "smallfiles": "d83c345374a6f8f858239db75991b4faec85701be8ffa7409d7dfda8037c0795"
+      },
+      "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+      "verify-base": {
+        "passed": true,
+        "completed": true,
+        "files": 100000,
+        "bytes_checked": 409600000,
+        "touched_files": 0,
+        "workspace": 1,
+        "workers": 16,
+        "full_namespace": true,
+        "modes_owners_links": true,
+        "wall_seconds": 40.211342098,
+        "source_sha256": "ed50cd655e7b3667cc5c5735be19d05086eea1a2672fb0f0bb20cc272e5536cf"
+      },
+      "run": {
+        "completed": true,
+        "passed": true,
+        "files": 100000,
+        "seed": 9173,
+        "workspace": 1,
+        "workers": 8,
+        "hot_files": 1024,
+        "cow_files": 256,
+        "read_ops": 8192,
+        "write_ops": 256,
+        "mixed_ops": 1024,
+        "verified_reads": 20224,
+        "writes": 768,
+        "actual_read_bytes": 82837504,
+        "actual_write_bytes": 3145728,
+        "wall_seconds": 12.190684163,
+        "phases": [
+          {
+            "phase": "cold-read",
+            "reads": 8192,
+            "writes": 0,
+            "read_bytes": 33554432,
+            "write_bytes": 0,
+            "wall_seconds": 3.45882704,
+            "io_p50_ns": 3339064,
+            "io_p95_ns": 3850253,
+            "io_p99_ns": 4439265,
+            "application_p99_ns": 4441890
+          },
+          {
+            "phase": "lower-prewarm",
+            "reads": 2048,
+            "writes": 0,
+            "read_bytes": 8388608,
+            "write_bytes": 0,
+            "wall_seconds": 0.768832284,
+            "io_p50_ns": 2873271,
+            "io_p95_ns": 3738576,
+            "io_p99_ns": 4408158,
+            "application_p99_ns": 4410923
+          },
+          {
+            "phase": "hot-read",
+            "reads": 8192,
+            "writes": 0,
+            "read_bytes": 33554432,
+            "write_bytes": 0,
+            "wall_seconds": 3.118995625,
+            "io_p50_ns": 2992341,
+            "io_p95_ns": 3549545,
+            "io_p99_ns": 4101629,
+            "application_p99_ns": 4104424
+          },
+          {
+            "phase": "cow",
+            "reads": 0,
+            "writes": 256,
+            "read_bytes": 0,
+            "write_bytes": 1048576,
+            "wall_seconds": 1.229205815,
+            "io_p50_ns": 46854453,
+            "io_p95_ns": 52305064,
+            "io_p99_ns": 53503558,
+            "application_p99_ns": 53506634
+          },
+          {
+            "phase": "upper-prewarm",
+            "reads": 512,
+            "writes": 0,
+            "read_bytes": 2097152,
+            "write_bytes": 0,
+            "wall_seconds": 0.230888548,
+            "io_p50_ns": 3527183,
+            "io_p95_ns": 4949603,
+            "io_p99_ns": 5213342,
+            "application_p99_ns": 5216397
+          },
+          {
+            "phase": "hot-write",
+            "reads": 0,
+            "writes": 256,
+            "read_bytes": 0,
+            "write_bytes": 1048576,
+            "wall_seconds": 1.400756551,
+            "io_p50_ns": 48219755,
+            "io_p95_ns": 57837488,
+            "io_p99_ns": 77247627,
+            "application_p99_ns": 77250843
+          },
+          {
+            "phase": "upper-rewarm",
+            "reads": 512,
+            "writes": 0,
+            "read_bytes": 2097152,
+            "write_bytes": 0,
+            "wall_seconds": 0.267473298,
+            "io_p50_ns": 3889395,
+            "io_p95_ns": 6121536,
+            "io_p99_ns": 7106654,
+            "application_p99_ns": 7109700
+          },
+          {
+            "phase": "mixed",
+            "reads": 768,
+            "writes": 256,
+            "read_bytes": 3145728,
+            "write_bytes": 1048576,
+            "wall_seconds": 1.7087273079999998,
+            "io_p50_ns": 4707654,
+            "io_p95_ns": 47984760,
+            "io_p99_ns": 52934232,
+            "application_p99_ns": 52936777
+          }
+        ],
+        "remote_durability_verified": false,
+        "source_sha256": "982f208dbcd55ba6d0dd344ec7780e2e65b89374441a5f0a5421b1fe08d3a20b"
+      },
+      "verify-touched": {
+        "passed": true,
+        "completed": true,
+        "files": 100000,
+        "bytes_checked": 409600000,
+        "touched_files": 256,
+        "workspace": 1,
+        "workers": 16,
+        "full_namespace": true,
+        "modes_owners_links": true,
+        "wall_seconds": 73.896668371,
+        "source_sha256": "2011d86c6ec4046ad9713f051ff6aa904046c32c5807071786cb704ef64aa2ae"
+      },
+      "mount_cache": {
+        "initial": {
+          "profile": "roomy-v1",
+          "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+          "product": "juicefs",
+          "memory_scope": {
+            "path": "/sys/fs/cgroup/system.slice/ax-four-0ee20917f05d-c3-juicefs.scope",
+            "memory.max": "34359738368",
+            "memory.swap.max": "0",
+            "memory.current": "220491776"
+          },
+          "disk_cache_total_bytes": 68719476736,
+          "mount_cache_options": {
+            "--cache-dir": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-0ee20917f05d/c3-juicefs-qualification.scratch/ax-rbm-5f5e1ed7a462-hpgauuul/initial-roomy-cache",
+            "--cache-size": "65536",
+            "--buffer-size": "12288",
+            "--attr-cache": "0",
+            "--entry-cache": "0",
+            "--dir-entry-cache": "0",
+            "--open-cache": "0",
+            "--prefetch": "1",
+            "--max-readahead": "128",
+            "--cache-large-write": "true",
+            "--verify-cache-checksum": "full",
+            "--backup-meta": "0"
+          },
+          "writeback": false,
+          "disk_free_before_bytes": 803514257408
+        },
+        "reopen": {
+          "profile": "roomy-v1",
+          "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+          "product": "juicefs",
+          "memory_scope": {
+            "path": "/sys/fs/cgroup/system.slice/ax-four-0ee20917f05d-c3-juicefs.scope",
+            "memory.max": "34359738368",
+            "memory.swap.max": "0",
+            "memory.current": "1309274112"
+          },
+          "disk_cache_total_bytes": 68719476736,
+          "mount_cache_options": {
+            "--cache-dir": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-0ee20917f05d/c3-juicefs-qualification.scratch/ax-rbm-5f5e1ed7a462-hpgauuul/reopen-roomy-cache",
+            "--cache-size": "65536",
+            "--buffer-size": "12288",
+            "--attr-cache": "0",
+            "--entry-cache": "0",
+            "--dir-entry-cache": "0",
+            "--open-cache": "0",
+            "--prefetch": "1",
+            "--max-readahead": "128",
+            "--cache-large-write": "true",
+            "--verify-cache-checksum": "full",
+            "--backup-meta": "0"
+          },
+          "writeback": false,
+          "disk_free_before_bytes": 802651271168
+        }
+      }
+    }
+  ],
+  "metric_scope": "Workload bytes are application bytes. Backend network and disk samples are separate raw evidence.",
+  "cache_state_note": "Fresh mount directories precede full base verification. That verification warms caches before the operation phase; the native phase label cold-read does not prove a cold cache. The separate full remount verification begins with a fresh client cache.",
+  "durability_note": "The operation tool alone does not certify remote durability. Full cold remount content and metadata verification is required.",
+  "summary_script_sha256": "ab99ba1d32bcbdd3fa8163a921999c453cbfb3bd1a6ade3c6917a280d2b967cc"
+}

@@ -1,0 +1,174 @@
+{
+  "schema": "ax-idcai-layout-summary-v1",
+  "passed_profiles": 3,
+  "planned_profiles": 3,
+  "formal_sample": false,
+  "scope": "Stored B/q geometry and full/range GET correctness; timings are single qualification observations, not repeated performance comparisons.",
+  "profiles": [
+    {
+      "profile": "perf-enabled",
+      "run": "ax-four-e6938e145354",
+      "passed": true,
+      "input_sha256": "ffd3c0b68b636cedbcccb7d077fa535b976b4670e37fe3f167a0958bcefd574d",
+      "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+      "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+      "result_sha256": "365123eba150d2bb0bf505f51558b393b240ce50449c0d486d9dbb62b2e78053",
+      "full_reads": 5,
+      "range_reads": 25,
+      "shards": 20,
+      "objects": [
+        {
+          "object": "object-default",
+          "requested_block_bytes": null,
+          "persisted_block_bytes": 1048576,
+          "persisted_quantum_bytes": "262144",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.14389299000000003
+        },
+        {
+          "object": "object-65536",
+          "requested_block_bytes": 65536,
+          "persisted_block_bytes": 65536,
+          "persisted_quantum_bytes": "16384",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.09632100199999999
+        },
+        {
+          "object": "object-262144",
+          "requested_block_bytes": 262144,
+          "persisted_block_bytes": 262144,
+          "persisted_quantum_bytes": "65536",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.09242592300000001
+        },
+        {
+          "object": "object-1048576",
+          "requested_block_bytes": 1048576,
+          "persisted_block_bytes": 1048576,
+          "persisted_quantum_bytes": "262144",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.119803523
+        },
+        {
+          "object": "object-4194304",
+          "requested_block_bytes": 4194304,
+          "persisted_block_bytes": 4194304,
+          "persisted_quantum_bytes": "1048576",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.151334377
+        }
+      ],
+      "source": "C:\\Users\\HXY\\Documents\\Codex\\2026-10-22\\https-www-usenix-org-conferences-author\\work\\osdi2027\\planning\\idcai-20261113\\receipts\\ax-four-e6938e145354\\c1-layout-result.json"
+    },
+    {
+      "profile": "perf-disabled",
+      "run": "ax-four-d0a21112fcce",
+      "passed": true,
+      "input_sha256": "ffd3c0b68b636cedbcccb7d077fa535b976b4670e37fe3f167a0958bcefd574d",
+      "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+      "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+      "result_sha256": "848f5758321b64858b93c1cc2d0848280a0f12ec8c427d61a40e643731d26daf",
+      "full_reads": 5,
+      "range_reads": 25,
+      "shards": 20,
+      "objects": [
+        {
+          "object": "object-default",
+          "requested_block_bytes": null,
+          "persisted_block_bytes": 1048576,
+          "persisted_quantum_bytes": "absent",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.133007076
+        },
+        {
+          "object": "object-65536",
+          "requested_block_bytes": 65536,
+          "persisted_block_bytes": 1048576,
+          "persisted_quantum_bytes": "absent",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.13961045800000002
+        },
+        {
+          "object": "object-262144",
+          "requested_block_bytes": 262144,
+          "persisted_block_bytes": 1048576,
+          "persisted_quantum_bytes": "absent",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.129249945
+        },
+        {
+          "object": "object-1048576",
+          "requested_block_bytes": 1048576,
+          "persisted_block_bytes": 1048576,
+          "persisted_quantum_bytes": "absent",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.119126975
+        },
+        {
+          "object": "object-4194304",
+          "requested_block_bytes": 4194304,
+          "persisted_block_bytes": 1048576,
+          "persisted_quantum_bytes": "absent",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.11871466800000001
+        }
+      ],
+      "source": "C:\\Users\\HXY\\Documents\\Codex\\2026-10-22\\https-www-usenix-org-conferences-author\\work\\osdi2027\\planning\\idcai-c3c4-20261113\\receipts\\ax-four-d0a21112fcce\\c1-layout-result.json"
+    },
+    {
+      "profile": "perf-block-only",
+      "run": "ax-four-6d8706c56209",
+      "passed": true,
+      "input_sha256": "ffd3c0b68b636cedbcccb7d077fa535b976b4670e37fe3f167a0958bcefd574d",
+      "source_commit": "f4ed202508f2153afb7956bae6f7799b60eccd00",
+      "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+      "result_sha256": "4eae715f174cd05bcfb60ddc240821a89cd03c00efb067ac8c9854b8902799ea",
+      "full_reads": 5,
+      "range_reads": 25,
+      "shards": 20,
+      "objects": [
+        {
+          "object": "object-default",
+          "requested_block_bytes": null,
+          "persisted_block_bytes": 1048576,
+          "persisted_quantum_bytes": "absent",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.12157996500000001
+        },
+        {
+          "object": "object-65536",
+          "requested_block_bytes": 65536,
+          "persisted_block_bytes": 65536,
+          "persisted_quantum_bytes": "absent",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.105750745
+        },
+        {
+          "object": "object-262144",
+          "requested_block_bytes": 262144,
+          "persisted_block_bytes": 262144,
+          "persisted_quantum_bytes": "absent",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.09958342199999999
+        },
+        {
+          "object": "object-1048576",
+          "requested_block_bytes": 1048576,
+          "persisted_block_bytes": 1048576,
+          "persisted_quantum_bytes": "absent",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.11168721
+        },
+        {
+          "object": "object-4194304",
+          "requested_block_bytes": 4194304,
+          "persisted_block_bytes": 4194304,
+          "persisted_quantum_bytes": "absent",
+          "returned_bytes": 5263483.0,
+          "request_seconds": 0.20602959799999998
+        }
+      ],
+      "source": "C:\\Users\\HXY\\Documents\\Codex\\2026-10-22\\https-www-usenix-org-conferences-author\\work\\osdi2027\\planning\\idcai-c3c4-20261113\\receipts\\ax-four-6d8706c56209\\c1-layout-result.json"
+    }
+  ]
+}

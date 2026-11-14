@@ -1,0 +1,16 @@
+{
+  "source": "Author-supplied replacement table, 2026-11-13",
+  "scope": "Only EC 12+4, as explicitly requested by the author",
+  "platform": "Aliyun ecs.i5.16xlarge",
+  "baseline": "RustFS 1.0.5-preview.1, fixed 1 MiB coding blocks",
+  "percent_basis": "Changes calculated from the displayed MiB/s and latency values",
+  "rows": [
+    {"size":"4KiB", "base_mib_s":10.85, "hint256_mib_s":13.63, "hint64_mib_s":14.02, "base_req_s":2777.6, "hint256_req_s":3488.8, "hint64_req_s":3590.1, "hint256_gain":25.6, "hint64_gain":29.2, "base_p50_ms":21.6, "base_p99_ms":33.8, "hint64_p50_ms":17.7, "hint64_p99_ms":25.8, "p50_change":-18.1, "p99_change":-23.7},
+    {"size":"16KiB", "base_mib_s":44.90, "hint256_mib_s":54.28, "hint64_mib_s":55.71, "base_req_s":2873.9, "hint256_req_s":3473.7, "hint64_req_s":3565.2, "hint256_gain":20.9, "hint64_gain":24.1, "base_p50_ms":21.8, "base_p99_ms":34.5, "hint64_p50_ms":17.8, "hint64_p99_ms":26.0, "p50_change":-18.3, "p99_change":-24.6},
+    {"size":"32KiB", "base_mib_s":91.08, "hint256_mib_s":107.67, "hint64_mib_s":110.65, "base_req_s":2914.5, "hint256_req_s":3445.4, "hint64_req_s":3540.8, "hint256_gain":18.2, "hint64_gain":21.5, "base_p50_ms":21.6, "base_p99_ms":33.2, "hint64_p50_ms":17.9, "hint64_p99_ms":26.0, "p50_change":-17.1, "p99_change":-21.7},
+    {"size":"64KiB", "base_mib_s":185.45, "hint256_mib_s":212.05, "hint64_mib_s":218.43, "base_req_s":2967.2, "hint256_req_s":3392.8, "hint64_req_s":3494.9, "hint256_gain":14.3, "hint64_gain":17.8, "base_p50_ms":21.4, "base_p99_ms":31.2, "hint64_p50_ms":18.2, "hint64_p99_ms":26.2, "p50_change":-15.0, "p99_change":-16.0},
+    {"size":"128KiB", "base_mib_s":365.47, "hint256_mib_s":411.57, "hint64_mib_s":423.62, "base_req_s":2923.7, "hint256_req_s":3292.5, "hint64_req_s":3388.9, "hint256_gain":12.6, "hint64_gain":15.9, "base_p50_ms":21.7, "base_p99_ms":31.7, "hint64_p50_ms":18.7, "hint64_p99_ms":27.3, "p50_change":-13.8, "p99_change":-13.9},
+    {"size":"256KiB", "base_mib_s":703.05, "hint256_mib_s":791.68, "hint64_mib_s":807.52, "base_req_s":2812.2, "hint256_req_s":3166.7, "hint64_req_s":3230.1, "hint256_gain":12.6, "hint64_gain":14.9, "base_p50_ms":22.6, "base_p99_ms":33.1, "hint64_p50_ms":19.6, "hint64_p99_ms":28.5, "p50_change":-13.3, "p99_change":-13.9},
+    {"size":"1MiB", "base_mib_s":2207.20, "hint256_mib_s":2469.48, "hint64_mib_s":2481.17, "base_req_s":2207.2, "hint256_req_s":2469.5, "hint64_req_s":2481.2, "hint256_gain":11.9, "hint64_gain":12.4, "base_p50_ms":28.7, "base_p99_ms":43.6, "hint64_p50_ms":25.5, "hint64_p99_ms":37.7, "p50_change":-11.2, "p99_change":-13.5}
+  ]
+}

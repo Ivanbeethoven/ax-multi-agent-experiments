@@ -1,0 +1,170 @@
+{
+  "run": "ax-four-5c6abaf21766",
+  "schema": "ax-idcai-c1-summary-v1",
+  "formal_sample": false,
+  "selection": {
+    "schema": "ax-idcai-c1-selection-v1",
+    "cases": [
+      [
+        "randrw",
+        "brewfs"
+      ]
+    ]
+  },
+  "expected_cases": 1,
+  "finished_cases": 1,
+  "passed_cases": 1,
+  "all_passed": true,
+  "metric_scope": "Native fio application bytes, IOPS, bandwidth and completion latency; sync latency is separate. Measurement timing excludes later drain/cold verification. Failed cold checks do not qualify.",
+  "cases": [
+    {
+      "mode": "randrw",
+      "product": "brewfs",
+      "finished": true,
+      "passed": true,
+      "eligible_for_formal_performance": false,
+      "cold_verified": true,
+      "native_zero_debt": {
+        "prepare": true,
+        "measure": true,
+        "verify": true
+      },
+      "error": null,
+      "detail": null,
+      "verify_exit_code": 0,
+      "measure_wrapper_seconds": 80.99135288900288,
+      "measure_application_bytes": 67108864,
+      "cold_verify_wrapper_seconds": 2.3696111449971795,
+      "cold_verify_application_bytes": 67108864,
+      "fio_params": {
+        "rw": "randrw",
+        "file_bytes_per_job": 67108864,
+        "io_bytes_per_job": 67108864,
+        "block_bytes": 4096,
+        "numjobs": 1,
+        "ioengine": "psync",
+        "iodepth": 1,
+        "time_based": false,
+        "direct": false,
+        "fsync_every_write": true,
+        "rwmixread": 75,
+        "cache_state": "client-cold"
+      },
+      "source": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-5c6abaf21766/c1-randrw-brewfs-qualification",
+      "references": {
+        "trial.json": {
+          "sha256": "748381243a749aa6b65a22768623497cb1983312570fbd3fc4171b6f34be8f58",
+          "bytes": 3883
+        },
+        "measure/result.json": {
+          "sha256": "356f7eaa61cab71586172282b71b7be904a61dd82ff5bf7a3f143b91523c6e4c",
+          "bytes": 22961
+        },
+        "measure/fio.json": {
+          "sha256": "a0994f17bb329e005b5e8d4ca8dd13a752f81ffff0d8da121ba42f2f32251772",
+          "bytes": 23963
+        },
+        "verify/result.json": {
+          "sha256": "67284536b49cbd03efaac6d172d483f04ae2de14d33486055da7f3a463634c2d",
+          "bytes": 11841
+        },
+        "verify/fio.json": {
+          "sha256": "80c5094c7072f70192df89f3d314544243e2d7d19cfe10a11b3b426c46b4f44e",
+          "bytes": 12489
+        },
+        "verify/exit.json": {
+          "sha256": "44ff67fc2f0adad0535086a7ecde0dcb77cd0150436e9639a5b55b800df3eeeb",
+          "bytes": 59
+        },
+        "verify/stderr.log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "fio_job_runtime_ms": 80631,
+      "fio": {
+        "read": {
+          "io_bytes": 50479104,
+          "total_ios": 12324,
+          "iops": 152.842544,
+          "bw_bytes": 626043,
+          "runtime": 80632,
+          "latency_mean_ns": 451109.577978,
+          "latency_percentiles_ns": {
+            "1.000000": 142336,
+            "5.000000": 168960,
+            "10.000000": 179200,
+            "20.000000": 197632,
+            "30.000000": 209920,
+            "40.000000": 218112,
+            "50.000000": 224256,
+            "60.000000": 230400,
+            "70.000000": 309248,
+            "80.000000": 493568,
+            "90.000000": 585728,
+            "95.000000": 1499136,
+            "99.000000": 2039808,
+            "99.500000": 2211840,
+            "99.900000": 47972352,
+            "99.950000": 55836672,
+            "99.990000": 56885248
+          }
+        },
+        "write": {
+          "io_bytes": 16629760,
+          "total_ios": 4060,
+          "iops": 50.352217,
+          "bw_bytes": 206242,
+          "runtime": 80632,
+          "latency_mean_ns": 969839.424877,
+          "latency_percentiles_ns": {
+            "1.000000": 708608,
+            "5.000000": 774144,
+            "10.000000": 806912,
+            "20.000000": 847872,
+            "30.000000": 888832,
+            "40.000000": 921600,
+            "50.000000": 946176,
+            "60.000000": 987136,
+            "70.000000": 1019904,
+            "80.000000": 1073152,
+            "90.000000": 1138688,
+            "95.000000": 1220608,
+            "99.000000": 1384448,
+            "99.500000": 1515520,
+            "99.900000": 2965504,
+            "99.950000": 3227648,
+            "99.990000": 6520832
+          }
+        },
+        "sync": {
+          "io_bytes": null,
+          "total_ios": 16382,
+          "iops": null,
+          "bw_bytes": null,
+          "runtime": null,
+          "latency_mean_ns": 4337638.060859,
+          "latency_percentiles_ns": {
+            "1.000000": 112128,
+            "5.000000": 134144,
+            "10.000000": 142336,
+            "20.000000": 164864,
+            "30.000000": 177152,
+            "40.000000": 183296,
+            "50.000000": 189440,
+            "60.000000": 199680,
+            "70.000000": 216064,
+            "80.000000": 16056320,
+            "90.000000": 16908288,
+            "95.000000": 17432576,
+            "99.000000": 18743296,
+            "99.500000": 19529728,
+            "99.900000": 22413312,
+            "99.950000": 26607616,
+            "99.990000": 124256256
+          }
+        }
+      }
+    }
+  ]
+}

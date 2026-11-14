@@ -1,0 +1,3833 @@
+{
+  "schema": "ax-c4-comparison-v1",
+  "passed": true,
+  "passed_cases": 6,
+  "expected_cases": 6,
+  "formal_sample": false,
+  "source": {
+    "schema": "ax-c4-source-summary-v1",
+    "cases": [
+      {
+        "case": "c4-handoff-brewfs-workspace-stay",
+        "run": "ax-four-71415d1832c0",
+        "passed": true,
+        "receipt_sha256": "fa0f60e31858e11c6cbc9cef74b90f3ea25acf7d820da7d778ec1e6b79b7c919",
+        "error": null,
+        "formal_sample": false,
+        "binary_sha256": {
+          "brewfs": "c8ed65dc8a67f14bdc5bb71bf5a2d35ac51e72075091ae9c3ebebc84f79691d1",
+          "producer": "4557ed4da4d8dcb4113476d74823261bd08f64d2be16de464e7e213c95589802",
+          "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+          "smallfiles": "d83c345374a6f8f858239db75991b4faec85701be8ffa7409d7dfda8037c0795"
+        },
+        "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+        "cache_profiles": {
+          "reopen-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "brewfs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-71415d1832c0-c4-handoff-brewfs-workspace-stay.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "73723904"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "cache": {
+              "cache_root": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-71415d1832c0/c4-handoff-brewfs-workspace-stay-qualification.scratch/ax-rbm-56ee20451a89-44ueu4yx/reopen-roomy-cache",
+              "writeback_mode": "upload_before_commit",
+              "read_memory_bytes": 8589934592,
+              "write_memory_bytes": 2147483648,
+              "memory_budget_bytes": 2147483648,
+              "read_ssd_bytes": 34359738368,
+              "write_ssd_bytes": 17179869184,
+              "packed_cache_bytes": 17179869184,
+              "packed_cache": "on"
+            },
+            "budget_environment": {
+              "BREWFS_PACKED_METADATA_CACHE_BYTES": "1073741824",
+              "BREWFS_PACKED_ROOTS_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_METADATA_OWNED_BUDGET_BYTES": "2147483648",
+              "BREWFS_PACKED_PLANS_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_CONTROL_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_STORED_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_RAW_BUDGET_BYTES": "536870912",
+              "BREWFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": "134217728",
+              "BREWFS_PACKED_OUTPUT_BUDGET_BYTES": "536870912"
+            },
+            "disk_free_before_bytes": 803454275584,
+            "mount_config_sha256": "fd7e93724167acaafeb051c3545ab4f4a2d5ff60b3f21ae4b44e2b2637474beb"
+          },
+          "initial-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "brewfs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-71415d1832c0-c4-handoff-brewfs-workspace-stay.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "65507328"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "cache": {
+              "cache_root": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-71415d1832c0/c4-handoff-brewfs-workspace-stay-qualification.scratch/ax-rbm-56ee20451a89-44ueu4yx/initial-roomy-cache",
+              "writeback_mode": "upload_before_commit",
+              "read_memory_bytes": 8589934592,
+              "write_memory_bytes": 2147483648,
+              "memory_budget_bytes": 2147483648,
+              "read_ssd_bytes": 34359738368,
+              "write_ssd_bytes": 17179869184,
+              "packed_cache_bytes": 17179869184,
+              "packed_cache": "on"
+            },
+            "budget_environment": {
+              "BREWFS_PACKED_METADATA_CACHE_BYTES": "1073741824",
+              "BREWFS_PACKED_ROOTS_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_METADATA_OWNED_BUDGET_BYTES": "2147483648",
+              "BREWFS_PACKED_PLANS_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_CONTROL_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_STORED_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_RAW_BUDGET_BYTES": "536870912",
+              "BREWFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": "134217728",
+              "BREWFS_PACKED_OUTPUT_BUDGET_BYTES": "536870912"
+            },
+            "disk_free_before_bytes": 803462860800,
+            "mount_config_sha256": "c9833d8d0060b61218162c9fcb2bb8ed53ea8cb489536fd0bb52f30b6b195c9a"
+          }
+        },
+        "native_capacities": {
+          "reopen-capacity-proof": {
+            "passed": true,
+            "expected": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "actual": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "native_stats_sha256": "d7a400471c5ebff59e8488f106afca28caf6a2967683cb5dd86f3ca9d390a388"
+          },
+          "initial-capacity-proof": {
+            "passed": true,
+            "expected": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "actual": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "native_stats_sha256": "1db43b346d286340d1700b33cd77407ec704898706b6957e5fddb5f545c3a6cf"
+          }
+        },
+        "stages": [
+          {
+            "name": "verify-tool-sha256",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.411927646,
+            "start_monotonic_ns": 71892848015792
+          },
+          {
+            "name": "rustfs-readiness",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.008464513,
+            "start_monotonic_ns": 71893345560302
+          },
+          {
+            "name": "command:cp",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.056972414,
+            "start_monotonic_ns": 71893354362291
+          },
+          {
+            "name": "workload:prepare",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.397352286,
+            "start_monotonic_ns": 71893354099173
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003128795,
+            "start_monotonic_ns": 71893751713865
+          },
+          {
+            "name": "create-bucket",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.118279549,
+            "start_monotonic_ns": 71893754910275
+          },
+          {
+            "name": "command:packed_snapshot_fixture",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 8.160573756,
+            "start_monotonic_ns": 71893873364929
+          },
+          {
+            "name": "command:brewfs",
+            "status": "passed",
+            "command_action": "init-packed-volume",
+            "elapsed_seconds": 0.201634657,
+            "start_monotonic_ns": 71902034466093
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003386082,
+            "start_monotonic_ns": 71902335946520
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.017086088,
+            "start_monotonic_ns": 71902439485322
+          },
+          {
+            "name": "workload:verify-base",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 21.551789848,
+            "start_monotonic_ns": 71902497734655
+          },
+          {
+            "name": "workload:run",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 16.520370594,
+            "start_monotonic_ns": 71924049722110
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003468605,
+            "start_monotonic_ns": 71940582394977
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.010085851,
+            "start_monotonic_ns": 71940585966673
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003153711,
+            "start_monotonic_ns": 71940628546456
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002832855,
+            "start_monotonic_ns": 71940631799862
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002651649,
+            "start_monotonic_ns": 71940637321375
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.020590589,
+            "start_monotonic_ns": 71940740169205
+          },
+          {
+            "name": "workload:verify-touched",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 19.585588773,
+            "start_monotonic_ns": 71940802466688
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003591343,
+            "start_monotonic_ns": 71960400833205
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.005817893,
+            "start_monotonic_ns": 71960404527068
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003301224,
+            "start_monotonic_ns": 71960442482021
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.00292691,
+            "start_monotonic_ns": 71960445832016
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.031313602,
+            "start_monotonic_ns": 71960529868708
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.03349567,
+            "start_monotonic_ns": 71960561288888
+          }
+        ],
+        "stages_sha256": "4c367f6247636dde260d9d10abfa5cab6f9eeee63afdf20e80b5b7953659b1ff",
+        "kind": "handoff",
+        "placement": "stay",
+        "checkpoint_sha256": "d66cb316b2d1d66b80bb56cbc48448d57f15cba410761d2f1541612b5d131fb5",
+        "source": {
+          "passed": true,
+          "entries": 894
+        },
+        "sync": {
+          "files": 809,
+          "file_bytes": 4732535,
+          "directories": 86
+        },
+        "lower_objects": {
+          "unchanged": true,
+          "count": 155,
+          "identity_sha256": "c13ff8d8024647ad6018303d3d64d65c11466f12f4f4f201ee6b0c9b55549d06"
+        }
+      },
+      {
+        "case": "c4-handoff-juicefs-stay",
+        "run": "ax-four-71415d1832c0",
+        "passed": true,
+        "receipt_sha256": "3c73cf72ebaf32605976eebfe831eb3d63665fa02951efb47a7b30cfc030aa70",
+        "error": null,
+        "formal_sample": false,
+        "binary_sha256": {
+          "brewfs": "c8ed65dc8a67f14bdc5bb71bf5a2d35ac51e72075091ae9c3ebebc84f79691d1",
+          "producer": "4557ed4da4d8dcb4113476d74823261bd08f64d2be16de464e7e213c95589802",
+          "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+          "smallfiles": "d83c345374a6f8f858239db75991b4faec85701be8ffa7409d7dfda8037c0795"
+        },
+        "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+        "cache_profiles": {
+          "reopen-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "juicefs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-71415d1832c0-c4-handoff-juicefs-stay.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "68337664"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "mount_cache_options": {
+              "--cache-dir": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-71415d1832c0/c4-handoff-juicefs-stay-qualification.scratch/ax-rbm-06db5f732a63-gkwvnib0/reopen-roomy-cache",
+              "--cache-size": "65536",
+              "--buffer-size": "12288",
+              "--attr-cache": "0",
+              "--entry-cache": "0",
+              "--dir-entry-cache": "0",
+              "--open-cache": "0",
+              "--prefetch": "1",
+              "--max-readahead": "128",
+              "--cache-large-write": "true",
+              "--verify-cache-checksum": "full",
+              "--backup-meta": "0"
+            },
+            "writeback": false,
+            "disk_free_before_bytes": 803447341056
+          },
+          "initial-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "juicefs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-71415d1832c0-c4-handoff-juicefs-stay.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "56197120"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "mount_cache_options": {
+              "--cache-dir": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-71415d1832c0/c4-handoff-juicefs-stay-qualification.scratch/ax-rbm-06db5f732a63-gkwvnib0/initial-roomy-cache",
+              "--cache-size": "65536",
+              "--buffer-size": "12288",
+              "--attr-cache": "0",
+              "--entry-cache": "0",
+              "--dir-entry-cache": "0",
+              "--open-cache": "0",
+              "--prefetch": "1",
+              "--max-readahead": "128",
+              "--cache-large-write": "true",
+              "--verify-cache-checksum": "full",
+              "--backup-meta": "0"
+            },
+            "writeback": false,
+            "disk_free_before_bytes": 803459125248
+          }
+        },
+        "native_capacities": {},
+        "stages": [
+          {
+            "name": "verify-tool-sha256",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.412062325,
+            "start_monotonic_ns": 71973213487729
+          },
+          {
+            "name": "rustfs-readiness",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.008106028,
+            "start_monotonic_ns": 71973710708327
+          },
+          {
+            "name": "command:cp",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.059473514,
+            "start_monotonic_ns": 71973719154406
+          },
+          {
+            "name": "workload:prepare",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.397317972,
+            "start_monotonic_ns": 71973718889545
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003210697,
+            "start_monotonic_ns": 71974116470935
+          },
+          {
+            "name": "create-bucket",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.120587229,
+            "start_monotonic_ns": 71974119749468
+          },
+          {
+            "name": "command:juicefs",
+            "status": "passed",
+            "command_action": "format",
+            "elapsed_seconds": 0.213057207,
+            "start_monotonic_ns": 71974240415574
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.00316963,
+            "start_monotonic_ns": 71974455534586
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.00304557,
+            "start_monotonic_ns": 71974558884838
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004247761,
+            "start_monotonic_ns": 71974662141897
+          },
+          {
+            "name": "command:stdbuf",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 35.00283238,
+            "start_monotonic_ns": 71974720962069
+          },
+          {
+            "name": "import-workspace",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 35.003582692,
+            "start_monotonic_ns": 71974720797514
+          },
+          {
+            "name": "workload:verify-base",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 39.569173856,
+            "start_monotonic_ns": 72009724489098
+          },
+          {
+            "name": "workload:run",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 46.92500299,
+            "start_monotonic_ns": 72049293853999
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004351203,
+            "start_monotonic_ns": 72096271944458
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.007847059,
+            "start_monotonic_ns": 72096276372533
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003445662,
+            "start_monotonic_ns": 72096315716696
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003657626,
+            "start_monotonic_ns": 72096319237347
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003656164,
+            "start_monotonic_ns": 72096324692317
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003424383,
+            "start_monotonic_ns": 72096428527234
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004052348,
+            "start_monotonic_ns": 72096532167550
+          },
+          {
+            "name": "workload:verify-touched",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 51.636621246,
+            "start_monotonic_ns": 72096589862187
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.00432789,
+            "start_monotonic_ns": 72148283375861
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.008174656,
+            "start_monotonic_ns": 72148287805940
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003312736,
+            "start_monotonic_ns": 72148327554232
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003155825,
+            "start_monotonic_ns": 72148330966543
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.031600737,
+            "start_monotonic_ns": 72148339293661
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.0329392,
+            "start_monotonic_ns": 72148371020612
+          }
+        ],
+        "stages_sha256": "e8e847475b2e03f3207e936f816a22fc1066fdf3f9b347fe746cbf037bffe427",
+        "kind": "handoff",
+        "placement": "stay",
+        "checkpoint_sha256": "d66cb316b2d1d66b80bb56cbc48448d57f15cba410761d2f1541612b5d131fb5",
+        "source": {
+          "passed": true,
+          "entries": 894
+        },
+        "sync": {
+          "files": 809,
+          "file_bytes": 4732535,
+          "directories": 86
+        },
+        "lower_objects": null
+      },
+      {
+        "case": "c4-handoff-brewfs-workspace-move",
+        "run": "ax-four-cb1d40f39ae9",
+        "passed": true,
+        "receipt_sha256": "8150de6d214ee3023e387aacdcf4ebaf313d442479735c499e5d5433759a58dc",
+        "error": null,
+        "formal_sample": false,
+        "binary_sha256": {
+          "brewfs": "c8ed65dc8a67f14bdc5bb71bf5a2d35ac51e72075091ae9c3ebebc84f79691d1",
+          "producer": "4557ed4da4d8dcb4113476d74823261bd08f64d2be16de464e7e213c95589802",
+          "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+          "smallfiles": "d83c345374a6f8f858239db75991b4faec85701be8ffa7409d7dfda8037c0795"
+        },
+        "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+        "cache_profiles": {
+          "initial-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "brewfs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-cb1d40f39ae9-c4-handoff-brewfs-workspace-move.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "66785280"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "cache": {
+              "cache_root": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/c4-handoff-brewfs-workspace-move-qualification.scratch/ax-rbm-f765975e4406-ylrj5awk/initial-roomy-cache",
+              "writeback_mode": "upload_before_commit",
+              "read_memory_bytes": 8589934592,
+              "write_memory_bytes": 2147483648,
+              "memory_budget_bytes": 2147483648,
+              "read_ssd_bytes": 34359738368,
+              "write_ssd_bytes": 17179869184,
+              "packed_cache_bytes": 17179869184,
+              "packed_cache": "on"
+            },
+            "budget_environment": {
+              "BREWFS_PACKED_METADATA_CACHE_BYTES": "1073741824",
+              "BREWFS_PACKED_ROOTS_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_METADATA_OWNED_BUDGET_BYTES": "2147483648",
+              "BREWFS_PACKED_PLANS_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_CONTROL_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_STORED_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_RAW_BUDGET_BYTES": "536870912",
+              "BREWFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": "134217728",
+              "BREWFS_PACKED_OUTPUT_BUDGET_BYTES": "536870912"
+            },
+            "disk_free_before_bytes": 803400974336,
+            "mount_config_sha256": "61d91bc78737f58e99d074a507a1361098d4f565f6cd018c808e41230f445fe1"
+          }
+        },
+        "native_capacities": {
+          "initial-capacity-proof": {
+            "passed": true,
+            "expected": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "actual": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "native_stats_sha256": "6b1ccc4549514dadc33489ddb6ffc99a0b6c62a535f87d0d146995fb1ca59c25"
+          }
+        },
+        "stages": [
+          {
+            "name": "verify-tool-sha256",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.414063385,
+            "start_monotonic_ns": 77856791878989
+          },
+          {
+            "name": "rustfs-readiness",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.009948011,
+            "start_monotonic_ns": 77857291886884
+          },
+          {
+            "name": "command:cp",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.057178619,
+            "start_monotonic_ns": 77857302335284
+          },
+          {
+            "name": "workload:prepare",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.395921928,
+            "start_monotonic_ns": 77857301981858
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002841493,
+            "start_monotonic_ns": 77857698177755
+          },
+          {
+            "name": "create-bucket",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.115185584,
+            "start_monotonic_ns": 77857701089659
+          },
+          {
+            "name": "command:packed_snapshot_fixture",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 8.061084956,
+            "start_monotonic_ns": 77857816591891
+          },
+          {
+            "name": "command:brewfs",
+            "status": "passed",
+            "command_action": "init-packed-volume",
+            "elapsed_seconds": 0.207406984,
+            "start_monotonic_ns": 77865878122354
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003458928,
+            "start_monotonic_ns": 77866185946857
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.0125015,
+            "start_monotonic_ns": 77866289592055
+          },
+          {
+            "name": "workload:verify-base",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 21.684067044,
+            "start_monotonic_ns": 77866341637488
+          },
+          {
+            "name": "workload:run",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 17.07886418,
+            "start_monotonic_ns": 77888025899904
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003959718,
+            "start_monotonic_ns": 77905117562755
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.009701484,
+            "start_monotonic_ns": 77905121626496
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003644864,
+            "start_monotonic_ns": 77905195870644
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002872621,
+            "start_monotonic_ns": 77905199618279
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.03430978,
+            "start_monotonic_ns": 77913842556674
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.028871548,
+            "start_monotonic_ns": 77913876979544
+          }
+        ],
+        "stages_sha256": "cbd51ab020089c5d9940afcc46ca7c86e570fce69569fb7e1ffae2e6336fb6ab",
+        "kind": "handoff",
+        "placement": "move",
+        "checkpoint_sha256": "d66cb316b2d1d66b80bb56cbc48448d57f15cba410761d2f1541612b5d131fb5",
+        "source": {
+          "passed": true,
+          "entries": 894
+        },
+        "sync": {
+          "files": 809,
+          "file_bytes": 4732535,
+          "directories": 86
+        },
+        "lower_objects": {
+          "unchanged": true,
+          "count": 155,
+          "identity_sha256": "0134b5aa192445b4575d53659399d6df9ed01ed751c27a56d6a7aa918ae4a952"
+        },
+        "move": {
+          "passed": true,
+          "formal_sample": false,
+          "target_identity": {
+            "machine": "f58ddc4d5e3ad295798e0ca1ec7ca1186375afe61ca3775168438434d936b5e8",
+            "boot": "d24e5b89e194ba231d134f11b14353ae7f3f87351c0150b22190aff8ff81de3d"
+          },
+          "workspace_payload_copied": false,
+          "real_resume": false,
+          "native_model_calls": 0,
+          "agent_process_started": false,
+          "scope": "filesystem-only clean reopen",
+          "verifier_sha256": "b8bee2b67878d04b6af06af4e821feb65ac0d8792743530a582bd4e43c09b9b6",
+          "target_script_sha256": "0ce10b53bfc2b39378b258ddae8b4b2ec10d732c163e29acfb63f772e6820df7",
+          "check_timeout_seconds": 300,
+          "target_evidence": {
+            "directory": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-brewfs",
+            "after_reopen": {
+              "passed": true,
+              "manifest": {
+                "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-brewfs/after-reopen/manifest.json",
+                "bytes": 2595,
+                "sha256": "9370c6fe4d86a4c98588912abe1cdbb8ccea68695f20a2667e08b4cbc8c6d8a2",
+                "original_bytes": 2595,
+                "original_sha256": "9370c6fe4d86a4c98588912abe1cdbb8ccea68695f20a2667e08b4cbc8c6d8a2",
+                "redacted": false
+              },
+              "capture_seconds": 0.018331552
+            },
+            "mount_log": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-brewfs/mount.log",
+              "bytes": 133587,
+              "sha256": "60beea23ae46a3fecff735eea8677841009c630e875309259c2e84a667eea926",
+              "original_bytes": 133587,
+              "original_sha256": "60beea23ae46a3fecff735eea8677841009c630e875309259c2e84a667eea926",
+              "redacted": false
+            }
+          },
+          "mount_seconds": 0.103414726,
+          "tree_verification": {
+            "passed": true,
+            "entries": 894,
+            "directories": 86,
+            "workers": 2,
+            "cached_parent_descriptors": true,
+            "directory_handles": "one directory at a time"
+          },
+          "tree_check_seconds": 6.838568395,
+          "source_tree_equal": true,
+          "tree_entries": 894,
+          "write_probe": {
+            "passed": true,
+            "bytes": 4096,
+            "fsync": true,
+            "probe_removed": true
+          },
+          "elapsed_seconds": 6.996206059,
+          "unmount": {
+            "exit_code": 0,
+            "process_exit": 0,
+            "mount_absent": true,
+            "errors": {},
+            "passed": true
+          },
+          "scratch_path": "/tmp/ax-five-move-i67yrhps",
+          "scratch_removed": true,
+          "source_identity": {
+            "machine": "7adf36d09ed9ab6cb8ce32ccc74fb847f7c7d5dff6ea3e58430ccee23a5c70a3",
+            "boot": "90a446366d0daa234dc6110a1bbddcfcdcc8d4369d4b133da7c4cab2cb51775a"
+          },
+          "transport": "private WireGuard, shared endpoints, no payload copy",
+          "physical_move": true,
+          "controller_elapsed_seconds": 7.851626666
+        }
+      },
+      {
+        "case": "c4-handoff-juicefs-move",
+        "run": "ax-four-cb1d40f39ae9",
+        "passed": true,
+        "receipt_sha256": "9de1fa08d7ddf5d1d474ea3a9cb16f255e78ab78e81fba5d4307bdbf00df9d17",
+        "error": null,
+        "formal_sample": false,
+        "binary_sha256": {
+          "brewfs": "c8ed65dc8a67f14bdc5bb71bf5a2d35ac51e72075091ae9c3ebebc84f79691d1",
+          "producer": "4557ed4da4d8dcb4113476d74823261bd08f64d2be16de464e7e213c95589802",
+          "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc",
+          "smallfiles": "d83c345374a6f8f858239db75991b4faec85701be8ffa7409d7dfda8037c0795"
+        },
+        "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+        "cache_profiles": {
+          "initial-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "juicefs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-cb1d40f39ae9-c4-handoff-juicefs-move.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "56782848"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "mount_cache_options": {
+              "--cache-dir": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/c4-handoff-juicefs-move-qualification.scratch/ax-rbm-2cb150cc7e10-uu1oqiqx/initial-roomy-cache",
+              "--cache-size": "65536",
+              "--buffer-size": "12288",
+              "--attr-cache": "0",
+              "--entry-cache": "0",
+              "--dir-entry-cache": "0",
+              "--open-cache": "0",
+              "--prefetch": "1",
+              "--max-readahead": "128",
+              "--cache-large-write": "true",
+              "--verify-cache-checksum": "full",
+              "--backup-meta": "0"
+            },
+            "writeback": false,
+            "disk_free_before_bytes": 803398557696
+          }
+        },
+        "native_capacities": {},
+        "stages": [
+          {
+            "name": "verify-tool-sha256",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.41454557,
+            "start_monotonic_ns": 77922687943261
+          },
+          {
+            "name": "rustfs-readiness",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.00809386,
+            "start_monotonic_ns": 77923188659932
+          },
+          {
+            "name": "command:cp",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.056636703,
+            "start_monotonic_ns": 77923197108981
+          },
+          {
+            "name": "workload:prepare",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.392555672,
+            "start_monotonic_ns": 77923196832568
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003328136,
+            "start_monotonic_ns": 77923589637392
+          },
+          {
+            "name": "create-bucket",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.105167574,
+            "start_monotonic_ns": 77923593041760
+          },
+          {
+            "name": "command:juicefs",
+            "status": "passed",
+            "command_action": "format",
+            "elapsed_seconds": 0.20897356,
+            "start_monotonic_ns": 77923698297608
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003392446,
+            "start_monotonic_ns": 77923909676141
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003271892,
+            "start_monotonic_ns": 77924013287537
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004434028,
+            "start_monotonic_ns": 77924116767379
+          },
+          {
+            "name": "command:stdbuf",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 34.461829482,
+            "start_monotonic_ns": 77924176122146
+          },
+          {
+            "name": "import-workspace",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 34.462614939,
+            "start_monotonic_ns": 77924175927926
+          },
+          {
+            "name": "workload:verify-base",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 39.059123429,
+            "start_monotonic_ns": 77958638645676
+          },
+          {
+            "name": "workload:run",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 46.819788534,
+            "start_monotonic_ns": 77997697962484
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004318404,
+            "start_monotonic_ns": 78044570933782
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.009518244,
+            "start_monotonic_ns": 78044575356479
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003537975,
+            "start_monotonic_ns": 78044616448185
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003588108,
+            "start_monotonic_ns": 78044620101164
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.032522724,
+            "start_monotonic_ns": 78051695960927
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.032977708,
+            "start_monotonic_ns": 78051728606800
+          }
+        ],
+        "stages_sha256": "dfec40250ee6bc8c1095821e4b446c0380791accdecf70825b8d351a1cff384c",
+        "kind": "handoff",
+        "placement": "move",
+        "checkpoint_sha256": "d66cb316b2d1d66b80bb56cbc48448d57f15cba410761d2f1541612b5d131fb5",
+        "source": {
+          "passed": true,
+          "entries": 894
+        },
+        "sync": {
+          "files": 809,
+          "file_bytes": 4732535,
+          "directories": 86
+        },
+        "lower_objects": null,
+        "move": {
+          "passed": true,
+          "formal_sample": false,
+          "target_identity": {
+            "machine": "f58ddc4d5e3ad295798e0ca1ec7ca1186375afe61ca3775168438434d936b5e8",
+            "boot": "d24e5b89e194ba231d134f11b14353ae7f3f87351c0150b22190aff8ff81de3d"
+          },
+          "workspace_payload_copied": false,
+          "real_resume": false,
+          "native_model_calls": 0,
+          "agent_process_started": false,
+          "scope": "filesystem-only clean reopen",
+          "verifier_sha256": "b8bee2b67878d04b6af06af4e821feb65ac0d8792743530a582bd4e43c09b9b6",
+          "target_script_sha256": "0ce10b53bfc2b39378b258ddae8b4b2ec10d732c163e29acfb63f772e6820df7",
+          "check_timeout_seconds": 300,
+          "target_evidence": {
+            "directory": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-juicefs",
+            "after_reopen": {
+              "passed": true,
+              "manifest": {
+                "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-juicefs/after-reopen/manifest.json",
+                "bytes": 2596,
+                "sha256": "f2637a6c8a54811fe53a43d952cc390a281448b850d93cf5487dfdd6f19a029d",
+                "original_bytes": 2596,
+                "original_sha256": "f2637a6c8a54811fe53a43d952cc390a281448b850d93cf5487dfdd6f19a029d",
+                "redacted": false
+              },
+              "capture_seconds": 0.007061499
+            },
+            "mount_log": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-juicefs/mount.log",
+              "bytes": 2567,
+              "sha256": "608469ffa37abfb086ae22000a080f10666ab540dc6af1f7b1d9d524203607d7",
+              "original_bytes": 2567,
+              "original_sha256": "608469ffa37abfb086ae22000a080f10666ab540dc6af1f7b1d9d524203607d7",
+              "redacted": false
+            }
+          },
+          "mount_seconds": 0.204804182,
+          "tree_verification": {
+            "passed": true,
+            "entries": 894,
+            "directories": 86,
+            "workers": 2,
+            "cached_parent_descriptors": true,
+            "directory_handles": "one directory at a time"
+          },
+          "tree_check_seconds": 5.641982994,
+          "source_tree_equal": true,
+          "tree_entries": 894,
+          "write_probe": {
+            "passed": true,
+            "bytes": 4096,
+            "fsync": true,
+            "probe_removed": true
+          },
+          "elapsed_seconds": 5.899974455,
+          "unmount": {
+            "exit_code": 0,
+            "process_exit": 0,
+            "mount_absent": true,
+            "errors": {},
+            "passed": true
+          },
+          "scratch_path": "/tmp/ax-five-move-bj6dqiki",
+          "scratch_removed": true,
+          "source_identity": {
+            "machine": "7adf36d09ed9ab6cb8ce32ccc74fb847f7c7d5dff6ea3e58430ccee23a5c70a3",
+            "boot": "90a446366d0daa234dc6110a1bbddcfcdcc8d4369d4b133da7c4cab2cb51775a"
+          },
+          "transport": "private WireGuard, shared endpoints, no payload copy",
+          "physical_move": true,
+          "controller_elapsed_seconds": 6.546096029
+        }
+      },
+      {
+        "case": "c4-clone-juicefs",
+        "run": "ax-four-db013b2920aa",
+        "passed": true,
+        "receipt_sha256": "930c590011a82640cc382a91d221f0fcf51cdfdf7c0a3b37a35743eb0c2fae0f",
+        "error": null,
+        "formal_sample": false,
+        "binary_sha256": {
+          "brewfs": "c8ed65dc8a67f14bdc5bb71bf5a2d35ac51e72075091ae9c3ebebc84f79691d1",
+          "producer": "4557ed4da4d8dcb4113476d74823261bd08f64d2be16de464e7e213c95589802",
+          "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+        },
+        "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+        "cache_profiles": {
+          "child-reopen-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "juicefs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-db013b2920aa-c4-clone-juicefs.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "3395776512"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "mount_cache_options": {
+              "--cache-dir": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-db013b2920aa/c4-clone-juicefs-qualification.scratch/ax-rbm-58834e6f0916-8e9h9_hb/child-reopen-juicefs",
+              "--cache-size": "65536",
+              "--buffer-size": "12288",
+              "--attr-cache": "0",
+              "--entry-cache": "0",
+              "--dir-entry-cache": "0",
+              "--open-cache": "0",
+              "--prefetch": "1",
+              "--max-readahead": "128",
+              "--cache-large-write": "true",
+              "--verify-cache-checksum": "full",
+              "--backup-meta": "0"
+            },
+            "writeback": false,
+            "disk_free_before_bytes": 800891686912
+          },
+          "parent-after-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "juicefs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-db013b2920aa-c4-clone-juicefs.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "2310733824"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "mount_cache_options": {
+              "--cache-dir": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-db013b2920aa/c4-clone-juicefs-qualification.scratch/ax-rbm-58834e6f0916-8e9h9_hb/parent-after-juicefs",
+              "--cache-size": "65536",
+              "--buffer-size": "12288",
+              "--attr-cache": "0",
+              "--entry-cache": "0",
+              "--dir-entry-cache": "0",
+              "--open-cache": "0",
+              "--prefetch": "1",
+              "--max-readahead": "128",
+              "--cache-large-write": "true",
+              "--verify-cache-checksum": "full",
+              "--backup-meta": "0"
+            },
+            "writeback": false,
+            "disk_free_before_bytes": 801719070720
+          },
+          "clone-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "juicefs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-db013b2920aa-c4-clone-juicefs.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "151789568"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "mount_cache_options": {
+              "--cache-dir": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-db013b2920aa/c4-clone-juicefs-qualification.scratch/ax-rbm-58834e6f0916-8e9h9_hb/juicefs-clone",
+              "--cache-size": "65536",
+              "--buffer-size": "12288",
+              "--attr-cache": "0",
+              "--entry-cache": "0",
+              "--dir-entry-cache": "0",
+              "--open-cache": "0",
+              "--prefetch": "1",
+              "--max-readahead": "128",
+              "--cache-large-write": "true",
+              "--verify-cache-checksum": "full",
+              "--backup-meta": "0"
+            },
+            "writeback": false,
+            "disk_free_before_bytes": 803398168576
+          },
+          "child-write-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "juicefs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-db013b2920aa-c4-clone-juicefs.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "1207828480"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "mount_cache_options": {
+              "--cache-dir": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-db013b2920aa/c4-clone-juicefs-qualification.scratch/ax-rbm-58834e6f0916-8e9h9_hb/child-write-juicefs",
+              "--cache-size": "65536",
+              "--buffer-size": "12288",
+              "--attr-cache": "0",
+              "--entry-cache": "0",
+              "--dir-entry-cache": "0",
+              "--open-cache": "0",
+              "--prefetch": "1",
+              "--max-readahead": "128",
+              "--cache-large-write": "true",
+              "--verify-cache-checksum": "full",
+              "--backup-meta": "0"
+            },
+            "writeback": false,
+            "disk_free_before_bytes": 802548805632
+          }
+        },
+        "native_capacities": {},
+        "stages": [
+          {
+            "name": "rustfs-readiness",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.008541337,
+            "start_monotonic_ns": 78707051273931
+          },
+          {
+            "name": "create-bucket",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.122061803,
+            "start_monotonic_ns": 78755928712954
+          },
+          {
+            "name": "command:juicefs",
+            "status": "passed",
+            "command_action": "format",
+            "elapsed_seconds": 0.209683801,
+            "start_monotonic_ns": 78756050961484
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002394733,
+            "start_monotonic_ns": 78756265926613
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002708285,
+            "start_monotonic_ns": 78756368515819
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004091511,
+            "start_monotonic_ns": 78756471433494
+          },
+          {
+            "name": "command:juicefs",
+            "status": "passed",
+            "command_action": "clone",
+            "elapsed_seconds": 2.954196922,
+            "start_monotonic_ns": 79478833626604
+          },
+          {
+            "name": "clone-check",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 725.309484029,
+            "start_monotonic_ns": 78756484312910
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004733092,
+            "start_monotonic_ns": 79481802194028
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.432755971,
+            "start_monotonic_ns": 79481807043175
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003766518,
+            "start_monotonic_ns": 79482240086519
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003593297,
+            "start_monotonic_ns": 79482244366991
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002832485,
+            "start_monotonic_ns": 79482261971924
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002504337,
+            "start_monotonic_ns": 79482365066006
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004547627,
+            "start_monotonic_ns": 79482467799129
+          },
+          {
+            "name": "child-write-check",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 178.442873044,
+            "start_monotonic_ns": 79482480944197
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004479901,
+            "start_monotonic_ns": 79660933093953
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.459875346,
+            "start_monotonic_ns": 79660937680943
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.00260902,
+            "start_monotonic_ns": 79661397770958
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003511044,
+            "start_monotonic_ns": 79661400868044
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002632273,
+            "start_monotonic_ns": 79661406475087
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002496442,
+            "start_monotonic_ns": 79661509326098
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004403019,
+            "start_monotonic_ns": 79661612070953
+          },
+          {
+            "name": "parent-after-check",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 106.501064775,
+            "start_monotonic_ns": 79661625131755
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004689861,
+            "start_monotonic_ns": 79768134845086
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.447243691,
+            "start_monotonic_ns": 79768139639250
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003641717,
+            "start_monotonic_ns": 79768587144716
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003671021,
+            "start_monotonic_ns": 79768591286781
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003558773,
+            "start_monotonic_ns": 79768597255465
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002965953,
+            "start_monotonic_ns": 79768701082988
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004459634,
+            "start_monotonic_ns": 79768804260325
+          },
+          {
+            "name": "child-reopen-check",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 106.217055396,
+            "start_monotonic_ns": 79768817567595
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004652922,
+            "start_monotonic_ns": 79875043170500
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.447791527,
+            "start_monotonic_ns": 79875047929970
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003684947,
+            "start_monotonic_ns": 79875495933009
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003625777,
+            "start_monotonic_ns": 79875500114016
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.030370617,
+            "start_monotonic_ns": 79875578410652
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.031830876,
+            "start_monotonic_ns": 79875608833526
+          }
+        ],
+        "stages_sha256": "a4037e0e45584826e1249c189db4e40977314011b6ab00ff0fb18c990370e9f0",
+        "kind": "native-fork-or-clone",
+        "files": 100000,
+        "input_manifest_sha256": "310fc23ed31f7d5453127aa96f55c7b8c7cad43694c6448c296ee54e8704d764",
+        "child_operations": [
+          {
+            "operation": "overwrite",
+            "path": "d000000/f00000000",
+            "fsync": true
+          },
+          {
+            "operation": "append",
+            "path": "d000000/f00000001",
+            "fsync": true
+          },
+          {
+            "operation": "truncate",
+            "path": "d000000/f00000002",
+            "fsync": true
+          },
+          {
+            "operation": "new-file",
+            "path": "child.txt",
+            "fsync": true
+          },
+          {
+            "operation": "unlink",
+            "path": "d000000/f00000003"
+          },
+          {
+            "operation": "rename",
+            "path": "d000000/f00000004",
+            "destination": "child-renamed.txt"
+          }
+        ],
+        "fork_source_kind": null,
+        "live_workspace_publication_tested": null,
+        "closed_workspace_publication_tested": null,
+        "capacity_check_timing": "before-full-tree-action",
+        "parent_tree_sha256": "55534c1c964e7a0febe72422fbe0e2c93499bfcd757a3978dc887c7b36005367",
+        "child_tree_sha256": "7e8fe4a63e9a6d2b66fca8ee0cc89fa1bb2da0fce91ae68c348a0df14fde803b"
+      },
+      {
+        "case": "c4-fork-brewfs-workspace",
+        "run": "ax-four-8db595802c40",
+        "passed": true,
+        "receipt_sha256": "932ec4544ec136cbfcf95bd34d87c0511c33ab41030413b81b685d1b45442497",
+        "error": null,
+        "formal_sample": false,
+        "binary_sha256": {
+          "brewfs": "c8ed65dc8a67f14bdc5bb71bf5a2d35ac51e72075091ae9c3ebebc84f79691d1",
+          "producer": "4557ed4da4d8dcb4113476d74823261bd08f64d2be16de464e7e213c95589802",
+          "juicefs": "6d450d3c151b6affede364d9a198d2505111b0612a5fb4d31613444c635174cc"
+        },
+        "rustfs_image": "sha256:f88833c866a4f5b533be2b202440cf9dcaa2b77b20479ec05ca1c417e6b8b265",
+        "cache_profiles": {
+          "child-reopen-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "brewfs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-8db595802c40-c4-fork-brewfs-workspace.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "1535098880"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "cache": {
+              "cache_root": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification.scratch/ax-rbm-3768481b3129-z0tsf_hn/child-reopen-brewfs",
+              "writeback_mode": "upload_before_commit",
+              "read_memory_bytes": 8589934592,
+              "write_memory_bytes": 2147483648,
+              "memory_budget_bytes": 2147483648,
+              "read_ssd_bytes": 34359738368,
+              "write_ssd_bytes": 17179869184,
+              "packed_cache_bytes": 17179869184,
+              "packed_cache": "on"
+            },
+            "budget_environment": {
+              "BREWFS_PACKED_METADATA_CACHE_BYTES": "1073741824",
+              "BREWFS_PACKED_ROOTS_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_METADATA_OWNED_BUDGET_BYTES": "2147483648",
+              "BREWFS_PACKED_PLANS_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_CONTROL_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_STORED_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_RAW_BUDGET_BYTES": "536870912",
+              "BREWFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": "134217728",
+              "BREWFS_PACKED_OUTPUT_BUDGET_BYTES": "536870912"
+            },
+            "disk_free_before_bytes": 754328150016,
+            "mount_config_sha256": "f678d9973aa823b6c49b7dae463c12a05ea26ef62678958192386f48c7eddfd9"
+          },
+          "parent-after-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "brewfs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-8db595802c40-c4-fork-brewfs-workspace.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "1280995328"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "cache": {
+              "cache_root": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification.scratch/ax-rbm-3768481b3129-z0tsf_hn/parent-after-brewfs",
+              "writeback_mode": "upload_before_commit",
+              "read_memory_bytes": 8589934592,
+              "write_memory_bytes": 2147483648,
+              "memory_budget_bytes": 2147483648,
+              "read_ssd_bytes": 34359738368,
+              "write_ssd_bytes": 17179869184,
+              "packed_cache_bytes": 17179869184,
+              "packed_cache": "on"
+            },
+            "budget_environment": {
+              "BREWFS_PACKED_METADATA_CACHE_BYTES": "1073741824",
+              "BREWFS_PACKED_ROOTS_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_METADATA_OWNED_BUDGET_BYTES": "2147483648",
+              "BREWFS_PACKED_PLANS_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_CONTROL_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_STORED_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_RAW_BUDGET_BYTES": "536870912",
+              "BREWFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": "134217728",
+              "BREWFS_PACKED_OUTPUT_BUDGET_BYTES": "536870912"
+            },
+            "disk_free_before_bytes": 754570055680,
+            "mount_config_sha256": "14cd764a0668da6364311d2fedde8866a3d76b5485ed7147675928630f052a3f"
+          },
+          "parent-before-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "brewfs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-8db595802c40-c4-fork-brewfs-workspace.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "159854592"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "cache": {
+              "cache_root": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification.scratch/ax-rbm-3768481b3129-z0tsf_hn/parent-before",
+              "writeback_mode": "upload_before_commit",
+              "read_memory_bytes": 8589934592,
+              "write_memory_bytes": 2147483648,
+              "memory_budget_bytes": 2147483648,
+              "read_ssd_bytes": 34359738368,
+              "write_ssd_bytes": 17179869184,
+              "packed_cache_bytes": 17179869184,
+              "packed_cache": "on"
+            },
+            "budget_environment": {
+              "BREWFS_PACKED_METADATA_CACHE_BYTES": "1073741824",
+              "BREWFS_PACKED_ROOTS_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_METADATA_OWNED_BUDGET_BYTES": "2147483648",
+              "BREWFS_PACKED_PLANS_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_CONTROL_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_STORED_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_RAW_BUDGET_BYTES": "536870912",
+              "BREWFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": "134217728",
+              "BREWFS_PACKED_OUTPUT_BUDGET_BYTES": "536870912"
+            },
+            "disk_free_before_bytes": 755876257792,
+            "mount_config_sha256": "314089e684e8cc2ee9178fbc575439d1549fb76d625f9102ac7797ce06856b41"
+          },
+          "child-write-cache-profile": {
+            "profile": "roomy-v1",
+            "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+            "product": "brewfs",
+            "memory_scope": {
+              "path": "/sys/fs/cgroup/system.slice/ax-four-8db595802c40-c4-fork-brewfs-workspace.scope",
+              "memory.max": "34359738368",
+              "memory.swap.max": "0",
+              "memory.current": "1010765824"
+            },
+            "disk_cache_total_bytes": 68719476736,
+            "cache": {
+              "cache_root": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification.scratch/ax-rbm-3768481b3129-z0tsf_hn/child-write-brewfs",
+              "writeback_mode": "upload_before_commit",
+              "read_memory_bytes": 8589934592,
+              "write_memory_bytes": 2147483648,
+              "memory_budget_bytes": 2147483648,
+              "read_ssd_bytes": 34359738368,
+              "write_ssd_bytes": 17179869184,
+              "packed_cache_bytes": 17179869184,
+              "packed_cache": "on"
+            },
+            "budget_environment": {
+              "BREWFS_PACKED_METADATA_CACHE_BYTES": "1073741824",
+              "BREWFS_PACKED_ROOTS_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_METADATA_OWNED_BUDGET_BYTES": "2147483648",
+              "BREWFS_PACKED_PLANS_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_CONTROL_BUDGET_BYTES": "67108864",
+              "BREWFS_PACKED_STORED_BUDGET_BYTES": "268435456",
+              "BREWFS_PACKED_RAW_BUDGET_BYTES": "536870912",
+              "BREWFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": "134217728",
+              "BREWFS_PACKED_OUTPUT_BUDGET_BYTES": "536870912"
+            },
+            "disk_free_before_bytes": 754815217664,
+            "mount_config_sha256": "97adcb55587dddd6f526abaef8d7a7903cae58e97935b9299afb9bfc7f324c35"
+          }
+        },
+        "native_capacities": {
+          "child-write-capacity-proof": {
+            "passed": true,
+            "expected": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "actual": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "native_stats_sha256": "97dbb39bbc70fcbd622e5d55b0d8ef7242e11c6651ea03bdd44b2dbb49252b19"
+          },
+          "parent-before-capacity-proof": {
+            "passed": true,
+            "expected": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "actual": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "native_stats_sha256": "cee0287a7f30cbf966707e0664788071fdd933ca06ea578b48735f6a88241fbb"
+          },
+          "parent-after-capacity-proof": {
+            "passed": true,
+            "expected": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "actual": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "native_stats_sha256": "0434e2956adf62965c6927902af69902fc89ff9aa938e1945b49d78c6ad0a925"
+          },
+          "child-reopen-capacity-proof": {
+            "passed": true,
+            "expected": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "actual": {
+              "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+              "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+              "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+              "brewfs_packed_budget_control_capacity_bytes": "67108864",
+              "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+              "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+              "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+              "brewfs_packed_budget_output_capacity_bytes": "536870912"
+            },
+            "native_stats_sha256": "9c94f6e0c19f4d680b1e9fea91e5f9f5221af364c772664a1a7ce3ff4d39e454"
+          }
+        },
+        "stages": [
+          {
+            "name": "command:brewfs-publish-packed.v7",
+            "status": "passed",
+            "command_action": "publish-packed",
+            "elapsed_seconds": 0.01193274,
+            "start_monotonic_ns": 110375857495449
+          },
+          {
+            "name": "rustfs-readiness",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.008066576,
+            "start_monotonic_ns": 110376620595768
+          },
+          {
+            "name": "create-bucket",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.120833686,
+            "start_monotonic_ns": 110424820542197
+          },
+          {
+            "name": "command:packed_snapshot_fixture",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 280.601979452,
+            "start_monotonic_ns": 110424941623613
+          },
+          {
+            "name": "command:brewfs-publish-packed.v7",
+            "status": "passed",
+            "command_action": "init-packed-volume",
+            "elapsed_seconds": 0.236283923,
+            "start_monotonic_ns": 110705544089116
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.00407469,
+            "start_monotonic_ns": 110705786737859
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.030475054,
+            "start_monotonic_ns": 110705891082380
+          },
+          {
+            "name": "parent-before-check",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 119.98289918,
+            "start_monotonic_ns": 110705959203913
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003908081,
+            "start_monotonic_ns": 110825986114242
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.431359137,
+            "start_monotonic_ns": 110825990129752
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003662846,
+            "start_monotonic_ns": 110827088720465
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002819541,
+            "start_monotonic_ns": 110827096223476
+          },
+          {
+            "name": "command:brewfs-publish-packed.v7",
+            "status": "passed",
+            "command_action": "publish-packed",
+            "elapsed_seconds": 8847.092982234,
+            "start_monotonic_ns": 110827134562350
+          },
+          {
+            "name": "command:brewfs",
+            "status": "passed",
+            "command_action": "fork",
+            "elapsed_seconds": 0.161212607,
+            "start_monotonic_ns": 119674431627792
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003981558,
+            "start_monotonic_ns": 119674621877404
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003144334,
+            "start_monotonic_ns": 119674726107925
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.00412329,
+            "start_monotonic_ns": 119674829467861
+          },
+          {
+            "name": "child-write-check",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 197.893362999,
+            "start_monotonic_ns": 119674878349897
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003882233,
+            "start_monotonic_ns": 119872811905891
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.427329072,
+            "start_monotonic_ns": 119872815896285
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003943797,
+            "start_monotonic_ns": 119873911913870
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002899179,
+            "start_monotonic_ns": 119873922435863
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003812364,
+            "start_monotonic_ns": 119873928115230
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.01973678,
+            "start_monotonic_ns": 119874032150879
+          },
+          {
+            "name": "parent-after-check",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 101.943783956,
+            "start_monotonic_ns": 119874104917972
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.004100929,
+            "start_monotonic_ns": 119976080708193
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.432279427,
+            "start_monotonic_ns": 119976084917172
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003490196,
+            "start_monotonic_ns": 119977186468835
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003987609,
+            "start_monotonic_ns": 119977193412979
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003097147,
+            "start_monotonic_ns": 119977200241990
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.041539253,
+            "start_monotonic_ns": 119977303540932
+          },
+          {
+            "name": "child-reopen-check",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 102.357254063,
+            "start_monotonic_ns": 119977400139082
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003693764,
+            "start_monotonic_ns": 120079791690621
+          },
+          {
+            "name": "command:fusermount3",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.439851917,
+            "start_monotonic_ns": 120079795491313
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.003786345,
+            "start_monotonic_ns": 120080803676172
+          },
+          {
+            "name": "command:mountpoint",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.002792672,
+            "start_monotonic_ns": 120080811034284
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.032444528,
+            "start_monotonic_ns": 120080890622213
+          },
+          {
+            "name": "command:docker",
+            "status": "passed",
+            "command_action": null,
+            "elapsed_seconds": 0.032028276,
+            "start_monotonic_ns": 120080923122975
+          }
+        ],
+        "stages_sha256": "bec444b01d157157544b86d5d8a3d120a1276ba06583d02a141b2d5b13f328b3",
+        "kind": "native-fork-or-clone",
+        "files": 100000,
+        "input_manifest_sha256": "310fc23ed31f7d5453127aa96f55c7b8c7cad43694c6448c296ee54e8704d764",
+        "child_operations": [
+          {
+            "operation": "overwrite",
+            "path": "d000000/f00000000",
+            "fsync": true
+          },
+          {
+            "operation": "append",
+            "path": "d000000/f00000001",
+            "fsync": true
+          },
+          {
+            "operation": "truncate",
+            "path": "d000000/f00000002",
+            "fsync": true
+          },
+          {
+            "operation": "new-file",
+            "path": "child.txt",
+            "fsync": true
+          },
+          {
+            "operation": "unlink",
+            "path": "d000000/f00000003"
+          },
+          {
+            "operation": "rename",
+            "path": "d000000/f00000004",
+            "destination": "child-renamed.txt"
+          }
+        ],
+        "fork_source_kind": "published Packed carrier",
+        "live_workspace_publication_tested": false,
+        "closed_workspace_publication_tested": true,
+        "capacity_check_timing": {
+          "parent-before": "after-full-tree-action",
+          "child-write": "after-full-tree-action",
+          "parent-after": "after-full-tree-action",
+          "child-reopen": "after-full-tree-action"
+        },
+        "publication": {
+          "binding_version": 2,
+          "fork_source": "01a1d7c7-9f2d-7fe2-848b-110dc6fe60e3:3:7294a1f7422acda0e6fc44efd0f5b0db21798569ce470d616472bfc5a0b01cc3",
+          "headless_publication_seconds": 5437.825832314,
+          "highest_inode": 100101,
+          "manifest_digest": "a9dbb1ee6fe45ce0c389b8f3e5407e4de2e2372adb05d0e4ca59c477fe4d6798",
+          "manifest_key": "packed/staging/01a1d7c7-9f2d-7fe2-848b-111ee8395f2d/4b9f259a-9932-4b04-b2ee-afd7e0774828/native-incarnation-4b9f259a-9932-4b04-b2ee-afd7e0774828/objects/0/a9dbb1ee6fe45ce0c389b8f3e5407e4de2e2372adb05d0e4ca59c477fe4d6798",
+          "native_sealed_source_revision": {
+            "layer_id": "01a1d762-0a12-7332-97c7-22edd19c9f74",
+            "root_hash": [
+              37,
+              78,
+              195,
+              143,
+              1,
+              248,
+              97,
+              234,
+              206,
+              81,
+              122,
+              40,
+              112,
+              217,
+              122,
+              63,
+              160,
+              39,
+              26,
+              16,
+              131,
+              139,
+              4,
+              18,
+              146,
+              178,
+              238,
+              50,
+              53,
+              227,
+              176,
+              16
+            ],
+            "sealed_version": 2
+          },
+          "packed_carrier_revision": {
+            "layer_id": "01a1d7c7-9f2d-7fe2-848b-110dc6fe60e3",
+            "root_hash": [
+              114,
+              148,
+              161,
+              247,
+              66,
+              42,
+              205,
+              160,
+              230,
+              252,
+              68,
+              239,
+              208,
+              245,
+              176,
+              219,
+              33,
+              121,
+              133,
+              105,
+              206,
+              71,
+              13,
+              97,
+              100,
+              114,
+              191,
+              197,
+              160,
+              176,
+              28,
+              195
+            ],
+            "sealed_version": 3
+          },
+          "preparation_seconds": 8846.837000371,
+          "registry_preparation_seconds": 3408.984104613,
+          "snapshot_id": "01a1d763-e48e-78e3-ba4b-2242e67f052d",
+          "workspace_id": "01a1d762-09a1-7ce1-b118-c58e9b928e2e"
+        },
+        "publication_seconds": 8847.09311485,
+        "publication_evidence": {
+          "execution": {
+            "schema": "ax-packed-publication-execution-v1",
+            "status": "succeeded",
+            "returncode": 0,
+            "timeout_seconds": 10800,
+            "streams_complete": true,
+            "started_at_utc": "2026-11-14T08:10:10.383116+08:00",
+            "finished_at_utc": "2026-11-14T10:37:37.476255+08:00",
+            "started_monotonic_ns": 110827134509502,
+            "finished_monotonic_ns": 119674227624352,
+            "publication_seconds": 8847.09311485,
+            "evidence_path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification/ax-rbm-3768481b3129-publication-evidence.json",
+            "logs": {
+              "stdout": {
+                "raw_path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification/ax-rbm-3768481b3129-publication-stdout-private.log",
+                "raw_sha256": "d932601d8aea1bb4d7ee93979904e2e665dbe7ec79fbe221c1acee467346b7c9",
+                "raw_bytes": 15550909,
+                "exported_path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification/ax-rbm-3768481b3129-publication-stdout.log",
+                "exported_sha256": "d932601d8aea1bb4d7ee93979904e2e665dbe7ec79fbe221c1acee467346b7c9",
+                "exported_bytes": 15550909
+              },
+              "stderr": {
+                "raw_path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification/ax-rbm-3768481b3129-publication-stderr-private.log",
+                "raw_sha256": "fc86683c0974bdc1fc7d0e531c7698963153b95de03b26735781e9d43ad9a23c",
+                "raw_bytes": 6249,
+                "exported_path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification/ax-rbm-3768481b3129-publication-stderr.log",
+                "exported_sha256": "fc86683c0974bdc1fc7d0e531c7698963153b95de03b26735781e9d43ad9a23c",
+                "exported_bytes": 6249
+              }
+            },
+            "stderr_stages": [
+              {
+                "line": 1,
+                "record": {
+                  "event": "registry_preparation_started"
+                }
+              },
+              {
+                "line": 2,
+                "record": {
+                  "audited_objects": 749,
+                  "catalog_rows": 2,
+                  "elapsed_seconds": 3408.984104613,
+                  "epoch": 1,
+                  "event": "registry_preparation_finished"
+                }
+              },
+              {
+                "line": 3,
+                "record": {
+                  "event": "source_cache_open",
+                  "manifest_digest": "9c88828ef05413f5535a1fb783f9ad664e14ca942be28bf0acb34166dbd8eb41",
+                  "metadata_cache_bytes": 1073741824,
+                  "pack_cache": {
+                    "capacity_bytes": 17179869184,
+                    "directory": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification.scratch/ax-rbm-3768481b3129-z0tsf_hn/parent-before/packed/9c88828ef05413f5535a1fb783f9ad664e14ca942be28bf0acb34166dbd8eb41",
+                    "downloaded_bytes": 0,
+                    "hits": 0,
+                    "inflight_hits": 0,
+                    "local_bytes": 0,
+                    "lower_backend_io": {
+                      "failures": 0,
+                      "full_gets": 0,
+                      "heads": 0,
+                      "range_gets": 0,
+                      "received_bytes": 0,
+                      "requested_bytes": 0,
+                      "scope": "this readonly lower only; excludes registry audit, upper and other clients"
+                    },
+                    "misses": 0,
+                    "mode": "persistent",
+                    "ready_hits": 0,
+                    "scope": "whole-object cache paths only; downloaded_bytes is not total backend traffic"
+                  }
+                }
+              },
+              {
+                "line": 4,
+                "record": {
+                  "event": "native_capture_started"
+                }
+              },
+              {
+                "line": 5,
+                "record": {
+                  "elapsed_seconds": 3126.767694029,
+                  "event": "native_capture_finished",
+                  "manifest_digest": "9c88828ef05413f5535a1fb783f9ad664e14ca942be28bf0acb34166dbd8eb41",
+                  "pack_cache": {
+                    "capacity_bytes": 17179869184,
+                    "directory": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification.scratch/ax-rbm-3768481b3129-z0tsf_hn/parent-before/packed/9c88828ef05413f5535a1fb783f9ad664e14ca942be28bf0acb34166dbd8eb41",
+                    "downloaded_bytes": 314370,
+                    "hits": 100814,
+                    "inflight_hits": 0,
+                    "local_bytes": 25877701494,
+                    "lower_backend_io": {
+                      "failures": 0,
+                      "full_gets": 5,
+                      "heads": 5,
+                      "range_gets": 0,
+                      "received_bytes": 314370,
+                      "requested_bytes": 314370,
+                      "scope": "this readonly lower only; excludes registry audit, upper and other clients"
+                    },
+                    "misses": 5,
+                    "mode": "persistent",
+                    "ready_hits": 100814,
+                    "scope": "whole-object cache paths only; downloaded_bytes is not total backend traffic"
+                  }
+                }
+              },
+              {
+                "line": 6,
+                "record": {
+                  "elapsed_seconds": 1.4738E-05,
+                  "event": "native_preparation_stage",
+                  "stage": "artifact-validate"
+                }
+              },
+              {
+                "line": 7,
+                "record": {
+                  "elapsed_seconds": 0.002388081,
+                  "event": "native_preparation_stage",
+                  "stage": "registry-migrate"
+                }
+              },
+              {
+                "line": 8,
+                "record": {
+                  "elapsed_seconds": 0.003804419,
+                  "event": "native_preparation_stage",
+                  "stage": "journal-begin"
+                }
+              },
+              {
+                "line": 9,
+                "record": {
+                  "elapsed_seconds": 0.015383142,
+                  "event": "native_preparation_stage",
+                  "stage": "candidate-produce"
+                }
+              },
+              {
+                "line": 10,
+                "record": {
+                  "elapsed_seconds": 1210.998327967,
+                  "event": "native_preparation_stage",
+                  "stage": "candidate-freeze"
+                }
+              },
+              {
+                "line": 11,
+                "record": {
+                  "elapsed_seconds": 1211.007127744,
+                  "event": "native_preparation_stage",
+                  "stage": "candidate-readback"
+                }
+              },
+              {
+                "line": 12,
+                "record": {
+                  "elapsed_seconds": 1306.241348141,
+                  "event": "native_preparation_stage",
+                  "stage": "graph-audit"
+                }
+              },
+              {
+                "line": 13,
+                "record": {
+                  "elapsed_seconds": 1864.515825107,
+                  "event": "native_preparation_stage",
+                  "stage": "candidate-open"
+                }
+              },
+              {
+                "line": 14,
+                "record": {
+                  "event": "candidate_cache_open",
+                  "manifest_digest": "a9dbb1ee6fe45ce0c389b8f3e5407e4de2e2372adb05d0e4ca59c477fe4d6798",
+                  "metadata_cache_bytes": 1073741824,
+                  "pack_cache": {
+                    "capacity_bytes": 17179869184,
+                    "directory": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification.scratch/ax-rbm-3768481b3129-z0tsf_hn/parent-before/packed/a9dbb1ee6fe45ce0c389b8f3e5407e4de2e2372adb05d0e4ca59c477fe4d6798",
+                    "downloaded_bytes": 0,
+                    "hits": 0,
+                    "inflight_hits": 0,
+                    "local_bytes": 0,
+                    "lower_backend_io": {
+                      "failures": 0,
+                      "full_gets": 0,
+                      "heads": 0,
+                      "range_gets": 0,
+                      "received_bytes": 0,
+                      "requested_bytes": 0,
+                      "scope": "this readonly lower only; excludes registry audit, upper and other clients"
+                    },
+                    "misses": 0,
+                    "mode": "persistent",
+                    "ready_hits": 0,
+                    "scope": "whole-object cache paths only; downloaded_bytes is not total backend traffic"
+                  }
+                }
+              },
+              {
+                "line": 15,
+                "record": {
+                  "elapsed_seconds": 1864.523144478,
+                  "event": "native_preparation_stage",
+                  "stage": "candidate-compare"
+                }
+              },
+              {
+                "line": 16,
+                "record": {
+                  "elapsed_seconds": 2308.724181306,
+                  "event": "native_preparation_stage",
+                  "stage": "native-hash-capture"
+                }
+              },
+              {
+                "line": 17,
+                "record": {
+                  "event": "candidate_cache_compared",
+                  "manifest_digest": "a9dbb1ee6fe45ce0c389b8f3e5407e4de2e2372adb05d0e4ca59c477fe4d6798",
+                  "metadata_cache_bytes": 1073741824,
+                  "pack_cache": {
+                    "capacity_bytes": 17179869184,
+                    "directory": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification.scratch/ax-rbm-3768481b3129-z0tsf_hn/parent-before/packed/a9dbb1ee6fe45ce0c389b8f3e5407e4de2e2372adb05d0e4ca59c477fe4d6798",
+                    "downloaded_bytes": 526787862,
+                    "hits": 1523,
+                    "inflight_hits": 0,
+                    "local_bytes": 870918910,
+                    "lower_backend_io": {
+                      "failures": 0,
+                      "full_gets": 2299,
+                      "heads": 2299,
+                      "range_gets": 0,
+                      "received_bytes": 526787862,
+                      "requested_bytes": 526787862,
+                      "scope": "this readonly lower only; excludes registry audit, upper and other clients"
+                    },
+                    "misses": 2299,
+                    "mode": "persistent",
+                    "ready_hits": 1523,
+                    "scope": "whole-object cache paths only; downloaded_bytes is not total backend traffic"
+                  }
+                }
+              },
+              {
+                "line": 18,
+                "record": {
+                  "elapsed_seconds": 2308.74909999,
+                  "event": "native_preparation_stage",
+                  "stage": "native-hash-promote"
+                }
+              },
+              {
+                "line": 19,
+                "record": {
+                  "elapsed_seconds": 2308.788712668,
+                  "event": "native_preparation_stage",
+                  "stage": "publication-assemble"
+                }
+              },
+              {
+                "line": 20,
+                "record": {
+                  "elapsed_seconds": 2308.814638561,
+                  "event": "native_preparation_stage",
+                  "stage": "ready"
+                }
+              },
+              {
+                "line": 21,
+                "record": {
+                  "event": "source_cache_finished",
+                  "manifest_digest": "9c88828ef05413f5535a1fb783f9ad664e14ca942be28bf0acb34166dbd8eb41",
+                  "metadata_cache_bytes": 1073741824,
+                  "pack_cache": {
+                    "capacity_bytes": 17179869184,
+                    "directory": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification.scratch/ax-rbm-3768481b3129-z0tsf_hn/parent-before/packed/9c88828ef05413f5535a1fb783f9ad664e14ca942be28bf0acb34166dbd8eb41",
+                    "downloaded_bytes": 314370,
+                    "hits": 100814,
+                    "inflight_hits": 0,
+                    "local_bytes": 25877701494,
+                    "lower_backend_io": {
+                      "failures": 0,
+                      "full_gets": 5,
+                      "heads": 5,
+                      "range_gets": 0,
+                      "received_bytes": 314370,
+                      "requested_bytes": 314370,
+                      "scope": "this readonly lower only; excludes registry audit, upper and other clients"
+                    },
+                    "misses": 5,
+                    "mode": "persistent",
+                    "ready_hits": 100814,
+                    "scope": "whole-object cache paths only; downloaded_bytes is not total backend traffic"
+                  }
+                }
+              }
+            ],
+            "scope": "publication preparation command; not fork timing or qualification",
+            "publication_profile": {
+              "adapter_version": "ax-idcai-current-v13",
+              "ttl_seconds": 7200,
+              "timeout_seconds": 10800,
+              "max_rows": 1000000,
+              "max_bytes": 68719476736,
+              "scratch_bytes": 8589934592
+            },
+            "argv": [
+              "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/brewfs-publish-packed.v7",
+              "workspace",
+              "--meta-backend",
+              "redis",
+              "--meta-url",
+              "redis://:[redacted]@10.77.13.24:16379/41",
+              "--workspace-namespace",
+              "ax-rbm-3768481b3129",
+              "publish-packed",
+              "01a1d762-09a1-7ce1-b118-c58e9b928e2e",
+              "--data-config",
+              "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-8db595802c40/c4-fork-brewfs-workspace-qualification.scratch/ax-rbm-3768481b3129-z0tsf_hn/parent-before.json",
+              "--name",
+              "ax-rbm-3768481b3129-carrier",
+              "--max-rows",
+              "1000000",
+              "--max-bytes",
+              "68719476736",
+              "--scratch-bytes",
+              "8589934592",
+              "--ttl-seconds",
+              "7200"
+            ]
+          },
+          "adapter_version": "ax-idcai-current-v13",
+          "adapter_source": {
+            "version": "ax-idcai-current-v13",
+            "runner_sha256": "40ee60e734e6154ee491c3340475af2ea202c4c454589432042a5c6340a11c40",
+            "helper_sha256": "bee30df2c54858e4ebd8861d2916e56de3c975f0a6fd92707cc8a9905a10d8dc"
+          },
+          "evidence_sha256": "399db23ea283e62e1c0dffca90561bb09db1f178233afc603b008719f94108aa",
+          "validated_log_files": 4,
+          "source_manifest_digest": "9c88828ef05413f5535a1fb783f9ad664e14ca942be28bf0acb34166dbd8eb41",
+          "required_stages": [
+            "registry_preparation_started",
+            "registry_preparation_finished",
+            "source_cache_open",
+            "native_capture_started",
+            "native_capture_finished",
+            "candidate_cache_open",
+            "candidate_cache_compared",
+            "source_cache_finished"
+          ],
+          "scope": "Retained command/cache evidence; not standalone 100k qualification"
+        },
+        "publisher_provenance": {
+          "build": {
+            "passed": true,
+            "scope": "diagnostic publication helper; not an upstream or performance build",
+            "source_clean": false,
+            "base_commit": "8a215a65cad19d34fd3fd7f04029f97d09617364",
+            "source_patch": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/publisher-source.v7.patch",
+            "source_patch_sha256": "29997402780f390e73129e7c851b4745f91a5c37e8130edfc6e892a3d83f858f",
+            "incremental_patch_sha256": "fa98ee4509843c2d82d676fa79ebed6d512b5698e3e5b0f520f05d5f4b477464",
+            "changed_from_v6": [
+              "src/workspace/packed/snapshot/publication/inventory.rs",
+              "src/workspace/stores/kv_store/packed_clean_restore.rs",
+              "src/workspace/stores/kv_store/packed_headless.rs"
+            ],
+            "source": "/srv/ax-idcai-20261113/src/brewfs-c4-packed-carrier-fork-v7",
+            "test_command": [
+              "cargo",
+              "--config",
+              "profile.release.package.brewfs.debug=false",
+              "--config",
+              "profile.release.package.brewfs.opt-level=0",
+              "test",
+              "--locked",
+              "--release",
+              "--offline",
+              "--jobs",
+              "8",
+              "--features",
+              "workspace,observability,rustfs-ec-block-size-hint",
+              "--lib",
+              "native_capture_vm_quota_is_cumulative_and_honors_configured_work_limit",
+              "--",
+              "--nocapture"
+            ],
+            "build_command": [
+              "cargo",
+              "--config",
+              "profile.release.package.brewfs.debug=false",
+              "--config",
+              "profile.release.package.brewfs.opt-level=1",
+              "build",
+              "--locked",
+              "--release",
+              "--offline",
+              "--jobs",
+              "8",
+              "--features",
+              "workspace,observability,rustfs-ec-block-size-hint",
+              "--bin",
+              "brewfs"
+            ],
+            "environment": {
+              "CARGO_HOME": "/srv/ax-idcai-20261113/cargo-build",
+              "CARGO_TARGET_DIR": "/srv/ax-idcai-20261113/targets/brewfs",
+              "RUSTC": "/srv/ax-idcai-20261113/toolchain-1.99.0/bin/rustc",
+              "RUSTFLAGS": "-C target-cpu=x86-64",
+              "CARGO_INCREMENTAL": "0"
+            },
+            "started_utc": "2026-11-14T07:31:23.564038+08:00",
+            "validation": {
+              "fmt-check": {
+                "command": [
+                  "cargo",
+                  "fmt",
+                  "--all",
+                  "--check"
+                ],
+                "exit_code": 0,
+                "elapsed_seconds": 5.5927930580073735,
+                "finished_utc": "2026-11-14T07:31:29.156994+08:00",
+                "log": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/fmt-check.v7.log",
+                "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "diff-check": {
+                "command": [
+                  "git",
+                  "diff",
+                  "--check"
+                ],
+                "exit_code": 0,
+                "elapsed_seconds": 0.04466694900474977,
+                "finished_utc": "2026-11-14T07:31:29.202052+08:00",
+                "log": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/diff-check.v7.log",
+                "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "focused-test": {
+                "command": [
+                  "cargo",
+                  "--config",
+                  "profile.release.package.brewfs.debug=false",
+                  "--config",
+                  "profile.release.package.brewfs.opt-level=0",
+                  "test",
+                  "--locked",
+                  "--release",
+                  "--offline",
+                  "--jobs",
+                  "8",
+                  "--features",
+                  "workspace,observability,rustfs-ec-block-size-hint",
+                  "--lib",
+                  "native_capture_vm_quota_is_cumulative_and_honors_configured_work_limit",
+                  "--",
+                  "--nocapture"
+                ],
+                "exit_code": 0,
+                "elapsed_seconds": 434.14735276000283,
+                "finished_utc": "2026-11-14T07:38:43.349739+08:00",
+                "test_counts": [
+                  {
+                    "passed": 1,
+                    "failed": 0,
+                    "ignored": 0,
+                    "measured": 0,
+                    "filtered_out": 3354
+                  }
+                ],
+                "log": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/focused-test.v7.log",
+                "log_sha256": "5301aebec84597cbed2ea3e96b0aca0bbb5edb0c0ba54b931ab61274913b4c3a"
+              },
+              "inventory-test": {
+                "command": [
+                  "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/brewfs-lib-tests.v7",
+                  "workspace::packed::snapshot::publication::inventory::tests",
+                  "--nocapture"
+                ],
+                "exit_code": 0,
+                "elapsed_seconds": 0.8540029739961028,
+                "finished_utc": "2026-11-14T07:38:47.124416+08:00",
+                "test_counts": [
+                  {
+                    "passed": 17,
+                    "failed": 0,
+                    "ignored": 0,
+                    "measured": 0,
+                    "filtered_out": 3338
+                  }
+                ],
+                "log": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/inventory-test.v7.log",
+                "log_sha256": "870d837061130201f4aa142ad3749cf12b4619563c30d58b2218e80acd884485"
+              },
+              "producer-test": {
+                "command": [
+                  "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/brewfs-lib-tests.v7",
+                  "workspace::packed::snapshot::producer::tests",
+                  "--nocapture"
+                ],
+                "exit_code": 0,
+                "elapsed_seconds": 0.4624196320073679,
+                "finished_utc": "2026-11-14T07:38:47.587492+08:00",
+                "test_counts": [
+                  {
+                    "passed": 18,
+                    "failed": 0,
+                    "ignored": 0,
+                    "measured": 0,
+                    "filtered_out": 3337
+                  }
+                ],
+                "log": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/producer-test.v7.log",
+                "log_sha256": "715fcb10f90253ae6a200cd43c937af9606f1460ca531ecbb361b33e6df6980b"
+              },
+              "native-inline-test": {
+                "command": [
+                  "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/brewfs-lib-tests.v7",
+                  "native_grouped_inline_preserves_cross_group_aliases_and_selected_policy",
+                  "--nocapture"
+                ],
+                "exit_code": 0,
+                "elapsed_seconds": 3.249647285992978,
+                "finished_utc": "2026-11-14T07:38:50.837777+08:00",
+                "test_counts": [
+                  {
+                    "passed": 1,
+                    "failed": 0,
+                    "ignored": 0,
+                    "measured": 0,
+                    "filtered_out": 3354
+                  }
+                ],
+                "log": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/native-inline-test.v7.log",
+                "log_sha256": "d6b23770106f7c46db1442df6ae64d148da8946b596a77096cd4515400772e91"
+              },
+              "native-sparse-cold-test": {
+                "command": [
+                  "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/brewfs-lib-tests.v7",
+                  "actual_native_effective_roundtrip_preserves_ids_hardlinks_holes_cold_and_native_hash",
+                  "--nocapture"
+                ],
+                "exit_code": 0,
+                "elapsed_seconds": 0.3088239710050402,
+                "finished_utc": "2026-11-14T07:38:51.147264+08:00",
+                "test_counts": [
+                  {
+                    "passed": 1,
+                    "failed": 0,
+                    "ignored": 0,
+                    "measured": 0,
+                    "filtered_out": 3354
+                  }
+                ],
+                "log": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/native-sparse-cold-test.v7.log",
+                "log_sha256": "e7cb5d2b8d4a54e16ad5c927dfda8a88a25ee05103ae2ade86ec1dca1d94471a"
+              },
+              "native-payload-budget-test": {
+                "command": [
+                  "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/brewfs-lib-tests.v7",
+                  "native_payload_budget_tests",
+                  "--nocapture"
+                ],
+                "exit_code": 0,
+                "elapsed_seconds": 0.12725629500346258,
+                "finished_utc": "2026-11-14T07:38:51.275248+08:00",
+                "test_counts": [
+                  {
+                    "passed": 3,
+                    "failed": 0,
+                    "ignored": 0,
+                    "measured": 0,
+                    "filtered_out": 3352
+                  }
+                ],
+                "log": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/native-payload-budget-test.v7.log",
+                "log_sha256": "2a1d7f83e15fe2dec9644aa74d0713b1bcdaf4b29d9999e11039698c7ec0e201"
+              },
+              "native-fence-test": {
+                "command": [
+                  "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/brewfs-lib-tests.v7",
+                  "packed_native_freeze",
+                  "--nocapture"
+                ],
+                "exit_code": 0,
+                "elapsed_seconds": 0.13465443000313826,
+                "finished_utc": "2026-11-14T07:38:51.410749+08:00",
+                "test_counts": [
+                  {
+                    "passed": 20,
+                    "failed": 0,
+                    "ignored": 0,
+                    "measured": 0,
+                    "filtered_out": 3335
+                  }
+                ],
+                "log": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/native-fence-test.v7.log",
+                "log_sha256": "1f7a2c36fc17c0e34d33349f87fb3f8be043bc578e43c42a25e6f6ab18991f69"
+              },
+              "publisher-build": {
+                "command": [
+                  "cargo",
+                  "--config",
+                  "profile.release.package.brewfs.debug=false",
+                  "--config",
+                  "profile.release.package.brewfs.opt-level=1",
+                  "build",
+                  "--locked",
+                  "--release",
+                  "--offline",
+                  "--jobs",
+                  "8",
+                  "--features",
+                  "workspace,observability,rustfs-ec-block-size-hint",
+                  "--bin",
+                  "brewfs"
+                ],
+                "exit_code": 0,
+                "elapsed_seconds": 868.0014619479916,
+                "finished_utc": "2026-11-14T07:53:19.412979+08:00",
+                "log": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/publisher-build.v7.log",
+                "log_sha256": "0f94c2a02c0b2987b0a124db98300c88154c9e613b5f609872617bd1848b4e0a"
+              },
+              "functional_32_plus_1": {
+                "passed": true,
+                "summary": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/smoke-32.summary.json",
+                "summary_sha256": "0e7b9050a0dd0f015cf73b691434d5398728f6c7c6a520d8bbd5d3b714444821",
+                "original_receipt": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-20261114/c4-publish-v7-d8317488f0e7/receipt.json",
+                "original_receipt_sha256": "51a2abb675efae21da5ec583208bb1eae4d697a37193ee504c7fb406db7d89b5",
+                "authority_ttl_seconds": 7200,
+                "publisher_timeout_seconds": 10800,
+                "publication_limits": {
+                  "max_rows": 1000000,
+                  "max_bytes": 68719476736,
+                  "scratch_bytes": 8589934592
+                },
+                "publication_seconds": 1.8970239740010584,
+                "logs": [
+                  {
+                    "source": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-20261114/c4-publish-v7-d8317488f0e7/publication.stdout.log",
+                    "path": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/smoke-32.publication.stdout.log",
+                    "sha256": "d433d4edc1cf9388fe9b1b3e0645acceffde2aab6f7876f0340015627177c1a3",
+                    "bytes": 1726
+                  },
+                  {
+                    "source": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-20261114/c4-publish-v7-d8317488f0e7/publication.stderr.log",
+                    "path": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/smoke-32.publication.stderr.log",
+                    "sha256": "7e69e1ecbe99cf298c09f688d6e116a11ec718c4d9b481b2357cc3702c069f31",
+                    "bytes": 5906
+                  },
+                  {
+                    "source": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-20261114/c4-publish-v7-d8317488f0e7/parent-before.log",
+                    "path": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/smoke-32.parent-before.log",
+                    "sha256": "0797f0afc25f9c64e10c5339a2aded2cd01f44adaee68ea3e38396924b8a6c9b",
+                    "bytes": 8494
+                  },
+                  {
+                    "source": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-20261114/c4-publish-v7-d8317488f0e7/old-empty-fork.log",
+                    "path": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/smoke-32.old-empty-fork.log",
+                    "sha256": "ed8a1f6d4351da8fe1ccdc412b61f2923098025e3b4a114ca93247bcb1586b79",
+                    "bytes": 4035
+                  },
+                  {
+                    "source": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-20261114/c4-publish-v7-d8317488f0e7/child-write.log",
+                    "path": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/smoke-32.child-write.log",
+                    "sha256": "73567eeeac56168c73bb61eeb143b704b67f4c772f87d856c90438d3ff1d5cb7",
+                    "bytes": 9244
+                  },
+                  {
+                    "source": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-20261114/c4-publish-v7-d8317488f0e7/parent-after.log",
+                    "path": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/smoke-32.parent-after.log",
+                    "sha256": "ee04dbf00d0e5d0476a8457510656c08f258a02200a559cc1726a5ddcf17c6d5",
+                    "bytes": 6348
+                  },
+                  {
+                    "source": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-20261114/c4-publish-v7-d8317488f0e7/child-reopen.log",
+                    "path": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/smoke-32.child-reopen.log",
+                    "sha256": "305375c7e52ae881cb14a5b5311019e6716bd29f5599442391496bccc70ed93b",
+                    "bytes": 6607
+                  }
+                ],
+                "scope": "Fresh v7 functional FUSE regression on an isolated loopback backend; original8a mount/fork"
+              },
+              "native_vm_work_quota": {
+                "path": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/focused-test-receipt.v7.json",
+                "sha256": "42618fea7b1fc73334f22297b12344646668beac87962b600f2e1a7cb41b06c2",
+                "passed": true,
+                "distinct_tests": 60,
+                "test_executions": 61
+              }
+            },
+            "full_ci": "not run; no commit or push; functional diagnostic only",
+            "test_binary_sha256": "8476d32346cb9ce8f52b534cb919462aeac615a52f46650ea1bad4a4ef172797",
+            "build_exit_code": 0,
+            "binary": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/brewfs-publish-packed.v7",
+            "binary_sha256": "db2082466ca02b30b53661020f7f1769a1b5a6118b65e56c6e573bf5e33ec46d",
+            "binary_bytes": 1069924560,
+            "build_finished_utc": "2026-11-14T07:53:21.350814+08:00",
+            "inherited_unchanged_v6_validation": {
+              "provenance": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v6-build-20261114/public/publisher-provenance.v6.json",
+              "provenance_sha256": "d099c0b6a8a69975900cc69a19614db60d35ae32c603389d4f750343dfdbf297",
+              "rerun_on_v7": false,
+              "scope": "Inherited coverage only; not described as newv7 executions",
+              "coverage": [
+                "actualRedis seven contracts on v6.2 test-only fixtures",
+                "7200s exact deadline facts and boundary tests",
+                "1000+1 loopback fullFUSE and reader renewal",
+                "1000+1 four-node fullFUSE timing"
+              ],
+              "production_delta": "Only first/restore native SQLite work-limit values differ; all authority, expiry, cache, producer and fork code unchanged",
+              "recovery_limit": "Typed immutable Clean source proof, Initial refusal, actual held-response cancellation and existing same-incarnation/expiry/reaper contracts were tested. No full Clean7200 takeover/seed/quarantine end-to-end claim is made.",
+              "four_node_receipt": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-7e7525b23bf3/diagnostic-1000/public-export/receipt.redacted.json",
+              "four_node_receipt_sha256": "2175da40b19f116858d2b0e32eea52b3e77e16b079f0b8e7243b84e90ad05286"
+            },
+            "admin_clean_publication": {
+              "max_ttl_seconds": 7200,
+              "validated_ttl_seconds": 7200,
+              "functional_fixture_passed": true,
+              "functional_fixture_receipt_sha256": "51a2abb675efae21da5ec583208bb1eae4d697a37193ee504c7fb406db7d89b5",
+              "default_cli_ttl_seconds": 300,
+              "mounted_initial_reader_limits_unchanged": true,
+              "semantics": "One finite fixed admin lease/open deadline. No renewal or heartbeat. All actual clock/CAS/fencing predicates remain; a longer lease also delays crash takeover and expiry-plus-grace resource release.",
+              "exact_deadline_aof_scope": "Unchanged algorithm; actualAOF deadline/renewal proof inherited fromv6, not re-extracted forv7"
+            },
+            "native_capture_configured_sql_vm_limit": true,
+            "native_capture_sql_vm_limit_proof": {
+              "source_patch_sha256": "29997402780f390e73129e7c851b4745f91a5c37e8130edfc6e892a3d83f858f",
+              "focused_test_passed": true,
+              "focused_test_receipt_sha256": "42618fea7b1fc73334f22297b12344646668beac87962b600f2e1a7cb41b06c2",
+              "limit_source": "request.graph_limits.max_sql_vm_steps",
+              "clean_restore_uses_same_limit": true
+            },
+            "functional_regression_passed": true,
+            "scale_accepted": false,
+            "validation_finished_utc": "2026-11-14T07:55:52.273996+08:00",
+            "qualification_limit": "Functional preparation-helper qualification only. 100k completion remains untested; no production/fullCI acceptance, commit or push.",
+            "performance_scope": "No new performance claim. V6 four-node1000 is an inherited timing reference; SQLitequota change does not claim a speedup.",
+            "timing_scope": "Full CLI wall time includes preregistry; realAdmin TTL starts at owned headless claim after migration.",
+            "configured_scale_limits_audit": {
+              "path": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/public/scale-100k-bound-audit.v7.json",
+              "sha256": "66cfe6299f3a46c65841744a3a9f5f17ee04c9f587614f6a76685f04b88bb10f"
+            }
+          },
+          "binary_sha256": "db2082466ca02b30b53661020f7f1769a1b5a6118b65e56c6e573bf5e33ec46d",
+          "provenance_sha256": "3ed47ae425d721fda97089431488bec1785c00f714c2698a5036c4cd8106e561",
+          "scope": "publication preparation only; no performance qualification",
+          "publish_packed_help_sha256": "d85b0fe8745ffd73bfb8437e0869101acb2827d3fc16aec557a5c2a0e14a5225",
+          "requested_ttl_seconds": 7200,
+          "requested_publication_profile": {
+            "adapter_version": "ax-idcai-current-v13",
+            "ttl_seconds": 7200,
+            "timeout_seconds": 10800,
+            "max_rows": 1000000,
+            "max_bytes": 68719476736,
+            "scratch_bytes": 8589934592
+          }
+        },
+        "initializer": {
+          "binary": "/srv/ax-idcai-20261113/diagnostics/fork-publish-v7-build-20261114/brewfs-publish-packed.v7",
+          "binary_sha256": "db2082466ca02b30b53661020f7f1769a1b5a6118b65e56c6e573bf5e33ec46d",
+          "source_provenance": "publisher_provenance",
+          "scope": "preparation only"
+        },
+        "initialization_seconds": 0.23700057200039737,
+        "parent_tree_sha256": "55534c1c964e7a0febe72422fbe0e2c93499bfcd757a3978dc887c7b36005367",
+        "child_tree_sha256": "7e8fe4a63e9a6d2b66fca8ee0cc89fa1bb2da0fce91ae68c348a0df14fde803b"
+      }
+    ],
+    "passed_cases": 6,
+    "expected_cases": 6,
+    "scope": "Source workload checks only; target cache proofs, six-node observer audits and raw archives must be joined separately.",
+    "timing_note": "Target elapsed time includes mount, tree check and write probe; source controller elapsed also includes SSH and target cleanup. Cross-host monotonic timestamps are not subtracted. Stay verify-touched uses file_tree plus sync_tree; move uses the bounded tree_verify worker plus write_probe. Compare the two filesystems within the same placement; do not subtract these different stay/move checks to claim migration overhead."
+  },
+  "target": {
+    "schema": "ax-c4-target-proof-summary-v1",
+    "run": "ax-four-cb1d40f39ae9",
+    "passed": true,
+    "products": {
+      "brewfs": {
+        "product": "brewfs",
+        "cache_profile": {
+          "profile": "roomy-v1",
+          "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+          "product": "brewfs",
+          "memory_scope": {
+            "path": "/sys/fs/cgroup/system.slice/ax-four-cb1d40f39ae9-brewfs-target.scope",
+            "memory.max": "34359738368",
+            "memory.swap.max": "0",
+            "memory.current": "10555392"
+          },
+          "disk_cache_total_bytes": 68719476736,
+          "cache": {
+            "cache_root": "/tmp/ax-five-move-i67yrhps/roomy-cache",
+            "writeback_mode": "upload_before_commit",
+            "read_memory_bytes": 8589934592,
+            "write_memory_bytes": 2147483648,
+            "memory_budget_bytes": 2147483648,
+            "read_ssd_bytes": 34359738368,
+            "write_ssd_bytes": 17179869184,
+            "packed_cache_bytes": 17179869184,
+            "packed_cache": "on"
+          },
+          "budget_environment": {
+            "BREWFS_PACKED_METADATA_CACHE_BYTES": "1073741824",
+            "BREWFS_PACKED_ROOTS_BUDGET_BYTES": "67108864",
+            "BREWFS_PACKED_METADATA_OWNED_BUDGET_BYTES": "2147483648",
+            "BREWFS_PACKED_PLANS_BUDGET_BYTES": "268435456",
+            "BREWFS_PACKED_CONTROL_BUDGET_BYTES": "67108864",
+            "BREWFS_PACKED_STORED_BUDGET_BYTES": "268435456",
+            "BREWFS_PACKED_RAW_BUDGET_BYTES": "536870912",
+            "BREWFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": "134217728",
+            "BREWFS_PACKED_OUTPUT_BUDGET_BYTES": "536870912"
+          },
+          "disk_free_before_bytes": 838310522880,
+          "mount_config_sha256": "ee3343a6f5c610f4c04cc52a235d93b903f99a26030c354f260c1852110548a6"
+        },
+        "cache_sha256": "15d3da0ed0b007bf8e1e9ad3c1af161bcdae5f3e08478bb7cb9be37087f41a14",
+        "native_snapshot_manifest_sha256": "9370c6fe4d86a4c98588912abe1cdbb8ccea68695f20a2667e08b4cbc8c6d8a2",
+        "native_snapshot": {
+          "passed": true,
+          "pid": 149148,
+          "start_ticks": 7776138,
+          "utc_ns": 1794582096891694640,
+          "monotonic_ns": 77768404382567,
+          "clock_ticks_per_second": 100,
+          "fd_count": 295,
+          "files": {
+            "stat": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-brewfs/after-reopen/stat.txt",
+              "bytes": 335,
+              "sha256": "fc5636a4d98c5e61518a2fd1d273630e7c86b05cfb53f639a02c36956b0a41ea",
+              "original_bytes": 335,
+              "original_sha256": "fc5636a4d98c5e61518a2fd1d273630e7c86b05cfb53f639a02c36956b0a41ea",
+              "redacted": false
+            },
+            "status": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-brewfs/after-reopen/status.txt",
+              "bytes": 1525,
+              "sha256": "69e910b1b479018b11b521b4fc6f6d3012038f4be42b9be7d71e6c4e3b0fa3fc",
+              "original_bytes": 1525,
+              "original_sha256": "69e910b1b479018b11b521b4fc6f6d3012038f4be42b9be7d71e6c4e3b0fa3fc",
+              "redacted": false
+            },
+            "io": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-brewfs/after-reopen/io.txt",
+              "bytes": 116,
+              "sha256": "ca0312db872920a29b1ce6975129e5b175d5ee5a94e60b14af86415471a6979c",
+              "original_bytes": 116,
+              "original_sha256": "ca0312db872920a29b1ce6975129e5b175d5ee5a94e60b14af86415471a6979c",
+              "redacted": false
+            },
+            "limits": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-brewfs/after-reopen/limits.txt",
+              "bytes": 1323,
+              "sha256": "787dead7359ff24c108f1d48fe9d100535e4406491cff0157ceab3b312a593d6",
+              "original_bytes": 1323,
+              "original_sha256": "787dead7359ff24c108f1d48fe9d100535e4406491cff0157ceab3b312a593d6",
+              "redacted": false
+            },
+            "cgroup": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-brewfs/after-reopen/cgroup.txt",
+              "bytes": 58,
+              "sha256": "1d6cb968234f6f0184a3de9ed7f1c9f8acfcad8b93476683bf606e849271d351",
+              "original_bytes": 58,
+              "original_sha256": "1d6cb968234f6f0184a3de9ed7f1c9f8acfcad8b93476683bf606e849271d351",
+              "redacted": false
+            },
+            "native_stats": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-brewfs/after-reopen/native.prom",
+              "bytes": 333506,
+              "sha256": "a75d5754b07fadf325598211a5efdeb1709707becbe680400ca0b8ff786ecf96",
+              "original_bytes": 333506,
+              "original_sha256": "a75d5754b07fadf325598211a5efdeb1709707becbe680400ca0b8ff786ecf96",
+              "redacted": false
+            }
+          },
+          "capture_seconds": 0.018331552
+        },
+        "mount_log_sha256": "60beea23ae46a3fecff735eea8677841009c630e875309259c2e84a667eea926",
+        "native_capacities": {
+          "passed": true,
+          "expected": {
+            "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+            "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+            "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+            "brewfs_packed_budget_control_capacity_bytes": "67108864",
+            "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+            "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+            "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+            "brewfs_packed_budget_output_capacity_bytes": "536870912"
+          },
+          "actual": {
+            "brewfs_packed_budget_roots_capacity_bytes": "67108864",
+            "brewfs_packed_budget_metadata_owned_capacity_bytes": "2147483648",
+            "brewfs_packed_budget_plans_capacity_bytes": "268435456",
+            "brewfs_packed_budget_control_capacity_bytes": "67108864",
+            "brewfs_packed_budget_stored_capacity_bytes": "268435456",
+            "brewfs_packed_budget_raw_capacity_bytes": "536870912",
+            "brewfs_packed_budget_decode_workspace_capacity_bytes": "134217728",
+            "brewfs_packed_budget_output_capacity_bytes": "536870912"
+          },
+          "native_stats_sha256": "fbfc637308fb0817f5ac23389a9d7649c3fe998d7bf79d030da2fd2355bb9c85"
+        },
+        "native_capacities_sha256": "7bc387223700d44cb20356b95124a1a6e8071ea9abefda815d82fc63cde0bb08"
+      },
+      "juicefs": {
+        "product": "juicefs",
+        "cache_profile": {
+          "profile": "roomy-v1",
+          "profile_sha256": "cfc0dfef478b4b39b829fa72e5d03cb7473d4dbfa4459a3ab70d67fed72c8b46",
+          "product": "juicefs",
+          "memory_scope": {
+            "path": "/sys/fs/cgroup/system.slice/ax-four-cb1d40f39ae9-juicefs-target.scope",
+            "memory.max": "34359738368",
+            "memory.swap.max": "0",
+            "memory.current": "9703424"
+          },
+          "disk_cache_total_bytes": 68719476736,
+          "mount_cache_options": {
+            "--cache-dir": "/tmp/ax-five-move-bj6dqiki/roomy-cache",
+            "--cache-size": "65536",
+            "--buffer-size": "12288",
+            "--attr-cache": "0",
+            "--entry-cache": "0",
+            "--dir-entry-cache": "0",
+            "--open-cache": "0",
+            "--prefetch": "1",
+            "--max-readahead": "128",
+            "--cache-large-write": "true",
+            "--verify-cache-checksum": "full",
+            "--backup-meta": "0"
+          },
+          "writeback": false,
+          "disk_free_before_bytes": 838307790848
+        },
+        "cache_sha256": "2c24fa337183bfe69767dc8d9b0033823c01638fbd1bec59b1464878899953da",
+        "native_snapshot_manifest_sha256": "f2637a6c8a54811fe53a43d952cc390a281448b850d93cf5487dfdd6f19a029d",
+        "native_snapshot": {
+          "passed": true,
+          "pid": 149414,
+          "start_ticks": 7790044,
+          "utc_ns": 1794582234821484736,
+          "monotonic_ns": 77906343684330,
+          "clock_ticks_per_second": 100,
+          "fd_count": 11,
+          "files": {
+            "stat": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-juicefs/after-reopen/stat.txt",
+              "bytes": 301,
+              "sha256": "f7f3589027886130f7b7154da3169b26150dddd306399afc3854c29c13f30fa2",
+              "original_bytes": 301,
+              "original_sha256": "f7f3589027886130f7b7154da3169b26150dddd306399afc3854c29c13f30fa2",
+              "redacted": false
+            },
+            "status": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-juicefs/after-reopen/status.txt",
+              "bytes": 1526,
+              "sha256": "e952ded41ff013b93c53e085380ad382529d5b01d1662a8d6084ab2f41e3abf7",
+              "original_bytes": 1526,
+              "original_sha256": "e952ded41ff013b93c53e085380ad382529d5b01d1662a8d6084ab2f41e3abf7",
+              "redacted": false
+            },
+            "io": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-juicefs/after-reopen/io.txt",
+              "bytes": 102,
+              "sha256": "8bd24b4ccd6ce5e04f8843165f1905061682dd66214203395aea1078091b46f3",
+              "original_bytes": 102,
+              "original_sha256": "8bd24b4ccd6ce5e04f8843165f1905061682dd66214203395aea1078091b46f3",
+              "redacted": false
+            },
+            "limits": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-juicefs/after-reopen/limits.txt",
+              "bytes": 1323,
+              "sha256": "a0f096b081d9b229d52017e7466a10d09f0dcb216098d5bdd54eeaa884f92725",
+              "original_bytes": 1323,
+              "original_sha256": "a0f096b081d9b229d52017e7466a10d09f0dcb216098d5bdd54eeaa884f92725",
+              "redacted": false
+            },
+            "cgroup": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-juicefs/after-reopen/cgroup.txt",
+              "bytes": 59,
+              "sha256": "684607532bda409209e4e933bb16f2b20c8f00caab44fe842c8e28689a41c08f",
+              "original_bytes": 59,
+              "original_sha256": "684607532bda409209e4e933bb16f2b20c8f00caab44fe842c8e28689a41c08f",
+              "redacted": false
+            },
+            "native_stats": {
+              "path": "/srv/ax-idcai-20261113/campaign-100k-001/ax-four-cb1d40f39ae9/target-c4-juicefs/after-reopen/native.prom",
+              "bytes": 5904,
+              "sha256": "6ecb55d47c74ee09eb38450319d5d268728f0321f9fccb5b953acbe6a3310ebb",
+              "original_bytes": 5904,
+              "original_sha256": "6ecb55d47c74ee09eb38450319d5d268728f0321f9fccb5b953acbe6a3310ebb",
+              "redacted": false
+            }
+          },
+          "capture_seconds": 0.007061499
+        },
+        "mount_log_sha256": "608469ffa37abfb086ae22000a080f10666ab540dc6af1f7b1d9d524203607d7"
+      }
+    }
+  },
+  "closed_runs": [
+    {
+      "run": "ax-four-71415d1832c0",
+      "closure_file": "closure-20261113T144924772Z.json",
+      "closure_sha256": "6410fb75d23225aba3bff6602483ad9be8c120786e169501c2db8879441b8403",
+      "observer_audit_sha256": "e83006355b0df2d39bf7d912120b269186b69428d2bfb0ec371d20f1212f49a0",
+      "samples": 4401.0,
+      "raw_archives": [
+        {
+          "host_alias": "idcai-jump",
+          "run": "ax-four-71415d1832c0",
+          "role": "client",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-71415d1832c0/client.tar.gz",
+          "sha256": "560277ee357e35d771ebe8020ef06771a180722171b607868a57652f233d8160",
+          "bytes": 6280797,
+          "service_journal": null
+        },
+        {
+          "host_alias": "idcai-client2",
+          "run": "ax-four-71415d1832c0",
+          "role": "target",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-71415d1832c0/target.tar.gz",
+          "sha256": "0fa5c92daa4dbbcdb5c3fef8630cd9a4da35978482ef9923d72d29017e108051",
+          "bytes": 5771100,
+          "service_journal": null
+        },
+        {
+          "host_alias": "idcai-obj1",
+          "run": "ax-four-71415d1832c0",
+          "role": "obj1",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-71415d1832c0/obj1.tar.gz",
+          "sha256": "9f0dfcef67f0e6fde6abbe9a6ed6c6a4014dc802ce309245c9f2777d7e0108ac",
+          "bytes": 67838407,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-71415d1832c0",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-71415d1832c0/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-71415d1832c0/service-journal-proof.json",
+            "sha256": "20db9a53e7f83c6dd5c531cd954b2bb8fc3707fdb90397398642e54b3ac1b86c",
+            "bytes": 7814315,
+            "unit_records": {
+              "ax-four-71415d1832c0.service": 110,
+              "ax-four-71415d1832c0-otel.service": 30802,
+              "ax-four-71415d1832c0-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj2",
+          "run": "ax-four-71415d1832c0",
+          "role": "obj2",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-71415d1832c0/obj2.tar.gz",
+          "sha256": "6097413c17591d7f61799a8f85dee53c201d0ed5acfb1eb9e25c5d957666c5c5",
+          "bytes": 48401286,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-71415d1832c0",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-71415d1832c0/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-71415d1832c0/service-journal-proof.json",
+            "sha256": "6059a69a1d3fb985f31843aee2fc2bf64e71832cbeaa0a5a74e88fecddeee100",
+            "bytes": 7855509,
+            "unit_records": {
+              "ax-four-71415d1832c0.service": 148,
+              "ax-four-71415d1832c0-otel.service": 30886,
+              "ax-four-71415d1832c0-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj3",
+          "run": "ax-four-71415d1832c0",
+          "role": "obj3",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-71415d1832c0/obj3.tar.gz",
+          "sha256": "32dbd71604b7508f4fda8b9ca3a3e0b752ea5312b8e17c375c5e326b0d021668",
+          "bytes": 47092836,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-71415d1832c0",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-71415d1832c0/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-71415d1832c0/service-journal-proof.json",
+            "sha256": "ee9b69bd3a5a449cb2d1b11f1b4b6ba58d3c60c84cb89c66c66bb189c0a082d7",
+            "bytes": 7888736,
+            "unit_records": {
+              "ax-four-71415d1832c0.service": 190,
+              "ax-four-71415d1832c0-otel.service": 30928,
+              "ax-four-71415d1832c0-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj4",
+          "run": "ax-four-71415d1832c0",
+          "role": "obj4",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-71415d1832c0/obj4.tar.gz",
+          "sha256": "e28cfca93373b19d2912ff2ac29ee77e0ed1cc78d0b9109539c15bd5f79007b5",
+          "bytes": 49263065,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-71415d1832c0",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-71415d1832c0/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-71415d1832c0/service-journal-proof.json",
+            "sha256": "d10191f2203a0f15b928976711433fa38e1c56bd929ce223964070689cff5a6a",
+            "bytes": 7953913,
+            "unit_records": {
+              "ax-four-71415d1832c0.service": 287,
+              "ax-four-71415d1832c0-otel.service": 30969,
+              "ax-four-71415d1832c0-redis.service": 20
+            },
+            "redacted_records": 0
+          }
+        }
+      ],
+      "raw_archive_catalog_sha256": "887985fde2302ea7207ef8a753d60e93dec93e9b9221e4342b0e2b7c93f6f3c6"
+    },
+    {
+      "run": "ax-four-cb1d40f39ae9",
+      "closure_file": "closure-20261113T150738044Z.json",
+      "closure_sha256": "13a782e0857299159dc76b391c2265dcdade5c0ac23f01353ad916ba7db53c1d",
+      "observer_audit_sha256": "40dfc66d6c9c786eea3fcf65e283c89b379579ce9fb31f4a60d7611771c405a4",
+      "samples": 356.0,
+      "raw_archives": [
+        {
+          "host_alias": "idcai-jump",
+          "run": "ax-four-cb1d40f39ae9",
+          "role": "client",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-cb1d40f39ae9/client.tar.gz",
+          "sha256": "f1d198e49dc63d44c7b64e9838721eb44d1126b7b9a99c19334610680142f269",
+          "bytes": 679908,
+          "service_journal": null
+        },
+        {
+          "host_alias": "idcai-client2",
+          "run": "ax-four-cb1d40f39ae9",
+          "role": "target",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-cb1d40f39ae9/target.tar.gz",
+          "sha256": "82d7d373ee684aeb898229d00f488fd045c4d51b0aa5afa5eec583806f6e62f5",
+          "bytes": 468209,
+          "service_journal": null
+        },
+        {
+          "host_alias": "idcai-obj1",
+          "run": "ax-four-cb1d40f39ae9",
+          "role": "obj1",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-cb1d40f39ae9/obj1.tar.gz",
+          "sha256": "5729a3f97371fefb3c705e732d87d74ad80125c82caee28a6a0b6b21790c1964",
+          "bytes": 4662437,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-cb1d40f39ae9",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-cb1d40f39ae9/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-cb1d40f39ae9/service-journal-proof.json",
+            "sha256": "f1e6e0f9cff45b88b6aa002dec982bbf99892a2033c8526d7c9cd7c37e2e321f",
+            "bytes": 659424,
+            "unit_records": {
+              "ax-four-cb1d40f39ae9.service": 130,
+              "ax-four-cb1d40f39ae9-otel.service": 2325,
+              "ax-four-cb1d40f39ae9-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj2",
+          "run": "ax-four-cb1d40f39ae9",
+          "role": "obj2",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-cb1d40f39ae9/obj2.tar.gz",
+          "sha256": "c9e15afadbbd6a9fcabdf9aba4f1c70b208ad6ace254c79d78009eb4b8d44d4c",
+          "bytes": 3703931,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-cb1d40f39ae9",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-cb1d40f39ae9/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-cb1d40f39ae9/service-journal-proof.json",
+            "sha256": "16dc1895fc18cf71ca4fc4ed38c85243958b83e3c60aef9eb81236f622f7b196",
+            "bytes": 723531,
+            "unit_records": {
+              "ax-four-cb1d40f39ae9.service": 152,
+              "ax-four-cb1d40f39ae9-otel.service": 2535,
+              "ax-four-cb1d40f39ae9-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj3",
+          "run": "ax-four-cb1d40f39ae9",
+          "role": "obj3",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-cb1d40f39ae9/obj3.tar.gz",
+          "sha256": "13b77d2f7ac63ba5b2a665a5a0bec71d4fd8bfd66377b2e380e908cf3e470523",
+          "bytes": 4365561,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-cb1d40f39ae9",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-cb1d40f39ae9/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-cb1d40f39ae9/service-journal-proof.json",
+            "sha256": "3be77454544cbe6bef5e2fd81c062c37f91996dd80ebc0117290103242274212",
+            "bytes": 869674,
+            "unit_records": {
+              "ax-four-cb1d40f39ae9.service": 248,
+              "ax-four-cb1d40f39ae9-otel.service": 2913,
+              "ax-four-cb1d40f39ae9-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj4",
+          "run": "ax-four-cb1d40f39ae9",
+          "role": "obj4",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-cb1d40f39ae9/obj4.tar.gz",
+          "sha256": "e82d023014d7d44dbb31b612c2e92f722b64cd93cd1e7a975f2b9a256dd18c04",
+          "bytes": 4476705,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-cb1d40f39ae9",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-cb1d40f39ae9/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-cb1d40f39ae9/service-journal-proof.json",
+            "sha256": "d8e0fcd3ddb67ed7ab7b5db1780b544ce29168e06a8fafc9c87b89569d96180c",
+            "bytes": 907097,
+            "unit_records": {
+              "ax-four-cb1d40f39ae9.service": 272,
+              "ax-four-cb1d40f39ae9-otel.service": 2997,
+              "ax-four-cb1d40f39ae9-redis.service": 20
+            },
+            "redacted_records": 0
+          }
+        }
+      ],
+      "raw_archive_catalog_sha256": "05bd12f337960564db2371fb72792a292029db7dd870acb2ccacce45221e094a"
+    },
+    {
+      "run": "ax-four-db013b2920aa",
+      "closure_file": "closure-20261113T153821559Z.json",
+      "closure_sha256": "230bb7a28c77f55979311cf9e527f1d01ab44f77b9475a87874f196736c1f62b",
+      "observer_audit_sha256": "5c909f171fe4c0d5d011e5ddad3b0fc0bb9325dd0755df3b59494a24d754813f",
+      "samples": 1547.0,
+      "raw_archives": [
+        {
+          "host_alias": "idcai-jump",
+          "run": "ax-four-db013b2920aa",
+          "role": "client",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-db013b2920aa/client.tar.gz",
+          "sha256": "98cb99ab06f6d63989200d70e18ff87a921e8fea6a6e8fe019e997d86aef5e2e",
+          "bytes": 28190125,
+          "service_journal": null
+        },
+        {
+          "host_alias": "idcai-client2",
+          "run": "ax-four-db013b2920aa",
+          "role": "target",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-db013b2920aa/target.tar.gz",
+          "sha256": "3210f0f39c6e1fdc7ec246466e76c077ad55c2a89550b23ec5370c3269b2774f",
+          "bytes": 2084973,
+          "service_journal": null
+        },
+        {
+          "host_alias": "idcai-obj1",
+          "run": "ax-four-db013b2920aa",
+          "role": "obj1",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-db013b2920aa/obj1.tar.gz",
+          "sha256": "522ea6c58f87944415b648013f530ea3e0ab377e1ab3ef01a5586e887ae695a8",
+          "bytes": 17992696,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-db013b2920aa",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-db013b2920aa/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-db013b2920aa/service-journal-proof.json",
+            "sha256": "7fcf2d08f7be1e1662051b90a5d6c97c577db330225ee5ef9c405b94b35dac99",
+            "bytes": 2797627,
+            "unit_records": {
+              "ax-four-db013b2920aa.service": 98,
+              "ax-four-db013b2920aa-otel.service": 10893,
+              "ax-four-db013b2920aa-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj2",
+          "run": "ax-four-db013b2920aa",
+          "role": "obj2",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-db013b2920aa/obj2.tar.gz",
+          "sha256": "94daf89bad7f5b3888f37988bd72cc88696e38fc45e7d31aa8eda598b781fc4a",
+          "bytes": 15522208,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-db013b2920aa",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-db013b2920aa/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-db013b2920aa/service-journal-proof.json",
+            "sha256": "a40a104d13d9104e815491f0908fec745acc6f9eb79b31c4a16be6d4f2f454dc",
+            "bytes": 2924957,
+            "unit_records": {
+              "ax-four-db013b2920aa.service": 386,
+              "ax-four-db013b2920aa-otel.service": 10809,
+              "ax-four-db013b2920aa-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj3",
+          "run": "ax-four-db013b2920aa",
+          "role": "obj3",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-db013b2920aa/obj3.tar.gz",
+          "sha256": "e5e879682077232ed0a3a7aa3530ebbeb567091c9ad46f837246b654ff284272",
+          "bytes": 18539574,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-db013b2920aa",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-db013b2920aa/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-db013b2920aa/service-journal-proof.json",
+            "sha256": "4e655aa86756a7b947e3719e6faf8a3b4588419f11bb93421c1b1bdbcd3719f6",
+            "bytes": 2981860,
+            "unit_records": {
+              "ax-four-db013b2920aa.service": 497,
+              "ax-four-db013b2920aa-otel.service": 10813,
+              "ax-four-db013b2920aa-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj4",
+          "run": "ax-four-db013b2920aa",
+          "role": "obj4",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-db013b2920aa/obj4.tar.gz",
+          "sha256": "67718fe645336ea466860add6701f99448cc6148e964df67099a7a12d3b6fb67",
+          "bytes": 16208731,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-db013b2920aa",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-db013b2920aa/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-db013b2920aa/service-journal-proof.json",
+            "sha256": "0fc6e02f79c34a9fc4e6874a17b082fdb544cfa96a7c6aaf0fa32d23aa8fe168",
+            "bytes": 3017404,
+            "unit_records": {
+              "ax-four-db013b2920aa.service": 510,
+              "ax-four-db013b2920aa-otel.service": 10893,
+              "ax-four-db013b2920aa-redis.service": 30
+            },
+            "redacted_records": 0
+          }
+        }
+      ],
+      "raw_archive_catalog_sha256": "453f9cda76d288732bf34047ae3c37f3d21ef58c85bbbaeeea0e4d7b543ad6a5"
+    },
+    {
+      "run": "ax-four-8db595802c40",
+      "closure_file": "closure-20261114T024723900Z.json",
+      "closure_sha256": "8a7d4a5ff3b0df05f4ff832fba23b1c39f71d5ce930e4f2868bab1df52ec0864",
+      "observer_audit_sha256": "977e10cc715600da993f5aa1aa14859a8bc65f0a78fa9de321d5d672ad59b54d",
+      "samples": 11746.0,
+      "raw_archives": [
+        {
+          "host_alias": "idcai-jump",
+          "run": "ax-four-8db595802c40",
+          "role": "client",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-8db595802c40/client.tar.gz",
+          "sha256": "327f5094241c528f7e3e4d33ddc694f9a3d9502ad3bd2c5993a5979333d7a435",
+          "bytes": 46453330,
+          "service_journal": null
+        },
+        {
+          "host_alias": "idcai-client2",
+          "run": "ax-four-8db595802c40",
+          "role": "target",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-8db595802c40/target.tar.gz",
+          "sha256": "dfb7479bc9b8c0c352352d2f5af76286e48ba2907a36bb7d129e59324c96a70f",
+          "bytes": 16006011,
+          "service_journal": null
+        },
+        {
+          "host_alias": "idcai-obj1",
+          "run": "ax-four-8db595802c40",
+          "role": "obj1",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-8db595802c40/obj1.tar.gz",
+          "sha256": "0ae19978abd9260aec3c08ac27fbac89ee4899e4e71c89b07a74cbeb2254319d",
+          "bytes": 178987254,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-8db595802c40",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-8db595802c40/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-8db595802c40/service-journal-proof.json",
+            "sha256": "8dc8961bbf95b0cc583a85a8e4225ffe1feb121429e3acf4ae73f0c6159f6f4f",
+            "bytes": 20746203,
+            "unit_records": {
+              "ax-four-8db595802c40.service": 86,
+              "ax-four-8db595802c40-otel.service": 82252,
+              "ax-four-8db595802c40-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj2",
+          "run": "ax-four-8db595802c40",
+          "role": "obj2",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-8db595802c40/obj2.tar.gz",
+          "sha256": "e601486996b8dc10ee2ea5b2f90842df32f8c87a557b87dc1da1ad5d2821abff",
+          "bytes": 132523589,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-8db595802c40",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-8db595802c40/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-8db595802c40/service-journal-proof.json",
+            "sha256": "429f916782ae5a56c9c6d8efd2820add71ea7d1c91f166ea3746a59a07160ed4",
+            "bytes": 20811173,
+            "unit_records": {
+              "ax-four-8db595802c40.service": 185,
+              "ax-four-8db595802c40-otel.service": 82295,
+              "ax-four-8db595802c40-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj3",
+          "run": "ax-four-8db595802c40",
+          "role": "obj3",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-8db595802c40/obj3.tar.gz",
+          "sha256": "e734a7d2a51aaa2631526b019ed1d4d907ea29d1c51752df4d621a6d9e303e5c",
+          "bytes": 130348417,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-8db595802c40",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-8db595802c40/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-8db595802c40/service-journal-proof.json",
+            "sha256": "e21852dd96c237da1459af9129f7b351eae731f0a0cc0bd9ead75771fbb12fe3",
+            "bytes": 20858519,
+            "unit_records": {
+              "ax-four-8db595802c40.service": 235,
+              "ax-four-8db595802c40-otel.service": 82383,
+              "ax-four-8db595802c40-redis.service": 0
+            },
+            "redacted_records": 0
+          }
+        },
+        {
+          "host_alias": "idcai-obj4",
+          "run": "ax-four-8db595802c40",
+          "role": "obj4",
+          "path": "/srv/ax-idcai-20261113/evidence-archives/ax-four-8db595802c40/obj4.tar.gz",
+          "sha256": "30b7c50f87c73911dda8bd8e18812a1f36a12fa105662662acb77e38cd5133a1",
+          "bytes": 132551200,
+          "service_journal": {
+            "schema": "ax-idcai-service-journal-v1",
+            "run": "ax-four-8db595802c40",
+            "path": "/srv/ax-idcai-20261113/four-node/ax-four-8db595802c40/service-journal.jsonl",
+            "proof_path": "/srv/ax-idcai-20261113/four-node/ax-four-8db595802c40/service-journal-proof.json",
+            "sha256": "a06f63b58a1e711ef5b93e5699f5df76f2d9c419ec2b65de1a1aa23b61a2f94a",
+            "bytes": 20943881,
+            "unit_records": {
+              "ax-four-8db595802c40.service": 345,
+              "ax-four-8db595802c40-otel.service": 82466,
+              "ax-four-8db595802c40-redis.service": 34
+            },
+            "redacted_records": 0
+          }
+        }
+      ],
+      "raw_archive_catalog_sha256": "c8853c811b06ae4066975e8542559faf06e95d5c4bb45030ecf31f13383fe905"
+    }
+  ],
+  "local_receipts": [
+    {
+      "case": "c4-handoff-brewfs-workspace-stay",
+      "run": "ax-four-71415d1832c0",
+      "file": "c4-handoff-brewfs-workspace-stay.json",
+      "sha256": "fa0f60e31858e11c6cbc9cef74b90f3ea25acf7d820da7d778ec1e6b79b7c919",
+      "receipt_sha256": "fa0f60e31858e11c6cbc9cef74b90f3ea25acf7d820da7d778ec1e6b79b7c919"
+    },
+    {
+      "case": "c4-handoff-juicefs-stay",
+      "run": "ax-four-71415d1832c0",
+      "file": "c4-handoff-juicefs-stay.json",
+      "sha256": "3c73cf72ebaf32605976eebfe831eb3d63665fa02951efb47a7b30cfc030aa70",
+      "receipt_sha256": "3c73cf72ebaf32605976eebfe831eb3d63665fa02951efb47a7b30cfc030aa70"
+    },
+    {
+      "case": "c4-handoff-brewfs-workspace-move",
+      "run": "ax-four-cb1d40f39ae9",
+      "file": "c4-handoff-brewfs-workspace-move.json",
+      "sha256": "8150de6d214ee3023e387aacdcf4ebaf313d442479735c499e5d5433759a58dc",
+      "receipt_sha256": "8150de6d214ee3023e387aacdcf4ebaf313d442479735c499e5d5433759a58dc"
+    },
+    {
+      "case": "c4-handoff-juicefs-move",
+      "run": "ax-four-cb1d40f39ae9",
+      "file": "c4-handoff-juicefs-move.json",
+      "sha256": "9de1fa08d7ddf5d1d474ea3a9cb16f255e78ab78e81fba5d4307bdbf00df9d17",
+      "receipt_sha256": "9de1fa08d7ddf5d1d474ea3a9cb16f255e78ab78e81fba5d4307bdbf00df9d17"
+    },
+    {
+      "case": "c4-clone-juicefs",
+      "run": "ax-four-db013b2920aa",
+      "file": "c4-clone-juicefs.summary.json",
+      "sha256": "8a4ddeaedfdd1ffd547ba715aca5b6af146b2484985030d774fbcc3ccca56418",
+      "receipt_sha256": "930c590011a82640cc382a91d221f0fcf51cdfdf7c0a3b37a35743eb0c2fae0f"
+    },
+    {
+      "case": "c4-fork-brewfs-workspace",
+      "run": "ax-four-8db595802c40",
+      "file": "c4-fork-brewfs-workspace.summary.json",
+      "sha256": "529eba386f1fc51e8aa06456a3cf87aaea51f1bf92751a9e181ca11060b35ad9",
+      "receipt_sha256": "932ec4544ec136cbfcf95bd34d87c0511c33ab41030413b81b685d1b45442497"
+    }
+  ],
+  "postprocess_scripts": [
+    {
+      "name": "collect-c4-evidence.ps1",
+      "sha256": "9549291d054c1011595bf74204ea717e3a9d2f1732a1153866ad4275f8b2dfe4"
+    },
+    {
+      "name": "summarize-c4-source.py",
+      "sha256": "cce7ab9e4c0f9272fe8e7e2d04d2f0e94aac7fdc68f65eb7096a7b0268e2df79"
+    },
+    {
+      "name": "read-c4-target-proofs.py",
+      "sha256": "91724fcd1cb201ae7e0a994d9bf55633569fb95da972172ea43d964454461e10"
+    }
+  ],
+  "scope": "Qualification: 894-entry closed workspace stay/move; 100,000-file native fork/clone. No model calls or real agent resume. Native fork checks file hashes and six mutations; handoff checks full directory members, modes, contents and symlinks."
+}

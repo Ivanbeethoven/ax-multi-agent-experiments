@@ -1,0 +1,18 @@
+
+Report: GET. Concurrency: 64. Ran: 42s
+ * Average: 44.90 MiB/s, 2873.85 obj/s
+ * Reqs: Avg: 22.3ms, 50%: 21.8ms, 90%: 27.8ms, 99%: 34.5ms, Fastest: 4.2ms, Slowest: 310.0ms, StdDev: 5.6ms
+ * TTFB: Avg: 22ms, Best: 4ms, 25th: 19ms, Median: 22ms, 75th: 25ms, 90th: 28ms, 99th: 34ms, Worst: 282ms StdDev: 6ms
+
+Throughput by host:
+ * http://rustfs-node1:9000: Avg: 9.67 MiB/s, 618.99 obj/s
+ * http://rustfs-node2:9000: Avg: 12.35 MiB/s, 790.54 obj/s
+ * http://rustfs-node3:9000: Avg: 10.87 MiB/s, 695.52 obj/s
+ * http://rustfs-node4:9000: Avg: 11.84 MiB/s, 758.02 obj/s
+
+Throughput, split into 42 x 1s:
+ * Fastest: 46.0MiB/s, 2947.17 obj/s
+ * 50% Median: 45.2MiB/s, 2894.41 obj/s
+ * Slowest: 38.3MiB/s, 2450.59 obj/s
+
+

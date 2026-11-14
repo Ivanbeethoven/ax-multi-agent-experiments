@@ -1,0 +1,21 @@
+warp-stock: <ERROR> download error: Service not ready: waiting for startup_finalization 
+
+
+Report: GET. Concurrency: 64. Ran: 45s
+ * Average: 12.82 MiB/s, 3281.00 obj/s, 1 errors
+ * Errors: 1
+ * Reqs: Avg: 19.5ms, 50%: 18.2ms, 90%: 24.9ms, 99%: 32.8ms, Fastest: 4.8ms, Slowest: 3286.9ms, StdDev: 21.0ms
+ * TTFB: Avg: 18ms, Best: 5ms, 25th: 14ms, Median: 16ms, 75th: 19ms, 90th: 23ms, 99th: 30ms, Worst: 3.287s StdDev: 20ms
+
+Throughput by host:
+ * http://rustfs-node1:9000: Avg: 3.49 MiB/s, 893.51 obj/s
+ * http://rustfs-node2:9000: Avg: 3.61 MiB/s, 924.99 obj/s
+ * http://rustfs-node3:9000: Avg: 2.40 MiB/s, 614.21 obj/s, 1 errors - Errors: 1
+ * http://rustfs-node4:9000: Avg: 3.43 MiB/s, 877.19 obj/s
+
+Throughput, split into 45 x 1s:
+ * Fastest: 13.6MiB/s, 3490.16 obj/s
+ * 50% Median: 13.4MiB/s, 3427.64 obj/s
+ * Slowest: 30.2KiB/s, 7.56 obj/s
+
+
