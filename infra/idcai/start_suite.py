@@ -45,7 +45,7 @@ if group:command.extend(['--group',group])
 subprocess.run(command,check=True)
 print(RUN_ROOT)
 '''.replace('group=GROUP', 'group=' + repr(options.group))
-    subprocess.run(['ssh', options.host, 'python3 -'], input=source.encode(), check=True)
+    subprocess.run(['ssh', options.host, '/srv/ax-idcai-20261113/venv/bin/python3 -'], input=source.encode(), check=True)
 
 
 if __name__ == '__main__':
