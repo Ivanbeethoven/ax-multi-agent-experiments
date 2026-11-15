@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 
 EVIDENCE = (Path(__file__).resolve().parents[1] /
-            'experiments/unified-suite/pilot-aliyun/evidence/preparation')
+            'archive/experiments/unified-suite/pilot-aliyun/evidence/preparation')
 CONTROLLER = EVIDENCE / 'c2-current-trace-a-draft-01/run-c2-current-a.py'
 LIVE = EVIDENCE / 'c2-current-trace-a-preflight-failed-01/redis.json'
 

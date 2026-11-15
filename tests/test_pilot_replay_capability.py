@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 REPO=Path(__file__).resolve().parents[1]
-SCRIPT=REPO/'experiments/unified-suite/pilot-aliyun/scripts/prepare-c2.py'
+SCRIPT=REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/prepare-c2.py'
 spec=importlib.util.spec_from_file_location('prepare_c2_capability',SCRIPT)
 prepare=importlib.util.module_from_spec(spec);spec.loader.exec_module(prepare)
 

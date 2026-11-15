@@ -13,7 +13,7 @@ else:
     from test_pilot_pools import cloud_inventory,SETUP
 
 ROOT=Path(__file__).resolve().parents[1]
-MODULE=runpy.run_path(str(ROOT/'experiments/unified-suite/pilot-aliyun/scripts/qualify-parallel-hardware.py'))
+MODULE=runpy.run_path(str(ROOT/'archive/experiments/unified-suite/pilot-aliyun/scripts/qualify-parallel-hardware.py'))
 evaluate=MODULE['evaluate'];FLAGS=MODULE['FLAGS']
 
 

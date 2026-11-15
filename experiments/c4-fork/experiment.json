@@ -1,0 +1,834 @@
+{
+  "id": "C4",
+  "rq": "共享父版本、私有范围增量与差异合并能否降低 fork、局部修改和结果归并的成本？",
+  "cases": [
+    {
+      "name": "fork",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "files": [
+          10000,
+          100000
+        ],
+        "children": [
+          1,
+          16
+        ]
+      },
+      "fixed": {
+        "agents": 1,
+        "placement": "spread-hosts",
+        "requires": [
+          "native-sealed-source"
+        ]
+      },
+      "system_parameters": {
+        "juicefs": {
+          "parent_version": "immutable-source-tree",
+          "requires": []
+        },
+        "juicefs-overlay": {
+          "parent_version": "immutable-source-tree",
+          "requires": []
+        }
+      }
+    },
+    {
+      "name": "same-host",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "children": [
+          16
+        ]
+      },
+      "fixed": {
+        "agents": 1,
+        "files": 100000,
+        "placement": "same-host",
+        "requires": [
+          "native-sealed-source"
+        ]
+      },
+      "system_parameters": {
+        "juicefs": {
+          "parent_version": "immutable-source-tree",
+          "requires": []
+        },
+        "juicefs-overlay": {
+          "parent_version": "immutable-source-tree",
+          "requires": []
+        }
+      }
+    },
+    {
+      "name": "fork-scale",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "children": [
+          64
+        ]
+      },
+      "fixed": {
+        "agents": 1,
+        "files": 100000,
+        "placement": "spread-hosts",
+        "requires": [
+          "native-sealed-source"
+        ]
+      },
+      "system_parameters": {
+        "juicefs": {
+          "parent_version": "immutable-source-tree",
+          "requires": []
+        },
+        "juicefs-overlay": {
+          "parent_version": "immutable-source-tree",
+          "requires": []
+        }
+      }
+    },
+    {
+      "name": "partial-update",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "write_kib": [
+          4,
+          1024
+        ]
+      },
+      "fixed": {
+        "agents": 1,
+        "large_files": 8,
+        "file_mib": 64,
+        "children": 16,
+        "placement": "spread-hosts",
+        "requires": [
+          "native-sealed-source"
+        ],
+        "files": 8,
+        "file_bytes": 67108864
+      },
+      "system_parameters": {
+        "juicefs": {
+          "parent_version": "immutable-source-tree",
+          "requires": []
+        },
+        "juicefs-overlay": {
+          "parent_version": "immutable-source-tree",
+          "requires": []
+        }
+      }
+    },
+    {
+      "name": "row-cache",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-native-overlay"
+      ],
+      "axes": {
+        "row_cache_mib": [
+          0
+        ]
+      },
+      "fixed": {
+        "agents": 1,
+        "children": 16,
+        "files": 100000,
+        "placement": "spread-hosts",
+        "requires": [
+          "native-sealed-source"
+        ]
+      }
+    },
+    {
+      "name": "shared-host-cache",
+      "kind": "ablation",
+      "systems": "primary",
+      "axes": {
+        "cache_sharing": [
+          "host"
+        ]
+      },
+      "fixed": {
+        "agents": 1,
+        "children": 16,
+        "files": 100000,
+        "placement": "same-host",
+        "requires": [
+          "native-sealed-source",
+          "host-shared-read-cache"
+        ]
+      },
+      "system_parameters": {
+        "juicefs": {
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "host-shared-read-cache"
+          ]
+        },
+        "juicefs-overlay": {
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "host-shared-read-cache"
+          ]
+        }
+      }
+    },
+    {
+      "name": "fork-materialized-metadata",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-native-overlay"
+      ],
+      "axes": {
+        "fork_metadata": [
+          "materialized"
+        ]
+      },
+      "fixed": {
+        "requires": [
+          "native-sealed-source",
+          "native-materialized-namespace"
+        ]
+      }
+    },
+    {
+      "name": "full-file-update",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-native-overlay"
+      ],
+      "axes": {
+        "extent_update": [
+          "full-file"
+        ]
+      },
+      "fixed": {
+        "large_files": 8,
+        "file_mib": 64,
+        "write_kib": 4,
+        "requires": [
+          "native-sealed-source",
+          "full-file-copy-up"
+        ],
+        "files": 8,
+        "file_bytes": 67108864
+      }
+    },
+    {
+      "name": "merge-size",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "files": [
+          10000,
+          100000
+        ]
+      },
+      "fixed": {
+        "children": 1,
+        "target_changes": 0,
+        "merge_discovery": "delta",
+        "merge_data": "reference",
+        "change_mix": "mixed-v1",
+        "requires": [
+          "native-shared-bucket-source"
+        ],
+        "base_mounts": 1,
+        "changes": 100
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        }
+      }
+    },
+    {
+      "name": "merge-dirty",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "changes": [
+          1000,
+          10000
+        ]
+      },
+      "fixed": {
+        "children": 1,
+        "target_changes": 0,
+        "merge_discovery": "delta",
+        "merge_data": "reference",
+        "change_mix": "mixed-v1",
+        "requires": [
+          "native-shared-bucket-source"
+        ],
+        "base_mounts": 1
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        }
+      }
+    },
+    {
+      "name": "merge-fan-in",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "children": [
+          4,
+          16,
+          64
+        ]
+      },
+      "fixed": {
+        "target_changes": 0,
+        "merge_discovery": "delta",
+        "merge_data": "reference",
+        "change_mix": "mixed-v1",
+        "requires": [
+          "native-shared-bucket-source"
+        ],
+        "fan_in": "serial-child-id",
+        "child_paths": "disjoint",
+        "base_mounts": 1,
+        "changes": 100
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        }
+      }
+    },
+    {
+      "name": "merge-parent-progress",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "target_changes": [
+          100
+        ]
+      },
+      "fixed": {
+        "children": 1,
+        "merge_discovery": "delta",
+        "merge_data": "reference",
+        "change_mix": "mixed-v1",
+        "requires": [
+          "native-shared-bucket-source"
+        ],
+        "target_paths": "disjoint",
+        "base_mounts": 1,
+        "changes": 100
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        }
+      }
+    },
+    {
+      "name": "merge-tree-scan",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-native-overlay"
+      ],
+      "axes": {
+        "merge_discovery": [
+          "full-tree"
+        ],
+        "merge_data": [
+          "reference"
+        ]
+      },
+      "fixed": {
+        "children": 1,
+        "target_changes": 0,
+        "change_mix": "mixed-v1",
+        "requires": [
+          "native-shared-bucket-source",
+          "native-merge-strategy-switches"
+        ],
+        "base_mounts": 1,
+        "changes": 100
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize"
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize"
+        }
+      }
+    },
+    {
+      "name": "merge-materialize",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-native-overlay"
+      ],
+      "axes": {
+        "merge_discovery": [
+          "delta"
+        ],
+        "merge_data": [
+          "materialize"
+        ]
+      },
+      "fixed": {
+        "children": 1,
+        "target_changes": 0,
+        "change_mix": "mixed-v1",
+        "requires": [
+          "native-shared-bucket-source",
+          "native-merge-strategy-switches"
+        ],
+        "base_mounts": 1,
+        "changes": 100
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize"
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize"
+        }
+      }
+    },
+    {
+      "name": "merge-tree-materialize",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-native-overlay"
+      ],
+      "axes": {
+        "merge_discovery": [
+          "full-tree"
+        ],
+        "merge_data": [
+          "materialize"
+        ]
+      },
+      "fixed": {
+        "children": 1,
+        "target_changes": 0,
+        "change_mix": "mixed-v1",
+        "requires": [
+          "native-shared-bucket-source",
+          "native-merge-strategy-switches"
+        ],
+        "base_mounts": 1,
+        "changes": 100
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize"
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize"
+        }
+      }
+    },
+    {
+      "name": "merge-million",
+      "kind": "optional",
+      "systems": "primary",
+      "axes": {
+        "files": [
+          1000000
+        ]
+      },
+      "fixed": {
+        "children": 1,
+        "target_changes": 0,
+        "merge_discovery": "delta",
+        "merge_data": "reference",
+        "change_mix": "mixed-v1",
+        "requires": [
+          "native-shared-bucket-source"
+        ],
+        "base_mounts": 1,
+        "changes": 100
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        }
+      }
+    },
+    {
+      "name": "merge-target-delta",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "target_changes": [
+          1000,
+          10000
+        ]
+      },
+      "fixed": {
+        "children": 1,
+        "merge_discovery": "delta",
+        "merge_data": "reference",
+        "change_mix": "mixed-v1",
+        "requires": [
+          "native-shared-bucket-source"
+        ],
+        "base_mounts": 1,
+        "changes": 100,
+        "target_paths": "disjoint"
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        }
+      }
+    },
+    {
+      "name": "merge-metadata-only",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "change_mix": [
+          "metadata-only-v1"
+        ]
+      },
+      "fixed": {
+        "children": 1,
+        "target_changes": 0,
+        "merge_discovery": "delta",
+        "merge_data": "reference",
+        "requires": [
+          "native-shared-bucket-source"
+        ],
+        "base_mounts": 1,
+        "changes": 100
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        }
+      }
+    },
+    {
+      "name": "merge-large-file",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "write_kib": [
+          4,
+          1024
+        ]
+      },
+      "fixed": {
+        "children": 1,
+        "target_changes": 0,
+        "merge_discovery": "delta",
+        "merge_data": "reference",
+        "change_mix": "range-overwrite",
+        "requires": [
+          "native-shared-bucket-source"
+        ],
+        "base_mounts": 1,
+        "changes": 8,
+        "files": 8,
+        "large_files": 8,
+        "file_mib": 64,
+        "file_bytes": 67108864
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        }
+      }
+    },
+    {
+      "name": "merge-empty",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "changes": [
+          0
+        ]
+      },
+      "fixed": {
+        "children": 1,
+        "target_changes": 0,
+        "merge_discovery": "delta",
+        "merge_data": "reference",
+        "change_mix": "mixed-v1",
+        "requires": [
+          "native-shared-bucket-source"
+        ],
+        "base_mounts": 1
+      },
+      "system_parameters": {
+        "brewfs-native-overlay": {
+          "merge_adapter": "native-offline"
+        },
+        "juicefs": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        },
+        "juicefs-overlay": {
+          "merge_adapter": "posix-three-way",
+          "merge_discovery": "full-tree",
+          "merge_data": "materialize",
+          "parent_version": "immutable-source-tree",
+          "requires": [
+            "posix-three-way-merge"
+          ]
+        }
+      }
+    },
+    {
+      "name": "merge-posix-brewfs",
+      "kind": "comparison",
+      "systems": [
+        "brewfs-native-overlay"
+      ],
+      "axes": {},
+      "fixed": {
+        "children": 1,
+        "target_changes": 0,
+        "merge_discovery": "full-tree",
+        "merge_data": "materialize",
+        "change_mix": "mixed-v1",
+        "requires": [
+          "native-shared-bucket-source"
+        ],
+        "base_mounts": 1,
+        "changes": 100,
+        "merge_adapter": "posix-three-way"
+      },
+      "system_parameters": {}
+    }
+  ],
+  "defaults": {
+    "agents": 1,
+    "files": 100000,
+    "children": 16,
+    "placement": "spread-hosts",
+    "row_cache_mib": 64,
+    "cache_sharing": "private",
+    "fork_metadata": "shared",
+    "extent_update": "range",
+    "file_bytes": 4096,
+    "files_per_directory": 1000,
+    "parent_version": "native-immutable",
+    "writers": "quiesced",
+    "writes": "remote-ready"
+  },
+  "correctness": {
+    "repetitions": 10,
+    "performance_timing": false,
+    "cases": [
+      "empty-diff",
+      "create-overwrite-delete-rename-chmod",
+      "parent-disjoint-edits",
+      "same-file-conflict",
+      "delete-versus-descendant-edit",
+      "rename-destination-conflict",
+      "symlink",
+      "sparse-file",
+      "retry-same-merge",
+      "delete-child-cold-remount-parent",
+      "live-mount-rejected",
+      "different-base-rejected",
+      "different-bucket-rejected",
+      "hardlink-native",
+      "xattr-acl-native",
+      "lost-response-retry",
+      "independent-new-operation"
+    ],
+    "conflict_policy": "report-before-apply",
+    "writers": "quiesced",
+    "common_types": [
+      "regular",
+      "directory",
+      "symlink",
+      "sparse"
+    ],
+    "native_only_types": [
+      "hardlink",
+      "xattr",
+      "acl"
+    ],
+    "expected_failure_excluded_from_throughput": true
+  },
+  "implementation": "adapters.json"
+}

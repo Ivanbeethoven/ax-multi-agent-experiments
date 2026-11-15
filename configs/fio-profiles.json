@@ -1,0 +1,32 @@
+{
+  "schema": "ax-fio-profiles-v1",
+  "defaults": {
+    "jobs": 8,
+    "working_set_gib": 32,
+    "ioengine": "psync",
+    "iodepth": 1,
+    "direct": true,
+    "verify": "none",
+    "file_ranges": "disjoint-per-job",
+    "work_amount_scope": "all-jobs-combined",
+    "completion": "application-end-then-remote-ready",
+    "output_format": "json+"
+  },
+  "profiles": {
+    "seqread-1m": {"rw": "read", "request_kib": 1024, "total_bytes": 8589934592},
+    "seqwrite-1m": {"rw": "write", "request_kib": 1024, "total_bytes": 8589934592, "end_fsync": true},
+    "randread-4k": {"rw": "randread", "request_kib": 4, "total_operations": 65536},
+    "randwrite-sync-4k": {"rw": "randwrite", "request_kib": 4, "total_operations": 4096, "fsync_every_writes": 1},
+    "randrw-70r-64k": {"rw": "randrw", "request_kib": 64, "total_operations": 16384, "read_percent": 70, "fsync_every_writes": 128, "end_fsync": true}
+  },
+  "block_sweep": {
+    "block_kib": [64, 256, 1024, 4096],
+    "random_request_kib": [4, 64, 256, 1024],
+    "random_total_bytes": 268435456,
+    "sequential_request_kib": 1024,
+    "sequential_total_bytes": 8589934592,
+    "sync_interval_mib": 64,
+    "end_fsync": true,
+    "prefetch": "off"
+  }
+}

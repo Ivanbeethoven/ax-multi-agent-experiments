@@ -9,7 +9,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-SCRIPT = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/verify-latest.py'
+SCRIPT = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/verify-latest.py'
 
 
 class LatestReceipt(unittest.TestCase):

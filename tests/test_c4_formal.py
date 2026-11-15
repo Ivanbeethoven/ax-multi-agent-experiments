@@ -13,7 +13,7 @@ import unittest
 from unittest import mock
 
 REPO=Path(__file__).resolve().parents[1]
-SCRIPTS=REPO/'experiments/unified-suite/pilot-aliyun/scripts'
+SCRIPTS=REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts'
 sys.path[:0]=[str(REPO),str(REPO/'bench'),str(REPO/'scripts'),str(SCRIPTS)]
 from bench.runtime.common import digest,load,write_new
 from bench.runtime.fork_work import logical_work,validate_result

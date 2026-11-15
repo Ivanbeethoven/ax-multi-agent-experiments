@@ -8,9 +8,9 @@ import unittest
 from unittest.mock import patch
 
 REPO=Path(__file__).resolve().parents[1]
-MODULE=runpy.run_path(str(REPO/'experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py'))
+MODULE=runpy.run_path(str(REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py'))
 select=MODULE['filesystem_binary']
-admission=runpy.run_path(str(REPO/'experiments/unified-suite/pilot-aliyun/scripts/admit-c1.py'))
+admission=runpy.run_path(str(REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/admit-c1.py'))
 
 
 class BinaryBinding(unittest.TestCase):

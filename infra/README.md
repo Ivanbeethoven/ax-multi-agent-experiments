@@ -1,11 +1,13 @@
 # 环境准备
 
-已有SSH环境直接使用[SSH-RUN](../experiments/retest-2026-10-29/runbook/SSH-RUN.zh.md)。本目录用于需要单独准备的基础设施和对象服务。
+六机分工、依赖、版本与部署步骤见 [SETUP](../docs/SETUP.md)。
 
 | 目录 | 用途 |
 |---|---|
-| [alicloud](alicloud/PROVIDER.zh.md) | 云资源清单、网络、归属和收尾 |
-| [servers](servers/README.zh.md) | 服务器设备与交付检查 |
-| [rustfs](rustfs/README.md) | 版本冻结、配置生成、节点检查与S3探测 |
+| `idcai/prepare_host.py` | Linux 依赖检查与安装、主机信息 |
+| `idcai/build_release.py` | A366 限定并发构建 BrewFS，保存命令和产物信息 |
+| `rustfs/generate_rustfs.py` | 生成四节点一盘等拓扑的部署配置 |
+| `rustfs/rustfs_node.py` | 检查节点目录、镜像来源和服务设置 |
+| `alicloud/`、`servers/` | 其它环境的参考说明 |
 
-方法、baseline、输入与指标由[实验方案](../experiments/retest-2026-10-29/PLAN.zh.md)定义，硬件按实际交付验收。旧Terraform和整批控制器保存在[archive](../archive/README.md)。
+当前使用已有六台服务器，配置来自 `configs/cluster.json`，实际地址与目录写入本轮 inventory。运行结果放 `results/cluster-c1-c3/run-NNN/`。

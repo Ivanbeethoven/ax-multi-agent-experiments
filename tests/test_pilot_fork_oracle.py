@@ -12,7 +12,7 @@ sys.path.insert(0, str(REPO/'scripts'))
 import fs_step
 from full_trace_common import tree
 
-FILE = REPO/'experiments/unified-suite/pilot-aliyun/scripts/fork-oracle.py'
+FILE = REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/fork-oracle.py'
 spec = importlib.util.spec_from_file_location('fork_oracle', FILE)
 module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
 

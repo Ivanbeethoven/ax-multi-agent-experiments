@@ -18,7 +18,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 
-SCRIPT = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/a-pool-up.py'
+SCRIPT = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/a-pool-up.py'
 SPEC = importlib.util.spec_from_file_location('a_pool_up', SCRIPT)
 pool = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(pool)

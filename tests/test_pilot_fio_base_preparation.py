@@ -12,7 +12,7 @@ from bench.fio_workload import arguments
 from bench.suite_catalog import fio_params
 
 REPO = Path(__file__).resolve().parents[1]
-FILE = REPO/'experiments/unified-suite/pilot-aliyun/scripts/prepare-fio-base.py'
+FILE = REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/prepare-fio-base.py'
 spec = importlib.util.spec_from_file_location('pilot_fio_base_preparation', FILE)
 module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
 
@@ -27,7 +27,7 @@ class FioBasePreparation(unittest.TestCase):
             arm_id='native', arm=dict(product='brewfs'), params=fio_params(mode, True))
             for mode in ('read', 'randread')]
         self.plan.write_text(json.dumps(dict(cells=self.cells, config=dict(seed=17))))
-        tool = REPO/'experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py'
+        tool = REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/pilot-node.py'
         self.args = SimpleNamespace(product='brewfs', pool='pool-a', asset=self.client/'a/fio-inputs',
             out=self.client/'preparation/fio-inputs', plan=self.plan, inventory=self.inventory,
             node_tool=tool, node_tool_sha256=module.digest(tool), filesystem_binary=self.binary,

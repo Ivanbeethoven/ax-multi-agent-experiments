@@ -8,7 +8,7 @@ import sys
 import tempfile
 import unittest
 
-QUALIFY=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py'
+QUALIFY=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py'
 
 
 @unittest.skipUnless(os.name=='posix' and os.environ.get('FULL_FUSE_REPLAY_BIN'),

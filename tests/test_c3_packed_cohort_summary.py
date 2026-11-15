@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 import unittest
 
 
-SCRIPTS = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts'
+SCRIPTS = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts'
 SUMMARY = runpy.run_path(str(SCRIPTS/'summarize-c3-packed-cohort.py'))
 WORKER = runpy.run_path(str(SUMMARY['WORKER']))
 

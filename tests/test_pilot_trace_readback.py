@@ -10,7 +10,7 @@ import tempfile
 import unittest
 
 ROOT=Path(__file__).resolve().parents[1]
-SCRIPTS=ROOT/'experiments/unified-suite/pilot-aliyun/scripts'
+SCRIPTS=ROOT/'archive/experiments/unified-suite/pilot-aliyun/scripts'
 
 
 @unittest.skipUnless(os.name=='posix' and os.environ.get('FULL_FUSE_REPLAY_BIN'),'requires Linux Rust executable')

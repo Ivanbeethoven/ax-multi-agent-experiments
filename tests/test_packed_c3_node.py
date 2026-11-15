@@ -14,7 +14,7 @@ from bench.suite_plan import build
 from bench.suite_mount import overlay
 
 REPO=Path(__file__).resolve().parents[1]
-NODE=runpy.run_path(str(REPO/'experiments/unified-suite/pilot-aliyun/scripts/packed-c3-node.py'))
+NODE=runpy.run_path(str(REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-node.py'))
 
 
 class NativeDebt(unittest.TestCase):

@@ -14,7 +14,7 @@ import unittest
 from bench.archive_check import pack
 from unittest.mock import patch
 
-SCRIPTS = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts'
+SCRIPTS = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts'
 
 
 def module(name):

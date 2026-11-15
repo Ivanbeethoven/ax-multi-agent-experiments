@@ -11,7 +11,7 @@ from unittest import mock
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(REPO), str(REPO/'bench'), str(REPO/'scripts')]
-FILE = REPO/'experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py'
+FILE = REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/run-c4-fork-baseline.py'
 spec = importlib.util.spec_from_file_location('c4_fork_baseline_test', FILE)
 tool = importlib.util.module_from_spec(spec); spec.loader.exec_module(tool)
 oracle_spec = importlib.util.spec_from_file_location('c4_fork_oracle_test', FILE.with_name('fork-oracle.py'))

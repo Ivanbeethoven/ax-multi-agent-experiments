@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 REPO=Path(__file__).resolve().parents[1]
-TOOL=runpy.run_path(str(REPO/'experiments/unified-suite/pilot-aliyun/scripts/attest-client-binary.py'))
+TOOL=runpy.run_path(str(REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/attest-client-binary.py'))
 
 
 class ActualRoute(unittest.TestCase):

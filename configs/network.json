@@ -1,0 +1,32 @@
+{
+  "schema": "ax-network-v1",
+  "mode": "direct",
+  "interface": "eth0",
+  "subnet": "175.168.0.0/16",
+  "address_scope": "provider-assigned-on-link-subnet-not-rfc1918",
+  "hosts": {
+    "A366": {"ssh": "idcai-60001", "direct_ip": "175.168.3.66", "wireguard_ip": "10.77.13.11"},
+    "A355": {"ssh": "idcai-60525", "direct_ip": "175.168.3.55", "wireguard_ip": "10.77.13.12"},
+    "A672": {"ssh": "idcai-60103", "direct_ip": "175.168.6.72", "wireguard_ip": "10.77.13.21"},
+    "A601": {"ssh": "idcai-60439", "direct_ip": "175.168.6.1", "wireguard_ip": "10.77.13.22"},
+    "A635": {"ssh": "idcai-60533", "direct_ip": "175.168.6.35", "wireguard_ip": "10.77.13.23"},
+    "A368": {"ssh": "idcai-60555", "direct_ip": "175.168.3.68", "wireguard_ip": "10.77.13.24"}
+  },
+  "redis": {"host": "A355", "address": "175.168.3.55", "preferred_port": 6379, "database": 0},
+  "rustfs": {
+    "mode": "four-node-single-disk",
+    "network_mode": "host",
+    "private_subnet": "175.168.0.0/16",
+    "preferred_port": 9000,
+    "nodes": ["A672", "A601", "A635", "A368"],
+    "extra_hosts": {"rustfs1": "175.168.6.72", "rustfs2": "175.168.6.1", "rustfs3": "175.168.6.35", "rustfs4": "175.168.3.68"},
+    "endpoint_assignment": "zero-based-workspace-index-modulo-four",
+    "same_host_endpoint": "record-as-local"
+  },
+  "service_access": "six-host-addresses-only-with-authentication",
+  "port_allocation": "record-available-ports-in-run-endpoints-json",
+  "formal_data_network": "direct",
+  "wireguard_usage": "diagnostic-comparison-only",
+  "measurement": {"seconds": 5, "streams": 4, "all_directions": 30, "focus_receivers": ["A366", "A355"], "focus_repetitions": 2},
+  "observation": {"interval_seconds": 5, "interfaces": ["eth0", "axwg0"], "save_routes_and_live_connections": true}
+}

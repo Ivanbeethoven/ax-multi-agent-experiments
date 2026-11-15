@@ -16,7 +16,7 @@ def counters(gets, byte_count, logical, failures=0):
 
 
 def fixture_meter():
-    fixture = Path(__file__).resolve().parents[1]/('experiments/unified-suite/pilot-aliyun/'
+    fixture = Path(__file__).resolve().parents[1]/('archive/experiments/unified-suite/pilot-aliyun/'
               'evidence/preparation/c2-local-packed-warm-01/loopback_probe.py')
     loader = importlib.util.spec_from_file_location('fixture_meter',fixture)
     module = importlib.util.module_from_spec(loader)

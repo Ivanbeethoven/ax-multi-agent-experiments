@@ -27,7 +27,7 @@ DEFERRED = [
 
 
 def layout_controls():
-    matrix = json.loads((ROOT/'experiments/retest-2026-10-29/layout-matrix.json').read_text())
+    matrix = json.loads((ROOT/'archive/experiments/replay-campaign/layout-matrix.json').read_text())
     controls = {'s3-default': {'profile': 'disabled', 'requested_block_bytes': None,
                               'flags': matrix['profiles']['disabled']}}
     for profile in ('block-only', 'enabled'):
@@ -157,7 +157,7 @@ def build(repetitions=3, seed=42, stages=None, include_diagnostics=False, cluste
     return {'protocol':PROTOCOL, 'seed':seed, 'paired_batches':repetitions,
             'cluster_id':cluster,
             'clusters':{k:{'stages':[s for s in v if s in selected], 'owner_agent':k.lower()+'-owner',
-                           'prompt':'experiments/retest-2026-10-29/runbook/agents/'+k+'.prompt.md'} for k,v in CLUSTERS.items()
+                           'prompt':'archive/experiments/replay-campaign/runbook/agents/'+k+'.prompt.md'} for k,v in CLUSTERS.items()
                         if any(s in selected for s in v)},
             'trace_catalog_sha256':hashlib.sha256(TRACE_CATALOG.read_bytes()).hexdigest(),
             'stages':[s for s in STAGES+['M'] if s in selected], 'group_counts':counts,

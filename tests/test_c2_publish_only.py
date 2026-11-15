@@ -11,7 +11,7 @@ import unittest
 from unittest.mock import patch
 
 
-SCRIPT = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/c2-publish-only.py'
+SCRIPT = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/c2-publish-only.py'
 spec = importlib.util.spec_from_file_location('c2_pubdiag', SCRIPT)
 diag = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(diag)

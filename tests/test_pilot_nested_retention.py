@@ -6,7 +6,7 @@ import tarfile
 import unittest
 from bench import archive_check
 
-SCRIPT=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/verify-retained-bundle.py'
+SCRIPT=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/verify-retained-bundle.py'
 spec=importlib.util.spec_from_file_location('verify_retained_bundle',SCRIPT)
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 

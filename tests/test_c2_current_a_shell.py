@@ -11,7 +11,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTROLLER = ROOT / (
-    'experiments/unified-suite/pilot-aliyun/evidence/preparation/'
+    'archive/experiments/unified-suite/pilot-aliyun/evidence/preparation/'
     'c2-current-trace-a-draft-01/run-c2-current-a.py'
 )
 

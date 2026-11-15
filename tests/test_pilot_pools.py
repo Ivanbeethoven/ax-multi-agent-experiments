@@ -18,7 +18,7 @@ from bench.suite_catalog import template
 from bench.suite_plan import build
 
 REPO=Path(__file__).resolve().parents[1]
-SCRIPTS=REPO/'experiments/unified-suite/pilot-aliyun/scripts'
+SCRIPTS=REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts'
 SETUP=runpy.run_path(str(SCRIPTS/'setup-controller.py'))
 
 

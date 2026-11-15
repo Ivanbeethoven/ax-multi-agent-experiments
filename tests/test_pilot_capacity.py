@@ -14,7 +14,7 @@ else:
 from bench.suite_catalog import template,select_pilot_files
 from bench.suite_plan import build
 
-SCRIPT=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py'
+SCRIPT=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/capacity-check.py'
 spec=importlib.util.spec_from_file_location('pilot_capacity',SCRIPT)
 capacity=importlib.util.module_from_spec(spec);spec.loader.exec_module(capacity)
 GIB=1024**3

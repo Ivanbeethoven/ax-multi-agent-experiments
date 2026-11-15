@@ -1,0 +1,23 @@
+{
+  "schema":"ax-host-cache-sharing-v1",
+  "scope":"same-host-same-immutable-version",
+  "shared":["immutable-metadata","pack-objects","immutable-data-blocks"],
+  "private":["workspace-row-cache","dirty-data","upload-staging","writer-generation"],
+  "cache_identity":["storage-namespace","volume","immutable-version","object-or-page","range"],
+  "allocation":"sum-of-participating-private-read-cache-budgets",
+  "charge":"once-per-host-cache-owner",
+  "concurrency":"same-as-private-control-by-host",
+  "head_limit":"sum-of-participating-private-head-limits",
+  "download_limit":"sum-of-participating-private-download-limits",
+  "owner_cpu_memory":"transferred-from-participating-client-budget",
+  "join_requires":["same-identity-rules","concurrent-process-support","owner-metrics","verified-private-write-isolation"],
+  "brewfs_current":{
+    "packed_directory_lock":"exclusive-single-owner",
+    "same_directory_is_shared_cache":false,
+    "shared_metadata_adapter":"required",
+    "shared_pack_adapter":"required",
+    "shared_block_adapter":"required"
+  },
+  "cold_start":"new-group-directory",
+  "warm_reuse":"reuse-the-same-live-owner-or-reopen-after-owner-exit"
+}

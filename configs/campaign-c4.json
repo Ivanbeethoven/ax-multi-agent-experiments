@@ -1,0 +1,18 @@
+{
+  "schema": "ax-campaign-v1",
+  "name": "cluster-c4",
+  "groups": ["C4"],
+  "status": "planned",
+  "include_optional": false,
+  "execution": "manual",
+  "local_result_parent": "results/cluster-c4",
+  "remote_result_parent": "/srv/ax-cluster/runs/c4",
+  "run_id_allocation": "first-unused-run-NNN",
+  "repetitions": 3,
+  "system_order": "rotate-per-repetition",
+  "measurement_concurrency": 1,
+  "maximum_children": 64,
+  "maximum_simultaneous_mounts": 66,
+  "raw_results_commit": false,
+  "coexistence": "separate-measurement-window-from-c1-c3"
+}

@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 REPO=Path(__file__).resolve().parents[1]
-MOD=runpy.run_path(str(REPO/'experiments/unified-suite/pilot-aliyun/scripts/run-c1.py'))
+MOD=runpy.run_path(str(REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/run-c1.py'))
 Cell=MOD['Cell'];digest=MOD['digest']
 
 

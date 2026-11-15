@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 REPO=Path(__file__).resolve().parents[1]
-QUAL=REPO/'experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py'
+QUAL=REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/qualify-trace.py'
 
 
 @unittest.skipUnless(os.name=='posix' and os.environ.get('FULL_FUSE_REPLAY_BIN'),'requires Linux Rust executable')

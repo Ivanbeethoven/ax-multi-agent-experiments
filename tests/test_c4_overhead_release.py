@@ -6,7 +6,7 @@ import unittest
 
 from bench.runtime.common import load,write_new
 
-script=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/audit-c4-overhead-release.py'
+script=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/audit-c4-overhead-release.py'
 spec=importlib.util.spec_from_file_location('c4_overhead_release_test',script)
 audit=importlib.util.module_from_spec(spec);spec.loader.exec_module(audit)
 

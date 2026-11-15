@@ -9,7 +9,7 @@ import sys
 import tempfile
 from unittest.mock import patch, MagicMock
 
-FILE=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/archive-cloud-to-oss.py'
+FILE=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/archive-cloud-to-oss.py'
 SPEC=importlib.util.spec_from_file_location('cloud_oss_archive',FILE)
 module=importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(module)

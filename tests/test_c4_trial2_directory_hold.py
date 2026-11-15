@@ -14,7 +14,7 @@ from bench.runtime.pilot_pools import resource_guard
 
 
 REPO = Path(__file__).resolve().parents[1]
-RUNNER = REPO/'experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py'
+RUNNER = REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py'
 
 
 def original_flow():

@@ -13,7 +13,7 @@ from unittest.mock import Mock, patch
 from bench.experiment_io import load
 from bench.suite_plan import STAGES
 
-SCRIPTS = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts'
+SCRIPTS = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts'
 
 
 def module(name):

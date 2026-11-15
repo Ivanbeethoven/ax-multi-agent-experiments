@@ -5,7 +5,7 @@ import sys
 import tempfile
 import unittest
 
-FILE=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/run-preparation-step.py'
+FILE=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/run-preparation-step.py'
 spec=importlib.util.spec_from_file_location('pilot_preparation_step',FILE)
 step=importlib.util.module_from_spec(spec);spec.loader.exec_module(step)
 

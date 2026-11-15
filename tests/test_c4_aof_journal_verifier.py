@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 SCRIPT = (Path(__file__).resolve().parents[1]
-          / "experiments/unified-suite/pilot-aliyun/scripts/verify-c4-aof-journal.py")
+          / "archive/experiments/unified-suite/pilot-aliyun/scripts/verify-c4-aof-journal.py")
 SPEC = importlib.util.spec_from_file_location("verify_c4_aof_journal", SCRIPT)
 VERIFIER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(VERIFIER)

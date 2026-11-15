@@ -12,7 +12,7 @@ from bench.current_design import validate, cell_counts, parallel_resources
 from bench.suite_plan import build
 
 ROOT = Path(__file__).resolve().parents[1]
-DESIGN = ROOT / 'experiments/unified-suite/current/design.json'
+DESIGN = ROOT / 'archive/experiments/unified-suite/current/design.json'
 
 
 class CurrentDesignTests(unittest.TestCase):
@@ -124,9 +124,9 @@ class CurrentDesignTests(unittest.TestCase):
             self.assertIn('workspace-entity-v1', engines)  # Preserve historical identity.
 
     def test_current_document_links_resolve_in_repository(self):
-        pages = [ROOT / 'README.md', ROOT / 'experiments/unified-suite/README.md',
-                 ROOT / 'experiments/unified-suite/MAIN-SCALE.zh.md',
-                 ROOT / 'experiments/unified-suite/DESIGN-SWITCHES.zh.md']
+        pages = [ROOT / 'README.md', ROOT / 'archive/experiments/unified-suite/README.md',
+                 ROOT / 'archive/experiments/unified-suite/MAIN-SCALE.zh.md',
+                 ROOT / 'archive/experiments/unified-suite/DESIGN-SWITCHES.zh.md']
         pages += list(DESIGN.parent.glob('*.md'))
         for page in pages:
             for target in re.findall(r'\[[^\]]+\]\(([^)\s]+)\)', page.read_text(encoding='utf-8')):

@@ -8,7 +8,7 @@ from bench.runtime.common import digest,write_new
 
 
 def module(name):
-    p=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts'/(name+'.py')
+    p=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts'/(name+'.py')
     spec=importlib.util.spec_from_file_location(name.replace('-','_'),p)
     mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod);return mod
 

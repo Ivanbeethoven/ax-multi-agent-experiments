@@ -1,29 +1,32 @@
-# BrewFS 实验仓库
+# BrewFS 多 Agent 存储实验
 
-比较 BrewFS 与 JuiceFS 在工作区共享、文件读写、派生和跨机重挂上的表现。使用已经采集的文件系统 trace；当前不再运行真实 Agent，也不验证 OpenCode 对话恢复。
+本仓库比较 BrewFS、JuiceFS 和 JuiceFS Overlay 的文件 I/O、多 Agent 工作区与只读小文件共享。使用完整文件系统 trace 回放，不调用模型。
 
-**正式实验暂停。** 最小脚本检查已完成：首轮 21 个入口通过，剩余 5 个由后续检查补齐。功能通过不等于正式性能验收，实际版本和规模见结果记录。
+**新一轮 C1～C4 使用六机 eth0 直连。** 从 [直连实验交接](docs/HANDOFF-DIRECT-NETWORK.md) 开始，网络地址见 [NETWORK](docs/NETWORK.md)，范围和结果位置见 [campaign-direct.json](configs/campaign-direct.json)。分组操作细节：[C1～C3](docs/HANDOFF-C1-C3.md) · [C4](docs/HANDOFF-C4.md)。
 
-**现有六台 IDCAI 正在进行新一轮脚本验收**：完整 trace、十万小文件、四节点 RustFS，以及同后端 JuiceFS 对照。运行命令、问题修复和实时结果集中在 [IDCAI 目录](experiments/idcai-six-node-20261113/README.md)。
+| 实验 | 要回答的问题 | 计划 |
+|---|---|---|
+| C1 文件 I/O 与动态块 | 不同应用读写尺寸与对象 B/q 如何影响延迟、吞吐和实际字节？ | [设计与参数](experiments/c1-io/README.md) |
+| C2 多 Agent | 共享父数据与私有名字空间在并发完整任务中节省多少时间和资源？ | [设计与参数](experiments/c2-agents/README.md) |
+| C3 只读小文件 | Packed 联合页能否加速数据加载，准备成本需要多少次复用才能收回？ | [设计与参数](experiments/c3-ml/README.md) |
+| C4 fork 与合并 | 私有目录/范围增量能否降低派生、修改与归并成本？ | [设计与参数](experiments/c4-fork/README.md) |
+
+技术消融及配对见 [ABLATIONS](docs/ABLATIONS.md)。普通任务采用 Native Overlay；Packed 用于只读、反复使用的大量小文件。各工作区的可写数据独立，同机只读缓存按主机总预算比较共享与独立两种方式。
 
 | 要找什么 | 入口 |
 |---|---|
-| Overlay 原子替换重试 | [LOOKUP/GETATTR 并发替换、Redis/FUSE 检查与复测脚本](experiments/overlay-enoent-a355-20261114/README.zh.md) |
-| 已有性能结果和图 | [C1–C4 结果](experiments/unified-suite/current/results-20261112/RESULT.zh.md) |
-| Private Workspace 缓存 | [租约保留、60 秒 TTL 消融及目录热读](experiments/overlay-lease-cache-a355-20261114/README.zh.md) |
-| Overlay open 后续优化 | [异步状态、调度、Redis 查询分解与新旧版复测](experiments/overlay-open-profile-a355-20261114/README.zh.md) |
-| Overlay 热读优化与复测 | [小输入和 1 万文件、16/64 MiB 缓存](experiments/overlay-scale-a355-20261114/README.zh.md) · [open/close 分解与旧 TTL 对照修正](experiments/overlay-open-a355-20261113/README.zh.md) |
-| Overlay 并发错误修复 | [原子替换、混合读写正确性及修复前后热读对比](experiments/overlay-fixes-a355-20261114/README.zh.md) |
-| 最新五项功能检查 | [结果、修复、版本与清理](experiments/unified-suite/pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md) |
-| 实验怎么设计、还缺什么 | [当前 C1–C4 方案](experiments/unified-suite/current/README.zh.md) · [未完成项](experiments/unified-suite/current/PENDING.zh.md) |
-| 8 块怎样拆分、并行和执行 | [实验块与流程](experiments/unified-suite/current/BLOCKS.zh.md)；现有运行器支持按块选择与命令预览 |
-| 脚本怎么运行 | [脚本入口](experiments/unified-suite/pilot-aliyun/scripts/README.zh.md) · [最小检查](experiments/unified-suite/pilot-aliyun/FIVE-CHECKS.zh.md) |
-| 配置、输入与指标 | [配置](experiments/unified-suite/current/CONFIGURATION.zh.md) · [负载与指标](experiments/unified-suite/current/WORKLOADS.zh.md) · [参数](experiments/unified-suite/current/design.json) |
-| trace 从哪下载、怎么回放 | [下载清单](scenarios/k8s-containers/data-catalog.md) · [地址与 SHA256](scenarios/k8s-containers/archives.json) · [Rust 回放器](tools/full-fuse-replay/README.md) |
-| 历史实验和退役脚本 | [实验索引](experiments/README.md) · [历史文件清单](archive/README.md) |
+| 机器、软件来源、四节点 RustFS、Redis、准备命令 | [SETUP](docs/SETUP.md) |
+| 每个挂载的缓存、预读、上传和资源限制 | [MOUNTS](docs/MOUNTS.md) · [配置](configs/mount-profiles.json) |
+| 输入下载位置 | [trace-inputs.json](configs/trace-inputs.json) |
+| 指标采集与结果保存目录 | [METRICS](docs/METRICS.md) · [本轮结果](results/cluster-direct/README.md) |
+| 范围、条件与重复次数 | [campaign-direct.json](configs/campaign-direct.json) · [实验索引](experiments/README.md) |
+| 历史计划、运行结果和诊断材料 | [archive](archive/README.md) |
 
-当前主候选是 Workspace + Packed，外部对照只有 JuiceFS。各批次格式和提交号见对应回执。C4 比较原生 fork 与原生 clone；Overlay 完整开销使用同引擎的直接只读 lower 作对照，代码优化另与修改前 Overlay 比较，计时前验证 lower 已热。Flat 只用于 C1/C2，完整复制不作为 C4 对照。正式规模适配的缺项见当前方案。
+目录按用途组织：`experiments/` 为四个 C；`configs/` 为参数；`bench/` 为实验工具；`infra/` 为环境准备；`tools/` 为 Rust 工具；`datasets/` 为输入工具；`docs/` 为共用说明；`results/` 为本地结果；`archive/` 为历史材料。
 
-`bench/` 放调度、负载和核验，`tools/` 放 Rust 工具，`infra/` 放部署，`experiments/` 放计划与结果。本地运行输出写到 `runs/`，不提交 Git。验证命令见 [tests/README.md](tests/README.md)。
+```powershell
+python -m unittest discover -s tests/cluster -v
+python -m bench.cluster.plan --group C1 --out runs/c1-plan.json
+```
 
-原 A/B 测试机已释放，jump 和两块盘保留，最近一次核验为 StopCharging。恢复实验要使用新的资源清单；不能照抄历史机器 ID。版本、资源归属和并行规则见 [AGENTS.md](AGENTS.md)。
+计划生成器只输出任务。执行者按交接文档手动准备与运行，将缺少的适配补齐并记录状态。直连轮次 C1～C4 为 137 个条件、735 次系统运行，包含三次重复；最高并发 128。C4 最多 64 个 child 加 base/target。使用现有六机，CephFS 保留后续扩展位置。

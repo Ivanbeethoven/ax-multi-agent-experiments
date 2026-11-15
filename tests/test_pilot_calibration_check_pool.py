@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-FILE = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/check-calibration.py'
+FILE = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/check-calibration.py'
 SPEC = importlib.util.spec_from_file_location('calibration_check_pool', FILE)
 module = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(module)

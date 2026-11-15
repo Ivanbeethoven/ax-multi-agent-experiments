@@ -8,7 +8,7 @@ from bench.suite_catalog import template,select_pilot_files
 from bench.suite_plan import build
 
 REPO=Path(__file__).resolve().parents[1]
-CODE=runpy.run_path(str(REPO/'experiments/unified-suite/pilot-aliyun/scripts/rebind-flat-attempt.py'))
+CODE=runpy.run_path(str(REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/rebind-flat-attempt.py'))
 
 
 class FlatAttemptRebind(unittest.TestCase):

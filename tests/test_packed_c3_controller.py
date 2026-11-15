@@ -20,7 +20,7 @@ from bench.suite_plan import build
 from bench.suite_report import sample
 
 REPO=Path(__file__).resolve().parents[1]
-CONTROLLER=REPO/'experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py'
+CONTROLLER=REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py'
 CODE=runpy.run_path(str(CONTROLLER))
 METHODS=CODE['PackedMethods']
 
@@ -157,7 +157,7 @@ class PackedController(unittest.TestCase):
 
 class ObjectBindIdentity(unittest.TestCase):
     def test_aliases_must_point_to_the_exact_original_directories(self):
-        tools=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts'
+        tools=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts'
         check=runpy.run_path(str(tools/'packed-c3-capacity.py'))['check_object_binds']
         paths=[f'/srv/ax-objects-{i}' for i in range(4)]
         aliases=[f'/srv/ax-rustfs-data-{i}' for i in range(4)]

@@ -1,0 +1,50 @@
+{
+  "scope": "C4 planning and merge adapter",
+  "server_performance_runs_started": false,
+  "tests": [
+    {
+      "directory": "tests/cluster",
+      "pattern": "test_c4_design.py",
+      "passed": 6
+    },
+    {
+      "directory": "tests/cluster",
+      "pattern": "test_design.py",
+      "passed": 7
+    },
+    {
+      "directory": "tests",
+      "pattern": "test_workspace_merge.py",
+      "passed": 6
+    }
+  ],
+  "plan": {
+    "path": "runs/c4-planning-validation/plan-001.json",
+    "conditions": 30,
+    "system_runs": 228,
+    "conditions_by_kind": {
+      "main": 22,
+      "ablation": 7,
+      "comparison": 1
+    },
+    "maximum_simultaneous_mounts": 66
+  },
+  "files_checked": [
+    "experiments/c4-fork/README.md",
+    "experiments/c4-fork/experiment.json",
+    "experiments/c4-fork/adapters.json",
+    "configs/campaign-c4.json",
+    "docs/HANDOFF-C4.md",
+    "results/cluster-c4/README.md",
+    "tests/cluster/test_c4_design.py",
+    "tests/cluster/test_design.py",
+    "bench/cluster/plan.py",
+    "bench/cluster/workspace_merge.py",
+    "bench/cluster/WORKSPACE_MERGE.md",
+    "tests/test_workspace_merge.py"
+  ],
+  "relative_links_checked": 6,
+  "tracked_document_diff_check": "passed",
+  "checked_at_utc": "2026-11-15T03:28:18.551036+00:00",
+  "implementation": "aacfc6db923d67ddbdcdfd774648cd5476c2c0b2"
+}

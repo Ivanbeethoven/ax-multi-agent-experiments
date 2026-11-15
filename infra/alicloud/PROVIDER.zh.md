@@ -1,6 +1,6 @@
 # 阿里云 ECS 准备入口
 
-本轮使用 **ecs-20261101**，四组的实验设置、SKU、角色、容量和操作顺序统一见[部署手册](../../experiments/retest-2026-10-29/runbook/DEPLOYMENT.zh.md)。这是ECS＋Linux上的Docker/独立VM方案，无需ACK/Kubernetes；当前不购机或开跑。
+本轮使用 **ecs-20261101**，四组的实验设置、SKU、角色、容量和操作顺序统一见[部署手册](../../archive/experiments/replay-campaign/runbook/DEPLOYMENT.zh.md)。这是ECS＋Linux上的Docker/独立VM方案，无需ACK/Kubernetes；当前不购机或开跑。
 
 每组单独生成，示例C2：
 

@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-FILE=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/record-cost.py'
+FILE=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/record-cost.py'
 spec=importlib.util.spec_from_file_location('pilot_cost',FILE)
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 

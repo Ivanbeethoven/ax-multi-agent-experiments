@@ -4,7 +4,7 @@ import importlib.util
 from pathlib import Path
 import unittest
 
-FILE = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/release-evidence.py'
+FILE = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/release-evidence.py'
 spec = importlib.util.spec_from_file_location('release_evidence', FILE)
 module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
 

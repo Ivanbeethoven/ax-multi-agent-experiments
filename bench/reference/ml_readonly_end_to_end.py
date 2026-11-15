@@ -35,7 +35,7 @@ def native_environment(spec):
 
 def object_inventory(client, bucket, data_root, output):
     """Stream actual S3 sizes and all four persisted shard placements, outside timing."""
-    module=importlib.util.spec_from_file_location('p2_layout',AX/'experiments/retest-2026-10-29/scripts/inspect-layout.py')
+    module=importlib.util.spec_from_file_location('p2_layout',AX/'archive/experiments/replay-campaign/scripts/inspect-layout.py')
     layout=importlib.util.module_from_spec(module);module.loader.exec_module(layout)
     result={'objects':0,'logical_bytes':0,'inline_objects':0,'external_objects':0,
             'xl_meta_bytes_all_shards':0,'part_bytes_all_shards':0,'size_histogram':{},

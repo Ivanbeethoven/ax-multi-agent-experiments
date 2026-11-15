@@ -12,7 +12,7 @@ from unittest.mock import patch
 class PackedReadPreflight(unittest.TestCase):
     def test_wrong_artifact_is_rejected_before_output_or_services(self):
         root=Path(__file__).resolve().parents[1]
-        source=root/'experiments/unified-suite/pilot-aliyun/scripts/qualify-packed-read-local.py'
+        source=root/'archive/experiments/unified-suite/pilot-aliyun/scripts/qualify-packed-read-local.py'
         spec=importlib.util.spec_from_file_location('packed_read_local_test',source)
         module=importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

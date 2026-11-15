@@ -4,7 +4,7 @@ import unittest
 
 
 path = (Path(__file__).resolve().parents[1] /
-        'experiments/unified-suite/pilot-aliyun/scripts/observer-scratch-cloud.py')
+        'archive/experiments/unified-suite/pilot-aliyun/scripts/observer-scratch-cloud.py')
 spec = importlib.util.spec_from_file_location('observer_scratch_cloud', path)
 scratch = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(scratch)

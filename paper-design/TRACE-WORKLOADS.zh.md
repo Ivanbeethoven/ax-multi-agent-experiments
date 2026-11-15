@@ -1,6 +1,6 @@
 # AI trace：来源、规模与回放方法
 
-本轮 G1/A1 使用现有 **7 份固定 trace**，逐案例比较；不只测 pytest。精确 URI、归档大小和 SHA256 见 [输入目录](../scenarios/k8s-containers/archives.json)，OSS 对账见 [核查记录](../experiments/retest-2026-10-29/evidence/trace-inventory.json)。
+本轮 G1/A1 使用现有 **7 份固定 trace**，逐案例比较；不只测 pytest。精确 URI、归档大小和 SHA256 见 [输入目录](../scenarios/k8s-containers/archives.json)，OSS 对账见 [核查记录](../archive/experiments/replay-campaign/evidence/trace-inventory.json)。
 
 ## 1. 来自什么 benchmark
 

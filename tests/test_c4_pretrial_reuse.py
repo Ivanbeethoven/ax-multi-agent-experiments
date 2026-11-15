@@ -13,7 +13,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 REPO=Path(__file__).resolve().parents[1]
-SCRIPT=REPO/'experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py'
+SCRIPT=REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py'
 RUN=runpy.run_path(str(SCRIPT))
 ENV=RUN['main'].__globals__
 CELL=RUN['REUSE_CELL']

@@ -4,7 +4,7 @@
 
 2026-10-26补充：[7份OSS对象核查](oss-catalog-check.json)验证远端大小/SHA256元信息；公网带身份访问成功，匿名HEAD返回403。新增下载/校验脚本的[5项测试](archive-catalog-tests.txt)通过。本次未重放新增的大归档。
 
-2026-11-10：Drive备份清单记录137个文件、13,654,428,716字节。历史OSS前缀的28个对象在用户要求保留数据前已逐项核对并删除。扩展trace前缀有88个对象、2,945,879,903字节；10个未匹配Drive原始清单的小文件已备份到本地并尝试上传，Google API限额导致远端核验未完成。按最新决定暂停删除，88个对象保留。状态和文件摘要见[清理记录](../../../experiments/drive-backup-2026-10-29/handoff/aliyun-legacy-expansion-2026-11-10/retirement-status.json)。2026-11-11历史前缀已恢复28个对象，逐项核验大小/CRC64和匿名Range访问，见[恢复回执](historical-oss-restored/restoration.json)；当前历史7份可匿名下载。扩展OSS与Drive仍需授权。
+2026-11-10：Drive备份清单记录137个文件、13,654,428,716字节。历史OSS前缀的28个对象在用户要求保留数据前已逐项核对并删除。扩展trace前缀有88个对象、2,945,879,903字节；10个未匹配Drive原始清单的小文件已备份到本地并尝试上传，Google API限额导致远端核验未完成。按最新决定暂停删除，88个对象保留。状态和文件摘要见[清理记录](../../../archive/experiments/drive-backup/handoff/aliyun-legacy-expansion-2026-11-10/retirement-status.json)。2026-11-11历史前缀已恢复28个对象，逐项核验大小/CRC64和匿名Range访问，见[恢复回执](historical-oss-restored/restoration.json)；当前历史7份可匿名下载。扩展OSS与Drive仍需授权。
 
 状态：唯一外部对照为JuiceFS。部署、采集与传输脚本已准备；正式规模计划扩至128个客户端、512个并发工作区。真实平台和多容器协调尚未接通。没有申请云资源、调用模型或上传新数据。
 
@@ -49,7 +49,7 @@ WSL使用原 `pytest-full-02` 案例运行 `run_case.py`，初始树复制/核�
 
 此次是脚本功能检查，不是监控开销测量，也不是Kubernetes或存储系统性能对比。不能拿这个20.3秒和之前其他环境的7.8秒算退化。WSL的 `/init.scope` 含其他进程，组级内存约22 GB不能解释为回放器用量；数据明确标 `own_cgroup_container_boundary_unconfirmed`。
 
-17个原始小文件已复制到 [local-pytest](local-pytest/)，包含每阶段environment、samples、observer-result、stdout/stderr和最终结果。大输入和工作区保留在原本地位置，未复制进仓库。原始命令未记录参数明文；运行身份、计数和结果可追查。
+17个原始小文件已复制到 [local-pytest](local-pytest)，包含每阶段environment、samples、observer-result、stdout/stderr和最终结果。大输入和工作区保留在原本地位置，未复制进仓库。原始命令未记录参数明文；运行身份、计数和结果可追查。
 
 ## 专项审查后修复
 

@@ -31,7 +31,7 @@ def main():
     if a.action == 'template':
         if not a.legacy_catalog:
             p.error('Template uses historical entity/native-v2 routes. For new experiments read '
-                    'experiments/unified-suite/current/README.zh.md; the new adapter is pending. '
+                    'archive/experiments/unified-suite/current/README.zh.md; the new adapter is pending. '
                     'Use --legacy-catalog only for an intentional historical template.')
         write_new(a.output,template(a.profile,a.study))
     elif a.action == 'plan':

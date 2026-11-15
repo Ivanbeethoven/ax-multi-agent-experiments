@@ -6,7 +6,7 @@ import unittest
 
 
 SCRIPT = (Path(__file__).resolve().parents[1]
-          / "experiments/unified-suite/pilot-aliyun/scripts/reconcile-c4-capacity.py")
+          / "archive/experiments/unified-suite/pilot-aliyun/scripts/reconcile-c4-capacity.py")
 RECONCILE = runpy.run_path(str(SCRIPT))
 META = "/srv/ax-metadata"
 CLIENT = "/srv/ax-client"

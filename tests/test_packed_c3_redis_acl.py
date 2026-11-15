@@ -5,7 +5,7 @@ import runpy
 import unittest
 from unittest.mock import patch
 
-NODE=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/packed-c3-node.py'
+NODE=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-node.py'
 M=runpy.run_path(str(NODE));response=M['redis_response'];permissions=M['redis_reader_permissions']
 
 

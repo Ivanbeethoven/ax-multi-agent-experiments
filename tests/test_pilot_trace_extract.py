@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 
-SCRIPT=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/prepare-cloud-trace.py'
+SCRIPT=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/prepare-cloud-trace.py'
 spec=importlib.util.spec_from_file_location('pilot_trace_extract',SCRIPT)
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 

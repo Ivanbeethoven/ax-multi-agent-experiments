@@ -14,7 +14,7 @@ from bench.archive_check import pack
 
 
 FILE = (Path(__file__).resolve().parents[1]
-        / 'experiments/unified-suite/pilot-aliyun/scripts/reclaim-closed-object-observer.py')
+        / 'archive/experiments/unified-suite/pilot-aliyun/scripts/reclaim-closed-object-observer.py')
 SPEC = importlib.util.spec_from_file_location('closed_observer_reclaim', FILE)
 TOOL = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(TOOL)

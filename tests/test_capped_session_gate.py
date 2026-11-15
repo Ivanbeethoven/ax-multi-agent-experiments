@@ -9,7 +9,7 @@ import unittest
 
 
 SCRIPT = (Path(__file__).resolve().parents[1] /
-          "experiments/unified-suite/pilot-aliyun/scripts/qualify-session-shared-capped.py")
+          "archive/experiments/unified-suite/pilot-aliyun/scripts/qualify-session-shared-capped.py")
 
 
 @unittest.skipUnless(sys.platform.startswith("linux"), "qualification is Linux/WSL only")

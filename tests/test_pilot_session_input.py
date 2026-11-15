@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
-FILE = ROOT/'experiments/unified-suite/pilot-aliyun/scripts/prepare-session-input.py'
+FILE = ROOT/'archive/experiments/unified-suite/pilot-aliyun/scripts/prepare-session-input.py'
 spec = importlib.util.spec_from_file_location('pilot_session_input', FILE)
 module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
 from bench import experiment_step

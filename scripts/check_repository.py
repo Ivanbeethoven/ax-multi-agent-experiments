@@ -6,8 +6,8 @@ import re
 from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
-LEGACY_EXPERIMENT = ROOT / 'experiments/retest-2026-10-29'
-EXPERIMENT = ROOT / 'experiments/unified-suite'
+LEGACY_EXPERIMENT = ROOT / 'archive/experiments/replay-campaign'
+EXPERIMENT = ROOT / 'archive/experiments/unified-suite'
 
 
 def check():
@@ -15,7 +15,7 @@ def check():
     for directory in ('bench', 'infra', 'paper-design'):
         docs.extend((ROOT/directory).rglob('*.md'))
     docs.extend((ROOT/'scripts').glob('*.md'))
-    docs.extend((ROOT/'experiments/idcai-six-node-20261113').glob('*.md'))
+    docs.extend((ROOT/'archive/experiments/idcai-pilot').glob('*.md'))
     docs.extend(LEGACY_EXPERIMENT.glob('*.md'))
     historical_docs = list(EXPERIMENT.rglob('*.md'))
     frozen_docs = [doc for doc in historical_docs if 'evidence' in doc.relative_to(EXPERIMENT).parts]
@@ -42,7 +42,7 @@ def check():
     sources.extend((ROOT/'scripts').glob('*.py'))
     sources.extend((LEGACY_EXPERIMENT/'scripts').glob('*.py'))
     sources.extend((EXPERIMENT/'pilot-aliyun/scripts').glob('*.py'))
-    sources.extend((ROOT/'experiments/idcai-six-node-20261113/scripts').glob('*.py'))
+    sources.extend((ROOT/'archive/experiments/idcai-pilot/scripts').glob('*.py'))
     for source in sources:
         try: ast.parse(source.read_text(encoding='utf-8-sig'), filename=str(source))
         except SyntaxError as exc: errors.append(str(exc))

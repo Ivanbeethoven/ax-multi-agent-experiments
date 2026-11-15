@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-FILE = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/cloud.py'
+FILE = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/cloud.py'
 spec = importlib.util.spec_from_file_location('aliyun_pilot', FILE)
 cloud = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cloud)

@@ -13,7 +13,7 @@ import unittest
 from unittest.mock import patch
 
 
-FILE = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/retain-calibrations.py'
+FILE = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/retain-calibrations.py'
 spec = importlib.util.spec_from_file_location('calibration_pool_retention', FILE)
 module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
 CLOSED = 'LoadState=loaded\nActiveState=inactive\nSubState=dead\nExecMainStatus=0\nExecMainCode=1\n'

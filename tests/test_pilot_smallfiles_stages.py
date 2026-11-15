@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
-FILE=ROOT/'experiments/unified-suite/pilot-aliyun/scripts/run-c1.py'
+FILE=ROOT/'archive/experiments/unified-suite/pilot-aliyun/scripts/run-c1.py'
 spec=importlib.util.spec_from_file_location('pilot_flat_stages',FILE)
 runner=importlib.util.module_from_spec(spec);spec.loader.exec_module(runner)
 

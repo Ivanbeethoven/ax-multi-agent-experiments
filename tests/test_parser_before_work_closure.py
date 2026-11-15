@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 REPO=Path(__file__).resolve().parents[1]
-CODE=runpy.run_path(str(REPO/'experiments/unified-suite/pilot-aliyun/scripts/close-parser-before-work.py'))
+CODE=runpy.run_path(str(REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/close-parser-before-work.py'))
 
 
 class ParserClosure(unittest.TestCase):

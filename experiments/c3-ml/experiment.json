@@ -1,0 +1,226 @@
+{
+  "id": "C3",
+  "rq": "Packed 联合索引与共享不可变数据能否抵消准备成本并减少重复加载开销？",
+  "cases": [
+    {
+      "name": "prepare",
+      "kind": "main",
+      "systems": [
+        "brewfs-packed",
+        "juicefs",
+        "juicefs-overlay"
+      ],
+      "axes": {
+        "files": [
+          10000,
+          100000,
+          1000000
+        ]
+      },
+      "fixed": {
+        "agents": 1,
+        "workers": 8,
+        "file_bytes": 4096
+      }
+    },
+    {
+      "name": "load",
+      "kind": "main",
+      "systems": [
+        "brewfs-packed",
+        "juicefs",
+        "juicefs-overlay"
+      ],
+      "axes": {
+        "agents": [
+          1,
+          32,
+          128
+        ]
+      },
+      "fixed": {
+        "files": 100000,
+        "epochs": 3,
+        "file_bytes": 4096
+      }
+    },
+    {
+      "name": "fork",
+      "kind": "main",
+      "systems": [
+        "brewfs-packed",
+        "juicefs",
+        "juicefs-overlay"
+      ],
+      "axes": {
+        "files": [
+          10000,
+          100000
+        ]
+      },
+      "fixed": {
+        "agents": 1,
+        "children": 16,
+        "dirty_fraction": 0.01
+      }
+    },
+    {
+      "name": "reuse",
+      "kind": "main",
+      "systems": [
+        "brewfs-packed",
+        "juicefs",
+        "juicefs-overlay"
+      ],
+      "axes": {
+        "waves": [
+          16
+        ]
+      },
+      "fixed": {
+        "agents": 32,
+        "files": 100000,
+        "report_prefixes": [
+          1,
+          4,
+          16
+        ]
+      }
+    },
+    {
+      "name": "whole-pack-cache",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-packed"
+      ],
+      "axes": {
+        "packed_cache": [
+          "off"
+        ]
+      },
+      "fixed": {
+        "agents": 32,
+        "files": 100000
+      }
+    },
+    {
+      "name": "retained-payload",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-packed"
+      ],
+      "axes": {
+        "retained_payload_mib": [
+          0
+        ]
+      },
+      "fixed": {
+        "agents": 32,
+        "files": 100000
+      }
+    },
+    {
+      "name": "metadata-cache",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-packed"
+      ],
+      "axes": {
+        "metadata_cache_mib": [
+          0
+        ]
+      },
+      "fixed": {
+        "agents": 32,
+        "files": 100000
+      }
+    },
+    {
+      "name": "metadata-representation",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-packed"
+      ],
+      "axes": {
+        "metadata_representation": [
+          "kv"
+        ]
+      },
+      "fixed": {
+        "agents": 32,
+        "files": 100000,
+        "requires": [
+          "same-payload-kv-adapter"
+        ]
+      }
+    },
+    {
+      "name": "shared-host-cache",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-packed",
+        "juicefs",
+        "juicefs-overlay"
+      ],
+      "axes": {
+        "cache_sharing": [
+          "host"
+        ]
+      },
+      "fixed": {
+        "agents": 32,
+        "files": 100000,
+        "requires": [
+          "host-shared-read-cache"
+        ]
+      }
+    },
+    {
+      "name": "kv-no-metadata-cache",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-packed"
+      ],
+      "axes": {
+        "metadata_cache_mib": [
+          0
+        ]
+      },
+      "fixed": {
+        "metadata_representation": "kv",
+        "requires": [
+          "same-payload-kv-adapter"
+        ]
+      }
+    },
+    {
+      "name": "large-corpus",
+      "kind": "optional",
+      "systems": [
+        "brewfs-packed",
+        "juicefs",
+        "juicefs-overlay"
+      ],
+      "axes": {
+        "files": [
+          1000000
+        ]
+      },
+      "fixed": {
+        "agents": 128,
+        "epochs": 3
+      }
+    }
+  ],
+  "defaults": {
+    "agents": 32,
+    "files": 100000,
+    "file_bytes": 4096,
+    "epochs": 3,
+    "packed_cache": "on",
+    "retained_payload_mib": 8,
+    "metadata_cache_mib": 128,
+    "metadata_representation": "packed",
+    "cache_sharing": "private"
+  }
+}

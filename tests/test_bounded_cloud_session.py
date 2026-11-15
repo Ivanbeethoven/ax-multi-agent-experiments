@@ -15,7 +15,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 
-BASE = Path(__file__).resolve().parents[1] / "experiments/unified-suite/pilot-aliyun/scripts"
+BASE = Path(__file__).resolve().parents[1] / "archive/experiments/unified-suite/pilot-aliyun/scripts"
 
 
 def module(name, filename):

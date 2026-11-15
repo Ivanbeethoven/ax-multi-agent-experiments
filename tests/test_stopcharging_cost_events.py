@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 
-SCRIPTS = Path(__file__).resolve().parents[1] / 'experiments/unified-suite/pilot-aliyun/scripts'
+SCRIPTS = Path(__file__).resolve().parents[1] / 'archive/experiments/unified-suite/pilot-aliyun/scripts'
 
 
 def load(name):

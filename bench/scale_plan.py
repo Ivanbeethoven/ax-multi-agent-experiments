@@ -39,7 +39,7 @@ def hardware_reference(isolation):
         'coordinator_reference':{'vcpus':8,'memory_gib':32,'result_disk_gib':2048},
         'hardware_verified':False,'minimum_free_fraction':0.25,'system_disk_gib_per_node':100,
         'shared_nodes_private_network_target_gbps':25,
-        'hardware_contract':'experiments/retest-2026-10-29/HARDWARE.zh.md',
+        'hardware_contract':'archive/experiments/replay-campaign/HARDWARE.zh.md',
         'required_hardware_evidence':['actual-role-cpu-memory-cgroups-and-host-placement',
             'per-volume-physical-bytes-and-inodes-including-temporary-retention',
             'measured-input-io-parser-memory-and-observer-headroom',
@@ -251,7 +251,7 @@ def build(profile='main',isolation='docker',provider='provided',cluster=None,see
                 step['entrypoint']='bench/runtime/fleet.py'
                 step['state']='fill SSH slots; probe endpoints; qualify shared-host capacity'
             if step['id']=='05-backend':
-                step['entrypoint']='experiments/retest-2026-10-29/runbook/DEPLOYMENT.zh.md'
+                step['entrypoint']='archive/experiments/replay-campaign/runbook/DEPLOYMENT.zh.md'
                 step['state']='qualify supplied service endpoints, versions, layout and native metrics'
         result['note']='SSH workload matrix; fill a v3 fleet and explicit slots for the available environments.'
     return result
@@ -352,7 +352,7 @@ def attach_deployment(result,n):
         {'id':'03-host','entrypoint':'bench/host_preflight.py','state':'implemented-read-only-host-check'},
         {'id':'04-pins','entrypoint':'infra/rustfs/resolve_backend.py','state':'update-specified-branch-then-verify-latest-built-image'},
         {'id':'05-backend','entrypoint':'infra/rustfs/rustfs_node.py','state':'single-node-step-requires-reviewed-config'},
-        {'id':'06-input','entrypoint':'experiments/retest-2026-10-29/runbook/DATA.zh.md','state':'download-and-full-validation-before-timing'},
+        {'id':'06-input','entrypoint':'archive/experiments/replay-campaign/runbook/DATA.zh.md','state':'download-and-full-validation-before-timing'},
         {'id':'07-mount','entrypoint':'bench/runtime/prepare.py','state':'native-mount-supervisor-implemented-real-service-qualification-required'},
         {'id':'08-observe','entrypoint':'bench/runtime/observe.py','state':'raw-sampling-and-audit-implemented-native-metrics-and-overhead-qualification-required'},
         {'id':'08-cohort','entrypoint':'bench/runtime/cohort.py','state':'one-reviewed-cohort-no-auto-dispatch'},

@@ -1,0 +1,45 @@
+{
+  "status": "passed",
+  "scope": "local-planning-validation",
+  "network_config": "configs/network.json",
+  "campaign": "configs/campaign-direct.json",
+  "tests_passed": 17,
+  "test_files": [
+    "tests/cluster/test_direct_network.py",
+    "tests/cluster/test_design.py",
+    "tests/cluster/test_c4_design.py"
+  ],
+  "counts": {
+    "C1": {
+      "conditions": 81,
+      "system_runs": 321,
+      "active_agents": 192,
+      "main_agent_limit": 128,
+      "mount_slots": 224
+    },
+    "C2": {
+      "conditions": 11,
+      "system_runs": 81,
+      "active_agents": 192,
+      "main_agent_limit": 128,
+      "mount_slots": 224
+    },
+    "C3": {
+      "conditions": 15,
+      "system_runs": 105,
+      "active_agents": 192,
+      "main_agent_limit": 128,
+      "mount_slots": 224
+    },
+    "C4": {
+      "conditions": 30,
+      "system_runs": 228,
+      "active_agents": 192,
+      "main_agent_limit": 128,
+      "mount_slots": 224
+    }
+  },
+  "checked_links": 52,
+  "plan_exports": "runs/direct-planning-validation/export-001",
+  "performance_runs_started": false
+}

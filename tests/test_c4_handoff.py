@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 
 
-source=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/audit-c4-handoff.py'
+source=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/audit-c4-handoff.py'
 spec=importlib.util.spec_from_file_location('c4_handoff_test',source)
 handoff=importlib.util.module_from_spec(spec);spec.loader.exec_module(handoff)
 

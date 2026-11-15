@@ -1,6 +1,6 @@
 # 历史容器实验：BrewFS 对比 JuiceFS
 
-> 历史参考：本目录保留输入目录、下载/观测工具和早期验证。当前 `final_plan.py` 与 `trace_oss_audit.py` 仍读取 [archives.json](archives.json)；下文预算、campaign 和基线安排不用于新一轮。当前入口是[四集群方案](../../experiments/retest-2026-10-29/PLAN.zh.md)；旧五 RQ 参数清单已[归档](../../archive/README.md)。
+> 历史参考：本目录保留输入目录、下载/观测工具和早期验证。当前 `final_plan.py` 与 `trace_oss_audit.py` 仍读取 [archives.json](archives.json)；下文预算、campaign 和基线安排不用于新一轮。当前入口是[四集群方案](../../archive/experiments/replay-campaign/PLAN.zh.md)；旧五 RQ 参数清单已[归档](../../archive/README.md)。
 
 2026-10-24。**当前唯一外部对照是 JuiceFS CE＋Redis＋RustFS。**先跑通 JuiceFS，再加入 BrewFS 和自身消融。本轮不部署 AX 控制器，使用已有文件系统 trace；不新增模型调用。
 

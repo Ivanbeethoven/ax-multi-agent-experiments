@@ -3,7 +3,7 @@ import argparse
 import json
 from pathlib import Path
 
-CONFIG = Path(__file__).resolve().parents[1] / 'experiments/unified-suite/current/design.json'
+CONFIG = Path(__file__).resolve().parents[1] / 'archive/experiments/unified-suite/current/design.json'
 MODES = {
     'C1-io': ('brewfs-basic', 'juicefs'),
     'C1-layout': ('brewfs-basic', 'dynamic-off', 'hint-64k', 'hint-256k',

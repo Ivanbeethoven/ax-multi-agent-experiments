@@ -60,7 +60,7 @@ class C4CalibrationVerify(unittest.TestCase):
         with self.assertRaises(ValueError):verify.scope(verify.TOUCHED,'observer-calibration-on',None)
 
     def test_batch_freezes_first_trial_full_and_later_trials_reference_bound(self):
-        source=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py'
+        source=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/run-c4-batch.py'
         spec=importlib.util.spec_from_file_location('c4_batch_policy',source)
         mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
         self.assertEqual(mod.trial_verification(verify.FULL,5,None),{})

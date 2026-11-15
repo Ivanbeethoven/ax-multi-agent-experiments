@@ -1,0 +1,53 @@
+{
+  "schema": "ax-c4-adapters-v1",
+  "brewfs": {
+    "repository": "https://github.com/brewfs/brewfs",
+    "implementation_branch": "codex/workspace-merge",
+    "tested_commit": "aacfc6db923d67ddbdcdfd774648cd5476c2c0b2",
+    "source_directory": "C:/Users/HXY/.cache/brewfs-cluster-main-efd9c902",
+    "volume_format": "workspace",
+    "command": ["workspace", "--meta-backend", "redis", "--meta-url", "<catalog-url>", "--workspace-namespace", "<namespace>", "merge", "<child>", "<target>", "--operation", "<uuid>"],
+    "preconditions": ["common-native-base", "base-sealed-depth-1", "writable-head-depth-2", "same-object-bucket", "child-and-target-unmounted", "no-active-lease", "no-open-recovery"],
+    "result_fields": ["request", "committed", "target_head", "target_sequence", "scanned_records", "applied_records", "conflicts"],
+    "scanned_records_scope": "child-and-target-private-delta-rows-only",
+    "applied_records_scope": "copied-delta-rows-excluding-derived-indexes-ownership-receipt",
+    "phase_timing": "external-total-currently-available",
+    "discovery_switch": "requires-implementation",
+    "data_materialization_switch": "requires-implementation",
+    "existing_functional_backend": "redis-local-fs",
+    "performance_backend": "redis-four-node-rustfs",
+    "s3_preparation": "shared-bucket-native-base-and-workspaces-via-catalog-api"
+  },
+  "ax": {
+    "source_commit": "0bf2d0d7ba0a9e893936c7b48e49ea5d9e093a55",
+    "module": "bench.cluster.workspace_merge",
+    "operation_record": "private/operations/<condition>/<system>/r<repeat>/<child>.json",
+    "retry": "same-operation-file",
+    "fresh_repetition": "fresh-workspaces-and-operation-file",
+    "exit_codes": {"committed": 0, "conflict": 2, "invocation-error": 1}
+  },
+  "posix": {
+    "source_commit": "aacfc6db923d67ddbdcdfd774648cd5476c2c0b2",
+    "source_path": "tools/experiments/workspace_merge/merge_posix.py",
+    "command": ["python3", "<brewfs-source>/tools/experiments/workspace_merge/merge_posix.py", "<base>", "<child>", "<target>"],
+    "systems": ["juicefs", "juicefs-overlay", "brewfs-native-overlay"],
+    "discovery": "full-tree-with-direct-byte-comparison",
+    "data": "copy-changed-files",
+    "supported_common_types": ["regular", "directory", "symlink", "sparse"],
+    "unsupported_types": ["hardlink", "special"],
+    "compared_attributes": ["kind", "mode", "regular-file-content", "symlink-target"],
+    "result_fields": ["conflicts", "planned_edits", "entries_scanned", "comparison_bytes_read", "payload_bytes_copied", "scan_seconds", "plan_seconds", "apply_seconds"],
+    "conflict": "precheck-before-mutation",
+    "apply_failure": "may-leave-partial-changes",
+    "exit_codes": {"success": 0, "conflict": 2, "invocation-error": 1}
+  },
+  "shared_experimental_settings": {
+    "content_checks": "direct-byte-comparison",
+    "mutation_writers": "quiesced",
+    "same_case_same_data_and_seed": true,
+    "ssh_role": "launch-and-collect",
+    "s3_bucket_deletion": "only-after-all-workspaces-and-readers-finish",
+    "child_cleanup": "discard-metadata-and-run-reference-aware-gc",
+    "private_credentials_in_public_results": false
+  }
+}

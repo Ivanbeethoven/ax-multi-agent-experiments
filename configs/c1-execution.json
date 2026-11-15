@@ -1,0 +1,29 @@
+{
+  "schema": "ax-c1-execution-v1",
+  "preparation": {
+    "maximum_parallel_tasks": 2,
+    "hosts": ["A366", "A355"],
+    "large_input_generation_and_upload": "outside-measurement-windows"
+  },
+  "measurement": {
+    "host": "A366",
+    "maximum_parallel_conditions": 1,
+    "fio_jobs_per_condition": 8,
+    "work_amount": "all-jobs-combined",
+    "job_file_ranges": "disjoint",
+    "preserve_case_order_and_system_rotation": true
+  },
+  "offline_processing": {
+    "host": "A355",
+    "maximum_parallel_tasks": 1,
+    "maximum_logical_cpus": 2,
+    "memory_mib": 2048,
+    "cpu_placement": "outside-redis-cpuset-within-existing-host-budget",
+    "allowed_during_measurement": ["parse-saved-small-json", "append-summary-row", "generate-next-parameters"],
+    "storage_access": "saved-results-only"
+  },
+  "exclusive_measurement_resources": ["rustfs-cluster", "redis-service", "object-disks"],
+  "schedule_log": "schedule.jsonl",
+  "reuse": ["built-binaries", "downloaded-traces", "immutable-input-with-same-content-and-layout", "matching-juicefs-reference-results"],
+  "phase_times": ["preparation", "measurement", "offline-processing", "campaign-wall-clock"]
+}

@@ -12,7 +12,7 @@ import urllib.request
 from http.server import ThreadingHTTPServer
 
 
-SCRIPT = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/session-relay.py'
+SCRIPT = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/session-relay.py'
 spec = importlib.util.spec_from_file_location('pilot_session_relay', SCRIPT)
 relay = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(relay)

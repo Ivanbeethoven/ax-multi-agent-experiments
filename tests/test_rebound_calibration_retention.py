@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 REPO=Path(__file__).resolve().parents[1]
-CODE=runpy.run_path(str(REPO/'experiments/unified-suite/pilot-aliyun/scripts/retain-rebound-calibrations.py'))
+CODE=runpy.run_path(str(REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/retain-rebound-calibrations.py'))
 
 
 class ReboundRetention(unittest.TestCase):

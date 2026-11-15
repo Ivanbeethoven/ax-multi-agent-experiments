@@ -39,7 +39,7 @@ class PilotFileCount(unittest.TestCase):
             env = dict(os.environ, PATH=str(tools)+os.pathsep+os.environ['PATH'],
                 SNAPSHOT_TEST_DIR=str(root))
             env.pop('AX_INPUT_SNAPSHOT', None)
-            script = ROOT/'experiments/unified-suite/pilot-aliyun/scripts/prepare-inputs.sh'
+            script = ROOT/'archive/experiments/unified-suite/pilot-aliyun/scripts/prepare-inputs.sh'
             def run():
                 return subprocess.run(['bash',str(script),'c3',str(build),'100000'],
                     env=env,capture_output=True,timeout=20)
@@ -97,7 +97,7 @@ class PilotFileCount(unittest.TestCase):
     def test_cli_generates_separate_four_cell_c3_phase(self):
         with tempfile.TemporaryDirectory() as temporary:
             out = Path(temporary)/'c3'
-            subprocess.run([sys.executable, str(ROOT/'experiments/unified-suite/pilot-aliyun/scripts/configure-pilot.py'),
+            subprocess.run([sys.executable, str(ROOT/'archive/experiments/unified-suite/pilot-aliyun/scripts/configure-pilot.py'),
                 '--phase', 'c3', '--files', '100000', '--campaign', 'pilot-100k', '--out', str(out)],
                 check=True, capture_output=True)
             plan = json.loads((out/'plan.json').read_text())
@@ -117,7 +117,7 @@ class PilotFileCount(unittest.TestCase):
             common = ['--asset', str(root/'asset'), '--plan', str(plan), '--source', str(root/'source'),
                 '--source-proof', str(proof), '--node-tool', str(helper), '--node-tool-sha256',
                 hashlib.sha256(helper.read_bytes()).hexdigest(), '--database', '90']
-            scripts = ROOT/'experiments/unified-suite/pilot-aliyun/scripts'
+            scripts = ROOT/'archive/experiments/unified-suite/pilot-aliyun/scripts'
             for name, extra in [('prepare-smallfiles.py', common+['--product','brewfs','--attempt','check-100k']),
                     ('prepare-packed.py', common+['--mount-state',str(root/'mount-state')]),
                     ('smallfiles-oracle.py', ['--source',str(root/'source'),'--source-proof',str(proof),'--files','100000'])]:
@@ -132,7 +132,7 @@ class PilotFileCount(unittest.TestCase):
             for phase, expected in [('c1',10),('c2',5)]:
                 with self.subTest(phase=phase):
                     out=Path(temporary)/phase
-                    subprocess.run([sys.executable,str(ROOT/'experiments/unified-suite/pilot-aliyun/scripts/configure-pilot.py'),
+                    subprocess.run([sys.executable,str(ROOT/'archive/experiments/unified-suite/pilot-aliyun/scripts/configure-pilot.py'),
                         '--phase',phase,'--campaign','new-version-'+phase,'--out',str(out)],
                         check=True,capture_output=True)
                     plan=json.loads((out/'plan.json').read_text())

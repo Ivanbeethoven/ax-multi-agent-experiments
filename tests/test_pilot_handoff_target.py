@@ -12,7 +12,7 @@ from bench.runtime.prepare import anchor
 from bench.suite_catalog import template
 from bench.suite_plan import build
 
-FILE=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/draft-handoff-target.py'
+FILE=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/draft-handoff-target.py'
 spec=importlib.util.spec_from_file_location('pilot_handoff_target',FILE)
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 

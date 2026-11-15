@@ -12,7 +12,7 @@ from bench.suite_catalog import select_pilot_files, template
 from bench.suite_plan import build, check_plan
 from bench.suite_report import report
 
-SCRIPTS = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts'
+SCRIPTS = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts'
 
 
 class FlatRetirement(unittest.TestCase):

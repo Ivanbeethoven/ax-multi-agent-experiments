@@ -3,7 +3,7 @@ from pathlib import Path
 import unittest
 
 
-source=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/qualify-c3-workspace-base.py'
+source=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/qualify-c3-workspace-base.py'
 spec=importlib.util.spec_from_file_location('c3_probe_database',source)
 module=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)

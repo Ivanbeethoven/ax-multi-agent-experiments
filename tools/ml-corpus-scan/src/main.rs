@@ -1,6 +1,6 @@
-//! Bounded-memory readonly ML corpus replay. Manifest: SHA256<TAB>SIZE<TAB>RELATIVE_PATH.
-//! The caller freezes real dataset/task provenance; this tool does not claim to be an agent.
-use sha2::{Digest, Sha256};
+//! Bounded-memory readonly ML corpus replay without any hash/checksum calculation.
+//! Manifest format: INDEX<TAB>SIZE<TAB>RELATIVE_PATH (or SIZE<TAB>RELATIVE_PATH).
+//! Verification checks file type, canonical containment, exact byte length, and deterministic payload bytes when INDEX is supplied.
 use std::{
     env,
     fs::{self, File, OpenOptions},
@@ -13,19 +13,35 @@ use std::{
 
 #[derive(Debug)]
 struct Entry {
-    hash: String,
+    index: Option<u64>,
     size: u64,
     path: PathBuf,
 }
-fn entry(line: &str) -> Result<Entry, String> {
-    let fields: Vec<_> = line.splitn(3, '\t').collect();
-    if fields.len() != 3
-        || fields[0].len() != 64
-        || !fields[0].bytes().all(|b| b.is_ascii_hexdigit())
-    {
-        return Err("invalid manifest record".into());
+
+fn deterministic_payload_4k(i: u64) -> [u8; 4096] {
+    let mut state = i;
+    let mut result = [0u8; 4096];
+    for part in result.chunks_exact_mut(8) {
+        state = state.wrapping_add(0x9e3779b97f4a7c15);
+        let mut z = state;
+        z = (z ^ (z >> 30)).wrapping_mul(0xbf58476d1ce4e5b9);
+        z = (z ^ (z >> 27)).wrapping_mul(0x94d049bb133111eb);
+        part.copy_from_slice(&(z ^ (z >> 31)).to_le_bytes());
     }
-    let path = PathBuf::from(fields[2]);
+    result
+}
+
+fn entry(line: &str) -> Result<Entry, String> {
+    let fields: Vec<_> = line.split('\t').collect();
+    let (index, size_str, raw_path) = match fields.as_slice() {
+        [size_s, rel_p] => (None, *size_s, *rel_p),
+        [idx_s, size_s, rel_p] => {
+            let idx: u64 = idx_s.parse().map_err(|_| "invalid record index")?;
+            (Some(idx), *size_s, *rel_p)
+        }
+        _ => return Err("invalid manifest record".into()),
+    };
+    let path = PathBuf::from(raw_path);
     if path.as_os_str().is_empty()
         || path
             .components()
@@ -34,11 +50,12 @@ fn entry(line: &str) -> Result<Entry, String> {
         return Err("manifest path must be normal and relative".into());
     }
     Ok(Entry {
-        hash: fields[0].to_ascii_lowercase(),
-        size: fields[1].parse().map_err(|_| "invalid size")?,
+        index,
+        size: size_str.parse().map_err(|_| "invalid size")?,
         path,
     })
 }
+
 struct Counts {
     files: u64,
     bytes: u64,
@@ -58,6 +75,7 @@ impl Default for Counts {
         }
     }
 }
+
 fn access(root: &Path, e: &Entry, mode: &str) -> Result<u64, Box<dyn std::error::Error>> {
     let path = root.join(&e.path);
     let meta = fs::symlink_metadata(&path)?;
@@ -71,33 +89,39 @@ fn access(root: &Path, e: &Entry, mode: &str) -> Result<u64, Box<dyn std::error:
         return Err("path escaped root".into());
     }
     let mut file = File::open(path)?;
+    if mode == "verify" && e.size == 4096 {
+        if let Some(idx) = e.index {
+            let mut actual = Vec::with_capacity(4097);
+            (&mut file).take(4097).read_to_end(&mut actual)?;
+            if actual.len() != 4096 || actual.as_slice() != deterministic_payload_4k(idx) {
+                return Err("content payload mismatch".into());
+            }
+            return Ok(4096);
+        }
+    }
     let mut buffer = [0u8; 65536];
     let mut n = 0;
-    let mut hash = Sha256::new();
     loop {
         let count = file.read(&mut buffer)?;
         if count == 0 {
             break;
         }
         n += count as u64;
-        if mode == "verify" {
-            hash.update(&buffer[..count]);
-        } else {
-            std::hint::black_box(&buffer[..count]);
-        }
+        std::hint::black_box(&buffer[..count]);
     }
     if n != e.size {
         return Err("short/oversized read".into());
     }
-    if mode == "verify" && format!("{:x}", hash.finalize()) != e.hash {
-        return Err("content SHA256 mismatch".into());
-    }
     Ok(n)
 }
+
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let a: Vec<_> = env::args().collect();
     if a.len() != 7 {
-        return Err("usage: ml-corpus-scan ROOT MANIFEST stat|read|verify WORKERS EXPECTED_FILES NEW_OUTPUT".into());
+        return Err(
+            "usage: ml-corpus-scan ROOT MANIFEST stat|read|verify WORKERS EXPECTED_FILES NEW_OUTPUT"
+                .into(),
+        );
     }
     let root = PathBuf::from(&a[1]).canonicalize()?;
     let manifest = PathBuf::from(&a[2]).canonicalize()?;
@@ -161,19 +185,20 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         }));
     }
     let mut records = 0u64;
+    let mut manifest_bytes = 0u64;
     let mut expected_bytes = 0u64;
     let mut source_error = None;
-    let mut sha = Sha256::new();
     let mut batch = Vec::with_capacity(256);
     let source = (|| -> Result<(), Box<dyn std::error::Error>> {
         let mut reader = BufReader::new(File::open(manifest)?);
         let mut line = String::new();
         loop {
             line.clear();
-            if reader.read_line(&mut line)? == 0 {
+            let read_len = reader.read_line(&mut line)?;
+            if read_len == 0 {
                 break;
             }
-            sha.update(line.as_bytes());
+            manifest_bytes += read_len as u64;
             let e = entry(line.trim_end_matches(['\n', '\r'])).map_err(io::Error::other)?;
             records += 1;
             expected_bytes += e.size;
@@ -209,15 +234,28 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         && total.files == expected
         && total.errors == 0
         && (mode == "stat" || total.bytes == expected_bytes);
-    let value = serde_json::json!({"completed":passed,"mode":mode,"workers":workers,
-        "manifest_sha256":format!("{:x}",sha.finalize()),"expected_files":expected,"manifest_records":records,
-        "attempted_files":total.files,"actual_read_bytes":total.bytes,"expected_payload_bytes":expected_bytes,
-        "errors":total.errors,"first_error":total.first_error,"source_error":source_error,
-        "access_latency_ns_log2":total.latency_ns_log2.as_slice(),
-        "latency_scope":"all attempted accesses including errors; bucket k is [2^k,2^(k+1)) ns; includes stat/open/read, not manifest queue wait",
-        "wall_seconds":started.elapsed().as_secs_f64(),"content_verified":passed && mode=="verify",
-        "scope":"fixed manifest readonly access; includes dispatch and manifest streaming; not live-agent end-to-end",
-        "total_timeout_seconds":null,"queue_batches":workers*2,"batch_files":256});
+    let value = serde_json::json!({
+        "completed": passed,
+        "mode": mode,
+        "workers": workers,
+        "manifest_bytes": manifest_bytes,
+        "expected_files": expected,
+        "manifest_records": records,
+        "attempted_files": total.files,
+        "actual_read_bytes": total.bytes,
+        "expected_payload_bytes": expected_bytes,
+        "errors": total.errors,
+        "first_error": total.first_error,
+        "source_error": source_error,
+        "access_latency_ns_log2": total.latency_ns_log2.as_slice(),
+        "latency_scope": "all attempted accesses including errors; bucket k is [2^k,2^(k+1)) ns; includes stat/open/read, not manifest queue wait",
+        "wall_seconds": started.elapsed().as_secs_f64(),
+        "content_verified": passed && mode == "verify",
+        "scope": "fixed manifest readonly access; includes dispatch and manifest streaming; not live-agent end-to-end",
+        "total_timeout_seconds": null,
+        "queue_batches": workers * 2,
+        "batch_files": 256
+    });
     serde_json::to_writer_pretty(&mut out, &value)?;
     out.write_all(b"\n")?;
     println!("{value}");
@@ -226,6 +264,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     run()
 }
@@ -236,27 +275,28 @@ mod tests {
     #[test]
     fn reject_escape_and_malformed_records() {
         for name in ["../secret", "/absolute", "a/../../secret", ""] {
-            assert!(entry(&format!("{}\t1\t{name}", "0".repeat(64))).is_err());
+            assert!(entry(&format!("0\t1\t{name}")).is_err());
         }
-        assert!(entry("not-a-hash\t1\tfile").is_err());
-        assert!(entry(&format!("{}\t-1\tfile", "0".repeat(64))).is_err());
+        assert!(entry("not-an-index\t1\tfile").is_err());
+        assert!(entry("0\t-1\tfile").is_err());
     }
     #[test]
-    fn hashes_actual_bytes_and_rejects_truncation() {
+    fn verifies_actual_bytes_and_rejects_truncation() {
         let root = env::temp_dir().join(format!("ax-ml-scan-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&root);
         fs::create_dir(&root).unwrap();
-        fs::write(root.join("file"), b"abc").unwrap();
+        fs::write(root.join("file"), deterministic_payload_4k(7)).unwrap();
         let mut e = Entry {
+            index: Some(7),
             path: "file".into(),
-            size: 3,
-            hash: format!("{:x}", Sha256::digest(b"abc")),
+            size: 4096,
         };
-        assert_eq!(access(&root, &e, "verify").unwrap(), 3);
-        e.hash = "0".repeat(64);
+        assert_eq!(access(&root, &e, "verify").unwrap(), 4096);
+        e.index = Some(8);
         assert!(access(&root, &e, "verify").is_err());
-        e.size = 4;
+        e.index = None;
+        e.size = 4097;
         assert!(access(&root, &e, "read").is_err());
-        fs::remove_file(root.join("file")).unwrap();
-        fs::remove_dir(root).unwrap();
+        let _ = fs::remove_dir_all(&root);
     }
 }

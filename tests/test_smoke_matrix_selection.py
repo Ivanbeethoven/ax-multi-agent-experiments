@@ -85,7 +85,7 @@ class MatrixSelection(unittest.TestCase):
         from bench.experiment_smoke_matrix import main
         import runpy
         root_dir=Path(__file__).resolve().parents[1]
-        summarize=runpy.run_path(str(root_dir/'experiments/unified-suite/pilot-aliyun/scripts/summarize-smoke-check.py'))['summarize']
+        summarize=runpy.run_path(str(root_dir/'archive/experiments/unified-suite/pilot-aliyun/scripts/summarize-smoke-check.py'))['summarize']
         for value in ({'status':'passed'},None,{'status':'unknown'},[]):
             with self.subTest(value=value),tempfile.TemporaryDirectory() as folder:
                 root=Path(folder);calls=[]

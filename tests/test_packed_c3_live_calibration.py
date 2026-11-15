@@ -5,7 +5,7 @@ import runpy
 import tempfile
 import unittest
 
-REPO=Path(__file__).resolve().parents[1];TOOLS=REPO/'experiments/unified-suite/pilot-aliyun/scripts'
+REPO=Path(__file__).resolve().parents[1];TOOLS=REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts'
 NODE=runpy.run_path(str(TOOLS/'packed-c3-calibration-node.py'))
 CONTROLLER=runpy.run_path(str(TOOLS/'packed-c3-controller.py'))
 CHECKER=runpy.run_path(str(TOOLS/'check-packed-c3-live-calibration.py'))

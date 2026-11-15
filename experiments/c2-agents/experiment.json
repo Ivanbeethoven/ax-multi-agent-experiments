@@ -1,0 +1,137 @@
+{
+  "id": "C2",
+  "rq": "私有工作区、缓存和写入策略能否改善多 Agent 任务完成时间与资源占用？",
+  "cases": [
+    {
+      "name": "scale",
+      "kind": "main",
+      "systems": "primary",
+      "axes": {
+        "agents": [
+          8,
+          32,
+          64,
+          128
+        ]
+      },
+      "fixed": {
+        "pacing": "short",
+        "writes": "remote-ready"
+      }
+    },
+    {
+      "name": "pacing",
+      "kind": "sensitivity",
+      "systems": "primary",
+      "axes": {
+        "pacing": [
+          "none",
+          "long"
+        ]
+      },
+      "fixed": {
+        "agents": 64
+      }
+    },
+    {
+      "name": "writeback",
+      "kind": "sensitivity",
+      "systems": "primary",
+      "axes": {
+        "writes": [
+          "local-staged"
+        ]
+      },
+      "fixed": {
+        "agents": 64
+      }
+    },
+    {
+      "name": "row-cache",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-native-overlay"
+      ],
+      "axes": {
+        "row_cache_mib": [
+          0
+        ]
+      },
+      "fixed": {
+        "agents": 64
+      }
+    },
+    {
+      "name": "fork-cache",
+      "kind": "ablation",
+      "systems": [
+        "juicefs-overlay"
+      ],
+      "axes": {
+        "fork_cache_mib": [
+          0
+        ]
+      },
+      "fixed": {
+        "agents": 64
+      }
+    },
+    {
+      "name": "shared-host-cache",
+      "kind": "ablation",
+      "systems": "primary",
+      "axes": {
+        "cache_sharing": [
+          "host"
+        ]
+      },
+      "fixed": {
+        "agents": 64,
+        "requires": [
+          "host-shared-read-cache"
+        ]
+      }
+    },
+    {
+      "name": "namespace-materialized",
+      "kind": "ablation",
+      "systems": [
+        "brewfs-native-overlay"
+      ],
+      "axes": {
+        "namespace_mode": [
+          "materialized"
+        ]
+      },
+      "fixed": {
+        "agents": 64,
+        "requires": [
+          "native-materialized-namespace"
+        ]
+      }
+    },
+    {
+      "name": "capacity",
+      "kind": "optional",
+      "systems": "primary",
+      "axes": {
+        "agents": [
+          192
+        ]
+      },
+      "fixed": {
+        "pacing": "short",
+        "writes": "remote-ready"
+      }
+    }
+  ],
+  "defaults": {
+    "agents": 64,
+    "pacing": "short",
+    "writes": "remote-ready",
+    "row_cache_mib": 64,
+    "fork_cache_mib": 256,
+    "cache_sharing": "private",
+    "namespace_mode": "shared"
+  }
+}

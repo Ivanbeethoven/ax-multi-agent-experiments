@@ -22,7 +22,13 @@ def generate(spec, out):
     image = spec["image"]
     if 'REPLACE_WITH' in image or 'REGISTRY/' in image:
         raise ValueError('replace deployment placeholders before generating')
-    if not re.fullmatch(r"[^\s]+@sha256:[0-9a-f]{64}", image):
+    single_disk_fleet = spec.get('mode') == 'four-node-single-disk'
+    if single_disk_fleet:
+        if not re.fullmatch(r'[^\s]+:[A-Za-z0-9_.-]+', image) or image.endswith(':latest'):
+            raise ValueError('use an explicit built image tag')
+        if not re.fullmatch(r'[0-9a-f]{40}', spec.get('image_source_commit', '')):
+            raise ValueError('record the actual RustFS source revision')
+    elif not re.fullmatch(r"[^\s]+@sha256:[0-9a-f]{64}", image):
         raise ValueError("image must be pinned by sha256 digest")
     mode, nodes = spec["mode"], spec["nodes"]
     experiment = spec.get('experiment')
@@ -43,23 +49,29 @@ def generate(spec, out):
         protocol = experiment.get('protocol_profile', 'qualification-20261029')
         budgets = {'qualification-20261029': (3, 16), 'ecs-20261101': (56, 224),
                    'unified-pilot-20261111': (6, 24)}
+        if protocol == 'cluster-v2' and single_disk_fleet:
+            budgets[protocol] = (experiment['cpus'], experiment['memory_bytes'] // 1024**3)
         if protocol not in budgets:
             raise ValueError('unknown experiment protocol_profile')
         cpus, memory_gib = budgets[protocol]
         if experiment.get('cpus') != cpus or experiment.get('memory_bytes') != memory_gib * 1024**3:
             raise ValueError(f'{protocol} backend budget is {cpus} CPU / {memory_gib} GiB')
-        stages = ('C1-C4',) if protocol == 'unified-pilot-20261111' else ('G','A','P','D','F','M')
+        stages = ('C1-C4',) if protocol in ('unified-pilot-20261111', 'cluster-v2') else ('G','A','P','D','F','M')
         if experiment.get('stage') not in stages:
             raise ValueError('explicit experiment stage required')
-        if mode != 'single-node-four-disk':
+        if mode != 'single-node-four-disk' and not (protocol == 'cluster-v2' and single_disk_fleet):
             raise ValueError('current formal experiment requires single-node four-disk EC')
-    if mode not in ("smoke", "single-node-four-disk", "distributed"):
+    if mode not in ("smoke", "single-node-four-disk", "distributed", "four-node-single-disk"):
         raise ValueError("mode must be smoke, single-node-four-disk or distributed")
-    count, disks = {"smoke": (1, 1), "single-node-four-disk": (1, 4), "distributed": (4, 4)}[mode]
+    count, disks = {"smoke": (1, 1), "single-node-four-disk": (1, 4), "distributed": (4, 4), "four-node-single-disk": (4, 1)}[mode]
     if len(nodes) != count:
         raise ValueError(f"{mode} profile requires exactly {count} nodes")
     ips = [str(ipaddress.IPv4Address(n["private_ip"])) for n in nodes]
-    if len(set(ips)) != count or not all(ipaddress.ip_address(ip).is_private for ip in ips):
+    allowed_lan = ipaddress.ip_network(spec["private_subnet"]) if "private_subnet" in spec else None
+    if len(set(ips)) != count or not all(
+        ipaddress.ip_address(ip).is_private or (allowed_lan is not None and ipaddress.ip_address(ip) in allowed_lan)
+        for ip in ips
+    ):
         raise ValueError("use distinct private IPv4 addresses")
     observation = spec.get('observability')
     if experiment and experiment.get('protocol_profile') == 'unified-pilot-20261111' and not observation:
@@ -87,7 +99,8 @@ def generate(spec, out):
             "RUSTFS_OBS_LOGGER_LEVEL": "warn",
             "RUSTFS_OBS_LOG_DIRECTORY": "/var/log/rustfs/",
             "RUSTFS_VOLUMES": {"smoke": "/data/rustfs0", "single-node-four-disk": "/data/rustfs{0...3}",
-                               "distributed": "http://rustfs{1...4}:9000/data/rustfs{0...3}"}[mode],
+                               "distributed": "http://rustfs{1...4}:9000/data/rustfs{0...3}",
+                               "four-node-single-disk": "http://rustfs{1...4}:9000/data/rustfs0"}[mode],
         }
         enabled = profile != 'disabled'
         quantum = profile == 'enabled'
@@ -107,6 +120,7 @@ def generate(spec, out):
             "image": image, "network_mode": "host", "restart": "unless-stopped",
             "env_file": [node["credentials_file"]], "environment": env,
             "extra_hosts": extra_hosts,
+            "ulimits": {"nofile": {"soft": 1048576, "hard": 1048576}},
             "volumes": [
                 {"type": "bind", "source": p, "target": f"/data/rustfs{j}", "bind": {"create_host_path": False}}
                 for j, p in enumerate(mounts)
@@ -115,6 +129,10 @@ def generate(spec, out):
         if experiment is not None:
             service.update(cpus=experiment['cpus'], mem_limit=experiment['memory_bytes'],
                            memswap_limit=experiment['memory_bytes'], restart='no')
+        if single_disk_fleet:
+            if not 1 <= node.get('cpus', 0) <= 32 or not 1024**3 <= node.get('memory_bytes', 0) <= 64*1024**3:
+                raise ValueError('record each node CPU and memory limits')
+            service.update(cpus=node['cpus'], mem_limit=node['memory_bytes'], memswap_limit=node['memory_bytes'], restart='no')
         prepared.append((node, service))
     # No filesystem output is created until every node has passed validation.
     out.mkdir(parents=True, exist_ok=False)
@@ -123,7 +141,8 @@ def generate(spec, out):
         folder.mkdir()
         project = experiment['project_name'] if experiment else 'agent-rustfs'
         (folder / "compose.json").write_text(json.dumps({"name": project, "services": {"rustfs": service}}, indent=2) + "\n")
-        (folder / "node.json").write_text(json.dumps({**node, "mode": mode, "image": image}, indent=2) + "\n")
+        (folder / "node.json").write_text(json.dumps({**node, "mode": mode, "image": image,
+            "image_source_commit":spec.get('image_source_commit')}, indent=2) + "\n")
     (out / "deployment.json").write_text(json.dumps({"schema_version": 1, **spec, "status": "generated_not_deployed"}, indent=2) + "\n")
 
 

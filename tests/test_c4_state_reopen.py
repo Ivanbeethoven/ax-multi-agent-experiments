@@ -13,7 +13,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-SCRIPTS = Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts'
+SCRIPTS = Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts'
 RUNNER = runpy.run_path(str(SCRIPTS/'run-c4-state-reopen.py'))
 GRANT = RUNNER['require_grant']
 WORKER = runpy.run_path(str(SCRIPTS/'c4-state-reopen-node.py'))

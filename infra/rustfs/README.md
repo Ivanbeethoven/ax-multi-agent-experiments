@@ -44,7 +44,7 @@ RUSTFS_EC_READ_QUANTUM_ENABLE=true
 RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED=true
 ```
 
-部署前确认全体服务节点都是指定分支的对应构建。BrewFS 使用 [build-client.sh](../../experiments/retest-2026-10-29/scripts/build-client.sh) 编译 `rustfs-ec-block-size-hint` feature，挂载适配器默认传 `--s3-rustfs-ec-block-size-hint auto`。原生导入、lower 构建与 Pack 发布也要单独核上传者的实际 hint；只读挂载不会改变已有对象布局。JuiceFS 保持自身上传行为，两者共用相同 RustFS 开关。
+部署前确认全体服务节点都是指定分支的对应构建。BrewFS 使用 [build-client.sh](../../archive/experiments/replay-campaign/scripts/build-client.sh) 编译 `rustfs-ec-block-size-hint` feature，挂载适配器默认传 `--s3-rustfs-ec-block-size-hint auto`。原生导入、lower 构建与 Pack 发布也要单独核上传者的实际 hint；只读挂载不会改变已有对象布局。JuiceFS 保持自身上传行为，两者共用相同 RustFS 开关。
 
 **当前 auto 尚未实现完整多档自动选择。** 2026-11-01 核对 BrewFS main 的[选择函数](https://github.com/Ivanbeethoven/brewfs/blob/main/src/cadapter/s3.rs)与[测试记录](https://github.com/Ivanbeethoven/brewfs/blob/main/doc/testing/rustfs-auto-object-hint.md)：
 
@@ -59,7 +59,7 @@ C3 在同一个 enabled 服务端比较无 hint 与四个固定档位。显式�
 
 ## 3. 生成与启动服务
 
-按 [SSH 运行入口](../../experiments/retest-2026-10-29/runbook/SSH-RUN.zh.md) 确认本批实际资源。填写 [spec 模板](rustfs-smoke.example.json)：私网地址、数据挂载、日志目录和已核验镜像 digest。mode 支持 smoke（1节点1盘）、single-node-four-disk、distributed（4节点各4盘）；四目录不等于四独立设备。实际资源配额按本批设计填写并核验。
+按 [SSH 运行入口](../../archive/experiments/replay-campaign/runbook/SSH-RUN.zh.md) 确认本批实际资源。填写 [spec 模板](rustfs-smoke.example.json)：私网地址、数据挂载、日志目录和已核验镜像 digest。mode 支持 smoke（1节点1盘）、single-node-four-disk、distributed（4节点各4盘）；四目录不等于四独立设备。实际资源配额按本批设计填写并核验。
 
 凭据放各节点 `/etc/agent-experiment/rustfs.env`，权限0600，键为 `RUSTFS_ACCESS_KEY`、`RUSTFS_SECRET_KEY`。数据与日志目录预先归UID10001，脚本不格式化或修改属主。凭据不进入 spec、日志或 Git。
 
@@ -80,6 +80,6 @@ python3 infra/rustfs/rustfs_node.py /opt/agent-experiment/rustfs1 --start
 python3 infra/rustfs/s3_probe.py --endpoint "$ENDPOINT"
 ```
 
-该探测仅验 API。布局资格另记录最终对象字节数、请求 hint、HEAD 的 `x-rustfs-layout-hint-status`/reason/`x-rustfs-effective-ec-block-size`、每个 shard 的持久化 B/q、inline/external 和完整读回；工具见[布局解析器](../../experiments/retest-2026-10-29/scripts/inspect-layout.py)。客户端配置、hint 接受、布局变化和性能收益分别验收。
+该探测仅验 API。布局资格另记录最终对象字节数、请求 hint、HEAD 的 `x-rustfs-layout-hint-status`/reason/`x-rustfs-effective-ec-block-size`、每个 shard 的持久化 B/q、inline/external 和完整读回；工具见[布局解析器](../../archive/experiments/replay-campaign/scripts/inspect-layout.py)。客户端配置、hint 接受、布局变化和性能收益分别验收。
 
 EC2+2 下当前 1 MiB 布局的 q 仍为512 KiB，因此 auto 开启不代表读帧缩小。C3 记录各固定档位的实际 B/q，再确定多档策略；重新挂载不会重写旧对象。新条件使用独立对象前缀，保留失败与慢值。默认 enabled 的结果与此前 disabled 结果分开统计。

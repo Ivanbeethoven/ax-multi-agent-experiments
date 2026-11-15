@@ -1,26 +1,18 @@
 # 实验索引
 
-当前入口是 [C1–C4 方案](unified-suite/current/README.zh.md)。正式实验暂停，已完成的最小检查与正式性能结果分别保存。
+每个 C 独立维护 README.md 和 experiment.json，共用准备、缓存和指标说明在 docs/。
 
-| 目录 | 内容 |
-|---|---|
-| [Overlay 热读复测](overlay-enoent-hotread-20261114/README.zh.md) | 并发替换修复前后与只读 lower；两文件和一万文件，各三次 |
-| [overlay-enoent-a355-20261114](overlay-enoent-a355-20261114/README.zh.md) | LOOKUP/GETATTR 并发替换；原版与修复版使用相同测试，Redis 和非 root FUSE 检查 |
-| [overlay-lease-cache-a355-20261114](overlay-lease-cache-a355-20261114/README.zh.md) | 租约有效期间保留元数据缓存；一万文件、61 秒消融、目录校验与实际 Redis 计数 |
-| [overlay-open-profile-a355-20261114](overlay-open-profile-a355-20261114/README.zh.md) | open/close 状态与调度优化；Redis 查询分解、并发回归及三对复测 |
-| [overlay-scale-a355-20261114](overlay-scale-a355-20261114/README.zh.md) | 热 Overlay 优化前后、直接只读 lower；1 万真实文件、两档缓存、分页和原始记录 |
-| [overlay-open-a355-20261113](overlay-open-a355-20261113/README.zh.md) | open/close/权限缓存分解；修正旧对照实际 TTL 不一致的问题 |
-| [idcai-six-node-20261113](idcai-six-node-20261113/README.md) | 现有六台机器的完整 C2、十万文件 C3/C4、四节点 RustFS；运行命令、修复和原始数据索引 |
-| [unified-suite/current](unified-suite/current/README.zh.md) | 当前方案、配置、负载、结果和未完成项 |
-| [最新五项检查](unified-suite/pilot-aliyun/evidence/preparation/rbm-five-checks-20261112/README.zh.md) | Packed 消融和文件系统跨机检查；不是性能比较 |
-| [pilot 脚本入口](unified-suite/pilot-aliyun/scripts/README.zh.md) | 输入准备、最小检查、归档和资源核验 |
-| [unified-suite](unified-suite/README.md) | 旧冻结协议及其历史回执 |
-| [retest-2026-10-29](retest-2026-10-29/README.zh.md) | 10 月四集群计划、机制资格和外部 opt-381 报告 |
-| [aliyun-main/2026-10-28](aliyun-main/2026-10-28/README.zh.md) | 原三机 trace 结果及缺测记录 |
-| [aliyun-ai-trace/2026-10-27](aliyun-ai-trace/2026-10-27/README.md) | 完整 trace、磁盘矩阵和清理记录 |
-| [aliyun-ai-trace/2026-10-26](aliyun-ai-trace/2026-10-26/README.md) | 早期回放与失败诊断 |
-| [agent-fuse-observations](agent-fuse-observations/README.md) | 访问分析与绘图 |
-| [cloud-smoke/2026-10-25](cloud-smoke/2026-10-25/report.md) | 早期冒烟报告 |
-| [paper-planning](paper-planning/) | 历史论文规划 |
+直连轮次执行 C1～C4，合计 137 个条件、735 次系统运行，见 [直连交接](../docs/HANDOFF-DIRECT-NETWORK.md)。
 
-历史数据保持当时的规模、代码版本与判定。已退役的重复代码、旧机器控制脚本从 [Git 历史](../archive/README.md) 查阅，不复制回当前目录。
+| 实验 | 主条件 | 技术消融 | 参数影响 | 默认系统运行次数，含三次重复 | 本轮执行 |
+|---|---:|---:|---:|---:|---|
+| [C1 文件 I/O 与动态块](c1-io/README.md) | 17 | 24 | 40 | 321 | 是 |
+| [C2 多 Agent 完整任务](c2-agents/README.md) | 4 | 4 | 3 | 81 | 是 |
+| [C3 只读小文件 Packed](c3-ml/README.md) | 9 | 6 | 0 | 105 | 是 |
+| [C4 fork 与合并](c4-fork/README.md) | 22 | 7 | 0，另有 1 个方法比较 | 228 | 是 |
+
+一个条件可以包含多个系统，每个系统重复三次。C1～C3 合计 107 个条件、507 次系统运行。C2 192 并发、C3 百万文件高并发与 C4 百万文件合并均为独立扩展项，不包含在表内。
+
+[RQ 与技术消融](../docs/ABLATIONS.md) · [执行交接](../docs/HANDOFF-C1-C3.md) · [环境](../docs/SETUP.md) · [结果目录](../docs/METRICS.md)。历史材料见 [archive](../archive/README.md)。
+
+C4 的实际接口、对照、计时与 64 个子工作区安排见 [C4 执行交接](../docs/HANDOFF-C4.md)，结果单独放在 `results/cluster-c4/run-NNN/`。

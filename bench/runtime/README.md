@@ -1,6 +1,6 @@
 # SSH 实验运行代码
 
-操作入口：[统一C1–C4](../../experiments/unified-suite/README.md)，旧[SSH-RUN](../../experiments/retest-2026-10-29/runbook/SSH-RUN.zh.md)保留历史方法。运行环境由执行方提供，本目录按单步组织。
+操作入口：[统一C1–C4](../../archive/experiments/unified-suite/README.md)，旧[SSH-RUN](../../archive/experiments/replay-campaign/runbook/SSH-RUN.zh.md)保留历史方法。运行环境由执行方提供，本目录按单步组织。
 
 | 层 | 文件 | 工作 |
 |---|---|---|
@@ -14,4 +14,4 @@
 
 清单结构放在 [ssh_inventory.py](../ssh_inventory.py)。方法矩阵放在 [scale_plan.py](../scale_plan.py)。这些层共用一套实现，provider=ssh 不调用云 API。
 
-结果保全用 [experiment_step.py](../experiment_step.py) 的 seal/verify；输入与最终内容用 [trace_checks.py](../trace_checks.py)。完整指标要求集中在 [OBSERVABILITY](../../experiments/retest-2026-10-29/runbook/OBSERVABILITY.zh.md)。
+结果保全用 [experiment_step.py](../experiment_step.py) 的 seal/verify；输入与最终内容用 [trace_checks.py](../trace_checks.py)。完整指标要求集中在 [OBSERVABILITY](../../archive/experiments/replay-campaign/runbook/OBSERVABILITY.zh.md)。

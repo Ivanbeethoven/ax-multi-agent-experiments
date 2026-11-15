@@ -9,7 +9,7 @@ from unittest.mock import patch
 from bench.archive_check import pack
 
 FILE = (Path(__file__).resolve().parents[1]/
-        'experiments/unified-suite/pilot-aliyun/scripts/reclaim-object-evidence-staging.py')
+        'archive/experiments/unified-suite/pilot-aliyun/scripts/reclaim-object-evidence-staging.py')
 spec = importlib.util.spec_from_file_location('staging_reclaim', FILE)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)

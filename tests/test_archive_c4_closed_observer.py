@@ -17,7 +17,7 @@ from bench.runtime import common, observe
 
 
 REPO = Path(__file__).resolve().parents[1]
-SCRIPT = REPO/'experiments/unified-suite/pilot-aliyun/scripts/archive-c4-closed-observer.py'
+SCRIPT = REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/archive-c4-closed-observer.py'
 MODULE = runpy.run_path(str(SCRIPT))['archive'].__globals__
 TAG = 'c4-example-on1'
 CELL = 'c5e97774bcffa69a-r1-native'

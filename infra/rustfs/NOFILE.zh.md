@@ -6,7 +6,7 @@
 
 2026-11-13，C1 的 64 MiB 随机混合读写完成，但冷重挂读取失败。独立复现 `ax-c1fix-806bc64ae793` 使用相同 BrewFS `8a215a65`、RustFS `f4ed2025` 和 fio 参数，再次在冷重挂校验阶段退出 1。RustFS 日志明确出现 `Too many open files (os error 24)`，HTTP 接收连接也因此失败。
 
-四个 RustFS 进程的 `/proc/<PID>/limits` 均为：软上限 **1024**，硬上限 **524288**。这证明本轮存在实际句柄耗尽，不能把后续的 `EIO` 或 S3 `InternalError` 直接判成 BrewFS 数据损坏。原始 C1 记录见[失败分析](../../experiments/idcai-six-node-20261113/C1-FAILURE.zh.md)。
+四个 RustFS 进程的 `/proc/<PID>/limits` 均为：软上限 **1024**，硬上限 **524288**。这证明本轮存在实际句柄耗尽，不能把后续的 `EIO` 或 S3 `InternalError` 直接判成 BrewFS 数据损坏。原始 C1 记录见[失败分析](../../archive/experiments/idcai-pilot/C1-FAILURE.zh.md)。
 
 **当前只完成文档修正。部署脚本尚未加入以下配置和自动检查，调高后的负载复验也尚未执行。执行 Agent 必须先落实配置并实查，再开测；不要据本文把失败项标成已修复。**
 

@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-FILE=Path(__file__).resolve().parents[1]/'experiments/unified-suite/pilot-aliyun/scripts/close-before-work.py'
+FILE=Path(__file__).resolve().parents[1]/'archive/experiments/unified-suite/pilot-aliyun/scripts/close-before-work.py'
 spec=importlib.util.spec_from_file_location('before_work_closure',FILE)
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 
@@ -13,7 +13,7 @@ module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 class BeforeWorkAudit(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
-        self.tool=Path('/srv/ax-client/code-12/experiments/unified-suite/pilot-aliyun/scripts/make-observer.py')
+        self.tool=Path('/srv/ax-client/code-12/archive/experiments/unified-suite/pilot-aliyun/scripts/make-observer.py')
         self.target='/srv/ax-client/q/old-tag-observer'
         self.command('0000',['sha256sum','/srv/ax-client/bin/brewfs'],0)
         self.command('0001',['python3',str(self.tool),'--out',self.target],1,

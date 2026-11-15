@@ -9,8 +9,8 @@ import types
 import unittest
 
 REPO=Path(__file__).resolve().parents[1]
-CAPACITY=runpy.run_path(str(REPO/'experiments/unified-suite/pilot-aliyun/scripts/packed-c3-capacity.py'))
-CONTROLLER=runpy.run_path(str(REPO/'experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py'))
+CAPACITY=runpy.run_path(str(REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-capacity.py'))
+CONTROLLER=runpy.run_path(str(REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts/packed-c3-controller.py'))
 
 
 class PackedCapacity(unittest.TestCase):

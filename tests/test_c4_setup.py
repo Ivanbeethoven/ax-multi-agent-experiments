@@ -7,7 +7,7 @@ import unittest
 from unittest import mock
 
 ROOT=Path(__file__).resolve().parents[1]
-PATH=ROOT/'experiments/unified-suite/pilot-aliyun/scripts/setup-c4-control.py'
+PATH=ROOT/'archive/experiments/unified-suite/pilot-aliyun/scripts/setup-c4-control.py'
 loader=importlib.util.spec_from_file_location('c4_setup_test',PATH)
 tool=importlib.util.module_from_spec(loader);loader.loader.exec_module(tool)
 from bench.runtime.common import load,write_new,digest
@@ -135,7 +135,7 @@ class C4Setup(unittest.TestCase):
             plan=dict(cells=[dict(id='fork-b',pool='pool-b',resource_ids=['host:actual'])],config=dict(clusters=[dict(id='pool-b',resource_ids=['host:actual'])]))
             write_new(control/'suite/plan.json',plan);write_new(control/'fleet.json',{})
             for name in ('archive','installer','ssh'): (root/name).write_text(name)
-            manifest=root/'manifest';write_new(manifest,{'experiments/unified-suite/pilot-aliyun/scripts/install-code.py':digest(root/'installer')})
+            manifest=root/'manifest';write_new(manifest,{'archive/experiments/unified-suite/pilot-aliyun/scripts/install-code.py':digest(root/'installer')})
             close=root/'close';staging=root/'staging';write_new(close,dict(schema='suite-cell-close-v1',outcome='complete'));write_new(staging,dict(passed=True))
             s=dict(control=str(control),canonical_control=str(canonical),cell_id='fork-b',code_directory='code-15',
                 archive=tool.ref(root/'archive'),manifest=tool.ref(manifest),installer=tool.ref(root/'installer'),ssh_config=tool.ref(root/'ssh'),

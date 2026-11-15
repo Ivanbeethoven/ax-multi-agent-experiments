@@ -1,6 +1,6 @@
 """Historical unified-c1-c4-v1 catalog for frozen runs and explicit legacy templates.
 
-New design: experiments/unified-suite/current/design.json (not executable yet).
+New design: archive/experiments/unified-suite/current/design.json (not executable yet).
 Do not rename historical arms or reinterpret their engine identities.
 """
 from copy import deepcopy

@@ -10,7 +10,7 @@ import sys
 import time
 
 REPO=Path(__file__).resolve().parents[2]
-SCRIPTS=REPO/'experiments/unified-suite/pilot-aliyun/scripts'
+SCRIPTS=REPO/'archive/experiments/unified-suite/pilot-aliyun/scripts'
 POLL_NS=50_000_000
 GROUP_SCOPE='original-linux-process-group'
 
