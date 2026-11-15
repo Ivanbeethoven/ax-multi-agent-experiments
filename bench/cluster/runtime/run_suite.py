@@ -82,6 +82,7 @@ def main():
         out = output / f'attempt-{len(attempts)+1:02d}'
         out.mkdir()
         save(out / 'job.json', job)
+        save(out / 'source-record.json', json.loads((cl.REPO_ROOT / 'source-record.json').read_text()))
         status['current'] = job['id']
         status['jobs'][job['id']] = {'state': 'running', 'started_at': cl.utc_iso(), 'output': str(out)}
         save(status_path, status)

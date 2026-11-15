@@ -53,6 +53,29 @@ class MountTests(unittest.TestCase):
         self.assertEqual(juicefs["options"]["cache-size"], "7168M")
         self.assertEqual(self.profiles["juicefs_staging_reserve_mib"], 1024)
 
+    def test_fio_resources_cover_each_phase_with_equal_read_cache(self):
+        for engine in ("brewfs-native-overlay", "juicefs"):
+            for phase in mounts.PHASES:
+                record = self.record(engine, phase=phase, resource_profile="fio")
+                self.assertEqual(record["memory_bytes"], 16 * 1024**3)
+                self.assertEqual(record["disk_bytes"], 16 * 1024**3)
+                if engine == "juicefs":
+                    self.assertEqual(record["options"]["cache-size"], "15360M")
+                else:
+                    self.assertEqual(record["cache"]["read_ssd_bytes"], 15 * 1024**3)
+                    self.assertEqual(record["cache"]["write_ssd_bytes"], 1024**3)
+                self.assertEqual(len(mounts.validate_windows([record], self.design)), 1)
+
+    def test_fio_audit_checks_the_effective_memory_limit(self):
+        record = self.record(resource_profile="fio")
+        actual = dict(binary=record["binary"], memory_max=16 * 1024**3, swap_max=0,
+                      environment=copy.deepcopy(record["environment"]), cache=copy.deepcopy(record["cache"]),
+                      argv=[record["binary"]], metrics={"brewfs_workspace_row_cache_capacity_bytes":64 * 1024**2})
+        self.assertTrue(validate_effective(record, actual)["passed"])
+        actual["memory_max"] = 4 * 1024**3
+        with self.assertRaises(ValueError):
+            validate_effective(record, actual)
+
     def test_simultaneous_parent_and_child_have_separate_cache_and_slot(self):
         first = self.record()
         second = self.record(id="test-2", slot=2, phase="fork-child")

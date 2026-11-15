@@ -14,9 +14,12 @@ def main():
         selected = [status['jobs'].get(job['id'], {}) for job in plan['jobs'] if job['group'] == group]
         groups[group] = {'passed': sum(v.get('state') == 'passed' for v in selected), 'total': total,
                          'failed': sum(v.get('state') == 'failed' for v in selected)}
+    current = status['jobs'].get(status.get('current'), {})
+    measurement = Path(current['output']) / 'measurement.json' if current.get('output') else None
+    phase = 'cleanup' if measurement and measurement.exists() and current.get('state') == 'running' else current.get('state')
     active = subprocess.run(['systemctl', 'is-active', 'ax-' + RUN_ID], capture_output=True, text=True)
     print(json.dumps({'run': RUN_ID, 'service': active.stdout.strip(), 'current': status.get('current'),
-        'groups': groups, 'failed': {key: value for key, value in status['jobs'].items()
+        'phase': phase, 'groups': groups, 'failed': {key: value for key, value in status['jobs'].items()
                                    if value.get('state') == 'failed'}, 'directory': str(RUN_ROOT)}, indent=2))
 
 

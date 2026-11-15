@@ -34,9 +34,12 @@ def render(request, profiles, design):
         raise ValueError("Explicit absolute server paths are required")
     if not request["windows"] or not all(isinstance(x, str) and x for x in request["windows"]):
         raise ValueError("At least one resource window is required")
+    resource_name = request.get("resource_profile", "default")
+    resources = profiles if resource_name == "default" else profiles["resource_profiles"][resource_name]
     record = copy.deepcopy(request)
-    record.update(memory_bytes=profiles["memory_mib"] * MIB,
-                  disk_bytes=profiles["disk_mib"] * MIB,
+    record["resource_profile"] = resource_name
+    record.update(memory_bytes=resources["memory_mib"] * MIB,
+                  disk_bytes=resources["disk_mib"] * MIB,
                   mount_directory=str(root / "mounts" / request["id"]),
                   cache_root=str(root / "cache" / request["id"]),
                   metrics_port=design["metrics_port_base"] + request["slot"],
@@ -71,7 +74,7 @@ def render(request, profiles, design):
         record["cache"] = copy.deepcopy(profiles["brewfs_cache"])
         record["cache"]["cache_root"] = record["cache_root"]
         if engine != "brewfs-packed":
-            record["cache"]["read_ssd_bytes"] = (profiles["disk_mib"] * MIB - record["cache"]["write_ssd_bytes"])
+            record["cache"]["read_ssd_bytes"] = (record["disk_bytes"] - record["cache"]["write_ssd_bytes"])
         record["environment"] = copy.deepcopy(profiles["brewfs_environment"])
         environment = record["environment"]
         packed = engine == "brewfs-packed"
@@ -102,6 +105,7 @@ def render(request, profiles, design):
         record["volume_format"] = "forkredis" if engine == "juicefs-overlay" else "redis"
         record["options"] = copy.deepcopy(profiles["juicefs_options"])
         record["options"].update({"cache-dir":record["cache_root"], "metrics":f"127.0.0.1:{record['metrics_port']}"})
+        record["options"]["cache-size"] = str(resources["disk_mib"] - profiles["juicefs_staging_reserve_mib"]) + "M"
         if changes.get("prefetch") == "off":
             record["options"].update({"prefetch":"0", "max-readahead":"0"})
         if changes.get("writes") == "local-staged":

@@ -165,6 +165,7 @@ def delete_extra_keys(bucket: str, keep_keys: set[str]) -> int:
 def make_req(mid: str, phase: str, engine: str, host_ssh: str, slot: int, ws: str, parent_ws: str, purpose: str, binary: str, cache_state: str = "cold", overrides: dict | None = None):
     r = {
         "id": mid,
+        "resource_profile": "fio",
         "phase": phase,
         "engine": engine,
         "host": host_ssh,
@@ -703,7 +704,7 @@ def execute_fio_family_run(
     seed_override: int | None = None,
 ):
     cond_id = cond["id"]
-    work_dir, attempt, already_done = (output, 1, False) if output else prepare_run_dir(cond_id, system, rep)
+    work_dir, attempt, already_done = (output, int(output.name.removeprefix("attempt-")), False) if output else prepare_run_dir(cond_id, system, rep)
     if already_done:
         return
 
@@ -894,7 +895,20 @@ def execute_fio_family_run(
         verify_s = time.monotonic() - t_v0
 
         # Clean up child clone / extra write objects so S3 space stays bounded
+        measurement = {
+            "phase": "cleanup", "measurement_completed_at": cl.utc_iso(),
+            "app_done_seconds": app_done_s, "repeat_read_seconds": hot_seconds,
+            "application": app_metrics, "repeat_read": hot_metrics,
+            "backend_delta": backend_delta, "repeat_backend_delta": hot_delta,
+            "object_layout": parent["layout"], "verification": verify_doc,
+        }
+        checkpoint = work_dir / "measurement.json.tmp"
+        checkpoint.write_text(json.dumps(measurement, indent=2) + "\n")
+        checkpoint.replace(work_dir / "measurement.json")
+        cleanup_started = time.monotonic()
+        print(f"  [CLEANUP] {cond_id}: measurement and verification complete", flush=True)
         pool.cleanup_child(parent, tag, work_dir, had_writes=not is_pure_read, adm_slot=adm_slot)
+        cleanup_seconds = time.monotonic() - cleanup_started
 
     exit_s = float(stop_info.get("exit_seconds", 0.0))
     rr_no_ver = app_done_s + upload_drain_s
@@ -935,6 +949,7 @@ def execute_fio_family_run(
             "remote_ready_no_verify_seconds": round(rr_no_ver, 6),
             "exit_seconds": round(exit_s, 6),
             "verify_seconds": round(verify_s, 6),
+            "cleanup_seconds": round(cleanup_seconds, 6),
             "remote_ready_with_verify_seconds": round(rr_no_ver + exit_s + verify_s, 6),
         },
         "application": {

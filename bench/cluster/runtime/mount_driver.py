@@ -2,7 +2,7 @@
 """Hash-free FUSE mount driver, cgroup runner, upload-drain waiter, and clean unmounter for run-001.
 
 Operates locally on any of the 6 cluster hosts. Strictly enforces:
-- 4 GiB MemoryMax, MemorySwapMax=0 per mount under ax-clients.slice
+- Profile-specific MemoryMax, MemorySwapMax=0 per mount under ax-clients.slice
 - Zero secrets on process cmdline (AWS/JuiceFS/Redis credentials via private 0600 files)
 - Immediate post-mount verification via `bench.cluster.audit_mount`
 - Upload-drain check requiring two zero-pending observations >= 1.0s apart

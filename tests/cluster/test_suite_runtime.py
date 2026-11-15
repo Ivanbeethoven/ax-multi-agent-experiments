@@ -286,6 +286,9 @@ class SuiteRuntimeTests(unittest.TestCase):
             run_root = Path(temporary)
             write_json(run_root / "plan.json", plan)
             cl = fake_cluster_lib(run_root, run_root / "inputs")
+            cl.REPO_ROOT = run_root / "repo"
+            source_record = {"commit": "test-revision", "working_tree_changes": False}
+            write_json(cl.REPO_ROOT / "source-record.json", source_record)
             layout = types.ModuleType("rustfs_layout_tools")
             fio = types.ModuleType("run_c1")
             groups = types.ModuleType("suite_groups")
@@ -327,6 +330,9 @@ class SuiteRuntimeTests(unittest.TestCase):
             self.assertTrue(all(not item[3] for item in seen))
             status = json.loads((run_root / "status.json").read_text(encoding="utf-8"))
             self.assertEqual(status["completed_runs"], 52)
+            for job in plan["jobs"]:
+                saved = run_root / job["output"] / "attempt-01/source-record.json"
+                self.assertEqual(json.loads(saved.read_text()), source_record)
             self.assertTrue(all(item["state"] == "passed" for item in status["jobs"].values()))
 
     def test_fio_input_and_measurement_mounts_use_the_child_workspace(self):
