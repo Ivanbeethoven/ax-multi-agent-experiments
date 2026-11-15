@@ -1,5 +1,6 @@
 use serde_json::{json, Value};
 mod pacing;
+mod parallel;
 mod parent_paths;
 use std::cell::RefCell;
 use std::{
@@ -249,7 +250,9 @@ impl Replay {
         }
         let p = self.root.join(s.trim_start_matches('/'));
         if let Some(cache) = &self.parent_paths {
-            return cache.borrow_mut().resolve(&self.root, &p, follow, self.performance);
+            return cache
+                .borrow_mut()
+                .resolve(&self.root, &p, follow, self.performance);
         }
         // Performance mode accepts only a trusted, preflighted capture in a private root.
         // Avoid extra exists/canonicalize syscalls that are absent from the trace.
@@ -422,7 +425,8 @@ impl Replay {
                 Ok(json!(all))
             }
             "truncate" => {
-                let has_fd = a.len() > 2 && !a[2].is_null() && self.handles.contains_key(&num(&a[2]));
+                let has_fd =
+                    a.len() > 2 && !a[2].is_null() && self.handles.contains_key(&num(&a[2]));
                 if has_fd {
                     let h = num(&a[2]);
                     self.fd(&a[2])?.set_len(num(&a[1]) as u64)?;
@@ -469,11 +473,7 @@ impl Replay {
                     return Err(io::Error::from_raw_os_error(libc::EPERM));
                 }
                 check(unsafe {
-                    libc::chown(
-                        cpath(&p).as_ptr(),
-                        num(&a[1]) as u32,
-                        num(&a[2]) as u32,
-                    )
+                    libc::chown(cpath(&p).as_ptr(), num(&a[1]) as u32, num(&a[2]) as u32)
                 } as i64)?;
                 Ok(json!(0))
             }
@@ -638,46 +638,106 @@ fn outcome_matches(
     }
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let a = std::env::args().skip(1).collect::<Vec<_>>();
-    if a.len() < 4 {
-        return Err("usage: full-fuse-replay EVENTS BLOBS DEDICATED_ROOT OUTPUT [--performance | --portable-terminal-probe] [--cache-parent-fds] [--simulate-llm THINK_PLAN.json]".into());
-    }
-    let mut performance = false;
-    let mut portable_probe = false;
-    let mut cache_parent_fds = false;
+type ReplayError = Box<dyn std::error::Error>;
+
+#[derive(Clone, Copy, Default)]
+struct ReplayOptions {
+    performance: bool,
+    portable_probe: bool,
+    cache_parent_fds: bool,
+}
+
+fn replay_options(
+    args: &[String],
+    allow_cli_pacing: bool,
+) -> Result<(ReplayOptions, Option<&Path>), ReplayError> {
+    let mut opts = ReplayOptions::default();
     let mut think_path = None;
-    let mut option = 4;
-    while option < a.len() {
-        match a[option].as_str() {
-            "--performance" if !performance => performance = true,
-            "--portable-terminal-probe" if !portable_probe => portable_probe = true,
-            "--cache-parent-fds" if !cache_parent_fds => cache_parent_fds = true,
-            "--simulate-llm" if think_path.is_none() && option + 1 < a.len() => {
-                option += 1;
-                think_path = Some(Path::new(&a[option]));
+    let mut args = args.iter();
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "--performance" if !opts.performance => opts.performance = true,
+            "--portable-terminal-probe" if !opts.portable_probe => opts.portable_probe = true,
+            "--cache-parent-fds" if !opts.cache_parent_fds => opts.cache_parent_fds = true,
+            "--simulate-llm" if allow_cli_pacing && think_path.is_none() => {
+                think_path = Some(Path::new(args.next().ok_or("missing think plan")?));
             }
-            _ => return Err("unknown/duplicate option or missing think plan".into()),
+            _ => return Err(format!("unknown or duplicate option: {arg}").into()),
         }
-        option += 1;
     }
-    if performance && portable_probe {
-        return Err("portable-terminal-probe is a validating mode, separate from performance".into());
+    if opts.performance && opts.portable_probe {
+        return Err(
+            "portable-terminal-probe is a validating mode, separate from performance".into(),
+        );
     }
-    let mut pacer = think_path
-        .map(|path| pacing::Pacer::load(path, Path::new(&a[0])))
-        .transpose()?;
-    let root = PathBuf::from(&a[2]).canonicalize()?;
+    Ok((opts, think_path))
+}
+
+fn workspace_root(path: &Path) -> Result<PathBuf, ReplayError> {
+    let root = path.canonicalize()?;
     if root.components().count() < 4 || root == std::env::current_dir()? {
         return Err("root too broad".into());
     }
+    if !root.is_dir() {
+        return Err("workspace root must be a directory".into());
+    }
+    Ok(root)
+}
+
+fn main() -> Result<(), ReplayError> {
+    const USAGE: &str = concat!(
+        "usage: full-fuse-replay EVENTS BLOBS DEDICATED_ROOT OUTPUT [--performance | --portable-terminal-probe] [--cache-parent-fds] [--simulate-llm THINK_PLAN.json]\n",
+        "       full-fuse-replay --parallel MANIFEST OUTPUT [--performance | --portable-terminal-probe] [--cache-parent-fds]"
+    );
+    let a = std::env::args().skip(1).collect::<Vec<_>>();
+    if a.first().is_some_and(|arg| arg == "--parallel") {
+        if a.len() < 3 {
+            return Err(USAGE.into());
+        }
+        let (options, _) = replay_options(&a[3..], false)?;
+        return parallel::run(Path::new(&a[1]), Path::new(&a[2]), options);
+    }
+    if a.len() < 4 {
+        return Err(USAGE.into());
+    }
+    let (options, think_path) = replay_options(&a[4..], true)?;
+    let events = Path::new(&a[0]);
+    let pacer = think_path
+        .map(|path| pacing::Pacer::load(path, events))
+        .transpose()?;
+    let root = workspace_root(Path::new(&a[2]))?;
     let output = OpenOptions::new()
         .write(true)
         .create_new(true)
         .open(&a[3])?;
+    replay(
+        File::open(events)?,
+        root,
+        PathBuf::from(&a[1]),
+        pacer,
+        options,
+        output,
+        None,
+    )
+}
+
+fn replay(
+    events: File,
+    root: PathBuf,
+    blobs: PathBuf,
+    mut pacer: Option<pacing::Pacer>,
+    options: ReplayOptions,
+    output: impl io::Write,
+    stream: Option<&str>,
+) -> Result<(), ReplayError> {
+    let ReplayOptions {
+        performance,
+        portable_probe,
+        cache_parent_fds,
+    } = options;
     let mut r = Replay {
         root,
-        blobs: PathBuf::from(&a[1]),
+        blobs,
         handles: HashMap::new(),
         read: 0,
         write: 0,
@@ -698,7 +758,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut last_op = String::new();
     let mut probe_errno_differences = 0u64;
 
-    for line in BufReader::new(File::open(&a[0])?).lines() {
+    for line in BufReader::new(events).lines() {
         let e: Value = serde_json::from_str(&line?)?;
         count += 1;
         if num(&e["seq"]) != count {
@@ -753,6 +813,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "{}",
                 json!({
                     "probe_errno_difference": true,
+                    "stream": stream,
                     "seq": count,
                     "op": "ioctl",
                     "request": libc::TCGETS,
@@ -782,6 +843,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             eprintln!(
                 "{}",
                 json!({
+                    "stream": stream,
                     "operations": count,
                     "seconds": started.elapsed().as_secs_f64(),
                     "read_bytes": r.read,
@@ -848,10 +910,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "scope": "serialized FUSE callback operations replayed via POSIX; hash-free length/sequence validation"
         }),
     )?;
-    println!(
-        "validated {count} callbacks; read {} write {}",
-        r.read, r.write
-    );
+    if stream.is_none() {
+        println!(
+            "validated {count} callbacks; read {} write {}",
+            r.read, r.write
+        );
+    }
     Ok(())
 }
 
