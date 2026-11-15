@@ -4,7 +4,9 @@
 
 ## 容量与预取
 
-fio 使用 `resource_profile=fio`：BrewFS 和 JuiceFS 每挂载均为 16 GiB 内存、56 GiB 读 SSD 缓存和 8 GiB 写暂存预算。下面列出其余三组的默认配置；应用内存缓存、预读、上传并发和写入策略在两种资源配置间保持相同。
+BrewFS 正式挂载统一设置 `TOKIO_WORKER_THREADS=8`。主比较与 Dynamic 开关、固定 B 条件使用相同线程数。CPU 总量由各主机的 `ax-clients.slice` 限制，实际配额和亲和性写入审计。
+
+fio 使用 `resource_profile=fio`：BrewFS 和 JuiceFS 每挂载均为 16 GiB 内存、56 GiB 读 SSD 缓存和 8 GiB 写暂存预算。BrewFS 预读为 16 MiB、8 个任务；JuiceFS 最大预读为 16 MiB、16 个下载任务。下面列出其余三组的默认配置；应用内存缓存、上传并发和写入策略在两种资源配置间保持相同。
 
 | 项目 | 每个挂载的配置 |
 |---|---|

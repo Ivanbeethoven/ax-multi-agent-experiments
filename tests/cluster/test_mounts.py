@@ -66,6 +66,40 @@ class MountTests(unittest.TestCase):
                     self.assertEqual(record["cache"]["write_ssd_bytes"], 8 * 1024**3)
                 self.assertEqual(len(mounts.validate_windows([record], self.design)), 1)
 
+    def test_fio_prefetch_limits_match_the_profile(self):
+        brewfs = self.record(resource_profile="fio")
+        self.assertEqual(brewfs["prefetch"]["data_window_bytes"], 16 * mounts.MIB)
+        self.assertEqual(brewfs["prefetch"]["data_workers"], 8)
+        self.assertEqual(brewfs["environment"]["TOKIO_WORKER_THREADS"], "8")
+
+        juicefs = self.record("juicefs", resource_profile="fio")
+        self.assertEqual(juicefs["options"]["max-readahead"], "16M")
+        self.assertEqual(juicefs["options"]["max-downloads"], "16")
+        self.assertEqual(juicefs["prefetch"]["data_window_bytes"], 16 * mounts.MIB)
+        self.assertEqual(juicefs["prefetch"]["data_workers"], 16)
+
+    def test_juicefs_buffer_size_override_updates_capacity_reservation(self):
+        default = self.record("juicefs")
+        self.profiles["resource_profiles"]["fio"]["juicefs_options_overrides"]["buffer-size"] = "1G"
+        fio = self.record("juicefs", resource_profile="fio")
+
+        self.assertEqual(default["options"]["buffer-size"], "768M")
+        self.assertEqual(default["capacity_reservation_bytes"], 768 * mounts.MIB)
+        self.assertEqual(fio["options"]["buffer-size"], "1G")
+        self.assertEqual(fio["capacity_reservation_bytes"], 1024 * mounts.MIB)
+        self.assertEqual(fio["capacity_reservation_bytes"] - default["capacity_reservation_bytes"],
+                         256 * mounts.MIB)
+
+    def test_invalid_juicefs_buffer_sizes_are_rejected(self):
+        for value in ("16MiB", "1.5G", "-1M", "1P", ""):
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    mounts.option_bytes(value)
+
+        self.profiles["resource_profiles"]["fio"]["juicefs_options_overrides"]["buffer-size"] = "16MiB"
+        with self.assertRaises(ValueError):
+            self.record("juicefs", resource_profile="fio")
+
     def test_fio_audit_checks_the_effective_memory_limit(self):
         record = self.record(resource_profile="fio")
         actual = dict(binary=record["binary"], memory_max=16 * 1024**3, swap_max=0,

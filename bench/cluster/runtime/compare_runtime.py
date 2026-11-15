@@ -66,6 +66,16 @@ def run(args):
                            cache_root=str(cl.RUN_ROOT / 'cache' / identifier))
             current['cache']['cache_root'] = current['cache_root']
             current['cache']['verify_cache_checksum'] = 'none'
+            if args.read_memory_mib is not None:
+                current['capacity_reservation_bytes'] += args.read_memory_mib * 1024**2 - current['cache']['read_memory_bytes']
+                current['cache']['read_memory_bytes'] = args.read_memory_mib * 1024**2
+            if args.prefetch_mib is not None:
+                current['cache']['prefetch_max_bytes'] = args.prefetch_mib * 1024**2
+            if args.prefetch_workers is not None:
+                current['cache']['prefetch_concurrency'] = args.prefetch_workers
+            current['prefetch']['data_window_bytes'] = current['cache']['prefetch_max_bytes']
+            current['prefetch']['data_workers'] = current['cache']['prefetch_concurrency']
+            current['download_workers'] = current['prefetch']['data_workers']
             current['environment'].pop('TOKIO_WORKER_THREADS', None)
             if setting != 'auto':
                 current['environment']['TOKIO_WORKER_THREADS'] = setting
@@ -136,6 +146,9 @@ def main():
     parser.add_argument('--workers', nargs='+', default=['1', '4', 'auto'])
     parser.add_argument('--periodic', choices=['on', 'off'], default='on')
     parser.add_argument('--current-profile', action='store_true')
+    parser.add_argument('--prefetch-mib', type=int, choices=[4, 16, 32, 64])
+    parser.add_argument('--prefetch-workers', type=int, choices=[4, 8, 16])
+    parser.add_argument('--read-memory-mib', type=int, choices=[512, 4096])
     args = parser.parse_args()
     if any(value != 'auto' and (not value.isdigit() or int(value) < 1) for value in args.workers):
         parser.error('Worker counts must be positive integers or auto')

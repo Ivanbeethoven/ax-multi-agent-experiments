@@ -22,6 +22,8 @@ def runtime_details(proc, cgroup):
         current = current.parent
     executable = proc.joinpath("exe").resolve()
     stat = executable.stat()
+    build_path = executable.with_name(executable.name + '.build.json')
+    build = json.loads(build_path.read_text()) if build_path.exists() else None
     names = {}
     for path in proc.joinpath("task").glob("*/comm"):
         try:
@@ -34,7 +36,7 @@ def runtime_details(proc, cgroup):
             "allowed_cpus": sorted(os.sched_getaffinity(int(proc.name))),
             "cpu_quotas": quotas, "thread_names": names,
             "binary_path": str(executable), "binary_bytes": stat.st_size,
-            "binary_modified_ns": stat.st_mtime_ns}
+            "binary_modified_ns": stat.st_mtime_ns, "binary_build": build}
 
 
 def parse_proc_cmdline(raw: bytes, cgroup: Path | None = None) -> list[str]:

@@ -27,6 +27,8 @@ for name in ['brewfs','juicefs','juicefs-overlay','full-fuse-replay','c1-io-help
  p=root/name
  if p.exists():
   result['binaries'][name]={'path':str(p.resolve()),'bytes':p.stat().st_size,'mtime_ns':p.stat().st_mtime_ns}
+  build=p.with_name(name+'.build.json')
+  if build.exists():result['binaries'][name]['build']=json.loads(build.read_text())
   if name in ['brewfs','juicefs','juicefs-overlay']:
    result['binaries'][name]['version']=command([str(p),'--version'])
 print(json.dumps(result))

@@ -1,6 +1,6 @@
 {
   "schema": "ax-mount-profiles-v1",
-  "brewfs_commit": "5750af24eba7ddc4bbea53f2abfbc7a6951d3331",
+  "brewfs_commit": "e958b81cac3a645c51d04419923a7da48a343375",
   "memory_mib": 4096,
   "disk_mib": 8192,
   "process_reserve_mib": 2048,
@@ -27,6 +27,7 @@
     "writeback_require_stage_before_commit": true
   },
   "brewfs_environment": {
+    "TOKIO_WORKER_THREADS": "8",
     "BREWFS_PACKED_CACHE": "on",
     "BREWFS_PACKED_CACHE_BYTES": "4294967296",
     "BREWFS_PACKED_METADATA_CACHE_BYTES": "134217728",
@@ -70,7 +71,15 @@
     "fio": {
       "memory_mib": 16384,
       "disk_mib": 65536,
-      "write_staging_mib": 8192
+      "write_staging_mib": 8192,
+      "brewfs_cache_overrides": {
+        "prefetch_max_bytes": 16777216,
+        "prefetch_concurrency": 8
+      },
+      "juicefs_options_overrides": {
+        "max-readahead": "16M",
+        "max-downloads": "16"
+      }
     }
   }
 }

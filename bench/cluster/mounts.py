@@ -13,6 +13,13 @@ STATES = {"cold", "same-process", "disk-reuse", "cross-host-cold"}
 POOLS = ("ROOTS", "METADATA_OWNED", "PLANS", "CONTROL", "STORED", "RAW", "DECODE_WORKSPACE", "OUTPUT")
 
 
+def option_bytes(value):
+    match = re.fullmatch(r"(\d+)([KMGT]?)", str(value), re.IGNORECASE)
+    if match is None:
+        raise ValueError("Unsupported byte size: " + str(value))
+    return int(match[1]) * 1024 ** (" KMGT".index(match[2].upper()) if match[2] else 0)
+
+
 def load(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
@@ -72,6 +79,7 @@ def render(request, profiles, design):
     if engine in {"brewfs-native-overlay", "brewfs-packed", "brewfs-flat"}:
         record["volume_format"] = "flat" if engine == "brewfs-flat" else "workspace"
         record["cache"] = copy.deepcopy(profiles["brewfs_cache"])
+        record["cache"].update(resources.get("brewfs_cache_overrides", {}))
         record["cache"]["cache_root"] = record["cache_root"]
         if "write_staging_mib" in resources:
             record["cache"]["write_ssd_bytes"] = resources["write_staging_mib"] * MIB
@@ -106,6 +114,7 @@ def render(request, profiles, design):
     elif engine in {"juicefs", "juicefs-overlay"}:
         record["volume_format"] = "forkredis" if engine == "juicefs-overlay" else "redis"
         record["options"] = copy.deepcopy(profiles["juicefs_options"])
+        record["options"].update(resources.get("juicefs_options_overrides", {}))
         record["options"].update({"cache-dir":record["cache_root"], "metrics":f"127.0.0.1:{record['metrics_port']}"})
         staging_mib = resources.get("write_staging_mib", profiles["juicefs_staging_reserve_mib"])
         record["options"]["cache-size"] = str(resources["disk_mib"] - staging_mib) + "M"
@@ -114,8 +123,8 @@ def render(request, profiles, design):
         if changes.get("writes") == "local-staged":
             record["options"]["writeback"] = "true"
         record["fork_cache_bytes"] = changes.get("fork_cache_mib", profiles["juicefs_overlay_cache_bytes"] // MIB) * MIB if engine == "juicefs-overlay" else 0
-        record["capacity_reservation_bytes"] = 768 * MIB + 2 * record["fork_cache_bytes"]
-        record["prefetch"] = {"data_window_bytes":4 * MIB if record["options"]["prefetch"] != "0" else 0,
+        record["capacity_reservation_bytes"] = option_bytes(record["options"]["buffer-size"]) + 2 * record["fork_cache_bytes"]
+        record["prefetch"] = {"data_window_bytes":option_bytes(record["options"]["max-readahead"]),
                               "data_workers":int(record["options"]["max-downloads"]),
                               "packed_metadata_and_data":"not-applicable", "packed_heads":0,"packed_downloads":0}
     else:
