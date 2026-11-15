@@ -1,0 +1,27 @@
+{
+  "schema": "ax-baseline-runtime-v1",
+  "run_id": "run-baselines-001",
+  "bucket_prefix": "axbase1",
+  "cephfs_root_prefix": "/ax-baselines/run-baselines-001",
+  "remote_baseline_root": "/srv/ax-cluster/baselines",
+  "remote_runs_root": "/srv/ax-cluster/runs/baselines",
+  "shared_inputs_dir": "/srv/ax-cluster/input",
+  "shared_bin_dir": "/srv/ax-cluster/direct/bin",
+  "private_dir": "/srv/ax-cluster/private",
+  "rustfs_env_path": "/srv/ax-cluster/private/rustfs.env",
+  "s3fs_passwd_file": "/srv/ax-cluster/private/baselines-s3fs.passwd",
+  "measurement_lock_path": "/srv/ax-idcai-20261113/measurement.lock",
+  "collector_socket_path": "/srv/ax-cluster/baselines/runtime/collector.sock",
+  "collector_service_name": "ax-baselines-collector.service",
+  "default_s3fs_backend": "dynamic",
+  "runner_unit": "ax-run-baselines-001",
+  "runner_check_unit": "ax-run-baselines-001-check",
+  "runner_tiny_unit": "ax-run-baselines-001-tiny",
+  "guard_main_units": [
+    "ax-run-002"
+  ],
+  "guard_active_main_runs": [
+    "/srv/ax-cluster/runs/direct/run-002/status.json",
+    "/srv/ax-cluster/runs/direct/run-002/check-status.json"
+  ]
+}

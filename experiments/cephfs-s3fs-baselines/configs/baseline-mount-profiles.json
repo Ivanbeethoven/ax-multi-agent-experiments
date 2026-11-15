@@ -1,0 +1,91 @@
+{
+  "schema": "ax-baseline-mount-profiles-v1",
+  "scope": "cephfs-s3fs-baselines",
+  "rules": {
+    "client_slice": "ax-clients.slice",
+    "unit_pattern": "ax-baselines-{engine}-{host}-{slot}.service",
+    "workspace_memory_max_bytes": 4294967296,
+    "workspace_memory_swap_max_bytes": 0,
+    "workspace_disk_budget_bytes": 8589934592,
+    "secret_delivery": "private-file-or-conf-only",
+    "hash_and_checksum": "forbidden",
+    "shared_cache_across_workspaces": false
+  },
+  "resource_profiles": {
+    "fio": {
+      "memory_max_bytes": 17179869184,
+      "memory_swap_max_bytes": 0,
+      "disk_budget_bytes": 68719476736,
+      "cephfs_client_oc_size_bytes": 2147483648,
+      "s3fs_max_dirty_data_mib": 8192
+    }
+  },
+  "host_limits": {
+    "idcai-60001": {
+      "name": "A366",
+      "max_active_mounts": 48,
+      "client_memory_cap_bytes": 197568495616,
+      "client_disk_cap_bytes": 412316860416
+    },
+    "idcai-60525": {
+      "name": "A355",
+      "max_active_mounts": 32,
+      "client_memory_cap_bytes": 137438953472,
+      "client_disk_cap_bytes": 274877906944
+    },
+    "idcai-60103": {
+      "name": "A672",
+      "max_active_mounts": 16,
+      "client_memory_cap_bytes": 68719476736,
+      "client_disk_cap_bytes": 137438953472
+    },
+    "idcai-60439": {
+      "name": "A601",
+      "max_active_mounts": 40,
+      "client_memory_cap_bytes": 171798691840,
+      "client_disk_cap_bytes": 343597383680
+    },
+    "idcai-60533": {
+      "name": "A635",
+      "max_active_mounts": 40,
+      "client_memory_cap_bytes": 171798691840,
+      "client_disk_cap_bytes": 343597383680
+    },
+    "idcai-60555": {
+      "name": "A368",
+      "max_active_mounts": 16,
+      "client_memory_cap_bytes": 68719476736,
+      "client_disk_cap_bytes": 137438953472
+    }
+  },
+  "engines": {
+    "cephfs": {
+      "binary": "/usr/bin/ceph-fuse",
+      "ceph_conf": "/etc/ceph/ceph.conf",
+      "keyring": "/etc/ceph/ceph.client.admin.keyring",
+      "client_id": "client.admin",
+      "filesystem": "cephfs",
+      "client_oc_size_bytes": 536870912,
+      "fuse_options": [
+        "noatime"
+      ],
+      "admin_socket_dir": "/run/ax-baselines"
+    },
+    "s3fs": {
+      "binary": "/usr/bin/s3fs",
+      "passwd_file": "/srv/ax-cluster/private/baselines-s3fs.passwd",
+      "region": "us-east-1",
+      "multipart_size_mib": 16,
+      "parallel_count": 8,
+      "max_dirty_data_mib": 512,
+      "ensure_diskfree_mib": 1024,
+      "max_stat_cache_size": 100000,
+      "stat_cache_expire_seconds": 900,
+      "enable_unsigned_payload": true,
+      "use_path_request_style": true,
+      "complement_stat": true,
+      "listobjectsv2": true,
+      "noatime": true
+    }
+  }
+}
