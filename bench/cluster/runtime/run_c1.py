@@ -24,7 +24,7 @@ OPENER = build_opener(ProxyHandler({}))
 REDIS_URL = f"redis://:{cl.SECRETS['redis_password']}@{cl.REDIS_HOST}:{cl.REDIS_PORT}/0"
 SEEDS_BY_REP = {1: 2026111401, 2: 2026111402, 3: 2026111403}
 WORKING_SET_BYTES = 32 * 1024**3
-BYTES_PER_JOB = 1024**3
+BYTES_PER_JOB = 256 * 1024**2
 JOBS = 8
 
 def fio_json_to_metrics(fio_doc: dict) -> dict:
@@ -609,10 +609,10 @@ def build_fio_jobfile(cond: dict, mount_dir: str, seed: int) -> tuple[str, bool,
     if fam == "fio":
         prof = params["profile"]
         if prof == "seqread-1m":
-            lines += ["rw=read", "bs=1024k", f"io_size={8589934592 // JOBS}"]
+            lines += ["rw=read", "bs=1024k", f"io_size={int(params.get('io_bytes', JOBS * BYTES_PER_JOB)) // JOBS}"]
             is_pure_read = True
         elif prof == "seqwrite-1m":
-            per_job = 8589934592 // JOBS
+            per_job = int(params.get("io_bytes", JOBS * BYTES_PER_JOB)) // JOBS
             lines += ["rw=write", "bs=1024k", f"io_size={per_job}", "end_fsync=1", "buffer_pattern=0x5a3c96e1"]
             verify_mode = "seqwrite"
             seq_written_per_job = per_job
@@ -642,7 +642,7 @@ def build_fio_jobfile(cond: dict, mount_dir: str, seed: int) -> tuple[str, bool,
 
     elif fam in {"block-sequential", "reference-sequential"}:
         op = params["operation"]
-        per_job = int(params.get("io_bytes", 8589934592)) // JOBS  # 1 GiB/job = 8 GiB total
+        per_job = int(params.get("io_bytes", JOBS * BYTES_PER_JOB)) // JOBS
         if op == "read":
             lines += ["rw=read", "bs=1024k", f"io_size={per_job}"]
             is_pure_read = True
