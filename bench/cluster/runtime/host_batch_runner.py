@@ -15,6 +15,8 @@ import subprocess
 import sys
 import time
 
+from runtime_context import RUN_ROOT
+
 
 def save_process_output(prefix,process):
     prefix=Path(prefix)
@@ -101,8 +103,10 @@ def cmd_stop_batch(args):
         res = json.loads(out_p.read_text(encoding="utf-8")) if out_p.is_file() else {"id": mid, "unmounted_cleanly": p.returncode == 0}
         if args.remove_cache:
             cr = m.get("cache_root", "")
-            if cr.startswith("/srv/ax-cluster/runs/direct/run-001/cache/"):
-                shutil.rmtree(cr, ignore_errors=True)
+            cache_base = (RUN_ROOT / 'cache').resolve()
+            cache = Path(cr).resolve() if cr else None
+            if cache and cache != cache_base and cache.is_relative_to(cache_base) and res.get('unmounted_cleanly'):
+                shutil.rmtree(cache, ignore_errors=True)
         return res
 
     workers = min(16, max(1, len(mounts_list)))

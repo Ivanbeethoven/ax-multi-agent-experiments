@@ -313,7 +313,7 @@ def ensure_c2_bases(policy="on") -> dict:
         if doc.get("completed"):
             return doc
 
-    print("=== Preparing & sealing 8 immutable C2 base workspaces across all 3 engines ===", flush=True)
+    print(f"Preparing {len(CASES)} trace inputs across three filesystems", flush=True)
     prep_dir = cl.RUN_ROOT / "mounts" / ("trace-base-prep-" + policy)
     prep_dir.mkdir(parents=True, exist_ok=True)
 
@@ -415,7 +415,7 @@ def ensure_c2_bases(policy="on") -> dict:
         "prepare_wall_seconds": round(time.monotonic() - t_j0, 6),
         "keep_keys": jfs_keep_keys,
     }
-    print(f"  [JuiceFS base] all 8 cases populated: objects={len(jfs_keep_keys)} ({jfs_base['prepare_wall_seconds']:.2f}s)", flush=True)
+    print(f"  [JuiceFS base] all {len(CASES)} cases populated: objects={len(jfs_keep_keys)} ({jfs_base['prepare_wall_seconds']:.2f}s)", flush=True)
 
     # 3. JuiceFS Overlay (forkredis) bases (8 cases, sealed `main` branch)
     for idx, case in enumerate(CASES):

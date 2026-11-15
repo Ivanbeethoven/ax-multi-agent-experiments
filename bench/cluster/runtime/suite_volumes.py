@@ -89,7 +89,8 @@ def prepare_dataset(system, dynamic, files, out):
     tag = f'{system}-{dynamic}-{files}'
     volume = {'system': system, 'engine': 'brewfs-packed' if system == 'brewfs-packed' else
         ('brewfs-native-overlay' if system.startswith('brewfs') else 'juicefs'),
-        'bucket': f'{cl.RUN_PREFIX}-packed-{tag}',
+        'bucket': (f'{cl.RUN_PREFIX}-p-{dynamic}-{files}' if system == 'brewfs-packed'
+                   else f'{cl.RUN_PREFIX}-packed-{tag}'),
         'namespace': f'{cl.RUN_NAMESPACE}_packed_{tag.replace("-", "_")}',
         'meta_backend': 'tikv' if system in ('brewfs-native-tikv', 'brewfs-packed', 'juicefs-tikv') else 'redis',
         'files': files, 'dynamic': dynamic}

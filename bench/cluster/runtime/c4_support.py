@@ -64,9 +64,10 @@ def prepare_parent(system,files,file_bytes,seal=True,tag_suffix=""):
     tag=f'{TAGS[system]}-{files}-{file_bytes}{tag_suffix}'
     out=cl.RUN_ROOT/'prepared/fork'/tag
     state=out/'parent.json'
+    redis_db = 7 if not seal else {10000:8,100000:9,8:10}.get(files,15)
     if state.exists():
         parent=json.loads(state.read_text())
-        if parent.get('prepared'):return parent
+        if parent.get('prepared') and (system != 'juicefs' or parent.get('redis_db') == redis_db):return parent
     out.mkdir(parents=True,exist_ok=True)
     parent={'system':system,'files':files,'file_bytes':file_bytes,'bucket':f'{cl.RUN_PREFIX}-c4-'+tag,
             'namespace':f'{cl.RUN_NAMESPACE}_c4_'+tag.replace('-','_'),'volume':f'{cl.RUN_PREFIX}-c4-'+tag,'tag':tag}
@@ -77,7 +78,7 @@ def prepare_parent(system,files,file_bytes,seal=True,tag_suffix=""):
         parent['base']=admin(parent,['init-shared-volume'],out/'init')['workspace_id']
         workspace=parent['base']
     elif system=='juicefs':
-        parent['redis_db']={10000:8,100000:9,8:10}.get(files,15)
+        parent['redis_db']=redis_db
         cl.redis_flush_db(parent['redis_db'])
         parent['meta_url']=f"redis://{cl.REDIS_HOST}:{cl.REDIS_PORT}/{parent['redis_db']}"
         parent['base']='/base';workspace='/'
