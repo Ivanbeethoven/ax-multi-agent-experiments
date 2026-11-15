@@ -5,6 +5,7 @@
 ## 实验与代码
 
 - 四组为基础 fio、fork 与 Overlay、Packed、多 Agent trace 回放。
+- Dynamic 开启访问修改版 RustFS 9000，关闭访问原版 1.0.5 的 19000；各自采集 9464/19464 指标，端点见 configs/rustfs-backends.json。
 - Dynamic 比较放在第 1、3、4 组；第 4 组只在 64 个 Agent 时增加关闭条件。
 - 复用 bench/cluster、infra/idcai、infra/rustfs 和 tools 中的现有实现。旧套件及对应测试位于 archive/legacy-code。
 - 输入目录见 configs/trace-inputs.json。完整回放使用 tools/full-fuse-replay。

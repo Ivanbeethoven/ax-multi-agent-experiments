@@ -27,6 +27,8 @@ def setup(code_only=False):
 
     if code_only:
         return
+    from prepare_backends import prepare
+    prepare()
     source = '''
 import json,os,subprocess
 from pathlib import Path

@@ -44,12 +44,17 @@ HOST_BY_NAME = {h["name"]: h for h in HOSTS}
 HOST_BY_SSH = {h["ssh"]: h for h in HOSTS}
 ALL_HOST_NAMES = [h["name"] for h in HOSTS]
 
-RUSTFS_ENDPOINTS = [
-    "http://175.168.6.72:9000",
-    "http://175.168.6.1:9000",
-    "http://175.168.6.35:9000",
-    "http://175.168.3.68:9000",
-]
+RUSTFS_BACKENDS = json.loads((REPO_ROOT / 'configs/rustfs-backends.json').read_text())
+RUSTFS_BACKEND = 'dynamic'
+RUSTFS_ENDPOINTS = list(RUSTFS_BACKENDS[RUSTFS_BACKEND]['endpoints'])
+
+
+def select_rustfs_backend(name):
+    global RUSTFS_BACKEND
+    RUSTFS_BACKEND = name
+    RUSTFS_ENDPOINTS[:] = RUSTFS_BACKENDS[name]['endpoints']
+
+
 REDIS_HOST = "175.168.3.55"
 
 
@@ -317,7 +322,7 @@ def collector_pause_all(paused: bool, hosts: list[str] = ALL_HOST_NAMES):
             f.result()
 
 
-def make_s3_client(endpoint: str = RUSTFS_ENDPOINTS[0]):
+def make_s3_client(endpoint: str | None = None):
     cfg_kwargs = dict(
         signature_version="s3v4",
         s3={"addressing_style": "path", "payload_signing_enabled": False},
@@ -330,7 +335,7 @@ def make_s3_client(endpoint: str = RUSTFS_ENDPOINTS[0]):
         cfg = BotoConfig(**cfg_kwargs)
     return boto3.client(
         "s3",
-        endpoint_url=endpoint,
+        endpoint_url=endpoint or RUSTFS_ENDPOINTS[0],
         aws_access_key_id=SECRETS["s3_access_key"],
         aws_secret_access_key=SECRETS["s3_secret_key"],
         region_name="us-east-1",
@@ -338,7 +343,7 @@ def make_s3_client(endpoint: str = RUSTFS_ENDPOINTS[0]):
     )
 
 
-def ensure_bucket(bucket: str, endpoint: str = RUSTFS_ENDPOINTS[0]):
+def ensure_bucket(bucket: str, endpoint: str | None = None):
     if not bucket.startswith(RUN_PREFIX + "-"):
         raise ValueError(f"Bucket must start with axd1-: {bucket}")
     s3 = make_s3_client(endpoint)
@@ -370,7 +375,7 @@ def delete_keys_parallel(bucket: str, keys: list[str], workers: int = 12):
         list(pool.map(_del_one, enumerate(keys)))
 
 
-def delete_bucket_and_objects(bucket: str, endpoint: str = RUSTFS_ENDPOINTS[0]):
+def delete_bucket_and_objects(bucket: str, endpoint: str | None = None):
     if not bucket.startswith(RUN_PREFIX + "-"):
         raise ValueError(f"Refusing to delete bucket without axd1- prefix: {bucket}")
     s3 = make_s3_client(endpoint)

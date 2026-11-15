@@ -238,6 +238,12 @@ print(json.dumps({"files_evicted": files_evicted, "bytes_evicted": bytes_evicted
 
 def discover_rustfs_nodes() -> dict[str, dict]:
     """Discovers container name, /data/rustfs0 host source path, and compose file on A672..A368."""
+    if cl.RUSTFS_BACKEND == 'official':
+        config = cl.RUSTFS_BACKENDS['official']
+        return {host: {'unit': config['unit'], 'data_dir': config['data_dir'],
+                       'version': config['version'], 'endpoint': endpoint,
+                       'quantum_enable': 'unsupported', 'block_hint_enable': 'unsupported'}
+                for host, endpoint in zip(config['nodes'], config['endpoints'])}
     def _one(hname: str) -> tuple[str, dict]:
         py = (
             "import json, subprocess\n"

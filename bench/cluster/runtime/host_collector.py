@@ -324,10 +324,13 @@ def collect_redis_info(redis_pw: str) -> dict:
 
 
 def collect_rustfs_node() -> tuple[dict, str]:
-    out = {}
+    selected = Path('/srv/ax-cluster/direct/runtime/rustfs-backend.json')
+    backend = json.loads(selected.read_text()) if selected.exists() else {
+        'name': 'dynamic', 'metrics_port': 9464, 'process_executable': '/usr/bin/rustfs'}
+    out = {'backend': backend['name'], 'metrics_port': backend['metrics_port']}
     raw_prom = ""
     try:
-        raw_prom = scrape_http("http://127.0.0.1:9464/metrics", timeout=1.5)
+        raw_prom = scrape_http(f"http://127.0.0.1:{backend['metrics_port']}/metrics", timeout=1.5)
         out["metrics"] = parse_prom_summary(raw_prom, ("rustfs_",))
     except Exception as e:
         out["scrape_error"] = type(e).__name__
@@ -339,7 +342,9 @@ def collect_rustfs_node() -> tuple[dict, str]:
             if not p.name.isdigit():
                 continue
             cmd = read_text_fast(p / "cmdline")
-            if "/usr/bin/rustfs" in cmd or (cmd.startswith("rustfs\x00") or "/rustfs\x00" in cmd):
+            executable = cmd.split('\x00', 1)[0]
+            official = executable == '/srv/ax-cluster/releases/rustfs-1.0.5/rustfs'
+            if Path(executable).name == 'rustfs' and official == (backend['name'] == 'official'):
                 stat_f = read_text_fast(p / "stat").rsplit(")", 1)[-1].split()
                 utime_ticks = int(stat_f[11])
                 stime_ticks = int(stat_f[12])
@@ -361,7 +366,7 @@ def collect_rustfs_node() -> tuple[dict, str]:
     except Exception as e:
         out["proc_error"] = type(e).__name__
 
-    return out, (f"### rustfs_otel 127.0.0.1:9464\n{raw_prom}\n" if raw_prom else "")
+    return out, (f"### rustfs_{backend['name']} 127.0.0.1:{backend['metrics_port']}\n{raw_prom}\n" if raw_prom else "")
 
 
 class SegmentCompressor:

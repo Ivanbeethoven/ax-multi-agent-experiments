@@ -52,7 +52,7 @@ python infra/rustfs/generate_rustfs.py runs/services.local.json runs/rustfs-depl
 python infra/rustfs/rustfs_node.py --help
 ```
 
-生成结果中每节点有 `compose.json/node.json`，在对应主机用 Docker Compose 启动。先核实生成的监听地址与实际空闲端口；实例的四个 endpoint 必须全部一致地指向本轮服务。Dynamic 条件由执行器在四台同时切换，使用同一 RustFS 二进制；为关闭条件重新生成输入对象。RustFS 指标导出使用当前分支实际支持的变量和端口，保存服务启动配置及一次原始指标。
+生成结果中每节点有 `compose.json/node.json`，在对应主机用 Docker Compose 启动。先核实生成的监听地址与实际空闲端口；实例的四个 endpoint 必须全部一致地指向本轮服务。Dynamic 开启条件使用修改版 9000 端口，关闭条件使用原版 1.0.5 的 19000 端口；两套服务的数据目录与指标端口独立，配置见 `configs/rustfs-backends.json`。各自在自己的集群内生成输入对象。RustFS 指标导出使用当前分支实际支持的变量和端口，保存服务启动配置及一次原始指标。
 
 三个文件系统依次使用相同后端、相同端点分配、独立卷/桶前缀。客户端缓存、输入、对象数据和观测日志分目录；同一 SSD 上的物理竞争如实记录。每盘至少保留 20% 空间与 inode；对象数据预算每台 320 GiB、输入 64 GiB、日志 32 GiB。
 
@@ -62,7 +62,7 @@ python infra/rustfs/rustfs_node.py --help
 
 实际输入清单逐项填写归档路径、初始树、`events.jsonl`、`blobs/`、终态和原工具日志。检查序号连续、操作数、写入载荷长度与路径范围，文件内容直接比较。已有 blob 文件名作为不透明标识使用。
 
-Rust 回放命令为 `full-fuse-replay EVENTS BLOBS WORKSPACE OUTPUT --performance`，等待条件增加 `--simulate-llm PLAN`。本轮工具通过序号、计数、载荷长度及直接内容比较检查输入和结果。实际二进制路径和版本保存在结果目录的 `versions.json`。
+Rust 回放命令为 `full-fuse-replay EVENTS BLOBS WORKSPACE OUTPUT --performance`，等待条件增加 `--simulate-llm PLAN`。本轮工具通过序号、计数、载荷长度及直接内容比较检查输入和结果。实际二进制路径和版本保存在结果目录的 `inventory.json`，实验仓库提交记录位于 `versions/repository.json`。
 
 性能模式的报告以 `completed`、操作数、剩余句柄和等待边界判断是否完成；`valid` 在该模式固定为 `false`。文件内容采用独立的跨机器读回结果判断，保留 `verify.passed` 和实际比较字节数。
 
@@ -77,3 +77,5 @@ TiKV/PD 使用 v7.5.0，在 A355 部署；二进制为 `/srv/ax-cluster/direct/b
 `setup_suite.py` 保存这些服务的配置并创建 systemd 单元。BrewFS 管理工具必须使用与挂载二进制相同的源码提交构建：`infra/idcai/build_workspace_admin.py --source /srv/ax-cluster/sources/brewfs-5750af24 --template <仓库>/tools/workspace-admin --out <产物目录>`。复用该脚本的 Rust 工具链和编译缓存；`tools/full-fuse-replay` 与 `tools/fs-probe` 分别构建回放器和数据加载器。
 
 每次保存实际软件版本、命令和配置。原始数据完整取回后，按运行编号清理临时挂载、缓存和对象。
+
+原版服务的 systemd 单元为 `ax-rustfs-official-105.service`，二进制为 `/srv/ax-cluster/releases/rustfs-1.0.5/rustfs`，数据目录为 `/srv/ax-cluster/official-1.0.5/data`，指标端口为 19464。`setup_suite.py` 调用 `prepare_backends.py` 启动两套既有服务并检查各端点可访问。四节点均使用已有 SSD，不新增磁盘。

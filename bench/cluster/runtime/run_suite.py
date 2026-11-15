@@ -25,49 +25,27 @@ def save(path, value):
     temporary.replace(path)
 
 
-def set_dynamic(enabled, out):
-    expected = 'true' if enabled else 'false'
+def select_backend(dynamic_enabled, out):
+    name = 'dynamic' if dynamic_enabled else 'official'
+    cl.select_rustfs_backend(name)
+    config = cl.RUSTFS_BACKENDS[name]
     nodes = layout.discover_rustfs_nodes()
-    if all(n['quantum_enable'] == expected and n['block_hint_enable'] == expected for n in nodes.values()):
-        save(out / 'dynamic.json', {'enabled': enabled, 'nodes': nodes})
-        return nodes
-    source = '''
-import json,subprocess,sys
-from pathlib import Path
-args=json.loads(sys.stdin.read());p=Path(args['compose_files']);d=json.loads(p.read_text())
-service=d['services']['rustfs'];env=service['environment']
-if isinstance(env,list):env=dict(item.split('=',1) for item in env)
-for name in ['RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE','RUSTFS_EC_BLOCK_SIZE_HINT_FLEET_CONFIRMED','RUSTFS_EC_READ_QUANTUM_ENABLE','RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED']:
- env[name]=args['value']
-service['environment']=env;p.write_text(json.dumps(d,indent=2)+'\\n')
-subprocess.run(['docker','compose','-f',str(p),'up','-d','--no-deps','--force-recreate','rustfs'],cwd=args['compose_dir'],check=True)
-'''
-    def change(item):
-        host, settings = item
-        cl.run_on_host(host, ['python3', '-c', source],
-            input_bytes=json.dumps({**settings, 'value': expected}).encode(), timeout=180)
-    with ThreadPoolExecutor(max_workers=4) as workers:
-        list(workers.map(change, nodes.items()))
-    for attempt in range(60):
-        try:
-            for endpoint in cl.RUSTFS_ENDPOINTS:
-                cl.make_s3_client(endpoint).list_buckets()
-            break
-        except Exception:
-            if attempt == 59:
-                raise
-            time.sleep(2)
-    actual = layout.discover_rustfs_nodes()
-    if any(n['quantum_enable'] != expected or n['block_hint_enable'] != expected for n in actual.values()):
-        raise RuntimeError('RustFS dynamic settings differ from the requested values')
-    save(out / 'dynamic.json', {'enabled': enabled, 'nodes': actual})
-    return actual
+    for endpoint in config['endpoints']:
+        cl.make_s3_client(endpoint).list_buckets()
+    selection = dict(config, name=name)
+    path = out / 'backend.json'
+    save(path, dict(selection, node_details=nodes))
+    selected = out / 'collector-backend.json'
+    save(selected, selection)
+    for host in config['nodes']:
+        cl.sync_file_to_host(host, selected, '/srv/ax-cluster/direct/runtime/rustfs-backend.json')
+    return nodes
 
 
 def run_io(job, out, small=False):
     p = job['parameters']
-    nodes = set_dynamic(p['dynamic'] == 'on', out)
-    pool = fio.ParentPool(nodes, policy=p['dynamic'] + ('-check' if small else ''))
+    nodes = select_backend(p['dynamic'] == 'on', out)
+    pool = fio.ParentPool(nodes, policy=cl.RUSTFS_BACKEND + ('-check' if small else ''))
     family = 'block-' + p['pattern']
     condition = {'id': job['id'], 'family': family, 'kind': 'measurement', 'parameters': copy.deepcopy(p)}
     if small:

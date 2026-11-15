@@ -27,7 +27,7 @@ expected=build(suite)
 actual=json.loads((RUN_ROOT/'plan.json').read_text())
 if actual!=expected:raise RuntimeError('Saved run plan differs from the current configuration')
 (RUN_ROOT/'mounts').mkdir(exist_ok=True)
-for name in ['experiment-suite.json','mount-profiles.json','runtime.json','network.json']:
+for name in ['experiment-suite.json','mount-profiles.json','runtime.json','network.json','rustfs-backends.json']:
  shutil.copy2(root/'configs'/name,RUN_ROOT/'config'/name)
 shutil.copy2(root/'source-record.json',RUN_ROOT/'versions/repository.json')
 from inventory_suite import capture

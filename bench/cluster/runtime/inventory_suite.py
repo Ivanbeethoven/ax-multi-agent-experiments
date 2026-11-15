@@ -31,7 +31,7 @@ print(json.dumps(result))
     for host in cl.ALL_HOST_NAMES:
         result = cl.run_on_host(host, ['python3', '-'], input_bytes=source.encode())
         records[host] = json.loads(result.stdout)
-    output = {'recorded_at': cl.utc_iso(), 'hosts': records, 'rustfs': layout.discover_rustfs_nodes()}
+    output = {'recorded_at': cl.utc_iso(), 'hosts': records, 'rustfs_backends': cl.RUSTFS_BACKENDS, 'dynamic_nodes': layout.discover_rustfs_nodes()}
     (cl.RUN_ROOT / 'inventory.json').write_text(json.dumps(output, indent=2) + '\n')
     inputs = {}
     for case in sorted((cl.INPUT_DIR / 'traces').iterdir()):

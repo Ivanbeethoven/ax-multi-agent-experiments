@@ -13,7 +13,7 @@ import run_c2 as replay
 import run_c3 as readers
 import rustfs_layout_tools as layout
 import suite_volumes as volumes
-from run_suite import save, set_dynamic, SYSTEMS
+from run_suite import save, select_backend, SYSTEMS
 
 
 def workload(mount, action, out, files, changes=None):
@@ -28,7 +28,7 @@ def workload(mount, action, out, files, changes=None):
 
 def run_fork(job, out, small=False):
     p = job['parameters']
-    nodes = set_dynamic(True, out)
+    nodes = select_backend(True, out)
     files = 32 if small else p['files']
     system = SYSTEMS[p['system']]
     direct = p['mode'] == 'direct-parent'
@@ -99,7 +99,7 @@ def run_fork(job, out, small=False):
 
 def run_packed(job, out, small=False):
     p = job['parameters']
-    nodes = set_dynamic(p['dynamic'] == 'on', out)
+    nodes = select_backend(p['dynamic'] == 'on', out)
     files = 32 if small else p['files']
     key = f'{p["system"]}-{p["dynamic"]}-{files}'
     registry = cl.RUN_ROOT / 'prepared' / (key + '.json')
@@ -189,11 +189,11 @@ def schedule(task, agents, seed, out):
 
 def run_replay(job, out, small=False):
     p = job['parameters']
-    set_dynamic(p['dynamic'] == 'on', out)
+    select_backend(p['dynamic'] == 'on', out)
     original_cases = replay.CASES
     if small:
         replay.CASES = ('office-excel-01',)
-    policy = p['dynamic'] + ('-check' if small else '')
+    policy = ('dynamic' if p['dynamic'] == 'on' else 'official') + ('-check' if small else '')
     try:
         bases = replay.ensure_c2_bases(policy)
         cases = list(replay.CASES)

@@ -44,6 +44,19 @@ def ast_name(node, expected):
     return isinstance(node, ast.Name) and node.id == expected
 
 
+def load_ast_functions(path, names, namespace):
+    tree = ast.parse(Path(path).read_text(encoding="utf-8"))
+    selected = [node for node in tree.body
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name in names]
+    found = {node.name for node in selected}
+    if found != set(names):
+        raise AssertionError("Missing requested AST functions")
+    module = ast.Module(body=selected, type_ignores=[])
+    exec(compile(ast.fix_missing_locations(module), str(path), "exec"), namespace)
+    return namespace
+
+
 def call_name(node):
     if isinstance(node, ast.Name):
         return node.id
@@ -107,7 +120,7 @@ def load_suite_groups(root, input_dir):
 
     run_suite = types.ModuleType("run_suite")
     run_suite.save = write_json
-    run_suite.set_dynamic = lambda enabled, out: {}
+    run_suite.select_backend = lambda enabled, out: {}
     run_suite.SYSTEMS = {
         "brewfs-native": "brewfs-native-overlay",
         "juicefs-redis": "juicefs",
@@ -128,6 +141,138 @@ def load_suite_groups(root, input_dir):
         replacements,
     )
     return module, cl, support, replay, readers, layout, volumes
+
+
+class RustFSBackendTests(unittest.TestCase):
+    def setUp(self):
+        self.backends = json.loads(
+            (ROOT / "configs/rustfs-backends.json").read_text(encoding="utf-8"))
+
+    def test_select_backend_syncs_each_backend_and_metrics_port_to_collectors(self):
+        source = ROOT / "bench/cluster/runtime/run_suite.py"
+        for enabled, name in ((False, "official"), (True, "dynamic")):
+            with self.subTest(backend=name), tempfile.TemporaryDirectory() as temporary:
+                config = self.backends[name]
+                calls = {"endpoints": [], "sync": []}
+                cluster = types.SimpleNamespace(
+                    RUSTFS_BACKENDS=self.backends,
+                    RUSTFS_BACKEND="dynamic",
+                    RUSTFS_ENDPOINTS=list(self.backends["dynamic"]["endpoints"]),
+                )
+
+                def select(selected):
+                    cluster.RUSTFS_BACKEND = selected
+                    cluster.RUSTFS_ENDPOINTS[:] = self.backends[selected]["endpoints"]
+
+                class Client:
+                    def list_buckets(self):
+                        return {"Buckets": []}
+
+                def make_client(endpoint):
+                    calls["endpoints"].append(endpoint)
+                    return Client()
+
+                def sync(host, local_path, remote_path):
+                    contents = json.loads(Path(local_path).read_text(encoding="utf-8"))
+                    calls["sync"].append((host, remote_path, contents))
+
+                cluster.select_rustfs_backend = select
+                cluster.make_s3_client = make_client
+                cluster.sync_file_to_host = sync
+                layout = types.SimpleNamespace(
+                    discover_rustfs_nodes=lambda: {"backend": cluster.RUSTFS_BACKEND})
+                namespace = {"cl": cluster, "layout": layout, "save": write_json, "Path": Path}
+                functions = load_ast_functions(source, {"select_backend"}, namespace)
+                out = Path(temporary)
+                nodes = functions["select_backend"](enabled, out)
+
+                self.assertEqual(nodes, {"backend": name})
+                self.assertEqual(cluster.RUSTFS_BACKEND, name)
+                self.assertEqual(calls["endpoints"], config["endpoints"])
+                self.assertEqual([row[0] for row in calls["sync"]], config["nodes"])
+                self.assertEqual({row[1] for row in calls["sync"]},
+                                 {"/srv/ax-cluster/direct/runtime/rustfs-backend.json"})
+                self.assertTrue(all(row[2]["name"] == name
+                                    and row[2]["metrics_port"] == config["metrics_port"]
+                                    and row[2]["endpoints"] == config["endpoints"]
+                                    for row in calls["sync"]))
+                saved = json.loads((out / "collector-backend.json").read_text(encoding="utf-8"))
+                self.assertEqual(saved["metrics_port"], config["metrics_port"])
+
+    def test_default_s3_helpers_follow_selected_backend(self):
+        source = ROOT / "bench/cluster/runtime/cluster_lib.py"
+        clients = []
+
+        class Config:
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+        class Paginator:
+            def paginate(self, **kwargs):
+                return []
+
+        class Client:
+            def __init__(self, endpoint):
+                self.endpoint_url = endpoint
+                self.deleted = False
+
+            def head_bucket(self, **kwargs):
+                return {}
+
+            def create_bucket(self, **kwargs):
+                return {}
+
+            def get_paginator(self, name):
+                return Paginator()
+
+            def delete_bucket(self, **kwargs):
+                self.deleted = True
+
+        class Boto3:
+            def client(self, service, **kwargs):
+                client = Client(kwargs["endpoint_url"])
+                clients.append(client)
+                return client
+
+        namespace = {
+            "BotoConfig": Config,
+            "boto3": Boto3(),
+            "SECRETS": {"s3_access_key": "test-key", "s3_secret_key": "test-secret"},
+            "RUSTFS_BACKENDS": self.backends,
+            "RUSTFS_BACKEND": "dynamic",
+            "RUSTFS_ENDPOINTS": list(self.backends["dynamic"]["endpoints"]),
+            "RUN_PREFIX": "axd1",
+        }
+        functions = load_ast_functions(source, {
+            "select_rustfs_backend", "make_s3_client", "ensure_bucket",
+            "delete_bucket_and_objects",
+        }, namespace)
+        for name in ("make_s3_client", "ensure_bucket", "delete_bucket_and_objects"):
+            self.assertIsNone(functions[name].__defaults__[-1])
+
+        for backend in ("official", "dynamic"):
+            endpoint = self.backends[backend]["endpoints"][0]
+            functions["select_rustfs_backend"](backend)
+            self.assertEqual(functions["make_s3_client"]().endpoint_url, endpoint)
+            functions["ensure_bucket"]("axd1-test-bucket")
+            self.assertEqual(clients[-1].endpoint_url, endpoint)
+            functions["delete_bucket_and_objects"]("axd1-test-bucket")
+            self.assertEqual(clients[-1].endpoint_url, endpoint)
+            self.assertTrue(clients[-1].deleted)
+
+    def test_official_layout_uses_configured_data_directory(self):
+        source = ROOT / "bench/cluster/runtime/rustfs_layout_tools.py"
+        cluster = types.SimpleNamespace(
+            RUSTFS_BACKEND="official", RUSTFS_BACKENDS=self.backends)
+        functions = load_ast_functions(source, {"discover_rustfs_nodes"}, {"cl": cluster})
+
+        actual = functions["discover_rustfs_nodes"]()
+        official = self.backends["official"]
+        self.assertEqual(set(actual), set(official["nodes"]))
+        for host, endpoint in zip(official["nodes"], official["endpoints"]):
+            self.assertEqual(actual[host]["data_dir"], official["data_dir"])
+            self.assertEqual(actual[host]["endpoint"], endpoint)
+            self.assertEqual(actual[host]["version"], official["version"])
 
 
 class SuiteRuntimeTests(unittest.TestCase):
@@ -246,7 +391,7 @@ class SuiteRuntimeTests(unittest.TestCase):
             groups, cl, support, replay, readers, layout, volumes = load_suite_groups(
                 root, Path(temporary) / "inputs")
             dynamic_calls = []
-            groups.set_dynamic = lambda enabled, out: dynamic_calls.append(enabled) or {}
+            groups.select_backend = lambda enabled, out: dynamic_calls.append(enabled) or {}
             mounted_buckets = []
             volumes.prepare_dataset = lambda system, dynamic, files, out: {
                 "system": system, "engine": "juicefs",
@@ -335,7 +480,7 @@ class SuiteRuntimeTests(unittest.TestCase):
                 }
 
             replay.execute_c2_cohort_arm = execute
-            groups.set_dynamic = lambda enabled, out: {}
+            groups.select_backend = lambda enabled, out: {}
 
             one_agent = {
                 "id": "replay-one", "seed": 123, "repeat": 1,

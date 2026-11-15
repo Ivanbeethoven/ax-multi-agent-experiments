@@ -12,7 +12,7 @@ ssh.exe idcai-60001 /srv/ax-idcai-20261113/venv/bin/python3 /srv/ax-cluster/dire
 python infra/idcai/start_suite.py
 ```
 
-`sync_suite.py` 分发运行代码；`setup_suite.py` 配置专用 Redis/TiKV 和六台采集器。准备只在开始一轮实验时执行。`start_suite.py` 启动后台 systemd 服务，按四组顺序执行，跳过已通过条件；出现错误时保存现场并退出。修复后使用同一启动命令继续。
+`sync_suite.py` 分发运行代码；`setup_suite.py` 启动两套 RustFS，配置专用 Redis/TiKV 和六台采集器。准备只在开始一轮实验时执行。`start_suite.py` 启动后台 systemd 服务，按四组顺序执行，跳过已通过条件；出现错误时保存现场并退出。修复后使用同一启动命令继续。
 
 只执行一组时使用 `python infra/idcai/start_suite.py --group 01-io`。其它组为 `02-fork`、`03-packed`、`04-agent-replay`。
 
