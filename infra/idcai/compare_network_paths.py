@@ -2,8 +2,10 @@
 import argparse
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import subprocess
+import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -13,6 +15,13 @@ HOSTS = {name: (host['ssh'], host['direct_ip'], host['wireguard_ip'])
 PORT = 35220
 
 def ssh(host, command):
+    if os.name == 'posix' and Path('/srv/ax-cluster/direct/scripts/cluster_lib.py').is_file():
+        sys.path.insert(0, '/srv/ax-cluster/direct/scripts')
+        import cluster_lib as cl
+        if host == 'A366':
+            return ['bash', '-c', command]
+        target = cl.HOST_BY_NAME[host]
+        return ['ssh', *cl.ssh_options(target), 'root@' + target['ip'], command]
     return ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10',
             HOSTS[host][0], command]
 

@@ -1,0 +1,378 @@
+import ast
+import contextlib
+import importlib.util
+import io
+import json
+from pathlib import Path
+import sys
+import tempfile
+import types
+import unittest
+from unittest.mock import patch
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def load_module(name, path, replacements=None):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    with patch.dict(sys.modules, replacements or {}):
+        spec.loader.exec_module(module)
+    return module
+
+
+def write_json(path, value):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
+
+
+def source_function(path, function_name, class_name=None):
+    tree = ast.parse(Path(path).read_text(encoding="utf-8"))
+    owner = tree
+    if class_name:
+        owner = next(node for node in tree.body
+                     if isinstance(node, ast.ClassDef) and node.name == class_name)
+    return next(node for node in owner.body
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name == function_name)
+
+
+def ast_name(node, expected):
+    return isinstance(node, ast.Name) and node.id == expected
+
+
+def call_name(node):
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        return node.attr
+    return ""
+
+
+def fake_cluster_lib(root, input_dir):
+    module = types.ModuleType("cluster_lib")
+    module.RUN_ROOT = Path(root)
+    module.INPUT_DIR = Path(input_dir)
+    module.REPO_ROOT = Path("/test/repo")
+    module.BIN_DIR = Path("/test/bin")
+    module.RUN_NAMESPACE = "test-suite"
+    module.ALL_HOST_NAMES = []
+    module.HOST_BY_NAME = {
+        name: {"ssh": "ssh-" + name}
+        for name in ("A355", "A366", "A672", "A601", "A635", "A368")
+    }
+    module.utc_iso = lambda: "2026-01-01T00:00:00+00:00"
+    module.collector_rpc = lambda *args, **kwargs: {}
+    module.collector_mark_all = lambda *args, **kwargs: {"hosts": {}}
+    module.collector_set_mounts = lambda *args, **kwargs: None
+    module.summarize_phase_delta = lambda *args, **kwargs: {}
+    module.endpoint_for_slot = lambda slot, index=0: f"http://endpoint-{index}:9000"
+    module.sync_file_to_host = lambda *args, **kwargs: None
+    module.run_on_host = lambda *args, **kwargs: types.SimpleNamespace(stdout=b'{"verified":true}')
+    module.stop_mounts = lambda *args, **kwargs: []
+    return module
+
+
+def load_suite_groups(root, input_dir):
+    cl = fake_cluster_lib(root, input_dir)
+    layout = types.ModuleType("rustfs_layout_tools")
+    layout.inspect_bucket_layout = lambda *args, **kwargs: {"summary": {}}
+    layout.evict_bucket_page_cache = lambda *args, **kwargs: None
+
+    support = types.ModuleType("c4_support")
+    support.REDIS_URL = "redis://127.0.0.1:6379/0"
+    support.placements = lambda count: [("A355", i + 1) for i in range(count)]
+    support.command = lambda *args, **kwargs: types.SimpleNamespace(stdout=b'{"verified":true}')
+
+    replay = types.ModuleType("run_c2")
+    replay.CASES = ()
+    replay.ensure_c2_bases = lambda policy: {"policy": policy}
+    replay.batch_stop_mounts = lambda *args, **kwargs: []
+    replay.execute_c2_cohort_arm = lambda *args, **kwargs: {
+        "timing": {"app_done_seconds": 1.0},
+        "metrics": {"actual_read_bytes": 10, "actual_write_bytes": 2, "trace_operations": 4},
+    }
+
+    readers = types.ModuleType("run_c3")
+    readers.batch_c3_loader = lambda *args, **kwargs: []
+
+    volumes = types.ModuleType("suite_volumes")
+    volumes.prepare_dataset = lambda *args, **kwargs: {}
+    volumes.mount = lambda *args, **kwargs: []
+    volumes.init_packed_reader = lambda *args, **kwargs: {}
+    volumes.admin = lambda *args, **kwargs: {}
+
+    run_suite = types.ModuleType("run_suite")
+    run_suite.save = write_json
+    run_suite.set_dynamic = lambda enabled, out: {}
+    run_suite.SYSTEMS = {
+        "brewfs-native": "brewfs-native-overlay",
+        "juicefs-redis": "juicefs",
+        "juicefs-overlay": "juicefs-overlay",
+    }
+    replacements = {
+        "cluster_lib": cl,
+        "c4_support": support,
+        "run_c2": replay,
+        "run_c3": readers,
+        "rustfs_layout_tools": layout,
+        "suite_volumes": volumes,
+        "run_suite": run_suite,
+    }
+    module = load_module(
+        "suite_groups_runtime_test_module",
+        ROOT / "bench/cluster/runtime/suite_groups.py",
+        replacements,
+    )
+    return module, cl, support, replay, readers, layout, volumes
+
+
+class SuiteRuntimeTests(unittest.TestCase):
+    def test_dispatches_each_of_52_jobs_once_to_its_group(self):
+        suite_spec = json.loads((ROOT / "configs/experiment-suite.json").read_text(encoding="utf-8"))
+        suite_builder = load_module("suite_builder_runtime_test_module", ROOT / "bench/cluster/suite.py")
+        plan = suite_builder.build(suite_spec)
+        self.assertEqual(plan["total_runs"], 52)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            run_root = Path(temporary)
+            write_json(run_root / "plan.json", plan)
+            cl = fake_cluster_lib(run_root, run_root / "inputs")
+            layout = types.ModuleType("rustfs_layout_tools")
+            fio = types.ModuleType("run_c1")
+            groups = types.ModuleType("suite_groups")
+            seen = []
+
+            def handler(group):
+                def dispatch(job, out, small=False):
+                    seen.append((group, job["id"], job["group"], small))
+                    return {"dispatched": True}
+                return dispatch
+
+            replacements = {
+                "cluster_lib": cl,
+                "rustfs_layout_tools": layout,
+                "run_c1": fio,
+            }
+            module = load_module(
+                "run_suite_runtime_test_module",
+                ROOT / "bench/cluster/runtime/run_suite.py",
+                replacements,
+            )
+            module.run_io = handler("01-io")
+            groups.run_fork = handler("02-fork")
+            groups.run_packed = handler("03-packed")
+            groups.run_replay = handler("04-agent-replay")
+            with patch.dict(sys.modules, {"suite_groups": groups}), \
+                    patch.object(sys, "argv", ["run_suite.py"]), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                module.main()
+
+            self.assertEqual(len(seen), 52)
+            self.assertEqual(len({item[1] for item in seen}), 52)
+            self.assertEqual(
+                {group: sum(item[0] == group for item in seen) for group in (
+                    "01-io", "02-fork", "03-packed", "04-agent-replay")},
+                {"01-io": 16, "02-fork": 12, "03-packed": 11, "04-agent-replay": 13},
+            )
+            self.assertTrue(all(item[0] == item[2] for item in seen))
+            self.assertTrue(all(not item[3] for item in seen))
+            status = json.loads((run_root / "status.json").read_text(encoding="utf-8"))
+            self.assertEqual(status["completed_runs"], 52)
+            self.assertTrue(all(item["state"] == "passed" for item in status["jobs"].values()))
+
+    def test_fio_input_and_measurement_mounts_use_the_child_workspace(self):
+        source = ROOT / "bench/cluster/runtime/run_c1.py"
+        fork_child = source_function(source, "fork_child", "ParentPool")
+        prep_calls = [
+            node for node in ast.walk(fork_child)
+            if isinstance(node, ast.Call) and call_name(node.func) == "make_req"
+            and len(node.args) > 7
+            and isinstance(node.args[7], ast.Constant) and node.args[7].value == "input"
+        ]
+        self.assertEqual(len(prep_calls), 1)
+        self.assertTrue(ast_name(prep_calls[0].args[5], "child_ws"))
+
+        executor = source_function(source, "execute_fio_family_run")
+        measured_calls = [
+            node for node in ast.walk(executor)
+            if isinstance(node, ast.Call) and call_name(node.func) == "make_req"
+            and len(node.args) > 5
+            and isinstance(node.args[1], ast.Constant)
+            and node.args[1].value in ("measure", "verify")
+        ]
+        self.assertEqual({node.args[1].value for node in measured_calls}, {"measure", "verify"})
+        self.assertTrue(all(ast_name(node.args[5], "child_ws") for node in measured_calls))
+        calls = [node for node in ast.walk(fork_child)
+                 if isinstance(node, ast.Call) and call_name(node.func) == "run_on_host"]
+        helper_call = next(node for node in calls
+                           if any(isinstance(arg, ast.Constant) and arg.value == "c1-io-helper"
+                                  for arg in ast.walk(node)))
+        self.assertIn("mounted[0]['mount_directory']", ast.unparse(helper_call))
+        parent_source = source_function(source, "ensure_io32g_parent", "ParentPool")
+        self.assertIn(
+            "child-writable-layer",
+            [node.value for node in ast.walk(parent_source)
+             if isinstance(node, ast.Constant) and isinstance(node.value, str)],
+        )
+
+    def test_corpus_places_at_most_1000_files_in_each_directory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            cl = fake_cluster_lib(root, root / "inputs")
+            support = types.ModuleType("c4_support")
+            volumes = load_module(
+                "suite_volumes_corpus_test_module",
+                ROOT / "bench/cluster/runtime/suite_volumes.py",
+                {"cluster_lib": cl, "c4_support": support},
+            )
+
+            data = volumes.corpus(1001)
+            directories = sorted((data / "small").iterdir())
+            counts = [sum(1 for item in directory.iterdir() if item.is_file())
+                      for directory in directories]
+            self.assertEqual([directory.name for directory in directories], ["d0000", "d0001"])
+            self.assertEqual(counts, [1000, 1])
+            marker = json.loads((data.parent / "ready.json").read_text(encoding="utf-8"))
+            self.assertEqual(marker["files_per_directory"], 1000)
+            self.assertEqual(marker["files"], 1001)
+
+    def test_packed_prepare_read_registry_is_shared_by_phase_and_separate_by_dynamic(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "run"
+            groups, cl, support, replay, readers, layout, volumes = load_suite_groups(
+                root, Path(temporary) / "inputs")
+            dynamic_calls = []
+            groups.set_dynamic = lambda enabled, out: dynamic_calls.append(enabled) or {}
+            mounted_buckets = []
+            volumes.prepare_dataset = lambda system, dynamic, files, out: {
+                "system": system, "engine": "juicefs",
+                "bucket": f"bucket-{system}-{dynamic}", "base": "/",
+                "namespace": "ns-" + dynamic, "meta_backend": "redis",
+            }
+            layout.inspect_bucket_layout = lambda *args, **kwargs: {"summary": {"objects": 1}}
+
+            def mount(volume, workspace, identifier, out, host="A366", slot=1, overrides=None):
+                mounted_buckets.append(volume["bucket"])
+                return [{
+                    "id": identifier, "host_name": host, "slot": slot, "engine": "juicefs",
+                    "cgroup": "test-cgroup", "metrics_port": 19000 + slot,
+                    "mount_directory": str(Path(out) / identifier),
+                }]
+
+            volumes.mount = mount
+            support.command = lambda *args, **kwargs: types.SimpleNamespace(stdout=b'{"verified":true}')
+            support.placements = lambda count: [("A355", index + 1) for index in range(count)]
+            cl.stop_mounts = lambda *args, **kwargs: []
+            cl.collector_mark_all = lambda *args, **kwargs: {"hosts": {}}
+            cl.collector_set_mounts = lambda *args, **kwargs: None
+            cl.summarize_phase_delta = lambda *args, **kwargs: {}
+            cl.run_on_host = lambda *args, **kwargs: types.SimpleNamespace(stdout=b'{"verified":true}')
+            readers.batch_c3_loader = lambda tasks, job_id: [{"task_count": len(tasks)}]
+            replay.batch_stop_mounts = lambda *args, **kwargs: []
+
+            registry_paths = {}
+            read_results = {}
+            for dynamic in ("on", "off"):
+                prepare_job = {
+                    "id": f"packed-{dynamic}-prepare", "seed": 10, "configuration": 1,
+                    "parameters": {"phase": "prepare", "system": "juicefs-redis",
+                                   "dynamic": dynamic, "files": 1001,
+                                   "readers": 2, "epochs": 1},
+                }
+                prepare_out = root / "jobs" / (dynamic + "-prepare")
+                groups.run_packed(prepare_job, prepare_out)
+                registry = root / "prepared" / f"juicefs-redis-{dynamic}-1001.json"
+                self.assertTrue(registry.is_file())
+                registry_paths[dynamic] = registry
+                self.assertEqual(json.loads(registry.read_text(encoding="utf-8"))["bucket"],
+                                 f"bucket-juicefs-redis-{dynamic}")
+
+                read_job = {
+                    "id": f"packed-{dynamic}-read", "seed": 11, "configuration": 1,
+                    "parameters": {"phase": "read", "system": "juicefs-redis",
+                                   "dynamic": dynamic, "files": 1001,
+                                   "readers": 2, "epochs": 1},
+                }
+                read_out = root / "jobs" / (dynamic + "-read")
+                read_results[dynamic] = groups.run_packed(read_job, read_out)
+                self.assertEqual(read_results[dynamic]["volume"]["bucket"],
+                                 f"bucket-juicefs-redis-{dynamic}")
+
+            self.assertNotEqual(registry_paths["on"], registry_paths["off"])
+            self.assertEqual(dynamic_calls, [True, True, False, False])
+            self.assertEqual(mounted_buckets.count("bucket-juicefs-redis-on"), 3)
+            self.assertEqual(mounted_buckets.count("bucket-juicefs-redis-off"), 3)
+
+    def test_replay_task_counts_serialization_and_schedule_bounds(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "run"
+            input_dir = Path(temporary) / "inputs"
+            groups, cl, support, replay, readers, layout, volumes = load_suite_groups(root, input_dir)
+            cases = tuple(f"case-{index}" for index in range(8))
+            replay.CASES = cases
+            boundaries = [
+                {"boundary_id": f"b{index}", "operations": 10, "bytes": 4096}
+                for index in range(6)
+            ]
+            for case in cases:
+                write_json(input_dir / "traces" / case / "boundaries.json", {
+                    "reviewed": True, "boundaries": boundaries, "events_operations": 60,
+                    "events_bytes": 24576, "evidence": {"source": "test"},
+                })
+            calls = []
+            replay.ensure_c2_bases = lambda policy: {"policy": policy}
+
+            def execute(condition, system, repeat, cohort, bases, out):
+                calls.append((condition["id"], len(cohort["shared_tasks"])))
+                return {
+                    "timing": {"app_done_seconds": 1.0},
+                    "metrics": {"actual_read_bytes": 10, "actual_write_bytes": 2,
+                                "trace_operations": 4},
+                }
+
+            replay.execute_c2_cohort_arm = execute
+            groups.set_dynamic = lambda enabled, out: {}
+
+            one_agent = {
+                "id": "replay-one", "seed": 123, "repeat": 1,
+                "parameters": {"dynamic": "on", "system": "brewfs-native", "agents": 1},
+            }
+            one_result = groups.run_replay(one_agent, root / "one-agent")
+            self.assertEqual(one_result["agents"], 1)
+            self.assertEqual(one_result["completed_tasks"], 8)
+            self.assertEqual([size for _, size in calls], [1] * 8)
+            self.assertEqual([condition for condition, _ in calls],
+                             [f"replay-one-one-agent-b{index}" for index in range(1, 9)])
+
+            for task in json.loads((root / "one-agent" / "tasks-plan.json").read_text(encoding="utf-8")):
+                pacing = json.loads(Path(task["pacing_path"]).read_text(encoding="utf-8"))
+                delays = [row["delay_ms"] for row in pacing["boundaries"]]
+                self.assertTrue(all(1000 <= delay <= 7000 for delay in delays))
+                self.assertEqual(sum(delays), 4000 * len(delays))
+                self.assertEqual(pacing["total_think_ms"], 4000 * len(delays))
+
+            calls.clear()
+            multi_agent = {
+                "id": "replay-multi", "seed": 456, "repeat": 1,
+                "parameters": {"dynamic": "on", "system": "brewfs-native", "agents": 5},
+            }
+            multi_result = groups.run_replay(multi_agent, root / "multi-agent")
+            self.assertEqual(multi_result["completed_tasks"], 5)
+            self.assertEqual(len(multi_result["batches"]), 1)
+            self.assertEqual(calls, [("replay-multi-multi-agent-b1", 5)])
+            tasks = json.loads((root / "multi-agent" / "tasks-plan.json").read_text(encoding="utf-8"))
+            self.assertEqual(len(tasks), 5)
+            for task in tasks:
+                pacing = json.loads(Path(task["pacing_path"]).read_text(encoding="utf-8"))
+                delays = [row["delay_ms"] for row in pacing["boundaries"]]
+                self.assertTrue(all(1000 <= delay <= 7000 for delay in delays))
+                self.assertEqual(sum(delays), 4000 * len(delays))
+                self.assertEqual(pacing["total_think_ms"], 4000 * len(delays))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,43 @@
+{
+  "schema": "ax-campaign-v1",
+  "name": "cluster-direct",
+  "groups": [
+    "C1",
+    "C2",
+    "C3",
+    "C4"
+  ],
+  "network_config": "configs/network.json",
+  "include_optional": false,
+  "execution": "manual",
+  "local_result_parent": "results/cluster-direct",
+  "remote_result_parent": "/srv/ax-cluster/runs/direct",
+  "run_id_allocation": "first-unused-run-NNN",
+  "repetitions": 3,
+  "system_order": "rotate-per-repetition",
+  "measurement_concurrency": 1,
+  "c1_execution_config": "configs/c1-execution.json",
+  "maximum_active_agents": 128,
+  "maximum_c4_children": 64,
+  "raw_results_commit": false,
+  "expected_counts": {
+    "C1": {
+      "conditions": 58,
+      "system_runs": 234
+    },
+    "C2": {
+      "conditions": 11,
+      "system_runs": 81
+    },
+    "C3": {
+      "conditions": 15,
+      "system_runs": 105
+    },
+    "C4": {
+      "conditions": 30,
+      "system_runs": 228
+    }
+  },
+  "review_state": "awaiting-confirmation",
+  "review_document": "docs/PLAN-REVIEW.md"
+}

@@ -56,7 +56,7 @@ def render(request, profiles, design):
     if changes.keys() - allowed:
         raise ValueError("Unknown mount override")
     if request.get("cache_sharing", "private") != "private":
-        raise ValueError("Host sharing requires the shared-read-cache adapter in configs/cache-sharing.json")
+        raise ValueError("Host sharing requires a shared-read-cache adapter")
     for key in ("prefetch", "packed_cache"):
         if key in changes and changes[key] not in {"on", "off"}:
             raise ValueError("Invalid on/off setting: " + key)
@@ -71,7 +71,7 @@ def render(request, profiles, design):
         record["cache"] = copy.deepcopy(profiles["brewfs_cache"])
         record["cache"]["cache_root"] = record["cache_root"]
         if engine != "brewfs-packed":
-            record["cache"]["read_ssd_bytes"] = 1536 * MIB
+            record["cache"]["read_ssd_bytes"] = (profiles["disk_mib"] * MIB - record["cache"]["write_ssd_bytes"])
         record["environment"] = copy.deepcopy(profiles["brewfs_environment"])
         environment = record["environment"]
         packed = engine == "brewfs-packed"

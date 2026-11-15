@@ -121,7 +121,7 @@ fn bounded(s: &mut u64, n: u64) -> u64 {
 
 fn file_path(root: &Path, index: u64) -> PathBuf {
     root.join("small")
-        .join(format!("d{:04}", index % 1024))
+        .join(format!("d{:04}", index / 1000))
         .join(format!("f{index:07}"))
 }
 

@@ -97,13 +97,13 @@ impl Pacer {
             .unwrap_or(0);
         if !schema_ok
             || plan["simulate_llm"] != true
-            || uint(&plan["agent_count"])? < 2
+            || uint(&plan["agent_count"])? < 1
             || max_ms == 0
             || max_ms > 15000
             || min_ms > max_ms
             || plan["agent_id"].as_str().unwrap_or("").is_empty()
         {
-            return Err(bad("invalid multi-agent think plan"));
+            return Err(bad("invalid agent think plan"));
         }
         let count = uint(&plan["events_operations"])?;
         let rows = plan["boundaries"]
@@ -220,6 +220,9 @@ mod tests {
     #[test]
     fn rejects_malformed_budget_and_boundaries_and_accepts_short_profile() {
         Pacer::validate(&plan()).unwrap();
+        let mut single_agent_plan = plan();
+        single_agent_plan["agent_count"] = json!(1);
+        Pacer::validate(&single_agent_plan).unwrap();
         let short_plan = json!({
             "schema": "trace-think-plan-v2",
             "simulate_llm": true,
@@ -239,7 +242,7 @@ mod tests {
 
         for (path, value) in [
             ("/total_think_ms", json!(20001)),
-            ("/agent_count", json!(1)),
+            ("/agent_count", json!(0)),
             ("/max_interval_ms", json!(15001)),
             ("/boundaries/0/delay_ms", json!(2999)),
             ("/boundaries/0/delay_ms", json!(15001)),

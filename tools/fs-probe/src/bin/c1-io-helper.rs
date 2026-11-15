@@ -135,10 +135,27 @@ fn generate_layout_offsets(ops: usize, obj_bytes: u64, read_bytes: u64, seed: u6
     out
 }
 
+fn read_layout_pass(files: &[File], schedule: &[(u64, u64)], read_bytes: usize) -> Result<(f64, Hist)> {
+    let mut buffer = vec![0u8; read_bytes];
+    let mut histogram = Hist::new(schedule.len());
+    let started = Instant::now();
+    for &(object, offset) in schedule {
+        let job = object as usize % files.len();
+        let file_offset = object / files.len() as u64 * 4 * 1024 * 1024 + offset;
+        let operation = Instant::now();
+        files[job].read_exact_at(&mut buffer, file_offset)?;
+        histogram.record_ns(operation.elapsed().as_nanos() as u64);
+        if buffer != expected_base_slice(job as u64, file_offset, read_bytes) {
+            return Err(format!("layout read content mismatch in job {job} at {file_offset}").into());
+        }
+    }
+    Ok((started.elapsed().as_secs_f64(), histogram))
+}
+
 fn main_run() -> Result<()> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 || args[1] == "--help" {
-        println!("Usage: c1-io-helper <init-files|verify-files|layout-fuse> ...");
+        println!("Usage: c1-io-helper <init-files|verify-files|layout-fuse|layout-fuse-pass> ...");
         return Ok(());
     }
     let cmd = args[1].as_str();
@@ -236,12 +253,7 @@ fn main_run() -> Result<()> {
             )
         }
         "verify-files" => {
-            // Verifies file sizes across all 8 files, and checks deterministic content on cold remount!
-            // To avoid re-reading 32 GiB x 270 runs = 8.6 TiB on every single fio run while still verifying
-            // every written byte & real cross-host cold readback, supports:
-            //   mode = "seqwrite": checks full seq_written_per_job prefix across all jobs + 64 sampled untouched blocks per job
-            //   mode = "randwrite": scans first 512 MiB or sampled + full touched scan across jobs, ensuring every 4 KiB block is either exact base or exact fio pattern and mutated_blocks > 0
-            //   mode = "read": checks 256 deterministic 4 KiB blocks across all 8 files (8 MiB cold readback check)
+            // Check every file length and compare sampled blocks on a fresh mount.
             let start = Instant::now();
             let pat_be = fio_written_block_4k();
             let pat_le = fio_written_block_4k_le();
@@ -270,6 +282,7 @@ fn main_run() -> Result<()> {
                                     return Err(format!("seqwrite mismatch job {j} at offset {off}").into());
                                 }
                                 bytes += 4096;
+                                mutated += 1;
                                 off += if off < 4 * 1024 * 1024 { 4096 } else { 65536 };
                             }
                             // Also check 32 untouched blocks past seq_written_per_job
@@ -287,9 +300,8 @@ fn main_run() -> Result<()> {
                                     bytes += 4096;
                                 }
                             }
-                            mutated = seq_written_per_job / 4096;
                         } else if mode_c == "randwrite" {
-                            // Scan full file in 4 MiB chunks if <= 512 MiB, or scan until we verify >= 64 mutated blocks + 256 base blocks without any invalid block!
+                            // Scan at least 256 MiB and stop after observing 16 modified blocks.
                             let mut buf = vec![0u8; 4 * 1024 * 1024];
                             let mut off = 0u64;
                             while off < bytes_per_job {
@@ -346,58 +358,32 @@ fn main_run() -> Result<()> {
             }
             let secs = start.elapsed().as_secs_f64();
             format!(
-                "{{\"passed\":true,\"command\":\"verify-files\",\"mode\":\"{mode}\",\"bytes_checked\":{checked_bytes},\"mutated_blocks_verified\":{mutated_blocks},\"wall_seconds\":{secs:.6}}}"
+                "{{\"passed\":true,\"command\":\"verify-files\",\"mode\":\"{mode}\",\"scope\":\"sampled-blocks-and-all-file-lengths\",\"bytes_checked\":{checked_bytes},\"mutated_blocks_verified\":{mutated_blocks},\"wall_seconds\":{secs:.6}}}"
             )
         }
-        "layout-fuse" => {
+        "layout-fuse" | "layout-fuse-pass" => {
             let read_bytes = read_kib * 1024;
             let schedule = generate_layout_offsets(ops, 4 * 1024 * 1024, read_bytes, seed);
             let files: Vec<File> = (0..jobs)
                 .map(|j| File::open(root.join(format!("job-{j}.dat"))))
                 .collect::<std::io::Result<_>>()?;
-            let mut buf = vec![0u8; read_bytes as usize];
-
-            // Pass 1: cold mount read
-            let mut cold_hist = Hist::new(ops);
-            let t_cold = Instant::now();
-            for &(obj_idx, in_chunk_off) in &schedule {
-                let job = (obj_idx as usize) % jobs;
-                let chunk_in_job = obj_idx / (jobs as u64);
-                let file_off = chunk_in_job * 4 * 1024 * 1024 + in_chunk_off;
-                let t = Instant::now();
-                files[job].read_exact_at(&mut buf, file_off)?;
-                cold_hist.record_ns(t.elapsed().as_nanos() as u64);
-                let exp = expected_base_slice(job as u64, file_off, read_bytes as usize);
-                if buf != exp {
-                    return Err(format!("layout-fuse cold byte mismatch job {job} off {file_off}").into());
-                }
-            }
-            let cold_secs = t_cold.elapsed().as_secs_f64();
-
-            // Pass 2: hot same-mount read
-            let mut hot_hist = Hist::new(ops);
-            let t_hot = Instant::now();
-            for &(obj_idx, in_chunk_off) in &schedule {
-                let job = (obj_idx as usize) % jobs;
-                let chunk_in_job = obj_idx / (jobs as u64);
-                let file_off = chunk_in_job * 4 * 1024 * 1024 + in_chunk_off;
-                let t = Instant::now();
-                files[job].read_exact_at(&mut buf, file_off)?;
-                hot_hist.record_ns(t.elapsed().as_nanos() as u64);
-                let exp = expected_base_slice(job as u64, file_off, read_bytes as usize);
-                if buf != exp {
-                    return Err(format!("layout-fuse hot byte mismatch job {job} off {file_off}").into());
-                }
-            }
-            let hot_secs = t_hot.elapsed().as_secs_f64();
             let app_bytes = (ops as u64) * read_bytes;
-            format!(
+            let (cold_secs, mut cold_hist) = read_layout_pass(&files, &schedule, read_bytes as usize)?;
+            if cmd == "layout-fuse-pass" {
+                format!(
+                    "{{\"passed\":true,\"command\":\"layout-fuse-pass\",\"operations\":{ops},\"read_kib\":{read_kib},\"application_read_bytes\":{app_bytes},\"seconds\":{cold_secs:.6},\"iops\":{:.3},\"latency\":{}}}",
+                    ops as f64 / cold_secs.max(1e-9), cold_hist.summary_json()
+                )
+            } else {
+                let (hot_secs, mut hot_hist) = read_layout_pass(&files, &schedule, read_bytes as usize)?;
+                format!(
                 "{{\"passed\":true,\"command\":\"layout-fuse\",\"operations\":{ops},\"read_kib\":{read_kib},\"application_read_bytes\":{app_bytes},\"cold_seconds\":{cold_secs:.6},\"cold_iops\":{:.3},\"cold_latency\":{},\"hot_seconds\":{hot_secs:.6},\"hot_iops\":{:.3},\"hot_latency\":{}}}",
                 ops as f64 / cold_secs.max(1e-9),
                 cold_hist.summary_json(),
                 ops as f64 / hot_secs.max(1e-9),
                 hot_hist.summary_json()
-            )
+                )
+            }
         }
         other => return Err(format!("unknown subcommand: {other}").into()),
     };

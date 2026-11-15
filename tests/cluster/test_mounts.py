@@ -2,8 +2,11 @@
 
 import copy
 import json
+import os
 from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 from bench.cluster import mounts
 from bench.cluster.audit_mount import parse_proc_cmdline, validate_effective
@@ -30,8 +33,25 @@ class MountTests(unittest.TestCase):
                 with self.subTest(engine=engine, phase=phase):
                     result = self.record(engine, phase=phase)
                     self.assertEqual(result["memory_bytes"], 4 * 1024**3)
-                    self.assertEqual(result["disk_bytes"], 2 * 1024**3)
+                    self.assertEqual(result["disk_bytes"], 8 * 1024**3)
                     self.assertLessEqual(result["capacity_reservation_bytes"] + 2048 * 1024**2, result["memory_bytes"])
+
+    def test_ssd_and_metadata_cache_allocations_match_the_eight_gib_profile(self):
+        gib = 1024**3
+        self.assertEqual(self.profiles["disk_mib"], 8192)
+
+        native = self.record("brewfs-native-overlay")
+        self.assertEqual(native["cache"]["read_ssd_bytes"], 7 * gib)
+        self.assertEqual(native["cache"]["write_ssd_bytes"], 1 * gib)
+
+        packed = self.record("brewfs-packed")
+        self.assertEqual(packed["cache"]["read_ssd_bytes"], 3 * gib)
+        self.assertEqual(packed["cache"]["write_ssd_bytes"], 1 * gib)
+        self.assertEqual(int(packed["environment"]["BREWFS_PACKED_CACHE_BYTES"]), 4 * gib)
+
+        juicefs = self.record("juicefs")
+        self.assertEqual(juicefs["options"]["cache-size"], "7168M")
+        self.assertEqual(self.profiles["juicefs_staging_reserve_mib"], 1024)
 
     def test_simultaneous_parent_and_child_have_separate_cache_and_slot(self):
         first = self.record()
@@ -90,6 +110,30 @@ class MountTests(unittest.TestCase):
         actual = dict(binary=record["binary"], memory_max=record["memory_bytes"], swap_max=0,
                       environment={}, cache={}, argv=parsed, metrics={})
         self.assertTrue(validate_effective(record, actual)["passed"])
+
+    def test_audit_recovers_truncated_title_with_remaining_arguments(self):
+        command='/srv/bin/juicefs --no-agent mount --dir-entry-cache=1 redis://server/14 /mnt/work'
+        raw=b'/srv/bin/juicefs --no-agent mount\0remaining-original-argument\0'
+        with patch.object(Path,'is_file',return_value=True), patch.object(Path,'read_text',return_value='ExecStart='+command+'\n'):
+            parsed=parse_proc_cmdline(raw,Path('/sys/fs/cgroup/ax-mount.service'))
+        self.assertEqual(parsed,command.split())
+
+    @unittest.skipUnless(os.name == 'posix', 'Linux executable links')
+    def test_audit_resolves_binary_link_and_rejects_other_executable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            binary = root / 'juicefs-real'
+            binary.write_bytes(b'test executable')
+            link = root / 'juicefs'
+            link.symlink_to(binary)
+            record = self.record('juicefs', binary=str(link))
+            argv = [str(link), *[f'--{k}={v}' for k, v in record['options'].items()]]
+            actual = dict(binary=str(binary), memory_max=record['memory_bytes'], swap_max=0,
+                          environment={}, cache={}, argv=argv, metrics={})
+            self.assertTrue(validate_effective(record, actual)['passed'])
+            actual['binary'] = str(root / 'different-program')
+            with self.assertRaisesRegex(ValueError, 'executable'):
+                validate_effective(record, actual)
 
 
 if __name__ == "__main__":

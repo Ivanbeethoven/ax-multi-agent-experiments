@@ -1,43 +1,5 @@
 {
   "schema": "ax-agent-cluster-design-v1",
-  "status": "ready-for-preparation",
-  "date": "2026-11-15",
-  "systems": [
-    "brewfs-native-overlay",
-    "juicefs",
-    "juicefs-overlay"
-  ],
-  "active_agents": [
-    8,
-    32,
-    64,
-    128
-  ],
-  "optional_agent_counts": [
-    192
-  ],
-  "maximum_active_agents": 192,
-  "brewfs": {
-    "repository": "https://github.com/brewfs/brewfs",
-    "branch": "main",
-    "minimum_commit": "efd9c902d88b3d17e9fecbd4ac7ff4a6cd15626b"
-  },
-  "future_systems": {
-    "cephfs": {
-      "enabled": false,
-      "adapter": "planned",
-      "storage": "CephFS native data and metadata pools"
-    }
-  },
-  "workspace_memory_gib": 4,
-  "workspace_disk_gib": 2,
-  "metrics_port_base": 20000,
-  "repetitions": 3,
-  "seeds": [
-    2026111401,
-    2026111402,
-    2026111403
-  ],
   "hosts": [
     {
       "name": "A366",
@@ -124,6 +86,9 @@
       "os_memory_gib": 16
     }
   ],
+  "workspace_memory_gib": 4,
+  "workspace_disk_gib": 8,
+  "metrics_port_base": 20000,
   "storage": {
     "rustfs_nodes": 4,
     "disks_per_node": 1,
@@ -137,93 +102,13 @@
     "redis_eviction": "noeviction",
     "redis_durability": "AOF everysec"
   },
-  "layout": {
-    "block_kib": [
-      64,
-      256,
-      1024,
-      4096
-    ],
-    "quantum_modes": [
-      "on",
-      "off"
-    ],
-    "filesystem_chunk_kib": 4096,
-    "read_size_kib": [
-      4,
-      1024
-    ],
-    "read_quantum_source": "persisted-object-layout",
-    "record_actual_block_and_quantum": true
-  },
-  "trace_cases": [
-    "pytest-full-02",
-    "sklearn",
-    "appworld-export-01",
-    "bfcl-travel-01",
-    "dabench-39-01",
-    "office-excel-01",
-    "tb-access-logs-01",
-    "ml-vectorization-01"
-  ],
-  "trace_long_cases": [
-    "django",
-    "sympy"
-  ],
-  "pacing": {
-    "mode": "reviewed-tool-boundaries",
-    "profiles": {
-      "none": [
-        0,
-        0
-      ],
-      "short": [
-        1000,
-        7000
-      ],
-      "long": [
-        3000,
-        15000
-      ]
-    },
-    "main_profile": "short",
-    "start_window_seconds": 30,
-    "generator": "python-random-MT19937-integer-seed",
-    "measured_model_latency": false
-  },
-  "fork": {
-    "children": [
-      1,
-      16
-    ],
-    "file_counts": [
-      10000,
-      100000
-    ],
-    "correctness_repetitions": 10
-  },
   "observation": {
     "host_interval_seconds": 5,
     "mount_interval_seconds": 5,
     "transition_interval_seconds": 1,
     "maximum_gap_seconds": 15,
-    "overhead_pairs": 3,
-    "maximum_overhead_fraction": 0.05,
     "aggregate_format": "jsonl.zst",
     "latency_format": "mergeable-histogram"
   },
-  "execution": {
-    "max_attempts_per_condition": 2,
-    "soft_task_timeout_seconds": 7200,
-    "soft_prepare_timeout_seconds": 14400,
-    "timeout_is_completion": false,
-    "automatic_launch": false,
-    "manual_groups": [
-      "C1",
-      "C2",
-      "C3"
-    ],
-    "download_missing_inputs": true,
-    "soft_condition_timeout_seconds": 21600
-  }
+  "maximum_active_agents": 64
 }

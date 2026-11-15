@@ -1,0 +1,232 @@
+"""Fork, read-only Packed, and multi-agent trace workloads."""
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
+import copy
+import json
+from pathlib import Path
+import random
+import time
+
+import cluster_lib as cl
+import c4_support as support
+import run_c2 as replay
+import run_c3 as readers
+import rustfs_layout_tools as layout
+import suite_volumes as volumes
+from run_suite import save, set_dynamic, SYSTEMS
+
+
+def workload(mount, action, out, files, changes=None):
+    arguments = ['python3', '-m', 'bench.cluster.c4_workload', action,
+        '--root', mount['mount_directory'], '--files', str(files), '--file-bytes', '4096']
+    if changes:
+        cl.sync_file_to_host(mount['host_name'], changes, str(changes))
+        arguments += ['--changes', str(changes)]
+    result = support.command(arguments, out, host=mount['host_name'])
+    return json.loads(result.stdout)
+
+
+def run_fork(job, out, small=False):
+    p = job['parameters']
+    nodes = set_dynamic(True, out)
+    files = 32 if small else p['files']
+    system = SYSTEMS[p['system']]
+    direct = p['mode'] == 'direct-parent'
+    parent = support.prepare_parent(system, files, p['file_bytes'], seal=not direct,
+                                    tag_suffix='-direct' if direct else '')
+    save(out / 'parent.json', parent)
+    layout.evict_bucket_page_cache(nodes, [parent['bucket']])
+    before = cl.collector_mark_all(job['id'], 'fork-start')
+    if direct:
+        children, fork_seconds = [parent['base']], 0.0
+    else:
+        children, fork_seconds = support.fork(parent, min(p['children'], 2) if small else p['children'],
+                                              job['id'] + '-' + out.name, out / 'fork')
+    after = cl.collector_mark_all(job['id'], 'fork-end')
+    save(out / 'fork-start.json', before)
+    save(out / 'fork-end.json', after)
+    requests, specs = [], {}
+    for index, (workspace, (host, slot)) in enumerate(zip(children, support.placements(len(children)))):
+        identifier = f'{job["id"]}-child-{index:03d}'
+        requests.append(support.request(parent, workspace, identifier, host, slot))
+        specs[identifier] = support.spec(parent, workspace, cl.endpoint_for_slot(slot))
+    config = out / 'mounts.json'
+    cl.generate_mounts_json(requests, config)
+    mounted = replay.batch_start_mounts(config, specs, job['id'])
+    changes_file = out / 'changes.json'
+    count = min(files, p['overwrite_files'])
+    from bench.cluster.c4_workload import make_changes
+    save(changes_file, make_changes(count, kind='range-overwrite', seed=job['seed']))
+    result = {'fork_seconds': fork_seconds, 'children': len(children),
+              'fork_backend_delta': cl.summarize_phase_delta(before, after),
+              'mount_ready_seconds': [m['mount_ready_seconds'] for m in mounted],
+              'parent_prepare_seconds': parent['prepare_seconds']}
+    try:
+        if p['read_files']:
+            first = cl.collector_mark_all(job['id'], 'read-start')
+            result['read'] = workload(mounted[0], 'read', out / 'read', min(files, p['read_files']))
+            second = cl.collector_mark_all(job['id'], 'read-end')
+            result['read_backend_delta'] = cl.summarize_phase_delta(first, second)
+            result['write'] = workload(mounted[0], 'apply', out / 'write', files, changes_file)
+            result['upload'] = cl.wait_uploads(mounted)
+            third = cl.collector_mark_all(job['id'], 'write-end')
+            result['write_backend_delta'] = cl.summarize_phase_delta(second, third)
+            save(out / 'read-start.json', first)
+            save(out / 'read-end.json', second)
+            save(out / 'write-end.json', third)
+        else:
+            with ThreadPoolExecutor(max_workers=6) as workers:
+                list(workers.map(lambda m: workload(m, 'first-read', out / (m['id'] + '-read'), files), mounted))
+    finally:
+        result['stops'] = replay.batch_stop_mounts(mounted, job['id'], remove_cache=True)
+    # Remount the first child on another host and compare the actual file contents.
+    source = mounted[0]['host_name']
+    target = 'A355' if source != 'A355' else 'A366'
+    checked = support.mount_one(parent, children[0], job['id'] + '-verify', out, host=target, phase='verify')
+    try:
+        result['verification'] = workload(checked[0], 'verify' if p['read_files'] else 'first-read',
+                                          out / 'verify', files, changes_file if count else None)
+    finally:
+        cl.stop_mounts(checked, out, clear_collector=False, remove_cache=True)
+    if not direct and count:
+        checked = support.mount_one(parent, parent['base'], job['id'] + '-parent-check', out)
+        try:
+            result['parent_verification'] = workload(checked[0], 'verify', out / 'parent-verify', files)
+        finally:
+            cl.stop_mounts(checked, out, clear_collector=False, remove_cache=True)
+    return result
+
+
+def run_packed(job, out, small=False):
+    p = job['parameters']
+    nodes = set_dynamic(p['dynamic'] == 'on', out)
+    files = 32 if small else p['files']
+    key = f'{p["system"]}-{p["dynamic"]}-{files}'
+    registry = cl.RUN_ROOT / 'prepared' / (key + '.json')
+    if p['phase'] == 'prepare':
+        volume = volumes.prepare_dataset(p['system'], p['dynamic'], files, out)
+        volume['layout'] = layout.inspect_bucket_layout(nodes, volume['bucket'])
+        verify_mount = volumes.mount(volume, volume['base'], job['id'] + '-verify', out, host='A355')
+        try:
+            remote = str(cl.RUN_ROOT / 'hosts/A355' / (job['id'] + '-verify.json'))
+            support.command([str(cl.BIN_DIR / 'c3-loader'), 'load', '--root', verify_mount[0]['mount_directory'],
+                '--output', remote, '--files', str(files), '--epochs', '1', '--threads', '2',
+                '--batch', '64', '--seed', str(job['seed']), '--verify-bytes', '1'], out / 'verify', host='A355')
+            volume['verification'] = json.loads(cl.run_on_host('A355', ['cat', remote]).stdout)
+        finally:
+            cl.stop_mounts(verify_mount, out, clear_collector=False, remove_cache=True)
+        save(registry, volume)
+        return volume
+    volume = json.loads(registry.read_text())
+    count = 2 if small else p['readers']
+    layout.evict_bucket_page_cache(nodes, [volume['bucket']])
+    placements = support.placements(count)
+    mounted = []
+    for index, (host, slot) in enumerate(placements):
+        item = volume
+        if volume['engine'] == 'brewfs-packed':
+            namespace = f'{cl.RUN_NAMESPACE}_reader_{job["configuration"]}_{index}'
+            item = volumes.init_packed_reader(volume, namespace, out / f'init-{index}')
+        elif volume['engine'] == 'brewfs-native-overlay':
+            item = dict(volume)
+            item['base'] = volumes.admin(volume, ['fork-shared-bucket', '--revision', volume['revision'],
+                                        '--count', '1'], out / f'fork-{index}')['workspaces'][0]
+        mounted.extend(volumes.mount(item, item['base'], f'{job["id"]}-reader-{index}', out, host, slot,
+                       {'packed_cache': p.get('packed_cache', 'on')} if volume['engine'] == 'brewfs-packed' else {}))
+    per_host = defaultdict(list)
+    for m in mounted:
+        per_host[m['host_name']].append(m)
+    cl.collector_set_mounts(per_host)
+    tasks = defaultdict(list)
+    epoch = time.time_ns() + 5_000_000_000
+    for index, m in enumerate(mounted):
+        output = str(cl.RUN_ROOT / 'hosts' / m['host_name'] / (m['id'] + '.json'))
+        tasks[m['host_name']].append({'reader_id': m['id'], 'host': m['host_name'], 'slot': m['slot'],
+            'engine': m['engine'], 'cgroup': m['cgroup'], 'metrics_port': m['metrics_port'],
+            'out_path': output, 'wait_upload': False, 'loader_argv': [str(cl.BIN_DIR / 'c3-loader'),
+                'load', '--root', m['mount_directory'], '--output', output, '--files', str(files),
+                '--epochs', str(p['epochs']), '--threads', '2', '--batch', '64',
+                '--seed', str(job['seed'] + index * 1009), '--verify-bytes', '1', '--start-unix-ns', str(epoch)]})
+    before = cl.collector_mark_all(job['id'], 'read-start')
+    start = time.monotonic()
+    try:
+        results = readers.batch_c3_loader(tasks, job['id'])
+        seconds = time.monotonic() - start
+        after = cl.collector_mark_all(job['id'], 'read-end')
+    finally:
+        stops = replay.batch_stop_mounts(mounted, job['id'], remove_cache=True)
+    save(out / 'read-start.json', before)
+    save(out / 'read-end.json', after)
+    save(out / 'readers.json', results)
+    return {'seconds': seconds, 'readers': results, 'stops': stops,
+            'backend_delta': cl.summarize_phase_delta(before, after), 'volume': volume}
+
+
+def schedule(task, agents, seed, out):
+    source = json.loads((cl.INPUT_DIR / 'traces' / task['case'] / 'boundaries.json').read_text())
+    if source.get('reviewed') is not True:
+        raise ValueError('Tool boundaries have not been reviewed: ' + task['case'])
+    rng = random.Random(seed)
+    remaining = len(source['boundaries']) * 4000
+    waits = []
+    for index in range(len(source['boundaries'])):
+        left = len(source['boundaries']) - index - 1
+        delay = rng.randint(max(1000, remaining - left * 7000), min(7000, remaining - left * 1000))
+        waits.append(delay)
+        remaining -= delay
+    rng.shuffle(waits)
+    rows = [dict(row, delay_ms=delay) for row, delay in zip(source['boundaries'], waits)]
+    plan = {'schema': 'trace-think-plan-v2', 'simulate_llm': True,
+        'algorithm': 'python-random-MT19937-feasible-allocation-shuffle-v2',
+        'agent_count': agents, 'agent_id': task['task_id'], 'seed': seed,
+        'min_interval_ms': 1000, 'max_interval_ms': 7000, 'total_think_ms': sum(waits),
+        'events_operations': source['events_operations'], 'events_bytes': source['events_bytes'],
+        'evidence': source['evidence'], 'boundaries': rows}
+    save(out, plan)
+    cl.sync_file_to_host(task['host'], out, str(out))
+    return str(out)
+
+
+def run_replay(job, out, small=False):
+    p = job['parameters']
+    set_dynamic(p['dynamic'] == 'on', out)
+    original_cases = replay.CASES
+    if small:
+        replay.CASES = ('office-excel-01',)
+    policy = p['dynamic'] + ('-check' if small else '')
+    try:
+        bases = replay.ensure_c2_bases(policy)
+        cases = list(replay.CASES)
+        agents = 1 if small else p['agents']
+        rng = random.Random(job['seed'])
+        rng.shuffle(cases)
+        total = len(cases) if agents == 1 else agents
+        placements = [('A366', 1)] * total if agents == 1 else support.placements(agents)
+        tasks = []
+        for index, (host, slot) in enumerate(placements):
+            task = {'task_id': f'a{index+1:03d}', 'case': cases[index % len(cases)],
+                'host': host, 'ssh': cl.HOST_BY_NAME[host]['ssh'], 'slot': slot,
+                'start_delay_ms': 0 if agents == 1 else rng.randrange(30001)}
+            task['pacing_path'] = schedule(task, agents, job['seed'] + 100003 * (index+1),
+                                            out / 'pacing' / (task['task_id'] + '.json'))
+            tasks.append(task)
+        save(out / 'tasks-plan.json', tasks)
+        batches = [[task] for task in tasks] if agents == 1 else [tasks]
+        results = []
+        for index, batch in enumerate(batches):
+            directory = out / f'batch-{index+1:02d}'
+            directory.mkdir()
+            condition = {'id': job['id'] + '-' + out.name + f'-b{index+1}', 'family': 'trace', 'kind': 'measurement',
+                'parameters': {'agents': agents, 'pacing': 'short', 'writes': 'remote-ready'}}
+            cohort = {'seed': job['seed'], 'shared_tasks': batch}
+            result = replay.execute_c2_cohort_arm(condition, SYSTEMS[p['system']], job['repeat'],
+                                                  cohort, bases, directory)
+            save(directory / 'result.json', result)
+            results.append(result)
+        return {'agents': agents, 'completed_tasks': total, 'batches': results,
+            'replay_seconds': sum(r['timing']['app_done_seconds'] for r in results),
+            'actual_read_bytes': sum(r['metrics']['actual_read_bytes'] for r in results),
+            'actual_write_bytes': sum(r['metrics']['actual_write_bytes'] for r in results),
+            'operations': sum(r['metrics']['trace_operations'] for r in results)}
+    finally:
+        replay.CASES = original_cases

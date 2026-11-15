@@ -10,17 +10,16 @@ from .mounts import POOLS
 
 def parse_proc_cmdline(raw: bytes, cgroup: Path | None = None) -> list[str]:
     tokens = [t for t in raw.decode(errors="replace").strip("\0").split("\0") if t]
-    if len(tokens) == 1 and " " in tokens[0]:
-        # JuiceFS/gspt SetProcTitle joins os.Args with spaces into argv[0] and truncates at 255 bytes.
-        # Recover full untruncated ExecStart argv from the active systemd transient unit of this cgroup when present.
-        if cgroup is not None:
-            unit_file = Path("/run/systemd/transient") / cgroup.name
-            if unit_file.is_file():
-                for line in unit_file.read_text(encoding="utf-8", errors="replace").splitlines():
-                    if line.startswith("ExecStart=") and line != "ExecStart=":
-                        full_argv = shlex.split(line.split("=", 1)[1])
-                        if full_argv and tokens[0][:64] == " ".join(full_argv)[:len(tokens[0][:64])]:
-                            return full_argv
+    # The systemd unit preserves complete launch arguments when a worker changes its process title.
+    if cgroup is not None:
+        unit_file = Path("/run/systemd/transient") / cgroup.name
+        if unit_file.is_file():
+            for line in unit_file.read_text(encoding="utf-8", errors="replace").splitlines():
+                if line.startswith("ExecStart=") and line != "ExecStart=":
+                    full_argv = shlex.split(line.split("=", 1)[1])
+                    if full_argv:
+                        return full_argv
+    if tokens and " " in tokens[0]:
         return [t for t in tokens[0].split(" ") if t]
     return tokens
 
@@ -36,7 +35,7 @@ def argument(argv, name):
 
 
 def validate_effective(record, actual):
-    if actual["binary"] != record["binary"]:
+    if Path(actual["binary"]).resolve() != Path(record["binary"]).resolve():
         raise ValueError("Running executable differs from the mount record")
     if actual["memory_max"] != record["memory_bytes"] or actual["swap_max"] != 0:
         raise ValueError("Actual cgroup memory settings differ")

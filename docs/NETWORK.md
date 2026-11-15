@@ -1,6 +1,6 @@
 # 六机直连网络
 
-正式 C1～C4 使用服务器 `eth0` 的同网段直连。配置入口为 [network.json](../configs/network.json)，本轮范围为 [campaign-direct.json](../configs/campaign-direct.json)。SSH 别名用于管理连接，存储流量使用下表地址。
+四组实验使用服务器 `eth0` 的同网段直连。配置入口为 [network.json](../configs/network.json)，本轮范围为 [experiment-suite.json](../configs/experiment-suite.json)。SSH 别名用于管理连接，存储流量使用下表地址。
 
 | 主机 | SSH 别名 | eth0 直连地址 | 角色 |
 |---|---|---|---|
@@ -11,7 +11,7 @@
 | A635 | idcai-60533 | 175.168.6.35 | RustFS、客户端 |
 | A368 | idcai-60555 | 175.168.3.68 | RustFS、客户端 |
 
-这里的内网指服务商分配给六机的同网段直连；`175.168.*` 不属于 RFC1918 私有地址。服务绑定上述地址并启用认证，访问范围限制为六台主机。是否经过直连由实际路由和连接记录确认。
+这里的内网指服务商分配给六机的同网段直连；`175.168.*` 不属于 RFC1918 私有地址。服务绑定上述地址，访问范围限制为六台主机；Redis 和 RustFS 启用认证。是否经过直连由实际路由和连接记录确认。
 
 ## 网络准备
 

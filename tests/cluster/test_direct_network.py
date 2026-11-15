@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-from bench.cluster import plan
+from bench.cluster import suite
 from infra.idcai import compare_network_paths as probe
 from infra.rustfs.generate_rustfs import generate
 
@@ -19,15 +19,19 @@ class DirectNetworkTests(unittest.TestCase):
     def test_inventory_and_experimental_counts(self):
         network = read('configs/network.json')
         design = read('configs/cluster.json')
-        campaign = read('configs/campaign-direct.json')
+        experiment = read('configs/experiment-suite.json')
+        built = suite.build(experiment)
         self.assertEqual({h['name']: h['ssh'] for h in design['hosts']},
                          {name: h['ssh'] for name, h in network['hosts'].items()})
         self.assertEqual(network['formal_data_network'], 'direct')
-        for group, expected in campaign['expected_counts'].items():
-            built = plan.build_plan(design, group)
-            self.assertEqual(len(built['conditions']), expected['conditions'])
-            self.assertEqual(len(built['jobs']), expected['system_runs'])
-        self.assertEqual(campaign['maximum_active_agents'], max(design['active_agents']))
+        self.assertEqual(built['total_runs'], 52)
+        self.assertEqual(len(built['jobs']), 52)
+        self.assertEqual(sum(built['counts'].values()), 52)
+        self.assertEqual(experiment['resource_limits']['maximum_agents'], 64)
+        self.assertEqual(
+            max(job['parameters'].get('agents', 1) for job in built['jobs']),
+            64,
+        )
 
     def test_rustfs_generator_uses_direct_addresses_for_listening_and_peers(self):
         network = read('configs/network.json')
