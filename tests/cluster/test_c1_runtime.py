@@ -12,7 +12,7 @@ class FioWorkTests(unittest.TestCase):
     def setUpClass(cls):
         source=ast.parse((ROOT/'bench/cluster/runtime/run_c1.py').read_text(encoding='utf-8'))
         function=next(node for node in source.body if isinstance(node,ast.FunctionDef) and node.name=='build_fio_jobfile')
-        namespace={'JOBS':8,'BYTES_PER_JOB':4*1024**3}
+        namespace={'JOBS':8,'BYTES_PER_JOB':1024**3}
         exec(compile(ast.Module(body=[function],type_ignores=[]),'fio-builder','exec'),namespace)
         cls.build=staticmethod(namespace['build_fio_jobfile'])
 
@@ -36,6 +36,7 @@ class FioWorkTests(unittest.TestCase):
                 text,_,_,written=self.build({'family':family,'parameters':{'operation':operation}},'/test',100)
                 cfg=configparser.ConfigParser();cfg.read_string(text)
                 self.assertEqual(int(cfg['global']['io_size'])*8,8*1024**3)
+                self.assertEqual(int(cfg['global']['size'])*8,8*1024**3)
                 self.assertEqual(written,1024**3 if operation=='write' else 0)
 
 

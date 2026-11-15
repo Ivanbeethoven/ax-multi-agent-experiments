@@ -363,7 +363,7 @@ class SuiteRuntimeTests(unittest.TestCase):
                            if any(isinstance(arg, ast.Constant) and arg.value == "c1-io-helper"
                                   for arg in ast.walk(node)))
         self.assertIn("mounted[0]['mount_directory']", ast.unparse(helper_call))
-        parent_source = source_function(source, "ensure_io32g_parent", "ParentPool")
+        parent_source = source_function(source, "ensure_io_parent", "ParentPool")
         self.assertIn(
             "child-writable-layer",
             [node.value for node in ast.walk(parent_source)

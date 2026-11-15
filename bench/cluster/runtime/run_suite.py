@@ -45,11 +45,13 @@ def select_backend(dynamic_enabled, out):
 def run_io(job, out, small=False):
     p = job['parameters']
     nodes = select_backend(p['dynamic'] == 'on', out)
-    pool = fio.ParentPool(nodes, policy=cl.RUSTFS_BACKEND + ('-check' if small else ''))
+    if p['jobs'] != fio.JOBS or p['working_set_bytes'] % p['jobs']:
+        raise ValueError('Fio input must divide evenly across its eight jobs')
+    fio.BYTES_PER_JOB = 4 * 1024 * 1024 if small else p['working_set_bytes'] // p['jobs']
+    pool = fio.ParentPool(nodes, policy=cl.RUSTFS_BACKEND + f'-{fio.JOBS * fio.BYTES_PER_JOB}b' + ('-check' if small else ''))
     family = 'block-' + p['pattern']
     condition = {'id': job['id'], 'family': family, 'kind': 'measurement', 'parameters': copy.deepcopy(p)}
     if small:
-        fio.BYTES_PER_JOB = 4 * 1024 * 1024
         condition['parameters']['io_bytes'] = 16 * 1024 * 1024
     hint = str(p['block_bytes']) if isinstance(p['block_bytes'], int) else 'auto'
     fio.execute_fio_family_run(condition, SYSTEMS[p['system']], job['repeat'], pool,

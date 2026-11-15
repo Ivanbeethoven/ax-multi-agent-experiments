@@ -24,7 +24,7 @@ OPENER = build_opener(ProxyHandler({}))
 REDIS_URL = f"redis://:{cl.SECRETS['redis_password']}@{cl.REDIS_HOST}:{cl.REDIS_PORT}/0"
 SEEDS_BY_REP = {1: 2026111401, 2: 2026111402, 3: 2026111403}
 WORKING_SET_BYTES = 32 * 1024**3
-BYTES_PER_JOB = 4 * 1024**3
+BYTES_PER_JOB = 1024**3
 JOBS = 8
 
 def fio_json_to_metrics(fio_doc: dict) -> dict:
@@ -265,7 +265,7 @@ def enrich_amplification(delta: dict, read_bytes: int, write_bytes: int, mount_p
 
 
 # ==============================================================================
-# Reusable Parent Workspace Managers (32 GiB I/O)
+# Reusable Parent Workspace Managers
 # ==============================================================================
 
 class ParentPool:
@@ -277,7 +277,7 @@ class ParentPool:
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
 
-    def ensure_io32g_parent(
+    def ensure_io_parent(
         self,
         system: str,
         brewfs_hint: str = "auto",
@@ -291,7 +291,7 @@ class ParentPool:
             if key in self.parents:
                 return self.parents[key]
 
-        meta_file = self.state_dir / f"io32g-{key.replace(':', '-')}.json"
+        meta_file = self.state_dir / f"io-input-{key.replace(':', '-')}.json"
         keys_file = meta_file.with_name(meta_file.stem + "-keys.json")
         if meta_file.is_file():
             saved = json.loads(meta_file.read_text(encoding="utf-8"))
@@ -313,8 +313,8 @@ class ParentPool:
 
         # Zero-cost reuse: if brewfs-native-overlay:auto already persisted actual_B == 1048576, alias 1048576 directly!
         if system == "brewfs-native-overlay" and brewfs_hint == "1048576":
-            auto_meta = self.state_dir / "io32g-brewfs-native-overlay-auto.json"
-            auto_keys = self.state_dir / "io32g-brewfs-native-overlay-auto-keys.json"
+            auto_meta = self.state_dir / "io-input-brewfs-native-overlay-auto.json"
+            auto_keys = self.state_dir / "io-input-brewfs-native-overlay-auto-keys.json"
             if auto_meta.is_file():
                 auto_saved = json.loads(auto_meta.read_text(encoding="utf-8"))
                 act_b = (auto_saved.get("layout", {}).get("summary") or {}).get("actual_B")
@@ -343,7 +343,7 @@ class ParentPool:
 
         ep = prep_ep or cl.RUSTFS_ENDPOINTS[0]
         prep_ssh = cl.HOST_BY_NAME[prep_host]["ssh"]
-        print(f"=== Preparing reusable 32 GiB C1 parent for {key} on {prep_host} (slot {prep_slot}, {ep}) ===", flush=True)
+        print(f"=== Preparing reusable {JOBS * BYTES_PER_JOB / 1024**3:g} GiB fio parent for {key} on {prep_host} (slot {prep_slot}, {ep}) ===", flush=True)
         t0 = time.monotonic()
         if system == "brewfs-native-overlay":
             tag = brewfs_hint if brewfs_hint == "auto" else f"b{int(brewfs_hint)//1024}"
@@ -393,12 +393,12 @@ class ParentPool:
             )
             mp_cfg = self.state_dir / "prep-jfs-mounts.json"
             mid = "c1-prep-jfs"
-            cl.generate_mounts_json([make_req(mid, "initial", "juicefs", prep_ssh, prep_slot, "root", "none", "c1-prep-32g", str(cl.BIN_DIR / "juicefs"))], mp_cfg)
+            cl.generate_mounts_json([make_req(mid, "initial", "juicefs", prep_ssh, prep_slot, "root", "none", "c1-prep-input", str(cl.BIN_DIR / "juicefs"))], mp_cfg)
             m = cl.start_mounts(mp_cfg, {mid: {"redis_db": redis_db, "s3_bucket_url": f"{ep}/{bucket}"}}, self.state_dir, register_collector=False)
             try:
                 rdir = Path(m[0]["mount_directory"])
-                cl.run_on_host(prep_host, ["mkdir", "-p", str(rdir / "bases" / "io32g"), str(rdir / "workspaces")])
-                cl.run_on_host(prep_host, [str(cl.BIN_DIR / "c1-io-helper"), "init-files", "--root", str(rdir / "bases" / "io32g"), "--jobs", "8", "--bytes-per-job", str(BYTES_PER_JOB)], timeout=7200)
+                cl.run_on_host(prep_host, ["mkdir", "-p", str(rdir / "bases" / "io-input"), str(rdir / "workspaces")])
+                cl.run_on_host(prep_host, [str(cl.BIN_DIR / "c1-io-helper"), "init-files", "--root", str(rdir / "bases" / "io-input"), "--jobs", "8", "--bytes-per-job", str(BYTES_PER_JOB)], timeout=7200)
                 cl.wait_uploads(m, timeout=3600)
             finally:
                 cl.stop_mounts(m, self.state_dir, clear_collector=False, remove_cache=True)
@@ -410,7 +410,7 @@ class ParentPool:
                 "hint": "product-default",
                 "bucket": bucket,
                 "redis_db": redis_db,
-                "base_subdir": "/bases/io32g",
+                "base_subdir": "/bases/io-input",
                 "prepare_seconds": round(time.monotonic() - t0, 6),
                 "object_count": len(pkeys),
                 "layout": layout,
@@ -435,7 +435,7 @@ class ParentPool:
             )
             mp_cfg = self.state_dir / "prep-jov-mounts.json"
             mid = "c1-prep-jov"
-            cl.generate_mounts_json([make_req(mid, "initial", "juicefs-overlay", prep_ssh, prep_slot, "main", "none", "c1-prep-32g", str(cl.BIN_DIR / "juicefs-overlay"))], mp_cfg)
+            cl.generate_mounts_json([make_req(mid, "initial", "juicefs-overlay", prep_ssh, prep_slot, "main", "none", "c1-prep-input", str(cl.BIN_DIR / "juicefs-overlay"))], mp_cfg)
             m = cl.start_mounts(mp_cfg, {mid: {"volume": vol, "branch": "main", "s3_bucket_url": f"{ep}/{bucket}"}}, self.state_dir, register_collector=False)
             try:
                 cl.run_on_host(prep_host, [str(cl.BIN_DIR / "c1-io-helper"), "init-files", "--root", m[0]["mount_directory"], "--jobs", "8", "--bytes-per-job", str(BYTES_PER_JOB)], timeout=7200)
@@ -471,9 +471,9 @@ class ParentPool:
         print(f"  [READY] {key}: {len(pkeys)} objects in {info['prepare_seconds']:.1f}s (actual_B={info['layout']['summary'].get('actual_B')}, actual_q={info['layout']['summary'].get('actual_q')})", flush=True)
         return info
 
-    def drop_io32g_parent(self, system: str, brewfs_hint: str):
+    def drop_io_parent(self, system: str, brewfs_hint: str):
         key = f"{system}:{brewfs_hint}" if system == "brewfs-native-overlay" else system
-        meta_file = self.state_dir / f"io32g-{key.replace(':', '-')}.json"
+        meta_file = self.state_dir / f"io-input-{key.replace(':', '-')}.json"
         keys_file = meta_file.with_name(meta_file.stem + "-keys.json")
         with self._lock:
             info = self.parents.pop(key, None)
@@ -697,7 +697,7 @@ def execute_fio_family_run(
         v_ep = verify_ep or cl.RUSTFS_ENDPOINTS[3]
 
     seed = seed_override or SEEDS_BY_REP[rep]
-    parent = pool.ensure_io32g_parent(system, brewfs_hint)
+    parent = pool.ensure_io_parent(system, brewfs_hint)
     overrides = {}
     if cond["parameters"].get("prefetch") == "off":
         overrides["prefetch"] = "off"
@@ -718,8 +718,8 @@ def execute_fio_family_run(
         bin_path = str(cl.BIN_DIR / ("brewfs" if system.startswith("brewfs") else system))
         cl.generate_mounts_json(
             [
-                make_req(m_id, "measure", system, measure_ssh, m_slot, child_ws, "io32g", cond_id, bin_path, overrides=overrides),
-                make_req(v_id, "verify", system, verify_ssh, v_slot, child_ws, "io32g", f"{cond_id}-verify", bin_path, cache_state="cross-host-cold", overrides=overrides),
+                make_req(m_id, "measure", system, measure_ssh, m_slot, child_ws, "io-input", cond_id, bin_path, overrides=overrides),
+                make_req(v_id, "verify", system, verify_ssh, v_slot, child_ws, "io-input", f"{cond_id}-verify", bin_path, cache_state="cross-host-cold", overrides=overrides),
             ],
             mp_path,
         )
