@@ -1,6 +1,6 @@
 # C1～C4 直连实验交接 prompt
 
-从仓库当前检出目录开始，执行新一轮 C1～C4 系统对照和消融。仓库为 `Ivanbeethoven/ax-multi-agent-experiments`，规划分支为 `codex/agent-cluster-plan-20261114`。本机工作副本位于 `C:/Users/HXY/.cache/ax-agent-cluster-plan-20261114`；其它机器使用自己的检出路径。保留已有修改。
+从仓库当前检出目录开始，执行新一轮 C1～C4 系统对照和消融。仓库为 `Ivanbeethoven/ax-multi-agent-experiments`，执行方案使用 `main`。本机工作副本位于 `C:/Users/HXY/.cache/ax-agent-cluster-plan-20261114`；其它机器使用自己的检出路径。保留已有修改。
 
 ## 阅读与输出目录
 

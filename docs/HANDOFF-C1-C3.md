@@ -12,7 +12,7 @@ git status --short
 git branch --show-current
 ```
 
-该目录属于 `Ivanbeethoven/ax-multi-agent-experiments`，当前规划分支为 `codex/agent-cluster-plan-20261114`。保留现有目录整理和未提交修改。先按顺序读：
+该目录属于 `Ivanbeethoven/ax-multi-agent-experiments`，执行方案使用 `main`。保留现有目录整理和未提交修改。先按顺序读：
 
 1. `AGENTS.md`、`README.md`、`experiments/README.md`。
 2. `docs/SETUP.md`、`docs/MOUNTS.md`、`docs/METRICS.md`。
