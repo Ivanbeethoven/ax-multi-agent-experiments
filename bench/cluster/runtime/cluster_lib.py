@@ -55,6 +55,14 @@ def select_rustfs_backend(name):
     RUSTFS_ENDPOINTS[:] = RUSTFS_BACKENDS[name]['endpoints']
 
 
+def effective_ec_hint(endpoint, requested="auto"):
+    endpoint = endpoint.rstrip("/")
+    for name, backend in RUSTFS_BACKENDS.items():
+        if endpoint in [value.rstrip("/") for value in backend['endpoints']]:
+            return 'off' if name == 'official' else requested
+    raise ValueError('BrewFS endpoint is absent from the RustFS backend configuration')
+
+
 REDIS_HOST = "175.168.3.55"
 
 
@@ -492,6 +500,9 @@ def start_mounts(mounts_path: Path, specs_by_id: dict[str, dict], audit_dir: Pat
         hname = HOST_BY_SSH[rec["host"]]["name"]
         spec = dict(specs_by_id[mid])
         spec["host_name"] = hname
+        if rec['engine'].startswith('brewfs'):
+            spec['rustfs_ec_block_size_hint'] = effective_ec_hint(
+                spec['s3_endpoint'], str(spec.get('rustfs_ec_block_size_hint', 'auto')))
         local_spec = audit_dir / f"{mid}-spec.json"
         local_spec.parent.mkdir(parents=True, exist_ok=True)
         local_spec.write_text(json.dumps(spec, indent=2) + "\n", encoding="utf-8")

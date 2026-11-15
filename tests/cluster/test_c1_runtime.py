@@ -39,5 +39,13 @@ class FioWorkTests(unittest.TestCase):
                 self.assertEqual(int(cfg['global']['size'])*8,2*1024**3)
                 self.assertEqual(written,256*1024**2 if operation=='write' else 0)
 
+    def test_fsync_interval_follows_configuration(self):
+        for family, request, expected in [('block-sequential',1024,'16'),('block-random',4,'4096')]:
+            text,_,_,_=self.build({'family':family,'parameters':{'operation':'write',
+                'request_kib':request,'fsync_bytes_all_jobs':128*1024**2}},'/test',100)
+            cfg=configparser.ConfigParser();cfg.read_string(text)
+            self.assertEqual(cfg['global']['fsync'],expected)
+            self.assertEqual(cfg['global']['end_fsync'],'1')
+
 
 if __name__=='__main__':unittest.main()

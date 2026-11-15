@@ -89,7 +89,7 @@ def render(request, profiles, design):
         if changes.get("writes") == "local-staged":
             record["cache"]["writeback_mode"] = "commit_before_upload"
         record["prefetch"] = {"data_window_bytes":record["cache"]["prefetch_max_bytes"],
-                              "data_workers":4 if record["cache"]["prefetch_enabled"] else 0,
+                              "data_workers":record["cache"]["prefetch_concurrency"] if record["cache"]["prefetch_enabled"] else 0,
                               "initial_window_bytes":4 * MIB,
                               "packed_metadata_and_data":environment["BREWFS_PACKED_CACHE"],
                               "packed_heads":4 if packed and environment["BREWFS_PACKED_CACHE"] == "on" else 0,

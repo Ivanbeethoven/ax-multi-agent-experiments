@@ -345,7 +345,7 @@ class ParentPool:
         print(f"=== Preparing reusable {JOBS * BYTES_PER_JOB / 1024**3:g} GiB fio parent for {key} on {prep_host} (slot {prep_slot}, {ep}) ===", flush=True)
         t0 = time.monotonic()
         if system == "brewfs-native-overlay":
-            tag = brewfs_hint if brewfs_hint == "auto" else f"b{int(brewfs_hint)//1024}"
+            tag = brewfs_hint if brewfs_hint in {"auto", "off"} else f"b{int(brewfs_hint)//1024}"
             bucket = f"{cl.RUN_PREFIX}-c1-{self.policy}-brew-{tag}"
             ns = f"{cl.RUN_NAMESPACE}_c1_{self.policy}_brew_{tag}"
             cl.delete_bucket_and_objects(bucket, endpoint=ep)
@@ -635,7 +635,10 @@ def build_fio_jobfile(cond: dict, mount_dir: str, seed: int) -> tuple[str, bool,
             lines += ["rw=randread", f"bs={rk}k", f"io_size={per_job}"]
             is_pure_read = True
         else:
-            fsync_n = max(1, (8 * 1024) // rk)  # 8 MiB/job = 64 MiB combined across 8 jobs
+            fsync_bytes = int(params.get("fsync_bytes_all_jobs", 64 * 1024**2))
+            if fsync_bytes <= 0 or fsync_bytes % (JOBS * rk * 1024):
+                raise ValueError("Fsync interval must divide into whole requests per job")
+            fsync_n = fsync_bytes // (JOBS * rk * 1024)
             lines += ["rw=randwrite", f"bs={rk}k", f"io_size={per_job}", f"fsync={fsync_n}", "end_fsync=1", "buffer_pattern=0x5a3c96e1"]
             verify_mode = "randwrite"
 
@@ -646,7 +649,11 @@ def build_fio_jobfile(cond: dict, mount_dir: str, seed: int) -> tuple[str, bool,
             lines += ["rw=read", "bs=1024k", f"io_size={per_job}"]
             is_pure_read = True
         else:
-            lines += ["rw=write", "bs=1024k", f"io_size={per_job}", "fsync=8", "end_fsync=1", "buffer_pattern=0x5a3c96e1"]
+            fsync_bytes = int(params.get("fsync_bytes_all_jobs", 64 * 1024**2))
+            if fsync_bytes <= 0 or fsync_bytes % (JOBS * 1024**2):
+                raise ValueError("Fsync interval must divide into whole requests per job")
+            fsync_n = fsync_bytes // (JOBS * 1024**2)
+            lines += ["rw=write", "bs=1024k", f"io_size={per_job}", f"fsync={fsync_n}", "end_fsync=1", "buffer_pattern=0x5a3c96e1"]
             verify_mode = "seqwrite"
             seq_written_per_job = per_job
     else:

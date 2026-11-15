@@ -53,7 +53,8 @@ def run_io(job, out, small=False):
     condition = {'id': job['id'], 'family': family, 'kind': 'measurement', 'parameters': copy.deepcopy(p)}
     if small:
         condition['parameters']['io_bytes'] = 16 * 1024 * 1024
-    hint = str(p['block_bytes']) if isinstance(p['block_bytes'], int) else 'auto'
+    hint = ('off' if p['dynamic'] == 'off' else
+            str(p['block_bytes']) if isinstance(p['block_bytes'], int) else 'auto')
     fio.execute_fio_family_run(condition, SYSTEMS[p['system']], job['repeat'], pool,
         brewfs_hint=hint, output=out, seed_override=job['seed'])
     return json.loads((out / 'result.json').read_text())

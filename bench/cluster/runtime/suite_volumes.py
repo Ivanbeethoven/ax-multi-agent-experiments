@@ -40,6 +40,7 @@ def mount(volume, workspace, identifier, out, host='A366', slot=1, overrides=Non
     if engine.startswith('brewfs'):
         spec = {'workspace_uuid': workspace, 'workspace_namespace': volume['namespace'],
             's3_bucket': volume['bucket'], 's3_endpoint': endpoint,
+            'rustfs_ec_block_size_hint': 'off' if volume.get('dynamic') == 'off' else 'auto',
             'meta_backend': volume.get('meta_backend', 'redis'), 'pd_endpoints': [cl.PD_ENDPOINT]}
         if volume.get('manifest_key'):
             spec['packed_manifest_key'] = volume['manifest_key']
@@ -112,7 +113,7 @@ def prepare_dataset(system, dynamic, files, out):
             '--source-directory', str(source), '--source-consistency', 'best-effort-detected',
             '--source-hardlink-policy', 'reject-external', '--bucket', volume['bucket'],
             '--endpoint', cl.RUSTFS_ENDPOINTS[0], '--region', 'us-east-1', '--force-path-style', 'true',
-            '--s3-rustfs-ec-block-size-hint', 'auto', '--manifest-output', str(manifest)],
+            '--s3-rustfs-ec-block-size-hint', 'off' if dynamic == 'off' else 'auto', '--manifest-output', str(manifest)],
             out / 'publish', secrets=True)
         volume['manifest_key'] = manifest.read_text().strip()
         volume = init_packed_reader(volume, volume['namespace'], out / 'register')

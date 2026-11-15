@@ -51,4 +51,6 @@ results/<run-id>/
 
 历史结果位于 `archive/results/`，保留原始内容与对应配置。
 
+挂载审计另存实际 `TOKIO_WORKER_THREADS`、`RAYON_NUM_THREADS`、`GOMAXPROCS`、CPU 亲和性、当前及上级 cgroup 的 CPU 配额、进程线程名称与数量、二进制路径和文件大小。线程对比同时使用相同源码的 runtime 查询程序，在挂载 cgroup 中记录 Tokio 选择的 worker 数量。BrewFS 的 EC hint 参数随审计保存。
+
 S3 应用流量优先使用客户端 GET/PUT 字节计数，零值按零记录。RustFS 服务总计保存在 `rustfs_*` 字段中；只有缺少客户端流量计数时才采用服务总计，并通过 `s3_byte_source` 标明来源。

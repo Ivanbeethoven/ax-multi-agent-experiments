@@ -19,7 +19,7 @@ def main():
         with tarfile.open(archive, 'w:gz') as bundle:
             for directory in ('bench', 'configs', 'docs', 'experiments', 'infra', 'tools', 'scripts'):
                 for source in sorted((ROOT / directory).rglob('*')):
-                    if source.is_file() and not {'__pycache__', 'target', '.git'}.intersection(source.parts) and source.suffix in ('.py', '.json', '.md', '.rs', '.toml', '.lock', '.txt', '.sh'):
+                    if source.is_file() and not {'__pycache__', 'target', '.git'}.intersection(source.parts) and source.suffix in ('.py', '.json', '.md', '.rs', '.toml', '.lock', '.txt', '.sh', '.patch'):
                         bundle.add(source, arcname=source.relative_to(ROOT).as_posix())
             revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
             changed = bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).strip())

@@ -2,10 +2,39 @@
 
 import argparse
 import json
+import os
 from pathlib import Path
 import shlex
 
 from .mounts import POOLS
+
+
+def runtime_details(proc, cgroup):
+    environment = dict(item.split("=", 1) for item in proc.joinpath("environ").read_bytes().decode().split("\0") if "=" in item)
+    quotas = []
+    current = cgroup.resolve()
+    while current.is_relative_to("/sys/fs/cgroup"):
+        path = current / "cpu.max"
+        if path.exists():
+            quotas.append({"cgroup": str(current), "cpu_max": path.read_text().strip()})
+        if current == Path("/sys/fs/cgroup"):
+            break
+        current = current.parent
+    executable = proc.joinpath("exe").resolve()
+    stat = executable.stat()
+    names = {}
+    for path in proc.joinpath("task").glob("*/comm"):
+        try:
+            name = path.read_text().strip()
+        except FileNotFoundError:
+            continue
+        names[name] = names.get(name, 0) + 1
+    return {"environment": {key: environment.get(key) for key in
+            ("TOKIO_WORKER_THREADS", "RAYON_NUM_THREADS", "GOMAXPROCS", "GOMEMLIMIT")},
+            "allowed_cpus": sorted(os.sched_getaffinity(int(proc.name))),
+            "cpu_quotas": quotas, "thread_names": names,
+            "binary_path": str(executable), "binary_bytes": stat.st_size,
+            "binary_modified_ns": stat.st_mtime_ns}
 
 
 def parse_proc_cmdline(raw: bytes, cgroup: Path | None = None) -> list[str]:
@@ -101,6 +130,8 @@ def main():
               "memory_max":int((args.cgroup / "memory.max").read_text()),
               "swap_max":int((args.cgroup / "memory.swap.max").read_text())}
     result = validate_effective(record, actual)
+    result["runtime"] = runtime_details(proc, args.cgroup)
+    result["rustfs_ec_block_size_hint"] = argument(argv, "s3-rustfs-ec-block-size-hint")
     with args.out.open("x", encoding="utf-8") as stream:
         json.dump(result,stream,indent=2)
         stream.write("\n")
