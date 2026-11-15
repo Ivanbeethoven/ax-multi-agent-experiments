@@ -138,7 +138,10 @@ def diff_prom(p0: dict[str, float], p1: dict[str, float]) -> dict[str, float]:
     for k, v1 in p1.items():
         if k.startswith(("brewfs_", "juicefs_", "forkredis_")):
             v0 = p0.get(k, 0.0)
-            if v1 != v0:
+            transfer = k.startswith("juicefs_object_request_data_bytes") or k in (
+                "brewfs_s3_get_bytes_total", "brewfs_s3_put_bytes_total",
+                "brewfs_packed_runtime_backend_received_bytes_total")
+            if v1 != v0 or transfer:
                 out[k] = round(v1 - v0, 6)
     return out
 
@@ -233,30 +236,26 @@ def finalize_run_result(cond_id: str, system: str, rep: int, work_dir: Path, res
 
 def enrich_amplification(delta: dict, read_bytes: int, write_bytes: int, mount_prom_delta: dict | None = None) -> dict:
     d = dict(delta)
-    # Extract S3 GET / PUT payload bytes from client or server counters
     mp = mount_prom_delta or {}
-    s3_get_b = 0.0
-    s3_put_b = 0.0
-    jfs_get = 0.0
-    jfs_put = 0.0
-    brew_get = 0.0
-    brew_put = 0.0
-    for k, v in mp.items():
-        if k.startswith("juicefs_object_request_data_bytes") and 'method="GET"' in k:
-            jfs_get += v
-        elif k.startswith("juicefs_object_request_data_bytes") and 'method="PUT"' in k:
-            jfs_put += v
-        elif k in ("brewfs_s3_get_bytes_total", "brewfs_packed_runtime_backend_received_bytes_total") and "{" not in k:
-            brew_get += v
-        elif k == "brewfs_s3_put_bytes_total" and "{" not in k:
-            brew_put += v
-    s3_get_b = jfs_get or brew_get or float(d.get("rustfs_s3_get_bytes", 0))
-    s3_put_b = jfs_put or brew_put or float(d.get("rustfs_s3_put_bytes", 0))
+    jfs = {k: v for k, v in mp.items() if k.startswith("juicefs_object_request_data_bytes")}
+    brew = {k: v for k, v in mp.items() if k in (
+        "brewfs_s3_get_bytes_total", "brewfs_s3_put_bytes_total",
+        "brewfs_packed_runtime_backend_received_bytes_total")}
+    if jfs:
+        s3_get_b = sum(v for k, v in jfs.items() if 'method="GET"' in k)
+        s3_put_b = sum(v for k, v in jfs.items() if 'method="PUT"' in k)
+    elif brew:
+        s3_get_b = brew.get("brewfs_s3_get_bytes_total", brew.get("brewfs_packed_runtime_backend_received_bytes_total", 0))
+        s3_put_b = brew.get("brewfs_s3_put_bytes_total", 0)
+    else:
+        s3_get_b = float(d.get("rustfs_s3_get_bytes", 0))
+        s3_put_b = float(d.get("rustfs_s3_put_bytes", 0))
+    client = bool(jfs or brew)
     d["s3_get_bytes"] = int(round(s3_get_b))
     d["s3_put_bytes"] = int(round(s3_put_b))
-    d["client_reported_s3_get_bytes"] = int(round(jfs_get or brew_get)) if mp else None
-    d["client_reported_s3_put_bytes"] = int(round(jfs_put or brew_put)) if mp else None
-    d["s3_byte_source"] = 'client' if (jfs_get or brew_get or jfs_put or brew_put) else 'rustfs-s3'
+    d["client_reported_s3_get_bytes"] = int(round(s3_get_b)) if client else None
+    d["client_reported_s3_put_bytes"] = int(round(s3_put_b)) if client else None
+    d["s3_byte_source"] = 'client' if client else 'rustfs-s3'
     d["read_amplification_physical"] = round(d["backend_physical_read_bytes"] / read_bytes, 6) if read_bytes > 0 else None
     d["read_amplification_s3"] = round(s3_get_b / read_bytes, 6) if read_bytes > 0 else None
     d["write_amplification_physical"] = round(d["backend_physical_write_bytes"] / write_bytes, 6) if write_bytes > 0 else None
