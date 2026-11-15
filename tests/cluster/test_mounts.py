@@ -58,12 +58,12 @@ class MountTests(unittest.TestCase):
             for phase in mounts.PHASES:
                 record = self.record(engine, phase=phase, resource_profile="fio")
                 self.assertEqual(record["memory_bytes"], 16 * 1024**3)
-                self.assertEqual(record["disk_bytes"], 16 * 1024**3)
+                self.assertEqual(record["disk_bytes"], 64 * 1024**3)
                 if engine == "juicefs":
-                    self.assertEqual(record["options"]["cache-size"], "15360M")
+                    self.assertEqual(record["options"]["cache-size"], "57344M")
                 else:
-                    self.assertEqual(record["cache"]["read_ssd_bytes"], 15 * 1024**3)
-                    self.assertEqual(record["cache"]["write_ssd_bytes"], 1024**3)
+                    self.assertEqual(record["cache"]["read_ssd_bytes"], 56 * 1024**3)
+                    self.assertEqual(record["cache"]["write_ssd_bytes"], 8 * 1024**3)
                 self.assertEqual(len(mounts.validate_windows([record], self.design)), 1)
 
     def test_fio_audit_checks_the_effective_memory_limit(self):

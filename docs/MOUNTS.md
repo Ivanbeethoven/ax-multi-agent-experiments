@@ -4,7 +4,7 @@
 
 ## 容量与预取
 
-fio 使用 `resource_profile=fio`：BrewFS 和 JuiceFS 每挂载均为 16 GiB 内存、15 GiB 读 SSD 缓存和 1 GiB 写暂存预算。下面列出其余三组的默认配置；应用内存缓存、预读、上传并发和写入策略在两种资源配置间保持相同。
+fio 使用 `resource_profile=fio`：BrewFS 和 JuiceFS 每挂载均为 16 GiB 内存、56 GiB 读 SSD 缓存和 8 GiB 写暂存预算。下面列出其余三组的默认配置；应用内存缓存、预读、上传并发和写入策略在两种资源配置间保持相同。
 
 | 项目 | 每个挂载的配置 |
 |---|---|

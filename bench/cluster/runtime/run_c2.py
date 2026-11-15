@@ -110,17 +110,20 @@ def sum_mount_metrics(stop_records: list[dict]) -> dict[str, float]:
 
 def extract_s3_and_amp(phase_delta: dict, read_bytes: int, write_bytes: int, mount_totals: dict[str, float]) -> dict:
     d = dict(phase_delta)
-    brew_get = mount_totals.get("brewfs_s3_get_bytes_total", 0.0) + mount_totals.get("brewfs_packed_runtime_backend_received_bytes_total", 0.0)
-    s3_get = int(
-        brew_get
-        or mount_totals.get("juicefs_object_request_data_bytes_GET", 0.0)
-        or d.get("rustfs_s3_get_bytes", 0)
-    )
-    s3_put = int(
-        mount_totals.get("brewfs_s3_put_bytes_total", 0.0)
-        or mount_totals.get("juicefs_object_request_data_bytes_PUT", 0.0)
-        or d.get("rustfs_s3_put_bytes", 0)
-    )
+    brew = any(key in mount_totals for key in ('brewfs_s3_get_bytes_total',
+        'brewfs_s3_put_bytes_total', 'brewfs_packed_runtime_backend_received_bytes_total'))
+    juicefs = any(key.startswith('juicefs_object_request_data_bytes') for key in mount_totals)
+    if brew:
+        s3_get = int(mount_totals.get('brewfs_s3_get_bytes_total',
+            mount_totals.get('brewfs_packed_runtime_backend_received_bytes_total', 0)))
+        s3_put = int(mount_totals.get('brewfs_s3_put_bytes_total', 0))
+    elif juicefs:
+        s3_get = int(mount_totals.get('juicefs_object_request_data_bytes_GET', 0))
+        s3_put = int(mount_totals.get('juicefs_object_request_data_bytes_PUT', 0))
+    else:
+        s3_get = int(d.get('rustfs_s3_get_bytes', 0))
+        s3_put = int(d.get('rustfs_s3_put_bytes', 0))
+    d['s3_byte_source'] = 'client' if brew or juicefs else 'rustfs-s3'
     d["s3_get_bytes"] = s3_get
     d["s3_put_bytes"] = s3_put
     d["read_amplification_phys"] = round(d["backend_physical_read_bytes"] / read_bytes, 6) if read_bytes > 0 else None
@@ -143,6 +146,9 @@ def batch_start_mounts(mounts_path: Path, specs_by_id: dict[str, dict], run_tag:
         sp["host_name"] = hname
         sp["host_ssh"] = rec["host"]
         sp["slot"] = rec["slot"]
+        if rec['engine'].startswith('brewfs'):
+            sp['rustfs_ec_block_size_hint'] = cl.effective_ec_hint(
+                sp['s3_endpoint'], str(sp.get('rustfs_ec_block_size_hint', 'auto')))
         by_host[hname][mid] = sp
 
     hosts = sorted(by_host.keys())

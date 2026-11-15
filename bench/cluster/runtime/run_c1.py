@@ -90,6 +90,10 @@ def fio_json_to_metrics(fio_doc: dict) -> dict:
         "write_bytes": write_bytes,
         "latency_us": merged_hist,
         "fio_direction_percentiles_us": fio_pct,
+        "fio_read_throughput_mib_s": sum((j.get('read') or {}).get('bw_bytes', 0) for j in fio_doc.get('jobs', [])) / 1048576,
+        "fio_write_throughput_mib_s": sum((j.get('write') or {}).get('bw_bytes', 0) for j in fio_doc.get('jobs', [])) / 1048576,
+        "fio_io_seconds": max([float((j.get(direction) or {}).get('runtime', 0)) / 1000
+            for j in fio_doc.get('jobs', []) for direction in ('read', 'write')] or [0]),
     }
 
 

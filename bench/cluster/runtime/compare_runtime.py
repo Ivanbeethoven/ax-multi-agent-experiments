@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import time
 
 import cluster_lib as cl
@@ -37,9 +38,15 @@ def process_details(info):
 
 def run(args):
     args.out.mkdir(parents=True, exist_ok=False)
+    (args.out / 'runner.py').write_bytes(Path(__file__).read_bytes())
     original = json.loads((args.source / 'mounts.json').read_text())
     record = next(r for r in original['mounts'] if r['phase'] == 'measure')
     spec = json.loads((args.source / (record['id'] + '-spec.json')).read_text())
+    if args.current_profile:
+        sys.path.insert(0, str(cl.REPO_ROOT))
+        from bench.cluster.mounts import render
+        record = render(record, json.loads((cl.REPO_ROOT / 'configs/mount-profiles.json').read_text()),
+                        json.loads((cl.REPO_ROOT / 'configs/cluster.json').read_text()))
     job = json.loads((args.source / 'job.json').read_text())
     if job['parameters']['operation'] != 'read' or job['parameters']['pattern'] != 'sequential':
         raise ValueError('Source must be a sequential-read fio condition')
@@ -128,6 +135,7 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--workers', nargs='+', default=['1', '4', 'auto'])
     parser.add_argument('--periodic', choices=['on', 'off'], default='on')
+    parser.add_argument('--current-profile', action='store_true')
     args = parser.parse_args()
     if any(value != 'auto' and (not value.isdigit() or int(value) < 1) for value in args.workers):
         parser.error('Worker counts must be positive integers or auto')

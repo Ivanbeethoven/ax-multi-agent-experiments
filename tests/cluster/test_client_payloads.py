@@ -40,6 +40,17 @@ class ClientPayloadTests(unittest.TestCase):
         d = self.metric({'brewfs_s3_get_bytes_total': 100, 'brewfs_packed_runtime_backend_received_bytes_total': 100})
         self.assertEqual(d['s3_get_bytes'], 100)
 
+    def test_replay_keeps_zero_client_counts(self):
+        source = Path(__file__).resolve().parents[2] / 'bench/cluster/runtime/run_c2.py'
+        tree = ast.parse(source.read_text(encoding='utf-8'))
+        method = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'extract_s3_and_amp')
+        ns = {}
+        exec(compile(ast.Module(body=[method], type_ignores=[]), 'replay-metrics', 'exec'), ns)
+        for counters in ({'brewfs_s3_get_bytes_total': 0}, {'juicefs_object_request_data_bytes_GET': 0}):
+            result = ns['extract_s3_and_amp']({'rustfs_s3_get_bytes':900, 'rustfs_s3_put_bytes':800,
+                'backend_physical_read_bytes':1000, 'backend_physical_write_bytes':1000}, 100, 100, counters)
+            self.assertEqual((result['s3_get_bytes'], result['s3_put_bytes'], result['s3_byte_source']), (0,0,'client'))
+
 
 if __name__ == '__main__':
     unittest.main()

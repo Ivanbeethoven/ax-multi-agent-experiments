@@ -73,6 +73,8 @@ def render(request, profiles, design):
         record["volume_format"] = "flat" if engine == "brewfs-flat" else "workspace"
         record["cache"] = copy.deepcopy(profiles["brewfs_cache"])
         record["cache"]["cache_root"] = record["cache_root"]
+        if "write_staging_mib" in resources:
+            record["cache"]["write_ssd_bytes"] = resources["write_staging_mib"] * MIB
         if engine != "brewfs-packed":
             record["cache"]["read_ssd_bytes"] = (record["disk_bytes"] - record["cache"]["write_ssd_bytes"])
         record["environment"] = copy.deepcopy(profiles["brewfs_environment"])
@@ -105,7 +107,8 @@ def render(request, profiles, design):
         record["volume_format"] = "forkredis" if engine == "juicefs-overlay" else "redis"
         record["options"] = copy.deepcopy(profiles["juicefs_options"])
         record["options"].update({"cache-dir":record["cache_root"], "metrics":f"127.0.0.1:{record['metrics_port']}"})
-        record["options"]["cache-size"] = str(resources["disk_mib"] - profiles["juicefs_staging_reserve_mib"]) + "M"
+        staging_mib = resources.get("write_staging_mib", profiles["juicefs_staging_reserve_mib"])
+        record["options"]["cache-size"] = str(resources["disk_mib"] - staging_mib) + "M"
         if changes.get("prefetch") == "off":
             record["options"].update({"prefetch":"0", "max-readahead":"0"})
         if changes.get("writes") == "local-staged":

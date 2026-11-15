@@ -19,6 +19,8 @@ result={'hostname':os.uname().nodename,'kernel':os.uname().release,
  'disks':command(['lsblk','-J','-b','-o','NAME,SIZE,TYPE,MOUNTPOINTS']),
  'addresses':command(['ip','-j','address']),'routes':command(['ip','-j','route']),
  'binaries':{},
+ 'client_slice':command(['systemctl','show','ax-clients.slice',
+   '-p','CPUQuotaPerSecUSec','-p','AllowedCPUs','-p','MemoryMax']),
  'official_rustfs':command(['systemctl','show','ax-rustfs-official-105.service',
    '-p','ActiveState','-p','MainPID','-p','CPUQuotaPerSecUSec','-p','MemoryMax'])}
 for name in ['brewfs','juicefs','juicefs-overlay','full-fuse-replay','c1-io-helper','c3-loader','ax-brewfs-admin']:
