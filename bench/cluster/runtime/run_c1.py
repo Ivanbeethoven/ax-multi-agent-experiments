@@ -834,6 +834,11 @@ def execute_fio_family_run(
                 app_metrics = fio_json_to_metrics(json.loads(fio_out.read_text(encoding="utf-8")))
                 mount_prom_delta = diff_prom(prom_0, prom_1)
                 backend_delta = None if pair else enrich_amplification(cl.summarize_phase_delta(snap_0, snap_1), app_metrics["read_bytes"], app_metrics["write_bytes"], mount_prom_delta)
+            expected = cond["parameters"].get("io_bytes")
+            if expected is not None:
+                for measured in (app_metrics, hot_metrics):
+                    if measured is not None and measured["read_bytes"] + measured["write_bytes"] != expected:
+                        raise RuntimeError("Fio completed fewer bytes than the configured workload")
         except BaseException:
             if pair:
                 pair.abort()
