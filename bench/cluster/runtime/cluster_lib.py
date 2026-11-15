@@ -353,7 +353,7 @@ def ensure_bucket(bucket: str, endpoint: str | None = None):
         s3.create_bucket(Bucket=bucket)
 
 
-def delete_keys_parallel(bucket: str, keys: list[str], workers: int = 64):
+def delete_keys_parallel(bucket: str, keys: list[str], workers: int = 256):
     if not keys:
         return
     clients = [make_s3_client(ep) for ep in RUSTFS_ENDPOINTS]
