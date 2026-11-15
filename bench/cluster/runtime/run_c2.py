@@ -55,15 +55,6 @@ def list_all_keys(bucket: str) -> set[str]:
     return keys
 
 
-def delete_extra_keys(bucket: str, keep_keys: set[str]) -> int:
-    cur = list_all_keys(bucket)
-    extra = sorted(cur - keep_keys)
-    if not extra:
-        return 0
-    cl.delete_keys_parallel(bucket, extra)
-    return len(extra)
-
-
 def make_req(
     mid: str,
     phase: str,
@@ -790,31 +781,6 @@ def execute_c2_cohort_arm(
     finally:
         batch_stop_mounts(ver_mounts, f"{run_tag}-v", clear_collector=False, remove_cache=True)
     verify_wall_seconds = round(time.monotonic() - t_ver0, 6)
-
-    # Clean up per-run child data in S3 (and JuiceFS /runs/<run_tag>) so buckets remain compact across runs
-    if system == "brewfs-native-overlay":
-        for case in tasks_by_case:
-            binfo = bases["brewfs_native_overlay"][case]
-            delete_extra_keys(binfo["bucket"], set(binfo["keep_keys"]))
-    elif system == "juicefs":
-        binfo = bases["juicefs"]
-        mp_clean = work_dir / f"{run_tag}-jfs-clean-mounts.json"
-        cid = f"{run_tag}-jfs-clean"
-        cl.generate_mounts_json(
-            [make_req(cid, "initial", "juicefs", "idcai-60001", 50, "root", "none", f"{run_tag}-clean", str(cl.BIN_DIR / "juicefs"))],
-            mp_clean,
-        )
-        cmnt = cl.start_mounts(mp_clean, {cid: {"redis_db": 3, "s3_bucket_url": f"{cl.RUSTFS_ENDPOINTS[0]}/{binfo['bucket']}"}}, work_dir, register_collector=False)
-        try:
-            cl.run_on_host("A366", ["rm", "-rf", str(Path(cmnt[0]["mount_directory"]) / "runs" / run_tag)], log_cmd=False)
-        finally:
-            cl.stop_mounts(cmnt, work_dir, clear_collector=False, remove_cache=True)
-            mp_clean.unlink(missing_ok=True)
-        delete_extra_keys(binfo["bucket"], set(binfo["keep_keys"]))
-    elif system == "juicefs-overlay":
-        for case in tasks_by_case:
-            binfo = bases["juicefs_overlay"][case]
-            delete_extra_keys(binfo["bucket"], set(binfo["keep_keys"]))
 
     # 5. Aggregate cohort, per-case, latency histograms, amplification, and resource metrics
     task_results.sort(key=lambda x: x["task_id"])

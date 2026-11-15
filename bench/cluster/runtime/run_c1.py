@@ -153,15 +153,6 @@ def list_all_keys(bucket: str) -> set[str]:
     return keys
 
 
-def delete_extra_keys(bucket: str, keep_keys: set[str]) -> int:
-    cur = list_all_keys(bucket)
-    extra = sorted(cur - keep_keys)
-    if not extra:
-        return 0
-    cl.delete_keys_parallel(bucket, extra)
-    return len(extra)
-
-
 def make_req(mid: str, phase: str, engine: str, host_ssh: str, slot: int, ws: str, parent_ws: str, purpose: str, binary: str, cache_state: str = "cold", overrides: dict | None = None):
     r = {
         "id": mid,
@@ -304,12 +295,15 @@ class ParentPool:
         keys_file = meta_file.with_name(meta_file.stem + "-keys.json")
         if meta_file.is_file():
             saved = json.loads(meta_file.read_text(encoding="utf-8"))
+            if saved.get("input_placement") == "child-writable-layer":
+                saved["parent_keys"] = set(json.loads(keys_file.read_text())) if keys_file.is_file() else set()
+                with self._lock:
+                    self.parents[key] = saved
+                return saved
             existing = list_all_keys(saved["bucket"])
             if saved.get("input_placement") == "child-writable-layer" or len(existing) >= 100:
                 if keys_file.is_file():
                     pkeys = set(json.loads(keys_file.read_text(encoding="utf-8")))
-                    if existing - pkeys:
-                        delete_extra_keys(saved["bucket"], pkeys)
                 else:
                     pkeys = existing
                 saved["parent_keys"] = pkeys
@@ -328,8 +322,6 @@ class ParentPool:
                 if act_b == 1048576 and len(existing) >= 100:
                     if auto_keys.is_file():
                         pkeys = set(json.loads(auto_keys.read_text(encoding="utf-8")))
-                        if existing - pkeys:
-                            delete_extra_keys(auto_saved["bucket"], pkeys)
                     else:
                         pkeys = existing
                     aliased = dict(auto_saved)
@@ -588,23 +580,6 @@ class ParentPool:
             return tag, m_spec, v_spec, fork_s
 
         raise ValueError(sys_name)
-
-    def cleanup_child(self, parent: dict, tag: str, work_dir: Path, had_writes: bool, *, adm_slot: int = 50):
-        sys_name = parent["system"]
-        if sys_name == "juicefs":
-            adm_mp = work_dir / "jfs-rm-mounts.json"
-            adm_id = f"{tag}-rm"
-            cl.generate_mounts_json([make_req(adm_id, "initial", "juicefs", "idcai-60001", adm_slot, "root", "none", "jfs-rm", str(cl.BIN_DIR / "juicefs"))], adm_mp)
-            m_adm = cl.start_mounts(adm_mp, {adm_id: {"redis_db": parent["redis_db"], "s3_bucket_url": f"{cl.RUSTFS_ENDPOINTS[0]}/{parent['bucket']}"}}, work_dir, register_collector=False)
-            try:
-                target = Path(m_adm[0]["mount_directory"]) / "workspaces" / tag
-                if target.exists():
-                    shutil.rmtree(target, ignore_errors=True)
-            finally:
-                cl.stop_mounts(m_adm, work_dir, clear_collector=False, remove_cache=True)
-        if had_writes or sys_name == "brewfs-native-overlay":
-            delete_extra_keys(parent["bucket"], parent["parent_keys"])
-
 
 # ==============================================================================
 # FIO Workload Runner (fio, block-random/seq, reference-random/seq)
@@ -894,9 +869,9 @@ def execute_fio_family_run(
             cl.stop_mounts(v_started, work_dir, clear_collector=False, remove_cache=True)
         verify_s = time.monotonic() - t_v0
 
-        # Clean up child clone / extra write objects so S3 space stays bounded
+        # Keep object data until the experiment run is archived.
         measurement = {
-            "phase": "cleanup", "measurement_completed_at": cl.utc_iso(),
+            "phase": "verified", "measurement_completed_at": cl.utc_iso(),
             "app_done_seconds": app_done_s, "repeat_read_seconds": hot_seconds,
             "application": app_metrics, "repeat_read": hot_metrics,
             "backend_delta": backend_delta, "repeat_backend_delta": hot_delta,
@@ -905,10 +880,6 @@ def execute_fio_family_run(
         checkpoint = work_dir / "measurement.json.tmp"
         checkpoint.write_text(json.dumps(measurement, indent=2) + "\n")
         checkpoint.replace(work_dir / "measurement.json")
-        cleanup_started = time.monotonic()
-        print(f"  [CLEANUP] {cond_id}: measurement and verification complete", flush=True)
-        pool.cleanup_child(parent, tag, work_dir, had_writes=not is_pure_read, adm_slot=adm_slot)
-        cleanup_seconds = time.monotonic() - cleanup_started
 
     exit_s = float(stop_info.get("exit_seconds", 0.0))
     rr_no_ver = app_done_s + upload_drain_s
@@ -949,7 +920,6 @@ def execute_fio_family_run(
             "remote_ready_no_verify_seconds": round(rr_no_ver, 6),
             "exit_seconds": round(exit_s, 6),
             "verify_seconds": round(verify_s, 6),
-            "cleanup_seconds": round(cleanup_seconds, 6),
             "remote_ready_with_verify_seconds": round(rr_no_ver + exit_s + verify_s, 6),
         },
         "application": {
@@ -972,6 +942,7 @@ def execute_fio_family_run(
             "pending_at_exit": stop_info.get("pending_at_exit"),
         },
         "verification": verify_doc,
+        "object_retention": "until-run-archive",
     }
     if output is None:
         finalize_run_result(cond_id, system, rep, work_dir, res)

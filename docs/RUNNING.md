@@ -59,3 +59,9 @@ python infra/idcai/collect_direct_results.py --out results/run-002
 ```
 
 该脚本先把六台监控文件汇总到 A366，再下载结果，并核对文件数量和长度。缓存、活动挂载、公共输入和凭据不进入结果包。
+
+## 数据保留
+
+运行期间保留各项测试的子工作区和对象数据，挂载退出后清理客户端本地缓存。整轮结果取回后，再统一重建本轮两套 RustFS 的专用数据目录。下一轮使用新的运行编号和元数据命名空间，重新准备输入。
+
+已有 `measurement.json` 且读回校验、卸载均完成时，可在协调进程停止后使用 `python3 /srv/ax-cluster/direct/scripts/finalize_fio_checkpoint.py --job <job-id>` 生成结果，再用原启动命令继续。

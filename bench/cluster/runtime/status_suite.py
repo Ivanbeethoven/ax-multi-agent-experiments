@@ -16,7 +16,7 @@ def main():
                          'failed': sum(v.get('state') == 'failed' for v in selected)}
     current = status['jobs'].get(status.get('current'), {})
     measurement = Path(current['output']) / 'measurement.json' if current.get('output') else None
-    phase = 'cleanup' if measurement and measurement.exists() and current.get('state') == 'running' else current.get('state')
+    phase = json.loads(measurement.read_text()).get('phase') if measurement and measurement.exists() and current.get('state') == 'running' else current.get('state')
     active = subprocess.run(['systemctl', 'is-active', 'ax-' + RUN_ID], capture_output=True, text=True)
     print(json.dumps({'run': RUN_ID, 'service': active.stdout.strip(), 'current': status.get('current'),
         'phase': phase, 'groups': groups, 'failed': {key: value for key, value in status['jobs'].items()
