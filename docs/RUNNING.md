@@ -22,6 +22,14 @@ python infra/idcai/start_suite.py
 ssh.exe idcai-60001 /srv/ax-idcai-20261113/venv/bin/python3 /srv/ax-cluster/direct/scripts/run_suite.py --check --job 01-io-01-r1
 ```
 
+正式实验开始前，可一次检查 39 个代表性条件，覆盖四组的执行路径：
+
+```powershell
+ssh.exe idcai-60001 /srv/ax-idcai-20261113/venv/bin/python3 /srv/ax-cluster/direct/scripts/check_suite.py
+```
+
+使用 `--group 01-io` 只检查 fio；使用 `--list` 列出条件。已通过的检查自动跳过，首次失败时退出。正式后台服务运行期间不执行功能检查。
+
 检查结果保存到 `checks/`，正式结果保存到对应组目录。首次启动前应完成 BrewFS、JuiceFS、TiKV 和 Packed 的实际挂载与读写检查。
 
 ## 单次检查
