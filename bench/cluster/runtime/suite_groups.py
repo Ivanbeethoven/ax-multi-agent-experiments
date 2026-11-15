@@ -101,6 +101,7 @@ def run_packed(job, out, small=False):
     p = job['parameters']
     nodes = select_backend(p['dynamic'] == 'on', out)
     files = 32 if small else p['files']
+    output_tag = out.relative_to(cl.RUN_ROOT).as_posix().replace('/', '-')
     key = f'{p["system"]}-{p["dynamic"]}-{files}'
     registry = cl.RUN_ROOT / 'prepared' / (key + '.json')
     if p['phase'] == 'prepare':
@@ -108,7 +109,7 @@ def run_packed(job, out, small=False):
         volume['layout'] = layout.inspect_bucket_layout(nodes, volume['bucket'])
         verify_mount = volumes.mount(volume, volume['base'], job['id'] + '-verify', out, host='A355')
         try:
-            remote = str(cl.RUN_ROOT / 'hosts/A355' / (job['id'] + '-verify.json'))
+            remote = str(cl.RUN_ROOT / 'hosts/A355' / (output_tag + '-verify.json'))
             support.command([str(cl.BIN_DIR / 'c3-loader'), 'load', '--root', verify_mount[0]['mount_directory'],
                 '--output', remote, '--files', str(files), '--epochs', '1', '--threads', '2',
                 '--batch', '64', '--seed', str(job['seed']), '--verify-bytes', '1'], out / 'verify', host='A355')
@@ -125,7 +126,8 @@ def run_packed(job, out, small=False):
     for index, (host, slot) in enumerate(placements):
         item = volume
         if volume['engine'] == 'brewfs-packed':
-            namespace = f'{cl.RUN_NAMESPACE}_reader_{job["configuration"]}_{index}'
+            attempt = out.name.replace('-', '_')
+            namespace = f'{volume["namespace"]}_reader_{job["configuration"]}_{index}_{attempt}'
             item = volumes.init_packed_reader(volume, namespace, out / f'init-{index}')
         elif volume['engine'] == 'brewfs-native-overlay':
             item = dict(volume)
@@ -140,7 +142,7 @@ def run_packed(job, out, small=False):
     tasks = defaultdict(list)
     epoch = time.time_ns() + 5_000_000_000
     for index, m in enumerate(mounted):
-        output = str(cl.RUN_ROOT / 'hosts' / m['host_name'] / (m['id'] + '.json'))
+        output = str(cl.RUN_ROOT / 'hosts' / m['host_name'] / (output_tag + '-' + m['id'] + '.json'))
         tasks[m['host_name']].append({'reader_id': m['id'], 'host': m['host_name'], 'slot': m['slot'],
             'engine': m['engine'], 'cgroup': m['cgroup'], 'metrics_port': m['metrics_port'],
             'out_path': output, 'wait_upload': False, 'loader_argv': [str(cl.BIN_DIR / 'c3-loader'),
