@@ -16,7 +16,7 @@ class FioWorkTests(unittest.TestCase):
         exec(compile(ast.Module(body=[function],type_ignores=[]),'fio-builder','exec'),namespace)
         cls.build=staticmethod(namespace['build_fio_jobfile'])
 
-    def test_random_sweep_total_is_256_mib(self):
+    def test_random_sweep_total_is_64_mib(self):
         for family in ('block-random','reference-random'):
             for operation in ('read','write'):
                 for size in (4,64,256,1024):
@@ -25,7 +25,7 @@ class FioWorkTests(unittest.TestCase):
                     cfg=configparser.ConfigParser();cfg.read_string(text)
                     jobs=[name for name in cfg.sections() if name.startswith('job')]
                     self.assertEqual(len(jobs),8)
-                    self.assertEqual(int(cfg['global']['io_size'])*len(jobs),256*1024**2)
+                    self.assertEqual(int(cfg['global']['io_size'])*len(jobs),64*1024**2)
                     self.assertEqual(reads,operation=='read')
                     self.assertEqual(len({cfg[job]['filename'] for job in jobs}),8)
                     self.assertEqual(cfg['global']['do_verify'],'0')

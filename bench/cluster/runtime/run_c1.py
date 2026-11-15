@@ -631,7 +631,7 @@ def build_fio_jobfile(cond: dict, mount_dir: str, seed: int) -> tuple[str, bool,
     elif fam in {"block-random", "reference-random"}:
         op = params["operation"]
         rk = int(params["request_kib"])
-        per_job = int(params.get("io_bytes", 268435456)) // JOBS  # 32 MiB/job = 256 MiB total
+        per_job = int(params.get("io_bytes", 67108864)) // JOBS  # 8 MiB/job = 64 MiB total
         if op == "read":
             lines += ["rw=randread", f"bs={rk}k", f"io_size={per_job}"]
             is_pure_read = True
