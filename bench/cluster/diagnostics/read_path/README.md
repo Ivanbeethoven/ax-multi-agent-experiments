@@ -17,11 +17,28 @@
 
 数据集 1 GiB，8 个 fio 作业，`direct=1`、`psync`、`iodepth=1`。顺序读总量 1 GiB，请求 1 MiB；随机读总量 64 MiB，请求 4 KiB。BrewFS 使用 8 个 Tokio 工作线程、512 MiB 读内存、8 个预读任务和 16 MiB 预读窗口；准备输入时写内存为 1 GiB。表中吞吐量按应用读取字节除以 fio 子进程实际经过时间（`seconds`）计算。
 
-Workspace 顺序读吞吐低于前后两次 JuiceFS，尽管三者均执行 256 次 GET。随机读两次 JuiceFS 相差较大，BrewFS 两种模式的吞吐均处于两次 JuiceFS 之间。复用不超过 4 MiB 的整块读取计划属于后续候选，尚无性能结论。
+Workspace 顺序读吞吐低于前后两次 JuiceFS，尽管三者均执行 256 次 GET。随机读两次 JuiceFS 相差较大，BrewFS 两种模式的吞吐均处于两次 JuiceFS 之间。
 
 本轮候选包含两项独立修改：[响应缓冲预分配（#454，`c1e9dd1`）](https://github.com/brewfs/brewfs/pull/454) 和 [只清零空洞与未覆盖区间（#455，`b0646da`）](https://github.com/brewfs/brewfs/pull/455)。复现时以本轮二进制和源码记录为准。
 
 A366 原始目录：`/srv/ax-cluster/diagnostics/read-prefetch/`。逐项结果和用例路径见 `quick-1g/zero-gap-compare/comparison.json`；源码和差异见 `zero-gap-source-record.json`、`zero-gap-source.patch`，二进制为 `brewfs-zero-gap-candidate`，耗时与 CPU 采样见 `quick-1g/zero-gap-read-timing/`。
+
+## 整块读取计划复用（chunk-plan，未采用）
+
+此候选对不超过 4 MiB 的块复用读取计划，以减少按 1 MiB 窗口重复查询元数据。8/8 个读取用例通过内容检查，Workspace 功能测试通过 2943 项。Workspace 顺序冷读为 518.874 MiB/s，低于同轮两次 JuiceFS，也低于 zero-gap 轮次的 709.795 MiB/s。此改动已从实验源码撤销，#454 和 #455 的参考结果仍使用上表。
+
+| 冷读负载 | 系统（运行顺序） | 吞吐量 MiB/s | P99 ms | GET 次数 | 下载字节 B |
+|---|---|---:|---:|---:|---:|
+| 顺序 | JuiceFS Redis（前） | 799.364 | 62.128 | 256 | 1073741824 |
+| 顺序 | BrewFS Flat | 725.730 | 40.632 | 256 | 1073742848 |
+| 顺序 | BrewFS Workspace Native | 518.874 | 55.312 | 256 | 1073742848 |
+| 顺序 | JuiceFS Redis（后） | 672.946 | 79.167 | 256 | 1073741824 |
+| 随机 | JuiceFS Redis（前） | 13.686 | 12.517 | 7810 | 1908199424 |
+| 随机 | BrewFS Flat | 21.599 | 8.159 | 4144 | 1311770624 |
+| 随机 | BrewFS Workspace Native | 21.132 | 8.454 | 4179 | 1314064384 |
+| 随机 | JuiceFS Redis（后） | 13.723 | 12.911 | 8091 | 1919729664 |
+
+在 A366 的 `/srv/ax-cluster/diagnostics/read-prefetch/` 下，`quick-1g/chunk-plan-compare/comparison.json` 保存逐项结果，`chunk-plan-source/` 保存源码和脚本。后续将在 zero-gap 配置上比较 4、16 个 Tokio 工作线程与现有 8 线程结果；本候选未启动四节点正式 fio 复测。
 
 ## 从已有结果生成统计
 
