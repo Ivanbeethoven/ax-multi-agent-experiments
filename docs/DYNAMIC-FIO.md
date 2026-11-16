@@ -33,7 +33,25 @@ BrewFS Dynamic 开启时，顺序冷读为 635 MiB/s，JuiceFS 为 817 MiB/s。�
 
 ## 同步任务等待
 
-现有修改版 RustFS 的随机写复测为 1.067 MiB/s，P99 为 114.82 ms。BrewFS 发起 16360 次 PUT，上传 64.06 MiB，没有发起 GET。RustFS 记录了 66248 次同步任务，平均排队 45.58 ms，实际执行平均 3.55 ms。四节点正式运行中，修改版 RustFS 的随机写为 0.411 MiB/s，P99 为 308.28 ms；官方 1.0.5 为 1.515 MiB/s，P99 为 82.31 ms。两个版本的每盘同步任务并发分别为 1 和最多 8。要测量并发设置的贡献，应保持修改版源码、读量子、客户端参数和后端拓扑一致，只切换 RUSTFS_DISK_FSYNC_WORKERS。
+现有修改版 RustFS 的随机写复测为 1.067 MiB/s，P99 为 114.82 ms。BrewFS 发起 16360 次 PUT，上传 64.06 MiB，没有发起 GET。RustFS 记录了 66248 次同步任务，平均排队 45.58 ms，实际执行平均 3.55 ms。四节点正式运行中，修改版 RustFS 的随机写为 0.411 MiB/s，P99 为 308.28 ms；官方 1.0.5 为 1.515 MiB/s，P99 为 82.31 ms。两个版本的每盘同步任务并发分别为 1 和最多 8。候选保留原来的文件和目录同步操作，只改变同步队列每盘可同时运行的任务数。在 A366 使用同一候选二进制，固定读量子、客户端配置和后端拓扑，按 1、8、8、1 的顺序测试。以下为两轮的范围，吞吐包含 fio 启动时间。
+
+| 负载 | 1 线程吞吐（MiB/s） | 8 线程吞吐（MiB/s） | 1 线程 P99（ms） | 8 线程 P99（ms） |
+| --- | ---: | ---: | ---: | ---: |
+| 64 MiB 随机写 | 1.00–1.04 | 2.32–2.45 | 114.82–126.35 | 40.11–43.25 |
+| 2 GiB 顺序写 | 146.90–151.93 | 182.79–183.32 | 10.94–11.86 | 11.47 |
+
+随机写平均同步排队从 49.52–49.73 ms 降至 10.77–11.29 ms，单次同步任务执行时间从 3.64–3.79 ms 升至 11.99–12.67 ms；排队与执行的合计仍下降。每轮随机写均发起 16360 次 PUT、上传 64.06 MiB；顺序写均发起 512 次 PUT、上传约 2048 MiB。所有写入条件均无 GET，均在上传完成后重新挂载并通过内容检查。
+
+A366 上可直接复测候选，测试环境与正式服务分开：
+
+```bash
+d=/srv/ax-cluster/diagnostics/dynamic-followup
+export DIAG_ROOT=/srv/ax-cluster/diagnostics/dynamic-fsync-repeat
+for workers in 1 8; do
+  bash "$d/package/run.sh" "$d/rustfs-candidate" "$workers" auto true 512 whole-object randwrite seqwrite
+done
+python3 "$d/package/report.py" "$DIAG_ROOT"
+```
 
 ## BrewFS 磁盘缓存范围读取
 
