@@ -420,6 +420,35 @@ class SuiteRuntimeTests(unittest.TestCase):
             [node.value for node in ast.walk(parent_source)
              if isinstance(node, ast.Constant) and isinstance(node.value, str)],
         )
+    def test_packed_candidate_is_used_for_registration_and_mount_only(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            cl = fake_cluster_lib(root, root / 'inputs')
+            cl.ALL_HOST_NAMES = ['A366']
+            cl.PD_ENDPOINT = 'http://127.0.0.1:2379'
+            support = types.ModuleType('c4_support')
+            support.REDIS_URL = 'redis://127.0.0.1:6379/0'
+            commands, requests = [], []
+            support.command = lambda argv, *args, **kwargs: commands.append(argv) or types.SimpleNamespace(
+                stdout=b'{"workspace_id":"candidate-workspace"}')
+            cl.extract_json_from_cli = json.loads
+            cl.generate_mounts_json = lambda rows, path: requests.extend(rows)
+            cl.start_mounts = lambda *args, **kwargs: []
+            volumes = load_module('suite_volumes_candidate_test_module',
+                ROOT / 'bench/cluster/runtime/suite_volumes.py',
+                {'cluster_lib': cl, 'c4_support': support})
+            volume = {'engine': 'brewfs-packed', 'namespace': 'packed', 'bucket': 'bucket',
+                      'manifest_key': 'manifest', 'data_config': '/private/config.json'}
+            with patch.dict('os.environ', {'AX_PACKED_BREWFS_BINARY': '/candidate/brewfs'}):
+                registered = volumes.init_packed_reader(volume, 'candidate-ns', root / 'register')
+                volumes.mount(registered, registered['base'], 'reader', root)
+                self.assertEqual(commands[0][0], str(Path('/candidate/brewfs')))
+                self.assertEqual(requests[0]['binary'], str(Path('/candidate/brewfs')))
+                native = dict(volume, engine='brewfs-native-overlay')
+                self.assertEqual(volumes.brewfs_binary(native), cl.BIN_DIR / 'brewfs')
+            with patch.dict('os.environ', {}, clear=True):
+                self.assertEqual(volumes.brewfs_binary(volume), cl.BIN_DIR / 'brewfs')
+
     def test_corpus_places_at_most_1000_files_in_each_directory(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

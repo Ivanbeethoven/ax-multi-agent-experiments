@@ -1,6 +1,7 @@
 """Prepare and mount the file sets used by fork and Packed experiments."""
 from concurrent.futures import ThreadPoolExecutor
 import json
+import os
 from pathlib import Path
 import shutil
 import struct
@@ -8,6 +9,12 @@ import time
 
 import cluster_lib as cl
 import c4_support as support
+
+
+def brewfs_binary(volume):
+    if volume['engine'] == 'brewfs-packed' and os.environ.get('AX_PACKED_BREWFS_BINARY'):
+        return Path(os.environ['AX_PACKED_BREWFS_BINARY'])
+    return cl.BIN_DIR / 'brewfs'
 
 
 def save(path, value):
@@ -33,7 +40,7 @@ def mount(volume, workspace, identifier, out, host='A366', slot=1, overrides=Non
     request = {'id': identifier, 'phase': 'measure', 'engine': engine,
         'host': cl.HOST_BY_NAME[host]['ssh'], 'slot': slot, 'workspace': workspace,
         'parent_workspace': volume.get('base', 'none'), 'purpose': 'suite',
-        'binary': str(cl.BIN_DIR / ('brewfs' if engine.startswith('brewfs') else engine)),
+        'binary': str(brewfs_binary(volume) if engine.startswith('brewfs') else cl.BIN_DIR / engine),
         'cache_state': 'cold', 'windows': ['measure'], 'root': str(cl.RUN_ROOT),
         'overrides': overrides or {}}
     endpoint = cl.endpoint_for_slot(slot, cl.ALL_HOST_NAMES.index(host))
@@ -79,7 +86,7 @@ def corpus(files):
 
 def init_packed_reader(volume, namespace, out):
     clone = dict(volume, namespace=namespace)
-    result = support.command([str(cl.BIN_DIR / 'brewfs'), 'workspace', *metadata_arguments(clone),
+    result = support.command([str(brewfs_binary(clone)), 'workspace', *metadata_arguments(clone),
         '--workspace-namespace', namespace, 'init-packed-volume', '--manifest-key', volume['manifest_key'],
         '--data-config', volume['data_config']], out, secrets=True)
     clone['base'] = cl.extract_json_from_cli(result.stdout)['workspace_id']
