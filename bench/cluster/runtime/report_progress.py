@@ -21,6 +21,31 @@ def table(header, rows):
     print()
 
 
+def selected_cold_reads(path):
+    cases = {}
+    for row in load(path):
+        key = Path(row["case"]).relative_to(path.parent).parts[:2]
+        if key in cases or row["verified"] is not True:
+            raise ValueError(f"Duplicate or unverified cold read: {key}")
+        cases[key] = row
+    systems = {"juicefs-before": "JuiceFS Redis（前）", "flat": "BrewFS Flat",
+               "workspace": "BrewFS Workspace Native", "juicefs-after": "JuiceFS Redis（后）"}
+    if set(cases) != {(op, name) for op in ("seqread", "randread") for name in systems}:
+        raise ValueError("Expected eight cold reads from the same run")
+    print("### 采用的冷读对照：A366 单机 zero-gap\n")
+    print("2026-11-16 19:35–19:38，单机 RustFS 四个数据目录。顺序读 1 GiB、随机读 64 MiB；"
+          "8 个 fio 作业，BrewFS 使用 8 个 Tokio 线程。吞吐量按应用读取字节除以 fio 子进程实际经过时间计算。"
+          "8/8 项内容检查通过；本表不计入四节点正式完成数。\n")
+    rows = []
+    for op, label in (("seqread", "顺序"), ("randread", "随机")):
+        for name, system in systems.items():
+            row = cases[op, name]
+            rows.append([label, system, row["bytes"] / 2**20 / row["seconds"],
+                         row["p99_ms"], row["get_requests"], row["get_bytes"]])
+    table(["负载", "系统", "MiB/s", "P99 ms", "GET 次数", "下载字节 B"], rows)
+    print(f"原始记录：A366 `{path}`。\n")
+
+
 def main(root):
     status = load(root / "status.json")["jobs"]
     groups = {}
@@ -86,7 +111,11 @@ def main(root):
     print(f"**已完成 {total} 项**：C1 {len(groups['01-io'])}/20，C2 {len(groups['02-fork'])}/12，"
           f"C3 {len(groups['03-packed'])}/11，C4 {len(groups['04-agent-replay'])}/13。\n")
     for g, (label, columns) in definitions.items():
-        print(f"## {label}\n\n{notes[g]}\n")
+        print(f"## {label}\n")
+        if g == "01-io" and root.name == "run-002":
+            selected_cold_reads(root.parents[2] / "diagnostics/read-prefetch/quick-1g/zero-gap-compare/comparison.json")
+            print("### 四节点正式 fio 已完成条件\n")
+        print(notes[g] + "\n")
         table(["编号", "系统"] + columns + ["原始目录"], groups[g])
 
 

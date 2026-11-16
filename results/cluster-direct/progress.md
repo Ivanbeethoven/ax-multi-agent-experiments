@@ -1,10 +1,29 @@
 # run-002 正式实验阶段结果
 
-截至北京时间 2026-11-16 20:39。每个条件仅取状态表选定且已通过的正式 attempt；原始结果保留在 A366。表中末列相对于 `/srv/ax-cluster/runs/direct/run-002`，该目录下的 `result.json` 是数据来源。
+截至北京时间 2026-11-16 20:49。每个条件仅取状态表选定且已通过的正式 attempt；原始结果保留在 A366。表中末列相对于 `/srv/ax-cluster/runs/direct/run-002`，该目录下的 `result.json` 是数据来源。
 
 **已完成 45 项**：C1 16/20，C2 12/12，C3 8/11，C4 9/13。
 
 ## C1 · fio
+
+### 采用的冷读对照：A366 单机 zero-gap
+
+2026-11-16 19:35–19:38，单机 RustFS 四个数据目录。顺序读 1 GiB、随机读 64 MiB；8 个 fio 作业，BrewFS 使用 8 个 Tokio 线程。吞吐量按应用读取字节除以 fio 子进程实际经过时间计算。8/8 项内容检查通过；本表不计入四节点正式完成数。
+
+| 负载 | 系统 | MiB/s | P99 ms | GET 次数 | 下载字节 B |
+|---|---|---|---|---|---|
+| 顺序 | JuiceFS Redis（前） | 863.868 | 62.652 | 256 | 1073741824 |
+| 顺序 | BrewFS Flat | 806.699 | 35.389 | 256 | 1073742848 |
+| 顺序 | BrewFS Workspace Native | 709.795 | 31.064 | 256 | 1073742848 |
+| 顺序 | JuiceFS Redis（后） | 811.032 | 70.779 | 256 | 1073741824 |
+| 随机 | JuiceFS Redis（前） | 26.048 | 5.603 | 4775 | 1169162240 |
+| 随机 | BrewFS Flat | 23.894 | 7.176 | 3950 | 1299056640 |
+| 随机 | BrewFS Workspace Native | 22.329 | 7.832 | 4011 | 1303054336 |
+| 随机 | JuiceFS Redis（后） | 13.868 | 14.746 | 7839 | 2031435776 |
+
+原始记录：A366 `/srv/ax-cluster/diagnostics/read-prefetch/quick-1g/zero-gap-compare/comparison.json`。
+
+### 四节点正式 fio 已完成条件
 
 表中吞吐使用 fio 自身的读或写带宽。Flat 的四项扩展不在初始 52 项中；按修订计划共 56 项。单机候选用例的计时方法及数据见[单独的诊断表](../../bench/cluster/diagnostics/read_path/README.md)。
 
