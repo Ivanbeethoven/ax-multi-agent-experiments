@@ -164,11 +164,15 @@ def run_packed(job, out, small=False, prepared_path=None):
     save(out / 'read-start.json', before)
     start = time.monotonic()
     try:
-        results = readers.batch_c3_loader(tasks, job['id'])
-        seconds = time.monotonic() - start
-        after = cl.collector_mark_all(job['id'], 'read-end')
+        try:
+            results = readers.batch_c3_loader(tasks, job['id'])
+            seconds = time.monotonic() - start
+        finally:
+            after = cl.collector_mark_all(job['id'], 'read-end')
+            save(out / 'read-end.json', after)
     finally:
         stops = replay.batch_stop_mounts(mounted, job['id'], remove_cache=True)
+        save(out / 'reader-stops.json', stops)
     save(out / 'read-start.json', before)
     save(out / 'read-end.json', after)
     save(out / 'readers.json', results)

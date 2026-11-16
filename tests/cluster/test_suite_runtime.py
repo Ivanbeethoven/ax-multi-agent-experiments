@@ -508,6 +508,38 @@ class SuiteRuntimeTests(unittest.TestCase):
             self.assertEqual(mounted_buckets.count("bucket-juicefs-redis-on"), 3)
             self.assertEqual(mounted_buckets.count("bucket-juicefs-redis-off"), 3)
 
+    def test_reader_failure_saves_final_metrics_before_stopping_mounts(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / 'run'
+            groups, cl, support, replay, readers, layout, volumes = load_suite_groups(root, root / 'input')
+            write_json(root / 'prepared/juicefs-redis-on-100000.json', {
+                'engine': 'juicefs', 'base': '/', 'bucket': 'bucket'})
+            volumes.mount = lambda volume, workspace, identifier, out, host, slot, overrides: [{
+                'id': identifier, 'host_name': host, 'slot': slot, 'engine': 'juicefs',
+                'cgroup': 'group', 'metrics_port': slot, 'mount_directory': '/mount'}]
+            events = []
+            def mark(job, stage):
+                events.append(stage)
+                return {'stage': stage}
+            def load(*args):
+                events.append('load')
+                raise RuntimeError('reader I/O error')
+            def stop(*args, **kwargs):
+                events.append('stop')
+                return [{'stopped': True}]
+            cl.collector_mark_all = mark
+            readers.batch_c3_loader = load
+            replay.batch_stop_mounts = stop
+            job = {'id': 'packed-read', 'seed': 10, 'configuration': 9, 'parameters': {
+                'phase': 'read', 'system': 'juicefs-redis', 'dynamic': 'on',
+                'files': 100000, 'readers': 2, 'epochs': 2}}
+            out = root / 'job/attempt-01'
+            with self.assertRaisesRegex(RuntimeError, 'reader I/O error'):
+                groups.run_packed(job, out)
+            self.assertEqual(events, ['read-start', 'load', 'read-end', 'stop'])
+            self.assertEqual(json.loads((out / 'read-end.json').read_text()), {'stage': 'read-end'})
+            self.assertEqual(json.loads((out / 'reader-stops.json').read_text()), [{'stopped': True}])
+
     def test_packed_reuses_uploaded_volume_and_verifies_before_registering(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary) / 'run'
