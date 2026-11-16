@@ -334,6 +334,20 @@ class SuiteRuntimeTests(unittest.TestCase):
                 saved = run_root / job["output"] / "attempt-01/source-record.json"
                 self.assertEqual(json.loads(saved.read_text()), source_record)
             self.assertTrue(all(item["state"] == "passed" for item in status["jobs"].values()))
+            earlier = '03-packed-06-r1'
+            selected = '03-packed-07-r1'
+            status['jobs'][earlier] = {'state': 'failed', 'error': 'retained error'}
+            status['jobs'][selected] = {'state': 'planned'}
+            write_json(run_root / 'status.json', status)
+            seen.clear()
+            with patch.dict(sys.modules, {'suite_groups': groups}), \
+                    patch.object(sys, 'argv', ['run_suite.py', '--start-at', selected]), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                module.main()
+            self.assertEqual([item[1] for item in seen], [selected])
+            status = json.loads((run_root / 'status.json').read_text())
+            self.assertEqual(status['jobs'][earlier], {'state': 'failed', 'error': 'retained error'})
+            self.assertEqual(status['completed_runs'], 51)
 
     def test_fio_input_and_measurement_mounts_use_the_child_workspace(self):
         source = ROOT / "bench/cluster/runtime/run_c1.py"
@@ -490,6 +504,29 @@ class SuiteRuntimeTests(unittest.TestCase):
             write_json(source, volume)
             with self.assertRaisesRegex(ValueError, 'dynamic'):
                 groups.run_packed(job, out, prepared_path=source)
+
+    def test_native_readers_are_created_before_mounting(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / 'run'
+            groups, cl, support, replay, readers, layout, volumes = load_suite_groups(root, root / 'input')
+            write_json(root / 'prepared/brewfs-native-tikv-on-100000.json', {
+                'engine': 'brewfs-native-overlay', 'base': 'parent', 'bucket': 'bucket', 'revision': 'revision'})
+            events = []
+            def create(volume, arguments, out):
+                events.append(('create', arguments))
+                return {'workspaces': [f'child-{i}' for i in range(32)]}
+            def mount(volume, workspace, identifier, out, host, slot, overrides):
+                events.append(('mount', workspace))
+                return [{'id': identifier, 'host_name': host, 'slot': slot, 'engine': volume['engine'],
+                         'cgroup': 'group', 'metrics_port': slot, 'mount_directory': '/mount/' + workspace}]
+            volumes.admin = create
+            volumes.mount = mount
+            job = {'id': 'native-read', 'seed': 10, 'configuration': 6, 'parameters': {
+                'phase': 'read', 'system': 'brewfs-native-tikv', 'dynamic': 'on',
+                'files': 100000, 'readers': 32, 'epochs': 2}}
+            groups.run_packed(job, root / 'job/attempt-02')
+            self.assertEqual(events[0], ('create', ['fork-shared-bucket', '--revision', 'revision', '--count', '32']))
+            self.assertEqual(events[1:], [('mount', f'child-{i}') for i in range(32)])
 
     def test_replay_task_counts_serialization_and_schedule_bounds(self):
         with tempfile.TemporaryDirectory() as temporary:

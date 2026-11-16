@@ -74,6 +74,8 @@ Rust 回放命令为 `full-fuse-replay EVENTS BLOBS WORKSPACE OUTPUT --performan
 
 TiKV/PD 使用 v7.5.0，在 A355 部署；二进制为 `/srv/ax-cluster/direct/bin/tikv-server-v7.5.0` 和 `pd-server-v7.5.0`。官方发布包地址为 `https://tiup-mirrors.pingcap.com/tikv-v7.5.0-linux-amd64.tar.gz` 和对应的 `pd-v7.5.0-linux-amd64.tar.gz`。PD 端口 2379，TiKV 端口 20160、指标端口 20180。单节点副本数为 1，数据目录 `/srv/ax-cluster/services/run-002/`。Native、Packed 与 JuiceFS TiKV 使用不同命名空间。
 
+PD 使用 8 个 CPU 配额、4 GiB 内存，设置 `GOMAXPROCS=8`；TiKV 使用 8 个 CPU 配额、24 GiB 内存。已有环境可在测量停止后执行 `python3 /srv/ax-cluster/direct/scripts/configure_pd_runtime.py`，应用 PD 设置并检查服务健康状态。配置记录保存到当前运行的 `versions/pd-runtime.json`。
+
 `setup_suite.py` 保存这些服务的配置并创建 systemd 单元。BrewFS 管理工具必须使用与挂载二进制相同的源码提交构建：`infra/idcai/build_workspace_admin.py --source /srv/ax-cluster/sources/brewfs-5750af24 --template <仓库>/tools/workspace-admin --out <产物目录>`。复用该脚本的 Rust 工具链和编译缓存；`tools/full-fuse-replay` 与 `tools/fs-probe` 分别构建回放器和数据加载器。
 
 每次保存实际软件版本、命令和配置。原始数据完整取回后，按运行编号清理临时挂载、缓存和对象。

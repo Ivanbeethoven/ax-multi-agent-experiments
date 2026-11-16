@@ -46,11 +46,12 @@ tikv=root/'tikv.toml'
 tikv.write_text('[storage]\\nreserve-space = "2GB"\\n[storage.block-cache]\\ncapacity = "8GB"\\n[raftstore]\\nstore-pool-size = 2\\napply-pool-size = 2\\n[readpool.unified]\\nmin-thread-count = 2\\nmax-thread-count = 8\\n[server]\\ngrpc-concurrency = 8\\n')
 services={
  'redis':('/usr/bin/redis-server '+str(config),'64G','800%'),
- 'pd':('/srv/ax-cluster/direct/bin/pd-server-v7.5.0 --name=ax-RUN_ID --data-dir='+str(root/'pd')+' --client-urls=http://175.168.3.55:2379 --advertise-client-urls=http://175.168.3.55:2379 --peer-urls=http://175.168.3.55:2380 --advertise-peer-urls=http://175.168.3.55:2380 --initial-cluster=ax-RUN_ID=http://175.168.3.55:2380','4G','200%'),
+ 'pd':('/srv/ax-cluster/direct/bin/pd-server-v7.5.0 --name=ax-RUN_ID --data-dir='+str(root/'pd')+' --client-urls=http://175.168.3.55:2379 --advertise-client-urls=http://175.168.3.55:2379 --peer-urls=http://175.168.3.55:2380 --advertise-peer-urls=http://175.168.3.55:2380 --initial-cluster=ax-RUN_ID=http://175.168.3.55:2380','4G','800%'),
  'tikv':('/srv/ax-cluster/direct/bin/tikv-server-v7.5.0 --addr=175.168.3.55:20160 --advertise-addr=175.168.3.55:20160 --status-addr=0.0.0.0:20180 --pd=175.168.3.55:2379 --data-dir='+str(root/'tikv')+' --config='+str(tikv),'24G','800%')}
 for name,(command,memory,cpu) in services.items():
  unit=Path('/etc/systemd/system')/('ax-RUN_ID-'+name+'.service')
- unit.write_text('[Unit]\\nAfter=network-online.target\\n[Service]\\nExecStart='+command+'\\nMemoryMax='+memory+'\\nMemorySwapMax=0\\nCPUQuota='+cpu+'\\nLimitNOFILE=1048576\\nRestart=on-failure\\nRestartSec=5\\n[Install]\\nWantedBy=multi-user.target\\n')
+ environment='Environment=GOMAXPROCS=8\\n' if name=='pd' else ''
+ unit.write_text('[Unit]\\nAfter=network-online.target\\n[Service]\\n'+environment+'ExecStart='+command+'\\nMemoryMax='+memory+'\\nMemorySwapMax=0\\nCPUQuota='+cpu+'\\nLimitNOFILE=1048576\\nRestart=on-failure\\nRestartSec=5\\n[Install]\\nWantedBy=multi-user.target\\n')
 subprocess.run(['systemctl','daemon-reload'],check=True)
 for name in services:
  subprocess.run(['systemctl','start','ax-RUN_ID-'+name],check=True)

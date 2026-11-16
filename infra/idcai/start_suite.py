@@ -12,12 +12,13 @@ def main():
     parser.add_argument('--group', choices=['01-io', '02-fork', '03-packed', '04-agent-replay'])
     parser.add_argument('--host', default='idcai-60001')
     parser.add_argument('--reuse-prepared', help='Remote volume.json to verify again before continuing')
+    parser.add_argument('--start-at', help='Start at this condition and continue through the remaining plan')
     parser.add_argument('--calibrate-after-io', action='store_true')
     options = parser.parse_args()
     if options.group and options.calibrate_after_io:
         parser.error('Sampling calibration requires the complete suite')
-    if options.reuse_prepared and options.calibrate_after_io:
-        parser.error('Prepared volume recovery uses the suite entrypoint directly')
+    if (options.reuse_prepared or options.start_at) and options.calibrate_after_io:
+        parser.error('Condition selection uses the suite entrypoint directly')
     source = '''
 import json,sys,subprocess,shutil
 from pathlib import Path
@@ -50,10 +51,13 @@ group=GROUP
 if group:command.extend(['--group',group])
 reuse_prepared=REUSE_PREPARED
 if reuse_prepared:command.extend(['--reuse-prepared',reuse_prepared])
+start_at=START_AT
+if start_at:command.extend(['--start-at',start_at])
 subprocess.run(command,check=True)
 print(RUN_ROOT)
 '''.replace('group=GROUP', 'group=' + repr(options.group)).replace(
         'reuse_prepared=REUSE_PREPARED', 'reuse_prepared=' + repr(options.reuse_prepared)).replace(
+        'start_at=START_AT', 'start_at=' + repr(options.start_at)).replace(
         'ENTRYPOINT', 'continue_suite.py' if options.calibrate_after_io else 'run_suite.py')
     subprocess.run(['ssh', options.host, '/srv/ax-idcai-20261113/venv/bin/python3 -'], input=source.encode(), check=True)
 

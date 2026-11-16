@@ -16,6 +16,8 @@ python infra/idcai/start_suite.py
 
 只执行一组时使用 `python infra/idcai/start_suite.py --group 01-io`。其它组为 `02-fork`、`03-packed`、`04-agent-replay`。
 
+使用 `--start-at <条件编号>` 可从指定条件顺序执行后续实验，已完成条件自动跳过。此前条件的状态和数据保持原样；读取实验需要对应准备条件已经通过。
+
 Packed 准备已生成 `volume.json` 时，可复用已上传的数据并重新执行跨机内容检查，通过后自动继续剩余条件：
 
 ```powershell

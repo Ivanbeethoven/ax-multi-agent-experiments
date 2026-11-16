@@ -64,6 +64,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--group', choices=['01-io', '02-fork', '03-packed', '04-agent-replay'])
     parser.add_argument('--job')
+    parser.add_argument('--start-at', help='Start at this condition and continue through the remaining plan')
     parser.add_argument('--reuse-prepared', type=Path,
                         help='Reuse a completed volume.json and repeat its cross-machine verification')
     parser.add_argument('--check', action='store_true', help='Use a small input to check the same execution path')
@@ -75,12 +76,16 @@ def main():
                 or options.check or (options.job and options.job != reuse_job['id'])):
             parser.error('--reuse-prepared requires the corresponding formal Packed preparation job')
     plan = json.loads((cl.RUN_ROOT / 'plan.json').read_text())
+    identifiers = [job['id'] for job in plan['jobs']]
+    if options.start_at and (options.start_at not in identifiers or options.job):
+        parser.error('--start-at requires a plan condition and cannot be combined with --job')
+    start_index = identifiers.index(options.start_at) if options.start_at else 0
     status_path = cl.RUN_ROOT / ('check-status.json' if options.check else 'status.json')
     status = json.loads(status_path.read_text()) if status_path.exists() else {'jobs': {}}
     from suite_groups import run_fork, run_packed, run_replay
     functions = {'01-io': run_io, '02-fork': run_fork, '03-packed': run_packed,
                  '04-agent-replay': run_replay}
-    for job in plan['jobs']:
+    for job in plan['jobs'][start_index:]:
         if options.group and job['group'] != options.group:
             continue
         if options.job and job['id'] != options.job:

@@ -131,6 +131,10 @@ def run_packed(job, out, small=False, prepared_path=None):
     layout.evict_bucket_page_cache(nodes, [volume['bucket']])
     placements = support.placements(count)
     mounted = []
+    native_children = []
+    if volume['engine'] == 'brewfs-native-overlay':
+        native_children = volumes.admin(volume, ['fork-shared-bucket', '--revision', volume['revision'],
+                            '--count', str(count)], out / 'fork-readers')['workspaces']
     for index, (host, slot) in enumerate(placements):
         item = volume
         if volume['engine'] == 'brewfs-packed':
@@ -139,9 +143,8 @@ def run_packed(job, out, small=False, prepared_path=None):
             item = volumes.init_packed_reader(volume, namespace, out / f'init-{index}')
         elif volume['engine'] == 'brewfs-native-overlay':
             item = dict(volume)
-            item['base'] = volumes.admin(volume, ['fork-shared-bucket', '--revision', volume['revision'],
-                                        '--count', '1'], out / f'fork-{index}')['workspaces'][0]
-        mounted.extend(volumes.mount(item, item['base'], f'{job["id"]}-reader-{index}', out, host, slot,
+            item['base'] = native_children[index]
+        mounted.extend(volumes.mount(item, item['base'], f'{job["id"]}-{out.name}-reader-{index}', out, host, slot,
                        {'packed_cache': p.get('packed_cache', 'on')} if volume['engine'] == 'brewfs-packed' else {}))
     per_host = defaultdict(list)
     for m in mounted:
@@ -158,6 +161,7 @@ def run_packed(job, out, small=False, prepared_path=None):
                 '--epochs', str(p['epochs']), '--threads', '2', '--batch', '64',
                 '--seed', str(job['seed'] + index * 1009), '--verify-bytes', '1', '--start-unix-ns', str(epoch)]})
     before = cl.collector_mark_all(job['id'], 'read-start')
+    save(out / 'read-start.json', before)
     start = time.monotonic()
     try:
         results = readers.batch_c3_loader(tasks, job['id'])
