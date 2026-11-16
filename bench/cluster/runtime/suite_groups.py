@@ -233,6 +233,8 @@ def run_replay(job, out, small=False):
                 verify_hosts = profile['verify_hosts']
                 if p['system'] == 'brewfs-native':
                     truncate_seconds = profile.get('brewfs_truncate_flush_seconds')
+                    if isinstance(truncate_seconds, dict):
+                        truncate_seconds = truncate_seconds[str(agents)]
                 if (len(set(hosts)) != len(hosts) or len(counts) != len(hosts)
                         or sum(counts) != agents or set(verify_hosts) != set(hosts)
                         or set(verify_hosts.values()) != set(hosts)):

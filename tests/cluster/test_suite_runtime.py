@@ -727,7 +727,8 @@ class SuiteRuntimeTests(unittest.TestCase):
                     "A configured replay profile must provide the task placements")
                 seen_cohorts = []
                 replay.execute_c2_cohort_arm = lambda condition, system, repeat, cohort, bases, out: (
-                    seen_cohorts.append(cohort["shared_tasks"]) or {
+                    self.assertEqual(condition["parameters"]["truncate_flush_seconds"], {16: 30, 64: 60}[agents])
+                    or seen_cohorts.append(cohort["shared_tasks"]) or {
                         "timing": {"app_done_seconds": 1.0},
                         "metrics": {"actual_read_bytes": 10, "actual_write_bytes": 2,
                                     "trace_operations": 4},

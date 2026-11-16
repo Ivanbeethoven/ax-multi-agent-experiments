@@ -1,6 +1,6 @@
 {
   "hosts": ["A672", "A601", "A635", "A368"],
-  "brewfs_truncate_flush_seconds": 30,
+  "brewfs_truncate_flush_seconds": {"16": 30, "64": 60},
   "verify_hosts": {"A672": "A368", "A368": "A672", "A601": "A635", "A635": "A601"},
   "counts": {"16": [2, 6, 6, 2], "64": [8, 24, 24, 8]}
 }
