@@ -699,6 +699,122 @@ class SuiteRuntimeTests(unittest.TestCase):
                 self.assertEqual(sum(delays), 4000 * len(delays))
                 self.assertEqual(pacing["total_think_ms"], 4000 * len(delays))
 
+    def test_replay_placement_profile_counts_mapping_and_validation(self):
+        profile_source = ROOT / "configs/replay-placement-rustfs.json"
+        base_profile = json.loads(profile_source.read_text(encoding="utf-8"))
+        cluster_config = json.loads((ROOT / "configs/cluster.json").read_text(encoding="utf-8"))
+        active_by_host = {host["name"]: host["active"] for host in cluster_config["hosts"]}
+        verify_hosts = base_profile["verify_hosts"]
+
+        for agents in (16, 64):
+            with self.subTest(agents=agents), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary) / "run"
+                input_dir = Path(temporary) / "inputs"
+                groups, cl, support, replay, readers, layout, volumes = load_suite_groups(root, input_dir)
+                cl.HOST_BY_NAME = {
+                    name: {"ssh": "ssh-" + name, "active": active_by_host.get(name, 64)}
+                    for name in cl.HOST_BY_NAME
+                }
+                write_json(root / "replay-placement.json", base_profile)
+                replay.CASES = tuple(f"case-{index}" for index in range(8))
+                boundaries = [{"boundary_id": "b0", "operations": 10, "bytes": 4096}]
+                for case in replay.CASES:
+                    write_json(input_dir / "traces" / case / "boundaries.json", {
+                        "reviewed": True, "boundaries": boundaries, "events_operations": 10,
+                        "events_bytes": 4096, "evidence": {"source": "test"},
+                    })
+                support.placements = lambda count: self.fail(
+                    "A configured replay profile must provide the task placements")
+                seen_cohorts = []
+                replay.execute_c2_cohort_arm = lambda condition, system, repeat, cohort, bases, out: (
+                    seen_cohorts.append(cohort["shared_tasks"]) or {
+                        "timing": {"app_done_seconds": 1.0},
+                        "metrics": {"actual_read_bytes": 10, "actual_write_bytes": 2,
+                                    "trace_operations": 4},
+                    }
+                )
+                job = {"id": f"replay-profile-{agents}", "seed": 123, "repeat": 1,
+                       "parameters": {"dynamic": "on", "system": "brewfs-native", "agents": agents}}
+
+                result = groups.run_replay(job, root / "job")
+                tasks = json.loads((root / "job" / "tasks-plan.json").read_text(encoding="utf-8"))
+                expected_counts = base_profile["counts"][str(agents)]
+                self.assertEqual(result["completed_tasks"], agents)
+                self.assertEqual(len(tasks), agents)
+                self.assertEqual(len(seen_cohorts), 1)
+                self.assertEqual(len(seen_cohorts[0]), agents)
+                for host, count in zip(base_profile["hosts"], expected_counts):
+                    host_tasks = [task for task in tasks if task["host"] == host]
+                    self.assertEqual(len(host_tasks), count)
+                    self.assertEqual(sorted(task["slot"] for task in host_tasks),
+                                     list(range(1, count + 1)))
+                    self.assertTrue(all(task["ssh"] == "ssh-" + host for task in host_tasks))
+                    self.assertTrue(all(task["verify_host"] == verify_hosts[host]
+                                        for task in host_tasks))
+                self.assertEqual(len({(task["host"], task["slot"]) for task in tasks}), agents)
+                self.assertEqual(
+                    {task["task_id"]: task["verify_host"] for task in seen_cohorts[0]},
+                    {task["task_id"]: verify_hosts[task["host"]] for task in tasks},
+                )
+                self.assertEqual(json.loads((root / "job" / "replay-placement.json").read_text()),
+                                 base_profile)
+
+        invalid_profiles = {
+            "capacity": dict(base_profile, counts={
+                **base_profile["counts"], "64": [17, 23, 16, 8]}),
+            "mapping": dict(base_profile, verify_hosts={
+                "A672": "A368", "A368": "A368", "A601": "A635", "A635": "A635"}),
+        }
+        for label, profile in invalid_profiles.items():
+            with self.subTest(invalid=label), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary) / "run"
+                input_dir = Path(temporary) / "inputs"
+                groups, cl, support, replay, readers, layout, volumes = load_suite_groups(root, input_dir)
+                cl.HOST_BY_NAME = {
+                    name: {"ssh": "ssh-" + name, "active": active_by_host.get(name, 64)}
+                    for name in cl.HOST_BY_NAME
+                }
+                write_json(root / "replay-placement.json", profile)
+                replay.CASES = ("case-0",)
+                write_json(input_dir / "traces" / "case-0" / "boundaries.json", {
+                    "reviewed": True, "boundaries": [{"boundary_id": "b0", "operations": 10,
+                                                        "bytes": 4096}],
+                    "events_operations": 10, "events_bytes": 4096, "evidence": {"source": "test"},
+                })
+                job = {"id": "replay-profile-invalid", "seed": 123, "repeat": 1,
+                       "parameters": {"dynamic": "on", "system": "brewfs-native", "agents": 64}}
+                with self.assertRaises(ValueError):
+                    groups.run_replay(job, root / "job")
+
+    def test_replay_without_placement_profile_keeps_legacy_support_placements(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "run"
+            input_dir = Path(temporary) / "inputs"
+            groups, cl, support, replay, readers, layout, volumes = load_suite_groups(root, input_dir)
+            replay.CASES = ("case-0", "case-1")
+            write_json(input_dir / "traces" / "case-0" / "boundaries.json", {
+                "reviewed": True, "boundaries": [{"boundary_id": "b0", "operations": 10,
+                                                    "bytes": 4096}],
+                "events_operations": 10, "events_bytes": 4096, "evidence": {"source": "test"},
+            })
+            write_json(input_dir / "traces" / "case-1" / "boundaries.json", {
+                "reviewed": True, "boundaries": [{"boundary_id": "b0", "operations": 10,
+                                                    "bytes": 4096}],
+                "events_operations": 10, "events_bytes": 4096, "evidence": {"source": "test"},
+            })
+            calls = []
+            support.placements = lambda count: calls.append(count) or [("A355", i + 1) for i in range(count)]
+            job = {"id": "replay-legacy", "seed": 123, "repeat": 1,
+                   "parameters": {"dynamic": "on", "system": "brewfs-native", "agents": 2}}
+
+            result = groups.run_replay(job, root / "job")
+            tasks = json.loads((root / "job" / "tasks-plan.json").read_text(encoding="utf-8"))
+            self.assertEqual(result["completed_tasks"], 2)
+            self.assertEqual(calls, [2])
+            self.assertEqual([(task["host"], task["slot"]) for task in tasks],
+                             [("A355", 1), ("A355", 2)])
+            self.assertTrue(all("verify_host" not in task for task in tasks))
+
 
 if __name__ == "__main__":
     unittest.main()

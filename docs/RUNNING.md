@@ -80,6 +80,8 @@ python infra/idcai/collect_direct_results.py --out results/run-002
 
 ## 数据保留
 
+**在 RustFS 节点运行多 Agent 回放。** 将 `configs/replay-placement-rustfs.json` 复制为本轮结果目录的 `replay-placement.json`。16、64 Agent 的三个系统及 Dynamic 关闭条件均使用相同分配：A672/A601/A635/A368 分别承担 2/6/6/2 或 8/24/24/8 个 Agent。冷重挂在另一台机器上完成。A366 继续协调和汇总，A355 提供元数据。1、8 Agent 沿用原分配。原始结果的 `tasks-plan.json` 记录每项任务的测量和校验主机，分析时注明客户端与对象服务共用主机。已经启动的旧版运行程序需在完整条件结束后重新启动才能读取该配置。
+
 运行期间保留各项测试的子工作区和对象数据，挂载退出后清理客户端本地缓存。整轮结果取回后，再统一重建本轮两套 RustFS 的专用数据目录。下一轮使用新的运行编号和元数据命名空间，重新准备输入。
 
 已有 `measurement.json` 且读回校验、卸载均完成时，可在协调进程停止后使用 `python3 /srv/ax-cluster/direct/scripts/finalize_fio_checkpoint.py --job <job-id>` 生成结果，再用原启动命令继续。

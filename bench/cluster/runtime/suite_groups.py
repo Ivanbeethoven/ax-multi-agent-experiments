@@ -221,12 +221,38 @@ def run_replay(job, out, small=False):
         rng = random.Random(job['seed'])
         rng.shuffle(cases)
         total = len(cases) if agents == 1 else agents
-        placements = [('A366', 1)] * total if agents == 1 else support.placements(agents)
+        placements = None
+        verify_hosts = None
+        placement_file = cl.RUN_ROOT / 'replay-placement.json'
+        if not small and placement_file.exists():
+            profile = json.loads(placement_file.read_text())
+            if str(agents) in profile['counts']:
+                counts = profile['counts'][str(agents)]
+                hosts = profile['hosts']
+                verify_hosts = profile['verify_hosts']
+                if (len(set(hosts)) != len(hosts) or len(counts) != len(hosts)
+                        or sum(counts) != agents or set(verify_hosts) != set(hosts)
+                        or set(verify_hosts.values()) != set(hosts)):
+                    raise ValueError('Invalid replay placement')
+                placements = []
+                for host, count in zip(hosts, counts):
+                    target = verify_hosts[host]
+                    if (host == target or type(count) is not int or count < 0
+                            or count > min(cl.HOST_BY_NAME[h]['active'] for h in (host, target))):
+                        raise ValueError(f'Invalid measurement or verification slots for {host}')
+                    placements.extend((host, slot) for slot in range(1, count + 1))
+                if agents == 1:
+                    placements *= total
+                save(out / 'replay-placement.json', profile)
+        if placements is None:
+            placements = [('A366', 1)] * total if agents == 1 else support.placements(agents)
         tasks = []
         for index, (host, slot) in enumerate(placements):
             task = {'task_id': f'a{index+1:03d}', 'case': cases[index % len(cases)],
                 'host': host, 'ssh': cl.HOST_BY_NAME[host]['ssh'], 'slot': slot,
                 'start_delay_ms': 0 if agents == 1 else rng.randrange(30001)}
+            if verify_hosts is not None:
+                task['verify_host'] = verify_hosts[host]
             task['pacing_path'] = schedule(task, agents, job['seed'] + 100003 * (index+1),
                                             out / 'pacing' / (task['task_id'] + '.json'))
             tasks.append(task)

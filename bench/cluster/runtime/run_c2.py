@@ -638,7 +638,7 @@ def execute_c2_cohort_arm(
         src_host = t["host"]
         src_ssh = t["ssh"]
         src_slot = int(t["slot"])
-        v_host = VERIFY_HOST_MAP[src_host]
+        v_host = t.get("verify_host", VERIFY_HOST_MAP[src_host])
         v_ssh = cl.HOST_BY_NAME[v_host]["ssh"]
         v_slot = src_slot  # Bijection preserves unique 1..k slot numbering per host!
         verify_target_by_task[tid] = (v_host, v_ssh, v_slot)
