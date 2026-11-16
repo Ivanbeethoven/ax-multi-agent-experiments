@@ -1,0 +1,13 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 127.0.0.1:34318
+exporters:
+  prometheus:
+    endpoint: 127.0.0.1:39464
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      exporters: [prometheus]
