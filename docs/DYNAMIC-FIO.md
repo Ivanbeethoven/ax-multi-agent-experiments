@@ -86,3 +86,9 @@ python3 "$d/package/report.py" "$DIAG_ROOT"
 ## BrewFS 磁盘缓存范围读取
 
 在 A366 将无额外缓存校验的磁盘范围读合并为一次阻塞任务后，交替测试两轮。现用版本的顺序冷读为 590–660 MiB/s、热读为 1193–1407 MiB/s，候选为 487–500 和 961–1125 MiB/s。两轮顺序热读均无 S3 GET。随机冷读分别为 13.53–13.98 和 12.10–15.60 MiB/s；候选随机热读为 57.11–57.95 MiB/s，现用版本为 48.55–52.18 MiB/s。在交替对照中，候选减少了顺序热读时 BrewFS 线程的调度切换，但增加了累计 CPU 时间。保留现用版本和 512 MiB 默认读缓存。
+
+## 原版独立卷的小块写入
+
+A366 的原版独立卷功能检查覆盖四种 fio 操作，均通过上传完成、正常卸载和重新挂载内容检查。原始数据在 `/srv/ax-cluster/diagnostics/read-prefetch/flat/fio-20261116T112101-009018387/`，汇总为上级诊断目录中的 `flat-results.jsonl`。该检查使用单机独立对象服务，运行期间存在其他任务，正式四节点性能记录使用第一组的 17–20 项。
+
+这次 64 MiB 随机写发出 1,025 次 PUT，上传 68,025,184 字节；同参数的既有 Workspace 隔离测试发出 16,360 次 PUT。BrewFS `e958b81` 的 `BlockStoreConfig::default()` 默认 `write_coalesce_bytes=65536`。`ObjectBlockStore::supports_coalesced_objects()` 要求允许旧格式删除、未启用 create-only 写入且未限定版本化对象；`WorkspaceMetaLayer` 也未声明支持写入合并。因此两种卷的小写入提交方式不同。分析写入性能时同时比较 PUT 数量、上传字节、同步次数和元数据操作，保持文件同步要求相同。

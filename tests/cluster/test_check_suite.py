@@ -30,14 +30,14 @@ class CheckSuiteTests(unittest.TestCase):
         cls.suite_config = json.loads(SUITE_CONFIG_PATH.read_text(encoding="utf-8"))
         cls.plan_ids = {job["id"] for job in cls.suite_module.build(cls.suite_config)["jobs"]}
 
-    def test_selected_jobs_are_39_current_plan_conditions(self):
+    def test_selected_jobs_are_43_current_plan_conditions(self):
         selected = self.check_suite.selected_jobs()
-        self.assertEqual(len(selected), 39)
-        self.assertEqual(len(set(selected)), 39)
+        self.assertEqual(len(selected), 43)
+        self.assertEqual(len(set(selected)), 43)
         self.assertEqual(set(selected), self.plan_ids & set(selected))
         self.assertEqual(
             {group: len(self.check_suite.selected_jobs(group)) for group in self.check_suite.GROUPS},
-            {"01-io": 16, "02-fork": 9, "03-packed": 11, "04-agent-replay": 3},
+            {"01-io": 20, "02-fork": 9, "03-packed": 11, "04-agent-replay": 3},
         )
 
     def test_group_selection_contains_only_that_groups_current_jobs(self):

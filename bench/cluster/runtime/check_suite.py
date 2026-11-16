@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 GROUPS = {
-    '01-io': list(range(1, 17)),
+    '01-io': list(range(1, 21)),
     '02-fork': [1, 2, 3, 5, 6, 7, 10, 11, 12],
     '03-packed': list(range(1, 12)),
     '04-agent-replay': [1, 2, 3],
