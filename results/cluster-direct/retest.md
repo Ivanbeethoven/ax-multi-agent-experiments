@@ -38,3 +38,11 @@ git fetch <读取改动增量包的绝对路径> refs/heads/codex/retest-read-ca
 ```
 
 `c5f9491` 包含 [缓存命中先于整对象等待](https://github.com/brewfs/brewfs/pull/457)、读取缓冲区分配、稀疏区域处理和已有的 Native 预读。PR 457 修改前后各测 30 轮，同时阻塞一个 4 MiB GET 约 100 毫秒。命中已缓存的 4 KiB 页时，P99 从 101.985 毫秒降至 0.654 毫秒；两组各发出 30 次 GET。该补丁的默认配置测试通过 1,363 项，Workspace 测试通过 2,934 项。集成版本的集群 fio 结果另行记录。
+
+**冷读与写入等待合并版本。** 从包含 `d94f4ad` 和 `5750af24` 的官方仓库，一次取回 [完整候选源码增量包](../../bench/cluster/diagnostics/brewfs-replay-candidate.bundle)：
+
+```text
+git fetch <增量包的绝对路径> refs/heads/codex/retest-replay-candidate:refs/heads/codex/retest-replay
+```
+
+`efd4417` 包含上述冷读修改与 flush 超时修复，后台上传通知不会重新开始计算超时时间。写入补丁单独测试时，阻塞一个 5 字节 PUT 后，真实挂载上的 ftruncate 在 30.003 秒返回 ETIMEDOUT；释放上传后 fsync 成功，重新挂载读回了截断后的单字节。此修改限制了等待时间，PUT 速度仍需单独测量。TiKV 分页修改等待实际后端测试，暂未进入此版本。
