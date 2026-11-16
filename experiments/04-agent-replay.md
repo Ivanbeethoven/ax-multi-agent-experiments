@@ -14,3 +14,4 @@
 主比较 12 组配置，Dynamic 增加 1 组，各运行一次，共 **13 次批量运行**。复用现有批量挂载、trace 边界计划和回放脚本。
 
 单机也可以用 [多线程回放入口](../tools/full-fuse-replay/README.md#多条-trace-并发回放)，通过一份清单同时运行多条 trace。每条 trace 使用独立工作区。跨机器或需要逐 Agent 设置 cgroup 时使用原集群入口。
+四台 RustFS 节点上的 16、64 Agent 测试使用 `configs/replay-placement-rustfs.json`。其中 BrewFS 的 `truncate` 最多等待待提交数据 30 秒，实际等待时间计入回放耗时；计时、上传排空和冷重挂内容检查均保持开启。对照数据注明此设置。

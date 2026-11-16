@@ -223,6 +223,7 @@ def run_replay(job, out, small=False):
         total = len(cases) if agents == 1 else agents
         placements = None
         verify_hosts = None
+        truncate_seconds = None
         placement_file = cl.RUN_ROOT / 'replay-placement.json'
         if not small and placement_file.exists():
             profile = json.loads(placement_file.read_text())
@@ -230,6 +231,8 @@ def run_replay(job, out, small=False):
                 counts = profile['counts'][str(agents)]
                 hosts = profile['hosts']
                 verify_hosts = profile['verify_hosts']
+                if p['system'] == 'brewfs-native':
+                    truncate_seconds = profile.get('brewfs_truncate_flush_seconds')
                 if (len(set(hosts)) != len(hosts) or len(counts) != len(hosts)
                         or sum(counts) != agents or set(verify_hosts) != set(hosts)
                         or set(verify_hosts.values()) != set(hosts)):
@@ -265,6 +268,8 @@ def run_replay(job, out, small=False):
             condition = {'id': job['id'] + '-' + out.name + f'-b{index+1}', 'family': 'trace', 'kind': 'measurement',
                 'parameters': {'agents': agents, 'pacing': 'short', 'writes': 'remote-ready'}}
             cohort = {'seed': job['seed'], 'shared_tasks': batch}
+            if truncate_seconds is not None:
+                condition['parameters']['truncate_flush_seconds'] = truncate_seconds
             result = replay.execute_c2_cohort_arm(condition, SYSTEMS[p['system']], job['repeat'],
                                                   cohort, bases, directory)
             save(directory / 'result.json', result)

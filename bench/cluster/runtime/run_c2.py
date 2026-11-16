@@ -502,6 +502,8 @@ def execute_c2_cohort_arm(
     run_id_mark = f"C2/{cond_id}/{system}/r{rep}{arm_suffix}"
 
     overrides: dict = {}
+    if system == 'brewfs-native-overlay' and 'truncate_flush_seconds' in params:
+        overrides['truncate_flush_seconds'] = params['truncate_flush_seconds']
     if writes != "remote-ready":
         overrides["writes"] = writes
     if system == "brewfs-native-overlay" and row_cache_mib != 64:

@@ -27,6 +27,13 @@ class MountTests(unittest.TestCase):
         request.update(changes)
         return mounts.render(request, self.profiles, self.design)
 
+    def test_workspace_truncate_timeout_is_explicit(self):
+        key = "BREWFS_TRUNCATE_FLUSH_TIMEOUT_SECS"
+        self.assertNotIn(key, self.record()["environment"])
+        self.assertEqual(self.record(overrides={"truncate_flush_seconds": 30})["environment"][key], "30")
+        with self.assertRaises(ValueError):
+            self.record("juicefs", overrides={"truncate_flush_seconds": 30})
+
     def test_all_systems_and_phases_fit_the_same_total_limits(self):
         for engine in (
             "brewfs-native-overlay", "brewfs-packed", "brewfs-flat", "juicefs", "juicefs-overlay"

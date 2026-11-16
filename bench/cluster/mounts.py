@@ -62,7 +62,7 @@ def render(request, profiles, design):
         record["cache_root"] = str(reused)
         record["sharing"] = "same-process" if request["cache_state"] == "same-process" else "sequential-owner"
     changes = request.get("overrides", {})
-    allowed = {"prefetch", "packed_cache", "retained_payload_mib", "metadata_cache_mib", "row_cache_mib", "fork_cache_mib", "writes"}
+    allowed = {"prefetch", "packed_cache", "retained_payload_mib", "metadata_cache_mib", "row_cache_mib", "fork_cache_mib", "writes", "truncate_flush_seconds"}
     if changes.keys() - allowed:
         raise ValueError("Unknown mount override")
     if request.get("cache_sharing", "private") != "private":
@@ -76,6 +76,10 @@ def render(request, profiles, design):
     if changes.get("retained_payload_mib", 8) > 64:
         raise ValueError("Retained payload exceeds the supported 64 MiB")
     engine = request["engine"]
+    if "truncate_flush_seconds" in changes:
+        seconds = changes["truncate_flush_seconds"]
+        if engine != "brewfs-native-overlay" or type(seconds) is not int or not 1 <= seconds <= 300:
+            raise ValueError("Workspace truncate flush timeout must be 1 through 300 seconds")
     if engine in {"brewfs-native-overlay", "brewfs-packed", "brewfs-flat"}:
         record["volume_format"] = "flat" if engine == "brewfs-flat" else "workspace"
         record["cache"] = copy.deepcopy(profiles["brewfs_cache"])
@@ -87,6 +91,8 @@ def render(request, profiles, design):
             record["cache"]["read_ssd_bytes"] = (record["disk_bytes"] - record["cache"]["write_ssd_bytes"])
         record["environment"] = copy.deepcopy(profiles["brewfs_environment"])
         environment = record["environment"]
+        if "truncate_flush_seconds" in changes:
+            environment["BREWFS_TRUNCATE_FLUSH_TIMEOUT_SECS"] = str(changes["truncate_flush_seconds"])
         packed = engine == "brewfs-packed"
         environment["BREWFS_PACKED_CACHE"] = changes.get("packed_cache", "on") if packed else "off"
         for option, name in (("retained_payload_mib", "BREWFS_PACKED_RETAINED_PAYLOAD_BYTES"),
