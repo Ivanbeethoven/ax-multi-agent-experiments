@@ -6,6 +6,8 @@
 
 在相同的主机分配和随机等待计划下，开启 Dynamic（修改版 RustFS，9000）用时 4,914.838 秒，关闭 Dynamic（原版 RustFS，19000）用时 3,549.335 秒，两组各有 64/64 个 Agent 通过跨机冷重挂验证。关闭后整组耗时缩短 27.8%；逐任务比较，44 个更快，20 个更慢，配对差值的中位数为 −456.992 秒。两轮均执行 92,940,160 次操作，实际读取 17,901,710,240 字节、写入 5,227,516,608 字节。两组使用不同的 RustFS 实现，这次比较反映两套正式配置的差异。
 
+[64 个 Agent 的挂载指标](run-002-dynamic-mount-times.json)来自四台服务器的 128 份挂载结束记录，由 [replay_mount_times.py](../../bench/cluster/runtime/replay_mount_times.py) 提取。关闭 Dynamic 后，40 个 Agent 的 FUSE flush 累计耗时减少，配对差值的中位数为 −415.79 秒；47 个 Agent 的 S3 PUT 累计耗时减少。两轮实际上传均为 5.228 GB，相差 12,968 字节。按请求汇总，开启时的平均 PUT 耗时为 421 毫秒，关闭时为 173 毫秒。最慢的 sklearn 任务 a007 在两轮均位于 A672，其 flush 从 1,748.22 秒降至 520.39 秒。各 Agent 和并发 PUT 的累计时间不可相加作为整组回放耗时。
+
 [修复版本与复测安排](retest.md)记录候选改动、合并条件和下一轮的对照方法。
 
 按第一个未使用的 `run-NNN/` 保存 C1～C4，服务器对应 `/srv/ax-cluster/runs/direct/run-NNN/`。范围见 [experiment-suite.json](../../configs/experiment-suite.json)，执行方法见 [交接文档](../../docs/RUNNING.md)。
