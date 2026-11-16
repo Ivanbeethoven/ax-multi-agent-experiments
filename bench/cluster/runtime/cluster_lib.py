@@ -277,7 +277,7 @@ def sync_file_to_host(host_name_or_ssh: str, local_path: Path, remote_path: str)
     )
 
 
-def collector_rpc(host_name: str, msg: dict, timeout: float = 15.0) -> dict:
+def collector_rpc(host_name: str, msg: dict, timeout: float = 30.0) -> dict:
     raw_line = (json.dumps(msg, separators=(",", ":")) + "\n").encode("utf-8")
     if host_name == "A366":
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
@@ -289,7 +289,7 @@ def collector_rpc(host_name: str, msg: dict, timeout: float = 15.0) -> dict:
     else:
         py_one = (
             "import socket,sys; s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); "
-            "s.settimeout(15.0); s.connect('/srv/ax-cluster/direct/runtime/collector.sock'); "
+            f"s.settimeout({float(timeout)!r}); s.connect('/srv/ax-cluster/direct/runtime/collector.sock'); "
             "s.sendall(sys.stdin.buffer.read()); sys.stdout.buffer.write(s.makefile('rb').readline())"
         )
         p = run_on_host(host_name, ["python3", "-c", py_one], input_bytes=raw_line, timeout=timeout + 5.0, log_cmd=False)

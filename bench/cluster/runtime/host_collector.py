@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Hash-free per-host telemetry collector daemon for run-001.
+"""Collect per-host telemetry outside Agent cgroups.
 
 Runs outside Agent cgroups. Samples every 5s (when not paused) and synchronously on
 phase markers (`mark`), writing segmented `.jsonl.zst` and `.txt.zst` archives under:
-  /srv/ax-cluster/runs/direct/run-001/hosts/<HOST>/
+  /srv/ax-cluster/runs/direct/<RUN>/hosts/<HOST>/
 """
 
 from runtime_context import REDIS_PORT
@@ -370,17 +370,20 @@ def collect_rustfs_node() -> tuple[dict, str]:
 
 
 class SegmentCompressor:
-    def __init__(self, out_dir: Path):
+    def __init__(self, out_dir: Path, max_buffer_bytes: int = 16 * 1024 * 1024):
         self.out_dir = out_dir
         self.sample_buf: list[str] = []
         self.prom_buf: list[str] = []
         self.seg_idx = len(list(out_dir.glob("samples-seg-*.jsonl.zst")))
+        self.max_buffer_bytes = max_buffer_bytes
+        self.buffer_bytes = 0
 
     def append(self, sample_json_line: str, prom_chunk: str):
         self.sample_buf.append(sample_json_line)
         if prom_chunk:
             self.prom_buf.append(prom_chunk)
-        if len(self.sample_buf) >= 60:
+        self.buffer_bytes += len(sample_json_line.encode("utf-8")) + len(prom_chunk.encode("utf-8"))
+        if len(self.sample_buf) >= 60 or self.buffer_bytes >= self.max_buffer_bytes:
             self.flush()
 
     def flush(self):
@@ -392,11 +395,21 @@ class SegmentCompressor:
             self.sample_buf.clear()
             dst = self.out_dir / f"samples-seg-{self.seg_idx:05d}.jsonl.zst"
             subprocess.run(["zstd", "--no-check", "-1", "-q", "-f", "-o", str(dst)], input=raw_s, check=True)
+            del raw_s
         if self.prom_buf:
             raw_p = "".join(self.prom_buf).encode("utf-8")
             self.prom_buf.clear()
             dst_p = self.out_dir / f"prom-seg-{self.seg_idx:05d}.txt.zst"
             subprocess.run(["zstd", "--no-check", "-1", "-q", "-f", "-o", str(dst_p)], input=raw_p, check=True)
+        self.buffer_bytes = 0
+
+
+def send_reply(conn, reply):
+    try:
+        conn.sendall((json.dumps(reply, separators=(",", ":")) + "\n").encode("utf-8"))
+    except (BrokenPipeError, ConnectionResetError):
+        return False
+    return True
 
 
 def load_redis_pw() -> str:
@@ -590,13 +603,13 @@ def main():
                     (args.out_dir / "collector-stopped.json").write_text(
                         json.dumps({"host": args.host, "samples": sample_index, "segments": compressor.seg_idx}, indent=2) + "\n"
                     )
-                    conn.sendall((json.dumps({"ok": True, "samples": sample_index}) + "\n").encode())
+                    send_reply(conn, {"ok": True, "samples": sample_index})
                     break
                 else:
                     reply = {"ok": False, "error": f"unknown action {act}"}
             except Exception as exc:
                 reply = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
-            conn.sendall((json.dumps(reply, separators=(",", ":")) + "\n").encode("utf-8"))
+            send_reply(conn, reply)
 
 
 if __name__ == "__main__":

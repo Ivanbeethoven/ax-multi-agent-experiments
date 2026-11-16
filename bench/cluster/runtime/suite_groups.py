@@ -131,53 +131,55 @@ def run_packed(job, out, small=False, prepared_path=None):
     layout.evict_bucket_page_cache(nodes, [volume['bucket']])
     placements = support.placements(count)
     mounted = []
-    native_children = []
-    if volume['engine'] == 'brewfs-native-overlay':
-        native_children = volumes.admin(volume, ['fork-shared-bucket', '--revision', volume['revision'],
-                            '--count', str(count)], out / 'fork-readers')['workspaces']
-    for index, (host, slot) in enumerate(placements):
-        item = volume
-        if volume['engine'] == 'brewfs-packed':
-            attempt = out.name.replace('-', '_')
-            namespace = f'{volume["namespace"]}_reader_{job["configuration"]}_{index}_{attempt}'
-            item = volumes.init_packed_reader(volume, namespace, out / f'init-{index}')
-        elif volume['engine'] == 'brewfs-native-overlay':
-            item = dict(volume)
-            item['base'] = native_children[index]
-        mounted.extend(volumes.mount(item, item['base'], f'{job["id"]}-{out.name}-reader-{index}', out, host, slot,
-                       {'packed_cache': p.get('packed_cache', 'on')} if volume['engine'] == 'brewfs-packed' else {}))
-    per_host = defaultdict(list)
-    for m in mounted:
-        per_host[m['host_name']].append(m)
-    cl.collector_set_mounts(per_host)
-    tasks = defaultdict(list)
-    epoch = time.time_ns() + 5_000_000_000
-    for index, m in enumerate(mounted):
-        output = str(cl.RUN_ROOT / 'hosts' / m['host_name'] / (output_tag + '-' + m['id'] + '.json'))
-        tasks[m['host_name']].append({'reader_id': m['id'], 'host': m['host_name'], 'slot': m['slot'],
-            'engine': m['engine'], 'cgroup': m['cgroup'], 'metrics_port': m['metrics_port'],
-            'out_path': output, 'wait_upload': False, 'loader_argv': [str(cl.BIN_DIR / 'c3-loader'),
-                'load', '--root', m['mount_directory'], '--output', output, '--files', str(files),
-                '--epochs', str(p['epochs']), '--threads', '2', '--batch', '64',
-                '--seed', str(job['seed'] + index * 1009), '--verify-bytes', '1', '--start-unix-ns', str(epoch)]})
-    before = cl.collector_mark_all(job['id'], 'read-start')
-    save(out / 'read-start.json', before)
-    start = time.monotonic()
     try:
+        native_children = []
+        if volume['engine'] == 'brewfs-native-overlay':
+            native_children = volumes.admin(volume, ['fork-shared-bucket', '--revision', volume['revision'],
+                                '--count', str(count)], out / 'fork-readers')['workspaces']
+        for index, (host, slot) in enumerate(placements):
+            item = volume
+            if volume['engine'] == 'brewfs-packed':
+                attempt = out.name.replace('-', '_')
+                namespace = f'{volume["namespace"]}_reader_{job["configuration"]}_{index}_{attempt}'
+                item = volumes.init_packed_reader(volume, namespace, out / f'init-{index}')
+            elif volume['engine'] == 'brewfs-native-overlay':
+                item = dict(volume)
+                item['base'] = native_children[index]
+            mounted.extend(volumes.mount(item, item['base'], f'{job["id"]}-{out.name}-reader-{index}', out, host, slot,
+                           {'packed_cache': p.get('packed_cache', 'on')} if volume['engine'] == 'brewfs-packed' else {}))
+        per_host = defaultdict(list)
+        for m in mounted:
+            per_host[m['host_name']].append(m)
+        cl.collector_set_mounts(per_host)
+        tasks = defaultdict(list)
+        epoch = time.time_ns() + 5_000_000_000
+        for index, m in enumerate(mounted):
+            output = str(cl.RUN_ROOT / 'hosts' / m['host_name'] / (output_tag + '-' + m['id'] + '.json'))
+            tasks[m['host_name']].append({'reader_id': m['id'], 'host': m['host_name'], 'slot': m['slot'],
+                'engine': m['engine'], 'cgroup': m['cgroup'], 'metrics_port': m['metrics_port'],
+                'out_path': output, 'wait_upload': False, 'loader_argv': [str(cl.BIN_DIR / 'c3-loader'),
+                    'load', '--root', m['mount_directory'], '--output', output, '--files', str(files),
+                    '--epochs', str(p['epochs']), '--threads', '2', '--batch', '64',
+                    '--seed', str(job['seed'] + index * 1009), '--verify-bytes', '1', '--start-unix-ns', str(epoch)]})
+        before = cl.collector_mark_all(job['id'], 'read-start')
+        save(out / 'read-start.json', before)
+        start = time.monotonic()
         try:
             results = readers.batch_c3_loader(tasks, job['id'])
             seconds = time.monotonic() - start
         finally:
             after = cl.collector_mark_all(job['id'], 'read-end')
             save(out / 'read-end.json', after)
+        save(out / 'read-start.json', before)
+        save(out / 'read-end.json', after)
+        save(out / 'readers.json', results)
+        result = {'seconds': seconds, 'readers': results,
+                'backend_delta': cl.summarize_phase_delta(before, after), 'volume': volume}
     finally:
         stops = replay.batch_stop_mounts(mounted, job['id'], remove_cache=True)
         save(out / 'reader-stops.json', stops)
-    save(out / 'read-start.json', before)
-    save(out / 'read-end.json', after)
-    save(out / 'readers.json', results)
-    return {'seconds': seconds, 'readers': results, 'stops': stops,
-            'backend_delta': cl.summarize_phase_delta(before, after), 'volume': volume}
+    result['stops'] = stops
+    return result
 
 
 def schedule(task, agents, seed, out):

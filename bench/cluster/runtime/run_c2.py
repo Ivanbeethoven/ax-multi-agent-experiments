@@ -207,42 +207,45 @@ def batch_start_mounts(mounts_path: Path, specs_by_id: dict[str, dict], run_tag:
 
 
 def batch_stop_mounts(started_mounts: list[dict], run_tag: str, clear_collector: bool = True, remove_cache: bool = True) -> list[dict]:
-    if clear_collector:
-        cl.collector_set_mounts({})
-    by_host: dict[str, list[dict]] = defaultdict(list)
-    for m in started_mounts:
-        by_host[m["host_name"]].append(m)
-    hosts = sorted(by_host.keys())
-
-    def _stop_host(hname: str) -> list[dict]:
-        remote_info = f"{cl.RUN_ROOT}/hosts/{hname}/batch/{run_tag}-stop-in.json"
-        remote_stops = f"{cl.RUN_ROOT}/hosts/{hname}/audits/{run_tag}"
-        local_tmp = cl.RUN_ROOT / "mounts" / "tmp" / f"{run_tag}-{hname}-stop.json"
-        local_tmp.parent.mkdir(parents=True, exist_ok=True)
-        local_tmp.write_text(json.dumps(by_host[hname], indent=2) + "\n", encoding="utf-8")
-        cl.sync_file_to_host(hname, local_tmp, remote_info)
-        local_tmp.unlink(missing_ok=True)
-
-        cmd = [
-            "/usr/bin/python3",
-            "/srv/ax-cluster/direct/scripts/host_batch_runner.py",
-            "stop-batch",
-            "--mounts-info",
-            remote_info,
-            "--stop-dir",
-            remote_stops,
-        ]
-        if remove_cache:
-            cmd.append("--remove-cache")
-        p = cl.run_on_host(hname, cmd, timeout=600.0, check=False)
-        cl.run_on_host(hname, ["rm", "-f", remote_info], check=False, log_cmd=False)
-        if p.returncode == 0 and p.stdout:
-            return json.loads(p.stdout.decode("utf-8").strip().splitlines()[-1])["stopped"]
-        return []
-
-    with ThreadPoolExecutor(max_workers=max(1, len(hosts))) as pool:
-        per_host = list(pool.map(_stop_host, hosts))
-    return [r for sub in per_host for r in sub]
+    try:
+        if clear_collector:
+            cl.collector_set_mounts({})
+    finally:
+        by_host: dict[str, list[dict]] = defaultdict(list)
+        for m in started_mounts:
+            by_host[m["host_name"]].append(m)
+        hosts = sorted(by_host.keys())
+    
+        def _stop_host(hname: str) -> list[dict]:
+            remote_info = f"{cl.RUN_ROOT}/hosts/{hname}/batch/{run_tag}-stop-in.json"
+            remote_stops = f"{cl.RUN_ROOT}/hosts/{hname}/audits/{run_tag}"
+            local_tmp = cl.RUN_ROOT / "mounts" / "tmp" / f"{run_tag}-{hname}-stop.json"
+            local_tmp.parent.mkdir(parents=True, exist_ok=True)
+            local_tmp.write_text(json.dumps(by_host[hname], indent=2) + "\n", encoding="utf-8")
+            cl.sync_file_to_host(hname, local_tmp, remote_info)
+            local_tmp.unlink(missing_ok=True)
+    
+            cmd = [
+                "/usr/bin/python3",
+                "/srv/ax-cluster/direct/scripts/host_batch_runner.py",
+                "stop-batch",
+                "--mounts-info",
+                remote_info,
+                "--stop-dir",
+                remote_stops,
+            ]
+            if remove_cache:
+                cmd.append("--remove-cache")
+            p = cl.run_on_host(hname, cmd, timeout=600.0, check=False)
+            cl.run_on_host(hname, ["rm", "-f", remote_info], check=False, log_cmd=False)
+            if p.returncode == 0 and p.stdout:
+                return json.loads(p.stdout.decode("utf-8").strip().splitlines()[-1])["stopped"]
+            return []
+    
+        with ThreadPoolExecutor(max_workers=max(1, len(hosts))) as pool:
+            per_host = list(pool.map(_stop_host, hosts))
+        results = [r for sub in per_host for r in sub]
+    return results
 
 
 def batch_replay_cohort(tasks_by_host: dict[str, list[dict]], run_tag: str) -> list[dict]:

@@ -568,6 +568,14 @@ class SuiteRuntimeTests(unittest.TestCase):
             self.assertEqual(events, ['read-start', 'load', 'read-end', 'stop'])
             self.assertEqual(json.loads((out / 'read-end.json').read_text()), {'stage': 'read-end'})
             self.assertEqual(json.loads((out / 'reader-stops.json').read_text()), [{'stopped': True}])
+            events.clear()
+            def fail_set_mounts(*args):
+                events.append('set-mounts')
+                raise RuntimeError('collector timeout')
+            cl.collector_set_mounts = fail_set_mounts
+            with self.assertRaisesRegex(RuntimeError, 'collector timeout'):
+                groups.run_packed(job, root / 'job/attempt-02')
+            self.assertEqual(events, ['set-mounts', 'stop'])
 
     def test_packed_reuses_uploaded_volume_and_verifies_before_registering(self):
         with tempfile.TemporaryDirectory() as temporary:
