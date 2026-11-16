@@ -2,6 +2,10 @@
 
 [run-002 阶段结果](progress.md)逐项列出已通过的正式实验、性能指标和原始目录。表格由 `bench/cluster/runtime/report_progress.py` 读取协调机上的状态与结果生成。
 
+[64 个 Agent 的逐任务耗时](run-002-dynamic-agent-times.csv)按同一任务配对，列出回放、文件系统操作、模拟等待、上传排空和跨机验证时间，单位为秒。最后一列为关闭减去开启 Dynamic 的回放耗时，负值表示关闭后更快。
+
+在相同的主机分配和随机等待计划下，开启 Dynamic（修改版 RustFS，9000）用时 4,914.838 秒，关闭 Dynamic（原版 RustFS，19000）用时 3,549.335 秒，两组各有 64/64 个 Agent 通过跨机冷重挂验证。关闭后整组耗时缩短 27.8%；逐任务比较，44 个更快，20 个更慢，配对差值的中位数为 −456.992 秒。两轮均执行 92,940,160 次操作，实际读取 17,901,710,240 字节、写入 5,227,516,608 字节。两组使用不同的 RustFS 实现，这次比较反映两套正式配置的差异。
+
 [修复版本与复测安排](retest.md)记录候选改动、合并条件和下一轮的对照方法。
 
 按第一个未使用的 `run-NNN/` 保存 C1～C4，服务器对应 `/srv/ax-cluster/runs/direct/run-NNN/`。范围见 [campaign-direct.json](../../configs/campaign-direct.json)，执行方法见 [交接文档](../../docs/RUNNING.md)。
