@@ -21,7 +21,7 @@ def load_runtime():
                  ("cluster_lib", "suite_volumes", "c4_support", "run_c3"))
 
 
-def run_candidate(name, runtime=None):
+def run_candidate(name, runtime=None, rust_log=None):
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,31}", name):
         raise ValueError("Use a new name with 1–32 letters, digits, underscores or hyphens")
     cl, volumes, support, readers = runtime or load_runtime()
@@ -53,12 +53,25 @@ def run_candidate(name, runtime=None):
         binary=str(binary), prepared=str(prepared), files=100000, epochs=2,
         threads_per_reader=8, reader_count=4, output=str(out),
         started_at=datetime.now(timezone.utc).isoformat())
+    if rust_log:
+        state['rust_log'] = rust_log
     suite_status = cl.RUN_ROOT / 'status.json'
     if suite_status.exists():
         state['suite_job_at_start'] = json.loads(suite_status.read_text()).get('current')
     support.save(out / 'run.json', state)
     mounted, tasks = [], defaultdict(list)
+    original_generate = cl.generate_mounts_json
+
+    def generate_with_logging(requests, path):
+        result = original_generate(requests, path)
+        for record in result['mounts']:
+            record.setdefault('environment', {})['RUST_LOG'] = rust_log
+        support.save(path, result)
+        return result
+
     try:
+        if rust_log:
+            cl.generate_mounts_json = generate_with_logging
         for index, (host, slot) in enumerate(PLACEMENTS):
             identifier = requests[index]['id']
             item = volumes.init_packed_reader(volume,
@@ -112,6 +125,19 @@ def run_candidate(name, runtime=None):
             state.update(status='failed', stop_error=str(error))
             raise
         finally:
+            cl.generate_mounts_json = original_generate
+            for mount in mounted:
+                remote = str(cl.RUN_ROOT / 'hosts' / mount['host_name'] /
+                             'mount-logs' / (mount['id'] + '.log'))
+                try:
+                    response = cl.run_on_host(mount['host_name'], ['cat', remote],
+                                              check=False, log_cmd=False)
+                    if response.returncode == 0:
+                        (out / (mount['id'] + '-mount.log')).write_bytes(response.stdout)
+                    else:
+                        artifact_errors.append(remote)
+                except Exception as error:
+                    artifact_errors.append(dict(path=remote, error=str(error)))
             state['finished_at'] = datetime.now(timezone.utc).isoformat()
             if suite_status.exists():
                 state['suite_job_at_finish'] = json.loads(suite_status.read_text()).get('current')
@@ -122,7 +148,10 @@ def run_candidate(name, runtime=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--name', required=True)
-    print(json.dumps(run_candidate(parser.parse_args().name), indent=2))
+    parser.add_argument('--rust-log', help='RUST_LOG filter for candidate mounts')
+    args = parser.parse_args()
+    state = run_candidate(args.name, rust_log=args.rust_log)
+    print(json.dumps({key: state[key] for key in ('status', 'output', 'finished_at')}, indent=2))
 
 
 if __name__ == '__main__':
