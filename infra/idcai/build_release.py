@@ -22,12 +22,15 @@ def main():
     parser.add_argument("--commit", required=True)
     parser.add_argument("--lock", type=Path, action="append", required=True)
     parser.add_argument("--jobs", type=int, default=8)
+    parser.add_argument("--target-dir", type=Path,
+                        help="Persistent Cargo directory dedicated to this candidate")
     args = parser.parse_args()
     if len(args.commit) != 40 or any(c not in "0123456789abcdef" for c in args.commit):
         parser.error("A full source revision is required")
     if not 1 <= args.jobs <= 16:
         parser.error("jobs must be between 1 and 16")
     root = args.root.resolve()
+    target = (args.target_dir or root / "target").resolve()
     source = root / "sources" / ("brewfs-" + args.commit[:8])
     output = root / "releases" / args.commit[:8]
     if source.exists() or output.exists():
@@ -43,12 +46,13 @@ def main():
     report = {"source_commit": args.commit, "repository": "https://github.com/brewfs/brewfs",
               "host": socket.gethostname(), "source": str(source), "passed": False,
               "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              "commands": [], "jobs": args.jobs}
+              "commands": [], "jobs": args.jobs, "target_directory": str(target),
+              "incremental": True, "brewfs_debug_info": False}
     env = os.environ.copy()
     env.update({"PATH": str(args.toolchain) + os.pathsep + env.get("PATH", ""),
                 "RUSTC": str(args.toolchain / "rustc"), "CARGO_HOME": str(args.cargo_home),
-                "CARGO_TARGET_DIR": str(root / "target"), "CARGO_BUILD_JOBS": str(args.jobs),
-                "CARGO_INCREMENTAL": "0", "RUSTFLAGS": "-C target-cpu=x86-64",
+                "CARGO_TARGET_DIR": str(target), "CARGO_BUILD_JOBS": str(args.jobs),
+                "CARGO_INCREMENTAL": "1", "RUSTFLAGS": "-C target-cpu=x86-64",
                 "GIT_TERMINAL_PROMPT": "0"})
 
     def run(label, command, cwd=None, timeout=3600):
@@ -68,10 +72,11 @@ def main():
         run("cargo", [str(args.toolchain / "cargo"), "-V"], timeout=30)
         features = "workspace,observability,rustfs-ec-block-size-hint"
         run("build", [str(args.toolchain / "cargo"), "build", "--locked", "--offline", "--release",
+                      "--config", "profile.release.package.brewfs.debug=0",
                       "--jobs", str(args.jobs), "--features", features,
                       "--bin", "brewfs", "--bin", "packed_snapshot_fixture"], cwd=source)
         for name in ("brewfs", "packed_snapshot_fixture"):
-            original = root / "target" / "release" / name
+            original = target / "release" / name
             run("strip-" + name, ["objcopy", "--strip-debug", str(original), str(output / name)], timeout=60)
             (output / name).chmod(0o755)
             run("help-" + name, [str(output / name), "--help"], timeout=30)

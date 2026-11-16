@@ -1,6 +1,7 @@
 """Check a Packed candidate with four mounts while preserving the suite state."""
 import argparse
 from collections import defaultdict
+from datetime import datetime, timezone
 import importlib
 import json
 import os
@@ -50,7 +51,11 @@ def run_candidate(name, runtime=None):
         cl.run_on_host(host, ['test', '-x', str(binary)], log_cmd=False)
     state = dict(purpose=PURPOSE, performance_comparison=False, status='running',
         binary=str(binary), prepared=str(prepared), files=100000, epochs=2,
-        threads_per_reader=8, reader_count=4, output=str(out))
+        threads_per_reader=8, reader_count=4, output=str(out),
+        started_at=datetime.now(timezone.utc).isoformat())
+    suite_status = cl.RUN_ROOT / 'status.json'
+    if suite_status.exists():
+        state['suite_job_at_start'] = json.loads(suite_status.read_text()).get('current')
     support.save(out / 'run.json', state)
     mounted, tasks = [], defaultdict(list)
     try:
@@ -107,6 +112,9 @@ def run_candidate(name, runtime=None):
             state.update(status='failed', stop_error=str(error))
             raise
         finally:
+            state['finished_at'] = datetime.now(timezone.utc).isoformat()
+            if suite_status.exists():
+                state['suite_job_at_finish'] = json.loads(suite_status.read_text()).get('current')
             support.save(out / 'run.json', state)
     return state
 

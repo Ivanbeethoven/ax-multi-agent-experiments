@@ -37,9 +37,11 @@ Get-Content -Raw infra/idcai/prepare_host.py | ssh.exe -T idcai-60103 python3 - 
 | JuiceFS Overlay | `https://github.com/Ivanbeethoven/juicefs` 的 `codex/lazy-workspace-fork-20261113` | 六台同一产物，独立 `forkredis` 卷 |
 | 回放器 | 本仓库 `tools/full-fuse-replay` | A366 编译 release，六台分发 |
 
-当前使用 BrewFS main 的 `5750af24eba7ddc4bbea53f2abfbc7a6951d3331`，A366 构建产物与记录位于 `/srv/ax-cluster/releases/5750af24/`。六台机器使用同一份 BrewFS、Packed 准备工具和工作区管理工具。同一轮的对照使用同一产物，源码提交与构建记录随结果保存。
+当前 BrewFS 源码版本见 `configs/mount-profiles.json` 的 `brewfs_commit`，正式程序位于 A366 的 `/srv/ax-cluster/direct/bin/`。六台机器使用同一份 BrewFS、Packed 准备工具和工作区管理工具。同一轮的对照使用同一产物，源码提交与构建记录随结果保存。
 
-构建脚本为 `infra/idcai/build_release.py`，运行 `--help` 查看参数。现有工具链 `/srv/ax-idcai-20261113/toolchain-1.99.0/bin`，Cargo 缓存 `/srv/ax-idcai-20261113/cargo-build`；复用 `build.lock` 与 `measurement.lock`。每次最多 8 个构建 job、64 GiB 内存；性能测量期间停止编译。不能访问 GitHub 时，在本机取源码后通过已有 SSH 入口传入。产物登记源码提交、构建参数、工具链、字节长度及 CLI 版本。
+构建脚本为 `infra/idcai/build_release.py`，运行 `--help` 查看参数。现有工具链 `/srv/ax-idcai-20261113/toolchain-1.99.0/bin`，Cargo 缓存 `/srv/ax-idcai-20261113/cargo-build`。脚本启用增量编译，保留 release 优化并关闭 BrewFS 调试信息。通过 `--target-dir` 为各候选指定独立、持久的构建目录；同一候选后续修改继续使用该目录。产物登记源码提交、构建参数、工具链、字节长度及 CLI 版本。不能访问 GitHub 时，在本机取源码后通过已有 SSH 入口传入。
+
+构建服务显式限制 CPU 和内存。当前诊断构建使用 2～4 个 Cargo job、最多 8 个 CPU 和 96 GiB 内存。功能测试可单独设置 `profile.release.package.brewfs.opt-level=0`，性能测量使用 release 优化产物。独占性能测量期间暂停编译；与实验同时执行的诊断构建记录运行时间，便于区分共享主机的结果。
 
 ## Redis 与四节点 RustFS
 
@@ -76,7 +78,7 @@ TiKV/PD 使用 v7.5.0，在 A355 部署；二进制为 `/srv/ax-cluster/direct/b
 
 PD 使用 8 个 CPU 配额、4 GiB 内存，设置 `GOMAXPROCS=8`；TiKV 使用 8 个 CPU 配额、24 GiB 内存。已有环境可在测量停止后执行 `python3 /srv/ax-cluster/direct/scripts/configure_pd_runtime.py`，应用 PD 设置并检查服务健康状态。配置记录保存到当前运行的 `versions/pd-runtime.json`。
 
-`setup_suite.py` 保存这些服务的配置并创建 systemd 单元。BrewFS 管理工具必须使用与挂载二进制相同的源码提交构建：`infra/idcai/build_workspace_admin.py --source /srv/ax-cluster/sources/brewfs-5750af24 --template <仓库>/tools/workspace-admin --out <产物目录>`。复用该脚本的 Rust 工具链和编译缓存；`tools/full-fuse-replay` 与 `tools/fs-probe` 分别构建回放器和数据加载器。
+`setup_suite.py` 保存这些服务的配置并创建 systemd 单元。BrewFS 管理工具使用与挂载二进制相同的源码提交构建：`infra/idcai/build_workspace_admin.py --source <BrewFS源码目录> --template <仓库>/tools/workspace-admin --out <产物目录> --target-dir <管理工具构建缓存目录>`。脚本启用增量编译；`tools/full-fuse-replay` 与 `tools/fs-probe` 分别构建回放器和数据加载器。
 
 每次保存实际软件版本、命令和配置。原始数据完整取回后，按运行编号清理临时挂载、缓存和对象。
 
