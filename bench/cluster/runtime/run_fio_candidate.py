@@ -14,10 +14,12 @@ def main():
     parser.add_argument('--binary', type=Path, required=True)
     parser.add_argument('--job', action='append', required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--plan', type=Path, help='Approved plan for this comparison')
+    parser.add_argument('--source-record', type=Path, help='Source and build record for the candidate binary')
     parser.add_argument('--periodic', choices=['on', 'off'], default='on')
     parser.add_argument('--prefetch-mib', type=int, choices=[4, 16, 32, 64])
     parser.add_argument('--prefetch-workers', type=int, choices=[4, 8, 16])
-    parser.add_argument('--read-fetch-policy', choices=['auto', 'whole-object', 'sparse'])
+    parser.add_argument('--read-fetch-policy', choices=['auto', 'whole-object', 'sparse', 'workload'])
     parser.add_argument('--read-memory-mib', type=int, choices=[512, 4096])
     parser.add_argument('--input-write-memory-mib', type=int, choices=[256, 512, 1024])
     args = parser.parse_args()
@@ -26,6 +28,7 @@ def main():
     args.out.mkdir(parents=True, exist_ok=False)
     (args.out / 'runner.py').write_bytes(Path(__file__).read_bytes())
     original = cl.generate_mounts_json
+    read_fetch_policy = args.read_fetch_policy
 
     def generate(requests, path):
         result = original(requests, path)
@@ -39,8 +42,8 @@ def main():
                     record['capacity_reservation_bytes'] += write_bytes - record['cache']['write_memory_bytes']
                     record['cache']['write_memory_bytes'] = write_bytes
                     record['cache']['memory_budget_bytes'] = write_bytes
-                if args.read_fetch_policy is not None:
-                    record['cache']['read_fetch_policy'] = args.read_fetch_policy
+                if read_fetch_policy is not None:
+                    record['cache']['read_fetch_policy'] = read_fetch_policy
                 if args.read_memory_mib is not None:
                     record['capacity_reservation_bytes'] += args.read_memory_mib * 1024**2 - record['cache']['read_memory_bytes']
                     record['cache']['read_memory_bytes'] = args.read_memory_mib * 1024**2
@@ -62,15 +65,24 @@ def main():
         return result
 
     cl.generate_mounts_json = generate
-    plan = json.loads((cl.RUN_ROOT / 'plan.json').read_text())
+    plan_path = args.plan or cl.RUN_ROOT / 'plan.json'
+    source_path = args.source_record or cl.REPO_ROOT / 'source-record.json'
+    plan = json.loads(plan_path.read_text())
+    source_record = json.loads(source_path.read_text())
+    run_suite.save(args.out / 'plan.json', plan)
     jobs = {job['id']: job for job in plan['jobs'] if job['group'] == '01-io'}
     results = []
     for identifier in args.job:
         job = dict(jobs[identifier], id=identifier + '-workers-' + str(args.workers))
+        if args.read_fetch_policy == 'workload':
+            parameters = job['parameters']
+            read_fetch_policy = None
+            if parameters['operation'] == 'read':
+                read_fetch_policy = 'whole-object' if parameters['pattern'] == 'sequential' else 'sparse'
         output = args.out / identifier / 'attempt-01'
         output.mkdir(parents=True)
         run_suite.save(output / 'job.json', job)
-        run_suite.save(output / 'source-record.json', json.loads((cl.REPO_ROOT / 'source-record.json').read_text()))
+        run_suite.save(output / 'source-record.json', source_record)
         paused_hosts = []
         try:
             if args.periodic == 'off':
@@ -86,6 +98,7 @@ def main():
         result['runtime_candidate'] = {'workers': args.workers if job['parameters']['system'].startswith('brewfs') else None,
                                       'binary': str(args.binary) if job['parameters']['system'].startswith('brewfs') else None,
                                       'input_write_memory_mib': args.input_write_memory_mib if job['parameters']['system'].startswith('brewfs') else None,
+                                      'read_fetch_policy': read_fetch_policy if job['parameters']['system'].startswith('brewfs') else None,
                                       'periodic_sampling': args.periodic, 'output': str(output)}
         run_suite.save(output / 'result.json', result)
         results.append(result)

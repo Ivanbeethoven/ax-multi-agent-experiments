@@ -197,6 +197,45 @@ class FioCandidateMainTests(unittest.TestCase):
                 self.assertEqual(actual["options"], record["options"])
                 self.assertNotIn("cache", actual)
 
+    def test_explicit_plan_and_source_record_are_used_without_changing_current_plan(self):
+        current_plan = (self.run_root / "plan.json").read_text()
+        alternate = json.loads(current_plan)
+        alternate["jobs"][0]["parameters"]["candidate_plan"] = True
+        plan_path = self.root / "candidate-plan.json"
+        plan_path.write_text(json.dumps(alternate), encoding="utf-8")
+        source = {"binary": "/candidate/brewfs", "branch": "codex/read-buffer"}
+        source_path = self.root / "candidate-source.json"
+        source_path.write_text(json.dumps(source), encoding="utf-8")
+
+        self.run_main("--plan", str(plan_path), "--source-record", str(source_path))
+
+        self.assertTrue(self.run_io_jobs[0]["parameters"]["candidate_plan"])
+        output = self.root / "candidate-output"
+        self.assertEqual(json.loads((output / "plan.json").read_text()), alternate)
+        actual_source = output / "one-job/attempt-01/source-record.json"
+        self.assertEqual(json.loads(actual_source.read_text()), source)
+        self.assertEqual((self.run_root / "plan.json").read_text(), current_plan)
+
+    def test_workload_policy_selects_sequential_read_fetching(self):
+        path = self.run_root / "plan.json"
+        plan = json.loads(path.read_text())
+        plan["jobs"][0]["parameters"].update(pattern="sequential", operation="read")
+        path.write_text(json.dumps(plan), encoding="utf-8")
+        generated = self.run_main("--read-fetch-policy", "workload")
+        for record in generated["mounts"]:
+            if record["engine"].startswith("brewfs"):
+                self.assertEqual(record["cache"]["read_fetch_policy"], "whole-object")
+
+    def test_workload_policy_keeps_write_fetching_configuration(self):
+        path = self.run_root / "plan.json"
+        plan = json.loads(path.read_text())
+        plan["jobs"][0]["parameters"].update(pattern="sequential", operation="write")
+        path.write_text(json.dumps(plan), encoding="utf-8")
+        generated = self.run_main("--read-fetch-policy", "workload")
+        for record in generated["mounts"]:
+            if record["engine"].startswith("brewfs"):
+                self.assertEqual(record["cache"]["read_fetch_policy"], "sparse")
+
 
 if __name__ == "__main__":
     unittest.main()
