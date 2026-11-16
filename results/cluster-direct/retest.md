@@ -5,7 +5,7 @@ run-002 的 C4 已完成，两组 64 个 Agent 均通过跨机冷重挂验证。
 | 组件与任务 | 当前候选 | 进入正式复测前要确认的事 |
 |---|---|---|
 | AX：C4 回放目录 | `c5fd99b2`，已进入实验仓库 main | 各系统都用新建的 v2 输入，在普通子目录保存并回放 trace；读回验证也从该子目录开始。 |
-| BrewFS：C1 读 | 缓存命中时先读现有页，再决定是否等待后台整对象 GET | 核对实际集成的读取补丁；覆盖写后的新 slice 不能命中旧内容。固定读取策略，分别测顺序吞吐和随机 P99。 |
+| BrewFS：C1 读 | 缓存命中时先读现有页，再决定是否等待后台整对象 GET | 读取补丁的覆盖写、默认配置及 Workspace 测试均已通过。组合版本需固定读取策略，分别测顺序吞吐和随机 P99。 |
 | 修改版 RustFS：C1 写 | [单提交 Git bundle](../../bench/cluster/diagnostics/dynamic_fio/rustfs-fsync-workers.bundle)，基于 `f4ed202` 的 `b525408` | 隔离复测与覆盖写后冷重挂已通过。正式复测显式记录每盘同步线程数，保留相同的文件和目录同步要求。 |
 | BrewFS：C3 Native | TiKV 明确报告前缀结束时，省去空页查询 | 真实 TiKV 比较扫描次数与文件读取时间；缓存预算不变。验证字节限制下的短页、删除和并发修改。 |
 | BrewFS / RustFS：C2 父子读写 | 诊断完成，保留现有程序和配置 | 单机交替读取父子工作区未复现稳定的父目录劣势。覆盖写的两次提交更新了不同时间戳；复测保留原有 fsync 语义。 |
@@ -30,3 +30,11 @@ git fetch <增量包的绝对路径> refs/heads/codex/cluster-retest-20261117:re
 ```
 
 已在仅包含官方源码的独立仓库试过此命令。该包用于重建复测起点；表中的冷读、分页和写入等待改动另行测试。分页补丁需要经过真实挂载使用的 LocalMetadataBackend 测试。写入等待补丁需要同时通过重复通知的超时测试和上传前缀可见性测试。
+
+**冷读候选。** 在上述复测起点取回 [读取改动](../../bench/cluster/diagnostics/read_path/brewfs-read-candidate.bundle)：
+
+```text
+git fetch <读取改动增量包的绝对路径> refs/heads/codex/retest-read-candidate:refs/heads/codex/retest-read
+```
+
+`c5f9491` 包含 [缓存命中先于整对象等待](https://github.com/brewfs/brewfs/pull/457)、读取缓冲区分配、稀疏区域处理和已有的 Native 预读。PR 457 修改前后各测 30 轮，同时阻塞一个 4 MiB GET 约 100 毫秒。命中已缓存的 4 KiB 页时，P99 从 101.985 毫秒降至 0.654 毫秒；两组各发出 30 次 GET。该补丁的默认配置测试通过 1,363 项，Workspace 测试通过 2,934 项。集成版本的集群 fio 结果另行记录。
