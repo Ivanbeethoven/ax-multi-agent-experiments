@@ -23,6 +23,8 @@ python3 "$scripts/report.py" "$DIAG_ROOT"
 
 使用同一候选 RustFS 二进制时，将第一个参数 `image` 替换为其绝对路径，再分别传入同步并发 1 和 8。若同时启动独立 OpenTelemetry Collector，可使用本目录的 `otel.yaml`，并给脚本设置 `DIAG_OTEL=1`，保存每轮前后的服务端指标；该采集器只监听本机 34318 和 39464 端口。每个服务端条件使用一个新采集器实例，避免同名时间序列残留。使用 BrewFS 候选时，设置 `DIAG_BREWFS_BIN` 为候选的绝对路径。默认使用原 8 线程 BrewFS。传入 `DIAG_FORMAL_RUN` 可选择其他已经完成 fio 的正式运行目录，作为只读配置来源。
 
+`repeat_when_idle.py --candidate <RustFS二进制> --out <新诊断目录> --execute` 等待正式套件全部完成、相关诊断服务退出和本机磁盘空闲，然后顺序执行每盘 1／8 个 fsync 线程的四种 fio 负载。固定现用 BrewFS、512 MiB 读内存、客户端 hint 和读量子开启，使用整对象读取策略。状态保存到 `queue.json`，每项仍保存冷／热读、P99、对象指标与重挂载内容检查结果。不传 `--execute` 时只显示待执行命令。
+
 ## Run-002 的读取差异
 
 BrewFS Dynamic 开启时，顺序冷读为 635 MiB/s，JuiceFS 为 817 MiB/s。两者均下载约 2 GiB，BrewFS 发起 901 次 GET，JuiceFS 发起 512 次。BrewFS 的顺序热读降至零 GET，吞吐为 1486 MiB/s，JuiceFS 为 2486 MiB/s。对象存储无法解释这轮 BrewFS 热读差距；应检查客户端缓存、FUSE 和数据复制成本。随机冷读的总吞吐均约 8.66 MiB/s，BrewFS 的 P99 为 63.70 ms，JuiceFS 为 12.12 ms。
