@@ -97,7 +97,7 @@ def run_fork(job, out, small=False):
     return result
 
 
-def run_packed(job, out, small=False):
+def run_packed(job, out, small=False, prepared_path=None):
     p = job['parameters']
     nodes = select_backend(p['dynamic'] == 'on', out)
     files = 32 if small else p['files']
@@ -105,9 +105,17 @@ def run_packed(job, out, small=False):
     key = f'{p["system"]}-{p["dynamic"]}-{files}'
     registry = cl.RUN_ROOT / 'prepared' / (key + '.json')
     if p['phase'] == 'prepare':
-        volume = volumes.prepare_dataset(p['system'], p['dynamic'], files, out)
+        if prepared_path is None:
+            volume = volumes.prepare_dataset(p['system'], p['dynamic'], files, out)
+        else:
+            volume = json.loads(Path(prepared_path).read_text())
+            for field, expected in [('system', p['system']), ('dynamic', p['dynamic']), ('files', files)]:
+                if volume.get(field) != expected:
+                    raise ValueError('Prepared volume differs in ' + field)
+            volume['prepared_source'] = str(prepared_path)
+            save(out / 'volume.json', volume)
         volume['layout'] = layout.inspect_bucket_layout(nodes, volume['bucket'])
-        verify_mount = volumes.mount(volume, volume['base'], job['id'] + '-verify', out, host='A355')
+        verify_mount = volumes.mount(volume, volume['base'], job['id'] + '-' + out.name + '-verify', out, host='A355')
         try:
             remote = str(cl.RUN_ROOT / 'hosts/A355' / (output_tag + '-verify.json'))
             support.command([str(cl.BIN_DIR / 'c3-loader'), 'load', '--root', verify_mount[0]['mount_directory'],

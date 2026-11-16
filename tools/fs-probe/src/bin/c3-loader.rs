@@ -266,8 +266,12 @@ fn run_load(args: &[String]) -> Result<()> {
                         for &file_idx in &order[start_idx..end_idx] {
                             let op_t0 = Instant::now();
                             let p = file_path(root, file_idx);
-                            let mut f = File::open(&p)?;
-                            f.read_exact(&mut buf)?;
+                            let mut f = File::open(&p).map_err(|error| {
+                                format!("open {} epoch {ep_idx} batch {b}: {error}", p.display())
+                            })?;
+                            f.read_exact(&mut buf).map_err(|error| {
+                                format!("read {} epoch {ep_idx} batch {b}: {error}", p.display())
+                            })?;
                             drop(f);
                             let op_ns = op_t0.elapsed().as_nanos() as u64;
                             if verify_bytes && buf != payload(file_idx, 0, 0) {

@@ -64,8 +64,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--group', choices=['01-io', '02-fork', '03-packed', '04-agent-replay'])
     parser.add_argument('--job')
+    parser.add_argument('--reuse-prepared', type=Path,
+                        help='Reuse a completed volume.json and repeat its cross-machine verification')
     parser.add_argument('--check', action='store_true', help='Use a small input to check the same execution path')
     options = parser.parse_args()
+    reuse_job = None
+    if options.reuse_prepared:
+        reuse_job = json.loads((options.reuse_prepared.parent / 'job.json').read_text())
+        if (reuse_job['group'] != '03-packed' or reuse_job['parameters']['phase'] != 'prepare'
+                or options.check or (options.job and options.job != reuse_job['id'])):
+            parser.error('--reuse-prepared requires the corresponding formal Packed preparation job')
     plan = json.loads((cl.RUN_ROOT / 'plan.json').read_text())
     status_path = cl.RUN_ROOT / ('check-status.json' if options.check else 'status.json')
     status = json.loads(status_path.read_text()) if status_path.exists() else {'jobs': {}}
@@ -91,7 +99,12 @@ def main():
         save(status_path, status)
         print(f"START {job['id']} {job['parameters']}", flush=True)
         try:
-            result = functions[job['group']](job, out, small=options.check)
+            if reuse_job and job['id'] == reuse_job['id']:
+                if job != reuse_job:
+                    raise ValueError('Prepared volume job differs from the current plan')
+                result = run_packed(job, out, prepared_path=options.reuse_prepared)
+            else:
+                result = functions[job['group']](job, out, small=options.check)
             result.update(job_id=job['id'], group=job['group'], parameters=job['parameters'],
                           state='passed', validation_only=options.check)
             save(out / 'result.json', result)

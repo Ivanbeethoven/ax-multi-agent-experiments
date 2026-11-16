@@ -458,6 +458,39 @@ class SuiteRuntimeTests(unittest.TestCase):
             self.assertEqual(mounted_buckets.count("bucket-juicefs-redis-on"), 3)
             self.assertEqual(mounted_buckets.count("bucket-juicefs-redis-off"), 3)
 
+    def test_packed_reuses_uploaded_volume_and_verifies_before_registering(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / 'run'
+            groups, cl, support, replay, readers, layout, volumes = load_suite_groups(root, root / 'input')
+            job = {'id': 'packed-prepare', 'seed': 10, 'parameters': {
+                'phase': 'prepare', 'system': 'brewfs-packed', 'dynamic': 'on', 'files': 100000}}
+            source = root / 'job' / 'attempt-01' / 'volume.json'
+            volume = {'system': 'brewfs-packed', 'dynamic': 'on', 'files': 100000,
+                      'base': 'workspace', 'bucket': 'prepared-bucket', 'prepare_seconds': 319.0}
+            write_json(source, volume)
+            volumes.prepare_dataset = lambda *args: self.fail('Uploaded data must be reused')
+            calls = []
+            volumes.mount = lambda *args, **kwargs: calls.append(args[2]) or [{'mount_directory': '/mount'}]
+            out = root / 'job' / 'attempt-02'
+            result = groups.run_packed(job, out, prepared_path=source)
+            self.assertEqual(result['prepare_seconds'], 319.0)
+            self.assertEqual(result['prepared_source'], str(source))
+            self.assertEqual(result['verification'], {'verified': True})
+            self.assertEqual(calls, ['packed-prepare-attempt-02-verify'])
+            registry = root / 'prepared/brewfs-packed-on-100000.json'
+            self.assertTrue(registry.exists())
+            registry.unlink()
+            def fail_verify(*args, **kwargs):
+                raise RuntimeError('read failed')
+            support.command = fail_verify
+            with self.assertRaisesRegex(RuntimeError, 'read failed'):
+                groups.run_packed(job, out, prepared_path=source)
+            self.assertFalse(registry.exists())
+            volume['dynamic'] = 'off'
+            write_json(source, volume)
+            with self.assertRaisesRegex(ValueError, 'dynamic'):
+                groups.run_packed(job, out, prepared_path=source)
+
     def test_replay_task_counts_serialization_and_schedule_bounds(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary) / "run"

@@ -16,6 +16,14 @@ python infra/idcai/start_suite.py
 
 只执行一组时使用 `python infra/idcai/start_suite.py --group 01-io`。其它组为 `02-fork`、`03-packed`、`04-agent-replay`。
 
+Packed 准备已生成 `volume.json` 时，可复用已上传的数据并重新执行跨机内容检查，通过后自动继续剩余条件：
+
+```powershell
+python infra/idcai/start_suite.py --reuse-prepared /srv/ax-cluster/runs/direct/run-002/03-packed/02/r1/attempt-01/volume.json
+```
+
+执行器核对原任务参数，保留原准备时间和文件位置，在新的 `attempt-NN` 中记录检查结果。读者测试只使用检查通过的数据。
+
 小输入功能检查复用同一个执行器：
 
 ```powershell

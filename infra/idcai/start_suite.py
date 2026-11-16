@@ -11,10 +11,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--group', choices=['01-io', '02-fork', '03-packed', '04-agent-replay'])
     parser.add_argument('--host', default='idcai-60001')
+    parser.add_argument('--reuse-prepared', help='Remote volume.json to verify again before continuing')
     parser.add_argument('--calibrate-after-io', action='store_true')
     options = parser.parse_args()
     if options.group and options.calibrate_after_io:
         parser.error('Sampling calibration requires the complete suite')
+    if options.reuse_prepared and options.calibrate_after_io:
+        parser.error('Prepared volume recovery uses the suite entrypoint directly')
     source = '''
 import json,sys,subprocess,shutil
 from pathlib import Path
@@ -45,9 +48,12 @@ command=['systemd-run','--unit='+unit,'--collect','-p','WorkingDirectory='+str(r
  '/srv/ax-idcai-20261113/venv/bin/python3','/srv/ax-cluster/direct/scripts/ENTRYPOINT']
 group=GROUP
 if group:command.extend(['--group',group])
+reuse_prepared=REUSE_PREPARED
+if reuse_prepared:command.extend(['--reuse-prepared',reuse_prepared])
 subprocess.run(command,check=True)
 print(RUN_ROOT)
 '''.replace('group=GROUP', 'group=' + repr(options.group)).replace(
+        'reuse_prepared=REUSE_PREPARED', 'reuse_prepared=' + repr(options.reuse_prepared)).replace(
         'ENTRYPOINT', 'continue_suite.py' if options.calibrate_after_io else 'run_suite.py')
     subprocess.run(['ssh', options.host, '/srv/ax-idcai-20261113/venv/bin/python3 -'], input=source.encode(), check=True)
 
