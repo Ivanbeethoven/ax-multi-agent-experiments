@@ -17,8 +17,9 @@ def main():
     parser.add_argument('--periodic', choices=['on', 'off'], default='on')
     parser.add_argument('--prefetch-mib', type=int, choices=[4, 16, 32, 64])
     parser.add_argument('--prefetch-workers', type=int, choices=[4, 8, 16])
-    parser.add_argument('--read-fetch-policy', choices=['auto', 'sparse'])
+    parser.add_argument('--read-fetch-policy', choices=['auto', 'whole-object', 'sparse'])
     parser.add_argument('--read-memory-mib', type=int, choices=[512, 4096])
+    parser.add_argument('--input-write-memory-mib', type=int, choices=[256, 512, 1024])
     args = parser.parse_args()
     if not 1 <= args.workers <= 16:
         parser.error('Candidate workers must be between 1 and 16')
@@ -28,10 +29,16 @@ def main():
 
     def generate(requests, path):
         result = original(requests, path)
+        input_ids = {request['id'] for request in requests if request['purpose'] == 'input'}
         for record in result['mounts']:
             if record['engine'].startswith('brewfs'):
                 record['binary'] = str(args.binary)
                 record['environment']['TOKIO_WORKER_THREADS'] = str(args.workers)
+                if args.input_write_memory_mib is not None and record['id'] in input_ids:
+                    write_bytes = args.input_write_memory_mib * 1024**2
+                    record['capacity_reservation_bytes'] += write_bytes - record['cache']['write_memory_bytes']
+                    record['cache']['write_memory_bytes'] = write_bytes
+                    record['cache']['memory_budget_bytes'] = write_bytes
                 if args.read_fetch_policy is not None:
                     record['cache']['read_fetch_policy'] = args.read_fetch_policy
                 if args.read_memory_mib is not None:
@@ -78,6 +85,7 @@ def main():
                 cl.collector_rpc(host, {'action': 'resume'})
         result['runtime_candidate'] = {'workers': args.workers if job['parameters']['system'].startswith('brewfs') else None,
                                       'binary': str(args.binary) if job['parameters']['system'].startswith('brewfs') else None,
+                                      'input_write_memory_mib': args.input_write_memory_mib if job['parameters']['system'].startswith('brewfs') else None,
                                       'periodic_sampling': args.periodic, 'output': str(output)}
         run_suite.save(output / 'result.json', result)
         results.append(result)

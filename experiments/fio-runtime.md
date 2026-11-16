@@ -35,6 +35,17 @@ fio 使用 BrewFS 16 MiB 预读窗口、8 个预读任务；JuiceFS 使用 16 Mi
 
 Dynamic 开启使用 BrewFS hint `auto` 和修改版 RustFS `9000`；关闭使用 hint `off` 和原版 RustFS `19000`。固定 B 条件使用具体字节数和修改版后端。输入创建与冷重挂检查使用相同选择。完整配置见 [实验方案](../docs/PLAN-REVIEW.md)。
 
+## 指定候选版本复测
+
+`run_fio_candidate.py` 支持重复传入 `--job`，按顺序执行所选条件；`--out` 必须指向新的目录。候选二进制先分发到 A366 和 A355 的同一个绝对路径，分别用于测量和跨机器内容检查。
+
+- `--workers 8` 固定 BrewFS Tokio 工作线程。
+- `--input-write-memory-mib 1024` 只将 BrewFS 输入准备挂载的写缓冲和对应内存预算增加至 1 GiB；正式测量挂载保持原有写缓存配置。
+- `--read-fetch-policy whole-object` 用于顺序读；`--read-fetch-policy sparse` 用于随机读和固定 B 比较。写入条件保持正常读取策略。
+- 不指定预读参数时，沿用配置中的 BrewFS 8 个预读任务和 JuiceFS 16 个下载任务。
+
+每个条件保存 `input-mounts.json`、`mounts.json` 和挂载审计，确认实际参数。输入准备不计入读写测量时间，其耗时和对象布局单独保存。读缓存是否为空以新的缓存目录和下载计数判断；服务端磁盘缓存状态另外记录。
+
 ## 正式结果
 
 每次复测创建新的 attempt 目录，保留旧结果。只有内容检查、实际读写量和上传完成检查通过后，才更新该条件的当前结果。汇总保存源码版本、二进制路径、线程数和原始结果目录；不同配置的结果分开列出。
