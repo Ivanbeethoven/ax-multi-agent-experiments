@@ -1,4 +1,4 @@
-import contextlib, json, os, pathlib, re, signal, subprocess, sys, time, urllib.request
+import contextlib, json, os, pathlib, re, shutil, signal, subprocess, sys, time, urllib.request
 import boto3
 from botocore.config import Config
 
@@ -71,6 +71,9 @@ for number, operation in [(n, mode) for n, mode in [(4,'randwrite'), (2,'seqwrit
 
     @contextlib.contextmanager
     def mounted(stage):
+        if shutil.disk_usage(out).free < 16 * 1024**3:
+            raise RuntimeError('Fio diagnostics require at least 16 GiB of free disk space')
+        completed = False
         unit = f"{ns}-{work.name}-{stage}.service"
         cache = work / f'cache-{stage}'
         cache.mkdir()
@@ -101,6 +104,7 @@ for number, operation in [(n, mode) for n, mode in [(4,'randwrite'), (2,'seqwrit
                 raise RuntimeError(f'{stage}: mount failed')
             cg = run('systemctl','show','-p','ControlGroup','--value',unit,capture_output=True,text=True).stdout.strip()
             yield pathlib.Path('/sys/fs/cgroup' + cg)
+            completed = True
         finally:
             stop_path = work / f'{stage}-stop.json'
             run('python3',driver,'stop','--id',f'{ns}-{stage}','--unit',unit,'--engine','brewfs-native-overlay',
@@ -109,11 +113,18 @@ for number, operation in [(n, mode) for n, mode in [(4,'randwrite'), (2,'seqwrit
                 raise RuntimeError(f'{stage}: normal unmount failed')
             with (work/f'{stage}.log').open('w') as log:
                 run('journalctl','--no-pager','-u',unit,stdout=log)
+            if completed:
+                resolved = cache.resolve()
+                if cache.is_symlink() or resolved.parent != work.resolve() or resolved.name != f'cache-{stage}':
+                    raise RuntimeError(f'Unexpected diagnostic cache directory: {cache}')
+                shutil.rmtree(resolved)
 
     def in_mount(cg, *args, **kw):
         return run('python3',driver,'exec-in-cgroup','--cgroup',cg,'--',*args,**kw)
 
     def host_snapshot(stage):
+        disk = shutil.disk_usage(out)
+        write(work/f'{stage}-disk-space.json', dict(total_bytes=disk.total, used_bytes=disk.used, free_bytes=disk.free))
         for entry in ('diskstats','loadavg','pressure/io','pressure/cpu'):
             (work/f"{stage}-{entry.replace('/', '-')}").write_bytes(pathlib.Path('/proc',entry).read_bytes())
 
