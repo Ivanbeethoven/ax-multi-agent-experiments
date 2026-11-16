@@ -8,9 +8,12 @@ run-002 继续使用原程序，完成 C4 的 Dynamic 关闭对照及 C3 三项 
 | BrewFS：C1 读 | 缓存命中时先读现有页，再决定是否等待后台整对象 GET | 核对实际集成的读取补丁；覆盖写后的新 slice 不能命中旧内容。固定读取策略，分别测顺序吞吐和随机 P99。 |
 | 修改版 RustFS：C1 写 | [单提交 Git bundle](../../bench/cluster/diagnostics/dynamic_fio/rustfs-fsync-workers.bundle)，基于 `f4ed202` 的 `b525408` | 隔离复测与覆盖写后冷重挂已通过。正式复测显式记录每盘同步线程数，保留相同的文件和目录同步要求。 |
 | BrewFS：C3 Native | TiKV 明确报告前缀结束时，省去空页查询 | 真实 TiKV 比较扫描次数与文件读取时间；缓存预算不变。验证字节限制下的短页、删除和并发修改。 |
-| BrewFS / RustFS：C2 持久写、C4 慢 PUT | 分别检查时间戳提交、flush 截止时间、RustFS 慢副本 | 只纳入通过复现与正确性检查的改动。C2 两次提交的时间戳不同；C4 上游 PUT 延迟与本地等待截止时间分开测。 |
+| BrewFS / RustFS：C2 父子读写 | 诊断完成，保留现有程序和配置 | 单机交替读取父子工作区未复现稳定的父目录劣势。覆盖写的两次提交更新了不同时间戳；复测保留原有 fsync 语义。 |
+| BrewFS / RustFS：C4 慢 PUT | flush 等待截止时间和 RustFS 慢副本分别验证 | 用可控的慢 PUT 复现上游等待，用重复通知测试本地截止时间。 |
 
 确定候选后，记录各仓库提交、程序版本、构建参数与运行配置。用同一组合通过受影响的测试，并用独立挂载验证写后读、截断、权限、工作区隔离和冷重挂，再分发同一批二进制。源码目录有未提交改动的历史构建不作为可重建的版本标识。
+
+C1 复测使用 `run_fio_candidate.py --read-fetch-policy workload`：Dynamic 开、关两边的随机读都设为 `sparse`，顺序读都设为 `whole-object`。按 [fio 运行配置](../../experiments/fio-runtime.md) 检查生成的输入和测量挂载参数。旧记录中的默认策略会随 hint 改变，旧对照不能单独说明块尺寸的效果。
 
 **取出 RustFS 候选。** 在已有 `f4ed202508f2153afb7956bae6f7799b60eccd00` 的 RustFS 检出中，执行 `git fetch <bundle的绝对路径> refs/heads/codex/fsync-lane-workers:refs/heads/codex/integrated-fsync-workers`。该分支包含 `b525408eec9fc748a800f31d3d7ac153c8015025`；编译该版本后设置 `RUSTFS_DISK_FSYNC_WORKERS=8`。旧二进制不支持此参数。
 
