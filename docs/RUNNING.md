@@ -60,6 +60,8 @@ ssh.exe idcai-60001 tail -n 30 /srv/ax-cluster/runs/direct/run-002/logs/suite.lo
 
 需要后台等待时，使用 `repeat_suite_jobs.py --job <条件编号> --label <归档名称> --execute`。它等待当前计划全部通过、协调服务和 `--wait-service` 指定服务结束，并确认可用磁盘空间至少为 16 GiB 且不低于总容量的 12%，再占用同一个协调服务名称顺序补测。`--require-job` 可指定尚待追加的条件。状态写入 `continuations/<归档名称>.json`。不传 `--execute` 时只检查等待条件。
 
+对于使用独立输入和后端的补测，可为无数据依赖的条件逐项指定 `--wait-terminal-job <编号>`。这些条件必须结束，原有通过或失败记录保持不变。正在运行、尚未执行或缺少状态的条件仍需等待。集群独占和磁盘要求相同。
+
 ## 目录与结果
 
 - 协调者：A366，`idcai-60001`。

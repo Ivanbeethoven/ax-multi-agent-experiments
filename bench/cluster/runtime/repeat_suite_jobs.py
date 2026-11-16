@@ -13,9 +13,11 @@ from reset_suite_groups import reset
 from run_suite import save
 
 
-def blockers(plan, status, required, units, disk):
+def blockers(plan, status, required, units, disk, wait_terminal=()):
+    terminal = set(wait_terminal)
     pending = [job['id'] for job in plan['jobs']
-               if status['jobs'].get(job['id'], {}).get('state') != 'passed']
+               if status['jobs'].get(job['id'], {}).get('state') not in
+               (('passed', 'failed') if job['id'] in terminal else ('passed',))]
     pending += [job for job in required
                 if status['jobs'].get(job, {}).get('state') != 'passed' and job not in pending]
     return {'unfinished': pending, 'active_services': units,
@@ -27,6 +29,8 @@ def main():
     parser.add_argument('--job', action='append', required=True)
     parser.add_argument('--label', required=True)
     parser.add_argument('--require-job', action='append', default=[])
+    parser.add_argument('--wait-terminal-job', action='append', default=[],
+                        help='Independent condition that must finish but need not pass')
     parser.add_argument('--wait-service', action='append', default=[])
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('--worker', action='store_true')
@@ -42,6 +46,9 @@ def main():
     plan = json.loads((cl.RUN_ROOT / 'plan.json').read_text())
     if set(jobs) - {job['id'] for job in plan['jobs']}:
         parser.error('A selected condition is absent from the current plan')
+    terminal = set(args.wait_terminal_job)
+    if terminal - {job['id'] for job in plan['jobs']} or terminal.intersection(jobs + args.require_job):
+        parser.error('--wait-terminal-job must name independent conditions in this plan')
     state_path = cl.RUN_ROOT / 'continuations' / (args.label + '.json')
     entry = Path(__file__).with_name('run_suite.py')
     if args.worker:
@@ -64,7 +71,7 @@ def main():
         ).stdout.strip() in {'active', 'activating', 'deactivating'}]
         plan = json.loads((cl.RUN_ROOT / 'plan.json').read_text())
         status = json.loads((cl.RUN_ROOT / 'status.json').read_text())
-        waiting = blockers(plan, status, args.require_job, active, shutil.disk_usage(cl.RUN_ROOT))
+        waiting = blockers(plan, status, args.require_job, active, shutil.disk_usage(cl.RUN_ROOT), terminal)
         save(state_path, {'state': 'waiting', 'jobs': jobs, **waiting})
         if not args.execute:
             print(json.dumps(waiting, indent=2))

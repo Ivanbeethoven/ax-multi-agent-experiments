@@ -46,6 +46,20 @@ def load_module(run_root):
 
 
 class RepeatSuiteJobsBlockerTests(unittest.TestCase):
+    def test_independent_failures_only_release_completed_conditions(self):
+        module, _ = load_module(Path("."))
+        plan = {"jobs": [{"id": j} for j in ("packed", "replay")]}
+        for state, pending in (("failed", []), ("passed", []), ("running", ["packed"]),
+                               ("planned", ["packed"]), (None, ["packed"])):
+            with self.subTest(state=state):
+                jobs = {"packed": {"state": state}, "replay": {"state": "passed"}}
+                flags = module.blockers(plan, {"jobs": jobs}, [], ["compile.service"],
+                                        types.SimpleNamespace(free=5*GIB, total=100*GIB), ["packed"])
+                self.assertEqual(flags["unfinished"], pending)
+                self.assertEqual(flags["active_services"], ["compile.service"])
+                self.assertFalse(flags["disk_space_sufficient"])
+                self.assertEqual(jobs["packed"]["state"], state)
+
     def test_unfinished_current_condition_blocks_readiness(self):
         plan = {"jobs": [{"id": "current-job"}]}
         status = {"jobs": {"current-job": {"state": "running"}}}
