@@ -31,6 +31,12 @@ python3 "$scripts/report.py" "$DIAG_ROOT"
 
 `DIAG_VOLUME_MODE=flat` 使用原版独立卷；默认值 `workspace` 使用 Workspace 当前可写层。独立诊断服务使用专用 Redis 37379、RustFS 39000 和挂载指标 39567。原版独立卷使用该 Redis 的 DB 1，Workspace 使用 DB 0；每个操作创建独立对象桶。两种模式采用相同数据内容、fio 参数、线程和缓存预算，分别保存实际配置。
 
+## 输入缓冲区与 CPU 采样
+
+`DIAG_INPUT_WRITE_MEMORY_MIB=1024` 为输入生成设置 1 GiB 写缓冲区，读取阶段保持原配置。允许 1–4096 MiB，默认 0 使用正式挂载记录。每个输入保存 `input-config.json`、`input-metrics.prom` 和 `input-objects.json`，后者记录对象名称与字节数，用于检查输入生成时是否产生大量小对象。
+
+`DIAG_PERF=1` 在每个读取阶段以 99 Hz 采集 BrewFS 的 CPU 调用栈，保存 `cold-perf.data`、`cold-perf.txt` 及对应热读文件。需要服务器安装 `perf` 并允许进程采样。默认关闭；正式吞吐比较保持关闭，开启后的运行用于定位 CPU 开销。`summary.json` 记录采样开关和输入写缓冲区设置。
+
 ## Run-002 的读取差异
 
 同一组 2 GiB、8 个作业的顺序读取结果如下。正式冷读新建客户端缓存目录，并对本条件对象文件执行后端页面缓存驱逐；隔离诊断脚本仅新建客户端缓存目录。

@@ -1,4 +1,4 @@
-import contextlib, json, os, pathlib, re, subprocess, sys, time, urllib.request
+import contextlib, json, os, pathlib, re, signal, subprocess, sys, time, urllib.request
 import boto3
 from botocore.config import Config
 
@@ -20,6 +20,9 @@ read_memory_mib = int(sys.argv[3])
 policy = sys.argv[4]
 operations = sys.argv[5:]
 read_variants = json.loads(os.environ.get('DIAG_READ_BINARIES', '[]'))
+input_write_memory_mib = int(os.environ.get('DIAG_INPUT_WRITE_MEMORY_MIB', '0'))
+if not 0 <= input_write_memory_mib <= 4096:
+    raise ValueError('Input write memory must be 0–4096 MiB; zero uses the recorded settings')
 if not isinstance(read_variants, list) or not all(isinstance(v, str) and pathlib.Path(v).is_file() for v in read_variants):
     raise ValueError('DIAG_READ_BINARIES must contain existing BrewFS binary paths')
 if read_variants and any(mode not in {'seqread', 'randread'} for mode in operations):
@@ -72,6 +75,9 @@ for number, operation in [(n, mode) for n, mode in [(4,'randwrite'), (2,'seqwrit
         cache = work / f'cache-{stage}'
         cache.mkdir()
         config = work / f'{stage}-config.json'
+        input_cache = ({'write_memory_bytes': input_write_memory_mib * 1048576,
+                        'memory_budget_bytes': input_write_memory_mib * 1048576}
+                       if stage == 'input' and input_write_memory_mib else {})
         write(config, {
             'mount_point': str(mount), 'volume_format':volume_mode,
             **({} if volume_mode == 'flat' else {'workspace':fork['workspaces'][0],
@@ -81,7 +87,7 @@ for number, operation in [(n, mode) for n, mode in [(4,'randwrite'), (2,'seqwrit
                     'region':'us-east-1','max_concurrency':16,'force_path_style':True,
                     'disable_payload_checksum':True}},
             'meta':{'backend':'redis','redis':{'url':redis}},
-            'cache':{**audit['cache'], 'cache_root':str(cache), 'read_memory_bytes':read_memory_mib * 1048576, 'read_fetch_policy':policy}})
+            'cache':{**audit['cache'], **input_cache, 'cache_root':str(cache), 'read_memory_bytes':read_memory_mib * 1048576, 'read_fetch_policy':policy}})
         env_options = [f'--setenv={k}={v}' for k,v in {**auth,**audit['environment']}.items()]
         run('systemd-run',f'--unit={unit}','--property=MemoryMax=16G','--property=MemorySwapMax=0',*env_options,
             brewfs,'mount','--config',config,'--metrics','--metrics-addr',f'127.0.0.1:{port}',
@@ -119,6 +125,11 @@ for number, operation in [(n, mode) for n, mode in [(4,'randwrite'), (2,'seqwrit
         with (work/'input.json').open('w') as report:
             in_mount(cg,binary/'c1-io-helper','init-files','--root',mount,'--jobs',8,'--bytes-per-job',268435456,stdout=report)
         drain('input')
+        (work/'input-metrics.prom').write_bytes(urllib.request.urlopen(f'http://127.0.0.1:{port}/metrics').read())
+    objects = [item for page in s3.get_paginator('list_objects_v2').paginate(Bucket=bucket)
+               for item in page.get('Contents', [])]
+    write(work/'input-objects.json', {'count':len(objects), 'bytes':sum(item['Size'] for item in objects),
+          'objects':[{'key':item['Key'], 'bytes':item['Size']} for item in objects]})
     prepared_work = work
     input_binary = brewfs
     for variant_index, variant_binary in enumerate(read_variants or [str(input_binary)]):
@@ -147,9 +158,28 @@ for number, operation in [(n, mode) for n, mode in [(4,'randwrite'), (2,'seqwrit
                     time.sleep(2.1)
                     (work/f'{stage}-server-before.prom').write_bytes(server_metrics())
                 path = work/f'{stage}-fio.json'
-                start = time.monotonic()
-                in_mount(cg,'fio','--output-format=json+',f'--output={path}',fio)
-                elapsed = time.monotonic()-start
+                profiling = os.environ.get('DIAG_PERF') == '1'
+                profiler = None
+                if profiling:
+                    pid = (cg/'cgroup.procs').read_text().splitlines()[0]
+                    perf_log = (work/f'{stage}-perf.log').open('wb')
+                    profiler = subprocess.Popen(['perf','record','-q','-F','99','--call-graph','dwarf,8192',
+                        '-p',pid,'-o',str(work/f'{stage}-perf.data')], stdout=subprocess.DEVNULL, stderr=perf_log)
+                try:
+                    start = time.monotonic()
+                    in_mount(cg,'fio','--output-format=json+',f'--output={path}',fio)
+                    elapsed = time.monotonic()-start
+                finally:
+                    if profiler is not None:
+                        if profiler.poll() is None:
+                            profiler.send_signal(signal.SIGINT)
+                        profiler.wait(timeout=60)
+                        perf_log.close()
+                        if profiler.returncode not in (0, -signal.SIGINT, 128 + signal.SIGINT):
+                            raise RuntimeError(f'CPU profiling exited {profiler.returncode}; see {stage}-perf.log')
+                        with (work/f'{stage}-perf.txt').open('w') as report:
+                            run('perf','report','-i',work/f'{stage}-perf.data','--stdio','--no-children',
+                                '--sort','symbol','--percent-limit','0.5',stdout=report)
                 if stage == 'write':
                     drain(stage)
                 host_snapshot(stage+'-after')
@@ -177,6 +207,8 @@ for number, operation in [(n, mode) for n, mode in [(4,'randwrite'), (2,'seqwrit
                          '--mode',operation,'--seed',reference_result['seed'],*options,stdout=report)
         assert json.loads((work/'verify.json').read_text())['passed'] is True
         write(work/'summary.json', dict(passes=results, verified=True,
+              cpu_profiling=os.environ.get('DIAG_PERF') == '1',
+              input_write_memory_mib=input_write_memory_mib,
               hint=hint, policy=policy, volume_format=volume_mode, brewfs_binary=str(brewfs), read_memory_mib=read_memory_mib, reference=str(source),
               input_binary=str(input_binary), input_directory=str(prepared_work), workspace=fork['workspaces'][0]))
     work = prepared_work
