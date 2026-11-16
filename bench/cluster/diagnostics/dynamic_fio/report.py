@@ -45,10 +45,12 @@ def report(root: Path):
         "put_requests": "brewfs_object_put_total",
         "put_bytes": "brewfs_object_put_bytes_total",
     }
-    for summary in sorted(root.glob("fio-*/*/*/summary.json")):
+    for summary in sorted(root.glob("fio-*/**/summary.json")):
         record = json.loads(summary.read_text())
         case = summary.parent
-        parameters = (case.parent.parent / "parameters.txt").read_text().splitlines()
+        run = next(parent for parent in case.parents if (parent / "parameters.txt").is_file())
+        parameters = (run / "parameters.txt").read_text().splitlines()
+        variant = case.name if case.name.startswith('variant-') else None
         for stage, metrics in record["passes"].items():
             before = case / f"{stage}-before.prom"
             after = case / f"{stage}-after.prom"
@@ -56,9 +58,18 @@ def report(root: Path):
                 name: metric(after, series) - metric(before, series)
                 for name, series in traffic.items()
             }
+            cpu = []
+            for position in ('before', 'after'):
+                path = case / f'{stage}-{position}-cpu.stat'
+                if path.exists():
+                    values = dict(line.split() for line in path.read_text().splitlines())
+                    cpu.append(int(values['usage_usec']))
             yield {
-                "run": case.parent.parent.name,
-                "operation": case.name,
+                "run": run.name,
+                "operation": case.parent.name if variant else case.name,
+                "variant": variant,
+                "raw_directory": str(case),
+                "client_cgroup_cpu_seconds": (cpu[1] - cpu[0]) / 1e6 if len(cpu) == 2 else None,
                 "pass": stage,
                 "rustfs_binary": parameters[0],
                 "fsync_workers": int(parameters[1]),
