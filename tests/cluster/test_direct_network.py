@@ -24,9 +24,9 @@ class DirectNetworkTests(unittest.TestCase):
         self.assertEqual({h['name']: h['ssh'] for h in design['hosts']},
                          {name: h['ssh'] for name, h in network['hosts'].items()})
         self.assertEqual(network['formal_data_network'], 'direct')
-        self.assertEqual(built['total_runs'], 52)
-        self.assertEqual(len(built['jobs']), 52)
-        self.assertEqual(sum(built['counts'].values()), 52)
+        self.assertEqual(built['total_runs'], 56)
+        self.assertEqual(len(built['jobs']), 56)
+        self.assertEqual(sum(built['counts'].values()), 56)
         self.assertEqual(experiment['resource_limits']['maximum_agents'], 64)
         self.assertEqual(
             max(job['parameters'].get('agents', 1) for job in built['jobs']),

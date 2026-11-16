@@ -25,23 +25,88 @@ class ExperimentSuiteTests(unittest.TestCase):
         cls.module = load_suite_module()
         cls.plan = cls.module.build(cls.suite)
 
-    def test_approved_groups_export_52_runs(self):
+    def test_approved_groups_export_56_runs(self):
         expected = {
-            "01-io": 16,
+            "01-io": 20,
             "02-fork": 12,
             "03-packed": 11,
             "04-agent-replay": 13,
         }
         self.assertEqual(self.suite["approval"], "approved")
         self.assertEqual(self.plan["counts"], expected)
-        self.assertEqual(self.plan["total_runs"], 52)
-        self.assertEqual(len(self.plan["jobs"]), 52)
+        self.assertEqual(self.plan["total_runs"], 56)
+        self.assertEqual(len(self.plan["jobs"]), 56)
         self.assertEqual(
             {group: sum(job["group"] == group for job in self.plan["jobs"])
              for group in expected},
             expected,
         )
-        self.assertEqual(len({job["id"] for job in self.plan["jobs"]}), 52)
+        self.assertEqual(len({job["id"] for job in self.plan["jobs"]}), 56)
+
+    def test_flat_volume_fio_workloads_append_after_original_io_order(self):
+        io_jobs = [job for job in self.plan["jobs"] if job["group"] == "01-io"]
+        self.assertEqual(
+            [job["id"] for job in io_jobs],
+            [f"01-io-{index:02d}-r1" for index in range(1, 21)],
+        )
+        self.assertEqual(
+            [job["configuration"] for job in io_jobs[:16]],
+            list(range(1, 17)),
+        )
+        self.assertEqual(
+            [
+                (
+                    job["parameters"]["system"],
+                    job["parameters"].get("dynamic"),
+                    job["parameters"]["block_bytes"],
+                    job["parameters"]["pattern"],
+                    job["parameters"]["operation"],
+                )
+                for job in io_jobs[:16]
+            ],
+            [
+                ("brewfs-native", "on", "auto", "sequential", "read"),
+                ("brewfs-native", "on", "auto", "sequential", "write"),
+                ("brewfs-native", "on", "auto", "random", "read"),
+                ("brewfs-native", "on", "auto", "random", "write"),
+                ("juicefs-redis", "on", "default", "sequential", "read"),
+                ("juicefs-redis", "on", "default", "sequential", "write"),
+                ("juicefs-redis", "on", "default", "random", "read"),
+                ("juicefs-redis", "on", "default", "random", "write"),
+                ("brewfs-native", "off", "default", "sequential", "read"),
+                ("brewfs-native", "off", "default", "sequential", "write"),
+                ("brewfs-native", "off", "default", "random", "read"),
+                ("brewfs-native", "off", "default", "random", "write"),
+                ("brewfs-native", "on", 65536, "random", "read"),
+                ("brewfs-native", "on", 65536, "random", "write"),
+                ("brewfs-native", "on", 4194304, "random", "read"),
+                ("brewfs-native", "on", 4194304, "random", "write"),
+            ],
+        )
+
+        flat_configurations = [job["parameters"] for job in io_jobs[16:]]
+        self.assertEqual(len(flat_configurations), 4)
+        self.assertEqual(
+            [
+                (configuration["pattern"], configuration["operation"],
+                 configuration["request_kib"], configuration["io_bytes"])
+                for configuration in flat_configurations
+            ],
+            [
+                ("sequential", "read", 1024, 2147483648),
+                ("sequential", "write", 1024, 2147483648),
+                ("random", "read", 4, 67108864),
+                ("random", "write", 4, 67108864),
+            ],
+        )
+        for configuration in flat_configurations:
+            self.assertEqual(configuration["system"], "brewfs-flat")
+            self.assertEqual(configuration["dynamic"], "on")
+            self.assertEqual(configuration["block_bytes"], "auto")
+            self.assertEqual(configuration["initial_data"], "flat-volume")
+            self.assertEqual(configuration["jobs"], 8)
+            self.assertEqual(configuration["working_set_bytes"], 2147483648)
+            self.assertEqual(configuration["fsync_bytes_all_jobs"], 67108864)
 
     def test_dynamic_fields_are_limited_to_io_packed_and_agent_replay(self):
         groups_with_dynamic = {
@@ -121,8 +186,8 @@ class ExperimentSuiteTests(unittest.TestCase):
                 self.assertTrue(job_directory.is_dir())
                 self.assertEqual(json.loads((job_directory / "job.json").read_text(encoding="utf-8")), job)
             status = json.loads((output / "status.json").read_text(encoding="utf-8"))
-            self.assertEqual(status["total_runs"], 52)
-            self.assertEqual(len(status["jobs"]), 52)
+            self.assertEqual(status["total_runs"], 56)
+            self.assertEqual(len(status["jobs"]), 56)
             self.assertTrue(all(value["state"] == "planned" for value in status["jobs"].values()))
 
 

@@ -25,9 +25,15 @@ python3 "$scripts/report.py" "$DIAG_ROOT"
 
 `repeat_when_idle.py --candidate <RustFS二进制> --out <新诊断目录> --execute` 等待正式套件全部完成、相关诊断服务退出和本机磁盘空闲，然后顺序执行每盘 1／8 个 fsync 线程的四种 fio 负载。固定现用 BrewFS、512 MiB 读内存、客户端 hint 和读量子开启，使用整对象读取策略。状态保存到 `queue.json`，每项仍保存冷／热读、P99、对象指标与重挂载内容检查结果。不传 `--execute` 时只显示待执行命令。
 
+## 共享输入的客户端比较
+
+`DIAG_READ_BINARIES` 接收 JSON 数组形式的 BrewFS 二进制绝对路径。只用于 `seqread`、`randread`；脚本使用 `DIAG_BREWFS_BIN` 生成一次输入，然后按数组顺序重新挂载同一卷。每个版本使用新的客户端缓存目录，分别执行冷读、热读和内容检查。推荐按现用版、候选版、候选版、现用版交替比较；结果保存在各操作目录的 `variant-00/` 等目录，并包含 cgroup CPU 和 I/O 计数。
+
+`DIAG_VOLUME_MODE=flat` 使用原版独立卷；默认值 `workspace` 使用 Workspace 当前可写层。独立诊断服务使用专用 Redis 37379、RustFS 39000 和挂载指标 39567。原版独立卷使用该 Redis 的 DB 1，Workspace 使用 DB 0；每个操作创建独立对象桶。两种模式采用相同数据内容、fio 参数、线程和缓存预算，分别保存实际配置。
+
 ## Run-002 的读取差异
 
-同一组 2 GiB、8 个作业的顺序读取结果如下。冷缓存指新建客户端缓存目录；服务端缓存不在此条件中清空。
+同一组 2 GiB、8 个作业的顺序读取结果如下。正式冷读新建客户端缓存目录，并对本条件对象文件执行后端页面缓存驱逐；隔离诊断脚本仅新建客户端缓存目录。
 
 | 指标 | BrewFS Dynamic 开启 | JuiceFS Redis |
 | --- | ---: | ---: |

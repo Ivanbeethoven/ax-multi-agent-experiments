@@ -1,6 +1,6 @@
 # 运行与查看进度
 
-每个条件运行一次，共 52 项。配置为 `configs/experiment-suite.json`；服务地址和运行编号为 `configs/runtime.json`。
+每个条件运行一次，共 56 项。配置为 `configs/experiment-suite.json`；服务地址和运行编号为 `configs/runtime.json`。
 
 ## 准备与启动
 
@@ -15,6 +15,8 @@ python infra/idcai/start_suite.py
 `sync_suite.py` 分发运行代码；`setup_suite.py` 启动两套 RustFS，配置专用 Redis/TiKV 和六台采集器。准备只在开始一轮实验时执行。`start_suite.py` 启动后台 systemd 服务，按四组顺序执行，跳过已通过条件；出现错误时保存现场并退出。修复后使用同一启动命令继续。
 
 只执行一组时使用 `python infra/idcai/start_suite.py --group 01-io`。其它组为 `02-fork`、`03-packed`、`04-agent-replay`。
+
+已运行的计划需要补充原版独立卷时，等待当前服务结束，再执行 `python infra/idcai/start_suite.py --extend-plan --group 01-io`。该操作保留已有条件和结果，加入 `01-io-17-r1` 至 `01-io-20-r1`，随后只执行尚未通过的 fio 条件。
 
 使用 `--start-at <条件编号>` 可从指定条件顺序执行后续实验，已完成条件自动跳过。此前条件的状态和数据保持原样；读取实验需要对应准备条件已经通过。
 
@@ -32,7 +34,7 @@ python infra/idcai/start_suite.py --reuse-prepared /srv/ax-cluster/runs/direct/r
 ssh.exe idcai-60001 /srv/ax-idcai-20261113/venv/bin/python3 /srv/ax-cluster/direct/scripts/run_suite.py --check --job 01-io-01-r1
 ```
 
-正式实验开始前，可一次检查 39 个代表性条件，覆盖四组的执行路径：
+正式实验开始前，可一次检查 43 个代表性条件，覆盖四组的执行路径：
 
 ```powershell
 ssh.exe idcai-60001 /srv/ax-idcai-20261113/venv/bin/python3 /srv/ax-cluster/direct/scripts/check_suite.py
@@ -50,7 +52,7 @@ ssh.exe idcai-60001 systemctl status ax-run-002 --no-pager
 ssh.exe idcai-60001 tail -n 30 /srv/ax-cluster/runs/direct/run-002/logs/suite.log
 ```
 
-输出按组显示完成数：fio 16、fork 12、Packed 11、多 Agent 13。收到进度提醒后执行一次检查；服务正常运行时让后台继续。出现错误时查看对应 `failure.json`、命令输出和挂载日志，修复并重测该项。
+输出按组显示完成数：fio 20、fork 12、Packed 11、多 Agent 13。收到进度提醒后执行一次检查；服务正常运行时让后台继续。出现错误时查看对应 `failure.json`、命令输出和挂载日志，修复并重测该项。
 
 ## 目录与结果
 

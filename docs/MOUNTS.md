@@ -1,6 +1,8 @@
 # 每个挂载点的配置
 
-参数源为 [mount-profiles.json](../configs/mount-profiles.json)，由 [mounts.py](../bench/cluster/mounts.py) 生成记录。BrewFS 配置对应已合并的 `5750af24`；每个进程显式指定容量，包含父子共存阶段。
+参数源为 [mount-profiles.json](../configs/mount-profiles.json)，由 [mounts.py](../bench/cluster/mounts.py) 生成记录。BrewFS 二进制版本随运行记录保存；每个进程显式指定容量，包含父子共存阶段。
+
+原版独立卷使用 `brewfs-flat`、`volume_format=flat` 和独立 Redis DB；配置不包含 Workspace ID、Workspace 或 Packed 环境参数。Workspace Native 使用 `brewfs-native-overlay`、`volume_format=workspace`。两者的 fio 线程、数据缓存、上传与预取配置相同。
 
 ## 容量与预取
 

@@ -222,9 +222,65 @@
           "working_set_bytes": 2147483648,
           "fsync_bytes_all_jobs": 67108864,
           "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "brewfs-flat",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "sequential",
+          "operation": "read",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "flat-volume",
+          "metadata_redis_db": 11
+        },
+        {
+          "system": "brewfs-flat",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "sequential",
+          "operation": "write",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "flat-volume",
+          "metadata_redis_db": 12
+        },
+        {
+          "system": "brewfs-flat",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "random",
+          "operation": "read",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "flat-volume",
+          "metadata_redis_db": 13
+        },
+        {
+          "system": "brewfs-flat",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "random",
+          "operation": "write",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "flat-volume",
+          "metadata_redis_db": 14
         }
       ],
-      "runs": 16
+      "runs": 20
     },
     "02-fork": {
       "files": 100000,

@@ -106,11 +106,16 @@ def render(request, profiles, design):
                               "packed_downloads":4 if packed and environment["BREWFS_PACKED_CACHE"] == "on" else 0}
         # The reservation deliberately includes overlapping accounting limits.
         reservation = sum(record["cache"][k] for k in ("read_memory_bytes", "write_memory_bytes", "memory_budget_bytes"))
-        reservation += int(environment["BREWFS_WORKSPACE_ROW_CACHE_BYTES"])
+        if engine != "brewfs-flat":
+            reservation += int(environment["BREWFS_WORKSPACE_ROW_CACHE_BYTES"])
         if packed:
             reservation += sum(int(environment[f"BREWFS_PACKED_{pool}_BUDGET_BYTES"]) for pool in POOLS)
             reservation += int(environment["BREWFS_PACKED_METADATA_CACHE_BYTES"]) + int(environment["BREWFS_PACKED_RETAINED_PAYLOAD_BYTES"])
         record["capacity_reservation_bytes"] = reservation
+        if engine == "brewfs-flat":
+            record["environment"] = {key: value for key, value in environment.items()
+                if not key.startswith(("BREWFS_PACKED_", "BREWFS_WORKSPACE_"))}
+            record["prefetch"]["packed_metadata_and_data"] = "not-applicable"
     elif engine in {"juicefs", "juicefs-overlay"}:
         record["volume_format"] = "forkredis" if engine == "juicefs-overlay" else "redis"
         record["options"] = copy.deepcopy(profiles["juicefs_options"])

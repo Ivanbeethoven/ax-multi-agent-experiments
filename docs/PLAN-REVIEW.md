@@ -4,14 +4,14 @@
 
 | 组 | 要回答的问题 | 主要对照 | 对应创新点 |
 |---|---|---|---|
-| 1. 基础 fio | 大块顺序与小块随机读写能否更快，实际存储读写能否更少？ | BrewFS Native、JuiceFS Redis；附带块尺寸和 Dynamic 比较 | 可变对象块与小范围读取 |
+| 1. 基础 fio | 大块顺序与小块随机读写能否更快，实际存储读写能否更少？ | BrewFS 原版独立卷、Workspace Native、JuiceFS Redis；附带块尺寸和 Dynamic 比较 | 可变对象块与小范围读取 |
 | 2. fork 与 Overlay | 创建子工作区有多快，增加一层 Overlay 带来多少读写开销？ | BrewFS fork、JuiceFS clone、JuiceFS Overlay | 共享父数据、私有增量 |
 | 3. Packed | Packed 能否加快 10 万只读小文件的准备和读取？ | Native、Packed、JuiceFS Redis、JuiceFS TiKV | Packed 索引与整包读取 |
 | 4. 多 Agent 回放 | 多个 Agent 同时工作时，吞吐和存储开销如何变化？ | BrewFS 工作区、JuiceFS Redis、JuiceFS Overlay | 共享数据、私有修改与 Dynamic |
 
 ## 1. 基础 fio
 
-在 fork 出来的空工作区中生成 8 个 256 MiB 文件，共 2 GiB，再直接读写这些文件。测试数据属于当前可写层。输入准备在计时前完成。
+三个系统分别生成内容相同的 8 个 256 MiB 文件，共 2 GiB。原版 BrewFS 使用 `volume_format=flat`；Workspace Native 在 fork 出来的空工作区当前层写入数据；JuiceFS 使用独立测试目录。输入准备在计时前完成。
 
 固定 8 个 fio job，使用 `direct=1`：
 
@@ -20,13 +20,13 @@
 | 顺序读、顺序写 | 1 MiB | 各 2 GiB |
 | 随机读、随机写 | 4 KiB | 各 64 MiB |
 
-- 主比较：BrewFS Native 与 JuiceFS Redis，共四种负载。
-- Dynamic 比较：BrewFS 在同四种负载下关闭 Dynamic。
+- 主比较：BrewFS 原版独立卷（`flat`）、BrewFS Workspace Native、JuiceFS Redis，各运行顺序读、顺序写、随机读、随机写。
+- Dynamic 比较：Workspace Native 在同四种负载下关闭 Dynamic。
 - 块尺寸比较：只在随机读、随机写中增加固定 B=64 KiB、4 MiB，其他参数保持不变。
 - 读取从客户端冷缓存开始；写入每累计 64 MiB 执行 fsync，最后等待上传完成。
 - 指标：吞吐、IOPS、P99、应用/S3/磁盘读写字节。记录实际 B/q。
 
-共 16 组系统配置，各运行一次，合计 **16 次运行**。复用 fio 配置生成、`c1-io-helper`、挂载和指标采集代码。
+共 20 组系统配置，各运行一次，合计 **20 次运行**。复用 fio 配置生成、`c1-io-helper`、挂载和指标采集代码。
 
 ## 2. fork 与 Overlay 开销
 
@@ -103,4 +103,4 @@ TiKV 部署在现有机器，并单独预留服务资源。正式计时条件依
 
 新结果统一放 `results/<run-id>/01-io/`、`02-fork/`、`03-packed/`、`04-agent-replay/`；每组保存配置、版本、原始输出、指标采样和汇总。历史结果放 `archive/results/`。
 
-合计 **52 次实际运行**，全部包含单次运行。每组使用单独配置和说明，共用准备、挂载、采集、监控与结果整理代码。
+合计 **56 次实际运行**，全部包含单次运行。每组使用单独配置和说明，共用准备、挂载、采集、监控与结果整理代码。

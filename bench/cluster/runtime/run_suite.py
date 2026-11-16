@@ -13,7 +13,7 @@ sys.path.insert(0, str(cl.REPO_ROOT))
 import rustfs_layout_tools as layout
 import run_c1 as fio
 
-SYSTEMS = {'brewfs-native': 'brewfs-native-overlay', 'juicefs-redis': 'juicefs',
+SYSTEMS = {'brewfs-flat': 'brewfs-flat', 'brewfs-native': 'brewfs-native-overlay', 'juicefs-redis': 'juicefs',
            'juicefs-overlay': 'juicefs-overlay'}
 
 
@@ -48,7 +48,13 @@ def run_io(job, out, small=False):
     if p['jobs'] != fio.JOBS or p['working_set_bytes'] % p['jobs']:
         raise ValueError('Fio input must divide evenly across its eight jobs')
     fio.BYTES_PER_JOB = 4 * 1024 * 1024 if small else p['working_set_bytes'] // p['jobs']
-    pool = fio.ParentPool(nodes, policy=cl.RUSTFS_BACKEND + f'-{fio.JOBS * fio.BYTES_PER_JOB}b' + ('-check' if small else ''))
+    policy = cl.RUSTFS_BACKEND + f'-{fio.JOBS * fio.BYTES_PER_JOB}b' + ('-check' if small else '')
+    if p['system'] == 'brewfs-flat':
+        policy += '-flat-' + job['id']
+    pool = fio.ParentPool(nodes, policy=policy)
+    if p['system'] == 'brewfs-flat':
+        pool.flat_redis_db = p['metadata_redis_db']
+        pool.flat_owner = cl.RUN_NAMESPACE + ':' + job['id']
     family = 'block-' + p['pattern']
     condition = {'id': job['id'], 'family': family, 'kind': 'measurement', 'parameters': copy.deepcopy(p)}
     if small:

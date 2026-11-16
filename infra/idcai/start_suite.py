@@ -14,6 +14,7 @@ def main():
     parser.add_argument('--reuse-prepared', help='Remote volume.json to verify again before continuing')
     parser.add_argument('--start-at', help='Start at this condition and continue through the remaining plan')
     parser.add_argument('--calibrate-after-io', action='store_true')
+    parser.add_argument('--extend-plan', action='store_true', help='Append approved conditions to an idle run')
     options = parser.parse_args()
     if options.group and options.calibrate_after_io:
         parser.error('Sampling calibration requires the complete suite')
@@ -25,12 +26,16 @@ from pathlib import Path
 sys.path.insert(0,'/srv/ax-cluster/direct/repo')
 sys.path.insert(0,'/srv/ax-cluster/direct/scripts')
 from runtime_context import RUN_ROOT,RUN_ID
-from bench.cluster.suite import build,export
+from bench.cluster.suite import build,export,extend
 root=Path('/srv/ax-cluster/direct/repo')
 suite=json.loads((root/'configs/experiment-suite.json').read_text())
 if suite['approval']!='approved':raise RuntimeError('Experiment configuration is not approved')
 if not (RUN_ROOT/'plan.json').exists():export(build(suite),RUN_ROOT)
+unit='ax-'+RUN_ID
+active=subprocess.run(['systemctl','is-active',unit],capture_output=True,text=True)
+if active.stdout.strip()=='active':raise RuntimeError('Experiment service is already active')
 expected=build(suite)
+if EXTEND_PLAN:extend(expected,RUN_ROOT)
 actual=json.loads((RUN_ROOT/'plan.json').read_text())
 if actual!=expected:raise RuntimeError('Saved run plan differs from the current configuration')
 (RUN_ROOT/'mounts').mkdir(exist_ok=True)
@@ -58,7 +63,8 @@ print(RUN_ROOT)
 '''.replace('group=GROUP', 'group=' + repr(options.group)).replace(
         'reuse_prepared=REUSE_PREPARED', 'reuse_prepared=' + repr(options.reuse_prepared)).replace(
         'start_at=START_AT', 'start_at=' + repr(options.start_at)).replace(
-        'ENTRYPOINT', 'continue_suite.py' if options.calibrate_after_io else 'run_suite.py')
+        'ENTRYPOINT', 'continue_suite.py' if options.calibrate_after_io else 'run_suite.py').replace(
+        'EXTEND_PLAN', repr(options.extend_plan))
     subprocess.run(['ssh', options.host, '/srv/ax-idcai-20261113/venv/bin/python3 -'], input=source.encode(), check=True)
 
 

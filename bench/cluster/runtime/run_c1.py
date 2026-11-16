@@ -17,7 +17,7 @@ sys.path.insert(0, "/srv/ax-cluster/direct/scripts")
 import cluster_lib as cl
 from c1_concurrent import ConcurrentPair
 
-SYSTEM_TAGS = {"brewfs-native-overlay": "brew", "juicefs": "jfs", "juicefs-overlay": "jov"}
+SYSTEM_TAGS = {"brewfs-flat": "flat", "brewfs-native-overlay": "brew", "juicefs": "jfs", "juicefs-overlay": "jov"}
 import rustfs_layout_tools as rlt
 
 OPENER = build_opener(ProxyHandler({}))
@@ -298,13 +298,13 @@ class ParentPool:
         keys_file = meta_file.with_name(meta_file.stem + "-keys.json")
         if meta_file.is_file():
             saved = json.loads(meta_file.read_text(encoding="utf-8"))
-            if saved.get("input_placement") == "child-writable-layer":
+            if saved.get("input_placement") in {"child-writable-layer", "flat-volume"}:
                 saved["parent_keys"] = set(json.loads(keys_file.read_text())) if keys_file.is_file() else set()
                 with self._lock:
                     self.parents[key] = saved
                 return saved
             existing = list_all_keys(saved["bucket"])
-            if saved.get("input_placement") == "child-writable-layer" or len(existing) >= 100:
+            if saved.get("input_placement") in {"child-writable-layer", "flat-volume"} or len(existing) >= 100:
                 if keys_file.is_file():
                     pkeys = set(json.loads(keys_file.read_text(encoding="utf-8")))
                 else:
@@ -348,7 +348,22 @@ class ParentPool:
         prep_ssh = cl.HOST_BY_NAME[prep_host]["ssh"]
         print(f"=== Preparing reusable {JOBS * BYTES_PER_JOB / 1024**3:g} GiB fio parent for {key} on {prep_host} (slot {prep_slot}, {ep}) ===", flush=True)
         t0 = time.monotonic()
-        if system == "brewfs-native-overlay":
+        if system == "brewfs-flat":
+            db = self.flat_redis_db
+            owner_key = "ax:flat-volume-owner"
+            current = cl.redis_cli("GET", owner_key, db=db).strip()
+            if current and current != self.flat_owner:
+                raise RuntimeError(f"Redis database {db} belongs to another flat volume")
+            if not current and int(cl.redis_cli("DBSIZE", db=db).strip()):
+                raise RuntimeError(f"Redis database {db} already contains data")
+            bucket = f"{cl.RUN_PREFIX}-c1-{self.policy}"
+            cl.ensure_bucket(bucket, endpoint=ep)
+            info = {"system": system, "hint": brewfs_hint, "bucket": bucket,
+                    "redis_db": db, "owner": self.flat_owner,
+                    "input_placement": "flat-volume", "prepare_seconds": 0,
+                    "object_count": 0, "layout": {"summary": {}}}
+            pkeys = set()
+        elif system == "brewfs-native-overlay":
             tag = brewfs_hint if brewfs_hint in {"auto", "off"} else f"b{int(brewfs_hint)//1024}"
             bucket = f"{cl.RUN_PREFIX}-c1-{self.policy}-brew-{tag}"
             ns = f"{cl.RUN_NAMESPACE}_c1_{self.policy}_brew_{tag}"
@@ -512,6 +527,35 @@ class ParentPool:
         m_ep = measure_ep or cl.RUSTFS_ENDPOINTS[0]
         v_ep = verify_ep or cl.RUSTFS_ENDPOINTS[1]
         t0 = time.monotonic()
+        if sys_name == "brewfs-flat":
+            database = parent["redis_db"]
+            owner = cl.redis_cli("GET", "ax:flat-volume-owner", db=database).strip()
+            if owner and owner != parent["owner"]:
+                raise RuntimeError("Flat volume Redis ownership changed")
+            if not owner and int(cl.redis_cli("DBSIZE", db=database).strip()):
+                raise RuntimeError("Flat volume Redis database contains unregistered data")
+            cl.redis_flush_db(database)
+            cl.redis_cli("SET", "ax:flat-volume-owner", parent["owner"], db=database)
+            spec = {"redis_db": database, "s3_bucket": parent["bucket"],
+                    "s3_endpoint": m_ep, "rustfs_ec_block_size_hint": parent["hint"]}
+            prep_id = f"{tag}-input"
+            prep_path = work_dir / "input-mounts.json"
+            cl.generate_mounts_json([make_req(prep_id, "initial", sys_name, "idcai-60001", adm_slot,
+                "flat", "none", "input", str(cl.BIN_DIR / "brewfs"))], prep_path)
+            mounts = cl.start_mounts(prep_path, {prep_id: spec}, work_dir, register_collector=False)
+            before = time.monotonic()
+            try:
+                cl.run_on_host("A366", [str(cl.BIN_DIR / "c1-io-helper"), "init-files",
+                    "--root", mounts[0]["mount_directory"], "--jobs", str(JOBS),
+                    "--bytes-per-job", str(BYTES_PER_JOB)], timeout=7200)
+                cl.wait_uploads(mounts)
+            finally:
+                cl.stop_mounts(mounts, work_dir, clear_collector=False, remove_cache=True)
+            parent["layout"] = rlt.inspect_bucket_layout(self.nodes_meta, parent["bucket"])
+            (work_dir / "input.json").write_text(json.dumps({"placement": "flat-volume",
+                "redis_db": database, "bytes": JOBS * BYTES_PER_JOB,
+                "seconds": time.monotonic() - before, "layout": parent["layout"]}, indent=2) + "\n")
+            return "flat", spec, dict(spec, s3_endpoint=v_ep), 0.0
         if sys_name == "brewfs-native-overlay":
             fork_rec = cl.extract_json_from_cli(
                 cl.run_on_host(
@@ -918,7 +962,7 @@ def execute_fio_family_run(
         "started_at": started_at,
         "ended_at": cl.utc_iso(),
         "object_layout": {
-            "requested_B": brewfs_hint if system == "brewfs-native-overlay" else "product-default",
+            "requested_B": brewfs_hint if system.startswith("brewfs") else "product-default",
             "actual_B": lay_sum.get("actual_B"),
             "actual_q": lay_sum.get("actual_q"),
             "raw_quantum_meta": lay_sum.get("raw_quantum_meta"),

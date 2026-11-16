@@ -276,11 +276,11 @@ class RustFSBackendTests(unittest.TestCase):
 
 
 class SuiteRuntimeTests(unittest.TestCase):
-    def test_dispatches_each_of_52_jobs_once_to_its_group(self):
+    def test_dispatches_each_of_56_jobs_once_to_its_group(self):
         suite_spec = json.loads((ROOT / "configs/experiment-suite.json").read_text(encoding="utf-8"))
         suite_builder = load_module("suite_builder_runtime_test_module", ROOT / "bench/cluster/suite.py")
         plan = suite_builder.build(suite_spec)
-        self.assertEqual(plan["total_runs"], 52)
+        self.assertEqual(plan["total_runs"], 56)
 
         with tempfile.TemporaryDirectory() as temporary:
             run_root = Path(temporary)
@@ -319,17 +319,17 @@ class SuiteRuntimeTests(unittest.TestCase):
                     contextlib.redirect_stdout(io.StringIO()):
                 module.main()
 
-            self.assertEqual(len(seen), 52)
-            self.assertEqual(len({item[1] for item in seen}), 52)
+            self.assertEqual(len(seen), 56)
+            self.assertEqual(len({item[1] for item in seen}), 56)
             self.assertEqual(
                 {group: sum(item[0] == group for item in seen) for group in (
                     "01-io", "02-fork", "03-packed", "04-agent-replay")},
-                {"01-io": 16, "02-fork": 12, "03-packed": 11, "04-agent-replay": 13},
+                {"01-io": 20, "02-fork": 12, "03-packed": 11, "04-agent-replay": 13},
             )
             self.assertTrue(all(item[0] == item[2] for item in seen))
             self.assertTrue(all(not item[3] for item in seen))
             status = json.loads((run_root / "status.json").read_text(encoding="utf-8"))
-            self.assertEqual(status["completed_runs"], 52)
+            self.assertEqual(status["completed_runs"], 56)
             for job in plan["jobs"]:
                 saved = run_root / job["output"] / "attempt-01/source-record.json"
                 self.assertEqual(json.loads(saved.read_text()), source_record)
@@ -347,19 +347,46 @@ class SuiteRuntimeTests(unittest.TestCase):
             self.assertEqual([item[1] for item in seen], [selected])
             status = json.loads((run_root / 'status.json').read_text())
             self.assertEqual(status['jobs'][earlier], {'state': 'failed', 'error': 'retained error'})
-            self.assertEqual(status['completed_runs'], 51)
+            self.assertEqual(status['completed_runs'], 55)
 
     def test_fio_input_and_measurement_mounts_use_the_child_workspace(self):
         source = ROOT / "bench/cluster/runtime/run_c1.py"
         fork_child = source_function(source, "fork_child", "ParentPool")
-        prep_calls = [
-            node for node in ast.walk(fork_child)
-            if isinstance(node, ast.Call) and call_name(node.func) == "make_req"
-            and len(node.args) > 7
-            and isinstance(node.args[7], ast.Constant) and node.args[7].value == "input"
-        ]
-        self.assertEqual(len(prep_calls), 1)
-        self.assertTrue(ast_name(prep_calls[0].args[5], "child_ws"))
+
+        def system_branch(system):
+            return next(
+                node for node in ast.walk(fork_child)
+                if isinstance(node, ast.If)
+                and isinstance(node.test, ast.Compare)
+                and isinstance(node.test.left, ast.Name)
+                and node.test.left.id == "sys_name"
+                and len(node.test.ops) == 1
+                and isinstance(node.test.ops[0], ast.Eq)
+                and len(node.test.comparators) == 1
+                and isinstance(node.test.comparators[0], ast.Constant)
+                and node.test.comparators[0].value == system
+            )
+
+        def input_mount_calls(branch):
+            return [
+                node for node in ast.walk(branch)
+                if isinstance(node, ast.Call) and call_name(node.func) == "make_req"
+                and len(node.args) > 7
+                and isinstance(node.args[7], ast.Constant)
+                and node.args[7].value == "input"
+            ]
+
+        native_branch = system_branch("brewfs-native-overlay")
+        flat_branch = system_branch("brewfs-flat")
+        native_prep_calls = input_mount_calls(native_branch)
+        flat_prep_calls = input_mount_calls(flat_branch)
+        self.assertEqual(len(native_prep_calls), 1)
+        self.assertTrue(ast_name(native_prep_calls[0].args[5], "child_ws"))
+        self.assertEqual(len(flat_prep_calls), 1)
+        self.assertIsInstance(flat_prep_calls[0].args[5], ast.Constant)
+        self.assertEqual(flat_prep_calls[0].args[5].value, "flat")
+        self.assertIsInstance(flat_prep_calls[0].args[6], ast.Constant)
+        self.assertEqual(flat_prep_calls[0].args[6].value, "none")
 
         executor = source_function(source, "execute_fio_family_run")
         measured_calls = [
@@ -371,19 +398,28 @@ class SuiteRuntimeTests(unittest.TestCase):
         ]
         self.assertEqual({node.args[1].value for node in measured_calls}, {"measure", "verify"})
         self.assertTrue(all(ast_name(node.args[5], "child_ws") for node in measured_calls))
-        calls = [node for node in ast.walk(fork_child)
-                 if isinstance(node, ast.Call) and call_name(node.func) == "run_on_host"]
-        helper_call = next(node for node in calls
-                           if any(isinstance(arg, ast.Constant) and arg.value == "c1-io-helper"
-                                  for arg in ast.walk(node)))
-        self.assertIn("mounted[0]['mount_directory']", ast.unparse(helper_call))
+
+        def helper_call(branch):
+            calls = [
+                node for node in ast.walk(branch)
+                if isinstance(node, ast.Call) and call_name(node.func) == "run_on_host"
+            ]
+            return next(
+                node for node in calls
+                if any(
+                    isinstance(arg, ast.Constant) and arg.value == "c1-io-helper"
+                    for arg in ast.walk(node)
+                )
+            )
+
+        self.assertIn("mounted[0]['mount_directory']", ast.unparse(helper_call(native_branch)))
+        self.assertIn("mounts[0]['mount_directory']", ast.unparse(helper_call(flat_branch)))
         parent_source = source_function(source, "ensure_io_parent", "ParentPool")
         self.assertIn(
             "child-writable-layer",
             [node.value for node in ast.walk(parent_source)
              if isinstance(node, ast.Constant) and isinstance(node.value, str)],
         )
-
     def test_corpus_places_at_most_1000_files_in_each_directory(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

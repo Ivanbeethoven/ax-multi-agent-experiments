@@ -186,8 +186,8 @@ def cmd_start(args):
         cfg_obj = {
             "mount_point": str(mount_dir),
             "volume_format": record["volume_format"],
-            "workspace": spec["workspace_uuid"],
-            "workspace_namespace": spec["workspace_namespace"],
+            "workspace": spec.get("workspace_uuid"),
+            "workspace_namespace": spec.get("workspace_namespace"),
             "workspace_operator_managed": engine != "brewfs-packed",
             "layout": {
                 "chunk_size": 4194304,
@@ -212,6 +212,13 @@ def cmd_start(args):
             },
             "cache": record["cache"],
         }
+        if engine == "brewfs-flat":
+            for key in ("workspace", "workspace_namespace", "workspace_operator_managed"):
+                cfg_obj.pop(key)
+            database = int(spec["redis_db"])
+            if not 1 <= database <= 15:
+                raise ValueError("Flat volumes require a dedicated Redis database")
+            cfg_obj["meta"]["redis"]["url"] = f"redis://:{redis_pw}@175.168.3.55:{REDIS_PORT}/{database}"
         if spec.get("meta_backend") == "tikv":
             cfg_obj["meta"] = {"backend": "tikv", "tikv": {"pd_endpoints": spec["pd_endpoints"], "namespace": spec["workspace_namespace"]}}
         if spec.get("packed_manifest_key"):

@@ -6,12 +6,12 @@
 
 | 实验 | 内容 |
 |---|---|
-| [1. 基础 fio](experiments/01-io.md) | 大块顺序、小块随机，附带块尺寸与 Dynamic 比较 |
+| [1. 基础 fio](experiments/01-io.md) | 原版独立卷、Workspace、JuiceFS 的顺序和随机读写，附带块尺寸与 Dynamic 比较 |
 | [2. fork 与 Overlay](experiments/02-fork.md) | 子工作区创建时间与增加一层后的读写开销 |
 | [3. Packed](experiments/03-packed.md) | 10 万小文件，Native、Packed、JuiceFS Redis/TiKV |
 | [4. 多 Agent 回放](experiments/04-agent-replay.md) | 1/8/16/64 个 Agent，固定种子的随机等待 |
 
-运行：[准备、启动与单次检查](docs/RUNNING.md)。本轮每个条件一次，共 **52 项**。
+运行：[准备、启动与单次检查](docs/RUNNING.md)。本轮每个条件一次，共 **56 项**。
 
 环境：[服务器与依赖](docs/SETUP.md) · [内网](docs/NETWORK.md) · [挂载参数](docs/MOUNTS.md) · [指标](docs/METRICS.md)。
 

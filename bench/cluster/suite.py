@@ -46,6 +46,33 @@ def export(plan, directory):
         'jobs': {job['id']: {'state': 'planned'} for job in plan['jobs']}}, indent=2) + '\n', encoding='utf-8')
 
 
+def extend(plan, directory):
+    """Add approved conditions to an idle run while retaining existing results."""
+    directory = Path(directory)
+    saved = json.loads((directory / 'plan.json').read_text(encoding='utf-8'))
+    expected = {job['id']: job for job in plan['jobs']}
+    if saved['run_id'] != plan['run_id'] or saved['resource_limits'] != plan['resource_limits']:
+        raise ValueError('Run identity or resource limits changed')
+    if any(expected.get(job['id']) != job for job in saved['jobs']):
+        raise ValueError('Existing conditions must remain unchanged')
+    status = json.loads((directory / 'status.json').read_text(encoding='utf-8'))
+    if any(row.get('state') == 'running' for row in status['jobs'].values()):
+        raise ValueError('Wait for the running condition before extending the plan')
+    old_ids = {job['id'] for job in saved['jobs']}
+    added = [job for job in plan['jobs'] if job['id'] not in old_ids]
+    for job in added:
+        out = directory / job['output']
+        out.mkdir(parents=True, exist_ok=True)
+        (out / 'job.json').write_text(json.dumps(job, indent=2) + '\n', encoding='utf-8')
+        status['jobs'][job['id']] = {'state': 'planned'}
+    status['total_runs'] = plan['total_runs']
+    for name, value in [('plan.json', plan), ('status.json', status)]:
+        temporary = directory / (name + '.tmp')
+        temporary.write_text(json.dumps(value, indent=2) + '\n', encoding='utf-8')
+        temporary.replace(directory / name)
+    return [job['id'] for job in added]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config', type=Path, default=ROOT / 'configs/experiment-suite.json')

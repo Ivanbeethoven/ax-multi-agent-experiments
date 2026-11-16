@@ -8,7 +8,10 @@ jobs = json.loads((reference / 'status.json').read_text())['jobs']
 binary = pathlib.Path('/srv/ax-cluster/direct/bin')
 brewfs = pathlib.Path(os.environ.get('DIAG_BREWFS_BIN', binary/'brewfs')).resolve()
 driver = '/srv/ax-cluster/direct/scripts/mount_driver.py'
-redis = 'redis://127.0.0.1:37379/0'
+volume_mode = os.environ.get('DIAG_VOLUME_MODE', 'workspace')
+if volume_mode not in {'flat', 'workspace'}:
+    raise ValueError('DIAG_VOLUME_MODE must be flat or workspace')
+redis = 'redis://127.0.0.1:37379/' + ('1' if volume_mode == 'flat' else '0')
 endpoint = 'http://127.0.0.1:39000'
 auth = {'AWS_ACCESS_KEY_ID':'dynamicdiag', 'AWS_SECRET_ACCESS_KEY':'localdiagnostic-only'}
 port = 39567
@@ -16,6 +19,11 @@ hint = sys.argv[2]
 read_memory_mib = int(sys.argv[3])
 policy = sys.argv[4]
 operations = sys.argv[5:]
+read_variants = json.loads(os.environ.get('DIAG_READ_BINARIES', '[]'))
+if not isinstance(read_variants, list) or not all(isinstance(v, str) and pathlib.Path(v).is_file() for v in read_variants):
+    raise ValueError('DIAG_READ_BINARIES must contain existing BrewFS binary paths')
+if read_variants and any(mode not in {'seqread', 'randread'} for mode in operations):
+    raise ValueError('Shared-input comparisons support read operations only')
 assert policy in {'backend-default','whole-object','sparse'}
 assert hint in {'off', 'auto'} and read_memory_mib in {512,4096}
 server_pid = subprocess.check_output(['docker','inspect','-f','{{.State.Pid}}',(out/'container').read_text().strip()],text=True).strip()
@@ -41,26 +49,33 @@ for number, operation in [(n, mode) for n, mode in [(4,'randwrite'), (2,'seqwrit
     source = pathlib.Path(jobs[f'01-io-{number:02d}-r1']['output'])
     audit = json.loads(next(source.glob('*-m-audit.json')).read_text())
     reference_result = json.loads((source/'result.json').read_text())
+    if volume_mode == 'flat':
+        audit['environment'] = {k: v for k, v in audit['environment'].items()
+            if not k.startswith(('BREWFS_PACKED_', 'BREWFS_WORKSPACE_'))}
     ns = f'dynio{time.time_ns()}'
     bucket = f'{ns}-{operation}'
     s3.create_bucket(Bucket=bucket)
     admin = [binary/'ax-brewfs-admin', '--meta-url',redis,'--workspace-namespace',ns]
     env = {**os.environ, **auth, **audit['environment']}
-    init = decode_cli(run(*admin,'init-shared-volume',env=env,capture_output=True,text=True).stdout)
-    fork = decode_cli(run(*admin,'fork-shared-bucket','--revision',init['fork_base'],'--count','1',env=env,capture_output=True,text=True).stdout)
+    if volume_mode == 'flat':
+        run('redis-cli', '-h', '127.0.0.1', '-p', '37379', '-n', '1', 'FLUSHDB', 'SYNC')
+        fork = {'workspaces': ['flat']}
+    else:
+        init = decode_cli(run(*admin,'init-shared-volume',env=env,capture_output=True,text=True).stdout)
+        fork = decode_cli(run(*admin,'fork-shared-bucket','--revision',init['fork_base'],'--count','1',env=env,capture_output=True,text=True).stdout)
     mount = work / 'mount'
     mount.mkdir()
 
     @contextlib.contextmanager
     def mounted(stage):
-        unit = f"{ns}-{stage}.service"
+        unit = f"{ns}-{work.name}-{stage}.service"
         cache = work / f'cache-{stage}'
         cache.mkdir()
-        config = work / f'{stage}.json'
+        config = work / f'{stage}-config.json'
         write(config, {
-            'mount_point': str(mount), 'volume_format':'workspace',
-            'workspace':fork['workspaces'][0], 'workspace_namespace':ns,
-            'workspace_operator_managed':True,
+            'mount_point': str(mount), 'volume_format':volume_mode,
+            **({} if volume_mode == 'flat' else {'workspace':fork['workspaces'][0],
+                'workspace_namespace':ns, 'workspace_operator_managed':True}),
             'layout':{'chunk_size':4194304,'block_size':4194304},
             'data':{'backend':'s3','s3':{'bucket':bucket,'endpoint':endpoint,
                     'region':'us-east-1','max_concurrency':16,'force_path_style':True,
@@ -104,51 +119,65 @@ for number, operation in [(n, mode) for n, mode in [(4,'randwrite'), (2,'seqwrit
         with (work/'input.json').open('w') as report:
             in_mount(cg,binary/'c1-io-helper','init-files','--root',mount,'--jobs',8,'--bytes-per-job',268435456,stdout=report)
         drain('input')
-    fio = work/'workload.fio'
-    fio.write_text(re.sub(r'(?m)^filename=.*/(job-\d+\.dat)$',lambda match: f'filename={mount}/{match[1]}',(source/'workload.fio').read_text()))
-    with mounted('measure') as cg:
-        for name in ('memory.max','memory.events','memory.stat'):
-            (work/f'before-{name}').write_bytes((cg/name).read_bytes())
-        passes = ['cold','hot'] if operation.endswith('read') else ['write']
-        results = {}
-        def metrics():
-            return urllib.request.urlopen(f'http://127.0.0.1:{port}/metrics', timeout=10).read()
-        for stage in passes:
-            (work/f'{stage}-before.prom').write_bytes(metrics())
-            host_snapshot(stage+'-before')
-            collecting = os.environ.get('DIAG_OTEL') == '1'
-            def server_metrics():
-                return urllib.request.urlopen('http://127.0.0.1:39464/metrics', timeout=10).read()
-            if collecting:
-                time.sleep(2.1)
-                (work/f'{stage}-server-before.prom').write_bytes(server_metrics())
-            path = work/f'{stage}-fio.json'
-            start = time.monotonic()
-            in_mount(cg,'fio','--output-format=json+',f'--output={path}',fio)
-            elapsed = time.monotonic()-start
-            if stage == 'write':
-                drain(stage)
-            host_snapshot(stage+'-after')
-            (work/f'{stage}-after.prom').write_bytes(metrics())
-            if collecting:
-                time.sleep(2.1)
-                (work/f'{stage}-server-after.prom').write_bytes(server_metrics())
-            f = json.loads(path.read_text())
-            direction = 'read' if operation.endswith('read') else 'write'
-            stats = f['jobs'][0][direction]
-            assert all(job['error'] == 0 for job in f['jobs'])
-            assert stats['io_bytes'] == reference_result['application'][direction+'_bytes']
-            results[stage] = dict(seconds=elapsed, fio_seconds=stats['runtime']/1000,
-                MiB_per_second=stats['io_bytes']/elapsed/1048576, bytes=stats['io_bytes'],
-                p99_ms=stats['clat_ns']['percentile']['99.000000']/1000000)
-        for name in ('memory.events','memory.stat'):
-            (work/f'after-{name}').write_bytes((cg/name).read_bytes())
-        (work/'metrics.prom').write_bytes(urllib.request.urlopen(f'http://127.0.0.1:{port}/metrics').read())
-    with mounted('verify') as cg:
-        options = ['--seq-written-per-job',268435456] if operation=='seqwrite' else []
-        with (work/'verify.json').open('w') as report:
-            in_mount(cg,binary/'c1-io-helper','verify-files','--root',mount,'--jobs',8,'--bytes-per-job',268435456,
-                     '--mode',operation,'--seed',reference_result['seed'],*options,stdout=report)
-    assert json.loads((work/'verify.json').read_text())['passed'] is True
-    write(work/'summary.json', dict(passes=results, verified=True,
-          hint=hint, policy=policy, brewfs_binary=str(brewfs), read_memory_mib=read_memory_mib, reference=str(source)))
+    prepared_work = work
+    input_binary = brewfs
+    for variant_index, variant_binary in enumerate(read_variants or [str(input_binary)]):
+        brewfs = pathlib.Path(variant_binary).resolve()
+        if read_variants:
+            work = prepared_work / f'variant-{variant_index:02d}'
+            work.mkdir()
+        fio = work/'workload.fio'
+        fio.write_text(re.sub(r'(?m)^filename=.*/(job-\d+\.dat)$',lambda match: f'filename={mount}/{match[1]}',(source/'workload.fio').read_text()))
+        with mounted('measure') as cg:
+            for name in ('memory.max','memory.events','memory.stat'):
+                (work/f'before-{name}').write_bytes((cg/name).read_bytes())
+            passes = ['cold','hot'] if operation.endswith('read') else ['write']
+            results = {}
+            def metrics():
+                return urllib.request.urlopen(f'http://127.0.0.1:{port}/metrics', timeout=10).read()
+            for stage in passes:
+                (work/f'{stage}-before.prom').write_bytes(metrics())
+                host_snapshot(stage+'-before')
+                for counter in ('cpu.stat', 'io.stat'):
+                    (work/f'{stage}-before-{counter}').write_bytes((cg/counter).read_bytes())
+                collecting = os.environ.get('DIAG_OTEL') == '1'
+                def server_metrics():
+                    return urllib.request.urlopen('http://127.0.0.1:39464/metrics', timeout=10).read()
+                if collecting:
+                    time.sleep(2.1)
+                    (work/f'{stage}-server-before.prom').write_bytes(server_metrics())
+                path = work/f'{stage}-fio.json'
+                start = time.monotonic()
+                in_mount(cg,'fio','--output-format=json+',f'--output={path}',fio)
+                elapsed = time.monotonic()-start
+                if stage == 'write':
+                    drain(stage)
+                host_snapshot(stage+'-after')
+                for counter in ('cpu.stat', 'io.stat'):
+                    (work/f'{stage}-after-{counter}').write_bytes((cg/counter).read_bytes())
+                (work/f'{stage}-after.prom').write_bytes(metrics())
+                if collecting:
+                    time.sleep(2.1)
+                    (work/f'{stage}-server-after.prom').write_bytes(server_metrics())
+                f = json.loads(path.read_text())
+                direction = 'read' if operation.endswith('read') else 'write'
+                stats = f['jobs'][0][direction]
+                assert all(job['error'] == 0 for job in f['jobs'])
+                assert stats['io_bytes'] == reference_result['application'][direction+'_bytes']
+                results[stage] = dict(seconds=elapsed, fio_seconds=stats['runtime']/1000,
+                    MiB_per_second=stats['io_bytes']/elapsed/1048576, bytes=stats['io_bytes'],
+                    p99_ms=stats['clat_ns']['percentile']['99.000000']/1000000)
+            for name in ('memory.events','memory.stat'):
+                (work/f'after-{name}').write_bytes((cg/name).read_bytes())
+            (work/'metrics.prom').write_bytes(urllib.request.urlopen(f'http://127.0.0.1:{port}/metrics').read())
+        with mounted('verify') as cg:
+            options = ['--seq-written-per-job',268435456] if operation=='seqwrite' else []
+            with (work/'verify.json').open('w') as report:
+                in_mount(cg,binary/'c1-io-helper','verify-files','--root',mount,'--jobs',8,'--bytes-per-job',268435456,
+                         '--mode',operation,'--seed',reference_result['seed'],*options,stdout=report)
+        assert json.loads((work/'verify.json').read_text())['passed'] is True
+        write(work/'summary.json', dict(passes=results, verified=True,
+              hint=hint, policy=policy, volume_format=volume_mode, brewfs_binary=str(brewfs), read_memory_mib=read_memory_mib, reference=str(source),
+              input_binary=str(input_binary), input_directory=str(prepared_work), workspace=fork['workspaces'][0]))
+    work = prepared_work
+    brewfs = input_binary

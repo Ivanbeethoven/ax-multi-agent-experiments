@@ -28,7 +28,9 @@ class MountTests(unittest.TestCase):
         return mounts.render(request, self.profiles, self.design)
 
     def test_all_systems_and_phases_fit_the_same_total_limits(self):
-        for engine in ("brewfs-native-overlay", "brewfs-packed", "juicefs", "juicefs-overlay"):
+        for engine in (
+            "brewfs-native-overlay", "brewfs-packed", "brewfs-flat", "juicefs", "juicefs-overlay"
+        ):
             for phase in mounts.PHASES:
                 with self.subTest(engine=engine, phase=phase):
                     result = self.record(engine, phase=phase)
@@ -54,7 +56,7 @@ class MountTests(unittest.TestCase):
         self.assertEqual(self.profiles["juicefs_staging_reserve_mib"], 1024)
 
     def test_fio_resources_cover_each_phase_with_equal_read_cache(self):
-        for engine in ("brewfs-native-overlay", "juicefs"):
+        for engine in ("brewfs-native-overlay", "brewfs-flat", "juicefs"):
             for phase in mounts.PHASES:
                 record = self.record(engine, phase=phase, resource_profile="fio")
                 self.assertEqual(record["memory_bytes"], 16 * 1024**3)
@@ -65,6 +67,27 @@ class MountTests(unittest.TestCase):
                     self.assertEqual(record["cache"]["read_ssd_bytes"], 56 * 1024**3)
                     self.assertEqual(record["cache"]["write_ssd_bytes"], 8 * 1024**3)
                 self.assertEqual(len(mounts.validate_windows([record], self.design)), 1)
+
+    def test_brewfs_flat_mount_uses_flat_volume_and_fio_budgets(self):
+        flat = self.record("brewfs-flat", resource_profile="fio")
+        native = self.record("brewfs-native-overlay", resource_profile="fio")
+
+        self.assertEqual(flat["resource_profile"], "fio")
+        self.assertEqual(flat["volume_format"], "flat")
+        self.assertEqual(flat["memory_bytes"], 16 * 1024**3)
+        self.assertEqual(flat["disk_bytes"], 64 * 1024**3)
+        self.assertEqual(flat["cache"]["read_ssd_bytes"], 56 * 1024**3)
+        self.assertEqual(flat["cache"]["write_ssd_bytes"], 8 * 1024**3)
+        for key in ("data_window_bytes", "data_workers", "initial_window_bytes"):
+            self.assertEqual(flat["prefetch"][key], native["prefetch"][key])
+        self.assertEqual(flat["prefetch"]["packed_metadata_and_data"], "not-applicable")
+        self.assertFalse(any(k.startswith(("BREWFS_PACKED_", "BREWFS_WORKSPACE_"))
+                             for k in flat["environment"]))
+        self.assertEqual(
+            flat["capacity_reservation_bytes"], native["capacity_reservation_bytes"]
+            - int(native["environment"]["BREWFS_WORKSPACE_ROW_CACHE_BYTES"])
+        )
+        self.assertEqual(len(mounts.validate_windows([flat], self.design)), 1)
 
     def test_fio_prefetch_limits_match_the_profile(self):
         brewfs = self.record(resource_profile="fio")
