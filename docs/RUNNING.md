@@ -54,6 +54,12 @@ ssh.exe idcai-60001 tail -n 30 /srv/ax-cluster/runs/direct/run-002/logs/suite.lo
 
 输出按组显示完成数：fio 20、fork 12、Packed 11、多 Agent 13。收到进度提醒后执行一次检查；服务正常运行时让后台继续。出现错误时查看对应 `failure.json`、命令输出和挂载日志，修复并重测该项。
 
+## 指定条件补测
+
+协调服务停止后，使用 `reset_suite_groups.py --job <条件编号> --label <归档名称>` 重新安排指定条件；多个条件重复传入 `--job`。原始 attempt 目录保留，上一版汇总和状态移入 `archive/results/<归档名称>/`。随后用 `run_suite.py --job <条件编号>` 执行。
+
+需要后台等待时，使用 `repeat_suite_jobs.py --job <条件编号> --label <归档名称> --execute`。它等待当前计划全部通过、协调服务和 `--wait-service` 指定服务结束，并确认可用磁盘空间至少为 16 GiB 且不低于总容量的 12%，再占用同一个协调服务名称顺序补测。`--require-job` 可指定尚待追加的条件。状态写入 `continuations/<归档名称>.json`。不传 `--execute` 时只检查等待条件。
+
 ## 目录与结果
 
 - 协调者：A366，`idcai-60001`。
