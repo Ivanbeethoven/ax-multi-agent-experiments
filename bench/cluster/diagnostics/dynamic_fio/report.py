@@ -13,6 +13,31 @@ def metric(path: Path, series: str) -> int:
     raise ValueError(f"{path}: missing {series}")
 
 
+def sync_stages(case: Path, phase: str) -> dict:
+    before = case / f"{phase}-server-before.prom"
+    after = case / f"{phase}-server-after.prom"
+    if not before.is_file() or not after.is_file():
+        return {}
+
+    def aggregate(lines: list[str], stage: str, suffix: str) -> float:
+        prefix = f"rustfs_s3_put_object_stage_duration_ms_{suffix}" + "{"
+        return sum(
+            float(line.split()[-1])
+            for line in lines
+            if line.startswith(prefix) and f'stage="{stage}"' in line
+        )
+
+    start = before.read_text().splitlines()
+    end = after.read_text().splitlines()
+    result = {}
+    for stage in ("disk_fsync_worker_dispatch_wait", "disk_fsync_worker_execute"):
+        count = aggregate(end, stage, "count") - aggregate(start, stage, "count")
+        total_ms = aggregate(end, stage, "sum") - aggregate(start, stage, "sum")
+        if count > 0:
+            result[stage] = {"samples": int(count), "mean_ms": total_ms / count}
+    return result
+
+
 def report(root: Path):
     traffic = {
         "get_requests": 'brewfs_object_get_total{kind="upper"}',
@@ -23,6 +48,7 @@ def report(root: Path):
     for summary in sorted(root.glob("fio-*/*/*/summary.json")):
         record = json.loads(summary.read_text())
         case = summary.parent
+        parameters = (case.parent.parent / "parameters.txt").read_text().splitlines()
         for stage, metrics in record["passes"].items():
             before = case / f"{stage}-before.prom"
             after = case / f"{stage}-after.prom"
@@ -34,9 +60,13 @@ def report(root: Path):
                 "run": case.parent.parent.name,
                 "operation": case.name,
                 "pass": stage,
+                "rustfs_binary": parameters[0],
+                "fsync_workers": int(parameters[1]),
+                "read_quantum": parameters[3] == "true",
                 **{key: value for key, value in record.items() if key != "passes"},
                 **metrics,
                 **delta,
+                "sync_stages": sync_stages(case, stage),
             }
 
 
