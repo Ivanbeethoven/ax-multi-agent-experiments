@@ -305,6 +305,24 @@ def batch_verify_cohort(vtasks_by_host: dict[str, list[dict]], run_tag: str) -> 
 # ==============================================================================
 # Base Trace Workspace Preparation (8 cases x 3 engines, sealed once & cached)
 # ==============================================================================
+def replay_root(directory, bases):
+    root = Path(directory)
+    schema = bases["schema"]
+    if schema == "ax-c2-base-preparation-v1":
+        return root
+    if schema == "ax-c2-base-preparation-v2":
+        return root / "trace-root"
+    raise ValueError(f"Unknown trace base schema: {schema}")
+
+
+def install_trace_tree(case, directory):
+    # Preserve the captured directory's ownership, mode and ACL on a normal
+    # directory inode. Linux creates FUSE_ROOT_ID before ACL negotiation.
+    dst = replay_root(directory, {"schema": "ax-c2-base-preparation-v2"})
+    dst.mkdir()
+    cl.run_on_host("A366", ["cp", "-a", "--", f"/srv/ax-cluster/input/traces/{case}/initial/.", str(dst) + "/"])
+
+
 def ensure_c2_bases(policy="on") -> dict:
     meta_file = cl.RUN_ROOT / "prepared" / f"trace-bases-{policy}.json"
     meta_file.parent.mkdir(parents=True, exist_ok=True)
@@ -345,7 +363,7 @@ def ensure_c2_bases(policy="on") -> dict:
         )
         m = cl.start_mounts(mp, {mid: {"workspace_uuid": base_ws, "workspace_namespace": ns, "s3_bucket": bkt, "s3_endpoint": cl.RUSTFS_ENDPOINTS[idx % 4]}}, prep_dir)
         try:
-            cl.run_on_host("A366", ["cp", "-a", f"/srv/ax-cluster/input/traces/{case}/initial/.", m[0]["mount_directory"].rstrip("/") + "/"])
+            install_trace_tree(case, m[0]["mount_directory"])
             up = cl.wait_uploads(m)[0]
         finally:
             cl.stop_mounts(m, prep_dir, remove_cache=True)
@@ -400,7 +418,7 @@ def ensure_c2_bases(policy="on") -> dict:
             tc0 = time.monotonic()
             dst = rdir / "bases" / case
             dst.mkdir(parents=True, exist_ok=True)
-            cl.run_on_host("A366", ["cp", "-a", f"/srv/ax-cluster/input/traces/{case}/initial/.", str(dst) + "/"])
+            install_trace_tree(case, dst)
             jfs_case_seconds[case] = round(time.monotonic() - tc0, 6)
         up_j = cl.wait_uploads(mj)[0]
     finally:
@@ -445,7 +463,7 @@ def ensure_c2_bases(policy="on") -> dict:
         )
         mo = cl.start_mounts(mp, {mid: {"volume": vol, "branch": "main", "s3_bucket_url": f"{cl.RUSTFS_ENDPOINTS[idx % 4]}/{bkt}"}}, prep_dir)
         try:
-            cl.run_on_host("A366", ["cp", "-a", f"/srv/ax-cluster/input/traces/{case}/initial/.", mo[0]["mount_directory"].rstrip("/") + "/"])
+            install_trace_tree(case, mo[0]["mount_directory"])
             up_o = cl.wait_uploads(mo)[0]
         finally:
             cl.stop_mounts(mo, prep_dir, remove_cache=True)
@@ -462,7 +480,7 @@ def ensure_c2_bases(policy="on") -> dict:
         print(f"  [JuiceFS-Overlay base] {case}: objects={len(keep_keys)} ({jov_bases[case]['prepare_wall_seconds']:.2f}s)", flush=True)
 
     doc = {
-        "schema": "ax-c2-base-preparation-v1",
+        "schema": "ax-c2-base-preparation-v2",
         "completed": True,
         "recorded_at": cl.utc_iso(),
         "brewfs_native_overlay": brew_bases,
@@ -743,7 +761,7 @@ def execute_c2_cohort_arm(
                     "slot": int(t["slot"]),
                     "engine": system,
                     "cgroup": m_info["cgroup"],
-                    "mount_directory": m_info["mount_directory"],
+                    "mount_directory": str(replay_root(m_info["mount_directory"], bases)),
                     "metrics_port": m_info["metrics_port"],
                     "events_path": f"/srv/ax-cluster/input/traces/{case}/capture/events.jsonl",
                     "blobs_dir": f"/srv/ax-cluster/input/traces/{case}/capture/blobs",
@@ -782,7 +800,7 @@ def execute_c2_cohort_arm(
                     "case": case,
                     "source_host": t["host"],
                     "verify_host": v_host,
-                    "mount_directory": vm["mount_directory"],
+                    "mount_directory": str(replay_root(vm["mount_directory"], bases)),
                     "final_tree_path": f"/srv/ax-cluster/input/traces/{case}/final-tree.json",
                     "replayed_dir": f"/srv/ax-cluster/input/traces/{case}/replayed",
                     "out_path": f"{cl.RUN_ROOT}/hosts/{v_host}/c2-tasks/{run_tag}/{tid}-verify.json",
@@ -890,6 +908,7 @@ def execute_c2_cohort_arm(
 
     return {
         "schema": "ax-c2-run-result-v1",
+        "trace_base_schema": bases["schema"],
         "group": "C2",
         "condition": cond_id,
         "family": cond["family"],
