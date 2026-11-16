@@ -53,6 +53,8 @@ Dynamic 开启使用 BrewFS hint `auto` 和修改版 RustFS `9000`；关闭使�
 
 ## 正式结果
 
+单机候选的最新数据见 [A366 冷读诊断表](../bench/cluster/diagnostics/read_path/README.md)。zero-gap 候选已完成 8/8 个读取用例，其四节点正式 fio 复测尚未启动。
+
 每次复测创建新的 attempt 目录，保留旧结果。只有内容检查、实际读写量和上传完成检查通过后，才更新该条件的当前结果。汇总保存源码版本、二进制路径、线程数和原始结果目录；不同配置的结果分开列出。
 
 需要重新运行某组时，先让服务在条件结束处停止，然后在 A366 执行 `reset_suite_groups.py --group 01-io --label <本次归档名称>`。该脚本将当前配置、版本、状态和汇总保存到 `run-002/archive/results/<名称>/`，原始 attempt 目录保持原位。
