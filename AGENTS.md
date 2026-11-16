@@ -9,7 +9,7 @@
 - Dynamic 比较放在第 1、3、4 组；第 4 组只在 64 个 Agent 时增加关闭条件。
 - 复用 bench/cluster、infra/idcai、infra/rustfs 和 tools 中的现有实现。旧套件及对应测试位于 archive/legacy-code。
 - 输入目录见 configs/trace-inputs.json。完整回放使用 tools/full-fuse-replay。
-- 本轮每个条件运行一次，共 56 项。入口为 infra/idcai/start_suite.py；状态由 runtime/status_suite.py 单次查询。
+- run-002 按已生成的 52 项计划运行。C1 已采用已有的 BrewFS Flat 结果，不向本轮追加 17–20 项。入口为 infra/idcai/start_suite.py；状态由 runtime/status_suite.py 单次查询。
 - 用户禁止计算、生成、比较或验证哈希与校验和。内容采用直接字节比较。
 
 ## 机器与运行

@@ -53,7 +53,8 @@ def main(root):
     print(f"# {root.name} 正式实验阶段结果\n\n截至北京时间 {now:%Y-%m-%d %H:%M}。"
           "每个条件仅取状态表选定且已通过的正式 attempt；原始结果保留在 A366。"
           f"表中末列相对于 `{root}`，该目录下的 `result.json` 是数据来源。\n")
-    for job in load(root / "plan.json")["jobs"]:
+    plan_jobs = load(root / "plan.json")["jobs"]
+    for job in plan_jobs:
         group = job["group"]
         rows = groups.setdefault(group, [])
         state = status.get(job["id"], {})
@@ -101,14 +102,17 @@ def main(root):
         "04-agent-replay": ("C4 · Agent 回放", ["并发数", "Dynamic", "回放耗时 s", "操作次数", "读取 B", "写入 B", "跨机校验通过数"]),
     }
     notes = {
-        "01-io": "表中吞吐使用 fio 自身的读或写带宽。Flat 的四项扩展不在初始 52 项中；按修订计划共 56 项。"
+        "01-io": "表中吞吐使用 fio 自身的读或写带宽。"
                  "单机候选用例的计时方法及数据见[单独的诊断表](../../bench/cluster/diagnostics/read_path/README.md)。",
         "02-fork": "direct-parent 直接使用父工作区。未单列读写耗时的多子工作区条件保留其批量创建时间。",
         "03-packed": "准备、读取分别计时；只有完成的读取条件进入表中。四挂载点功能检查单独记录。",
         "04-agent-replay": "并发数 1 的一行包含依次执行的 8 个 trace。字节数为回放程序实际读写量，跨机校验在回放计时后进行。",
     }
     total = sum(map(len, groups.values()))
-    print(f"**已完成 {total} 项**：C1 {len(groups['01-io'])}/20，C2 {len(groups['02-fork'])}/12，"
+    c1_planned = sum(job["group"] == "01-io" for job in plan_jobs)
+    c1 = ("已完成，Flat 采用已有结果" if root.name == "run-002" and len(groups["01-io"]) == c1_planned
+          else f"{len(groups['01-io'])}/{c1_planned}")
+    print(f"**本轮调度已完成 {total}/{len(plan_jobs)} 项**：C1 {c1}；C2 {len(groups['02-fork'])}/12，"
           f"C3 {len(groups['03-packed'])}/11，C4 {len(groups['04-agent-replay'])}/13。\n")
     for g, (label, columns) in definitions.items():
         print(f"## {label}\n")

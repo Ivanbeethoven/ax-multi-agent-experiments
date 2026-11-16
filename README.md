@@ -11,7 +11,7 @@
 | [3. Packed](experiments/03-packed.md) | 10 万小文件，Native、Packed、JuiceFS Redis/TiKV |
 | [4. 多 Agent 回放](experiments/04-agent-replay.md) | 1/8/16/64 个 Agent，固定种子的随机等待 |
 
-运行：[准备、启动与单次检查](docs/RUNNING.md)。本轮每个条件一次，共 **56 项**。
+运行：[准备、启动与单次检查](docs/RUNNING.md)。run-002 调度 **52 项**，每个条件一次；C1 的 BrewFS Flat 采用已有结果。
 
 环境：[服务器与依赖](docs/SETUP.md) · [内网](docs/NETWORK.md) · [挂载参数](docs/MOUNTS.md) · [指标](docs/METRICS.md)。
 
