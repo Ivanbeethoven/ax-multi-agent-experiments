@@ -41,6 +41,8 @@ Dynamic 开启使用 BrewFS hint `auto` 和修改版 RustFS `9000`；关闭使�
 
 `--plan <路径>` 可指定本次复测的完整方案，保留正在运行的其他实验方案；`--source-record <路径>` 指定实际候选源码与构建记录，写入每个条件的结果目录。
 
+复测 [BrewFS PR #454](https://github.com/brewfs/brewfs/pull/454)（响应缓冲预分配，提交 `c1e9dd1`）时，修复前后均显式传入 `--workers 8`，只更换对应的二进制和源码记录。核对挂载进程的 `TOKIO_WORKER_THREADS=8`，并将实际线程数、`--binary` 路径、`source-record.json` 与本次 `attempt-01` 原始目录一同列入汇总。附带其他预读或清零改动的版本单独记录。
+
 - `--workers 8` 固定 BrewFS Tokio 工作线程。
 - `--input-write-memory-mib 1024` 只将 BrewFS 输入准备挂载的写缓冲和对应内存预算增加至 1 GiB；正式测量挂载保持原有写缓存配置。
 - `--read-fetch-policy whole-object` 用于顺序读；`--read-fetch-policy sparse` 用于随机读和固定 B 比较。写入条件保持正常读取策略。
