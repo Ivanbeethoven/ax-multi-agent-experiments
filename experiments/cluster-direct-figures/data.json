@@ -1,0 +1,171 @@
+{
+  "c1": {
+    "seq_read_dyn_mib_s": 747.718,
+    "seq_read_off_mib_s": 487.735,
+    "seq_write_dyn_mib_s": 182.792,
+    "seq_write_off_mib_s": 237.974,
+    "seq_write_jfs_mib_s": 126.599,
+    "rand_read_dyn_mib_s": 9.277,
+    "rand_read_off_mib_s": 3.96,
+    "rand_read_64k_mib_s": 10.261,
+    "rand_read_4m_mib_s": 10.222,
+    "rand_read_jfs_mib_s": 9.273,
+    "rand_write_dyn_mib_s": 0.413,
+    "rand_write_off_mib_s": 1.533,
+    "rand_write_jfs_mib_s": 0.352,
+    "rand_write_off_p99_ms": 82.313,
+    "rand_write_jfs_p99_ms": 227.541,
+    "zerogap_flat_p99_ms": 35.389,
+    "zerogap_ws_p99_ms": 31.064,
+    "zerogap_jfs_pre_p99_ms": 62.652,
+    "zerogap_jfs_post_p99_ms": 70.779,
+    "q_off_mib_s": 9.85,
+    "q_on_mib_s": 14.52,
+    "fsync_1w_mib_s": 1.02,
+    "fsync_8w_mib_s": 2.385,
+    "fsync_1w_p99_ms": 120.585,
+    "fsync_8w_p99_ms": 41.68
+  },
+  "c2": {
+    "fanouts": [
+      1,
+      16,
+      64
+    ],
+    "brewfs_fork_s": [
+      0.027,
+      0.062,
+      0.178
+    ],
+    "jfs_clone_s": [
+      4.455,
+      70.669,
+      287.68
+    ],
+    "jfs_overlay_s": [
+      0.076,
+      1.164,
+      4.736
+    ],
+    "brewfs_parent_read_s": [
+      75.868,
+      93.035
+    ],
+    "brewfs_child_read_s": [
+      73.121,
+      72.238
+    ],
+    "ovl_child_read_s": [
+      72.555,
+      70.424
+    ],
+    "brewfs_parent_write_s": 23.742,
+    "brewfs_child_write_s": 23.409
+  },
+  "c3": {
+    "packed_dyn_s": 319.666,
+    "packed_off_s": 335.794,
+    "jfs_redis_s": 1031.938,
+    "jfs_tikv_s": 1056.241,
+    "native_tikv_s": 9568.59
+  },
+  "c4": {
+    "agents": [
+      1,
+      8,
+      16,
+      64
+    ],
+    "brewfs_dyn_s": [
+      4473.07,
+      2582.904,
+      2746.062,
+      4914.838
+    ],
+    "brewfs_tasks_n": [
+      8,
+      8,
+      16,
+      64
+    ],
+    "brewfs_off_64_s": 3549.335,
+    "fuse_ops_64": 92940160,
+    "read_gb_64": 17.902,
+    "write_gb_64": 5.228,
+    "faster_off_count": 44,
+    "wall_diff_med_s": -456.992,
+    "verify_on_med_s": 33.77,
+    "verify_off_med_s": 74.56,
+    "lookup_on_med_s": 13.54,
+    "lookup_off_med_s": 13.81,
+    "getx_on_med_s": 2.55,
+    "getx_off_med_s": 2.62,
+    "flush_on_med_s": 901.89,
+    "flush_off_med_s": 484.92,
+    "flush_diff_med_s": -415.79,
+    "put_n_on": 203017,
+    "put_n_off": 199775,
+    "put_ms_on": 420.78,
+    "put_ms_off": 172.56,
+    "a007_flush_on_s": 1748.22,
+    "a007_flush_off_s": 520.39,
+    "trace_medians": [
+      {
+        "case": "office-excel-01",
+        "label": "Excel",
+        "med_on_s": 674.208,
+        "med_off_s": 569.176,
+        "min_s": 179.742
+      },
+      {
+        "case": "tb-access-logs-01",
+        "label": "Logs",
+        "med_on_s": 1086.037,
+        "med_off_s": 573.807,
+        "min_s": 166.031
+      },
+      {
+        "case": "bfcl-travel-01",
+        "label": "BFCL",
+        "med_on_s": 1102.059,
+        "med_off_s": 617.591,
+        "min_s": 230.355
+      },
+      {
+        "case": "ml-vectorization-01",
+        "label": "ML-Vec",
+        "med_on_s": 634.275,
+        "med_off_s": 624.537,
+        "min_s": 229.102
+      },
+      {
+        "case": "dabench-39-01",
+        "label": "DABench",
+        "med_on_s": 769.632,
+        "med_off_s": 697.895,
+        "min_s": 305.418
+      },
+      {
+        "case": "appworld-export-01",
+        "label": "AppWorld",
+        "med_on_s": 1355.524,
+        "med_off_s": 710.462,
+        "min_s": 300.036
+      },
+      {
+        "case": "pytest-full-02",
+        "label": "Pytest",
+        "med_on_s": 2262.448,
+        "med_off_s": 1152.292,
+        "min_s": 968.865
+      },
+      {
+        "case": "sklearn",
+        "label": "Sklearn",
+        "med_on_s": 3964.008,
+        "med_off_s": 3076.154,
+        "min_s": 2675.821
+      }
+    ]
+  }
+}
