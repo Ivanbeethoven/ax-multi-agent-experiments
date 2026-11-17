@@ -551,6 +551,8 @@ def write_macros(db: dict, out_dir: Path) -> None:
         "cdOverlaySixtyFourS": f"{c2['jfs_overlay_s'][2]:.2f}",
         "cdForkVsCloneSixtyFour": f"{c2['jfs_clone_s'][2] / c2['brewfs_fork_s'][2]:,.0f}",
         "cdForkVsOverlaySixtyFour": f"{c2['jfs_overlay_s'][2] / c2['brewfs_fork_s'][2]:.1f}",
+        "cdOverlayVsCloneOne": f"{c2['jfs_clone_s'][0] / c2['jfs_overlay_s'][0]:.1f}",
+        "cdOverlayVsCloneSixtyFour": f"{c2['jfs_clone_s'][2] / c2['jfs_overlay_s'][2]:.1f}",
         "cdChildReadRangeS": f"{min(c2['brewfs_child_read_s']):.2f}--{max(c2['brewfs_child_read_s']):.2f}",
         "cdParentReadRangeS": f"{min(c2['brewfs_parent_read_s']):.2f}--{max(c2['brewfs_parent_read_s']):.2f}",
         "cdPackDynS": f"{c3['packed_dyn_s']:.1f}",
