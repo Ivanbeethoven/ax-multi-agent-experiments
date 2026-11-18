@@ -88,10 +88,21 @@ def main():
     result = json.loads((args.output / "result.json").read_text())
     if result["application"]["write_bytes"] != expected["io_bytes"] or not result["verification"]["passed"]:
         raise ValueError("Incomplete formal result")
+    measurements = {}
+    for label, path in (("brewfs_after", args.output / "result.json"),
+                        ("brewfs_before", historical / "result.json"),
+                        ("juicefs", cl.RUN_ROOT / "01-io/08/r1/attempt-02/result.json")):
+        row = json.loads(path.read_text())
+        app = row["application"]
+        measurements[label] = {
+            "result": str(path), "write_bytes": app["write_bytes"],
+            "fio_mib_s": app["fio_write_throughput_mib_s"],
+            "p99_ms": app["fio_direction_percentiles_us"]["write"]["p99_us"] / 1000,
+            "drain_seconds": row["timing"]["upload_drain_seconds"],
+            "put_requests": row["backend_delta"]["rustfs_s3_put_requests"],
+            "put_bytes": row["backend_delta"]["s3_put_bytes"], "verification": row["verification"]}
     save(args.output / "comparison.json", {
-        "candidate": str(args.output / "result.json"),
-        "brewfs_before": str(historical / "result.json"),
-        "juicefs": str(cl.RUN_ROOT / "01-io/08/r1/attempt-02/result.json"),
+        "measurements": measurements,
         "candidate_binary": str(args.binary), "coalesce_window_ms": 50,
         "original_condition": job["id"], "verification": result["verification"]})
 
