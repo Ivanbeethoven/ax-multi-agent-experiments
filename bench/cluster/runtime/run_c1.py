@@ -298,6 +298,14 @@ class ParentPool:
         keys_file = meta_file.with_name(meta_file.stem + "-keys.json")
         if meta_file.is_file():
             saved = json.loads(meta_file.read_text(encoding="utf-8"))
+            if system == "juicefs-overlay":
+                if not all(saved.get(k) for k in ("volume", "bucket", "main_url")):
+                    raise ValueError(f"Incomplete overlay parent in {meta_file}")
+                saved["parent_keys"] = (set(json.loads(keys_file.read_text())) if keys_file.is_file()
+                                        else list_all_keys(saved["bucket"]))
+                with self._lock:
+                    self.parents[key] = saved
+                return saved
             if saved.get("input_placement") in {"child-writable-layer", "flat-volume"}:
                 saved["parent_keys"] = set(json.loads(keys_file.read_text())) if keys_file.is_file() else set()
                 with self._lock:
@@ -435,45 +443,7 @@ class ParentPool:
             }
 
         elif system == "juicefs-overlay":
-            bucket = f"{cl.RUN_PREFIX}-c1-{self.policy}-jov"
-            vol = f"{cl.RUN_PREFIX}-c1-{self.policy}-jov"
-            cl.delete_bucket_and_objects(bucket, endpoint=ep)
-            cl.ensure_bucket(bucket, endpoint=ep)
-            cl.redis_delete_pattern_db0(f"{{jfs-fork:{vol}}}:*")
-            main_url = f"forkredis://{cl.REDIS_HOST}:{cl.REDIS_PORT}/0?volume={vol}&branch=main"
-            cl.run_on_host(
-                "A366",
-                [
-                    str(cl.BIN_DIR / "juicefs-overlay"), "--no-agent", "format",
-                    "--storage=s3", f"--bucket={ep}/{bucket}",
-                    "--block-size=4096", "--compress=none", "--trash-days=0",
-                    main_url, vol,
-                ],
-                with_secrets=True,
-            )
-            mp_cfg = self.state_dir / "prep-jov-mounts.json"
-            mid = "c1-prep-jov"
-            cl.generate_mounts_json([make_req(mid, "initial", "juicefs-overlay", prep_ssh, prep_slot, "main", "none", "c1-prep-input", str(cl.BIN_DIR / "juicefs-overlay"))], mp_cfg)
-            m = cl.start_mounts(mp_cfg, {mid: {"volume": vol, "branch": "main", "s3_bucket_url": f"{ep}/{bucket}"}}, self.state_dir, register_collector=False)
-            try:
-                cl.run_on_host(prep_host, [str(cl.BIN_DIR / "c1-io-helper"), "init-files", "--root", m[0]["mount_directory"], "--jobs", "8", "--bytes-per-job", str(BYTES_PER_JOB)], timeout=7200)
-                cl.wait_uploads(m, timeout=3600)
-            finally:
-                cl.stop_mounts(m, self.state_dir, clear_collector=False, remove_cache=True)
-
-            cl.run_on_host("A366", [str(cl.BIN_DIR / "juicefs-overlay"), "--no-agent", "clone", "--seal", main_url], with_secrets=True)
-            layout = rlt.inspect_bucket_layout(self.nodes_meta, bucket)
-            pkeys = list_all_keys(bucket)
-            info = {
-                "system": system,
-                "hint": "product-default",
-                "bucket": bucket,
-                "volume": vol,
-                "main_url": main_url,
-                "prepare_seconds": round(time.monotonic() - t0, 6),
-                "object_count": len(pkeys),
-                "layout": layout,
-            }
+            raise FileNotFoundError(f"Register the existing fio overlay parent in {meta_file}")
         else:
             raise ValueError(f"Unsupported system {system}")
 
@@ -498,6 +468,8 @@ class ParentPool:
             if info is None and meta_file.is_file():
                 info = json.loads(meta_file.read_text(encoding="utf-8"))
             still_shared = bool(info) and any(v.get("bucket") == info.get("bucket") for v in self.parents.values())
+        if system == "juicefs-overlay":
+            return
         archive=self.state_dir/'retired'
         archive.mkdir(exist_ok=True)
         for source in (meta_file,keys_file):

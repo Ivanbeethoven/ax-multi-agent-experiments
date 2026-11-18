@@ -60,14 +60,21 @@ def mount_one(parent,workspace,identifier,out,host='A366',slot=1,phase='initial'
     return records
 
 
-def prepare_parent(system,files,file_bytes,seal=True,tag_suffix=""):
+def prepare_parent(system,files,file_bytes,direct=False,tag_suffix=""):
     tag=f'{TAGS[system]}-{files}-{file_bytes}{tag_suffix}'
     out=cl.RUN_ROOT/'prepared/fork'/tag
     state=out/'parent.json'
-    redis_db = 7 if not seal else {10000:8,100000:9,8:10}.get(files,15)
+    redis_db = 7 if direct else {10000:8,100000:9,8:10}.get(files,15)
     if state.exists():
         parent=json.loads(state.read_text())
-        if parent.get('prepared') and (system != 'juicefs' or parent.get('redis_db') == redis_db):return parent
+        if parent.get('prepared') and (system != 'juicefs' or parent.get('redis_db') == redis_db):
+            if (parent.get('system'), parent.get('files'), parent.get('file_bytes')) != (system, files, file_bytes):
+                raise ValueError(f'Parent workload differs in {state}')
+            if not direct and system == 'brewfs-native-overlay' and not parent.get('revision'):
+                raise ValueError(f'Missing parent revision in {state}')
+            return parent
+    if not direct and system in ('brewfs-native-overlay', 'juicefs-overlay'):
+        raise FileNotFoundError(f'Register the existing overlay parent in {state}')
     out.mkdir(parents=True,exist_ok=True)
     parent={'system':system,'files':files,'file_bytes':file_bytes,'bucket':f'{cl.RUN_PREFIX}-c4-'+tag,
             'namespace':f'{cl.RUN_NAMESPACE}_c4_'+tag.replace('-','_'),'volume':f'{cl.RUN_PREFIX}-c4-'+tag,'tag':tag}
@@ -100,10 +107,6 @@ def prepare_parent(system,files,file_bytes,seal=True,tag_suffix=""):
         parent['population']=json.loads(result.stdout)
         parent['upload']=cl.wait_uploads(mounted,timeout=3600)
     finally:cl.stop_mounts(mounted,out,clear_collector=False,remove_cache=True)
-    if seal and system=='brewfs-native-overlay':
-        parent['revision']=admin(parent,['seal-native-base','--workspace',parent['base']],out/'seal')['revision']
-    elif seal and system=='juicefs-overlay':
-        command([str(cl.BIN_DIR/system),'--no-agent','clone','--seal',parent['meta_url']],out/'seal',secrets=True)
     parent['prepare_seconds']=time.monotonic()-started
     parent['prepared']=True
     save(state,parent)

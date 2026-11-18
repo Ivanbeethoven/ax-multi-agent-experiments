@@ -2,6 +2,19 @@
 
 每个条件运行一次，共 56 项。配置为 `configs/experiment-suite.json`；服务地址和运行编号为 `configs/runtime.json`。
 
+## Overlay 的父版本
+
+普通 overlay 从已有父版本创建独立的可写层。父数据在实验期间保持只读。BrewFS 的子工作区共用元数据存储的 namespace，各自有独立的 workspace ID 和 head layer ID。计时从创建子工作区开始。
+
+在协调机的运行目录中按实验读取以下登记文件。复制登记文件到新的运行目录时，文件指向的父数据和对应后端也必须可访问。
+
+| 实验 | 登记文件 |
+| --- | --- |
+| fork 与 Overlay | `prepared/fork/<tag>/parent.json`，包含系统、文件数量、文件大小、对象桶、父工作区和 BrewFS revision；JuiceFS Overlay 使用已有父分支 |
+| Native 小文件多挂载读取 | `prepared/brewfs-native-tikv-<on或off>-<文件数>.json`，包含已有 revision。独立的 Native 上传计时写入新桶，读者从登记的父版本分别 fork |
+| 多 Agent 回放 | `prepared/trace-bases-dynamic.json` 或 `prepared/trace-bases-official.json`，小规模检查使用同名的 `-check.json` 文件。每个 BrewFS 用例含 `base_ws`、`revision`、`namespace` 和 `bucket` |
+| fio | BrewFS 在初始化卷返回的空父版本上 fork，再向子工作区写入输入。使用 JuiceFS Overlay 时从 `mounts/io-parents-<policy>/io-input-juicefs-overlay.json` 读取已有父分支 |
+
 ## 准备与启动
 
 在本机仓库根目录执行：

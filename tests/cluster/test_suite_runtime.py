@@ -102,7 +102,7 @@ def load_suite_groups(root, input_dir):
 
     replay = types.ModuleType("run_c2")
     replay.CASES = ()
-    replay.ensure_c2_bases = lambda policy: {"policy": policy}
+    replay.ensure_c2_bases = lambda policy, system: {"policy": policy}
     replay.batch_stop_mounts = lambda *args, **kwargs: []
     replay.execute_c2_cohort_arm = lambda *args, **kwargs: {
         "timing": {"app_done_seconds": 1.0},
@@ -610,6 +610,21 @@ class SuiteRuntimeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'dynamic'):
                 groups.run_packed(job, out, prepared_path=source)
 
+    def test_native_upload_preserves_registered_reader_parent(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            groups, cl, support, replay, readers, layout, volumes = load_suite_groups(root, root / 'input')
+            registry = root / 'prepared/brewfs-native-tikv-on-32.json'
+            original = {'base': 'original', 'revision': 'rev', 'bucket': 'parent-bucket'}
+            write_json(registry, original)
+            volumes.prepare_dataset = lambda *args: {'base': 'upload', 'bucket': 'fresh-upload'}
+            volumes.mount = lambda *args, **kwargs: [{'mount_directory': '/verify'}]
+            job = {'id': 'native-prepare', 'seed': 1, 'parameters': {
+                'phase': 'prepare', 'system': 'brewfs-native-tikv', 'dynamic': 'on', 'files': 32}}
+            result = groups.run_packed(job, root / 'attempt')
+            self.assertEqual(result['base'], 'upload')
+            self.assertEqual(json.loads(registry.read_text()), original)
+
     def test_native_readers_are_created_before_mounting(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary) / 'run'
@@ -650,7 +665,7 @@ class SuiteRuntimeTests(unittest.TestCase):
                     "events_bytes": 24576, "evidence": {"source": "test"},
                 })
             calls = []
-            replay.ensure_c2_bases = lambda policy: {"policy": policy}
+            replay.ensure_c2_bases = lambda policy, system: {"policy": policy}
 
             def execute(condition, system, repeat, cohort, bases, out):
                 calls.append((condition["id"], len(cohort["shared_tasks"])))

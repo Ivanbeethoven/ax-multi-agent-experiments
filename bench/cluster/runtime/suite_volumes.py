@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import struct
 import time
+from uuid import uuid4
 
 import cluster_lib as cl
 import c4_support as support
@@ -103,7 +104,10 @@ def prepare_dataset(system, dynamic, files, out):
         'meta_backend': 'tikv' if system in ('brewfs-native-tikv', 'brewfs-packed', 'juicefs-tikv') else 'redis',
         'files': files, 'dynamic': dynamic}
     source = corpus(files)
-    cl.delete_bucket_and_objects(volume['bucket'])
+    if system == 'brewfs-native-tikv':
+        volume['bucket'] = f'{cl.RUN_PREFIX}-native-upload-{uuid4().hex[:16]}'
+    else:
+        cl.delete_bucket_and_objects(volume['bucket'])
     cl.ensure_bucket(volume['bucket'])
     data = {'data': {'backend': 's3', 's3': {'bucket': volume['bucket'],
         'endpoint': cl.RUSTFS_ENDPOINTS[0], 'region': 'us-east-1',
@@ -157,9 +161,5 @@ def prepare_dataset(system, dynamic, files, out):
     save(out / 'prepare-start.json', before)
     save(out / 'prepare-end.json', after)
     volume['backend_delta'] = cl.summarize_phase_delta(before, after)
-    if system == 'brewfs-native-tikv':
-        start = time.monotonic()
-        volume['revision'] = admin(volume, ['seal-native-base', '--workspace', volume['base']], out / 'reader-base')['revision']
-        volume['reader_base_seconds'] = time.monotonic() - start
     save(out / 'volume.json', volume)
     return volume

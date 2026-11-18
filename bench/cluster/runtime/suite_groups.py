@@ -32,7 +32,7 @@ def run_fork(job, out, small=False):
     files = 32 if small else p['files']
     system = SYSTEMS[p['system']]
     direct = p['mode'] == 'direct-parent'
-    parent = support.prepare_parent(system, files, p['file_bytes'], seal=not direct,
+    parent = support.prepare_parent(system, files, p['file_bytes'], direct=direct,
                                     tag_suffix='-direct' if direct else '')
     save(out / 'parent.json', parent)
     layout.evict_bucket_page_cache(nodes, [parent['bucket']])
@@ -60,7 +60,7 @@ def run_fork(job, out, small=False):
     result = {'fork_seconds': fork_seconds, 'children': len(children),
               'fork_backend_delta': cl.summarize_phase_delta(before, after),
               'mount_ready_seconds': [m['mount_ready_seconds'] for m in mounted],
-              'parent_prepare_seconds': parent['prepare_seconds']}
+              'parent_prepare_seconds': 0.0 if not direct and system in ('brewfs-native-overlay', 'juicefs-overlay') else parent['prepare_seconds']}
     try:
         if p['read_files']:
             first = cl.collector_mark_all(job['id'], 'read-start')
@@ -124,9 +124,14 @@ def run_packed(job, out, small=False, prepared_path=None):
             volume['verification'] = json.loads(cl.run_on_host('A355', ['cat', remote]).stdout)
         finally:
             cl.stop_mounts(verify_mount, out, clear_collector=False, remove_cache=True)
-        save(registry, volume)
+        if p['system'] != 'brewfs-native-tikv' or volume.get('revision'):
+            save(registry, volume)
         return volume
+    if p['system'] == 'brewfs-native-tikv' and not registry.is_file():
+        raise FileNotFoundError(f'Register the existing Native reader parent in {registry}')
     volume = json.loads(registry.read_text())
+    if p['system'] == 'brewfs-native-tikv' and not volume.get('revision'):
+        raise ValueError(f'Missing Native reader revision in {registry}')
     count = 2 if small else p['readers']
     layout.evict_bucket_page_cache(nodes, [volume['bucket']])
     placements = support.placements(count)
@@ -215,7 +220,7 @@ def run_replay(job, out, small=False):
         replay.CASES = ('office-excel-01',)
     policy = ('dynamic' if p['dynamic'] == 'on' else 'official') + ('-check' if small else '')
     try:
-        bases = replay.ensure_c2_bases(policy)
+        bases = replay.ensure_c2_bases(policy, SYSTEMS[p['system']])
         cases = list(replay.CASES)
         agents = 1 if small else p['agents']
         rng = random.Random(job['seed'])

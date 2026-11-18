@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -38,6 +39,23 @@ class TraceTreeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.run_c2 = load_run_c2()
+
+    def test_overlay_reuses_registered_revision_and_requires_existing_input(self):
+        with tempfile.TemporaryDirectory() as temp:
+            self.run_c2.cl.RUN_ROOT = Path(temp)
+            registry = Path(temp) / "prepared" / "trace-bases-dynamic.json"
+            with self.assertRaises(FileNotFoundError):
+                self.run_c2.ensure_c2_bases("dynamic", "brewfs-native-overlay")
+            self.assertFalse(registry.parent.exists())
+            registry.parent.mkdir()
+            entry = dict(base_ws="parent", revision="original", namespace="volume", bucket="objects")
+            record = dict(completed=True, brewfs_native_overlay={case: entry for case in self.run_c2.CASES})
+            registry.write_text(json.dumps(record))
+            self.assertEqual(self.run_c2.ensure_c2_bases("dynamic"), record)
+            del entry["revision"]
+            registry.write_text(json.dumps(record))
+            with self.assertRaisesRegex(ValueError, "parent"):
+                self.run_c2.ensure_c2_bases("dynamic")
 
     def test_replay_root_selects_layout_from_base_schema(self):
         mount = Path("/tmp/c2-mount")

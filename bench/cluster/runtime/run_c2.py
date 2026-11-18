@@ -303,7 +303,7 @@ def batch_verify_cohort(vtasks_by_host: dict[str, list[dict]], run_tag: str) -> 
 
 
 # ==============================================================================
-# Base Trace Workspace Preparation (8 cases x 3 engines, sealed once & cached)
+# Registered overlay parents and JuiceFS trace input preparation
 # ==============================================================================
 def replay_root(directory, bases):
     root = Path(directory)
@@ -323,71 +323,30 @@ def install_trace_tree(case, directory):
     cl.run_on_host("A366", ["cp", "-a", "--", f"/srv/ax-cluster/input/traces/{case}/initial/.", str(dst) + "/"])
 
 
-def ensure_c2_bases(policy="on") -> dict:
-    meta_file = cl.RUN_ROOT / "prepared" / f"trace-bases-{policy}.json"
-    meta_file.parent.mkdir(parents=True, exist_ok=True)
+def ensure_c2_bases(policy="on", system="brewfs-native-overlay") -> dict:
+    prepared = cl.RUN_ROOT / "prepared"
+    meta_file = prepared / f"trace-bases-{policy}.json"
     if meta_file.is_file():
         doc = json.loads(meta_file.read_text(encoding="utf-8"))
-        if doc.get("completed"):
-            return doc
+        if not doc.get("completed"):
+            raise ValueError(f"Incomplete trace parent record: {meta_file}")
+        if system != "juicefs":
+            key = {"brewfs-native-overlay": "brewfs_native_overlay", "juicefs-overlay": "juicefs_overlay"}[system]
+            fields = ("revision", "base_ws", "namespace", "bucket") if system == "brewfs-native-overlay" else ("volume", "base_url", "bucket")
+            for case in CASES:
+                entry = doc[key].get(case, {})
+                if not all(entry.get(field) for field in fields):
+                    raise ValueError(f"Missing {case} parent for {system} in {meta_file}")
+        return doc
+    if system != "juicefs":
+        raise FileNotFoundError(f"Register existing trace parents in {meta_file}")
 
-    print(f"Preparing {len(CASES)} trace inputs across three filesystems", flush=True)
+    prepared.mkdir(parents=True, exist_ok=True)
+    plain_file = prepared / f"trace-juicefs-{policy}.json"
+    if plain_file.is_file():
+        return json.loads(plain_file.read_text(encoding="utf-8"))
     prep_dir = cl.RUN_ROOT / "mounts" / ("trace-base-prep-" + policy)
     prep_dir.mkdir(parents=True, exist_ok=True)
-
-    brew_bases: dict[str, dict] = {}
-    jov_bases: dict[str, dict] = {}
-
-    # 1. BrewFS Native Overlay bases (8 cases)
-    for idx, case in enumerate(CASES):
-        bkt = f"{cl.RUN_PREFIX}-c2-{policy}-brew-{case}"
-        ns = f"{cl.RUN_NAMESPACE}_c2_{policy}_brew_{case.replace('-', '_')}"
-        cl.delete_bucket_and_objects(bkt)
-        cl.ensure_bucket(bkt)
-        cl.redis_delete_pattern_db0(f"*{ns}*")
-
-        t0 = time.monotonic()
-        init_rec = cl.extract_json_from_cli(
-            cl.run_on_host(
-                "A366",
-                [str(cl.BIN_DIR / "ax-brewfs-admin"), "--meta-url", REDIS_URL, "--workspace-namespace", ns, "init-shared-volume"],
-                with_secrets=True,
-            ).stdout
-        )
-        base_ws = init_rec["workspace_id"]
-        mp = prep_dir / f"brew-{case}-mounts.json"
-        mid = f"c2-prep-brew-{case}"
-        cl.generate_mounts_json(
-            [make_req(mid, "initial", "brewfs-native-overlay", "idcai-60001", 1, base_ws, "none", f"c2-prep-{case}", str(cl.BIN_DIR / "brewfs"))],
-            mp,
-        )
-        m = cl.start_mounts(mp, {mid: {"workspace_uuid": base_ws, "workspace_namespace": ns, "s3_bucket": bkt, "s3_endpoint": cl.RUSTFS_ENDPOINTS[idx % 4]}}, prep_dir)
-        try:
-            install_trace_tree(case, m[0]["mount_directory"])
-            up = cl.wait_uploads(m)[0]
-        finally:
-            cl.stop_mounts(m, prep_dir, remove_cache=True)
-        seal_rec = cl.extract_json_from_cli(
-            cl.run_on_host(
-                "A366",
-                [str(cl.BIN_DIR / "ax-brewfs-admin"), "--meta-url", REDIS_URL, "--workspace-namespace", ns, "seal-native-base", "--workspace", base_ws],
-                with_secrets=True,
-            ).stdout
-        )
-        keep_keys = sorted(list_all_keys(bkt))
-        brew_bases[case] = {
-            "bucket": bkt,
-            "namespace": ns,
-            "base_ws": base_ws,
-            "revision": seal_rec["revision"],
-            "seal_stats": seal_rec,
-            "upload_drain_seconds": up["upload_drain_seconds"],
-            "prepare_wall_seconds": round(time.monotonic() - t0, 6),
-            "keep_keys": keep_keys,
-        }
-        print(f"  [BrewFS base] {case}: rows={seal_rec['total_rows']} objects={len(keep_keys)} ({brew_bases[case]['prepare_wall_seconds']:.2f}s)", flush=True)
-
-    # 2. Official JuiceFS shared volume on DB 3 with /bases/<case>
     bkt_jfs = f"{cl.RUN_PREFIX}-c2-{policy}-jfs"
     vol_jfs = f"{cl.RUN_PREFIX}-c2-{policy}-jfs"
     cl.delete_bucket_and_objects(bkt_jfs)
@@ -435,59 +394,8 @@ def ensure_c2_bases(policy="on") -> dict:
     }
     print(f"  [JuiceFS base] all {len(CASES)} cases populated: objects={len(jfs_keep_keys)} ({jfs_base['prepare_wall_seconds']:.2f}s)", flush=True)
 
-    # 3. JuiceFS Overlay (forkredis) bases (8 cases, sealed `main` branch)
-    for idx, case in enumerate(CASES):
-        bkt = f"{cl.RUN_PREFIX}-c2-{policy}-jov-{case}"
-        vol = f"{cl.RUN_PREFIX}-c2-{policy}-jov-{case}"
-        cl.delete_bucket_and_objects(bkt)
-        cl.ensure_bucket(bkt)
-        cl.redis_delete_pattern_db0(f"{{jfs-fork:{vol}}}:*")
-        base_url = f"forkredis://{cl.REDIS_HOST}:{cl.REDIS_PORT}/0?volume={vol}&branch=main"
-
-        t0 = time.monotonic()
-        cl.run_on_host(
-            "A366",
-            [
-                str(cl.BIN_DIR / "juicefs-overlay"), "--no-agent", "format",
-                "--storage=s3", f"--bucket={cl.RUSTFS_ENDPOINTS[idx % 4]}/{bkt}",
-                "--block-size=4096", "--compress=none", "--trash-days=0",
-                base_url, vol,
-            ],
-            with_secrets=True,
-        )
-        mp = prep_dir / f"jov-{case}-mounts.json"
-        mid = f"c2-prep-jov-{case}"
-        cl.generate_mounts_json(
-            [make_req(mid, "initial", "juicefs-overlay", "idcai-60001", 1, "main", "none", f"c2-prep-jov-{case}", str(cl.BIN_DIR / "juicefs-overlay"))],
-            mp,
-        )
-        mo = cl.start_mounts(mp, {mid: {"volume": vol, "branch": "main", "s3_bucket_url": f"{cl.RUSTFS_ENDPOINTS[idx % 4]}/{bkt}"}}, prep_dir)
-        try:
-            install_trace_tree(case, mo[0]["mount_directory"])
-            up_o = cl.wait_uploads(mo)[0]
-        finally:
-            cl.stop_mounts(mo, prep_dir, remove_cache=True)
-        cl.run_on_host("A366", [str(cl.BIN_DIR / "juicefs-overlay"), "--no-agent", "clone", "--seal", base_url], with_secrets=True)
-        keep_keys = sorted(list_all_keys(bkt))
-        jov_bases[case] = {
-            "bucket": bkt,
-            "volume": vol,
-            "base_url": base_url,
-            "upload_drain_seconds": up_o["upload_drain_seconds"],
-            "prepare_wall_seconds": round(time.monotonic() - t0, 6),
-            "keep_keys": keep_keys,
-        }
-        print(f"  [JuiceFS-Overlay base] {case}: objects={len(keep_keys)} ({jov_bases[case]['prepare_wall_seconds']:.2f}s)", flush=True)
-
-    doc = {
-        "schema": "ax-c2-base-preparation-v2",
-        "completed": True,
-        "recorded_at": cl.utc_iso(),
-        "brewfs_native_overlay": brew_bases,
-        "juicefs": jfs_base,
-        "juicefs_overlay": jov_bases,
-    }
-    meta_file.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+    doc = {"schema": "ax-c2-base-preparation-v2", "completed": True, "juicefs": jfs_base}
+    plain_file.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
     return doc
 
 
