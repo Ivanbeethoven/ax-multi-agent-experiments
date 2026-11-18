@@ -724,6 +724,8 @@ def execute_fio_family_run(
 
     seed = seed_override or SEEDS_BY_REP[rep]
     parent = pool.ensure_io_parent(system, brewfs_hint)
+    if system == "brewfs-native-overlay":
+        (work_dir / "native-parent.json").write_text(json.dumps(cl.inspect_native_fork_parent(parent)))
     overrides = {}
     if cond["parameters"].get("prefetch") == "off":
         overrides["prefetch"] = "off"

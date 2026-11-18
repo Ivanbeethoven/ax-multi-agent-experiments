@@ -30,7 +30,7 @@
 
 ## 2. fork 与 Overlay 开销
 
-父数据使用与第 3 组相同的 10 万个 4 KiB 文件。
+父数据使用与第 3 组相同的 10 万个 4 KiB 文件。C2 的父卷使用原生元数据，子卷通过普通 Native Overlay fork 共用父层。创建时间从发出 fork 请求开始。Packed 快照的准备和读取只计入 C3。
 
 **fork 性能：** 分别创建 1、16、64 个子工作区。比较 BrewFS fork、JuiceFS clone、JuiceFS Overlay。分别记录父数据准备时间、批量创建时间、单个子工作区就绪时间和新增存储空间。
 
@@ -70,7 +70,7 @@ Dynamic 关闭组重新生成其对象，同时记录准备和读取时间。主
 - Agent 数量：**1、8、16、64**。
 - 每个 Agent 使用独立工作区，只回放一份完整 trace。固定种子排列八类 trace，按顺序循环分配：1 个 Agent 取第一份，8 个每类 1 份，16 个每类 2 份，64 个每类 8 份。各系统同一规模使用相同的任务编号、trace 和等待计划。
 - 工具调用边界之间加入固定种子的 **1～7 秒随机等待**，保留任务内部文件操作顺序。
-- 主比较使用 BrewFS 工作区、JuiceFS Redis、JuiceFS Overlay。缓存与预读使用正常参数。
+- 每个 BrewFS Agent 从对应 trace 的原生父版本 fork 一个 Native Overlay 工作区。与 JuiceFS Redis、JuiceFS Overlay 使用同一份任务分配和等待计划。
 - **仅在 64 个 Agent 时增加一组关闭 Dynamic 的 BrewFS**，与开启组保持相同 trace、随机等待、资源和缓存设置。
 - 指标：任务/小时、各类任务完成时间 P50/P95、文件操作数、实际读写量、重复读取比例、元数据请求、S3 流量及 CPU/内存占用。等待时间与文件操作执行时间分别保存。
 

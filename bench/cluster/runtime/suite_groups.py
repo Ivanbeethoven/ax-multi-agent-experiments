@@ -35,6 +35,8 @@ def run_fork(job, out, small=False):
     parent = support.prepare_parent(system, files, p['file_bytes'], direct=direct,
                                     tag_suffix='-direct' if direct else '')
     save(out / 'parent.json', parent)
+    if not direct and system == 'brewfs-native-overlay':
+        save(out / 'native-parent.json', cl.inspect_native_fork_parent(parent))
     layout.evict_bucket_page_cache(nodes, [parent['bucket']])
     before = cl.collector_mark_all(job['id'], 'fork-start')
     if direct:

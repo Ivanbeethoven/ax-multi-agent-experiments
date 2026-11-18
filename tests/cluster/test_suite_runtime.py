@@ -276,6 +276,28 @@ class RustFSBackendTests(unittest.TestCase):
 
 
 class SuiteRuntimeTests(unittest.TestCase):
+    def test_native_fork_parent_requires_existing_layer_without_packed_carrier(self):
+        path = ROOT / "bench/cluster/runtime/cluster_lib.py"
+        prefix = "{brewfs-ws-v1}:native:ws:v1/"
+        keys = {prefix + "control", prefix + "layer/base"}
+
+        def exists(command, *names):
+            self.assertEqual(command, "EXISTS")
+            return str(len(keys.intersection(names)))
+
+        inspect = load_ast_functions(path, {"inspect_native_fork_parent"}, {"redis_cli": exists})[
+            "inspect_native_fork_parent"]
+        parent = {"namespace": "native", "revision": "base:1:reference"}
+        self.assertFalse(inspect(parent)["packed_carrier"])
+        with self.assertRaisesRegex(ValueError, "manifest"):
+            inspect(dict(parent, manifest_key="snapshot"))
+        keys.add(prefix + "packed/sealed-carrier/base")
+        with self.assertRaisesRegex(ValueError, "carrier"):
+            inspect(parent)
+        keys.remove(prefix + "layer/base")
+        with self.assertRaisesRegex(ValueError, "Missing"):
+            inspect(parent)
+
     def test_dispatches_each_of_56_jobs_once_to_its_group(self):
         suite_spec = json.loads((ROOT / "configs/experiment-suite.json").read_text(encoding="utf-8"))
         suite_builder = load_module("suite_builder_runtime_test_module", ROOT / "bench/cluster/suite.py")

@@ -429,6 +429,21 @@ def redis_cli(*args: str, db: int = 0) -> str:
     return p.stdout
 
 
+def inspect_native_fork_parent(parent):
+    """Read the registered fork layer from the experiment's Redis catalog."""
+    if parent.get('manifest_key') or parent.get('packed_manifest_key'):
+        raise ValueError('Native fork parent contains a Packed manifest')
+    namespace = parent['namespace']
+    layer = parent['revision'].split(':', 1)[0]
+    prefix = '{brewfs-ws-v1}:' + namespace + ':ws:v1/'
+    if redis_cli('EXISTS', prefix + 'control', prefix + 'layer/' + layer).strip() != '2':
+        raise ValueError(f'Missing native fork catalog or layer: {namespace}/{layer}')
+    if redis_cli('EXISTS', prefix + 'packed/sealed-carrier/' + layer).strip() != '0':
+        raise ValueError(f'Fork parent is a Packed carrier: {namespace}/{layer}')
+    return {'engine': 'brewfs-native-overlay', 'namespace': namespace, 'parent_layer': layer,
+            'packed_carrier': False}
+
+
 def redis_flush_db(db: int):
     if not (1 <= db <= 15):
         raise ValueError(f"Refusing FLUSHDB on db={db}; db 0 is shared namespace/forkredis!")

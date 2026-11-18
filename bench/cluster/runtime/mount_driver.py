@@ -152,6 +152,8 @@ def cmd_start(args):
     cache_root = Path(record["cache_root"])
     port = int(record["metrics_port"])
     engine = record["engine"]
+    if engine == "brewfs-native-overlay" and spec.get("packed_manifest_key"):
+        raise ValueError("A Native Overlay mount cannot use a Packed manifest")
 
     # Clean up any stale unit with the exact same name before starting
     subprocess.run(["systemctl", "stop", unit], capture_output=True)

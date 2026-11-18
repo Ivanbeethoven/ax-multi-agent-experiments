@@ -2,7 +2,7 @@
 
 完整实验包含 56 项，每个条件运行一次。配置见 `configs/experiment-suite.json`，服务地址和运行编号见 `configs/runtime.json`。
 
-下一轮集群复测只选择此前落后的 BrewFS 项目，使用合并修复后的同一版程序。C1 至 C4 均复用已有 JuiceFS 原始结果。按原项目编号记录 BrewFS 修复前后和 JuiceFS 的运行目录。核对输入、并发、缓存冷热状态和持久化方式后再计算差值。C1 的吞吐量和 P99 从原始 fio JSON 读取。
+下一轮集群复测使用合并修复后的同一版 BrewFS，只选择此前落后的项目。JuiceFS 顺序冷读已单独复测一次，见 [C1 顺序冷读](../results/cluster-direct/juicefs-sequential-read.md)。其余 JuiceFS 条件沿用已有结果。按项目编号保存各次测量，核对输入、并发、缓存状态与持久化方式。C1 分别报告 fio 吞吐和按应用总耗时计算的吞吐。
 
 ## 修复前后的单机比较
 
@@ -16,7 +16,7 @@ C1 在 A672，C2 在 A635，C3 在 A355，C4 在 A601。各组先在同一台机
 
 ## Overlay 的父版本
 
-普通 overlay 从已有父版本创建独立的可写层。父数据在实验期间保持只读。BrewFS 的子工作区共用元数据存储的 namespace，各自有独立的 workspace ID 和 head layer ID。计时从创建子工作区开始。
+普通 fork 使用 Native Overlay。C1 的工作区、C2 的子卷和 C4 的回放工作区均从已登记的原生父版本 fork。各子卷共用原生父层，各自有独立的 workspace ID 和可写层。父数据在实验期间保持只读。执行器在计时前读取 Redis 中的父层记录，确认该层存在且没有登记为 Packed carrier，将结果写入本次运行目录的 `native-parent.json` 或 `native-parents.json`。Packed 只用于 C3 的只读小文件实验。
 
 在协调机的运行目录中按实验读取以下登记文件。复制登记文件到新的运行目录时，文件指向的父数据和对应后端也必须可访问。
 

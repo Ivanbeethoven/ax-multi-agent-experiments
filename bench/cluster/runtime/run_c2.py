@@ -441,6 +441,10 @@ def execute_c2_cohort_arm(
     tasks_by_case: dict[str, list[dict]] = defaultdict(list)
     for t in tasks:
         tasks_by_case[t["case"]].append(t)
+    if system == "brewfs-native-overlay":
+        parents = {case: cl.inspect_native_fork_parent(bases["brewfs_native_overlay"][case])
+                   for case in tasks_by_case}
+        (work_dir / "native-parents.json").write_text(json.dumps(parents, indent=2))
 
     # 1. Fork/clone N child workspaces & measure workspace_prepare
     if not collector_enabled:
