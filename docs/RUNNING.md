@@ -81,6 +81,8 @@ ssh.exe idcai-60001 tail -n 30 /srv/ax-cluster/runs/direct/run-002/logs/suite.lo
 
 ## 指定条件补测
 
+C1 的 `01-io-04-r1` 单项使用 `bench/cluster/runtime/retest_c1_randwrite.py`。在 A366 传入 `--binary`（统一版 BrewFS）、`--verifier`（用 `tools/fs-probe/src/bin/c1-verify-randwrite.rs` 编译的 Linux 程序）、`--reference`（原负载的八份 `writes-N.iolog`）、`--pattern`（原 fio 的 4 KiB 写入样本）和 `--output`（以 `attempt-01` 命名的新目录）。A366 写入，A355 冷重挂并逐页比较完整 2 GiB。结果记录 16,384 个已写页和 507,904 个未改页的校验，以及与历史偏移顺序的比较。原 04 项提供输入和缓存配置，候选版使用 50 ms 写入合并窗口。JuiceFS 采用 08 项的已有结果。
+
 协调服务停止后，使用 `reset_suite_groups.py --job <条件编号> --label <归档名称>` 重新安排指定条件；多个条件重复传入 `--job`。原始 attempt 目录保留，上一版汇总和状态移入 `archive/results/<归档名称>/`。随后用 `run_suite.py --job <条件编号>` 执行。
 
 需要后台等待时，使用 `repeat_suite_jobs.py --job <条件编号> --label <归档名称> --execute`。它等待当前计划全部通过、协调服务和 `--wait-service` 指定服务结束，并确认可用磁盘空间至少为 16 GiB 且不低于总容量的 12%，再占用同一个协调服务名称顺序补测。`--require-job` 可指定尚待追加的条件。状态写入 `continuations/<归档名称>.json`。不传 `--execute` 时只检查等待条件。

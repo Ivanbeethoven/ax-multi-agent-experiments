@@ -703,6 +703,7 @@ def execute_fio_family_run(
     pair: ConcurrentPair | None = None,
     output: Path | None = None,
     seed_override: int | None = None,
+    random_write_check=None,
 ):
     cond_id = cond["id"]
     work_dir, attempt, already_done = (output, int(output.name.removeprefix("attempt-")), False) if output else prepare_run_dir(cond_id, system, rep)
@@ -776,6 +777,8 @@ def execute_fio_family_run(
         )
         job_txt, _, _, _ = build_fio_jobfile(cond, m_info["mount_directory"], seed)
         job_file = work_dir / "workload.fio"
+        if random_write_check is not None:
+            job_txt = random_write_check.log_writes(job_txt, work_dir)
         job_file.write_text(job_txt, encoding="utf-8")
         if measure_host != "A366":
             cl.sync_file_to_host(measure_host, job_file, str(job_file))
@@ -895,8 +898,11 @@ def execute_fio_family_run(
             ]
             if verify_mode == "seqwrite":
                 v_cmd += ["--seq-written-per-job", str(seq_written)]
-            vp = cl.run_on_host(verify_host, v_cmd, timeout=1800)
-            verify_doc = json.loads(vp.stdout.decode("utf-8").strip().splitlines()[-1])
+            if random_write_check is None:
+                vp = cl.run_on_host(verify_host, v_cmd, timeout=1800)
+                verify_doc = json.loads(vp.stdout.decode("utf-8").strip().splitlines()[-1])
+            else:
+                verify_doc = random_write_check.verify(verify_host, v_started[0]["mount_directory"], work_dir)
             (work_dir / "verify.json").write_text(json.dumps(verify_doc, indent=2) + "\n", encoding="utf-8")
         finally:
             cl.stop_mounts(v_started, work_dir, clear_collector=False, remove_cache=True)

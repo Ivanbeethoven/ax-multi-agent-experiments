@@ -276,6 +276,27 @@ class RustFSBackendTests(unittest.TestCase):
 
 
 class SuiteRuntimeTests(unittest.TestCase):
+    def test_randwrite_logs_each_job_and_rejects_incomplete_readback(self):
+        cl = types.ModuleType("cluster_lib")
+        cl.sync_file_to_host = lambda *args: None
+        cl.run_on_host = lambda *args, **kwargs: types.SimpleNamespace(
+            returncode=0, stdout=b'{"written_pages": 16383}', stderr=b"")
+        runtime = ROOT / "bench/cluster/runtime/retest_c1_randwrite.py"
+        module = load_module("retest_randwrite_test", runtime, {
+            "cluster_lib": cl, "run_c1": types.ModuleType("run_c1"),
+            "run_suite": types.SimpleNamespace(save=write_json, select_backend=None)})
+        check = module.RandomWriteCheck(Path("verifier"), Path("reference"), Path("pattern"))
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp)
+            rows = [f"[job{i}]\nfilename=job-{i}.dat" for i in range(8)]
+            logged = check.log_writes("\n".join(rows), output)
+            for i in range(8):
+                self.assertIn(f"[job{i}]\nwrite_iolog={output}/writes-{i}.iolog", logged)
+            with self.assertRaisesRegex(ValueError, "eight fio jobs"):
+                check.log_writes("\n".join(rows[:-1]), output)
+            with self.assertRaisesRegex(ValueError, "Incomplete verification"):
+                check.verify("A355", "/mnt/test", output)
+
     def test_native_fork_parent_requires_existing_layer_without_packed_carrier(self):
         path = ROOT / "bench/cluster/runtime/cluster_lib.py"
         prefix = "{brewfs-ws-v1}:native:ws:v1/"
