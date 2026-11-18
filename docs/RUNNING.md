@@ -2,6 +2,14 @@
 
 每个条件运行一次，共 56 项。配置为 `configs/experiment-suite.json`；服务地址和运行编号为 `configs/runtime.json`。
 
+## 修复前后的单机比较
+
+C1 在 A672，C2 在 A635，C3 在 A355，C4 在 A601。各组先在同一台机器上用相同输入、缓存预算和后端配置比较修复前后，并保存两次测量的原始结果。需要对象存储时使用本机 RustFS，一个进程使用一个数据目录。A601 的端口为 28180，其余五台为 29118，均只监听本机。C2 的分页测试使用本机 TiKV 和原测试对象目录。
+
+单机 RustFS 的 Compose 文件见 [compose.single-disk.yml](../infra/rustfs/compose.single-disk.yml)。复制到节点专用目录，在同目录的私有 `.env` 设置 `RUSTFS_IMAGE`、`RUSTFS_ACCESS_KEY` 和 `RUSTFS_SECRET_KEY`，让容器用户 10001 能写入 `data/`。执行 `docker compose -f compose.single-disk.yml up -d`。
+
+各组完成单机对照后，将通过测试的修复合入同一版 BrewFS。用该版本重跑正式集群实验。清空正式两套 RustFS 前，先保存原始结果和后续需要的父版本，确认配套的元数据和对象能一并恢复。正式测试中 Dynamic 开启使用 9000，关闭使用原版 RustFS 的 19000。
+
 ## Overlay 的父版本
 
 普通 overlay 从已有父版本创建独立的可写层。父数据在实验期间保持只读。BrewFS 的子工作区共用元数据存储的 namespace，各自有独立的 workspace ID 和 head layer ID。计时从创建子工作区开始。
