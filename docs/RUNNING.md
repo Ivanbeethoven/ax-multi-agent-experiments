@@ -1,6 +1,8 @@
 # 运行与查看进度
 
-每个条件运行一次，共 56 项。配置为 `configs/experiment-suite.json`；服务地址和运行编号为 `configs/runtime.json`。
+完整实验包含 56 项，每个条件运行一次。配置见 `configs/experiment-suite.json`，服务地址和运行编号见 `configs/runtime.json`。
+
+下一轮集群复测只选择此前落后的 BrewFS 项目，使用合并修复后的同一版程序。C1 至 C4 均复用已有 JuiceFS 原始结果。按原项目编号记录 BrewFS 修复前后和 JuiceFS 的运行目录。核对输入、并发、缓存冷热状态和持久化方式后再计算差值。C1 的吞吐量和 P99 从原始 fio JSON 读取。
 
 ## 修复前后的单机比较
 
