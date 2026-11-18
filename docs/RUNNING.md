@@ -8,7 +8,9 @@ C1 在 A672，C2 在 A635，C3 在 A355，C4 在 A601。各组先在同一台机
 
 单机 RustFS 的 Compose 文件见 [compose.single-disk.yml](../infra/rustfs/compose.single-disk.yml)。复制到节点专用目录，在同目录的私有 `.env` 设置 `RUSTFS_IMAGE`、`RUSTFS_ACCESS_KEY` 和 `RUSTFS_SECRET_KEY`，让容器用户 10001 能写入 `data/`。执行 `docker compose -f compose.single-disk.yml up -d`。
 
-各组完成单机对照后，将通过测试的修复合入同一版 BrewFS。用该版本重跑正式集群实验。清空正式两套 RustFS 前，先保存原始结果和后续需要的父版本，确认配套的元数据和对象能一并恢复。正式测试中 Dynamic 开启使用 9000，关闭使用原版 RustFS 的 19000。
+单机性能测试中，RustFS 进程及新建实验桶均使用 `none` 持久化模式。RustFS 确认对象写入时，操作系统可能仍持有待落盘数据。保留 fio 和回放负载原有的 `fsync` 操作。记录实际桶策略，修复前后及文件系统对照使用相同策略。
+
+各组完成单机对照后，将通过测试的修复合入同一版 BrewFS。用该版本重跑正式集群实验。清空正式两套 RustFS 前，先保存原始结果和后续需要的父版本，确认配套的元数据和对象能一并恢复。正式测试中 Dynamic 开启使用 9000，关闭使用原版 RustFS 的 19000；计时前分别核实两个版本对对象写入的落盘策略。
 
 ## Overlay 的父版本
 
