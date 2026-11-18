@@ -1728,8 +1728,8 @@ def run_replay(job: dict, out_dir: Path, small: bool = False, scale: str = "form
         cases = list(cases_tuple)
         rng = random.Random(int(job["seed"]))
         rng.shuffle(cases)
-        total = len(cases) if agents == 1 else agents
-        chosen_placements = [("A366", 1)] * total if agents == 1 else cl.placements(agents)
+        total = agents
+        chosen_placements = [("A366", 1)] if agents == 1 else cl.placements(agents)
 
         tasks: list[dict] = []
         for idx, (host, slot) in enumerate(chosen_placements):
@@ -1761,14 +1761,11 @@ def run_replay(job: dict, out_dir: Path, small: bool = False, scale: str = "form
             )
         save_json(out_dir / "tasks-plan.json", tasks)
 
-        batches = [[t] for t in tasks] if agents == 1 else [tasks]
-        batch_results = []
-        for b_idx, batch in enumerate(batches, start=1):
-            b_dir = out_dir / f"batch-{b_idx:02d}"
-            b_dir.mkdir(parents=True, exist_ok=True)
-            res = _execute_replay_batch(job, system, batch, bases, b_dir, b_idx)
-            save_json(b_dir / "result.json", res)
-            batch_results.append(res)
+        b_dir = out_dir / "batch-01"
+        b_dir.mkdir(parents=True, exist_ok=True)
+        result = _execute_replay_batch(job, system, tasks, bases, b_dir, 1)
+        save_json(b_dir / "result.json", result)
+        batch_results = [result]
 
         tot_app_s = sum(r["timing"]["app_done_seconds"] for r in batch_results)
         tot_up_s = sum(r["timing"]["remote_ready_no_verify_seconds"] for r in batch_results)

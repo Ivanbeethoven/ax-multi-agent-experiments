@@ -82,7 +82,7 @@ class BaselineSuiteTests(unittest.TestCase):
         )
         self.assertEqual(base_suite["groups"]["03-packed"]["readers"], main_suite["groups"]["03-packed"]["readers"])
         self.assertEqual(base_suite["groups"]["03-packed"]["epochs"], main_suite["groups"]["03-packed"]["epochs"])
-        for key in ("input_catalog", "wait_min_ms", "wait_max_ms", "wait_mean_ms", "single_agent_tasks"):
+        for key in ("input_catalog", "wait_min_ms", "wait_max_ms", "wait_mean_ms", "tasks_per_agent"):
             self.assertEqual(
                 base_suite["groups"]["04-agent-replay"][key],
                 main_suite["groups"]["04-agent-replay"][key],

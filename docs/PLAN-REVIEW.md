@@ -68,7 +68,7 @@ Dynamic 关闭组重新生成其对象，同时记录准备和读取时间。主
 使用 [trace-inputs.json](../configs/trace-inputs.json) 中现有八类主负载，以及现有 Rust `full-fuse-replay` 工具。
 
 - Agent 数量：**1、8、16、64**。
-- 1 个 Agent 顺序执行八类任务；其余规模按相同比例分配八类 trace。各系统在同一规模下执行相同任务集合。
+- 每个 Agent 使用独立工作区，只回放一份完整 trace。固定种子排列八类 trace，按顺序循环分配：1 个 Agent 取第一份，8 个每类 1 份，16 个每类 2 份，64 个每类 8 份。各系统同一规模使用相同的任务编号、trace 和等待计划。
 - 工具调用边界之间加入固定种子的 **1～7 秒随机等待**，保留任务内部文件操作顺序。
 - 主比较使用 BrewFS 工作区、JuiceFS Redis、JuiceFS Overlay。缓存与预读使用正常参数。
 - **仅在 64 个 Agent 时增加一组关闭 Dynamic 的 BrewFS**，与开启组保持相同 trace、随机等待、资源和缓存设置。

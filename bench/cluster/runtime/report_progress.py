@@ -106,7 +106,7 @@ def main(root):
                  "单机候选用例的计时方法及数据见[单独的诊断表](../../bench/cluster/diagnostics/read_path/README.md)。",
         "02-fork": "direct-parent 直接使用父工作区。未单列读写耗时的多子工作区条件保留其批量创建时间。",
         "03-packed": "准备、读取分别计时；只有完成的读取条件进入表中。四挂载点功能检查单独记录。",
-        "04-agent-replay": "并发数 1 的一行包含依次执行的 8 个 trace。字节数为回放程序实际读写量，跨机校验在回放计时后进行。",
+        "04-agent-replay": "每行的跨机校验通过数是该配置实际完成的回放任务数。回放时间包含模拟等待，跨机校验单独计时。",
     }
     total = sum(map(len, groups.values()))
     c1_planned = sum(job["group"] == "01-io" for job in plan_jobs)

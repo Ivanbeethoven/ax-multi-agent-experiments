@@ -633,7 +633,7 @@ class SuiteRuntimeTests(unittest.TestCase):
             self.assertEqual(events[0], ('create', ['fork-shared-bucket', '--revision', 'revision', '--count', '32']))
             self.assertEqual(events[1:], [('mount', f'child-{i}') for i in range(32)])
 
-    def test_replay_task_counts_serialization_and_schedule_bounds(self):
+    def test_one_trace_per_agent_and_schedule_bounds(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary) / "run"
             input_dir = Path(temporary) / "inputs"
@@ -669,10 +669,8 @@ class SuiteRuntimeTests(unittest.TestCase):
             }
             one_result = groups.run_replay(one_agent, root / "one-agent")
             self.assertEqual(one_result["agents"], 1)
-            self.assertEqual(one_result["completed_tasks"], 8)
-            self.assertEqual([size for _, size in calls], [1] * 8)
-            self.assertEqual([condition for condition, _ in calls],
-                             [f"replay-one-one-agent-b{index}" for index in range(1, 9)])
+            self.assertEqual(one_result["completed_tasks"], 1)
+            self.assertEqual(calls, [("replay-one-one-agent-b1", 1)])
 
             for task in json.loads((root / "one-agent" / "tasks-plan.json").read_text(encoding="utf-8")):
                 pacing = json.loads(Path(task["pacing_path"]).read_text(encoding="utf-8"))
@@ -683,15 +681,17 @@ class SuiteRuntimeTests(unittest.TestCase):
 
             calls.clear()
             multi_agent = {
-                "id": "replay-multi", "seed": 456, "repeat": 1,
-                "parameters": {"dynamic": "on", "system": "brewfs-native", "agents": 5},
+                "id": "replay-multi", "seed": 123, "repeat": 1,
+                "parameters": {"dynamic": "on", "system": "brewfs-native", "agents": 8},
             }
             multi_result = groups.run_replay(multi_agent, root / "multi-agent")
-            self.assertEqual(multi_result["completed_tasks"], 5)
+            self.assertEqual(multi_result["completed_tasks"], 8)
             self.assertEqual(len(multi_result["batches"]), 1)
-            self.assertEqual(calls, [("replay-multi-multi-agent-b1", 5)])
+            self.assertEqual(calls, [("replay-multi-multi-agent-b1", 8)])
             tasks = json.loads((root / "multi-agent" / "tasks-plan.json").read_text(encoding="utf-8"))
-            self.assertEqual(len(tasks), 5)
+            self.assertCountEqual([t["case"] for t in tasks], cases)
+            single_plan = json.loads((root / "one-agent/tasks-plan.json").read_text(encoding="utf-8"))
+            self.assertEqual([t["case"] for t in single_plan], [tasks[0]["case"]])
             for task in tasks:
                 pacing = json.loads(Path(task["pacing_path"]).read_text(encoding="utf-8"))
                 delays = [row["delay_ms"] for row in pacing["boundaries"]]
@@ -742,6 +742,9 @@ class SuiteRuntimeTests(unittest.TestCase):
                 expected_counts = base_profile["counts"][str(agents)]
                 self.assertEqual(result["completed_tasks"], agents)
                 self.assertEqual(len(tasks), agents)
+                self.assertEqual(len({task["task_id"] for task in tasks}), agents)
+                for case in replay.CASES:
+                    self.assertEqual(sum(task["case"] == case for task in tasks), agents // 8)
                 self.assertEqual(len(seen_cohorts), 1)
                 self.assertEqual(len(seen_cohorts[0]), agents)
                 for host, count in zip(base_profile["hosts"], expected_counts):

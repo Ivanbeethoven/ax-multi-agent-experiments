@@ -220,7 +220,6 @@ def run_replay(job, out, small=False):
         agents = 1 if small else p['agents']
         rng = random.Random(job['seed'])
         rng.shuffle(cases)
-        total = len(cases) if agents == 1 else agents
         placements = None
         verify_hosts = None
         truncate_seconds = None
@@ -246,11 +245,9 @@ def run_replay(job, out, small=False):
                             or count > min(cl.HOST_BY_NAME[h]['active'] for h in (host, target))):
                         raise ValueError(f'Invalid measurement or verification slots for {host}')
                     placements.extend((host, slot) for slot in range(1, count + 1))
-                if agents == 1:
-                    placements *= total
                 save(out / 'replay-placement.json', profile)
         if placements is None:
-            placements = [('A366', 1)] * total if agents == 1 else support.placements(agents)
+            placements = [('A366', 1)] if agents == 1 else support.placements(agents)
         tasks = []
         for index, (host, slot) in enumerate(placements):
             task = {'task_id': f'a{index+1:03d}', 'case': cases[index % len(cases)],
@@ -262,24 +259,20 @@ def run_replay(job, out, small=False):
                                             out / 'pacing' / (task['task_id'] + '.json'))
             tasks.append(task)
         save(out / 'tasks-plan.json', tasks)
-        batches = [[task] for task in tasks] if agents == 1 else [tasks]
-        results = []
-        for index, batch in enumerate(batches):
-            directory = out / f'batch-{index+1:02d}'
-            directory.mkdir()
-            condition = {'id': job['id'] + '-' + out.name + f'-b{index+1}', 'family': 'trace', 'kind': 'measurement',
-                'parameters': {'agents': agents, 'pacing': 'short', 'writes': 'remote-ready'}}
-            cohort = {'seed': job['seed'], 'shared_tasks': batch}
-            if truncate_seconds is not None:
-                condition['parameters']['truncate_flush_seconds'] = truncate_seconds
-            result = replay.execute_c2_cohort_arm(condition, SYSTEMS[p['system']], job['repeat'],
-                                                  cohort, bases, directory)
-            save(directory / 'result.json', result)
-            results.append(result)
-        return {'agents': agents, 'completed_tasks': total, 'batches': results,
-            'replay_seconds': sum(r['timing']['app_done_seconds'] for r in results),
-            'actual_read_bytes': sum(r['metrics']['actual_read_bytes'] for r in results),
-            'actual_write_bytes': sum(r['metrics']['actual_write_bytes'] for r in results),
-            'operations': sum(r['metrics']['trace_operations'] for r in results)}
+        directory = out / 'batch-01'
+        directory.mkdir()
+        condition = {'id': job['id'] + '-' + out.name + '-b1', 'family': 'trace', 'kind': 'measurement',
+            'parameters': {'agents': agents, 'pacing': 'short', 'writes': 'remote-ready'}}
+        cohort = {'seed': job['seed'], 'shared_tasks': tasks}
+        if truncate_seconds is not None:
+            condition['parameters']['truncate_flush_seconds'] = truncate_seconds
+        result = replay.execute_c2_cohort_arm(condition, SYSTEMS[p['system']], job['repeat'],
+                                              cohort, bases, directory)
+        save(directory / 'result.json', result)
+        return {'agents': agents, 'completed_tasks': len(tasks), 'batches': [result],
+            'replay_seconds': result['timing']['app_done_seconds'],
+            'actual_read_bytes': result['metrics']['actual_read_bytes'],
+            'actual_write_bytes': result['metrics']['actual_write_bytes'],
+            'operations': result['metrics']['trace_operations']}
     finally:
         replay.CASES = original_cases
