@@ -1,0 +1,6 @@
+{
+  "hosts": ["node-store-1", "node-store-2", "node-store-3", "node-store-4"],
+  "graftfs_truncate_flush_seconds": {"16": 30, "64": 60},
+  "verify_hosts": {"node-store-1": "node-store-4", "node-store-4": "node-store-1", "node-store-2": "node-store-3", "node-store-3": "node-store-2"},
+  "counts": {"16": [2, 6, 6, 2], "64": [8, 24, 24, 8]}
+}

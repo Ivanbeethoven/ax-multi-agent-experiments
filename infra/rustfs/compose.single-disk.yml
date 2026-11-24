@@ -1,0 +1,17 @@
+name: ax-single-disk
+services:
+  rustfs:
+    image: ${RUSTFS_IMAGE:?Set RUSTFS_IMAGE to the installed test image}
+    pull_policy: never
+    command: ["/data"]
+    environment:
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ENABLE: "false"
+      RUSTFS_DURABILITY_MODE: "none"
+      RUSTFS_NEW_BUCKET_DURABILITY_MODE: "none"
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:?Set a node-local access key}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:?Set a node-local secret}
+    ports:
+      - "127.0.0.1:${RUSTFS_LOCAL_PORT:-29118}:9000"
+    volumes:
+      - ./data:/data

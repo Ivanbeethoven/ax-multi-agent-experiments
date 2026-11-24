@@ -1,0 +1,32 @@
+{
+  "schema": "ax-network-v1",
+  "mode": "direct",
+  "interface": "eth0",
+  "subnet": "175.168.0.0/16",
+  "address_scope": "provider-assigned-on-link-subnet-not-rfc1918",
+  "hosts": {
+    "node-coord": {"ssh": "cluster-node-1", "direct_ip": "175.168.3.66", "wireguard_ip": "192.0.2.11"},
+    "node-meta": {"ssh": "cluster-node-2", "direct_ip": "175.168.3.55", "wireguard_ip": "192.0.2.12"},
+    "node-store-1": {"ssh": "cluster-node-3", "direct_ip": "175.168.6.72", "wireguard_ip": "192.0.2.21"},
+    "node-store-2": {"ssh": "cluster-node-4", "direct_ip": "175.168.6.1", "wireguard_ip": "192.0.2.22"},
+    "node-store-3": {"ssh": "cluster-node-5", "direct_ip": "175.168.6.35", "wireguard_ip": "192.0.2.23"},
+    "node-store-4": {"ssh": "cluster-node-6", "direct_ip": "175.168.3.68", "wireguard_ip": "192.0.2.24"}
+  },
+  "redis": {"host": "node-meta", "address": "175.168.3.55", "preferred_port": 6379, "database": 0},
+  "rustfs": {
+    "mode": "four-node-single-disk",
+    "network_mode": "host",
+    "private_subnet": "175.168.0.0/16",
+    "preferred_port": 9000,
+    "nodes": ["node-store-1", "node-store-2", "node-store-3", "node-store-4"],
+    "extra_hosts": {"rustfs1": "175.168.6.72", "rustfs2": "175.168.6.1", "rustfs3": "175.168.6.35", "rustfs4": "175.168.3.68"},
+    "endpoint_assignment": "zero-based-workspace-index-modulo-four",
+    "same_host_endpoint": "record-as-local"
+  },
+  "service_access": "six-host-addresses-only-with-authentication",
+  "port_allocation": "record-available-ports-in-run-endpoints-json",
+  "formal_data_network": "direct",
+  "wireguard_usage": "diagnostic-comparison-only",
+  "measurement": {"seconds": 5, "streams": 4, "all_directions": 30, "focus_receivers": ["node-coord", "node-meta"], "focus_repetitions": 2},
+  "observation": {"interval_seconds": 5, "interfaces": ["eth0", "axwg0"], "save_routes_and_live_connections": true}
+}

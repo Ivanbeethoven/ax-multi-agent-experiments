@@ -1,0 +1,13 @@
+[package]
+name = "ax-graftfs-admin"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.100"
+bincode = "1.3.3"
+graftfs = { path = "../../../graftfs", features = ["workspace", "observability", "rustfs-ec-block-size-hint"] }
+clap = { version = "4.5.49", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+uuid = { version = "1", features = ["v7", "v4"] }

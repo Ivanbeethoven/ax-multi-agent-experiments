@@ -1,0 +1,42 @@
+{
+  "dynamic": {
+    "port": 9000,
+    "metrics_port": 9464,
+    "nodes": [
+      "node-store-1",
+      "node-store-2",
+      "node-store-3",
+      "node-store-4"
+    ],
+    "endpoints": [
+      "http://175.168.6.72:9000",
+      "http://175.168.6.1:9000",
+      "http://175.168.6.35:9000",
+      "http://175.168.3.68:9000"
+    ],
+    "container": "ax-cluster-direct-run001-rustfs-1",
+    "process_executable": "/usr/bin/rustfs",
+    "version": "f4ed202508f2153afb7956bae6f7799b60eccd00"
+  },
+  "official": {
+    "port": 19000,
+    "metrics_port": 19464,
+    "nodes": [
+      "node-store-1",
+      "node-store-2",
+      "node-store-3",
+      "node-store-4"
+    ],
+    "endpoints": [
+      "http://175.168.6.72:19000",
+      "http://175.168.6.1:19000",
+      "http://175.168.6.35:19000",
+      "http://175.168.3.68:19000"
+    ],
+    "unit": "ax-rustfs-official-105.service",
+    "otel_container": "ax-rustfs-official-105-otel",
+    "data_dir": "/srv/ax-cluster/official-1.0.5/data",
+    "process_executable": "/srv/ax-cluster/releases/rustfs-1.0.5/rustfs",
+    "version": "1.0.5"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "mode": "smoke",
+  "layout_profile": "enabled",
+  "image": "REGISTRY/EXPERIMENT_RUSTFS_IMAGE@sha256:REPLACE_WITH_VERIFIED_64_HEX_DIGEST",
+  "nodes": [
+    {
+      "private_ip": "198.51.100.20",
+      "data_mounts": ["/mnt/rustfs0"],
+      "log_dir": "/var/log/rustfs",
+      "credentials_file": "/etc/agent-experiment/rustfs.env"
+    }
+  ]
+}

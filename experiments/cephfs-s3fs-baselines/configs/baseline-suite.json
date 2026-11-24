@@ -1,0 +1,316 @@
+{
+  "schema": "ax-baseline-suite-v1",
+  "approval": "prepared",
+  "run_id": "run-baselines-001",
+  "aligned_main_suite": "configs/experiment-suite.json",
+  "aligned_main_run_id": "run-002",
+  "repetitions": 1,
+  "seeds": [
+    2026111501
+  ],
+  "measurement_concurrency": 1,
+  "systems": [
+    "cephfs",
+    "s3fs"
+  ],
+  "resource_limits": {
+    "workspace_memory_mib": 4096,
+    "workspace_disk_mib": 8192,
+    "maximum_agents": 64
+  },
+  "groups": {
+    "01-io": {
+      "configurations": [
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "dynamic": "n/a",
+          "block_bytes": "default",
+          "pattern": "sequential",
+          "operation": "read",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "dynamic": "n/a",
+          "block_bytes": "default",
+          "pattern": "sequential",
+          "operation": "write",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "dynamic": "n/a",
+          "block_bytes": "default",
+          "pattern": "random",
+          "operation": "read",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "dynamic": "n/a",
+          "block_bytes": "default",
+          "pattern": "random",
+          "operation": "write",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "block_bytes": "default",
+          "pattern": "sequential",
+          "operation": "read",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "block_bytes": "default",
+          "pattern": "sequential",
+          "operation": "write",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "block_bytes": "default",
+          "pattern": "random",
+          "operation": "read",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "block_bytes": "default",
+          "pattern": "random",
+          "operation": "write",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        }
+      ],
+      "runs": 8
+    },
+    "02-fork": {
+      "files": 100000,
+      "file_bytes": 4096,
+      "configurations": [
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "mode": "fork",
+          "fork_mechanism": "full-fuse-data-copy",
+          "children": 1,
+          "read_files": 10000,
+          "overwrite_files": 1000
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "mode": "fork",
+          "fork_mechanism": "full-fuse-data-copy",
+          "children": 1,
+          "read_files": 10000,
+          "overwrite_files": 1000
+        },
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "mode": "fork",
+          "fork_mechanism": "full-fuse-data-copy",
+          "children": 16,
+          "read_files": 0,
+          "overwrite_files": 0
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "mode": "fork",
+          "fork_mechanism": "full-fuse-data-copy",
+          "children": 16,
+          "read_files": 0,
+          "overwrite_files": 0
+        },
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "mode": "fork",
+          "fork_mechanism": "full-fuse-data-copy",
+          "children": 64,
+          "read_files": 0,
+          "overwrite_files": 0
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "mode": "fork",
+          "fork_mechanism": "full-fuse-data-copy",
+          "children": 64,
+          "read_files": 0,
+          "overwrite_files": 0
+        },
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "mode": "direct-parent",
+          "fork_mechanism": "none",
+          "children": 0,
+          "read_files": 10000,
+          "overwrite_files": 1000
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "mode": "direct-parent",
+          "fork_mechanism": "none",
+          "children": 0,
+          "read_files": 10000,
+          "overwrite_files": 1000
+        }
+      ],
+      "runs": 8
+    },
+    "03-packed": {
+      "files": 100000,
+      "file_bytes": 4096,
+      "files_per_directory": 1000,
+      "prepare_workers": 8,
+      "readers": 32,
+      "epochs": 2,
+      "configurations": [
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "dynamic": "n/a",
+          "phase": "prepare"
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "phase": "prepare"
+        },
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "dynamic": "n/a",
+          "phase": "read"
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "phase": "read"
+        }
+      ],
+      "runs": 4
+    },
+    "04-agent-replay": {
+      "input_catalog": "configs/trace-inputs.json",
+      "wait_min_ms": 1000,
+      "wait_max_ms": 7000,
+      "wait_mean_ms": 4000,
+      "tasks_per_agent": 1,
+      "configurations": [
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "dynamic": "n/a",
+          "agents": 1
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "agents": 1
+        },
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "dynamic": "n/a",
+          "agents": 8
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "agents": 8
+        },
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "dynamic": "n/a",
+          "agents": 16
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "agents": 16
+        },
+        {
+          "system": "cephfs",
+          "backend": "cephfs",
+          "dynamic": "n/a",
+          "agents": 64
+        },
+        {
+          "system": "s3fs",
+          "backend": "rustfs",
+          "dynamic": "on",
+          "agents": 64
+        }
+      ],
+      "runs": 8
+    }
+  }
+}

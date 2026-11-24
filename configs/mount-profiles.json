@@ -1,0 +1,85 @@
+{
+  "schema": "ax-mount-profiles-v1",
+  "graftfs_commit": "e958b81cac3a645c51d04419923a7da48a343375",
+  "memory_mib": 4096,
+  "disk_mib": 8192,
+  "process_reserve_mib": 2048,
+  "graftfs_cache": {
+    "read_memory_bytes": 536870912,
+    "write_memory_bytes": 268435456,
+    "memory_budget_bytes": 268435456,
+    "read_ssd_bytes": 3221225472,
+    "write_ssd_bytes": 1073741824,
+    "dirty_slice_target_size": 4194304,
+    "dirty_slice_max_age_ms": 2000,
+    "upload_concurrency": 4,
+    "prefetch_enabled": true,
+    "prefetch_max_bytes": 4194304,
+    "prefetch_concurrency": 4,
+    "range_background_prefetch": true,
+    "range_prefetch_working_set_factor": 2,
+    "populate_write_cache_after_upload": true,
+    "persist_write_cache_after_upload": false,
+    "compression": "none",
+    "verify_cache_checksum": "none",
+    "writeback_mode": "upload_before_commit",
+    "writeback_persist_sync": true,
+    "writeback_require_stage_before_commit": true
+  },
+  "graftfs_environment": {
+    "TOKIO_WORKER_THREADS": "8",
+    "GRAFTFS_PACKED_CACHE": "on",
+    "GRAFTFS_PACKED_CACHE_BYTES": "4294967296",
+    "GRAFTFS_PACKED_METADATA_CACHE_BYTES": "134217728",
+    "GRAFTFS_PACKED_RETAINED_PAYLOAD_BYTES": "8388608",
+    "GRAFTFS_PACKED_ROOTS_BUDGET_BYTES": "16777216",
+    "GRAFTFS_PACKED_METADATA_OWNED_BUDGET_BYTES": "268435456",
+    "GRAFTFS_PACKED_PLANS_BUDGET_BYTES": "33554432",
+    "GRAFTFS_PACKED_CONTROL_BUDGET_BYTES": "16777216",
+    "GRAFTFS_PACKED_STORED_BUDGET_BYTES": "67108864",
+    "GRAFTFS_PACKED_RAW_BUDGET_BYTES": "67108864",
+    "GRAFTFS_PACKED_DECODE_WORKSPACE_BUDGET_BYTES": "16777216",
+    "GRAFTFS_PACKED_OUTPUT_BUDGET_BYTES": "67108864",
+    "GRAFTFS_WORKSPACE_ROW_CACHE_BYTES": "67108864",
+    "GRAFTFS_WORKSPACE_ROW_CACHE_POLICY": "lease",
+    "GRAFTFS_WORKSPACE_ROW_CACHE_TTL_MS": "60000",
+    "GRAFTFS_WORKSPACE_EMPTY_QUERY_CACHE": "1",
+    "GRAFTFS_METADATA_SYNC": "remote",
+    "GRAFTFS_PACKED_VERIFY_MEMO": "1"
+  },
+  "juicefs_options": {
+    "buffer-size": "768M",
+    "cache-size": "7168M",
+    "max-readahead": "4M",
+    "prefetch": "1",
+    "max-downloads": "8",
+    "max-uploads": "4",
+    "writeback": "false",
+    "attr-cache": "1",
+    "entry-cache": "1",
+    "dir-entry-cache": "1",
+    "backup-meta": "0",
+    "verify-cache-checksum": "none"
+  },
+  "juicefs_staging_reserve_mib": 1024,
+  "juicefs_overlay_cache_bytes": 268435456,
+  "packed_head_concurrency": 4,
+  "packed_body_concurrency": 4,
+  "maximum_network_connections_per_mount": 64,
+  "metadata_prefetch": "no-independent-switch",
+  "resource_profiles": {
+    "fio": {
+      "memory_mib": 16384,
+      "disk_mib": 65536,
+      "write_staging_mib": 8192,
+      "graftfs_cache_overrides": {
+        "prefetch_max_bytes": 16777216,
+        "prefetch_concurrency": 8
+      },
+      "juicefs_options_overrides": {
+        "max-readahead": "16M",
+        "max-downloads": "16"
+      }
+    }
+  }
+}

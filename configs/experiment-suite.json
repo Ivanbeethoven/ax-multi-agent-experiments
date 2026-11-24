@@ -1,0 +1,524 @@
+{
+  "schema": "ax-experiment-suite-v1",
+  "approval": "approved",
+  "run_id": "run-002",
+  "repetitions": 1,
+  "seeds": [
+    2026111501
+  ],
+  "measurement_concurrency": 1,
+  "resource_limits": {
+    "workspace_memory_mib": 4096,
+    "workspace_disk_mib": 8192,
+    "maximum_agents": 64
+  },
+  "groups": {
+    "01-io": {
+      "configurations": [
+        {
+          "system": "graftfs-native",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "sequential",
+          "operation": "read",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-native",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "sequential",
+          "operation": "write",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-native",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "random",
+          "operation": "read",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-native",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "random",
+          "operation": "write",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "juicefs-redis",
+          "dynamic": "on",
+          "block_bytes": "default",
+          "pattern": "sequential",
+          "operation": "read",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "juicefs-redis",
+          "dynamic": "on",
+          "block_bytes": "default",
+          "pattern": "sequential",
+          "operation": "write",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "juicefs-redis",
+          "dynamic": "on",
+          "block_bytes": "default",
+          "pattern": "random",
+          "operation": "read",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "juicefs-redis",
+          "dynamic": "on",
+          "block_bytes": "default",
+          "pattern": "random",
+          "operation": "write",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-native",
+          "dynamic": "off",
+          "block_bytes": "default",
+          "pattern": "sequential",
+          "operation": "read",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-native",
+          "dynamic": "off",
+          "block_bytes": "default",
+          "pattern": "sequential",
+          "operation": "write",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-native",
+          "dynamic": "off",
+          "block_bytes": "default",
+          "pattern": "random",
+          "operation": "read",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-native",
+          "dynamic": "off",
+          "block_bytes": "default",
+          "pattern": "random",
+          "operation": "write",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-native",
+          "dynamic": "on",
+          "block_bytes": 65536,
+          "pattern": "random",
+          "operation": "read",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-native",
+          "dynamic": "on",
+          "block_bytes": 65536,
+          "pattern": "random",
+          "operation": "write",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-native",
+          "dynamic": "on",
+          "block_bytes": 4194304,
+          "pattern": "random",
+          "operation": "read",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-native",
+          "dynamic": "on",
+          "block_bytes": 4194304,
+          "pattern": "random",
+          "operation": "write",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "child-writable-layer"
+        },
+        {
+          "system": "graftfs-flat",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "sequential",
+          "operation": "read",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "flat-volume",
+          "metadata_redis_db": 11
+        },
+        {
+          "system": "graftfs-flat",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "sequential",
+          "operation": "write",
+          "request_kib": 1024,
+          "io_bytes": 2147483648,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "flat-volume",
+          "metadata_redis_db": 12
+        },
+        {
+          "system": "graftfs-flat",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "random",
+          "operation": "read",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "flat-volume",
+          "metadata_redis_db": 13
+        },
+        {
+          "system": "graftfs-flat",
+          "dynamic": "on",
+          "block_bytes": "auto",
+          "pattern": "random",
+          "operation": "write",
+          "request_kib": 4,
+          "io_bytes": 67108864,
+          "jobs": 8,
+          "working_set_bytes": 2147483648,
+          "fsync_bytes_all_jobs": 67108864,
+          "initial_data": "flat-volume",
+          "metadata_redis_db": 14
+        }
+      ],
+      "runs": 20
+    },
+    "02-fork": {
+      "files": 100000,
+      "file_bytes": 4096,
+      "configurations": [
+        {
+          "system": "graftfs-native",
+          "mode": "fork",
+          "children": 1,
+          "read_files": 10000,
+          "overwrite_files": 1000
+        },
+        {
+          "system": "juicefs-redis",
+          "mode": "fork",
+          "children": 1,
+          "read_files": 10000,
+          "overwrite_files": 1000
+        },
+        {
+          "system": "juicefs-overlay",
+          "mode": "fork",
+          "children": 1,
+          "read_files": 10000,
+          "overwrite_files": 1000
+        },
+        {
+          "system": "graftfs-native",
+          "mode": "fork",
+          "children": 16,
+          "read_files": 0,
+          "overwrite_files": 0
+        },
+        {
+          "system": "juicefs-redis",
+          "mode": "fork",
+          "children": 16,
+          "read_files": 0,
+          "overwrite_files": 0
+        },
+        {
+          "system": "juicefs-overlay",
+          "mode": "fork",
+          "children": 16,
+          "read_files": 0,
+          "overwrite_files": 0
+        },
+        {
+          "system": "graftfs-native",
+          "mode": "fork",
+          "children": 64,
+          "read_files": 0,
+          "overwrite_files": 0
+        },
+        {
+          "system": "juicefs-redis",
+          "mode": "fork",
+          "children": 64,
+          "read_files": 0,
+          "overwrite_files": 0
+        },
+        {
+          "system": "juicefs-overlay",
+          "mode": "fork",
+          "children": 64,
+          "read_files": 0,
+          "overwrite_files": 0
+        },
+        {
+          "system": "graftfs-native",
+          "mode": "direct-parent",
+          "children": 0,
+          "read_files": 10000,
+          "overwrite_files": 1000
+        },
+        {
+          "system": "juicefs-redis",
+          "mode": "direct-parent",
+          "children": 0,
+          "read_files": 10000,
+          "overwrite_files": 1000
+        },
+        {
+          "system": "juicefs-overlay",
+          "mode": "direct-parent",
+          "children": 0,
+          "read_files": 10000,
+          "overwrite_files": 1000
+        }
+      ],
+      "runs": 12
+    },
+    "03-packed": {
+      "files": 100000,
+      "file_bytes": 4096,
+      "files_per_directory": 1000,
+      "readers": 32,
+      "epochs": 2,
+      "prepare_workers": 8,
+      "configurations": [
+        {
+          "system": "graftfs-native-tikv",
+          "phase": "prepare",
+          "dynamic": "on"
+        },
+        {
+          "system": "graftfs-packed",
+          "phase": "prepare",
+          "dynamic": "on"
+        },
+        {
+          "system": "juicefs-redis",
+          "phase": "prepare",
+          "dynamic": "on"
+        },
+        {
+          "system": "juicefs-tikv",
+          "phase": "prepare",
+          "dynamic": "on"
+        },
+        {
+          "system": "graftfs-packed",
+          "phase": "prepare",
+          "dynamic": "off"
+        },
+        {
+          "system": "graftfs-native-tikv",
+          "phase": "read",
+          "dynamic": "on",
+          "packed_cache": "on"
+        },
+        {
+          "system": "graftfs-packed",
+          "phase": "read",
+          "dynamic": "on",
+          "packed_cache": "on"
+        },
+        {
+          "system": "juicefs-redis",
+          "phase": "read",
+          "dynamic": "on",
+          "packed_cache": "on"
+        },
+        {
+          "system": "juicefs-tikv",
+          "phase": "read",
+          "dynamic": "on",
+          "packed_cache": "on"
+        },
+        {
+          "system": "graftfs-packed",
+          "phase": "read",
+          "dynamic": "on",
+          "packed_cache": "off"
+        },
+        {
+          "system": "graftfs-packed",
+          "phase": "read",
+          "dynamic": "off",
+          "packed_cache": "on"
+        }
+      ],
+      "runs": 11
+    },
+    "04-agent-replay": {
+      "input_catalog": "configs/trace-inputs.json",
+      "wait_min_ms": 1000,
+      "wait_max_ms": 7000,
+      "wait_mean_ms": 4000,
+      "tasks_per_agent": 1,
+      "configurations": [
+        {
+          "system": "graftfs-native",
+          "agents": 1,
+          "dynamic": "on"
+        },
+        {
+          "system": "juicefs-redis",
+          "agents": 1,
+          "dynamic": "on"
+        },
+        {
+          "system": "juicefs-overlay",
+          "agents": 1,
+          "dynamic": "on"
+        },
+        {
+          "system": "graftfs-native",
+          "agents": 8,
+          "dynamic": "on"
+        },
+        {
+          "system": "juicefs-redis",
+          "agents": 8,
+          "dynamic": "on"
+        },
+        {
+          "system": "juicefs-overlay",
+          "agents": 8,
+          "dynamic": "on"
+        },
+        {
+          "system": "graftfs-native",
+          "agents": 16,
+          "dynamic": "on"
+        },
+        {
+          "system": "juicefs-redis",
+          "agents": 16,
+          "dynamic": "on"
+        },
+        {
+          "system": "juicefs-overlay",
+          "agents": 16,
+          "dynamic": "on"
+        },
+        {
+          "system": "graftfs-native",
+          "agents": 64,
+          "dynamic": "on"
+        },
+        {
+          "system": "juicefs-redis",
+          "agents": 64,
+          "dynamic": "on"
+        },
+        {
+          "system": "juicefs-overlay",
+          "agents": 64,
+          "dynamic": "on"
+        },
+        {
+          "system": "graftfs-native",
+          "agents": 64,
+          "dynamic": "off"
+        }
+      ],
+      "runs": 13
+    }
+  }
+}

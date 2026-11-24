@@ -1,0 +1,185 @@
+"""Offline checks of deployment rejection and S3 probe failure boundaries."""
+import importlib.util
+import io
+import json
+from pathlib import Path
+import tempfile
+import unittest
+
+DEPLOY = Path(__file__).resolve().parents[1] / "infra" / "rustfs"
+
+
+def load(name):
+    spec = importlib.util.spec_from_file_location(name, DEPLOY / (name + ".py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+rustfs = load("generate_rustfs")
+probe = load("s3_probe")
+
+
+def rustfs_spec():
+    return {
+        "mode": "distributed", "image": "rustfs/rustfs@sha256:" + "a" * 64,
+        "nodes": [{"private_ip": f"10.72.1.{20+i}", "data_mounts": [f"/mnt/rustfs{j}" for j in range(4)],
+                   "log_dir": "/var/log/rustfs", "credentials_file": "/etc/agent-experiment/rustfs.env"} for i in range(4)],
+    }
+
+
+class GeneratorTests(unittest.TestCase):
+    def test_unified_pilot_requires_observation_and_reserves_host_capacity(self):
+        spec=rustfs_spec();spec['mode']='single-node-four-disk';spec['nodes']=spec['nodes'][:1]
+        spec['experiment']={'protocol_profile':'unified-pilot-20261111','project_name':'ax-pilot-objects',
+                            'cpus':6,'memory_bytes':24*1024**3,'stage':'C1-C4'}
+        self.reject(rustfs.generate,spec)
+        spec['observability']={'cluster_id':'ax-pilot-objects','meter_interval_seconds':1}
+        with tempfile.TemporaryDirectory() as temp:
+            out=Path(temp)/'generated';rustfs.generate(spec,out)
+            service=json.loads((out/'rustfs1/compose.json').read_text())['services']['rustfs']
+            self.assertEqual((service['cpus'],service['mem_limit'],service['restart']),(6,24*1024**3,'no'))
+            env=service['environment']
+            self.assertEqual(env['RUSTFS_OBS_METRIC_ENDPOINT'],'http://127.0.0.1:4318/v1/metrics')
+            self.assertEqual(env['RUSTFS_OBS_METER_INTERVAL'],'1')
+            self.assertEqual(env['OTEL_RESOURCE_ATTRIBUTES'],'rustfs.cluster.id=ax-pilot-objects')
+            self.assertNotIn('RUSTFS_UNSAFE_BYPASS_DISK_CHECK',env)
+        spec['experiment']['cpus']=8;self.reject(rustfs.generate,spec)
+        spec['experiment']['cpus']=6;spec['observability']['meter_interval_seconds']=60;self.reject(rustfs.generate,spec)
+
+    def test_scale_budget_does_not_silently_use_old_three_cpu_limit(self):
+        spec=rustfs_spec();spec['mode']='single-node-four-disk';spec['nodes']=spec['nodes'][:1]
+        spec['experiment']={'protocol_profile':'ecs-20261101','project_name':'ax-c1-scale',
+                            'cpus':56,'memory_bytes':224*1024**3,'stage':'G'}
+        with tempfile.TemporaryDirectory() as temp:
+            out=Path(temp)/'generated';rustfs.generate(spec,out)
+            service=json.loads((out/'rustfs1/compose.json').read_text())['services']['rustfs']
+            self.assertEqual(service['cpus'],56)
+            self.assertEqual(service['memswap_limit'],224*1024**3)
+            self.assertEqual(service['environment']['RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE'],'true')
+        spec['experiment']['cpus']=3;self.reject(rustfs.generate,spec)
+        spec['experiment']['cpus']=56;spec['experiment']['layout_profile']='disabled';self.reject(rustfs.generate,spec)
+
+    def test_formal_budget_and_dynamic_feature_controls(self):
+        spec = rustfs_spec(); spec['mode']='single-node-four-disk'; spec['nodes']=spec['nodes'][:1]
+        spec['experiment']={'project_name':'ax-test-c3-n1','cpus':3,'memory_bytes':16*1024**3,'stage':'D','layout_profile':'enabled'}
+        with tempfile.TemporaryDirectory() as temp:
+            out=Path(temp)/'generated'; rustfs.generate(spec,out)
+            compose=json.loads((out/'rustfs1/compose.json').read_text()); service=compose['services']['rustfs']
+            self.assertEqual(compose['name'],'ax-test-c3-n1'); self.assertEqual(service['mem_limit'],16*1024**3)
+            self.assertEqual(service['cpus'],3); self.assertEqual(service['restart'],'no')
+            self.assertEqual(service['environment']['RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED'],'true')
+        spec['experiment']['stage']='G';spec['experiment']['layout_profile']='block-only';self.reject(rustfs.generate,spec)
+
+    def test_dynamic_defaults_on_for_all_modes_and_off_requires_ablation(self):
+        for profile in ('enabled','block-only','disabled'):
+            spec=rustfs_spec()
+            if profile!='enabled':spec.update(layout_profile=profile,dynamic_ablation=True)
+            with tempfile.TemporaryDirectory() as temp:
+                out=Path(temp)/'generated';rustfs.generate(spec,out)
+                if profile=='enabled':self.assertNotIn('layout_profile',spec)
+                for compose in out.glob('rustfs*/compose.json'):
+                    env=json.loads(compose.read_text())['services']['rustfs']['environment']
+                    self.assertEqual(env['RUSTFS_EC_BLOCK_SIZE_HINT_ENABLE'],str(profile!='disabled').lower())
+                    self.assertEqual(env['RUSTFS_EC_READ_QUANTUM_ENABLE'],str(profile=='enabled').lower())
+                    self.assertEqual(env['RUSTFS_EC_READ_QUANTUM_FLEET_CONFIRMED'],str(profile=='enabled').lower())
+                self.assertEqual(json.loads((out/'deployment.json').read_text())['layout_profile'],profile)
+    def test_single_node_four_disks_and_placeholder_rejection(self):
+        spec = rustfs_spec()
+        spec['mode'] = 'single-node-four-disk'; spec['nodes'] = spec['nodes'][:1]
+        with tempfile.TemporaryDirectory() as temp:
+            out = Path(temp) / 'generated'
+            rustfs.generate(spec, out)
+            service = json.loads((out/'rustfs1/compose.json').read_text())['services']['rustfs']
+            self.assertEqual(service['environment']['RUSTFS_VOLUMES'], '/data/rustfs{0...3}')
+            self.assertEqual(len(service['volumes']), 5)
+        spec['image'] = 'REGISTRY/rustfs@sha256:' + 'a' * 64
+        self.reject(rustfs.generate, spec)
+
+    def reject(self, generator, spec):
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "generated"
+            with self.assertRaises(ValueError):
+                generator(spec, output)
+            self.assertFalse(output.exists(), "invalid last node must not leave runnable first-node output")
+
+    def test_rustfs_rejects_unpinned_image_and_repeated_ip(self):
+        spec = rustfs_spec()
+        spec["image"] = "rustfs/rustfs:latest"
+        self.reject(rustfs.generate, spec)
+        spec = rustfs_spec()
+        spec["nodes"][-1]["private_ip"] = spec["nodes"][0]["private_ip"]
+        self.reject(rustfs.generate, spec)
+
+    def test_rustfs_rejects_duplicate_nested_root_and_traversal_mounts(self):
+        for bad in ("/mnt/rustfs0", "/mnt/rustfs0/subdir", "/mnt", "/", "//", "/mnt/a/../rustfs1", r"C:\data\rustfs"):
+            with self.subTest(path=bad):
+                spec = rustfs_spec()
+                spec["nodes"][-1]["data_mounts"][1] = bad
+                self.reject(rustfs.generate, spec)
+
+    def test_rustfs_keeps_credentials_outside_mounts_and_compose_environment(self):
+        spec = rustfs_spec()
+        spec["nodes"][-1]["credentials_file"] = "/mnt/rustfs0/credentials.env"
+        self.reject(rustfs.generate, spec)
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "generated"
+            rustfs.generate(rustfs_spec(), output)
+            self.assertEqual(len(list(output.glob("rustfs*/compose.json"))), 4)
+            service = json.loads((output / "rustfs1" / "compose.json").read_text())["services"]["rustfs"]
+            self.assertNotIn("RUSTFS_SECRET_KEY", service["environment"])
+            self.assertEqual(len(service["volumes"]), 5)
+
+
+class FakeS3:
+    def __init__(self, corrupt=False, cleanup_failure=False):
+        self.corrupt, self.cleanup_failure = corrupt, cleanup_failure
+        self.bodies, self.deleted = [], []
+
+    def create_bucket(self, **kwargs):
+        pass
+
+    def put_object(self, **kwargs):
+        self.payload = kwargs["Body"]
+
+    def head_object(self, **kwargs):
+        return {"ContentLength": len(self.payload)}
+
+    def get_object(self, **kwargs):
+        payload = self.payload[4096:8192] if "Range" in kwargs else self.payload
+        body = io.BytesIO(b"corrupt" if self.corrupt else payload)
+        self.bodies.append(body)
+        return {"Body": body}
+
+    def list_objects_v2(self, **kwargs):
+        return {"Contents": [{"Key": "probe.bin"}]}
+
+    def delete_object(self, **kwargs):
+        self.deleted.append("object")
+
+    def delete_bucket(self, **kwargs):
+        if self.cleanup_failure:
+            raise RuntimeError("cleanup failed")
+        self.deleted.append("bucket")
+
+
+class S3ProbeTests(unittest.TestCase):
+    def test_corrupt_get_is_failure_and_body_is_closed(self):
+        client = FakeS3(corrupt=True)
+        with self.assertRaisesRegex(RuntimeError, "content differs"):
+            probe.run_probe(client)
+        self.assertTrue(all(body.closed for body in client.bodies))
+        self.assertEqual(client.deleted, ["object", "bucket"])
+
+    def test_success_requires_cleanup_and_closes_all_bodies(self):
+        client = FakeS3()
+        self.assertEqual(probe.run_probe(client)["cleanup"], "passed")
+        self.assertEqual(client.deleted, ["object", "bucket"])
+        self.assertEqual(len(client.bodies), 2)
+        self.assertTrue(all(body.closed for body in client.bodies))
+        with self.assertRaisesRegex(RuntimeError, "cleanup failed"):
+            probe.run_probe(FakeS3(cleanup_failure=True))
+
+
+if __name__ == "__main__":
+    unittest.main()
